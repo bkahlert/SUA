@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
+            name="Diff Explorer"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
+            name="Add Code...">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">
+      <DateRangeListenerFactory
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
+      </DateRangeListenerFactory>
+   </extension>
+
+</plugin>

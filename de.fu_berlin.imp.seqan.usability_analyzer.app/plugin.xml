@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+   <extension point="org.eclipse.ui.views">
+      <category id="de.fu_berlin.imp.seqan.usability_analyzer.category" name="Usability Analysis">
+      </category>
+   </extension>
+   <extension point="org.eclipse.help.contexts">
+      <contexts file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension point="org.eclipse.ui.commands">
+      <command id="de.fu_berlin.imp.seqan.usability_analyzer.commands.Empty" name="EMPTY">
+      </command>
+   </extension>
+</plugin>

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SeqAn Usability Analyzer - Person
+Bundle-SymbolicName: de.fu_berlin.imp.seqan.usability_analyzer.person;singleton:=true
+Bundle-Version: 1.0.0.0
+Bundle-Activator: de.fu_berlin.imp.seqan.usability_analyzer.person.Activator
+Bundle-Vendor: Björn Kahlert
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.log4j;bundle-version="1.2.15",
+ de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
+ de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
+ de.fu_berlin.imp.seqan.usability_analyzer.stats,
+ de.fu_berlin.imp.seqan.usability_analyzer.diff,
+ de.fu_berlin.imp.seqan.usability_analyzer.doclog,
+ de.fu_berlin.imp.seqan.usability_analyzer.survey
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
