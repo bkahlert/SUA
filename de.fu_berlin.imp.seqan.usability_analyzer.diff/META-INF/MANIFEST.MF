@@ -12,7 +12,12 @@ Require-Bundle: org.eclipse.ui,
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
- org.junit
+ org.junit,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.core.resources;bundle-version="3.7.100",
+ org.eclipse.compare;bundle-version="3.5.200",
+ org.eclipse.ui.ide;bundle-version="3.7.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff,

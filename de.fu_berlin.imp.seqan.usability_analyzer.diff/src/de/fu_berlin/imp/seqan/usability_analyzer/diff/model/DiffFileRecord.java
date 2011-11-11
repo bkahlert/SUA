@@ -38,7 +38,7 @@ public class DiffFileRecord implements HasDateRange {
 	}
 
 	public String getFilename() {
-		return this.meta.getToFileName();
+		return this.meta.getToFileName().substring("./".length());
 	}
 
 	public String getContent() {
@@ -53,5 +53,9 @@ public class DiffFileRecord implements HasDateRange {
 	@Override
 	public DateRange getDateRange() {
 		return this.meta.getDateRange();
+	}
+
+	public boolean isTemporary() {
+		return this.getFilename().endsWith("~");
 	}
 }

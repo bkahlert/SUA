@@ -12,6 +12,21 @@
       </view>
    </extension>
    <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferences"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferencePage"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferencePage"
+            name="Diffs">
+      </page>
+   </extension>
+   <extension
          point="org.eclipse.ui.commands">
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
@@ -61,6 +76,22 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <viewer
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileRecordViewer"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileRecordViewer">
+      </viewer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditor"
+            icon="icons/sample.gif"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditor"
+            name="Diff File Record Editor">
+      </editor>
    </extension>
 
 </plugin>

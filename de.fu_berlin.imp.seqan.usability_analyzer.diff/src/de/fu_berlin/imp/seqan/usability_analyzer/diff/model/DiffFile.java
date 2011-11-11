@@ -70,8 +70,7 @@ public class DiffFile extends File implements HasDateRange {
 								.equals("Binary"))) {
 					// create record if new record is found
 					if (commandLine != null) {
-						diffFileRecords.add(new DiffFileRecord(this,
-								commandLine, content));
+						createRecord(diffFileRecords, commandLine, content);
 						commandLine = null;
 						content = null;
 					}
@@ -87,14 +86,29 @@ public class DiffFile extends File implements HasDateRange {
 
 			// create record if eof
 			if (commandLine != null) {
-				diffFileRecords.add(new DiffFileRecord(this, commandLine,
-						content));
+				createRecord(diffFileRecords, commandLine, content);
 			}
 			in.close();
 		} catch (Exception e) {// Catch exception if any
 			logger.error("Could not open doclog file", e);
 		}
 		this.diffFileRecords = diffFileRecords;
+	}
+
+	/**
+	 * Creates a {@link DiffFileRecord} in the given {@link DiffFileRecordList}.
+	 * 
+	 * @param diffFileRecords
+	 * @param commandLine
+	 * @param content
+	 */
+	private void createRecord(DiffFileRecordList diffFileRecords,
+			String commandLine, ArrayList<String> content) {
+		DiffFileRecord diffFileRecord = new DiffFileRecord(this, commandLine,
+				content);
+		if (!diffFileRecord.isTemporary()) {
+			diffFileRecords.add(diffFileRecord);
+		}
 	}
 
 	public ID getId() {
