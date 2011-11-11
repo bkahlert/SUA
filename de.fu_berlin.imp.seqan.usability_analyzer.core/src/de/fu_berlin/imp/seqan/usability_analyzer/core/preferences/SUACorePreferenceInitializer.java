@@ -26,8 +26,13 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 		calendar.set(2050, 0, 0, 0, 0, 0);
 		long rangeEnd = calendar.getTime().getTime();
 
-		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_START, rangeStart);
+		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_START,
+				rangeStart);
 		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_END, rangeEnd);
+		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_START_ENABLED,
+				false);
+		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_END_ENABLED,
+				false);
 
 		store.setDefault(SUACorePreferenceConstants.DATEFORMAT,
 				"yyyy-MM-dd HH:mm:ss");
@@ -40,9 +45,10 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 		PreferenceConverter.setDefault(store,
 				SUACorePreferenceConstants.COLOR_DIRTY, new RGB(236, 175, 86));
 		PreferenceConverter.setDefault(store,
-				SUACorePreferenceConstants.COLOR_ERROR, new RGB(130, 84, 139));
-		PreferenceConverter.setDefault(store,
-				SUACorePreferenceConstants.COLOR_MISSING, new RGB(200, 67, 66));
+				SUACorePreferenceConstants.COLOR_ERROR, new RGB(200, 67, 66));
+		PreferenceConverter
+				.setDefault(store, SUACorePreferenceConstants.COLOR_MISSING,
+						new RGB(130, 84, 139));
 	}
 
 }

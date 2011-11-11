@@ -14,7 +14,9 @@ Require-Bundle: org.eclipse.ui,
  de.fu_berlin.imp.seqan.usability_analyzer.stats,
  de.fu_berlin.imp.seqan.usability_analyzer.diff,
  de.fu_berlin.imp.seqan.usability_analyzer.doclog,
- de.fu_berlin.imp.seqan.usability_analyzer.survey
+ de.fu_berlin.imp.seqan.usability_analyzer.survey,
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
+Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.person

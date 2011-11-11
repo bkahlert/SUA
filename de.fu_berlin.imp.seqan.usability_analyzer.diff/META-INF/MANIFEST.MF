@@ -8,10 +8,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.apache.commons.io;bundle-version="2.0.1",
  org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.log4j;bundle-version="1.2.15",
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.0",
- de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0"
+ de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
+ org.junit
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff.model,
+Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff,
+ de.fu_berlin.imp.seqan.usability_analyzer.diff.model,
  de.fu_berlin.imp.seqan.usability_analyzer.diff.views

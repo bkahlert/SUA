@@ -23,11 +23,16 @@ public class DateRangeFilter extends ViewerFilter {
 	}
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if (element instanceof IRangeable)
-			return ((IRangeable) element).isInRange(this.dateRange);
+		if (this.dateRange == null)
+			return true;
+
+		if (element instanceof HasDateRange) {
+			DateRange dateRange = ((HasDateRange) element).getDateRange();
+			return this.dateRange.isIntersected(dateRange);
+		}
 
 		logger.warn("The object " + element + " does not implement "
-				+ IRangeable.class.getSimpleName()
+				+ HasDateRange.class.getSimpleName()
 				+ " and had been filtered from viewer " + viewer + ".");
 		return false;
 	}

@@ -82,4 +82,20 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView$Factory">
       </DateRangeListenerFactory>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange">
+         </adapter>
+      </factory>
+   </extension>
 </plugin>

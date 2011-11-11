@@ -8,8 +8,10 @@ import org.eclipse.jface.viewers.Viewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
 
-public class DiffExplorerContentProvider implements IStructuredContentProvider,
+public class DiffFileListsContentProvider implements IStructuredContentProvider,
 		ITreeContentProvider {
 
 	@Override
@@ -26,6 +28,9 @@ public class DiffExplorerContentProvider implements IStructuredContentProvider,
 		if (element instanceof DiffFile) {
 			return null;
 		}
+		if (element instanceof DiffFileRecord) {
+			return ((DiffFileRecord) element).getDiffFile();
+		}
 		return null;
 	}
 
@@ -33,6 +38,11 @@ public class DiffExplorerContentProvider implements IStructuredContentProvider,
 	public boolean hasChildren(Object element) {
 		if (element instanceof DiffFileList) {
 			return ((DiffFileList) element).size() > 0;
+		}
+		if (element instanceof DiffFile) {
+			DiffFileRecordList diffFileRecords = ((DiffFile) element)
+					.getDiffFileRecords();
+			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
 		return false;
 	}
@@ -42,13 +52,25 @@ public class DiffExplorerContentProvider implements IStructuredContentProvider,
 		if (parentElement instanceof DiffFileList) {
 			return ((DiffFileList) parentElement).toArray();
 		}
+		if (parentElement instanceof DiffFile) {
+			return ((DiffFile) parentElement).getDiffFileRecords().toArray();
+		}
 		return new Object[0];
 	}
 
 	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof List<?>) {
-			return ((List<?>) inputElement).toArray();
+			Object[] objects = ((List<?>) inputElement).toArray();
+			/*
+			 * If the list contains only one element and this element is a list
+			 * return the mentioned child list. This way we save one hierarchy
+			 * level (= ID level).
+			 */
+			if (objects.length == 1 && objects[0] instanceof DiffFileList) {
+				return ((DiffFileList) objects[0]).toArray();
+			}
+			return objects;
 		}
 		return new Object[0];
 	}

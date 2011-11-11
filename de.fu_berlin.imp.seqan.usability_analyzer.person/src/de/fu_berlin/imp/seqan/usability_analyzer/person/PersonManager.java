@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.person;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -77,7 +78,7 @@ public class PersonManager {
 	private List<Person> getPersonsDiffBased() {
 		List<Person> persons = new ArrayList<Person>();
 
-		List<ID> ids = this.diffFileManager.getIDs();
+		Set<ID> ids = this.diffFileManager.getIDs();
 		for (ID id : ids) {
 			Person person = new Person(this.mapper);
 			person.setDiffFiles(this.diffFileManager.getDiffFiles(id));

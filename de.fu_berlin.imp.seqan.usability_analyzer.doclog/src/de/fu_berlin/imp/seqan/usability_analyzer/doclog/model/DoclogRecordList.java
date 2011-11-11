@@ -1,23 +1,15 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.IRangeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public class DoclogRecordList extends ArrayList<DoclogRecord> implements
-		IRangeable {
+		HasDateRange {
 
 	private static final long serialVersionUID = -7428136109215033396L;
-
-	@Override
-	public boolean isInRange(DateRange dateRange) {
-		for (DoclogRecord doclogRecord : this) {
-			if (doclogRecord.isInRange(dateRange))
-				return true;
-		}
-		return false;
-	}
 
 	private int getDoclogRecordIndex(DoclogRecord doclogRecord) {
 		int i = -1;
@@ -69,6 +61,16 @@ public class DoclogRecordList extends ArrayList<DoclogRecord> implements
 		}
 
 		return null;
+	}
+
+	@Override
+	public DateRange getDateRange() {
+		List<DateRange> dateRanges = new ArrayList<DateRange>();
+		for (DoclogRecord doclogRecord : this) {
+			dateRanges.add(doclogRecord.getDateRange());
+		}
+		return DateRange.calculateOuterDateRange(dateRanges
+				.toArray(new DateRange[0]));
 	}
 
 }

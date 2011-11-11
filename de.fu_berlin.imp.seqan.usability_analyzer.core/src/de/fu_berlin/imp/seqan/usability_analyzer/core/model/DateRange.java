@@ -9,6 +9,23 @@ import java.util.Date;
  * @author bkahlert
  */
 public class DateRange {
+
+	public static DateRange calculateOuterDateRange(DateRange... dateRanges) {
+		Date earliestDate = null;
+		Date latestDate = null;
+
+		for (DateRange dateRange : dateRanges) {
+			if (earliestDate == null
+					|| earliestDate.compareTo(dateRange.getStartDate()) > 0)
+				earliestDate = dateRange.getStartDate();
+			if (latestDate == null
+					|| latestDate.compareTo(dateRange.getEndDate()) < 0)
+				latestDate = dateRange.getEndDate();
+		}
+
+		return new DateRange(earliestDate, latestDate);
+	}
+
 	private Date startDate;
 	private Date endDate;
 
@@ -30,6 +47,14 @@ public class DateRange {
 
 	public Date getEndDate() {
 		return endDate;
+	}
+
+	public Long getDifference() {
+		if (this.startDate == null)
+			return null;
+		if (this.endDate == null)
+			return null;
+		return this.endDate.getTime() - this.startDate.getTime();
 	}
 
 	public boolean isInRange(long time) {
@@ -67,6 +92,24 @@ public class DateRange {
 		if (date == null)
 			return false;
 		return this.isAfterRange(date.getTime());
+	}
+
+	/**
+	 * Returns true if the given {@link DateRange} intersects the current
+	 * {@link DateRange}.
+	 * 
+	 * @param dateRange
+	 * @return
+	 */
+	public boolean isIntersected(DateRange dateRange) {
+		if (dateRange == null)
+			return true;
+
+		boolean startAndEndBeforeRange = this.isBeforeRange(dateRange
+				.getStartDate()) && this.isBeforeRange(dateRange.getEndDate());
+		boolean startAndEndAfterRange = this.isAfterRange(dateRange
+				.getStartDate()) && this.isAfterRange(dateRange.getEndDate());
+		return !(startAndEndBeforeRange || startAndEndAfterRange);
 	}
 
 }

@@ -24,30 +24,43 @@ public class Activator extends AbstractUIPlugin {
 
 	private SUACorePreferenceUtil preferenceUtil;
 
-	private DateRange oldDateRange;
+	private Date oldDateRangeStart;
+	private Date oldDateRangeEnd;
+	private boolean oldDateRangeStartEnabled;
+	private boolean oldDateRangeEndEnabled;
 	private IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
+			DateRange oldDateRange = new DateRange(
+					oldDateRangeStartEnabled ? oldDateRangeStart : null,
+					oldDateRangeEndEnabled ? oldDateRangeEnd : null);
 			DateRange newDateRange = null;
 
+			Date newDateRangeStart = oldDateRangeStart;
+			Date newDateRangeEnd = oldDateRangeEnd;
+			boolean newDateRangeStartEnabled = oldDateRangeStartEnabled;
+			boolean newDateRangeEndEnabled = oldDateRangeEndEnabled;
+
 			if (preferenceUtil.dateRangeStartChanged(event)) {
-				newDateRange = new DateRange(new Date(
-						(Long) event.getNewValue()),
-						(oldDateRange != null) ? oldDateRange.getEndDate()
-								: null);
+				newDateRangeStart = new Date((Long) event.getNewValue());
+			} else if (preferenceUtil.dateRangeEndChanged(event)) {
+				newDateRangeEnd = new Date((Long) event.getNewValue());
+			} else if (preferenceUtil.dateRangeStartEnabledChanged(event)) {
+				newDateRangeStartEnabled = (Boolean) event.getNewValue();
+			} else if (preferenceUtil.dateRangeEndEnabledChanged(event)) {
+				newDateRangeEndEnabled = (Boolean) event.getNewValue();
 			}
 
-			if (preferenceUtil.dateRangeEndChanged(event)) {
-				newDateRange = new DateRange(
-						(oldDateRange != null) ? oldDateRange.getStartDate()
-								: null, new Date((Long) event.getNewValue()));
-			}
+			newDateRange = new DateRange(
+					newDateRangeStartEnabled ? newDateRangeStart : null,
+					newDateRangeEndEnabled ? newDateRangeEnd : null);
+			DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,
+					newDateRange);
 
-			if (newDateRange != null) {
-				DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,
-						newDateRange);
-				oldDateRange = newDateRange;
-			}
+			oldDateRangeStart = newDateRangeStart;
+			oldDateRangeEnd = newDateRangeEnd;
+			oldDateRangeStartEnabled = newDateRangeStartEnabled;
+			oldDateRangeEndEnabled = newDateRangeEndEnabled;
 		}
 	};
 
@@ -70,8 +83,10 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		preferenceUtil = new SUACorePreferenceUtil();
 		preferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
-		oldDateRange = new DateRange(preferenceUtil.getDateRangeStart(),
-				preferenceUtil.getDateRangeEnd());
+		oldDateRangeStart = preferenceUtil.getDateRangeStart();
+		oldDateRangeEnd = preferenceUtil.getDateRangeEnd();
+		oldDateRangeStartEnabled = preferenceUtil.getDateRangeStartEnabled();
+		oldDateRangeEndEnabled = preferenceUtil.getDateRangeEndEnabled();
 	}
 
 	/*

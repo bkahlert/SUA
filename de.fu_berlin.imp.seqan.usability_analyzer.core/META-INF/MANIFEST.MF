@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.ui,
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints,
+Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
+ de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model,
  de.fu_berlin.imp.seqan.usability_analyzer.core.preferences,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer,

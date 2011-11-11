@@ -16,11 +16,11 @@ import org.eclipse.swt.widgets.Display;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.IRangeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.inf.nebula.utils.ImageUtils;
 
-public class DoclogScreenshot implements IRangeable {
+public class DoclogScreenshot implements HasDateRange {
 
 	public static enum Status implements Comparable<Status> {
 		OK, DIRTY, MISSING, ERROR;
@@ -177,11 +177,11 @@ public class DoclogScreenshot implements IRangeable {
 	}
 
 	@Override
-	public boolean isInRange(DateRange dateRange) {
+	public DateRange getDateRange() {
 		if (this.getDoclogRecord() != null)
-			return this.getDoclogRecord().isInRange(dateRange);
+			return this.getDoclogRecord().getDateRange();
 		else
-			return false;
+			return null;
 	}
 
 }

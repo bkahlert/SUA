@@ -2,10 +2,10 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
@@ -15,7 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 
 public class DiffFileManager extends DataSourceManager {
 	private File logDirectory;
-	private DiffFileList diffFiles;
+	private Map<ID, DiffFileList> diffFiles;
 
 	public DiffFileManager(File logDirectory) throws DataSourceInvalidException {
 		super(logDirectory);
@@ -23,32 +23,39 @@ public class DiffFileManager extends DataSourceManager {
 		this.logDirectory = logDirectory;
 
 		this.scanFiles();
+		this.calculateRecordMillisecondsPassed();
 	}
 
 	public void scanFiles() {
-		DiffFile lastDiffFile = null;
-		DiffFileList diffFiles = new DiffFileList();
+		Map<ID, DiffFileList> diffFiles = new HashMap<ID, DiffFileList>();
 		for (File diffFile : this.logDirectory
 				.listFiles((FileFilter) new RegexFileFilter(DiffFile.PATTERN))) {
-			DiffFile newDiffFile = new DiffFile(diffFile.getAbsolutePath());
-			if (lastDiffFile != null) {
-				long millisecondsPassed = newDiffFile.getDate().getTime()
-						- lastDiffFile.getDate().getTime();
-				lastDiffFile.setMillisecondsPassed(millisecondsPassed);
-			}
-			diffFiles.add(newDiffFile);
-			lastDiffFile = newDiffFile;
+			DiffFile currentDiffFile = new DiffFile(diffFile.getAbsolutePath());
+			ID id = currentDiffFile.getId();
+			if (!diffFiles.containsKey(id))
+				diffFiles.put(id, new DiffFileList());
+			diffFiles.get(id).add(currentDiffFile);
 		}
 		this.diffFiles = diffFiles;
 	}
 
-	/**
-	 * Returns a list of all {@link DiffFile}s
-	 * 
-	 * @return
-	 */
-	public List<DiffFile> getDiffFiles() {
-		return diffFiles;
+	private void calculateRecordMillisecondsPassed() {
+		for (ID id : this.diffFiles.keySet()) {
+			DiffFileList diffFiles = this.diffFiles.get(id);
+			Collections.sort(diffFiles);
+			for (DiffFile diffFile : diffFiles) {
+				DiffFile successor = diffFiles.getSuccessor(diffFile);
+				if (successor != null) {
+					Long millisecondsPassed = successor.getDate().getTime()
+							- diffFile.getDate().getTime();
+					millisecondsPassed--; // the previous action ends one
+											// minimal
+											// moment before the next action
+											// starts
+					diffFile.setMillisecondsPassed(millisecondsPassed);
+				}
+			}
+		}
 	}
 
 	/**
@@ -57,14 +64,8 @@ public class DiffFileManager extends DataSourceManager {
 	 * 
 	 * @return
 	 */
-	public List<ID> getIDs() {
-		List<ID> diffIDs = new ArrayList<ID>();
-		for (DiffFile diffFile : this.diffFiles) {
-			if (!diffIDs.contains(diffFile.getId())) {
-				diffIDs.add(diffFile.getId());
-			}
-		}
-		return diffIDs;
+	public Set<ID> getIDs() {
+		return this.diffFiles.keySet();
 	}
 
 	/**
@@ -74,23 +75,6 @@ public class DiffFileManager extends DataSourceManager {
 	 * @return
 	 */
 	public DiffFileList getDiffFiles(ID id) {
-		DiffFileList filteredDiffFiles = new DiffFileList();
-		for (DiffFile diffFile : this.diffFiles) {
-			if (diffFile.getId().equals(id)) {
-				filteredDiffFiles.add(diffFile);
-			}
-		}
-		return filteredDiffFiles;
-	}
-
-	public static Map<ID, DiffFileList> group(List<DiffFile> diffFiles) {
-		Map<ID, DiffFileList> groupedDiffFiles = new HashMap<ID, DiffFileList>();
-		for (DiffFile diffFile : diffFiles) {
-			ID id = diffFile.getId();
-			if (!groupedDiffFiles.containsKey(id))
-				groupedDiffFiles.put(id, new DiffFileList());
-			groupedDiffFiles.get(id).add(diffFile);
-		}
-		return groupedDiffFiles;
+		return this.diffFiles.get(id);
 	}
 }

@@ -7,6 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
@@ -19,6 +20,10 @@ public class DateTimeRangeView extends ViewPart {
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private CDateTime startDateTime;
 	private CDateTime endDateTime;
+	private Button startDateTimeEnabled;
+	private Button endDateTimeEnabled;
+
+	private int numColumns = 3;
 
 	public DateTimeRangeView() {
 		// TODO Auto-generated constructor stub
@@ -26,23 +31,25 @@ public class DateTimeRangeView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new GridLayout(2, false));
+		parent.setLayout(new GridLayout(this.numColumns, false));
 
 		this.createHowTo(parent);
 
 		this.createLabel(parent, "Start");
 		this.startDateTime = this.createCDateTime(parent);
+		this.startDateTimeEnabled = this.createCheckbox(parent);
 
 		this.createLabel(parent, "End");
 		this.endDateTime = createCDateTime(parent);
+		this.endDateTimeEnabled = this.createCheckbox(parent);
 
 		configure();
 	}
 
 	private SimpleNoteComposite createHowTo(Composite parent) {
 		SimpleNoteComposite howTo = new SimpleNoteComposite(parent, SWT.BORDER);
-		howTo.setLayoutData(GridDataFactory.swtDefaults().span(2, 1)
-				.grab(true, false).create());
+		howTo.setLayoutData(GridDataFactory.fillDefaults()
+				.span(this.numColumns, 1).grab(true, true).create());
 		howTo.setText("If you want to narrow down the set of data you "
 				+ "want to evaluate you can do this based "
 				+ "on the date and time the data were generated.");
@@ -67,9 +74,16 @@ public class DateTimeRangeView extends ViewPart {
 		return cDateTime;
 	}
 
+	private Button createCheckbox(Composite parent) {
+		Button button = new Button(parent, SWT.CHECK);
+		button.setLayoutData(GridDataFactory.swtDefaults().create());
+		return button;
+	}
+
 	private void configure() {
 		if (startDateTime != null && !startDateTime.isDisposed()) {
 			startDateTime.setSelection(preferenceUtil.getDateRangeStart());
+			startDateTime.setEnabled(preferenceUtil.getDateRangeStartEnabled());
 			startDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -80,10 +94,39 @@ public class DateTimeRangeView extends ViewPart {
 		}
 		if (endDateTime != null && !endDateTime.isDisposed()) {
 			endDateTime.setSelection(preferenceUtil.getDateRangeEnd());
+			endDateTime.setEnabled(preferenceUtil.getDateRangeEndEnabled());
 			endDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					preferenceUtil.setDateRangeEnd(endDateTime.getSelection());
+				}
+			});
+		}
+		if (startDateTimeEnabled != null && !startDateTimeEnabled.isDisposed()) {
+			startDateTimeEnabled.setSelection(preferenceUtil
+					.getDateRangeStartEnabled());
+			startDateTimeEnabled.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					boolean enabled = startDateTimeEnabled.getSelection();
+					preferenceUtil.setDateRangeStartEnabled(enabled);
+					if (startDateTime != null && !startDateTime.isDisposed()) {
+						startDateTime.setEnabled(enabled);
+					}
+				}
+			});
+		}
+		if (endDateTimeEnabled != null && !endDateTimeEnabled.isDisposed()) {
+			endDateTimeEnabled.setSelection(preferenceUtil
+					.getDateRangeEndEnabled());
+			endDateTimeEnabled.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					boolean enabled = endDateTimeEnabled.getSelection();
+					preferenceUtil.setDateRangeEndEnabled(enabled);
+					if (endDateTime != null && !endDateTime.isDisposed()) {
+						endDateTime.setEnabled(enabled);
+					}
 				}
 			});
 		}

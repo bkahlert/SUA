@@ -1,8 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.views;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -22,23 +24,40 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogScreenshotDisplay;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogScreenshotDisplayContainer;
 
 public class DoclogScreenshotsView extends ViewPart {
+
+	private Logger logger = Logger.getLogger(DoclogScreenshotsView.class);
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<DoclogRecord> doclogRecords = SelectionRetrieverFactory
-					.getSelectionRetriever(DoclogRecord.class).getSelection();
-			if (doclogRecords.size() > 0) {
-				// refresh(doclogRecords); TODO
-				List<DoclogRecord> oneDoclogRecord = new ArrayList<DoclogRecord>();
-				oneDoclogRecord.add(doclogRecords.get(0));
-				refresh(oneDoclogRecord);
+			Map<ID, List<DateRange>> idDateRanges = IdDateRange
+					.group(SelectionRetrieverFactory.getSelectionRetriever(
+							IdDateRange.class).getSelection());
+
+			Map<Fingerprint, List<DateRange>> fingerprintDateRanges = FingerprintDateRange
+					.group(SelectionRetrieverFactory.getSelectionRetriever(
+							FingerprintDateRange.class).getSelection());
+
+			Map<Object, List<DateRange>> groupedDateRanges = new HashMap<Object, List<DateRange>>();
+			groupedDateRanges.putAll(idDateRanges);
+			groupedDateRanges.putAll(fingerprintDateRanges);
+
+			if (groupedDateRanges.size() > 0) {
+				refresh(groupedDateRanges);
 			}
 		}
 	};
@@ -47,7 +66,7 @@ public class DoclogScreenshotsView extends ViewPart {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
 			if (new PreferenceUtil().screenshotWidthChanged(event)) {
-				// refresh(); // TODO
+				refresh();
 			}
 		}
 	};
@@ -57,7 +76,7 @@ public class DoclogScreenshotsView extends ViewPart {
 	private ScrolledComposite scrolledComposite;
 	private Composite composite;
 
-	private List<DoclogRecord> doclogRecords;
+	private Map<Object, List<DateRange>> cachedGroupedDateRanges;
 
 	public DoclogScreenshotsView() {
 	}
@@ -65,14 +84,48 @@ public class DoclogScreenshotsView extends ViewPart {
 	protected void refresh() {
 		this.clear();
 
+		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
+
 		int screenshotWidth = preferenceUtil.getScreenshotWidth();
-		for (DoclogRecord doclogRecord : doclogRecords) {
-			DoclogScreenshotDisplay screenshotDisplay = new DoclogScreenshotDisplay(
-					composite, SWT.BORDER);
-			screenshotDisplay.setLayoutData(GridDataFactory.fillDefaults()
-					.grab(true, false).create());
-			screenshotDisplay.setScreenshot(doclogRecord.getScreenshot(),
-					screenshotWidth);
+		for (Object key : this.cachedGroupedDateRanges.keySet()) {
+			DoclogScreenshotDisplayContainer screenshotDisplayContainer = null;
+			DoclogRecordList doclogRecords = null;
+			if (key instanceof ID) {
+				ID id = (ID) key;
+				screenshotDisplayContainer = new DoclogScreenshotDisplayContainer(
+						composite, SWT.BORDER, "ID: " + id.toString());
+				doclogRecords = doclogManager.getDoclogFile(id)
+						.getDoclogRecords();
+			} else if (key instanceof Fingerprint) {
+				Fingerprint fingerprint = (Fingerprint) key;
+				screenshotDisplayContainer = new DoclogScreenshotDisplayContainer(
+						composite, SWT.BORDER, "Fingerprint: "
+								+ fingerprint.toString());
+				doclogRecords = doclogManager.getDoclogFile(fingerprint)
+						.getDoclogRecords();
+			} else {
+				logger.fatal(DateRange.class.getSimpleName()
+						+ " was of unknown source!");
+				return;
+			}
+
+			List<DateRange> dateRanges = this.cachedGroupedDateRanges.get(key);
+			for (DoclogRecord doclogRecord : doclogRecords) {
+				boolean intersects = false;
+				for (DateRange dateRange : dateRanges) {
+					if (dateRange.isIntersected(doclogRecord.getDateRange()))
+						intersects = true;
+				}
+
+				if (intersects) {
+					DoclogScreenshotDisplay screenshotDisplay = new DoclogScreenshotDisplay(
+							screenshotDisplayContainer, SWT.BORDER);
+					screenshotDisplay.setLayoutData(GridDataFactory
+							.fillDefaults().grab(true, false).create());
+					screenshotDisplay.setScreenshot(
+							doclogRecord.getScreenshot(), screenshotWidth);
+				}
+			}
 		}
 
 		composite.layout();
@@ -86,8 +139,8 @@ public class DoclogScreenshotsView extends ViewPart {
 				SWT.DEFAULT));
 	}
 
-	protected void refresh(List<DoclogRecord> doclogRecords) {
-		this.doclogRecords = doclogRecords;
+	protected void refresh(Map<Object, List<DateRange>> groupedDateRanges) {
+		this.cachedGroupedDateRanges = groupedDateRanges;
 		refresh();
 	}
 

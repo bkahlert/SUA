@@ -5,7 +5,9 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,10 +18,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.IRangeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 
-public class DoclogFile extends File implements IRangeable {
+public class DoclogFile extends File implements HasDateRange {
 
 	Logger logger = Logger.getLogger(DoclogFile.class);
 
@@ -84,6 +86,8 @@ public class DoclogFile extends File implements IRangeable {
 			if (successor != null) {
 				Long millisecondsPassed = successor.getDate().getTime()
 						- doclogRecord.getDate().getTime();
+				millisecondsPassed--; // the previous action ends one minimal
+										// moment before the next action starts
 				doclogRecord.setMillisecondsPassed(millisecondsPassed);
 			}
 		}
@@ -160,10 +164,12 @@ public class DoclogFile extends File implements IRangeable {
 	}
 
 	@Override
-	public boolean isInRange(DateRange dateRange) {
-		if (this.doclogRecords != null)
-			return this.doclogRecords.isInRange(dateRange);
-		else
-			return false;
+	public DateRange getDateRange() {
+		List<DateRange> dateRanges = new ArrayList<DateRange>();
+		for (DoclogRecord doclogRecord : this.doclogRecords) {
+			dateRanges.add(doclogRecord.getDateRange());
+		}
+		return DateRange.calculateOuterDateRange(dateRanges
+				.toArray(new DateRange[0]));
 	}
 }

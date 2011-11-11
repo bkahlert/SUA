@@ -1,3 +1,5 @@
+package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,9 +10,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
 public class DoclogRecordListTest {
 
@@ -100,15 +99,17 @@ public class DoclogRecordListTest {
 	private static void predecessorTestCheck(DoclogRecordList doclogRecords,
 			int expectedPredecessorIdx, int doclogRecordIdx, String url) {
 
-		DoclogRecord expectedPredecessor = doclogRecords.get(expectedPredecessorIdx);
+		DoclogRecord expectedPredecessor = doclogRecords
+				.get(expectedPredecessorIdx);
 
 		DoclogRecord doclogRecord = doclogRecords.get(doclogRecordIdx);
 		DoclogRecord predecessor = doclogRecords.getPredecessor(doclogRecord);
 
 		Assert.assertEquals("DoclogRecords\n" + expectedPredecessor + " and\n"
-				+ predecessor + "\nare not equal", expectedPredecessor, predecessor);
-		Assert.assertEquals("URL of DoclogRecord " + expectedPredecessor + " differs",
-				url, expectedPredecessor.getUrl());
+				+ predecessor + "\nare not equal", expectedPredecessor,
+				predecessor);
+		Assert.assertEquals("URL of DoclogRecord " + expectedPredecessor
+				+ " differs", url, expectedPredecessor.getUrl());
 		Assert.assertEquals("URL of DoclogRecord " + predecessor + " differs",
 				url, predecessor.getUrl());
 
@@ -168,22 +169,23 @@ public class DoclogRecordListTest {
 	private static void successorTestCheck(DoclogRecordList doclogRecords,
 			int expectedSuccessorIdx, int doclogRecordIdx, String url) {
 
-		DoclogRecord expectedSuccessor = doclogRecords.get(expectedSuccessorIdx);
+		DoclogRecord expectedSuccessor = doclogRecords
+				.get(expectedSuccessorIdx);
 
 		DoclogRecord doclogRecord = doclogRecords.get(doclogRecordIdx);
 		DoclogRecord successor = doclogRecords.getSuccessor(doclogRecord);
 
-		Assert.assertEquals("DoclogRecords\n" + expectedSuccessor + " and\n" + successor
-				+ "\nare not equal", expectedSuccessor, successor);
-		Assert.assertEquals("URL of DoclogRecord " + expectedSuccessor + " differs",
-				url, expectedSuccessor.getUrl());
+		Assert.assertEquals("DoclogRecords\n" + expectedSuccessor + " and\n"
+				+ successor + "\nare not equal", expectedSuccessor, successor);
+		Assert.assertEquals("URL of DoclogRecord " + expectedSuccessor
+				+ " differs", url, expectedSuccessor.getUrl());
 		Assert.assertEquals("URL of DoclogRecord " + successor + " differs",
 				url, successor.getUrl());
 
 		long expectedTimeDifference = expectedSuccessor.getDate().getTime()
-				- doclogRecord.getDate().getTime();
+				- doclogRecord.getDate().getTime() - 1;
 		long actualTimeDifference = successor.getDate().getTime()
-				- doclogRecord.getDate().getTime();
+				- doclogRecord.getDate().getTime() - 1;
 		Assert.assertEquals("DoclogRecords\n" + doclogRecord + " and\n"
 				+ successor + "\nhave wrong time difference",
 				expectedTimeDifference, actualTimeDifference);

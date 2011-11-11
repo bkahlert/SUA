@@ -10,7 +10,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.IRangeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
@@ -24,7 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 /*
  * TODO remove earliest/latest date if setXXX removes the data the date is based on
  */
-public class Person implements IRangeable {
+public class Person implements HasDateRange {
 	private DiffFileList diffFiles;
 	private DoclogFile doclogFile;
 	private SurveyRecord surveyRecord;
@@ -177,16 +177,9 @@ public class Person implements IRangeable {
 		return this.latestEntryDate;
 	}
 
-	public boolean isInRange(DateRange dateRange) {
-		if (this.earliestEntryDate == null || this.latestEntryDate == null)
-			return false;
-		if (dateRange.isInRange(this.earliestEntryDate)
-				|| dateRange.isInRange(this.latestEntryDate))
-			return true;
-		if (dateRange.isBeforeRange(this.earliestEntryDate)
-				&& dateRange.isAfterRange(this.latestEntryDate))
-			return true;
-		return false;
+	@Override
+	public DateRange getDateRange() {
+		return new DateRange(this.earliestEntryDate, this.latestEntryDate);
 	}
 
 	@Override

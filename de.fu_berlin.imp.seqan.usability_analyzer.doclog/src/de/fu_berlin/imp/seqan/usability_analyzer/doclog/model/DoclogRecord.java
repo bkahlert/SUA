@@ -13,10 +13,10 @@ import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.IRangeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
-public class DoclogRecord implements Comparable<DoclogRecord>, IRangeable {
+public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	/*
 	 * [^\\t] selects everything but a tabulator
 	 */
@@ -71,7 +71,8 @@ public class DoclogRecord implements Comparable<DoclogRecord>, IRangeable {
 					.group(15)), Integer.parseInt(matcher.group(16)));
 
 			try {
-				this.screenshot = new DoclogScreenshot(this);
+				if (doclogFile != null)
+					this.screenshot = new DoclogScreenshot(this);
 			} catch (UnsupportedEncodingException e) {
 				throw new DataSourceInvalidException(
 						"The doclog contains an invalid URL that can not be mapped to a file.",
@@ -155,12 +156,14 @@ public class DoclogRecord implements Comparable<DoclogRecord>, IRangeable {
 		return this.millisecondsPassed;
 	}
 
-	@Override
-	public boolean isInRange(DateRange dateRange) {
-		if (this.getDate() != null)
-			return dateRange.isInRange(this.getDate());
-		else
-			return false;
+	public DateRange getDateRange() {
+		if (this.date == null)
+			return null;
+
+		long start = this.date.getTime();
+		return new DateRange(start, start
+				+ ((this.millisecondsPassed != null) ? this.millisecondsPassed
+						: 0));
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 import java.util.Arrays;
 import java.util.List;
 

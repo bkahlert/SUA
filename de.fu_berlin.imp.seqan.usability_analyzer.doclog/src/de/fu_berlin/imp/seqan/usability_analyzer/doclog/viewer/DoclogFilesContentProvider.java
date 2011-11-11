@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 
-public class DoclogExplorerContentProvider implements
+public class DoclogFilesContentProvider implements
 		IStructuredContentProvider, ITreeContentProvider {
 
 	@Override
@@ -48,7 +48,16 @@ public class DoclogExplorerContentProvider implements
 	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof List<?>) {
-			return ((List<?>) inputElement).toArray();
+			Object[] objects = ((List<?>) inputElement).toArray();
+			/*
+			 * If the list contains only one element and this element is a list
+			 * return the mentioned child list. This way we save one hierarchy
+			 * level (= ID level).
+			 */
+			if (objects.length == 1 && objects[0] instanceof DoclogFile) {
+				return ((DoclogFile) objects[0]).getDoclogRecords().toArray();
+			}
+			return objects;
 		}
 		return new Object[0];
 	}

@@ -49,5 +49,18 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
       </DateRangeListenerFactory>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+         </adapter>
+      </factory>
+   </extension>
 
 </plugin>

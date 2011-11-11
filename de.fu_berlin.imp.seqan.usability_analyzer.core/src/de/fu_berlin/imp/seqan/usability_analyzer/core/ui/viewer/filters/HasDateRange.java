@@ -9,6 +9,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
  * @author bkahlert
  * 
  */
-public interface IRangeable {
-	public boolean isInRange(DateRange dateRange);
+public interface HasDateRange {
+	public DateRange getDateRange();
 }

@@ -90,8 +90,43 @@ public class SUACorePreferenceUtil {
 				SUACorePreferenceConstants.DATE_RANGE_END);
 	}
 
+	public boolean getDateRangeStartEnabled() {
+		return preferenceStore
+				.getBoolean(SUACorePreferenceConstants.DATE_RANGE_START_ENABLED);
+	}
+
+	public void setDateRangeStartEnabled(boolean rangeStartEnabled) {
+		preferenceStore.setValue(
+				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED,
+				rangeStartEnabled);
+	}
+
+	public boolean dateRangeStartEnabledChanged(PropertyChangeEvent event) {
+		return event.getProperty().equals(
+				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED);
+	}
+
+	public boolean getDateRangeEndEnabled() {
+		return preferenceStore
+				.getBoolean(SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
+	}
+
+	public void setDateRangeEndEnabled(boolean rangeEndEnabled) {
+		preferenceStore.setValue(
+				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED,
+				rangeEndEnabled);
+	}
+
+	public boolean dateRangeEndEnabledChanged(PropertyChangeEvent event) {
+		return event.getProperty().equals(
+				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
+	}
+
 	public DateRange getDateRange() {
-		return new DateRange(this.getDateRangeStart(), this.getDateRangeEnd());
+		return new DateRange(
+				this.getDateRangeStartEnabled() ? this.getDateRangeStart()
+						: null,
+				this.getDateRangeEndEnabled() ? this.getDateRangeEnd() : null);
 	}
 
 	public DateFormat getDateFormat() {
