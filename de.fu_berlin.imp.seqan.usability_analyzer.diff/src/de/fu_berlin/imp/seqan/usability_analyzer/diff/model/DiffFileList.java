@@ -39,4 +39,23 @@ public class DiffFileList extends ArrayList<DiffFile> implements HasDateRange {
 		else
 			return null;
 	}
+
+	/**
+	 * Returns all {@link DiffFileRecord}'s describing the same file.
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	public DiffFileRecordHistory getHistory(String filename) {
+		DiffFileRecordHistory history = new DiffFileRecordHistory();
+		for (DiffFile diffFile : this) {
+			DiffFileRecordList diffFileRecords = diffFile.getDiffFileRecords();
+			if (diffFileRecords != null)
+				for (DiffFileRecord diffFileRecord : diffFileRecords) {
+					if (diffFileRecord.getFilename().equals(filename))
+						history.add(diffFileRecord);
+				}
+		}
+		return history;
+	}
 }

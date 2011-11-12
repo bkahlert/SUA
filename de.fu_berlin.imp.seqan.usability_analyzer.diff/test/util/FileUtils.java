@@ -1,10 +1,8 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff;
+package util;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 
 public class FileUtils {
 	/**
@@ -18,11 +16,9 @@ public class FileUtils {
 	 */
 	public static File getFile(Class<?> clazz, String filename)
 			throws URISyntaxException {
-		System.err.println(filename);
 		URI uri = clazz.getResource(filename).toURI();
-		System.err.println(uri.toString());
 		String path = uri.toString().substring(uri.getScheme().length() + 1);
-		return new DiffFile(path);
+		return new File(path);
 	}
 
 	/**

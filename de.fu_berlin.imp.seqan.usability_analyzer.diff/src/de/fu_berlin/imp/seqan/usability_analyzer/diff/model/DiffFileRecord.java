@@ -17,6 +17,8 @@ public class DiffFileRecord implements HasDateRange {
 	private DiffMeta meta;
 	private String content;
 
+	private String source;
+
 	public DiffFileRecord(DiffFile diffFile, String commandLine,
 			List<String> lines) {
 		this.diffFile = diffFile;
@@ -57,5 +59,18 @@ public class DiffFileRecord implements HasDateRange {
 
 	public boolean isTemporary() {
 		return this.getFilename().endsWith("~");
+	}
+
+	public List<DiffFileRecord> getPreviousRecords() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getSource() {
+		return this.source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 }

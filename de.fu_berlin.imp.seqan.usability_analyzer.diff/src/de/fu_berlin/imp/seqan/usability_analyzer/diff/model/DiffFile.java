@@ -24,6 +24,8 @@ public class DiffFile extends File implements HasDateRange {
 	private static final long serialVersionUID = 5159431028889474742L;
 	public static final String PATTERN = "([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})\\.diff";
 
+	private File trunkPath;
+
 	private ID id;
 	private String revision;
 	private Date date;
@@ -32,8 +34,10 @@ public class DiffFile extends File implements HasDateRange {
 
 	private DiffFileRecordList diffFileRecords = null;
 
-	public DiffFile(String filename) {
+	public DiffFile(File trunkPath, String filename) {
 		super(filename);
+
+		this.trunkPath = trunkPath;
 
 		Matcher matcher = Pattern.compile(PATTERN).matcher(filename);
 		if (matcher.find()) {

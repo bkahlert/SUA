@@ -7,13 +7,14 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.FileUtils;
+import util.FileUtils;
 
 public class DiffFileTest {
+
 	private static DiffFile getDiffFile(String diffFileName)
 			throws URISyntaxException {
-		File file = FileUtils.getFile(DiffFileTest.class, diffFileName);
-		return new DiffFile(file.getAbsolutePath());
+		File file = FileUtils.getFile("data/" + diffFileName);
+		return new DiffFile(FileUtils.getFile("trunk"), file.getAbsolutePath());
 	}
 
 	@Test
@@ -30,17 +31,4 @@ public class DiffFileTest {
 		}
 	}
 
-	@Test
-	public void testDiffFileRecordsCount2() throws URISyntaxException {
-		DiffFile diffFile = getDiffFile("amudto8y1mzxaebv_r00000005_2011-09-13T11-55-46.diff");
-		int[] numContentLines = new int[] { 12, 12, 88, 12, 13, 12 };
-
-		DiffFileRecordList diffFileRecords = diffFile.getDiffFileRecords();
-		Assert.assertEquals(1, diffFileRecords.size());
-		// for (int i = 0; i < diffFileRecords.size(); i++) {
-		// DiffFileRecord diffFileRecord = diffFileRecords.get(i);
-		// Assert.assertEquals(numContentLines[i], diffFileRecord.getContent()
-		// .split("\n").length);
-		// }
-	}
 }
