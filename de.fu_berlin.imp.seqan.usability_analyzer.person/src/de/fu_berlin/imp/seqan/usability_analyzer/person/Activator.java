@@ -12,6 +12,7 @@ import org.osgi.framework.BundleContext;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.person.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
@@ -64,7 +65,8 @@ public class Activator extends AbstractUIPlugin {
 		File surveyRecordPath = this.preferenceUtil.getSurveyRecordPath();
 
 		try {
-			this.diffFileManager = new DiffFileManager(logfilePath);
+			this.diffFileManager = new DiffFileManager(logfilePath,
+					new SUADiffPreferenceUtil().getTrunkPath());
 			this.doclogManager = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
 					.getDefault().initDoclogManager(logfilePath);
 			this.surveyRecordManager = new SurveyRecordManager(surveyRecordPath);

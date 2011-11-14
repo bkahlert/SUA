@@ -24,7 +24,7 @@ import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
 
 public class TakeScreenshotsJob extends Job {
 
@@ -39,7 +39,7 @@ public class TakeScreenshotsJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		int timeout = new PreferenceUtil().getScreenshotPageloadTimeout();
+		int timeout = new SUADoclogPreferenceUtil().getScreenshotPageloadTimeout();
 
 		List<DoclogRecord> filteredDoclogRecords = this
 				.getRelevantDoclogRecords(monitor, doclogRecords);

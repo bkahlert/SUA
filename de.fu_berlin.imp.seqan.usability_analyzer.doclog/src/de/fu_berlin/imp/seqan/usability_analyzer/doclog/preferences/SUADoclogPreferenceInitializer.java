@@ -5,7 +5,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
-public class PreferenceInitializer extends AbstractPreferenceInitializer {
+public class SUADoclogPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	/*
 	 * (non-Javadoc)
@@ -15,8 +15,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 */
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.SCREENSHOT_PAGELOAD_TIMEOUT, 8000);
-		store.setDefault(PreferenceConstants.SCREENSHOT_WIDTH, 200);
+		store.setDefault(SUADoclogPreferenceConstants.SCREENSHOT_PAGELOAD_TIMEOUT, 8000);
+		store.setDefault(SUADoclogPreferenceConstants.SCREENSHOT_WIDTH, 200);
 	}
 
 }

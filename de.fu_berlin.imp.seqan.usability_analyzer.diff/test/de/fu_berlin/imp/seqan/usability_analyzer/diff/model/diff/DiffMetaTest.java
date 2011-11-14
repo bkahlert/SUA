@@ -5,6 +5,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordMeta;
 
 public class DiffMetaTest {
 	private static final String fromFileLine = "--- ./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log	2011-09-13 12:10:14.578125000 +0200";
@@ -12,7 +13,7 @@ public class DiffMetaTest {
 
 	@Test
 	public void test() {
-		DiffMeta meta = new DiffMeta(fromFileLine, toFileLine);
+		DiffFileRecordMeta meta = new DiffFileRecordMeta(fromFileLine, toFileLine);
 		Assert.assertEquals(
 				"./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
 				meta.getFromFileName());

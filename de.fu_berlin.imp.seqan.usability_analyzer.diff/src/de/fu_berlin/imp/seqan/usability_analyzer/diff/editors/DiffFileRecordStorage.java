@@ -22,8 +22,12 @@ public class DiffFileRecordStorage implements IStorage {
 	}
 
 	public InputStream getContents() throws CoreException {
-		return new ByteArrayInputStream(this.diffFileRecord.getContent()
-				.getBytes());
+		if (this.diffFileRecord != null
+				&& this.diffFileRecord.getSource() != null)
+			return new ByteArrayInputStream(this.diffFileRecord.getSource()
+					.getBytes());
+		else
+			return null;
 	}
 
 	public IPath getFullPath() {

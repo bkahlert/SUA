@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.diff;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,7 +9,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
-public class DiffMeta implements HasDateRange {
+public class DiffFileRecordMeta implements HasDateRange {
 	private static DateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss.S Z");
 
@@ -40,7 +40,7 @@ public class DiffMeta implements HasDateRange {
 	private String toFileName;
 	private Date toFileDate;
 
-	public DiffMeta(String fromFileLine, String toFileLine) {
+	public DiffFileRecordMeta(String fromFileLine, String toFileLine) {
 		this.fromFileName = getNameFromLine(fromFileLine);
 		this.fromFileDate = getDateFromLine(fromFileLine);
 		this.toFileName = getNameFromLine(toFileLine);

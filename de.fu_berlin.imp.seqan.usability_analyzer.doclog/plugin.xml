@@ -63,18 +63,19 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferencePage"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferencePage"
-            name="Doclog">
-      </page>
-   </extension>
-   <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferenceInitializer">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferences"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferencePage"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferencePage"
+            name="Doclogs">
+      </page>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">

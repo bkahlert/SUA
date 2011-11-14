@@ -22,4 +22,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff,
  de.fu_berlin.imp.seqan.usability_analyzer.diff.model,
+ de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences,
  de.fu_berlin.imp.seqan.usability_analyzer.diff.views
+Bundle-ClassPath: lib/diffutils-1.2.1.jar,
+ .

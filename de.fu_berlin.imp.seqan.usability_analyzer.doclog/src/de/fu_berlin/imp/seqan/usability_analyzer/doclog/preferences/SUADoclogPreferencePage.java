@@ -7,10 +7,10 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
-public class PreferencePage extends FieldEditorPreferencePage implements
+public class SUADoclogPreferencePage extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
 
-	public PreferencePage() {
+	public SUADoclogPreferencePage() {
 		super(GRID);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		setDescription("A demonstration of a preference page implementation");
@@ -18,7 +18,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 
 	public void createFieldEditors() {
 		addField(new ScaleFieldEditor(
-				PreferenceConstants.SCREENSHOT_PAGELOAD_TIMEOUT,
+				SUADoclogPreferenceConstants.SCREENSHOT_PAGELOAD_TIMEOUT,
 				"Screenshot page load timeout", getFieldEditorParent(), 1000,
 				60000, 1000, 5000));
 	}

@@ -22,9 +22,9 @@ public class DiffFile extends File implements HasDateRange {
 	Logger logger = Logger.getLogger(DiffFile.class);
 
 	private static final long serialVersionUID = 5159431028889474742L;
-	public static final String PATTERN = "([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})\\.diff";
+	public static final String PATTERN = "([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(_manual)?\\.diff";
 
-	private File trunkPath;
+	private File logDirectory;
 
 	private ID id;
 	private String revision;
@@ -34,10 +34,10 @@ public class DiffFile extends File implements HasDateRange {
 
 	private DiffFileRecordList diffFileRecords = null;
 
-	public DiffFile(File trunkPath, String filename) {
+	public DiffFile(File logDirectory, String filename) {
 		super(filename);
 
-		this.trunkPath = trunkPath;
+		this.logDirectory = logDirectory;
 
 		Matcher matcher = Pattern.compile(PATTERN).matcher(filename);
 		if (matcher.find()) {
@@ -108,8 +108,8 @@ public class DiffFile extends File implements HasDateRange {
 	 */
 	private void createRecord(DiffFileRecordList diffFileRecords,
 			String commandLine, ArrayList<String> content) {
-		DiffFileRecord diffFileRecord = new DiffFileRecord(this, commandLine,
-				content);
+		DiffFileRecord diffFileRecord = new DiffFileRecord(this.logDirectory,
+				this, commandLine, content);
 		if (!diffFileRecord.isTemporary()) {
 			diffFileRecords.add(diffFileRecord);
 		}
@@ -163,6 +163,17 @@ public class DiffFile extends File implements HasDateRange {
 		} else {
 			return this.getDate().compareTo(diffFile.getDate());
 		}
+	}
+
+	public boolean sourcesExist() {
+		DiffFileRecordList diffFileRecords = this.getDiffFileRecords();
+		if (diffFileRecords != null) {
+			for (DiffFileRecord diffFileRecord : diffFileRecords) {
+				if (!diffFileRecord.sourceExists())
+					return false;
+			}
+		}
+		return true;
 	}
 
 }

@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
 
 public class ScreenshotWidthSlider extends WorkbenchWindowControlContribution {
 
@@ -25,7 +25,7 @@ public class ScreenshotWidthSlider extends WorkbenchWindowControlContribution {
 		}
 	};
 
-	private PreferenceUtil preferenceUtil = new PreferenceUtil();
+	private SUADoclogPreferenceUtil preferenceUtil = new SUADoclogPreferenceUtil();
 	private Slider slider;
 
 	public ScreenshotWidthSlider() {

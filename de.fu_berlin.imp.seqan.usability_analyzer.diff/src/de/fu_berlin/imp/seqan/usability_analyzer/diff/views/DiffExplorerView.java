@@ -1,9 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileFilter;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -50,12 +52,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEdit
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordStorage;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordStorageEditorInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.filters.DiffFileListsViewerFileFilter;
 
-public class DiffExplorerView extends ViewPart implements IDateRangeListener {
+public class DiffExplorerView extends ViewPart implements IDateRangeListener,
+		IFileFilterListener {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView";
 
@@ -96,6 +101,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener {
 	};
 
 	private DateRangeFilter dateRangeFilter = null;
+	private HashMap<FileFilter, DiffFileListsViewerFileFilter> fileFilters = new HashMap<FileFilter, DiffFileListsViewerFileFilter>();
 
 	protected static final DateFormat dateFormat = new SUACorePreferenceUtil()
 			.getDateFormat();
@@ -125,24 +131,36 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener {
 	}
 
 	class CompareInput extends CompareEditorInput {
-		public CompareInput() {
+		DiffFileRecord diffFileRecord;
+
+		public CompareInput(DiffFileRecord diffFileRecord) {
 			super(new CompareConfiguration());
+			this.diffFileRecord = diffFileRecord;
 		}
 
 		protected Object prepareInput(IProgressMonitor pm) {
-			CompareItem ancestor = new CompareItem("Common", "contents",
+			DiffFileRecord predecessorDiffFileRecord = diffFileRecord
+					.getPredecessor();
+
+			CompareItem left = new CompareItem(predecessorDiffFileRecord
+					.getDiffFile().getRevision(),
+					predecessorDiffFileRecord.getSource(), new Date().getTime());
+			CompareItem right = new CompareItem(diffFileRecord.getDiffFile()
+					.getRevision(), diffFileRecord.getSource(),
 					new Date().getTime());
-			CompareItem left = new CompareItem("Left", "new contents",
-					new Date().getTime());
-			CompareItem right = new CompareItem("Right", "old contents",
-					new Date().getTime());
-			return new DiffNode(null, Differencer.CONFLICTING, ancestor, left,
-					right);
+
+			return new DiffNode(null, Differencer.ADDITION | Differencer.CHANGE
+					| Differencer.DELETION, null, left, right);
+		}
+
+		@Override
+		public String getName() {
+			return diffFileRecord.getFilename();
 		}
 	}
 
-	class CompareItem implements IStreamContentAccessor, ITypedElement,
-			IModificationDate {
+	class CompareItem implements ITypedElement, IModificationDate,
+			IStreamContentAccessor {
 		private String contents, name;
 		private long time;
 
@@ -152,28 +170,24 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener {
 			this.time = time;
 		}
 
-		public InputStream getContents() throws CoreException {
-			return new ByteArrayInputStream(contents.getBytes());
+		public String getName() {
+			return name;
 		}
 
 		public Image getImage() {
 			return null;
 		}
 
+		public String getType() {
+			return "cpp";
+		}
+
 		public long getModificationDate() {
 			return time;
 		}
 
-		public String getName() {
-			return name;
-		}
-
-		public String getString() {
-			return contents;
-		}
-
-		public String getType() {
-			return "cpp";
+		public InputStream getContents() throws CoreException {
+			return new ByteArrayInputStream(contents.getBytes());
 		}
 	}
 
@@ -204,7 +218,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener {
 								new DiffFileRecordStorage(diffFileRecord)),
 								"org.eclipse.ui.DefaultTextEditor");
 
-						CompareUI.openCompareEditor(new CompareInput());
+						CompareUI.openCompareEditor(new CompareInput(
+								diffFileRecord));
 					} catch (PartInitException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -244,6 +259,28 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener {
 			this.treeViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);
 		this.treeViewer.addFilter(this.dateRangeFilter);
+	}
+
+	@Override
+	public void fileFilterAdded(final FileFilter fileFilter) {
+		if (this.treeViewer != null && this.treeViewer.getTree() != null
+				&& !this.treeViewer.getTree().isDisposed()) {
+			if (!fileFilters.containsKey(fileFilter)) {
+				fileFilters.put(fileFilter, new DiffFileListsViewerFileFilter(
+						fileFilter));
+			}
+			this.treeViewer.addFilter(fileFilters.get(fileFilter));
+		}
+	}
+
+	@Override
+	public void fileFilterRemoved(FileFilter fileFilter) {
+		if (this.treeViewer != null && this.treeViewer.getTree() != null
+				&& !this.treeViewer.getTree().isDisposed()) {
+			if (fileFilters.containsKey(fileFilter)) {
+				this.treeViewer.removeFilter(fileFilters.get(fileFilter));
+			}
+		}
 	}
 
 }

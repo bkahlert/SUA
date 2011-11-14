@@ -14,7 +14,7 @@ public class DiffFileTest {
 	private static DiffFile getDiffFile(String diffFileName)
 			throws URISyntaxException {
 		File file = FileUtils.getFile("data/" + diffFileName);
-		return new DiffFile(FileUtils.getFile("trunk"), file.getAbsolutePath());
+		return new DiffFile(null, file.getAbsolutePath());
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public class DiffFileTest {
 		Assert.assertEquals(6, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
 			DiffFileRecord diffFileRecord = diffFileRecords.get(i);
-			Assert.assertEquals(numContentLines[i], diffFileRecord.getContent()
+			Assert.assertEquals(numContentLines[i], diffFileRecord.getPatchContent()
 					.split("\n").length);
 		}
 	}

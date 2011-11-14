@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter" name="FileFilter" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -48,6 +49,9 @@
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
                style="push">
          </command>
+         <control
+               class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.controls.BinFileFilterButton">
+         </control>
       </menuContribution>
       <menuContribution
             allPopups="false"
@@ -92,6 +96,12 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditor"
             name="Diff File Record Editor">
       </editor>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter">
+      <FileFilterListenerFactory
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
+      </FileFilterListenerFactory>
    </extension>
 
 </plugin>

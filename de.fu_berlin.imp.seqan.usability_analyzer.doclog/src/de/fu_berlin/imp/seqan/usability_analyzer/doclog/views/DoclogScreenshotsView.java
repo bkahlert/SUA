@@ -33,7 +33,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.PreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogScreenshotDisplay;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogScreenshotDisplayContainer;
 
@@ -65,13 +65,13 @@ public class DoclogScreenshotsView extends ViewPart {
 	private IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
-			if (new PreferenceUtil().screenshotWidthChanged(event)) {
+			if (new SUADoclogPreferenceUtil().screenshotWidthChanged(event)) {
 				refresh();
 			}
 		}
 	};
 
-	private PreferenceUtil preferenceUtil = new PreferenceUtil();
+	private SUADoclogPreferenceUtil preferenceUtil = new SUADoclogPreferenceUtil();
 
 	private ScrolledComposite scrolledComposite;
 	private Composite composite;

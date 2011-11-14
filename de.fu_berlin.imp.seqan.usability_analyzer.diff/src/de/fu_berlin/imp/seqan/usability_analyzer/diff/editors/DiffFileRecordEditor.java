@@ -57,7 +57,7 @@ public class DiffFileRecordEditor extends EditorPart {
 		Text lastName = new Text(parent, SWT.BORDER);
 		lastName.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
 				false));
-		lastName.setText(this.diffFileRecord.getContent());
+		lastName.setText(this.diffFileRecord.getSource());
 	}
 
 	@Override

@@ -3,15 +3,12 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import name.fraser.neil.plaintext.diff_match_patch;
-import name.fraser.neil.plaintext.diff_match_patch.Diff;
-import name.fraser.neil.plaintext.diff_match_patch.Patch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -21,6 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidExc
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.TrunkUtils;
+import difflib.PatchFailedException;
 
 public class DiffFileManager extends DataSourceManager {
 
@@ -40,6 +38,7 @@ public class DiffFileManager extends DataSourceManager {
 		this.scanFiles();
 		this.sort();
 		this.calculateRecordMillisecondsPassed();
+		this.calculateNeighbors();
 		this.calculateSources();
 	}
 
@@ -47,7 +46,7 @@ public class DiffFileManager extends DataSourceManager {
 		Map<ID, DiffFileList> diffFiles = new HashMap<ID, DiffFileList>();
 		for (File diffFile : this.logDirectory
 				.listFiles((FileFilter) new RegexFileFilter(DiffFile.PATTERN))) {
-			DiffFile currentDiffFile = new DiffFile(this.trunkDirectory,
+			DiffFile currentDiffFile = new DiffFile(this.logDirectory,
 					diffFile.getAbsolutePath());
 			ID id = currentDiffFile.getId();
 			if (!diffFiles.containsKey(id))
@@ -82,9 +81,9 @@ public class DiffFileManager extends DataSourceManager {
 		}
 	}
 
-	private void calculateSources() {
+	private void calculateNeighbors() {
 		for (ID id : this.diffFiles.keySet()) {
-			HashMap<String, String> fileNameToSource = new HashMap<String, String>();
+			HashMap<String, DiffFileRecord> fileNameToLastRecord = new HashMap<String, DiffFileRecord>();
 			DiffFileList diffFiles = this.diffFiles.get(id);
 			for (DiffFile diffFile : diffFiles) {
 				DiffFileRecordList diffFileRecords = diffFile
@@ -93,36 +92,81 @@ public class DiffFileManager extends DataSourceManager {
 					continue;
 				for (DiffFileRecord diffFileRecord : diffFileRecords) {
 					String filename = diffFileRecord.getFilename();
-					if (!fileNameToSource.containsKey(filename)) {
-						String source = readSourceFromTrunk(filename);
-						fileNameToSource.put(filename, source);
+					DiffFileRecord lastRecord = fileNameToLastRecord
+							.get(filename);
+					if (lastRecord != null) {
+						lastRecord.setSuccessor(diffFileRecord);
+						diffFileRecord.setPredecessor(lastRecord);
 					}
-					diff_match_patch dmp = new diff_match_patch();
-					String oldSource = fileNameToSource.get(filename);
-					String patch = diffFileRecord.getContent();
-					LinkedList<Patch> patch2 = dmp.patch_fromText(patch);
-					for (Patch patch3 : patch2) {
-						for (Diff diff : patch3.diffs) {
-							diff.text += "\n";
-						}
+					fileNameToLastRecord.put(filename, diffFileRecord);
+				}
+			}
+		}
+	}
+
+	private void calculateSources() {
+		for (ID id : this.diffFiles.keySet()) {
+			HashMap<String, List<String>> fileNameToSource = new HashMap<String, List<String>>();
+			HashMap<String, Boolean> fileNameToContinuePatching = new HashMap<String, Boolean>();
+			DiffFileList diffFiles = this.diffFiles.get(id);
+			for (DiffFile diffFile : diffFiles) {
+				DiffFileRecordList diffFileRecords = diffFile
+						.getDiffFileRecords();
+				if (diffFileRecords == null)
+					continue;
+				for (DiffFileRecord diffFileRecord : diffFileRecords) {
+					String filename = diffFileRecord.getFilename();
+
+					// init continue flag
+					if (!fileNameToContinuePatching.containsKey(filename)) {
+						fileNameToContinuePatching.put(filename, true);
 					}
 
-					Object[] applied = dmp.patch_apply(patch2, oldSource);
-					if (applied.length == 2 && applied[0] instanceof String
-							&& applied[1] instanceof boolean[]) {
-						String newSource = (String) applied[0];
-						boolean[] patchResults = (boolean[]) applied[1];
-						for (int i = 1, j = patchResults.length; i < j; i++) {
-							if (!patchResults[i])
-								logger.warn("Could not apply "
-										+ Patch.class.getSimpleName() + " " + i
-										+ " to " + filename);
-						}
-						fileNameToSource.put(filename, newSource);
-						diffFileRecord.setSource(newSource);
+					// check continue flag
+					if (!fileNameToContinuePatching.get(filename)) {
+						System.err.println("skipped");
+						continue;
+					}
+
+					if (diffFileRecord.sourceExists()) {
+						// skip already patched records
 					} else {
-						logger.fatal(diff_match_patch.class.getSimpleName()
-								+ " returned empty result");
+						// first source read
+						if (!fileNameToSource.containsKey(filename)) {
+							String source;
+
+							if (diffFileRecord.getPredecessor() != null
+									&& diffFileRecord.getPredecessor()
+											.sourceExists()) {
+								// start from the last successfully patched
+								// record
+								source = diffFileRecord.getPredecessor()
+										.getSource();
+							} else {
+								// or if none exists read from the trunk
+								source = readSourceFromTrunk(filename);
+							}
+							fileNameToSource.put(filename,
+									Arrays.asList(source.split("\n")));
+						}
+
+						List<String> oldSource = fileNameToSource.get(filename);
+
+						// Create patch
+						try {
+							List<String> newSource = diffFileRecord
+									.computePatchedSource(oldSource);
+							diffFileRecord.setAndPersistSource(newSource);
+							fileNameToSource.put(filename, newSource);
+						} catch (PatchFailedException e) {
+							// future patches can't be applied
+							fileNameToContinuePatching.put(filename, false);
+
+							// we don't care about files in bin/*
+							if (!filename.startsWith("bin/"))
+								logger.warn("Could not patch ID: " + id + ", "
+										+ filename, e);
+						}
 					}
 				}
 			}

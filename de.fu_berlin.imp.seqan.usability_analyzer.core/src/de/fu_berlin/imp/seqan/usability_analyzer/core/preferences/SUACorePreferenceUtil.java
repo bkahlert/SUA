@@ -5,38 +5,23 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 
-public class SUACorePreferenceUtil {
-
-	private IPreferenceStore preferenceStore;
+public class SUACorePreferenceUtil extends PreferenceUtil {
 
 	public SUACorePreferenceUtil() {
-		super();
-		preferenceStore = Activator.getDefault().getPreferenceStore();
-	}
-
-	public void addPropertyChangeListener(
-			IPropertyChangeListener propertyChangeListener) {
-		this.preferenceStore.addPropertyChangeListener(propertyChangeListener);
-	}
-
-	public void removePropertyChangeListener(
-			IPropertyChangeListener propertyChangeListener) {
-		this.preferenceStore
-				.removePropertyChangeListener(propertyChangeListener);
+		super(Activator.getDefault());
 	}
 
 	public File getLogfilePath() {
-		String logfilePath = preferenceStore
-				.getString(SUACorePreferenceConstants.LOGFILE_PATH);
+		String logfilePath = getPreferenceStore().getString(
+				SUACorePreferenceConstants.LOGFILE_PATH);
 		return (logfilePath != null && !logfilePath.isEmpty()) ? new File(
 				logfilePath) : null;
 	}
@@ -47,8 +32,8 @@ public class SUACorePreferenceUtil {
 	}
 
 	public File getSurveyRecordPath() {
-		String surveyRecordPath = preferenceStore
-				.getString(SUACorePreferenceConstants.SURVEYFILE_PATH);
+		String surveyRecordPath = getPreferenceStore().getString(
+				SUACorePreferenceConstants.SURVEYFILE_PATH);
 		return (surveyRecordPath != null && !surveyRecordPath.isEmpty()) ? new File(
 				surveyRecordPath) : null;
 	}
@@ -59,13 +44,14 @@ public class SUACorePreferenceUtil {
 	}
 
 	public Date getDateRangeStart() {
-		long rangeStart = preferenceStore
-				.getLong(SUACorePreferenceConstants.DATE_RANGE_START);
+		long rangeStart = getPreferenceStore().getLong(
+				SUACorePreferenceConstants.DATE_RANGE_START);
 		return new Date(rangeStart);
 	}
 
 	public void setDateRangeStart(Date rangeStart) {
-		preferenceStore.setValue(SUACorePreferenceConstants.DATE_RANGE_START,
+		getPreferenceStore().setValue(
+				SUACorePreferenceConstants.DATE_RANGE_START,
 				rangeStart.getTime());
 	}
 
@@ -75,14 +61,14 @@ public class SUACorePreferenceUtil {
 	}
 
 	public Date getDateRangeEnd() {
-		long rangeEnd = preferenceStore
-				.getLong(SUACorePreferenceConstants.DATE_RANGE_END);
+		long rangeEnd = getPreferenceStore().getLong(
+				SUACorePreferenceConstants.DATE_RANGE_END);
 		return new Date(rangeEnd);
 	}
 
 	public void setDateRangeEnd(Date rangeEnd) {
-		preferenceStore.setValue(SUACorePreferenceConstants.DATE_RANGE_END,
-				rangeEnd.getTime());
+		getPreferenceStore().setValue(
+				SUACorePreferenceConstants.DATE_RANGE_END, rangeEnd.getTime());
 	}
 
 	public boolean dateRangeEndChanged(PropertyChangeEvent event) {
@@ -91,12 +77,12 @@ public class SUACorePreferenceUtil {
 	}
 
 	public boolean getDateRangeStartEnabled() {
-		return preferenceStore
-				.getBoolean(SUACorePreferenceConstants.DATE_RANGE_START_ENABLED);
+		return getPreferenceStore().getBoolean(
+				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED);
 	}
 
 	public void setDateRangeStartEnabled(boolean rangeStartEnabled) {
-		preferenceStore.setValue(
+		getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED,
 				rangeStartEnabled);
 	}
@@ -107,12 +93,12 @@ public class SUACorePreferenceUtil {
 	}
 
 	public boolean getDateRangeEndEnabled() {
-		return preferenceStore
-				.getBoolean(SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
+		return getPreferenceStore().getBoolean(
+				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
 	}
 
 	public void setDateRangeEndEnabled(boolean rangeEndEnabled) {
-		preferenceStore.setValue(
+		getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED,
 				rangeEndEnabled);
 	}
@@ -130,22 +116,22 @@ public class SUACorePreferenceUtil {
 	}
 
 	public DateFormat getDateFormat() {
-		return new SimpleDateFormat(
-				preferenceStore
-						.getString(SUACorePreferenceConstants.DATEFORMAT));
+		return new SimpleDateFormat(getPreferenceStore().getString(
+				SUACorePreferenceConstants.DATEFORMAT));
 	}
 
 	public String getDateFormatString() {
-		return preferenceStore.getString(SUACorePreferenceConstants.DATEFORMAT);
+		return getPreferenceStore().getString(
+				SUACorePreferenceConstants.DATEFORMAT);
 	}
 
 	public String getTimeDifferenceFormat() {
-		return preferenceStore
-				.getString(SUACorePreferenceConstants.TIMEDIFFERENCEFORMAT);
+		return getPreferenceStore().getString(
+				SUACorePreferenceConstants.TIMEDIFFERENCEFORMAT);
 	}
 
 	public RGB getColorOk() {
-		return PreferenceConverter.getColor(preferenceStore,
+		return PreferenceConverter.getColor(getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_OK);
 	}
 
@@ -154,7 +140,7 @@ public class SUACorePreferenceUtil {
 	}
 
 	public RGB getColorDirty() {
-		return PreferenceConverter.getColor(preferenceStore,
+		return PreferenceConverter.getColor(getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_DIRTY);
 	}
 
@@ -164,7 +150,7 @@ public class SUACorePreferenceUtil {
 	}
 
 	public RGB getColorError() {
-		return PreferenceConverter.getColor(preferenceStore,
+		return PreferenceConverter.getColor(getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_ERROR);
 	}
 
@@ -174,7 +160,7 @@ public class SUACorePreferenceUtil {
 	}
 
 	public RGB getColorMissing() {
-		return PreferenceConverter.getColor(preferenceStore,
+		return PreferenceConverter.getColor(getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_MISSING);
 	}
 

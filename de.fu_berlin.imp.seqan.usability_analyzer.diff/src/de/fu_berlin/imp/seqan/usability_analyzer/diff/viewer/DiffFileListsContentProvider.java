@@ -11,8 +11,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
 
-public class DiffFileListsContentProvider implements IStructuredContentProvider,
-		ITreeContentProvider {
+public class DiffFileListsContentProvider implements
+		IStructuredContentProvider, ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -53,7 +53,10 @@ public class DiffFileListsContentProvider implements IStructuredContentProvider,
 			return ((DiffFileList) parentElement).toArray();
 		}
 		if (parentElement instanceof DiffFile) {
-			return ((DiffFile) parentElement).getDiffFileRecords().toArray();
+			DiffFileRecordList diffFileRecords = ((DiffFile) parentElement)
+					.getDiffFileRecords();
+			return diffFileRecords != null ? diffFileRecords.toArray()
+					: new Object[0];
 		}
 		return new Object[0];
 	}
