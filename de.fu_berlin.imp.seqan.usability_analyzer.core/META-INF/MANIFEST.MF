@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
  org.eclipse.nebula.jface.cdatetime;bundle-version="0.14.0",
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
- org.junit
+ org.junit,
+ org.apache.commons.lang;bundle-version="2.4.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
@@ -23,3 +24,5 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters,
  de.fu_berlin.imp.seqan.usability_analyzer.core.util,
  de.fu_berlin.imp.seqan.usability_analyzer.core.views
+Bundle-ClassPath: lib/JAXB2_20110512.jar,
+ .

@@ -26,6 +26,7 @@ public class DoclogScreenshotDisplay extends RoundedComposite {
 	private Label imageLabel;
 
 	private Label urlLabel;
+	private Label actionLabel;
 	private Label windowDimensionsLabel;
 	private Label actualDimensionsLabel;
 	private Label scrollPositionLabel;
@@ -37,11 +38,14 @@ public class DoclogScreenshotDisplay extends RoundedComposite {
 				.margins(5, 5).create());
 
 		this.imageLabel = new Label(this, SWT.NONE);
-		this.imageLabel.setLayoutData(GridDataFactory.fillDefaults().span(1, 4)
+		this.imageLabel.setLayoutData(GridDataFactory.fillDefaults().span(1, 5)
 				.create());
 
 		createKeyLabel("URL:");
 		this.urlLabel = createValueLabel();
+
+		createKeyLabel("Action:");
+		this.actionLabel = createValueLabel();
 
 		createKeyLabel("Size:");
 		this.windowDimensionsLabel = createValueLabel();
@@ -80,6 +84,7 @@ public class DoclogScreenshotDisplay extends RoundedComposite {
 			int screenshotWidth) {
 		updateScreenshot(doclogScreenshot, screenshotWidth);
 		updateUrl(doclogScreenshot);
+		updateAction(doclogScreenshot);
 		updateWindowDimensions(doclogScreenshot);
 		updateActualDimensions(doclogScreenshot);
 		updateScrollPosition(doclogScreenshot);
@@ -111,6 +116,17 @@ public class DoclogScreenshotDisplay extends RoundedComposite {
 
 	private void updateUrl(DoclogScreenshot doclogScreenshot) {
 		this.urlLabel.setText(doclogScreenshot.getDoclogRecord().getUrl());
+	}
+
+	private void updateAction(DoclogScreenshot doclogScreenshot) {
+		String action = doclogScreenshot.getDoclogRecord().getAction()
+				.toString();
+		String actionParameter = doclogScreenshot.getDoclogRecord()
+				.getActionParameter();
+		this.actionLabel
+				.setText(action
+						+ ((actionParameter != null) ? "(" + actionParameter
+								+ ")" : ""));
 	}
 
 	private void updateWindowDimensions(DoclogScreenshot doclogScreenshot) {

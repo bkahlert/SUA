@@ -6,7 +6,8 @@ import java.net.URISyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+
 
 
 public class TrunkUtilsTest {

@@ -15,7 +15,10 @@ Require-Bundle: org.eclipse.ui,
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.0",
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
  com.bkahlert.devel.web.screenshots;bundle-version="1.0.0",
- de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0"
+ de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
+ org.codehaus.jackson.core;bundle-version="1.6.0",
+ org.codehaus.jackson.mapper;bundle-version="1.6.0",
+ com.bkahlert.devel.nebula;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

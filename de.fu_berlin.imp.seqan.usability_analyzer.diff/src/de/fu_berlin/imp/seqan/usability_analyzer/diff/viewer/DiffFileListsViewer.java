@@ -45,7 +45,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
 
-		this.createColumn("Date", 160).setLabelProvider(
+		this.createColumn("Date", 350).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -139,7 +139,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 									.getMillisecondsPassed();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true) : "";
+											timeDifferenceFormat, true)
+									: "unknown";
 						}
 						if (element instanceof DiffFileRecord) {
 							DiffFileRecord diffFileRecord = (DiffFileRecord) element;
@@ -147,7 +148,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 									.getDateRange().getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true) : "";
+											timeDifferenceFormat, true)
+									: "unknown";
 						}
 						return "";
 					}

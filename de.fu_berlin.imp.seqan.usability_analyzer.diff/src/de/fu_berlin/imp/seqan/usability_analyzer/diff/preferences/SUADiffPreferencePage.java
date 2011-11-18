@@ -17,7 +17,7 @@ public class SUADiffPreferencePage extends FieldEditorPreferencePage implements
 
 	public void createFieldEditors() {
 		addField(new DirectoryFieldEditor(
-				SUADiffPreferenceConstants.TRUNK_PATH,
+				SUADiffPreferenceConstants.TRUNK_DIRECTORY,
 				"&Directory preference:", getFieldEditorParent()));
 	}
 

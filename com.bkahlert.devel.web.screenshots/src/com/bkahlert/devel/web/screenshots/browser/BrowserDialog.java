@@ -91,8 +91,8 @@ public class BrowserDialog extends Dialog {
 		this.browser.addAuthenticationListener(new AuthenticationListener() {
 			@Override
 			public void authenticate(AuthenticationEvent event) {
-				event.user = "bjornson";
-				event.password = "Zelda752";
+				event.user = "###";
+				event.password = "###";
 			}
 		});
 		this.browser.addProgressListener(progressListener);

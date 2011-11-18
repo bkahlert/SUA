@@ -116,8 +116,10 @@ public class Person implements HasDateRange {
 	public void setDoclogFile(DoclogFile doclogFile) {
 		if (doclogFile != null && doclogFile.getDoclogRecords() != null) {
 			for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
-				updateEarliestEntryDate(doclogRecord.getDate());
-				updateLatestEntryDate(doclogRecord.getDate());
+				updateEarliestEntryDate(doclogRecord.getDateRange()
+						.getStartDate());
+				updateLatestEntryDate(doclogRecord.getDateRange()
+						.getStartDate());
 			}
 		}
 		this.doclogFile = doclogFile;

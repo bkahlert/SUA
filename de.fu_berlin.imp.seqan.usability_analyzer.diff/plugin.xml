@@ -50,7 +50,7 @@
                style="push">
          </command>
          <control
-               class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.controls.BinFileFilterButton">
+               class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.controls.FileFilterPatternsText">
          </control>
       </menuContribution>
       <menuContribution
@@ -61,12 +61,6 @@
                style="push">
          </command>
       </menuContribution>
-   </extension>
-   <extension
-         point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">
-      <DateRangeListenerFactory
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
-      </DateRangeListenerFactory>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
@@ -80,22 +74,22 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
          </adapter>
       </factory>
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+         </adapter>
+      </factory>
    </extension>
    <extension
-         point="org.eclipse.compare.contentViewers">
-      <viewer
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileRecordViewer"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileRecordViewer">
-      </viewer>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditor"
-            icon="icons/sample.gif"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordEditor"
-            name="Diff File Record Editor">
-      </editor>
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">
+      <DateRangeListenerFactory
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
+      </DateRangeListenerFactory>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter">

@@ -9,9 +9,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 
 public class DiffFileManagerTest {
@@ -37,7 +37,8 @@ public class DiffFileManagerTest {
 	public void clearCache() throws URISyntaxException, IOException {
 		File sourcesDirectory = new DiffUtils(FileUtils.getFile(logDirectory))
 				.getSourceRoot();
-		org.apache.commons.io.FileUtils.cleanDirectory(sourcesDirectory);
+		if (sourcesDirectory.exists())
+			org.apache.commons.io.FileUtils.cleanDirectory(sourcesDirectory);
 	}
 
 	@Test

@@ -128,7 +128,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		return actionParameter;
 	}
 
-	public Date getDate() {
+	Date getDate() {
 		return date;
 	}
 
@@ -150,10 +150,6 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 
 	void setMillisecondsPassed(Long millisecondsPassed) {
 		this.millisecondsPassed = millisecondsPassed;
-	}
-
-	public Long getMillisecondsPassed() {
-		return this.millisecondsPassed;
 	}
 
 	public DateRange getDateRange() {

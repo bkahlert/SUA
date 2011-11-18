@@ -30,9 +30,21 @@ public class DoclogManager extends DataSourceManager {
 
 	public void scanFiles() {
 		this.doclogFiles = new DoclogFileList();
+		for (File diffFile : this.logDirectory.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+				return true;
+			}
+		})) {
+			System.out.println(diffFile);
+		}
 		for (File diffFile : this.logDirectory
 				.listFiles((FileFilter) new RegexFileFilter(
 						DoclogFile.ID_PATTERN))) {
+			System.err.println(diffFile);
+			System.err.println(diffFile.toString().charAt(40));
+			String toString = diffFile.toString();
 			this.doclogFiles.add(new DoclogFile(diffFile.getAbsolutePath()));
 		}
 

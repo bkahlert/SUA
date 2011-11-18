@@ -26,10 +26,13 @@ public class DiffFileRecordMeta implements HasDateRange {
 	 */
 	private static Date getDateFromLine(String line) {
 		String nanosecondsDateString = line.substring(4).split("\t")[1];
-		String millisecondsDateString = DateUtil
+		Object[] millisecondsDate = DateUtil
 				.nanoDateStringToMilliDateString(nanosecondsDateString);
 		try {
-			return dateFormat.parse(millisecondsDateString);
+			Date date = dateFormat.parse((String) millisecondsDate[0]);
+			if ((Boolean) millisecondsDate[1])
+				date.setTime(date.getTime() + 1);
+			return date;
 		} catch (ParseException e) {
 			return null;
 		}
@@ -40,11 +43,16 @@ public class DiffFileRecordMeta implements HasDateRange {
 	private String toFileName;
 	private Date toFileDate;
 
+	private DateRange dateRange;
+
 	public DiffFileRecordMeta(String fromFileLine, String toFileLine) {
 		this.fromFileName = getNameFromLine(fromFileLine);
 		this.fromFileDate = getDateFromLine(fromFileLine);
 		this.toFileName = getNameFromLine(toFileLine);
 		this.toFileDate = getDateFromLine(toFileLine);
+		this.dateRange = new DateRange(
+				DateUtil.isUnixTimeStart(fromFileDate) ? null : fromFileDate,
+				toFileDate);
 	}
 
 	public String getFromFileName() {
@@ -65,6 +73,6 @@ public class DiffFileRecordMeta implements HasDateRange {
 
 	@Override
 	public DateRange getDateRange() {
-		return new DateRange(this.getFromFileDate(), this.getToFileDate());
+		return this.dateRange;
 	}
 }

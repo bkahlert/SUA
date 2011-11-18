@@ -66,7 +66,7 @@ public class Activator extends AbstractUIPlugin {
 
 		try {
 			this.diffFileManager = new DiffFileManager(logfilePath,
-					new SUADiffPreferenceUtil().getTrunkPath());
+					new SUADiffPreferenceUtil().getTrunkDirectory());
 			this.doclogManager = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
 					.getDefault().initDoclogManager(logfilePath);
 			this.surveyRecordManager = new SurveyRecordManager(surveyRecordPath);

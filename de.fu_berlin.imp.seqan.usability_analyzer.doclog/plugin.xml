@@ -17,6 +17,13 @@
             name="Doclog Screenshots"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
+            name="Doclog Timeline"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">

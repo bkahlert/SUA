@@ -7,7 +7,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+
 
 public class DiffFileTest {
 
@@ -18,16 +19,31 @@ public class DiffFileTest {
 	}
 
 	@Test
-	public void testDiffFileRecordsCount() throws URISyntaxException {
-		DiffFile diffFile = getDiffFile("o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff");
-		int[] numContentLines = new int[] { 12, 12, 88, 12, 13, 12 };
+	public void testDiffFileRecords() throws URISyntaxException {
+		testDiffFileRecordsCountRun(
+				getDiffFile("o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"),
+				new int[] { 12, 12, 88, 12, 13, 12 }, new Long[] { 47547l,
+						47557l, 189484l, 47609l, 47922l, 47938l });
 
+		testDiffFileRecordsCountRun(
+				getDiffFile("5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff"),
+				new int[] { 7, 6, 12, 22, 6, 22, 64, 129, 12, 7, 7 },
+				new Long[] { null, null, null, null, null, null, null, null,
+						null, null, null });
+	}
+
+	private void testDiffFileRecordsCountRun(DiffFile diffFile,
+			int[] numContentLines, Long[] timeDifferences) {
 		DiffFileRecordList diffFileRecords = diffFile.getDiffFileRecords();
-		Assert.assertEquals(6, diffFileRecords.size());
+		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
 			DiffFileRecord diffFileRecord = diffFileRecords.get(i);
-			Assert.assertEquals(numContentLines[i], diffFileRecord.getPatchContent()
-					.split("\n").length);
+			Assert.assertEquals(diffFileRecord.getFilename(),
+					numContentLines[i],
+					diffFileRecord.getPatchContent().split("\n").length);
+			Assert.assertEquals(diffFileRecord.getFilename(),
+					timeDifferences[i], diffFileRecord.getDateRange()
+							.getDifference());
 		}
 	}
 

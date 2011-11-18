@@ -11,7 +11,7 @@ public class TrunkUtils {
 	}
 
 	public static File getTrunkFile(String relativeFile) {
-		return new File(new SUADiffPreferenceUtil().getTrunkPath(),
+		return new File(new SUADiffPreferenceUtil().getTrunkDirectory(),
 				relativeFile);
 	}
 }

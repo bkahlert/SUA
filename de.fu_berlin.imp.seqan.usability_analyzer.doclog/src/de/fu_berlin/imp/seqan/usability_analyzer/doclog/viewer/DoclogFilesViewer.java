@@ -66,7 +66,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
-							Date date = doclogRecord.getDate();
+							Date date = doclogRecord.getDateRange()
+									.getStartDate();
 							return (date != null) ? dateFormat.format(date)
 									: "";
 						}
@@ -90,7 +91,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
 							Long milliSecondsPassed = doclogRecord
-									.getMillisecondsPassed();
+									.getDateRange().getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
 											timeDifferenceFormat, true) : "";

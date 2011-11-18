@@ -140,6 +140,16 @@ public class DoclogScreenshotsView extends ViewPart {
 	}
 
 	protected void refresh(Map<Object, List<DateRange>> groupedDateRanges) {
+		boolean equals = true;
+
+		// TODO: Compare, wenn gleich, dann kein Update und damit kein erneutes
+		// Bilderladen
+		for (Object idOrFingerprint : groupedDateRanges.keySet()) {
+			List<DateRange> dateRanges = groupedDateRanges.get(idOrFingerprint);
+			for (DateRange dateRange : dateRanges) {
+
+			}
+		}
 		this.cachedGroupedDateRanges = groupedDateRanges;
 		refresh();
 	}

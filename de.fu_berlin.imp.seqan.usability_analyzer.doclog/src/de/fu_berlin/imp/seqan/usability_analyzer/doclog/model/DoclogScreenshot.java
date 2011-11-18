@@ -122,7 +122,8 @@ public class DoclogScreenshot implements HasDateRange {
 				 * seqan.de documentation. If this computer can't produce the
 				 * screenshots the screenshots height demands that's ok.
 				 */
-				if (this.doclogRecord.getUrl().contains("/INDEX_")) {
+				if (this.doclogRecord.getUrl().contains("/INDEX_")
+						&& Activator.getDefault() != null) {
 					int maxHeight = Activator.getDefault().getMaxCaptureArea().height;
 
 					if (windowDimensions.y > maxHeight
@@ -168,6 +169,10 @@ public class DoclogScreenshot implements HasDateRange {
 		if (this.imageData == null)
 			this.imageData = this.calculateImageData();
 		return this.imageData;
+	}
+
+	public Dimension getImageSize() throws IOException {
+		return this.calculateImageSize();
 	}
 
 	public Status getStatus() {

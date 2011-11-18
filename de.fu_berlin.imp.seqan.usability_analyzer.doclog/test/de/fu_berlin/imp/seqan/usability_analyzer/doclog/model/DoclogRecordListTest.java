@@ -191,7 +191,8 @@ public class DoclogRecordListTest {
 				expectedTimeDifference, actualTimeDifference);
 		Assert.assertEquals("DoclogRecords\n" + doclogRecord + " and\n"
 				+ successor + "\nhave wrong time difference", new Long(
-				expectedTimeDifference), doclogRecord.getMillisecondsPassed());
+				expectedTimeDifference), doclogRecord.getDateRange()
+				.getDifference());
 	}
 
 	@Test

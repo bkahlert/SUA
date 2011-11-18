@@ -67,7 +67,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 				List<DoclogFile> doclogFiles = SelectionRetrieverFactory
 						.getSelectionRetriever(DoclogFile.class).getSelection();
-				if (treeViewer != null) {
+				if (treeViewer != null && doclogFiles.size() > 0) {
 					treeViewer.setInput(doclogFiles);
 					treeViewer.expandAll();
 				}
