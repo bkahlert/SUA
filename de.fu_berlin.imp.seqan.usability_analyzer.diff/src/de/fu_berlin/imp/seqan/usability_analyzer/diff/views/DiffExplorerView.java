@@ -43,7 +43,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
@@ -255,7 +255,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	}
 
 	@Override
-	public void dateRangeChanged(DateRange oldDateRange, DateRange newDateRange) {
+	public void dateRangeChanged(LocalDateRange oldDateRange, LocalDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
 			this.treeViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);

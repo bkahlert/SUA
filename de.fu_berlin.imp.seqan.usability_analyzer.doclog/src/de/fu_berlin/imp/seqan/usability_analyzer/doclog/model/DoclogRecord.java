@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,9 @@ import org.eclipse.swt.graphics.Point;
 import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
@@ -20,11 +23,14 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	/*
 	 * [^\\t] selects everything but a tabulator
 	 */
-	public static final String PATTERN = "([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})"
+	public static final String PATTERN = "([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?"
 			+ "\\t([^\\t]+?)(-([^\\t]+?))?"
 			+ "\\t([^\\t]+)"
 			+ "\\t([^\\t]+)\\t([^\\t]+)"
 			+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)";
+
+	private static int MAX_SHORT_URL_LENGTH = 30;
+	private static String SHORT_URL_SHORTENER = "...";
 
 	private DoclogFile doclogFile;
 	private String rawContent;
@@ -34,7 +40,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	private String proxyIp;
 	private DoclogAction action;
 	private String actionParameter;
-	private Date date;
+	private LocalDate date;
 	private Point scrollPosition;
 	private Point windowDimensions;
 
@@ -48,27 +54,45 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 
 		Matcher matcher = Pattern.compile(PATTERN).matcher(line);
 		if (matcher.find()) {
-			this.url = cleanUrl(matcher.group(10));
+			this.url = cleanUrl(matcher.group(13));
 			if (this.url == null)
 				throw new DataSourceInvalidException("The url is invalid");
-			this.ip = matcher.group(11);
-			this.proxyIp = matcher.group(12);
+			this.ip = matcher.group(14);
+			this.proxyIp = matcher.group(15);
 
-			this.action = DoclogAction.getByString(matcher.group(7));
-			this.actionParameter = matcher.group(9);
+			this.action = DoclogAction.getByString(matcher.group(10));
+			this.actionParameter = matcher.group(12);
 
-			this.date = DateUtil.getDate(Integer.valueOf(matcher.group(1)),
-					Integer.valueOf(matcher.group(2)) - 1,
-					Integer.valueOf(matcher.group(3)),
-					Integer.valueOf(matcher.group(4)),
-					Integer.valueOf(matcher.group(5)),
-					Integer.valueOf(matcher.group(6)));
+			if (matcher.group(7) != null) {
+				// Date contains time zone
+				this.date = new LocalDate(matcher.group(1) + "-"
+						+ matcher.group(2) + "-" + matcher.group(3) + "T"
+						+ matcher.group(4) + ":" + matcher.group(5) + ":"
+						+ matcher.group(6) + matcher.group(8) + ":"
+						+ matcher.group(9));
+			} else {
+				// Date does not contain a time zone
+				Date date = DateUtil.getDate(Integer.valueOf(matcher.group(1)),
+						Integer.valueOf(matcher.group(2)) - 1,
+						Integer.valueOf(matcher.group(3)),
+						Integer.valueOf(matcher.group(4)),
+						Integer.valueOf(matcher.group(5)),
+						Integer.valueOf(matcher.group(6)));
+
+				TimeZone timeZone;
+				try {
+					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
+				} catch (Exception e) {
+					timeZone = TimeZone.getDefault();
+				}
+				this.date = new LocalDate(date, timeZone);
+			}
 
 			this.scrollPosition = new Point(
-					Integer.parseInt(matcher.group(13)),
-					Integer.parseInt(matcher.group(14)));
+					Integer.parseInt(matcher.group(16)),
+					Integer.parseInt(matcher.group(17)));
 			this.windowDimensions = new Point(Integer.parseInt(matcher
-					.group(15)), Integer.parseInt(matcher.group(16)));
+					.group(18)), Integer.parseInt(matcher.group(19)));
 
 			try {
 				if (doclogFile != null)
@@ -112,6 +136,23 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		return this.url;
 	}
 
+	public String getShortUrl() {
+		String protocollessUrl = getUrl().replaceAll("\\w*://", "");
+		if (protocollessUrl.length() > MAX_SHORT_URL_LENGTH) {
+			int startLength = (int) Math
+					.round(((double) MAX_SHORT_URL_LENGTH - SHORT_URL_SHORTENER
+							.length()) * 0.3);
+			int endLength = MAX_SHORT_URL_LENGTH - SHORT_URL_SHORTENER.length()
+					- startLength;
+			return protocollessUrl.substring(0, startLength)
+					+ SHORT_URL_SHORTENER
+					+ protocollessUrl.substring(protocollessUrl.length()
+							- endLength);
+		} else {
+			return protocollessUrl;
+		}
+	}
+
 	public String getIp() {
 		return ip;
 	}
@@ -128,7 +169,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		return actionParameter;
 	}
 
-	Date getDate() {
+	LocalDate getDate() {
 		return date;
 	}
 
@@ -152,14 +193,14 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		this.millisecondsPassed = millisecondsPassed;
 	}
 
-	public DateRange getDateRange() {
+	public LocalDateRange getDateRange() {
 		if (this.date == null)
 			return null;
 
-		long start = this.date.getTime();
-		return new DateRange(start, start
-				+ ((this.millisecondsPassed != null) ? this.millisecondsPassed
-						: 0));
+		LocalDate endDate = this.date.clone();
+		if (this.millisecondsPassed != null)
+			endDate.addMilliseconds(this.millisecondsPassed);
+		return new LocalDateRange(this.date, endDate);
 	}
 
 	@Override

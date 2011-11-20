@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  com.bkahlert.devel.nebula;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/javatuples-1.2.jar
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.doclog;
   uses:="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model,
    de.fu_berlin.imp.seqan.usability_analyzer.core.model,

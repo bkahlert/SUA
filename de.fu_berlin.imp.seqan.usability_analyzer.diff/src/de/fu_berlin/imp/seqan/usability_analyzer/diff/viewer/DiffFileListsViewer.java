@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
 import java.text.DateFormat;
 import java.util.Comparator;
-import java.util.Date;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
@@ -15,6 +14,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
@@ -59,8 +59,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DiffFile) {
 							DiffFile diffFile = (DiffFile) element;
-							Date date = diffFile.getDate();
-							return (date != null) ? dateFormat.format(date)
+							LocalDate date = diffFile.getDate();
+							return (date != null) ? date.format(dateFormat)
 									: "";
 						}
 						if (element instanceof DiffFileRecord) {
@@ -135,8 +135,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					public String getText(Object element) {
 						if (element instanceof DiffFile) {
 							DiffFile diffFile = (DiffFile) element;
-							Long milliSecondsPassed = diffFile
-									.getMillisecondsPassed();
+							Long milliSecondsPassed = diffFile.getDateRange()
+									.getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
 											timeDifferenceFormat, true)

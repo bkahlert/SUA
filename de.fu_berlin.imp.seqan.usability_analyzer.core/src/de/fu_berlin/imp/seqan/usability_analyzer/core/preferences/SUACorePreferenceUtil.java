@@ -3,14 +3,15 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.TimeZone;
 
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 
 public class SUACorePreferenceUtil extends PreferenceUtil {
@@ -43,16 +44,31 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.SURVEYFILE_PATH);
 	}
 
-	public Date getDateRangeStart() {
-		long rangeStart = getPreferenceStore().getLong(
-				SUACorePreferenceConstants.DATE_RANGE_START);
-		return new Date(rangeStart);
+	public TimeZone getDefaultTimeZone() {
+		return TimeZone.getTimeZone(getPreferenceStore().getString(
+				SUACorePreferenceConstants.DEFAULT_TIME_ZONE));
 	}
 
-	public void setDateRangeStart(Date rangeStart) {
+	public void setDefaultTimeZone(TimeZone timeZone) {
+		getPreferenceStore().setValue(
+				SUACorePreferenceConstants.DEFAULT_TIME_ZONE, timeZone.getID());
+	}
+
+	public boolean defaultTimeZoneChanged(PropertyChangeEvent event) {
+		return event.getProperty().equals(
+				SUACorePreferenceConstants.DEFAULT_TIME_ZONE);
+	}
+
+	public LocalDate getDateRangeStart() {
+		String rangeStart = getPreferenceStore().getString(
+				SUACorePreferenceConstants.DATE_RANGE_START);
+		return new LocalDate(rangeStart);
+	}
+
+	public void setDateRangeStart(LocalDate rangeStart) {
 		getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_START,
-				rangeStart.getTime());
+				rangeStart.toISO8601());
 	}
 
 	public boolean dateRangeStartChanged(PropertyChangeEvent event) {
@@ -60,15 +76,16 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.DATE_RANGE_START);
 	}
 
-	public Date getDateRangeEnd() {
-		long rangeEnd = getPreferenceStore().getLong(
+	public LocalDate getDateRangeEnd() {
+		String rangeEnd = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_END);
-		return new Date(rangeEnd);
+		return new LocalDate(rangeEnd);
 	}
 
-	public void setDateRangeEnd(Date rangeEnd) {
-		getPreferenceStore().setValue(
-				SUACorePreferenceConstants.DATE_RANGE_END, rangeEnd.getTime());
+	public void setDateRangeEnd(LocalDate rangeEnd) {
+		getPreferenceStore()
+				.setValue(SUACorePreferenceConstants.DATE_RANGE_END,
+						rangeEnd.toISO8601());
 	}
 
 	public boolean dateRangeEndChanged(PropertyChangeEvent event) {
@@ -108,10 +125,9 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
 	}
 
-	public DateRange getDateRange() {
-		return new DateRange(
-				this.getDateRangeStartEnabled() ? this.getDateRangeStart()
-						: null,
+	public LocalDateRange getDateRange() {
+		return new LocalDateRange(
+				this.getDateRangeStartEnabled() ? getDateRangeStart() : null,
 				this.getDateRangeEndEnabled() ? this.getDateRangeEnd() : null);
 	}
 

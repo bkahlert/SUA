@@ -30,19 +30,18 @@ public class DoclogDetailDialog extends Dialog {
 	}
 
 	protected Control createDialogArea(Composite parent) {
-		getShell().addListener(SWT.MouseUp, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				close();
-			}
-		});
-
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(new FillLayout());
 		final Image screenshot = new Image(Display.getCurrent(), doclogRecord
 				.getScreenshot().getImageData());
 		Label label = new Label(composite, SWT.NONE);
 		label.setImage(screenshot);
+		label.addListener(SWT.MouseUp, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				close();
+			}
+		});
 		composite.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {

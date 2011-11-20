@@ -2,7 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -12,7 +12,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { DateRange.class, IdDateRange.class,
+		return new Class[] { LocalDateRange.class, IdDateRange.class,
 				FingerprintDateRange.class };
 	}
 
@@ -21,7 +21,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) adaptableObject;
-			if (adapterType == DateRange.class) {
+			if (adapterType == LocalDateRange.class) {
 				return doclogRecord.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
@@ -29,7 +29,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 				if (id == null)
 					return null;
 
-				DateRange dateRange = doclogRecord.getDateRange();
+				LocalDateRange dateRange = doclogRecord.getDateRange();
 				return new IdDateRange(id, dateRange.getStartDate(),
 						dateRange.getEndDate());
 			}
@@ -39,7 +39,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 				if (fingerprint == null)
 					return null;
 
-				DateRange dateRange = doclogRecord.getDateRange();
+				LocalDateRange dateRange = doclogRecord.getDateRange();
 				return new FingerprintDateRange(fingerprint,
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}

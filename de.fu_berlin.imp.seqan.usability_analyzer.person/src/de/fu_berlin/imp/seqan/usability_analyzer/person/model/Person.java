@@ -1,14 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.person.model;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
@@ -35,8 +35,8 @@ public class Person implements HasDateRange {
 	private de.fu_berlin.imp.seqan.usability_analyzer.person.mapping.Mapper mapper;
 
 	/* cached fields for performance reasons */
-	private Date earliestEntryDate;
-	private Date latestEntryDate;
+	private LocalDate earliestEntryDate;
+	private LocalDate latestEntryDate;
 
 	public Person(Mapper mapper) {
 		this.mapper = mapper;
@@ -153,7 +153,7 @@ public class Person implements HasDateRange {
 		this.cMakeCacheFile = cMakeCacheFile;
 	}
 
-	private void updateEarliestEntryDate(Date date) {
+	private void updateEarliestEntryDate(LocalDate date) {
 		if (date == null)
 			return;
 		if (this.earliestEntryDate == null)
@@ -162,7 +162,7 @@ public class Person implements HasDateRange {
 			this.earliestEntryDate = date;
 	}
 
-	private void updateLatestEntryDate(Date date) {
+	private void updateLatestEntryDate(LocalDate date) {
 		if (date == null)
 			return;
 		if (this.latestEntryDate == null)
@@ -171,17 +171,17 @@ public class Person implements HasDateRange {
 			this.latestEntryDate = date;
 	}
 
-	public Date getEarliestEntryDate() {
+	public LocalDate getEarliestEntryDate() {
 		return this.earliestEntryDate;
 	}
 
-	public Date getLatestEntryDate() {
+	public LocalDate getLatestEntryDate() {
 		return this.latestEntryDate;
 	}
 
 	@Override
-	public DateRange getDateRange() {
-		return new DateRange(this.earliestEntryDate, this.latestEntryDate);
+	public LocalDateRange getDateRange() {
+		return new LocalDateRange(this.earliestEntryDate, this.latestEntryDate);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 public class FileUtils {
 	/**
@@ -16,7 +17,8 @@ public class FileUtils {
 	 */
 	public static File getFile(Class<?> clazz, String filename)
 			throws URISyntaxException {
-		URI uri = clazz.getResource(filename).toURI();
+		URL url = clazz.getResource(filename);
+		URI uri = url.toURI();
 		String path = uri.toString().substring(uri.getScheme().length() + 1);
 		return new File(path);
 	}

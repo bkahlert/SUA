@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="ext-src"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="test-data"/>
 	<classpathentry kind="lib" path="lib/JAXB2_20110512.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

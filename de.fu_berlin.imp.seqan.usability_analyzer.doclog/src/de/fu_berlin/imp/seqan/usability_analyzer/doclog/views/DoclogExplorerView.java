@@ -32,9 +32,9 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
@@ -87,12 +87,12 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			if (idDateRanges.size() == 0)
 				return;
 
-			Map<ID, List<DateRange>> groupedDateRanges = IdDateRange
+			Map<ID, List<LocalDateRange>> groupedDateRanges = IdDateRange
 					.group(idDateRanges);
 
 			List<TreePath> treePaths = new ArrayList<TreePath>();
 			for (ID id : groupedDateRanges.keySet()) {
-				List<DateRange> dataRanges = groupedDateRanges.get(id);
+				List<LocalDateRange> dataRanges = groupedDateRanges.get(id);
 				TreeItem[] treeItems = treeViewer.getTree().getItems();
 
 				List<TreePath> idIntersectingDoclogRecords;
@@ -183,12 +183,11 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public void dateRangeChanged(DateRange oldDateRange, DateRange newDateRange) {
+	public void dateRangeChanged(LocalDateRange oldDateRange,
+			LocalDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
 			this.treeViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);

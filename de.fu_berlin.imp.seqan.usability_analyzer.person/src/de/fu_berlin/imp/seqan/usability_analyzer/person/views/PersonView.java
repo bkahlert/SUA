@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.person.views;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +28,10 @@ import org.eclipse.ui.part.ViewPart;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
@@ -214,26 +214,26 @@ public class PersonView extends ViewPart implements IDataSourceFilterListener,
 					}
 				});
 
-		this.personTableViewer.createColumn("Earliest Entry", 130)
+		this.personTableViewer.createColumn("Earliest Entry", 180)
 				.setLabelProvider(new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						Person person = (Person) element;
-						Date earliestDate = person.getEarliestEntryDate();
-						return (earliestDate != null) ? preferenceUtil
-								.getDateFormat().format(earliestDate) : "";
+						LocalDate earliestDate = person.getEarliestEntryDate();
+						return (earliestDate != null) ? earliestDate
+								.format(preferenceUtil.getDateFormat()) : "";
 
 					}
 				});
 
-		this.personTableViewer.createColumn("Latest Entry", 130)
+		this.personTableViewer.createColumn("Latest Entry", 180)
 				.setLabelProvider(new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						Person person = (Person) element;
-						Date lastestDate = person.getLatestEntryDate();
-						return (lastestDate != null) ? preferenceUtil
-								.getDateFormat().format(lastestDate) : "";
+						LocalDate lastestDate = person.getLatestEntryDate();
+						return (lastestDate != null) ? lastestDate
+								.format(preferenceUtil.getDateFormat()) : "";
 					}
 				});
 	}
@@ -273,7 +273,8 @@ public class PersonView extends ViewPart implements IDataSourceFilterListener,
 	}
 
 	@Override
-	public void dateRangeChanged(DateRange oldDateRange, DateRange newDateRange) {
+	public void dateRangeChanged(LocalDateRange oldDateRange,
+			LocalDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
 			this.personTableViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);

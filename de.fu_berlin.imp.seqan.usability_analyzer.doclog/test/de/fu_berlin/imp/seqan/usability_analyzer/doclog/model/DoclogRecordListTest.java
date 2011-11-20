@@ -4,11 +4,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.TimeZone;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DoclogRecordListTest {
@@ -65,11 +67,14 @@ public class DoclogRecordListTest {
 	@Test
 	public void earliestLatestDateTest() throws Exception {
 		DoclogFile doclogFile = this.getDoclogFile();
-		Assert.assertEquals(DateUtil.getDate(2011, 8, 10, 10, 20, 59),
-				doclogFile.getDoclogRecords().get(0).getDate());
-		Assert.assertEquals(DateUtil.getDate(2011, 8, 13, 12, 43, 45),
-				doclogFile.getDoclogRecords().get(doclogNumDoclogRecords - 1)
-						.getDate());
+		Assert.assertEquals(
+				new LocalDate(DateUtil.getDate(2011, 8, 10, 10, 20, 59),
+						TimeZone.getDefault()), doclogFile.getDoclogRecords()
+						.get(0).getDate());
+		Assert.assertEquals(
+				new LocalDate(DateUtil.getDate(2011, 8, 13, 12, 43, 45),
+						TimeZone.getDefault()), doclogFile.getDoclogRecords()
+						.get(doclogNumDoclogRecords - 1).getDate());
 	}
 
 	/*

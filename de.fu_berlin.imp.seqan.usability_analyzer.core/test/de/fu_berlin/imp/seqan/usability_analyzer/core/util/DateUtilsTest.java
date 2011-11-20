@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
-import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,61 +83,6 @@ public class DateUtilsTest {
 		Assert.assertEquals(false, DateUtil.isUnixTimeStart(DateUtil.getDate(
 				1970, 0, 1, 0, 0, 0, 1)));
 		Assert.assertEquals(true, DateUtil.isUnixTimeStart(null));
-	}
-
-	@Test
-	public void nanoDateStringToMilliDateString() {
-		Object[] rt;
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-09-13 12:10:14.578125000 +0200");
-		Assert.assertEquals("2011-09-13 12:10:14.578 +0200", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-09-13 12:10:14.578125000 +1100");
-		Assert.assertEquals("2011-09-13 12:10:14.578 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.578825000 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.579 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.570000000 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.570 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.500000000 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.500 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.000000000 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.000 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.000500000 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.001 +1100", rt[0]);
-		Assert.assertEquals(false, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 12:10:14.999999999 +1100");
-		Assert.assertEquals("2011-01-13 12:10:14.000 +1100", rt[0]);
-		Assert.assertEquals(true, rt[1]);
-
-		rt = DateUtil
-				.nanoDateStringToMilliDateString("2011-01-13 23:59:59.999999999 +1100");
-		Assert.assertEquals("2011-01-13 23:59:59.000 +1100", rt[0]);
-		Assert.assertEquals(true, rt[1]);
-	}
-
-	@Test(expected = InvalidParameterException.class)
-	public void nanoDateStringToMilliDateStringInvalid() {
-		DateUtil.nanoDateStringToMilliDateString("2011-01-13 23:59:59.12345678912345 +1100");
 	}
 
 	@Test

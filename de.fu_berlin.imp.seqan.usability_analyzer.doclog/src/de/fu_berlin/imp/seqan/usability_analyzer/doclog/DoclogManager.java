@@ -42,9 +42,6 @@ public class DoclogManager extends DataSourceManager {
 		for (File diffFile : this.logDirectory
 				.listFiles((FileFilter) new RegexFileFilter(
 						DoclogFile.ID_PATTERN))) {
-			System.err.println(diffFile);
-			System.err.println(diffFile.toString().charAt(40));
-			String toString = diffFile.toString();
 			this.doclogFiles.add(new DoclogFile(diffFile.getAbsolutePath()));
 		}
 

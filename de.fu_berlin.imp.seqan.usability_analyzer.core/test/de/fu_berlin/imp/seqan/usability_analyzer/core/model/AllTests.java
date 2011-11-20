@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ LocalDateTest.class, DateRangeTest.class })
+@SuiteClasses({ DataSetInfoTest.class, LocalDateTest.class, DateRangeTest.class })
 public class AllTests {
 
 }

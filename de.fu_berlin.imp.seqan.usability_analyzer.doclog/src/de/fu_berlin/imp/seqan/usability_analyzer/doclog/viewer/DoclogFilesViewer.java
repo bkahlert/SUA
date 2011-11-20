@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -19,8 +18,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TreeItem;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
@@ -66,9 +66,9 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
-							Date date = doclogRecord.getDateRange()
+							LocalDate date = doclogRecord.getDateRange()
 									.getStartDate();
-							return (date != null) ? dateFormat.format(date)
+							return (date != null) ? date.format(dateFormat)
 									: "";
 						}
 						return "";
@@ -250,8 +250,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * Returns the {@link TreePath}s that describe {@link DoclogRecord}
 	 * fulfilling the following criteria:
 	 * <ol>
-	 * <li>{@link DoclocRecord}'s {@link DateRange} intersects one of the given
-	 * {@link DateRange}s
+	 * <li>{@link DoclocRecord}'s {@link LocalDateRange} intersects one of the
+	 * given {@link LocalDateRange}s
 	 * </ol>
 	 * 
 	 * @param treeItems
@@ -259,12 +259,12 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, List<DateRange> dataRanges) {
+			TreeItem[] treeItems, List<LocalDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (TreeItem treeItem : ViewerUtils.getItemWithDataType(treeItems,
 				DoclogRecord.class)) {
 			DoclogRecord doclogRecord = (DoclogRecord) treeItem.getData();
-			for (DateRange dateRange : dataRanges) {
+			for (LocalDateRange dateRange : dataRanges) {
 				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
 					treePaths.add(new TreePath(new Object[] { doclogRecord }));
 					break;
@@ -280,8 +280,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * <ol>
 	 * <li>{@link DoclogRecord} belongs to a {@link DoclogFile} with the given
 	 * {@link ID}
-	 * <li>{@link DoclocRecord}'s {@link DateRange} intersects one of the given
-	 * {@link DateRange}s
+	 * <li>{@link DoclocRecord}'s {@link LocalDateRange} intersects one of the
+	 * given {@link LocalDateRange}s
 	 * </ol>
 	 * 
 	 * @param treeItems
@@ -290,7 +290,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
-			TreeItem[] treeItems, ID id, List<DateRange> dataRanges) {
+			TreeItem[] treeItems, ID id, List<LocalDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (TreeItem treeItem : ViewerUtils.getItemWithDataType(treeItems,
 				DoclogFile.class)) {

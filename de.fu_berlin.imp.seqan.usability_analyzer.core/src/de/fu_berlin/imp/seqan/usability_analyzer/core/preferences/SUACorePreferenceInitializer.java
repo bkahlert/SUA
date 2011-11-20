@@ -1,13 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
-import java.util.Calendar;
-
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer {
 
@@ -20,11 +19,11 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(1970, 0, 0, 0, 0, 0);
-		long rangeStart = calendar.getTime().getTime();
-		calendar.set(2050, 0, 0, 0, 0, 0);
-		long rangeEnd = calendar.getTime().getTime();
+		store.setDefault(SUACorePreferenceConstants.DEFAULT_TIME_ZONE,
+				"Europe/Berlin");
+
+		long rangeStart = DateUtil.getDate(1970, 0, 1, 0, 0, 0, 0).getTime();
+		long rangeEnd = DateUtil.getDate(2050, 0, 1, 0, 0, 0, 0).getTime();
 
 		store.setDefault(SUACorePreferenceConstants.DATE_RANGE_START,
 				rangeStart);
@@ -35,7 +34,7 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 				false);
 
 		store.setDefault(SUACorePreferenceConstants.DATEFORMAT,
-				"yyyy-MM-dd HH:mm:ss");
+				"yyyy-MM-dd HH:mm:ss Z");
 
 		store.setDefault(SUACorePreferenceConstants.TIMEDIFFERENCEFORMAT,
 				"HH'h' mm'm' ss's'");

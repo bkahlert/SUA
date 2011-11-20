@@ -4,6 +4,8 @@ public class SUACorePreferenceConstants {
 	public static final String LOGFILE_PATH = "logfile_path";
 	public static final String SURVEYFILE_PATH = "surveyfile_path";
 
+	public static final String DEFAULT_TIME_ZONE = "default_timezone";
+
 	public static final String DATE_RANGE_START = "range_start";
 	public static final String DATE_RANGE_END = "range_end";
 	public static final String DATE_RANGE_START_ENABLED = "range_start_enabled";

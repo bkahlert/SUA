@@ -16,15 +16,19 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 
 public class DiffFileManagerTest {
 
-	private static final String logDirectory = "data";
-	private static final String trunkDirectory = "trunk";
+	private static final String root = "/"
+			+ DiffFileManagerTest.class.getPackage().getName()
+					.replace('.', '/') + "/..";
+	private static final String logDirectory = root + "/data";
+	private static final String trunkDirectory = root + "/trunk";
 
 	private static ID id = new ID("amudto8y1mzxaebv");
 
 	private static DiffFileManager getDiffFileManager()
 			throws DataSourceInvalidException, URISyntaxException {
-		return new DiffFileManager(FileUtils.getFile(logDirectory),
-				FileUtils.getFile(trunkDirectory));
+		return new DiffFileManager(FileUtils.getFile(DiffFileManagerTest.class,
+				logDirectory), FileUtils.getFile(DiffFileManagerTest.class,
+				trunkDirectory));
 	}
 
 	private DiffFileRecordHistory getDiffFileRecordHistory()

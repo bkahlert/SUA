@@ -2,11 +2,9 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.util;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -15,27 +13,18 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import com.bkahlert.devel.nebula.widgets.timeline.Timeline.Decorator;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 
 public class JsonUtils {
 
 	public static Logger logger = Logger.getLogger(JsonUtils.class);
 
-	/**
-	 * e.g. May 10 1961 00:00:00 GMT-0600
-	 */
-	public static DateFormat dateFormat = new SimpleDateFormat(
-			"MMM d yyyy HH:mm:ss 'GMT'Z");
-
-	public static String formatDate(Date date) {
-		return dateFormat.format(date);
-	}
-
-	public static String generateJSON(DoclogFile doclogFile,
+	public static String generateJSON(List<DoclogRecord> doclogRecords,
 			Map<String, Object> options, boolean pretty) {
 		JsonFactory factory = new JsonFactory();
 		StringWriter writer = new StringWriter();
@@ -62,28 +51,37 @@ public class JsonUtils {
 
 			generator.writeFieldName("events");
 			generator.writeStartArray();
-			DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
-			for (int i = 0, m = doclogRecords.size(); i < m; i++) {
-				DoclogRecord doclogRecord = doclogRecords.get(i);
+			for (DoclogRecord doclogRecord : doclogRecords) {
 
 				generator.writeStartObject();
 				generator.writeFieldName("title");
-				generator.writeString(doclogRecord.getAction().toString()
-						+ " - " + doclogRecord.getUrl());
+				generator
+						.writeString(doclogRecord.getShortUrl()
+								+ ((doclogRecord.getAction() == DoclogAction.LINK) ? "<br/>→ "
+										+ doclogRecord.getActionParameter()
+										: ""));
 
-				DateRange dateRange = doclogRecord.getDateRange();
+				generator.writeFieldName("classname");
+				generator.writeString(doclogRecord.getAction().toString());
+
+				LocalDateRange dateRange = doclogRecord.getDateRange();
 				if (dateRange.getStartDate() != null) {
 					generator.writeFieldName("start");
-					generator.writeString(formatDate(dateRange.getStartDate()));
+					generator.writeString(dateRange.getStartDate().toISO8601());
 				}
 				if (dateRange.getEndDate() != null) {
 					generator.writeFieldName("end");
-					generator.writeString(formatDate(dateRange.getEndDate()));
+					generator.writeString(dateRange.getEndDate().toISO8601());
 				}
 				if (dateRange.getStartDate() != null
 						&& dateRange.getEndDate() != null) {
 					generator.writeFieldName("durationEvent");
 					generator.writeBoolean(true);
+
+					// TODO
+					if (dateRange.getStartDate().after(dateRange.getEndDate())) {
+						System.err.println("ERROR" + doclogRecord.getAction());
+					}
 				}
 
 				/*
@@ -104,13 +102,38 @@ public class JsonUtils {
 				if (doclogRecord.getScreenshot().getStatus() == Status.OK
 						|| doclogRecord.getScreenshot().getStatus() == Status.DIRTY) {
 					generator.writeFieldName("image");
-					generator.writeString("sua://doclog/" + i);
+					generator.writeString("sua://doclog/"
+							+ System.identityHashCode(doclogRecord));
 				}
 
 				generator.writeEndObject();
 			}
 			generator.writeEndArray();
 			generator.writeEndObject();
+			generator.close();
+			String generated = writer.toString();
+			writer.close();
+			// System.err.println(generated);
+			return generated;
+		} catch (IOException e) {
+			logger.fatal("Error using " + StringWriter.class.getSimpleName(), e);
+		}
+		return null;
+	}
+
+	public static String jsonDecoratorList(List<Decorator> decorators,
+			boolean pretty) {
+		JsonFactory factory = new JsonFactory();
+		StringWriter writer = new StringWriter();
+		JsonGenerator generator;
+		try {
+			generator = factory.createJsonGenerator(writer);
+			generator.setCodec(new ObjectMapper());
+			if (pretty)
+				generator.setPrettyPrinter(new DefaultPrettyPrinter());
+
+			generator.writeObject(decorators);
+
 			generator.close();
 			String generated = writer.toString();
 			writer.close();

@@ -1,20 +1,20 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
-import java.util.Date;
 
 /**
- * This class describes a range defined by two {@link Date}s. To define a
+ * This class describes a range defined by two {@link LocalDate}s. To define a
  * unbounded range, simply pass <code>null</code> as one argument.
  * 
  * @author bkahlert
  */
-public class DateRange {
+public class LocalDateRange {
 
-	public static DateRange calculateOuterDateRange(DateRange... dateRanges) {
-		Date earliestDate = null;
-		Date latestDate = null;
+	public static LocalDateRange calculateOuterDateRange(
+			LocalDateRange... dateRanges) {
+		LocalDate earliestDate = null;
+		LocalDate latestDate = null;
 
-		for (DateRange dateRange : dateRanges) {
+		for (LocalDateRange dateRange : dateRanges) {
 			if (earliestDate == null
 					|| earliestDate.compareTo(dateRange.getStartDate()) > 0)
 				earliestDate = dateRange.getStartDate();
@@ -23,29 +23,23 @@ public class DateRange {
 				latestDate = dateRange.getEndDate();
 		}
 
-		return new DateRange(earliestDate, latestDate);
+		return new LocalDateRange(earliestDate, latestDate);
 	}
 
-	private Date startDate;
-	private Date endDate;
+	private LocalDate startDate;
+	private LocalDate endDate;
 
-	public DateRange(Date startDate, Date endDate) {
+	public LocalDateRange(LocalDate startDate, LocalDate endDate) {
 		super();
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
 
-	public DateRange(long startDate, long endDate) {
-		super();
-		this.startDate = new Date(startDate);
-		this.endDate = new Date(endDate);
-	}
-
-	public Date getStartDate() {
+	public LocalDate getStartDate() {
 		return startDate;
 	}
 
-	public Date getEndDate() {
+	public LocalDate getEndDate() {
 		return endDate;
 	}
 
@@ -62,7 +56,7 @@ public class DateRange {
 				&& (this.endDate == null || time <= this.endDate.getTime());
 	}
 
-	public boolean isInRange(Date date) {
+	public boolean isInRange(LocalDate date) {
 		if (date == null)
 			return false;
 		return this.isInRange(date.getTime());
@@ -75,7 +69,7 @@ public class DateRange {
 			return time < this.startDate.getTime();
 	}
 
-	public boolean isBeforeRange(Date date) {
+	public boolean isBeforeRange(LocalDate date) {
 		if (date == null)
 			return false;
 		return this.isBeforeRange(date.getTime());
@@ -88,20 +82,20 @@ public class DateRange {
 			return time > this.endDate.getTime();
 	}
 
-	public boolean isAfterRange(Date date) {
+	public boolean isAfterRange(LocalDate date) {
 		if (date == null)
 			return false;
 		return this.isAfterRange(date.getTime());
 	}
 
 	/**
-	 * Returns true if the given {@link DateRange} intersects the current
-	 * {@link DateRange}.
+	 * Returns true if the given {@link LocalDateRange} intersects the current
+	 * {@link LocalDateRange}.
 	 * 
 	 * @param dateRange
 	 * @return
 	 */
-	public boolean isIntersected(DateRange dateRange) {
+	public boolean isIntersected(LocalDateRange dateRange) {
 		if (dateRange == null)
 			return true;
 

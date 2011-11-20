@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.views;
 
+import java.util.TimeZone;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.nebula.widgets.cdatetime.CDT;
 import org.eclipse.nebula.widgets.cdatetime.CDateTime;
@@ -12,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.inf.nebula.explanation.note.SimpleNoteComposite;
 
@@ -26,7 +29,6 @@ public class DateTimeRangeView extends ViewPart {
 	private int numColumns = 3;
 
 	public DateTimeRangeView() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -82,23 +84,26 @@ public class DateTimeRangeView extends ViewPart {
 
 	private void configure() {
 		if (startDateTime != null && !startDateTime.isDisposed()) {
-			startDateTime.setSelection(preferenceUtil.getDateRangeStart());
+			startDateTime.setSelection(preferenceUtil.getDateRangeStart()
+					.getDate());
 			startDateTime.setEnabled(preferenceUtil.getDateRangeStartEnabled());
 			startDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeStart(startDateTime
-							.getSelection());
+					preferenceUtil.setDateRangeStart(new LocalDate(
+							startDateTime.getSelection(), TimeZone.getDefault()));
 				}
 			});
 		}
 		if (endDateTime != null && !endDateTime.isDisposed()) {
-			endDateTime.setSelection(preferenceUtil.getDateRangeEnd());
+			endDateTime
+					.setSelection(preferenceUtil.getDateRangeEnd().getDate());
 			endDateTime.setEnabled(preferenceUtil.getDateRangeEndEnabled());
 			endDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeEnd(endDateTime.getSelection());
+					preferenceUtil.setDateRangeEnd(new LocalDate(endDateTime
+							.getSelection(), TimeZone.getDefault()));
 				}
 			});
 		}

@@ -6,10 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
 public class SurveyRecord {
 	private Logger logger = Logger.getLogger(SurveyRecord.class);
@@ -19,7 +22,7 @@ public class SurveyRecord {
 			"yyyy-MM-dd HH:mm:ss");
 
 	private Map<String, String> surveyRecords;
-	private Date date;
+	private LocalDate date;
 
 	public SurveyRecord(String[] keys, String[] values) throws IOException {
 		this.surveyRecords = new HashMap<String, String>();
@@ -33,7 +36,14 @@ public class SurveyRecord {
 	private void scanRecord() {
 		if (this.surveyRecords.containsKey(KEY_DATE)) {
 			try {
-				this.date = DATE_FORMAT.parse(this.surveyRecords.get(KEY_DATE));
+				Date date = DATE_FORMAT.parse(this.surveyRecords.get(KEY_DATE));
+				TimeZone timeZone;
+				try {
+					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
+				} catch (Exception e) {
+					timeZone = TimeZone.getDefault();
+				}
+				this.date = new LocalDate(date, timeZone);
 			} catch (ParseException e) {
 				logger.warn(
 						"Could not parse date from "
@@ -42,7 +52,7 @@ public class SurveyRecord {
 		}
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return this.date;
 	}
 

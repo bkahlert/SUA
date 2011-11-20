@@ -1,14 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core;
 
-import java.util.Date;
-
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
 /**
@@ -22,36 +22,38 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
+	private DataSetInfo dataSetInfo;
+
 	private SUACorePreferenceUtil preferenceUtil;
 
-	private Date oldDateRangeStart;
-	private Date oldDateRangeEnd;
+	private LocalDate oldDateRangeStart;
+	private LocalDate oldDateRangeEnd;
 	private boolean oldDateRangeStartEnabled;
 	private boolean oldDateRangeEndEnabled;
 	private IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
-			DateRange oldDateRange = new DateRange(
+			LocalDateRange oldDateRange = new LocalDateRange(
 					oldDateRangeStartEnabled ? oldDateRangeStart : null,
 					oldDateRangeEndEnabled ? oldDateRangeEnd : null);
-			DateRange newDateRange = null;
+			LocalDateRange newDateRange = null;
 
-			Date newDateRangeStart = oldDateRangeStart;
-			Date newDateRangeEnd = oldDateRangeEnd;
+			LocalDate newDateRangeStart = oldDateRangeStart;
+			LocalDate newDateRangeEnd = oldDateRangeEnd;
 			boolean newDateRangeStartEnabled = oldDateRangeStartEnabled;
 			boolean newDateRangeEndEnabled = oldDateRangeEndEnabled;
 
 			if (preferenceUtil.dateRangeStartChanged(event)) {
-				newDateRangeStart = new Date((Long) event.getNewValue());
+				newDateRangeStart = new LocalDate((String) event.getNewValue());
 			} else if (preferenceUtil.dateRangeEndChanged(event)) {
-				newDateRangeEnd = new Date((Long) event.getNewValue());
+				newDateRangeEnd = new LocalDate((String) event.getNewValue());
 			} else if (preferenceUtil.dateRangeStartEnabledChanged(event)) {
 				newDateRangeStartEnabled = (Boolean) event.getNewValue();
 			} else if (preferenceUtil.dateRangeEndEnabledChanged(event)) {
 				newDateRangeEndEnabled = (Boolean) event.getNewValue();
 			}
 
-			newDateRange = new DateRange(
+			newDateRange = new LocalDateRange(
 					newDateRangeStartEnabled ? newDateRangeStart : null,
 					newDateRangeEndEnabled ? newDateRangeEnd : null);
 			DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,
@@ -82,6 +84,10 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		preferenceUtil = new SUACorePreferenceUtil();
+
+		dataSetInfo = new DataSetInfo(preferenceUtil.getLogfilePath() + "/"
+				+ DataSetInfo.FILENAME);
+
 		preferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
 		oldDateRangeStart = preferenceUtil.getDateRangeStart();
 		oldDateRangeEnd = preferenceUtil.getDateRangeEnd();
@@ -111,4 +117,7 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public DataSetInfo getDataSetInfo() {
+		return dataSetInfo;
+	}
 }

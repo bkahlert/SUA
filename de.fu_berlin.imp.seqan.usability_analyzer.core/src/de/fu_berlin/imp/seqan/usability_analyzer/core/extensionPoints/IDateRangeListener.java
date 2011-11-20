@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 
 public interface IDateRangeListener {
-	public void dateRangeChanged(DateRange oldDateRange, DateRange newDateRange);
+	public void dateRangeChanged(LocalDateRange oldDateRange, LocalDateRange newDateRange);
 }

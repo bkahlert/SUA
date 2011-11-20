@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordMeta;
 
 public class DiffMetaTest {
@@ -21,10 +21,11 @@ public class DiffMetaTest {
 		Assert.assertEquals("./bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
 				meta.getToFileName());
 
-		Assert.assertEquals(DateUtil.getDate(2011, 8, 13, 12 - 3, 35, 14, 578),
+		Assert.assertEquals(
+				new LocalDate("2011-09-13T12:35:14.578125000+03:00"),
 				meta.getFromFileDate());
 		Assert.assertEquals(
-				DateUtil.getDate(2011, 8, 13, 12 - 2, 36 - 30, 02, 125),
+				new LocalDate("2011-09-13T12:36:02.125000000+02:30"),
 				meta.getToFileDate());
 
 		Assert.assertEquals(new Long(1847547), meta.getDateRange()

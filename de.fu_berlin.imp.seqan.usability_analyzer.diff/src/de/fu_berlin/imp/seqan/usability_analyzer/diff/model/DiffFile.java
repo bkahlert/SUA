@@ -7,13 +7,16 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
@@ -22,13 +25,13 @@ public class DiffFile extends File implements HasDateRange {
 	Logger logger = Logger.getLogger(DiffFile.class);
 
 	private static final long serialVersionUID = 5159431028889474742L;
-	public static final String PATTERN = "([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(_manual)?\\.diff";
+	public static final String PATTERN = "([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff";
 
 	private File logDirectory;
 
 	private ID id;
 	private String revision;
-	private Date date;
+	private LocalDate date;
 
 	private Long millisecondsPassed;
 
@@ -43,12 +46,31 @@ public class DiffFile extends File implements HasDateRange {
 		if (matcher.find()) {
 			this.id = new ID(matcher.group(1));
 			this.revision = matcher.group(2);
-			this.date = DateUtil.getDate(Integer.valueOf(matcher.group(3)),
-					Integer.valueOf(matcher.group(4)) - 1,
-					Integer.valueOf(matcher.group(5)),
-					Integer.valueOf(matcher.group(6)),
-					Integer.valueOf(matcher.group(7)),
-					Integer.valueOf(matcher.group(8)));
+
+			if (matcher.group(9) != null) {
+				// Date contains time zone
+				this.date = new LocalDate(matcher.group(3) + "-"
+						+ matcher.group(4) + "-" + matcher.group(5) + "T"
+						+ matcher.group(6) + ":" + matcher.group(7) + ":"
+						+ matcher.group(8) + matcher.group(10) + ":"
+						+ matcher.group(11));
+			} else {
+				// Date does not contain a time zone
+				Date date = DateUtil.getDate(Integer.valueOf(matcher.group(3)),
+						Integer.valueOf(matcher.group(4)) - 1,
+						Integer.valueOf(matcher.group(5)),
+						Integer.valueOf(matcher.group(6)),
+						Integer.valueOf(matcher.group(7)),
+						Integer.valueOf(matcher.group(8)));
+
+				TimeZone timeZone;
+				try {
+					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
+				} catch (Exception e) {
+					timeZone = TimeZone.getDefault();
+				}
+				this.date = new LocalDate(date, timeZone);
+			}
 		}
 
 		// this.scanFiles(filename);
@@ -123,7 +145,7 @@ public class DiffFile extends File implements HasDateRange {
 		return revision;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
@@ -133,22 +155,18 @@ public class DiffFile extends File implements HasDateRange {
 		return diffFileRecords;
 	}
 
-	void setMillisecondsPassed(long millisecondsPassed) {
+	void setMillisecondsPassed(Long millisecondsPassed) {
 		this.millisecondsPassed = millisecondsPassed;
 	}
 
-	public Long getMillisecondsPassed() {
-		return this.millisecondsPassed;
-	}
-
-	public DateRange getDateRange() {
+	public LocalDateRange getDateRange() {
 		if (this.date == null)
 			return null;
 
-		long start = this.date.getTime();
-		return new DateRange(start, start
-				+ ((this.millisecondsPassed != null) ? this.millisecondsPassed
-						: 0));
+		LocalDate endDate = this.date.clone();
+		if (this.millisecondsPassed != null)
+			endDate.addMilliseconds(this.millisecondsPassed);
+		return new LocalDateRange(this.date, endDate);
 	}
 
 	public int compareTo(DiffFile diffFile) {

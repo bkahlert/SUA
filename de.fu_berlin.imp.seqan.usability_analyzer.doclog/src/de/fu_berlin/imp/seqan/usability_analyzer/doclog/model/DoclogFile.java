@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
@@ -86,8 +86,15 @@ public class DoclogFile extends File implements HasDateRange {
 			if (successor != null) {
 				Long millisecondsPassed = successor.getDate().getTime()
 						- doclogRecord.getDate().getTime();
-				millisecondsPassed--; // the previous action ends one minimal
-										// moment before the next action starts
+				if (millisecondsPassed < 0) {
+					logger.error(DoclogRecord.class.getSimpleName()
+							+ "'s successor occured in the past");
+				} else if (millisecondsPassed > 0) {
+					millisecondsPassed--; // the previous action ends one
+											// minimal
+											// moment before the next action
+											// starts
+				}
 				doclogRecord.setMillisecondsPassed(millisecondsPassed);
 			}
 		}
@@ -164,12 +171,12 @@ public class DoclogFile extends File implements HasDateRange {
 	}
 
 	@Override
-	public DateRange getDateRange() {
-		List<DateRange> dateRanges = new ArrayList<DateRange>();
+	public LocalDateRange getDateRange() {
+		List<LocalDateRange> dateRanges = new ArrayList<LocalDateRange>();
 		for (DoclogRecord doclogRecord : this.doclogRecords) {
 			dateRanges.add(doclogRecord.getDateRange());
 		}
-		return DateRange.calculateOuterDateRange(dateRanges
-				.toArray(new DateRange[0]));
+		return LocalDateRange.calculateOuterDateRange(dateRanges
+				.toArray(new LocalDateRange[0]));
 	}
 }

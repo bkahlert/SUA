@@ -1,17 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
-import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-
-import org.apache.commons.lang.StringUtils;
 
 public class DateUtil {
 
@@ -40,46 +35,14 @@ public class DateUtil {
 		return (date == null || date.getTime() == 0l);
 	}
 
-	/**
-	 * Transforms a date representation of with a nanoseconds portion to one
-	 * with a milliseconds portion.
-	 * 
-	 * @param dateString
-	 * @return an array of two elements
-	 *         <ol>
-	 *         <li>converted date string</li>
-	 *         <li>a boolean that is true iff an overflow occurred; you have to
-	 *         add a millisecond to the converted date</li>
-	 *         </ol>
-	 */
-	public static Object[] nanoDateStringToMilliDateString(String dateString) {
-		Pattern pattern = Pattern.compile("\\.(\\d{9}) ");
-		Matcher matcher = pattern.matcher(dateString);
-		if (!matcher.find()) {
-			throw new InvalidParameterException(
-					"The nano portion of the date string could not be founded. "
-							+ "Please make sure that is consists of exactly 9 digits.");
-		}
-		String nanoseconds = matcher.group(1);
-		String fractionalMilliseconds = nanoseconds.substring(0, 4);
-		Double milliseconds = Double.parseDouble(fractionalMilliseconds) / 10;
-		Long roundedMilliseconds = Math.round(milliseconds);
-		String millisecondsString = roundedMilliseconds.toString();
-		boolean overflow = millisecondsString.length() > 3;
-		String filledMillisecondsString = StringUtils.repeat("0",
-				3 - millisecondsString.length())
-				+ ((overflow) ? millisecondsString.substring(millisecondsString
-						.length() - 3) : millisecondsString);
-		return new Object[] {
-				matcher.replaceFirst("." + filledMillisecondsString + " "),
-				overflow };
-	}
-
 	public static String toISO8601(Calendar calendar) {
 		SimpleDateFormat iso8601 = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssz");
+				"yyyy-MM-dd'T'HH:mm:ssZ");
 		iso8601.setTimeZone(calendar.getTimeZone());
-		return iso8601.format(calendar.getTime()).replace("GMT", "");
+		String missingDots = iso8601.format(calendar.getTime()).replace("GMT",
+				"");
+		return missingDots.substring(0, missingDots.length() - 2) + ":"
+				+ missingDots.substring(missingDots.length() - 2);
 	}
 
 	public static Calendar fromISO8601(String lexicalRepresentation) {

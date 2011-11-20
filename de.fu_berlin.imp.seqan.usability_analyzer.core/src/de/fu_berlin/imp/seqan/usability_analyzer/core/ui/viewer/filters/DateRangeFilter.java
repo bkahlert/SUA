@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 
 /**
  * This class works in conjunction with {@link IRange} and keeps only those
@@ -14,11 +14,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
  * 
  */
 public class DateRangeFilter extends ViewerFilter {
-	private Logger logger = Logger.getLogger(DateRange.class);
+	private Logger logger = Logger.getLogger(LocalDateRange.class);
 
-	private DateRange dateRange;
+	private LocalDateRange dateRange;
 
-	public DateRangeFilter(DateRange dateRange) {
+	public DateRangeFilter(LocalDateRange dateRange) {
 		this.dateRange = dateRange;
 	}
 
@@ -27,7 +27,7 @@ public class DateRangeFilter extends ViewerFilter {
 			return true;
 
 		if (element instanceof HasDateRange) {
-			DateRange dateRange = ((HasDateRange) element).getDateRange();
+			LocalDateRange dateRange = ((HasDateRange) element).getDateRange();
 			return this.dateRange.isIntersected(dateRange);
 		}
 

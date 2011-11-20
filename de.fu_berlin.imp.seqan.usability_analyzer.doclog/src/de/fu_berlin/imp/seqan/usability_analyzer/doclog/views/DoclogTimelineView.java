@@ -1,37 +1,40 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.views;
 
-import java.util.Date;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.javatuples.Pair;
 
+import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
@@ -41,15 +44,15 @@ public class DoclogTimelineView extends ViewPart {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			Map<ID, List<DateRange>> idDateRanges = IdDateRange
+			Map<ID, List<LocalDateRange>> idDateRanges = IdDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							IdDateRange.class).getSelection());
 
-			Map<Fingerprint, List<DateRange>> fingerprintDateRanges = FingerprintDateRange
+			Map<Fingerprint, List<LocalDateRange>> fingerprintDateRanges = FingerprintDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							FingerprintDateRange.class).getSelection());
 
-			Map<Object, List<DateRange>> groupedDateRanges = new HashMap<Object, List<DateRange>>();
+			Map<Object, List<LocalDateRange>> groupedDateRanges = new HashMap<Object, List<LocalDateRange>>();
 			groupedDateRanges.putAll(idDateRanges);
 			groupedDateRanges.putAll(fingerprintDateRanges);
 
@@ -59,94 +62,187 @@ public class DoclogTimelineView extends ViewPart {
 		}
 	};
 
-	private IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
+	private ISelectionListener postSelectionListener = new ISelectionListener() {
 		@Override
-		public void propertyChange(PropertyChangeEvent event) {
-			if (new SUADoclogPreferenceUtil().screenshotWidthChanged(event)) {
-				refresh();
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (!part.getClass().equals(DoclogExplorerView.class)
+					&& !part.getSite().getId().contains("DiffExplorerView")) {
+
+				List<DoclogFile> doclogFiles = SelectionRetrieverFactory
+						.getSelectionRetriever(DoclogFile.class).getSelection();
+				if (doclogFiles.size() > 0) {
+					init(doclogFiles);
+				}
 			}
 		}
 	};
 
-	private SUADoclogPreferenceUtil preferenceUtil = new SUADoclogPreferenceUtil();
-
 	private Composite composite;
-
-	private Map<Object, List<DateRange>> cachedGroupedDateRanges;
+	private Map<Object, DoclogTimeline> doclogTimelines = new HashMap<Object, DoclogTimeline>();
 
 	public DoclogTimelineView() {
 	}
 
-	protected void refresh() {
-		this.clear();
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		SelectionUtils.getSelectionService().addSelectionListener(
+				selectionListener);
+		SelectionUtils.getSelectionService().addPostSelectionListener(
+				postSelectionListener);
+	}
 
-		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
+	@Override
+	public void dispose() {
+		SelectionUtils.getSelectionService().removePostSelectionListener(
+				postSelectionListener);
+		SelectionUtils.getSelectionService().removeSelectionListener(
+				selectionListener);
+		super.dispose();
+	}
 
-		int screenshotWidth = preferenceUtil.getScreenshotWidth();
-		for (Object key : this.cachedGroupedDateRanges.keySet()) {
-			DoclogTimeline doclogTimeline = null;
-			DoclogRecordList doclogRecords = null;
-			if (key instanceof ID) {
-				ID id = (ID) key;
-				doclogTimeline = new DoclogTimeline(composite, SWT.NONE, "ID: "
-						+ id.toString());
-				doclogTimeline.show(doclogManager.getDoclogFile(id));
-				doclogRecords = doclogManager.getDoclogFile(id)
-						.getDoclogRecords();
-			} else if (key instanceof Fingerprint) {
-				Fingerprint fingerprint = (Fingerprint) key;
-				doclogTimeline = new DoclogTimeline(composite, SWT.NONE,
-						"Fingerprint: " + fingerprint.toString());
-				doclogTimeline.show(doclogManager.getDoclogFile(fingerprint));
-				doclogRecords = doclogManager.getDoclogFile(fingerprint)
-						.getDoclogRecords();
-			} else {
-				logger.fatal(DateRange.class.getSimpleName()
-						+ " was of unknown source!");
-				return;
-			}
+	public void init(List<DoclogFile> doclogFiles) {
+		disposeUnusedDoclogTimelines(doclogFiles);
 
-			List<DateRange> dateRanges = this.cachedGroupedDateRanges.get(key);
-			Date earliestDate = null;
-			for (DoclogRecord doclogRecord : doclogRecords) {
-				boolean intersects = false;
-				for (DateRange dateRange : dateRanges) {
-					if (dateRange.isIntersected(doclogRecord.getDateRange())) {
-						intersects = true;
-						break;
-					}
-				}
-
-				if (intersects) {
-					if (earliestDate == null
-							|| earliestDate.after(doclogRecord.getDateRange()
-									.getStartDate())) {
-						earliestDate = doclogRecord.getDateRange()
-								.getStartDate();
-					}
-				}
-			}
-
-			// TODO: auf earliestDate zentrieren
-			// TODO: keys merken und nur zentrieren, d.h. nicht neu laden
+		for (DoclogFile doclogFile : doclogFiles) {
+			createDoclogTimeline(doclogFile);
 		}
 
 		composite.layout();
 	}
 
-	protected void refresh(Map<Object, List<DateRange>> groupedDateRanges) {
-		boolean equals = true;
+	public void refresh(Map<Object, List<LocalDateRange>> groupedDateRanges) {
+		disposeUnusedDoclogTimelines(groupedDateRanges.keySet());
 
-		// TODO: Compare, wenn gleich, dann kein Update und damit kein erneutes
-		// Bilderladen
-		for (Object idOrFingerprint : groupedDateRanges.keySet()) {
-			List<DateRange> dateRanges = groupedDateRanges.get(idOrFingerprint);
-			for (DateRange dateRange : dateRanges) {
+		for (Object key : groupedDateRanges.keySet()) {
+			Pair<DoclogFile, DoclogTimeline> doclog = createDoclogTimeline(key);
+			DoclogFile doclogFile = doclog.getValue0();
+			DoclogTimeline doclogTimeline = doclog.getValue1();
 
+			List<LocalDateRange> dateRanges = groupedDateRanges.get(key);
+			LocalDateRange minMaxDateRange = calculateIntersectedDateRange(
+					doclogFile, dateRanges);
+			if (minMaxDateRange.getStartDate() != null)
+				doclogTimeline.setCenterVisibleDate(minMaxDateRange
+						.getStartDate().toISO8601());
+			else if (minMaxDateRange.getEndDate() != null)
+				doclogTimeline.setCenterVisibleDate(minMaxDateRange
+						.getEndDate().toISO8601());
+			doclogTimeline.highlight(dateRanges);
+		}
+
+		composite.layout();
+	}
+
+	protected DoclogTimeline createDoclogTimeline(DoclogFile doclogFile) {
+		if (doclogFile.getId() != null) {
+			return createDoclogTimeline(doclogFile.getId()).getValue1();
+		} else {
+			return createDoclogTimeline(doclogFile.getFingerprint())
+					.getValue1();
+		}
+	}
+
+	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(Object key) {
+		if (key instanceof ID)
+			return createDoclogTimeline((ID) key);
+		if (key instanceof Fingerprint)
+			return createDoclogTimeline((Fingerprint) key);
+		throw new InvalidParameterException(key + " was not of valid type");
+	}
+
+	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(ID id) {
+		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
+		DoclogFile doclogFile = doclogManager.getDoclogFile(id);
+		String title = "ID: " + id.toString();
+		return new Pair<DoclogFile, DoclogTimeline>(doclogFile,
+				createDoclogTimeline(id, doclogFile, title));
+	}
+
+	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(
+			Fingerprint fingerprint) {
+		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
+		DoclogFile doclogFile = doclogManager.getDoclogFile(fingerprint);
+		String title = "Fingerprint: " + fingerprint.toString();
+		return new Pair<DoclogFile, DoclogTimeline>(doclogFile,
+				createDoclogTimeline(fingerprint, doclogFile, title));
+	}
+
+	private DoclogTimeline createDoclogTimeline(Object key,
+			DoclogFile doclogFile, String title) {
+		DoclogTimeline doclogTimeline = this.doclogTimelines.get(key);
+		if (doclogTimeline == null) {
+			doclogTimeline = new DoclogTimeline(composite, SWT.NONE, title);
+			this.doclogTimelines.put(key, doclogTimeline);
+			doclogTimeline.show(doclogFile);
+		}
+		return doclogTimeline;
+	}
+
+	/**
+	 * Given a {@link List} of {@link LocalDateRange}s and a {@link DoclogFile}
+	 * this method returns the earliest and latest dates that in which
+	 * {@link DoclogRecord} events occurred.
+	 * 
+	 * @param doclogFile
+	 * @param dateRanges
+	 * @return
+	 */
+	private LocalDateRange calculateIntersectedDateRange(DoclogFile doclogFile,
+			List<LocalDateRange> dateRanges) {
+		LocalDate earliestDate = null;
+		LocalDate latestDate = null;
+		for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
+			boolean intersects = false;
+			for (LocalDateRange dateRange : dateRanges) {
+				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
+					intersects = true;
+					break;
+				}
+			}
+
+			if (intersects) {
+				if (earliestDate == null
+						|| earliestDate.after(doclogRecord.getDateRange()
+								.getStartDate())) {
+					earliestDate = doclogRecord.getDateRange().getStartDate();
+				}
+				if (latestDate == null
+						|| latestDate.before(doclogRecord.getDateRange()
+								.getEndDate())) {
+					latestDate = doclogRecord.getDateRange().getEndDate();
+				}
 			}
 		}
-		this.cachedGroupedDateRanges = groupedDateRanges;
-		refresh();
+		return new LocalDateRange(earliestDate, latestDate);
+	}
+
+	private void disposeUnusedDoclogTimelines(List<DoclogFile> doclogFilesToKeep) {
+		HashSet<Object> usedDoclogTimelines = new HashSet<Object>();
+		for (DoclogFile doclogFile : doclogFilesToKeep) {
+			if (doclogFile.getId() != null)
+				usedDoclogTimelines.add(doclogFile.getId());
+			else if (doclogFile.getFingerprint() != null)
+				usedDoclogTimelines.add(doclogFile.getFingerprint());
+			else
+				throw new InvalidParameterException(
+						DoclogFile.class.getSimpleName() + " has no valid "
+								+ ID.class.getSimpleName() + " or "
+								+ Fingerprint.class.getSimpleName());
+		}
+		disposeUnusedDoclogTimelines(usedDoclogTimelines);
+	}
+
+	private void disposeUnusedDoclogTimelines(Set<Object> doclogTimelinesToKeep) {
+		for (Object key : this.doclogTimelines.keySet()) {
+			if (!doclogTimelinesToKeep.contains(key)) {
+				Timeline doclogTimeline = this.doclogTimelines.get(key);
+				this.doclogTimelines.remove(key);
+				if (doclogTimeline != null && !doclogTimeline.isDisposed())
+					doclogTimeline.dispose();
+			}
+		}
+		this.composite.layout();
 	}
 
 	protected void clear() {
@@ -157,26 +253,8 @@ public class DoclogTimelineView extends ViewPart {
 	}
 
 	@Override
-	public void init(IViewSite site) throws PartInitException {
-		super.init(site);
-		SelectionUtils.getSelectionService().addSelectionListener(
-				selectionListener);
-		Activator.getDefault().getPreferenceStore()
-				.addPropertyChangeListener(propertyChangeListener);
-	}
-
-	@Override
-	public void dispose() {
-		Activator.getDefault().getPreferenceStore()
-				.removePropertyChangeListener(propertyChangeListener);
-		SelectionUtils.getSelectionService().removeSelectionListener(
-				selectionListener);
-		super.dispose();
-	}
-
-	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout());
+		parent.setLayout(new FillLayout(SWT.VERTICAL));
 		this.composite = parent;
 
 		getSite().setSelectionProvider(null); // TODO
@@ -184,8 +262,6 @@ public class DoclogTimelineView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

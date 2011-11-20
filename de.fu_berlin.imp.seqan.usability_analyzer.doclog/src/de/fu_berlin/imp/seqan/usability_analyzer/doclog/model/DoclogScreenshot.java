@@ -14,7 +14,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
@@ -182,7 +182,7 @@ public class DoclogScreenshot implements HasDateRange {
 	}
 
 	@Override
-	public DateRange getDateRange() {
+	public LocalDateRange getDateRange() {
 		if (this.getDoclogRecord() != null)
 			return this.getDoclogRecord().getDateRange();
 		else
