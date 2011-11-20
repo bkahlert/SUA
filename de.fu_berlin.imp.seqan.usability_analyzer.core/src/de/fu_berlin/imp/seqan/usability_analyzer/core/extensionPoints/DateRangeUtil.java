@@ -4,11 +4,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 
 public class DateRangeUtil {
-	public static void notifyDataSourceFilterChanged(LocalDateRange oldDateRange,
-			LocalDateRange newDateRange) {
+	public static void notifyDataSourceFilterChanged(TimeZoneDateRange oldDateRange,
+			TimeZoneDateRange newDateRange) {
 		IConfigurationElement[] config = Platform
 				.getExtensionRegistry()
 				.getConfigurationElementsFor(

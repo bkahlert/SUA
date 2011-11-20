@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
@@ -171,12 +171,12 @@ public class DoclogFile extends File implements HasDateRange {
 	}
 
 	@Override
-	public LocalDateRange getDateRange() {
-		List<LocalDateRange> dateRanges = new ArrayList<LocalDateRange>();
+	public TimeZoneDateRange getDateRange() {
+		List<TimeZoneDateRange> dateRanges = new ArrayList<TimeZoneDateRange>();
 		for (DoclogRecord doclogRecord : this.doclogRecords) {
 			dateRanges.add(doclogRecord.getDateRange());
 		}
-		return LocalDateRange.calculateOuterDateRange(dateRanges
-				.toArray(new LocalDateRange[0]));
+		return TimeZoneDateRange.calculateOuterDateRange(dateRanges
+				.toArray(new TimeZoneDateRange[0]));
 	}
 }

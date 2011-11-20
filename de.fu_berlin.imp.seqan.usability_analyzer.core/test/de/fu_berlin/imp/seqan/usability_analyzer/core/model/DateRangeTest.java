@@ -6,33 +6,33 @@ import org.junit.Test;
 public class DateRangeTest {
 
 	// -2 years
-	private LocalDate muchBeforeRangeDate = new LocalDate(
+	private TimeZoneDate muchBeforeRangeDate = new TimeZoneDate(
 			"1982-05-15T14:30:00+01:00");
 
 	// -1 year, -1 month
-	private LocalDate beforeRangeDate = new LocalDate(
+	private TimeZoneDate beforeRangeDate = new TimeZoneDate(
 			"1983-04-15T14:30:00+01:00");
 
 	// -1 year
-	private LocalDate rangeStart = new LocalDate("1983-05-15T14:30:00+01:00");
+	private TimeZoneDate rangeStart = new TimeZoneDate("1983-05-15T14:30:00+01:00");
 
 	// fixed
-	private LocalDate inRangeDate = new LocalDate("1984-05-15T14:30:00+01:00");
+	private TimeZoneDate inRangeDate = new TimeZoneDate("1984-05-15T14:30:00+01:00");
 
 	// +1 year
-	private LocalDate rangeEnd = new LocalDate("1985-05-15T14:30:00+01:00");
+	private TimeZoneDate rangeEnd = new TimeZoneDate("1985-05-15T14:30:00+01:00");
 
 	// +1 year, +1 month
-	private LocalDate afterRangeDate = new LocalDate(
+	private TimeZoneDate afterRangeDate = new TimeZoneDate(
 			"1985-06-15T14:30:00+01:00");
 
 	// -2 years
-	private LocalDate muchAfterRangeDate = new LocalDate(
+	private TimeZoneDate muchAfterRangeDate = new TimeZoneDate(
 			"1986-05-15T14:30:00+01:00");
 
 	@Test
 	public void boundedRangeDateTest() {
-		LocalDateRange boundedRangeDate = new LocalDateRange(rangeStart,
+		TimeZoneDateRange boundedRangeDate = new TimeZoneDateRange(rangeStart,
 				rangeEnd);
 
 		Assert.assertTrue(boundedRangeDate.isBeforeRange(beforeRangeDate));
@@ -47,73 +47,73 @@ public class DateRangeTest {
 		Assert.assertFalse(boundedRangeDate.isInRange(afterRangeDate));
 		Assert.assertTrue(boundedRangeDate.isAfterRange(afterRangeDate));
 
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, muchBeforeRangeDate)));
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, beforeRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, rangeStart)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, inRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, rangeEnd)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, afterRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, muchAfterRangeDate)));
 
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, beforeRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, rangeStart)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, inRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, rangeEnd)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, afterRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, rangeStart)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, inRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, rangeEnd)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, afterRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, muchAfterRangeDate)));
 
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, inRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, rangeEnd)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, afterRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, rangeEnd)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, afterRangeDate)));
-		Assert.assertTrue(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, muchAfterRangeDate)));
 
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				afterRangeDate, afterRangeDate)));
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				afterRangeDate, muchAfterRangeDate)));
 
-		Assert.assertFalse(boundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertFalse(boundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchAfterRangeDate, muchAfterRangeDate)));
 	}
 
 	@Test
 	public void leftUnboundedRangeDateTest() {
-		LocalDateRange leftUnboundedRangeDate = new LocalDateRange(null,
+		TimeZoneDateRange leftUnboundedRangeDate = new TimeZoneDateRange(null,
 				rangeEnd);
 
 		Assert.assertFalse(leftUnboundedRangeDate
@@ -130,86 +130,86 @@ public class DateRangeTest {
 		Assert.assertTrue(leftUnboundedRangeDate.isAfterRange(afterRangeDate));
 
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						muchBeforeRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						beforeRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						rangeStart)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						inRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate, rangeEnd)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						afterRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						beforeRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, rangeStart)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, rangeStart)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, inRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, rangeEnd)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						afterRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, rangeStart)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, rangeStart)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, inRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, rangeEnd)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, afterRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart,
+				.isIntersected(new TimeZoneDateRange(rangeStart,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, inRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, rangeEnd)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, afterRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate,
+				.isIntersected(new TimeZoneDateRange(inRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, rangeEnd)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, afterRangeDate)));
 		Assert.assertTrue(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, muchAfterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, muchAfterRangeDate)));
 
 		Assert.assertFalse(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(afterRangeDate,
+				.isIntersected(new TimeZoneDateRange(afterRangeDate,
 						afterRangeDate)));
 		Assert.assertFalse(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(afterRangeDate,
+				.isIntersected(new TimeZoneDateRange(afterRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertFalse(leftUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchAfterRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchAfterRangeDate,
 						muchAfterRangeDate)));
 	}
 
 	@Test
 	public void rightUnboundedRangeDateTest() {
-		LocalDateRange rightUnboundedRangeDate = new LocalDateRange(rangeStart,
+		TimeZoneDateRange rightUnboundedRangeDate = new TimeZoneDateRange(rangeStart,
 				null);
 
 		Assert.assertTrue(rightUnboundedRangeDate
@@ -228,86 +228,86 @@ public class DateRangeTest {
 		Assert.assertFalse(rightUnboundedRangeDate.isAfterRange(afterRangeDate));
 
 		Assert.assertFalse(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						muchBeforeRangeDate)));
 		Assert.assertFalse(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						beforeRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						rangeStart)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						inRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate, rangeEnd)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchBeforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchBeforeRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertFalse(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						beforeRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, rangeStart)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, rangeStart)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, inRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate, rangeEnd)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(beforeRangeDate,
+				.isIntersected(new TimeZoneDateRange(beforeRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, rangeStart)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, rangeStart)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, inRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, rangeEnd)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeStart, afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeStart,
+				.isIntersected(new TimeZoneDateRange(rangeStart,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, inRangeDate)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, inRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, rangeEnd)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(inRangeDate, afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(inRangeDate,
+				.isIntersected(new TimeZoneDateRange(inRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, rangeEnd)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, rangeEnd)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, afterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(rangeEnd, muchAfterRangeDate)));
+				.isIntersected(new TimeZoneDateRange(rangeEnd, muchAfterRangeDate)));
 
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(afterRangeDate,
+				.isIntersected(new TimeZoneDateRange(afterRangeDate,
 						afterRangeDate)));
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(afterRangeDate,
+				.isIntersected(new TimeZoneDateRange(afterRangeDate,
 						muchAfterRangeDate)));
 
 		Assert.assertTrue(rightUnboundedRangeDate
-				.isIntersected(new LocalDateRange(muchAfterRangeDate,
+				.isIntersected(new TimeZoneDateRange(muchAfterRangeDate,
 						muchAfterRangeDate)));
 	}
 
 	@Test
 	public void unboundedRangeDateTest() {
-		LocalDateRange unboundedRangeDate = new LocalDateRange(null, null);
+		TimeZoneDateRange unboundedRangeDate = new TimeZoneDateRange(null, null);
 
 		Assert.assertFalse(unboundedRangeDate.isBeforeRange(beforeRangeDate));
 		Assert.assertTrue(unboundedRangeDate.isInRange(beforeRangeDate));
@@ -321,67 +321,67 @@ public class DateRangeTest {
 		Assert.assertTrue(unboundedRangeDate.isInRange(afterRangeDate));
 		Assert.assertFalse(unboundedRangeDate.isAfterRange(afterRangeDate));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, muchBeforeRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, beforeRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, rangeStart)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, inRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, rangeEnd)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchBeforeRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, beforeRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, rangeStart)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, inRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, rangeEnd)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				beforeRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, rangeStart)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, inRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, rangeEnd)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeStart, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, inRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, rangeEnd)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				inRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, rangeEnd)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				rangeEnd, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				afterRangeDate, afterRangeDate)));
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				afterRangeDate, muchAfterRangeDate)));
 
-		Assert.assertTrue(unboundedRangeDate.isIntersected(new LocalDateRange(
+		Assert.assertTrue(unboundedRangeDate.isIntersected(new TimeZoneDateRange(
 				muchAfterRangeDate, muchAfterRangeDate)));
 	}
 

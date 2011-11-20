@@ -2,8 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.text.SimpleDateFormat;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
@@ -19,7 +19,7 @@ public class DiffFileRecordMeta implements HasDateRange {
 	 * @param line
 	 * @return
 	 */
-	private static LocalDate getDateFromLine(String line) {
+	private static TimeZoneDate getDateFromLine(String line) {
 		// e.g. 2011-09-13 12:08:40.000000000 +0200
 		String nanosecondsDateString = line.substring(4).split("\t")[1];
 		// e.g. 2011-09-13T12:08:40.000000000+0200
@@ -28,22 +28,22 @@ public class DiffFileRecordMeta implements HasDateRange {
 		// e.g. 2011-09-13T12:08:40.000000000+02:00
 		String iso8601 = noWhitespaces.substring(0, noWhitespaces.length() - 2)
 				+ ":" + noWhitespaces.substring(noWhitespaces.length() - 2);
-		return new LocalDate(iso8601);
+		return new TimeZoneDate(iso8601);
 	}
 
 	private String fromFileName;
-	private LocalDate fromFileDate;
+	private TimeZoneDate fromFileDate;
 	private String toFileName;
-	private LocalDate toFileDate;
+	private TimeZoneDate toFileDate;
 
-	private LocalDateRange dateRange;
+	private TimeZoneDateRange dateRange;
 
 	public DiffFileRecordMeta(String fromFileLine, String toFileLine) {
 		this.fromFileName = getNameFromLine(fromFileLine);
 		this.fromFileDate = getDateFromLine(fromFileLine);
 		this.toFileName = getNameFromLine(toFileLine);
 		this.toFileDate = getDateFromLine(toFileLine);
-		this.dateRange = new LocalDateRange(
+		this.dateRange = new TimeZoneDateRange(
 				DateUtil.isUnixTimeStart(fromFileDate.getDate()) ? null
 						: fromFileDate, toFileDate);
 	}
@@ -52,7 +52,7 @@ public class DiffFileRecordMeta implements HasDateRange {
 		return fromFileName;
 	}
 
-	public LocalDate getFromFileDate() {
+	public TimeZoneDate getFromFileDate() {
 		return fromFileDate;
 	}
 
@@ -60,12 +60,12 @@ public class DiffFileRecordMeta implements HasDateRange {
 		return toFileName;
 	}
 
-	public LocalDate getToFileDate() {
+	public TimeZoneDate getToFileDate() {
 		return toFileDate;
 	}
 
 	@Override
-	public LocalDateRange getDateRange() {
+	public TimeZoneDateRange getDateRange() {
 		return this.dateRange;
 	}
 }

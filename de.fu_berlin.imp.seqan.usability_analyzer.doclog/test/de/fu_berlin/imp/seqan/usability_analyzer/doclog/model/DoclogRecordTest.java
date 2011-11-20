@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 import junit.framework.Assert;
 
@@ -10,11 +12,16 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 @RunWith(Parameterized.class)
 public class DoclogRecordTest {
+
+	private static final TimeZoneDate PAST_DATE = new TimeZoneDate(DateUtil.getDate(
+			2011, 8, 13, 9, 15, 14), TimeZone.getDefault());
+	private static final TimeZoneDate FUTURE_DATE = new TimeZoneDate(
+			DateUtil.getDate(2011, 8, 13, 13, 12, 57), TimeZone.getDefault());
 
 	private String strLine;
 
@@ -48,5 +55,11 @@ public class DoclogRecordTest {
 		Assert.assertTrue(true);// (doclogRecord.getProxyIp());
 		Assert.assertNotNull(doclogRecord.getScrollPosition());
 		Assert.assertNotNull(doclogRecord.getWindowDimensions());
+
+		Assert.assertTrue(doclogRecord.getDateRange().getStartDate()
+				.after(PAST_DATE));
+
+		Assert.assertTrue(doclogRecord.getDateRange().getStartDate()
+				.before(FUTURE_DATE));
 	}
 }

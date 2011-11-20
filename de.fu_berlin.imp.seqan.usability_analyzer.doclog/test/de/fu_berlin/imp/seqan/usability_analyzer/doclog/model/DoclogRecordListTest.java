@@ -10,7 +10,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DoclogRecordListTest {
@@ -34,7 +34,8 @@ public class DoclogRecordListTest {
 			+ "2011-09-10T12-45-47	ready	http://trac.mi.fu-berlin.de/seqan/attachment/wiki/Tutorial/GettingStarted/my_sandbox.zip	85.179.79.188	-	0	0	1280	607\n"
 			+ "2011-09-10T12-46-06	unload	http://trac.mi.fu-berlin.de/seqan/attachment/wiki/Tutorial/GettingStarted/my_sandbox.zip	85.179.79.188	-	0	0	1280	607\n"
 			+ "2011-09-10T12-46-07	ready	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/GettingStarted	85.179.79.188	-	0	7604	1263	607\n"
-			+ "2011-09-10T12-46-07	unload	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/GettingStarted	85.179.79.188	-	0	7604	1263	607";
+			+ "2011-09-10T12-46-07	unload	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/GettingStarted	85.179.79.188	-	0	7604	1263	607\n"
+			+ "2020-10-20T15-33-05+0800	ready	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/GettingStarted	85.179.79.188	-	0	7604	1263	607\n";
 
 	private int doclogNumDoclogRecords;
 
@@ -68,13 +69,12 @@ public class DoclogRecordListTest {
 	public void earliestLatestDateTest() throws Exception {
 		DoclogFile doclogFile = this.getDoclogFile();
 		Assert.assertEquals(
-				new LocalDate(DateUtil.getDate(2011, 8, 10, 10, 20, 59),
+				new TimeZoneDate(DateUtil.getDate(2011, 8, 10, 8, 20, 59),
 						TimeZone.getDefault()), doclogFile.getDoclogRecords()
 						.get(0).getDate());
-		Assert.assertEquals(
-				new LocalDate(DateUtil.getDate(2011, 8, 13, 12, 43, 45),
-						TimeZone.getDefault()), doclogFile.getDoclogRecords()
-						.get(doclogNumDoclogRecords - 1).getDate());
+		Assert.assertEquals(new TimeZoneDate("2020-10-20T13:33:05+08:00"),
+				doclogFile.getDoclogRecords().get(doclogNumDoclogRecords - 1)
+						.getDate());
 	}
 
 	/*

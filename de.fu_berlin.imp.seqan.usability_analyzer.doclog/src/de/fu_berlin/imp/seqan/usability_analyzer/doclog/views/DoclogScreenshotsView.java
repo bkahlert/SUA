@@ -24,7 +24,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -44,15 +44,15 @@ public class DoclogScreenshotsView extends ViewPart {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			Map<ID, List<LocalDateRange>> idDateRanges = IdDateRange
+			Map<ID, List<TimeZoneDateRange>> idDateRanges = IdDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							IdDateRange.class).getSelection());
 
-			Map<Fingerprint, List<LocalDateRange>> fingerprintDateRanges = FingerprintDateRange
+			Map<Fingerprint, List<TimeZoneDateRange>> fingerprintDateRanges = FingerprintDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							FingerprintDateRange.class).getSelection());
 
-			Map<Object, List<LocalDateRange>> groupedDateRanges = new HashMap<Object, List<LocalDateRange>>();
+			Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
 			groupedDateRanges.putAll(idDateRanges);
 			groupedDateRanges.putAll(fingerprintDateRanges);
 
@@ -76,7 +76,7 @@ public class DoclogScreenshotsView extends ViewPart {
 	private ScrolledComposite scrolledComposite;
 	private Composite composite;
 
-	private Map<Object, List<LocalDateRange>> cachedGroupedDateRanges;
+	private Map<Object, List<TimeZoneDateRange>> cachedGroupedDateRanges;
 
 	public DoclogScreenshotsView() {
 	}
@@ -104,15 +104,15 @@ public class DoclogScreenshotsView extends ViewPart {
 				doclogRecords = doclogManager.getDoclogFile(fingerprint)
 						.getDoclogRecords();
 			} else {
-				logger.fatal(LocalDateRange.class.getSimpleName()
+				logger.fatal(TimeZoneDateRange.class.getSimpleName()
 						+ " was of unknown source!");
 				return;
 			}
 
-			List<LocalDateRange> dateRanges = this.cachedGroupedDateRanges.get(key);
+			List<TimeZoneDateRange> dateRanges = this.cachedGroupedDateRanges.get(key);
 			for (DoclogRecord doclogRecord : doclogRecords) {
 				boolean intersects = false;
-				for (LocalDateRange dateRange : dateRanges) {
+				for (TimeZoneDateRange dateRange : dateRanges) {
 					if (dateRange.isIntersected(doclogRecord.getDateRange()))
 						intersects = true;
 				}
@@ -139,14 +139,14 @@ public class DoclogScreenshotsView extends ViewPart {
 				SWT.DEFAULT));
 	}
 
-	protected void refresh(Map<Object, List<LocalDateRange>> groupedDateRanges) {
+	protected void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges) {
 		boolean equals = true;
 
 		// TODO: Compare, wenn gleich, dann kein Update und damit kein erneutes
 		// Bilderladen
 		for (Object idOrFingerprint : groupedDateRanges.keySet()) {
-			List<LocalDateRange> dateRanges = groupedDateRanges.get(idOrFingerprint);
-			for (LocalDateRange dateRange : dateRanges) {
+			List<TimeZoneDateRange> dateRanges = groupedDateRanges.get(idOrFingerprint);
+			for (TimeZoneDateRange dateRange : dateRanges) {
 
 			}
 		}

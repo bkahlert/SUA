@@ -14,7 +14,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
@@ -59,7 +59,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DiffFile) {
 							DiffFile diffFile = (DiffFile) element;
-							LocalDate date = diffFile.getDate();
+							TimeZoneDate date = diffFile.getDate();
 							return (date != null) ? date.format(dateFormat)
 									: "";
 						}

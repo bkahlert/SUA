@@ -10,7 +10,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		de.fu_berlin.imp.seqan.usability_analyzer.doclog.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.survey.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.stats.AllTests.class,
-		de.fu_berlin.imp.seqan.usability_analyzer.person.AllTests.class })
+		de.fu_berlin.imp.seqan.usability_analyzer.entity.AllTests.class })
 public class AllTests {
 
 }

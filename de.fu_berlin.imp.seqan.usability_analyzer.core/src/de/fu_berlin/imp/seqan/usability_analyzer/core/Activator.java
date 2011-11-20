@@ -7,8 +7,8 @@ import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
 /**
@@ -26,34 +26,34 @@ public class Activator extends AbstractUIPlugin {
 
 	private SUACorePreferenceUtil preferenceUtil;
 
-	private LocalDate oldDateRangeStart;
-	private LocalDate oldDateRangeEnd;
+	private TimeZoneDate oldDateRangeStart;
+	private TimeZoneDate oldDateRangeEnd;
 	private boolean oldDateRangeStartEnabled;
 	private boolean oldDateRangeEndEnabled;
 	private IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
-			LocalDateRange oldDateRange = new LocalDateRange(
+			TimeZoneDateRange oldDateRange = new TimeZoneDateRange(
 					oldDateRangeStartEnabled ? oldDateRangeStart : null,
 					oldDateRangeEndEnabled ? oldDateRangeEnd : null);
-			LocalDateRange newDateRange = null;
+			TimeZoneDateRange newDateRange = null;
 
-			LocalDate newDateRangeStart = oldDateRangeStart;
-			LocalDate newDateRangeEnd = oldDateRangeEnd;
+			TimeZoneDate newDateRangeStart = oldDateRangeStart;
+			TimeZoneDate newDateRangeEnd = oldDateRangeEnd;
 			boolean newDateRangeStartEnabled = oldDateRangeStartEnabled;
 			boolean newDateRangeEndEnabled = oldDateRangeEndEnabled;
 
 			if (preferenceUtil.dateRangeStartChanged(event)) {
-				newDateRangeStart = new LocalDate((String) event.getNewValue());
+				newDateRangeStart = new TimeZoneDate((String) event.getNewValue());
 			} else if (preferenceUtil.dateRangeEndChanged(event)) {
-				newDateRangeEnd = new LocalDate((String) event.getNewValue());
+				newDateRangeEnd = new TimeZoneDate((String) event.getNewValue());
 			} else if (preferenceUtil.dateRangeStartEnabledChanged(event)) {
 				newDateRangeStartEnabled = (Boolean) event.getNewValue();
 			} else if (preferenceUtil.dateRangeEndEnabledChanged(event)) {
 				newDateRangeEndEnabled = (Boolean) event.getNewValue();
 			}
 
-			newDateRange = new LocalDateRange(
+			newDateRange = new TimeZoneDateRange(
 					newDateRangeStartEnabled ? newDateRangeStart : null,
 					newDateRangeEndEnabled ? newDateRangeEnd : null);
 			DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,

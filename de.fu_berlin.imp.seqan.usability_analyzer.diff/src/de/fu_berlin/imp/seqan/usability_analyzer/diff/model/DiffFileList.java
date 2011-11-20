@@ -3,7 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public class DiffFileList extends ArrayList<DiffFile> implements HasDateRange {
@@ -11,13 +11,13 @@ public class DiffFileList extends ArrayList<DiffFile> implements HasDateRange {
 	private static final long serialVersionUID = 1327362495545624012L;
 
 	@Override
-	public LocalDateRange getDateRange() {
-		List<LocalDateRange> dateRanges = new ArrayList<LocalDateRange>();
+	public TimeZoneDateRange getDateRange() {
+		List<TimeZoneDateRange> dateRanges = new ArrayList<TimeZoneDateRange>();
 		for (DiffFile diffFile : this) {
 			dateRanges.add(diffFile.getDateRange());
 		}
-		return LocalDateRange.calculateOuterDateRange(dateRanges
-				.toArray(new LocalDateRange[0]));
+		return TimeZoneDateRange.calculateOuterDateRange(dateRanges
+				.toArray(new TimeZoneDateRange[0]));
 	}
 
 	private int getIndex(DiffFile diffFile) {

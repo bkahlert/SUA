@@ -19,7 +19,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -104,7 +104,7 @@ public class DoclogTimeline extends Timeline {
 		if (this.title != null)
 			options.put("title", this.title);
 
-		LocalDateRange dateRange = doclogFile.getDateRange();
+		TimeZoneDateRange dateRange = doclogFile.getDateRange();
 		if (dateRange.getStartDate() != null)
 			options.put("centerStart", dateRange.getStartDate().clone()
 					.addMilliseconds(-10000l).toISO8601());
@@ -141,10 +141,10 @@ public class DoclogTimeline extends Timeline {
 		super.show(json);
 	}
 
-	public void highlight(List<LocalDateRange> dateRanges) {
+	public void highlight(List<TimeZoneDateRange> dateRanges) {
 		ArrayList<Decorator> decorators = new ArrayList<Timeline.Decorator>(
 				dateRanges.size());
-		for (LocalDateRange dateRange : dateRanges) {
+		for (TimeZoneDateRange dateRange : dateRanges) {
 			if (dateRange.getStartDate() != null
 					&& dateRange.getEndDate() != null)
 				decorators.add(new Decorator(dateRange.getStartDate()

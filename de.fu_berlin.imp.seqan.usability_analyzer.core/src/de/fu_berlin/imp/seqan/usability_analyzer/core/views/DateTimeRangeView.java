@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.inf.nebula.explanation.note.SimpleNoteComposite;
 
@@ -90,7 +90,7 @@ public class DateTimeRangeView extends ViewPart {
 			startDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeStart(new LocalDate(
+					preferenceUtil.setDateRangeStart(new TimeZoneDate(
 							startDateTime.getSelection(), TimeZone.getDefault()));
 				}
 			});
@@ -102,7 +102,7 @@ public class DateTimeRangeView extends ViewPart {
 			endDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeEnd(new LocalDate(endDateTime
+					preferenceUtil.setDateRangeEnd(new TimeZoneDate(endDateTime
 							.getSelection(), TimeZone.getDefault()));
 				}
 			});

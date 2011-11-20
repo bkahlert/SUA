@@ -68,7 +68,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
@@ -78,7 +78,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">

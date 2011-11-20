@@ -14,8 +14,8 @@ public class DataSetInfo extends File {
 	public static final String FILENAME = "__dataset.txt";
 
 	private String name;
-	private LocalDate startDate;
-	private LocalDate endDate;
+	private TimeZoneDate startDate;
+	private TimeZoneDate endDate;
 
 	public DataSetInfo(String pathname) {
 		super(pathname);
@@ -29,9 +29,9 @@ public class DataSetInfo extends File {
 				if (key.equals("name")) {
 					this.name = properties.getProperty(key);
 				} else if (key.equals("start")) {
-					this.startDate = new LocalDate(properties.getProperty(key));
+					this.startDate = new TimeZoneDate(properties.getProperty(key));
 				} else if (key.equals("end")) {
-					this.endDate = new LocalDate(properties.getProperty(key));
+					this.endDate = new TimeZoneDate(properties.getProperty(key));
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -45,11 +45,11 @@ public class DataSetInfo extends File {
 		return this.name;
 	}
 
-	public LocalDate getStartDate() {
+	public TimeZoneDate getStartDate() {
 		return this.startDate;
 	}
 
-	public LocalDate getEndDate() {
+	public TimeZoneDate getEndDate() {
 		return this.endDate;
 	}
 }

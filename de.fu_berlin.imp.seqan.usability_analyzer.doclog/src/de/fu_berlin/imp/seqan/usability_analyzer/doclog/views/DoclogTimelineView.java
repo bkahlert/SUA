@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -29,8 +28,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
@@ -39,20 +38,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
 
-	private Logger logger = Logger.getLogger(DoclogTimelineView.class);
-
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			Map<ID, List<LocalDateRange>> idDateRanges = IdDateRange
+			Map<ID, List<TimeZoneDateRange>> idDateRanges = IdDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							IdDateRange.class).getSelection());
 
-			Map<Fingerprint, List<LocalDateRange>> fingerprintDateRanges = FingerprintDateRange
+			Map<Fingerprint, List<TimeZoneDateRange>> fingerprintDateRanges = FingerprintDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							FingerprintDateRange.class).getSelection());
 
-			Map<Object, List<LocalDateRange>> groupedDateRanges = new HashMap<Object, List<LocalDateRange>>();
+			Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
 			groupedDateRanges.putAll(idDateRanges);
 			groupedDateRanges.putAll(fingerprintDateRanges);
 
@@ -111,7 +108,7 @@ public class DoclogTimelineView extends ViewPart {
 		composite.layout();
 	}
 
-	public void refresh(Map<Object, List<LocalDateRange>> groupedDateRanges) {
+	public void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges) {
 		disposeUnusedDoclogTimelines(groupedDateRanges.keySet());
 
 		for (Object key : groupedDateRanges.keySet()) {
@@ -119,8 +116,8 @@ public class DoclogTimelineView extends ViewPart {
 			DoclogFile doclogFile = doclog.getValue0();
 			DoclogTimeline doclogTimeline = doclog.getValue1();
 
-			List<LocalDateRange> dateRanges = groupedDateRanges.get(key);
-			LocalDateRange minMaxDateRange = calculateIntersectedDateRange(
+			List<TimeZoneDateRange> dateRanges = groupedDateRanges.get(key);
+			TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
 					doclogFile, dateRanges);
 			if (minMaxDateRange.getStartDate() != null)
 				doclogTimeline.setCenterVisibleDate(minMaxDateRange
@@ -180,7 +177,7 @@ public class DoclogTimelineView extends ViewPart {
 	}
 
 	/**
-	 * Given a {@link List} of {@link LocalDateRange}s and a {@link DoclogFile}
+	 * Given a {@link List} of {@link TimeZoneDateRange}s and a {@link DoclogFile}
 	 * this method returns the earliest and latest dates that in which
 	 * {@link DoclogRecord} events occurred.
 	 * 
@@ -188,13 +185,13 @@ public class DoclogTimelineView extends ViewPart {
 	 * @param dateRanges
 	 * @return
 	 */
-	private LocalDateRange calculateIntersectedDateRange(DoclogFile doclogFile,
-			List<LocalDateRange> dateRanges) {
-		LocalDate earliestDate = null;
-		LocalDate latestDate = null;
+	private TimeZoneDateRange calculateIntersectedDateRange(DoclogFile doclogFile,
+			List<TimeZoneDateRange> dateRanges) {
+		TimeZoneDate earliestDate = null;
+		TimeZoneDate latestDate = null;
 		for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
 			boolean intersects = false;
-			for (LocalDateRange dateRange : dateRanges) {
+			for (TimeZoneDateRange dateRange : dateRanges) {
 				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
 					intersects = true;
 					break;
@@ -214,7 +211,7 @@ public class DoclogTimelineView extends ViewPart {
 				}
 			}
 		}
-		return new LocalDateRange(earliestDate, latestDate);
+		return new TimeZoneDateRange(earliestDate, latestDate);
 	}
 
 	private void disposeUnusedDoclogTimelines(List<DoclogFile> doclogFilesToKeep) {
@@ -257,7 +254,7 @@ public class DoclogTimelineView extends ViewPart {
 		parent.setLayout(new FillLayout(SWT.VERTICAL));
 		this.composite = parent;
 
-		getSite().setSelectionProvider(null); // TODO
+		// getSite().setSelectionProvider(null);
 	}
 
 	@Override

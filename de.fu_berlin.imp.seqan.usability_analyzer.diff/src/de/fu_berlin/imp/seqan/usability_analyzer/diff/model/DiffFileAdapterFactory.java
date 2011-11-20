@@ -2,14 +2,14 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 
 public class DiffFileAdapterFactory implements IAdapterFactory {
 
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { LocalDateRange.class, IdDateRange.class };
+		return new Class[] { TimeZoneDateRange.class, IdDateRange.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -17,11 +17,11 @@ public class DiffFileAdapterFactory implements IAdapterFactory {
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof DiffFile) {
 			DiffFile diffFile = (DiffFile) adaptableObject;
-			if (adapterType == LocalDateRange.class) {
+			if (adapterType == TimeZoneDateRange.class) {
 				return diffFile.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				LocalDateRange dateRange = diffFile.getDateRange();
+				TimeZoneDateRange dateRange = diffFile.getDateRange();
 				return new IdDateRange(diffFile.getId(),
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}

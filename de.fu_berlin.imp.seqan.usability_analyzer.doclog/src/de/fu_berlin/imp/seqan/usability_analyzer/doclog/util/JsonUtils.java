@@ -15,7 +15,7 @@ import org.codehaus.jackson.util.DefaultPrettyPrinter;
 
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline.Decorator;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
@@ -64,7 +64,7 @@ public class JsonUtils {
 				generator.writeFieldName("classname");
 				generator.writeString(doclogRecord.getAction().toString());
 
-				LocalDateRange dateRange = doclogRecord.getDateRange();
+				TimeZoneDateRange dateRange = doclogRecord.getDateRange();
 				if (dateRange.getStartDate() != null) {
 					generator.writeFieldName("start");
 					generator.writeString(dateRange.getStartDate().toISO8601());
@@ -77,11 +77,6 @@ public class JsonUtils {
 						&& dateRange.getEndDate() != null) {
 					generator.writeFieldName("durationEvent");
 					generator.writeBoolean(true);
-
-					// TODO
-					if (dateRange.getStartDate().after(dateRange.getEndDate())) {
-						System.err.println("ERROR" + doclogRecord.getAction());
-					}
 				}
 
 				/*

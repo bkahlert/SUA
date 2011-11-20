@@ -1,24 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileFilter;
-import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.CompareUI;
-import org.eclipse.compare.IModificationDate;
-import org.eclipse.compare.IStreamContentAccessor;
-import org.eclipse.compare.ITypedElement;
-import org.eclipse.compare.structuremergeviewer.DiffNode;
-import org.eclipse.compare.structuremergeviewer.Differencer;
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -26,11 +16,11 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
@@ -43,7 +33,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
@@ -55,6 +45,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsConten
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.filters.DiffFileListsViewerFileFilter;
 
+@SuppressWarnings("restriction")
 public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		IFileFilterListener {
 
@@ -127,80 +118,6 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		super.dispose();
 	}
 
-	class CompareInput extends CompareEditorInput {
-		DiffFileRecord diffFileRecord;
-
-		public CompareInput(DiffFileRecord diffFileRecord) {
-			super(new CompareConfiguration());
-			this.diffFileRecord = diffFileRecord;
-		}
-
-		@Override
-		public String getName() {
-			return diffFileRecord.getFilename();
-		}
-
-		protected Object prepareInput(IProgressMonitor pm) {
-			DiffFileRecord predecessorDiffFileRecord = diffFileRecord
-					.getPredecessor();
-
-			CompareItem left = null;
-			if (predecessorDiffFileRecord != null) {
-				left = new CompareItem(predecessorDiffFileRecord.getDiffFile()
-						.getRevision(), predecessorDiffFileRecord.getSource(),
-						new Date().getTime());
-			} else {
-				left = new CompareItem(null, null, 0);
-			}
-			CompareItem right = new CompareItem(diffFileRecord.getDiffFile()
-					.getRevision(), diffFileRecord.getSource(),
-					new Date().getTime());
-
-			return new DiffNode(null, Differencer.ADDITION | Differencer.CHANGE
-					| Differencer.DELETION, null, left, right);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return true;
-		}
-	}
-
-	class CompareItem implements ITypedElement, IModificationDate,
-			IStreamContentAccessor {
-		private String contents, name;
-		private long time;
-
-		CompareItem(String name, String contents, long time) {
-			this.name = name;
-			this.contents = contents;
-			this.time = time;
-		}
-
-		public String getName() {
-			return "xxxxxxxxx";
-		}
-
-		public Image getImage() {
-			return null;
-		}
-
-		public String getType() {
-			return "cpp";
-		}
-
-		public long getModificationDate() {
-			return time;
-		}
-
-		public InputStream getContents() throws CoreException {
-			if (contents != null)
-				return new ByteArrayInputStream(contents.getBytes());
-			else
-				return null;
-		}
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
@@ -219,9 +136,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						.getAdaptableObjects(event.getSelection(),
 								DiffFileRecord.class);
 				for (DiffFileRecord diffFileRecord : diffFileRecords) {
-					// TODO nur einen verwenden
-					CompareUI
-							.openCompareEditor(new CompareInput(diffFileRecord));
+					closeCompareEditors(diffFileRecord);
+					openCompareEditor(diffFileRecord);
 				}
 			}
 		});
@@ -254,8 +170,49 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	}
 
+	/**
+	 * Opens a new {@link CompareEditor} which displays the difference between
+	 * the given and its predecessor {@link DiffFileRecord}.
+	 * 
+	 * @param diffFileRecord
+	 */
+	private void openCompareEditor(DiffFileRecord diffFileRecord) {
+		CompareUI.openCompareEditor(new DiffFileRecordCompareInput(
+				diffFileRecord));
+	}
+
+	/**
+	 * Closes all {@link CompareEditor}s responsible for the given
+	 * {@link DiffFileRecord}.
+	 * 
+	 * @param diffFileRecord
+	 */
+	private void closeCompareEditors(DiffFileRecord diffFileRecord) {
+		IEditorReference[] editorReferences = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.getEditorReferences();
+		for (IEditorReference editorReference : editorReferences) {
+			try {
+				if (editorReference.getEditorInput() instanceof DiffFileRecordCompareInput) {
+					DiffFileRecordCompareInput currentCompareInput = (DiffFileRecordCompareInput) editorReference
+							.getEditorInput();
+					String currentFilename = currentCompareInput
+							.getDiffFileRecord().getFilename();
+					if (currentFilename.equals(diffFileRecord.getFilename())) {
+						editorReference.getPage().closeEditor(
+								editorReference.getEditor(true), false);
+					}
+				}
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	@Override
-	public void dateRangeChanged(LocalDateRange oldDateRange, LocalDateRange newDateRange) {
+	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
+			TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
 			this.treeViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);

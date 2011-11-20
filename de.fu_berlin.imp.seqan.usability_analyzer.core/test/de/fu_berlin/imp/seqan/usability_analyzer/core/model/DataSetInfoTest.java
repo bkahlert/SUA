@@ -14,9 +14,9 @@ public class DataSetInfoTest {
 		DataSetInfo dataSetInfo = new DataSetInfo(FileUtils.getFile(
 				"data/" + DataSetInfo.FILENAME).getAbsolutePath());
 		Assert.assertEquals("SeqAn Workshop '11", dataSetInfo.getName());
-		Assert.assertEquals(new LocalDate("2011-09-13T10:00:00+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:00:00+02:00"),
 				dataSetInfo.getStartDate());
-		Assert.assertEquals(new LocalDate("2011-09-15T18:00:00+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-15T18:00:00+02:00"),
 				dataSetInfo.getEndDate());
 	}
 

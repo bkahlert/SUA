@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
@@ -31,7 +31,7 @@ public class DiffFile extends File implements HasDateRange {
 
 	private ID id;
 	private String revision;
-	private LocalDate date;
+	private TimeZoneDate date;
 
 	private Long millisecondsPassed;
 
@@ -49,7 +49,7 @@ public class DiffFile extends File implements HasDateRange {
 
 			if (matcher.group(9) != null) {
 				// Date contains time zone
-				this.date = new LocalDate(matcher.group(3) + "-"
+				this.date = new TimeZoneDate(matcher.group(3) + "-"
 						+ matcher.group(4) + "-" + matcher.group(5) + "T"
 						+ matcher.group(6) + ":" + matcher.group(7) + ":"
 						+ matcher.group(8) + matcher.group(10) + ":"
@@ -69,7 +69,9 @@ public class DiffFile extends File implements HasDateRange {
 				} catch (Exception e) {
 					timeZone = TimeZone.getDefault();
 				}
-				this.date = new LocalDate(date, timeZone);
+				date.setTime(date.getTime()
+						- timeZone.getOffset(date.getTime()));
+				this.date = new TimeZoneDate(date, timeZone);
 			}
 		}
 
@@ -145,7 +147,7 @@ public class DiffFile extends File implements HasDateRange {
 		return revision;
 	}
 
-	public LocalDate getDate() {
+	public TimeZoneDate getDate() {
 		return date;
 	}
 
@@ -159,14 +161,14 @@ public class DiffFile extends File implements HasDateRange {
 		this.millisecondsPassed = millisecondsPassed;
 	}
 
-	public LocalDateRange getDateRange() {
+	public TimeZoneDateRange getDateRange() {
 		if (this.date == null)
 			return null;
 
-		LocalDate endDate = this.date.clone();
+		TimeZoneDate endDate = this.date.clone();
 		if (this.millisecondsPassed != null)
 			endDate.addMilliseconds(this.millisecondsPassed);
-		return new LocalDateRange(this.date, endDate);
+		return new TimeZoneDateRange(this.date, endDate);
 	}
 
 	public int compareTo(DiffFile diffFile) {

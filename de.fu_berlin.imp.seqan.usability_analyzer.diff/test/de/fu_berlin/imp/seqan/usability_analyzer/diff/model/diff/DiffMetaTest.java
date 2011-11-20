@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordMeta;
 
 public class DiffMetaTest {
@@ -22,10 +22,10 @@ public class DiffMetaTest {
 				meta.getToFileName());
 
 		Assert.assertEquals(
-				new LocalDate("2011-09-13T12:35:14.578125000+03:00"),
+				new TimeZoneDate("2011-09-13T12:35:14.578125000+03:00"),
 				meta.getFromFileDate());
 		Assert.assertEquals(
-				new LocalDate("2011-09-13T12:36:02.125000000+02:30"),
+				new TimeZoneDate("2011-09-13T12:36:02.125000000+02:30"),
 				meta.getToFileDate());
 
 		Assert.assertEquals(new Long(1847547), meta.getDateRange()

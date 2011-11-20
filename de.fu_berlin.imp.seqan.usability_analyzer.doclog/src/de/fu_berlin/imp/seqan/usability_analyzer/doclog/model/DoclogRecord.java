@@ -13,8 +13,8 @@ import org.eclipse.swt.graphics.Point;
 import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
@@ -24,10 +24,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	 * [^\\t] selects everything but a tabulator
 	 */
 	public static final String PATTERN = "([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?"
-			+ "\\t([^\\t]+?)(-([^\\t]+?))?"
-			+ "\\t([^\\t]+)"
-			+ "\\t([^\\t]+)\\t([^\\t]+)"
-			+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)";
+			+ "\\t([^\\t]+?)(-([^\\t]+?))?" // action + param
+			+ "\\t([^\\t]+)" // url
+			+ "\\t([^\\t]+)\\t([^\\t]+)" // ip + proxy ip
+			+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)"; // scroll x,y + window w,h
 
 	private static int MAX_SHORT_URL_LENGTH = 30;
 	private static String SHORT_URL_SHORTENER = "...";
@@ -40,7 +40,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	private String proxyIp;
 	private DoclogAction action;
 	private String actionParameter;
-	private LocalDate date;
+	private TimeZoneDate date;
 	private Point scrollPosition;
 	private Point windowDimensions;
 
@@ -65,7 +65,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 
 			if (matcher.group(7) != null) {
 				// Date contains time zone
-				this.date = new LocalDate(matcher.group(1) + "-"
+				this.date = new TimeZoneDate(matcher.group(1) + "-"
 						+ matcher.group(2) + "-" + matcher.group(3) + "T"
 						+ matcher.group(4) + ":" + matcher.group(5) + ":"
 						+ matcher.group(6) + matcher.group(8) + ":"
@@ -85,7 +85,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 				} catch (Exception e) {
 					timeZone = TimeZone.getDefault();
 				}
-				this.date = new LocalDate(date, timeZone);
+				date.setTime(date.getTime()
+						- timeZone.getOffset(date.getTime()));
+				this.date = new TimeZoneDate(date, timeZone);
 			}
 
 			this.scrollPosition = new Point(
@@ -104,7 +106,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 			}
 		} else {
 			throw new DataSourceInvalidException(
-					"The doclog line didn't not match to the expected format.");
+					"The doclog line did not match to the expected format.");
 		}
 	}
 
@@ -169,7 +171,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		return actionParameter;
 	}
 
-	LocalDate getDate() {
+	TimeZoneDate getDate() {
 		return date;
 	}
 
@@ -193,14 +195,14 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		this.millisecondsPassed = millisecondsPassed;
 	}
 
-	public LocalDateRange getDateRange() {
+	public TimeZoneDateRange getDateRange() {
 		if (this.date == null)
 			return null;
 
-		LocalDate endDate = this.date.clone();
+		TimeZoneDate endDate = this.date.clone();
 		if (this.millisecondsPassed != null)
 			endDate.addMilliseconds(this.millisecondsPassed);
-		return new LocalDateRange(this.date, endDate);
+		return new TimeZoneDateRange(this.date, endDate);
 	}
 
 	@Override

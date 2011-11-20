@@ -34,7 +34,7 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
@@ -87,12 +87,12 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			if (idDateRanges.size() == 0)
 				return;
 
-			Map<ID, List<LocalDateRange>> groupedDateRanges = IdDateRange
+			Map<ID, List<TimeZoneDateRange>> groupedDateRanges = IdDateRange
 					.group(idDateRanges);
 
 			List<TreePath> treePaths = new ArrayList<TreePath>();
 			for (ID id : groupedDateRanges.keySet()) {
-				List<LocalDateRange> dataRanges = groupedDateRanges.get(id);
+				List<TimeZoneDateRange> dataRanges = groupedDateRanges.get(id);
 				TreeItem[] treeItems = treeViewer.getTree().getItems();
 
 				List<TreePath> idIntersectingDoclogRecords;
@@ -186,8 +186,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	}
 
 	@Override
-	public void dateRangeChanged(LocalDateRange oldDateRange,
-			LocalDateRange newDateRange) {
+	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
+			TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
 			this.treeViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);

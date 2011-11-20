@@ -3,7 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public class DoclogRecordList extends ArrayList<DoclogRecord> implements
@@ -64,13 +64,13 @@ public class DoclogRecordList extends ArrayList<DoclogRecord> implements
 	}
 
 	@Override
-	public LocalDateRange getDateRange() {
-		List<LocalDateRange> dateRanges = new ArrayList<LocalDateRange>();
+	public TimeZoneDateRange getDateRange() {
+		List<TimeZoneDateRange> dateRanges = new ArrayList<TimeZoneDateRange>();
 		for (DoclogRecord doclogRecord : this) {
 			dateRanges.add(doclogRecord.getDateRange());
 		}
-		return LocalDateRange.calculateOuterDateRange(dateRanges
-				.toArray(new LocalDateRange[0]));
+		return TimeZoneDateRange.calculateOuterDateRange(dateRanges
+				.toArray(new TimeZoneDateRange[0]));
 	}
 
 }

@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import difflib.DiffUtils;
 import difflib.Patch;
@@ -123,7 +123,7 @@ public class DiffFileRecord implements HasDateRange {
 	}
 
 	@Override
-	public LocalDateRange getDateRange() {
+	public TimeZoneDateRange getDateRange() {
 		return this.meta.getDateRange();
 	}
 

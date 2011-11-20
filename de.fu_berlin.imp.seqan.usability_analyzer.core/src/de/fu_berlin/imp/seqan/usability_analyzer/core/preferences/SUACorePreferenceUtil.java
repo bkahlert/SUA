@@ -10,8 +10,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 
 public class SUACorePreferenceUtil extends PreferenceUtil {
@@ -59,13 +59,13 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.DEFAULT_TIME_ZONE);
 	}
 
-	public LocalDate getDateRangeStart() {
+	public TimeZoneDate getDateRangeStart() {
 		String rangeStart = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_START);
-		return new LocalDate(rangeStart);
+		return new TimeZoneDate(rangeStart);
 	}
 
-	public void setDateRangeStart(LocalDate rangeStart) {
+	public void setDateRangeStart(TimeZoneDate rangeStart) {
 		getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_START,
 				rangeStart.toISO8601());
@@ -76,13 +76,13 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.DATE_RANGE_START);
 	}
 
-	public LocalDate getDateRangeEnd() {
+	public TimeZoneDate getDateRangeEnd() {
 		String rangeEnd = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_END);
-		return new LocalDate(rangeEnd);
+		return new TimeZoneDate(rangeEnd);
 	}
 
-	public void setDateRangeEnd(LocalDate rangeEnd) {
+	public void setDateRangeEnd(TimeZoneDate rangeEnd) {
 		getPreferenceStore()
 				.setValue(SUACorePreferenceConstants.DATE_RANGE_END,
 						rangeEnd.toISO8601());
@@ -125,8 +125,8 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
 	}
 
-	public LocalDateRange getDateRange() {
-		return new LocalDateRange(
+	public TimeZoneDateRange getDateRange() {
+		return new TimeZoneDateRange(
 				this.getDateRangeStartEnabled() ? getDateRangeStart() : null,
 				this.getDateRangeEndEnabled() ? this.getDateRangeEnd() : null);
 	}
