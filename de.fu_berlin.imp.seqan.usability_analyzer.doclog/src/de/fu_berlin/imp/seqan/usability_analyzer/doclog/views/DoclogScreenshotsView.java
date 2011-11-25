@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -24,13 +25,13 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
@@ -84,7 +85,8 @@ public class DoclogScreenshotsView extends ViewPart {
 	protected void refresh() {
 		this.clear();
 
-		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
+		DoclogDirectory doclogDirectory = Activator.getDefault()
+				.getDoclogDirectory();
 
 		int screenshotWidth = preferenceUtil.getScreenshotWidth();
 		for (Object key : this.cachedGroupedDateRanges.keySet()) {
@@ -94,23 +96,28 @@ public class DoclogScreenshotsView extends ViewPart {
 				ID id = (ID) key;
 				screenshotDisplayContainer = new DoclogScreenshotDisplayContainer(
 						composite, SWT.BORDER, "ID: " + id.toString());
-				doclogRecords = doclogManager.getDoclogFile(id)
-						.getDoclogRecords();
+				doclogRecords = doclogDirectory.getDoclogFile(id,
+						new NullProgressMonitor()).getDoclogRecords();
 			} else if (key instanceof Fingerprint) {
 				Fingerprint fingerprint = (Fingerprint) key;
 				screenshotDisplayContainer = new DoclogScreenshotDisplayContainer(
 						composite, SWT.BORDER, "Fingerprint: "
 								+ fingerprint.toString());
-				doclogRecords = doclogManager.getDoclogFile(fingerprint)
-						.getDoclogRecords();
+				doclogRecords = doclogDirectory.getDoclogFile(fingerprint,
+						new NullProgressMonitor()).getDoclogRecords();
 			} else {
 				logger.fatal(TimeZoneDateRange.class.getSimpleName()
 						+ " was of unknown source!");
 				return;
 			}
 
-			List<TimeZoneDateRange> dateRanges = this.cachedGroupedDateRanges.get(key);
+			List<TimeZoneDateRange> dateRanges = this.cachedGroupedDateRanges
+					.get(key);
+			// TODO
+			int i = 0;
+
 			for (DoclogRecord doclogRecord : doclogRecords) {
+
 				boolean intersects = false;
 				for (TimeZoneDateRange dateRange : dateRanges) {
 					if (dateRange.isIntersected(doclogRecord.getDateRange()))
@@ -118,6 +125,11 @@ public class DoclogScreenshotsView extends ViewPart {
 				}
 
 				if (intersects) {
+					if (i >= 3)
+						break;
+					i++;
+					// TODO
+
 					DoclogScreenshotDisplay screenshotDisplay = new DoclogScreenshotDisplay(
 							screenshotDisplayContainer, SWT.BORDER);
 					screenshotDisplay.setLayoutData(GridDataFactory
@@ -139,13 +151,15 @@ public class DoclogScreenshotsView extends ViewPart {
 				SWT.DEFAULT));
 	}
 
-	protected void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges) {
+	protected void refresh(
+			Map<Object, List<TimeZoneDateRange>> groupedDateRanges) {
 		boolean equals = true;
 
 		// TODO: Compare, wenn gleich, dann kein Update und damit kein erneutes
 		// Bilderladen
 		for (Object idOrFingerprint : groupedDateRanges.keySet()) {
-			List<TimeZoneDateRange> dateRanges = groupedDateRanges.get(idOrFingerprint);
+			List<TimeZoneDateRange> dateRanges = groupedDateRanges
+					.get(idOrFingerprint);
 			for (TimeZoneDateRange dateRange : dateRanges) {
 
 			}

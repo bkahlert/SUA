@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog;
 
 import java.awt.AWTException;
-import java.io.File;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
@@ -14,20 +13,19 @@ import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
 
-	private Logger logger = Logger.getLogger(Activator.class);
-
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog"; //$NON-NLS-1$
 
 	private static Activator plugin;
 
-	private DoclogManager doclogManager;
+	private DoclogDirectory doclogDirectory;
 	private Rectangle maxCaptureArea;
 
 	/**
@@ -46,11 +44,16 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
 		URL confURL = getBundle().getEntry("log4j.properties");
 		PropertyConfigurator
 				.configure(FileLocator.toFileURL(confURL).getFile());
 
 		Logger logger = Logger.getLogger(Activator.class);
+
+		SUACorePreferenceUtil corePreferenceUtil = new SUACorePreferenceUtil();
+		doclogDirectory = new DoclogDirectory(
+				corePreferenceUtil.getLogfilePath());
 
 		try {
 			this.maxCaptureArea = new ScreenshotTaker().getMaxCaptureArea();
@@ -83,22 +86,8 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public DoclogManager initDoclogManager(File logDirectory)
-			throws DataSourceInvalidException {
-		try {
-			this.doclogManager = new DoclogManager(logDirectory);
-			this.logger.info(DoclogManager.class.getSimpleName()
-					+ " initiated successfully");
-			return this.doclogManager;
-		} catch (DataSourceInvalidException e) {
-			this.logger.error(DoclogManager.class.getSimpleName()
-					+ " could not be initiated", e);
-			throw e;
-		}
-	}
-
-	public DoclogManager getDoclogManager() {
-		return this.doclogManager;
+	public DoclogDirectory getDoclogDirectory() {
+		return this.doclogDirectory;
 	}
 
 	public Rectangle getMaxCaptureArea() {

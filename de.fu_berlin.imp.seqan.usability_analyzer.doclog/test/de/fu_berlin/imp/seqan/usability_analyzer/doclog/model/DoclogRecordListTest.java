@@ -10,6 +10,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
@@ -55,7 +56,8 @@ public class DoclogRecordListTest {
 			if (out != null)
 				out.close();
 		}
-		return new DoclogFile(file.getAbsolutePath());
+		return new DoclogFile(file, new ID("fake_id"),
+				DoclogFile.getDateRange(file), DoclogFile.getToken(file));
 	}
 
 	@Test
@@ -68,13 +70,14 @@ public class DoclogRecordListTest {
 	@Test
 	public void earliestLatestDateTest() throws Exception {
 		DoclogFile doclogFile = this.getDoclogFile();
+		DoclogRecord oldestRecord = doclogFile.getDoclogRecords().get(0);
+		DoclogRecord youngestRecord = doclogFile.getDoclogRecords().get(
+				doclogNumDoclogRecords - 1);
 		Assert.assertEquals(
 				new TimeZoneDate(DateUtil.getDate(2011, 8, 10, 8, 20, 59),
-						TimeZone.getDefault()), doclogFile.getDoclogRecords()
-						.get(0).getDate());
-		Assert.assertEquals(new TimeZoneDate("2020-10-20T13:33:05+08:00"),
-				doclogFile.getDoclogRecords().get(doclogNumDoclogRecords - 1)
-						.getDate());
+						TimeZone.getDefault()), oldestRecord.getDate());
+		Assert.assertEquals(new TimeZoneDate("2020-10-20T15:33:05+08:00"),
+				youngestRecord.getDate());
 	}
 
 	/*

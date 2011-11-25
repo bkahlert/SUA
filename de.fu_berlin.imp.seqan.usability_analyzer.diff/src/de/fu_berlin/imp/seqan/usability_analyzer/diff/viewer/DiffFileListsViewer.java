@@ -59,7 +59,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DiffFile) {
 							DiffFile diffFile = (DiffFile) element;
-							TimeZoneDate date = diffFile.getDate();
+							TimeZoneDate date = diffFile.getDateRange()
+									.getStartDate();
 							return (date != null) ? date.format(dateFormat)
 									: "";
 						}
@@ -178,5 +179,4 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					}
 				});
 	}
-
 }

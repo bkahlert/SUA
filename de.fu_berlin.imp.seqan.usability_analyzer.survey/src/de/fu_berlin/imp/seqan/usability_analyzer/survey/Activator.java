@@ -1,5 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey;
 
+import java.net.URL;
+
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -30,6 +34,10 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
+		URL confURL = getBundle().getEntry("log4j.properties");
+		PropertyConfigurator
+				.configure(FileLocator.toFileURL(confURL).getFile());
 	}
 
 	/*

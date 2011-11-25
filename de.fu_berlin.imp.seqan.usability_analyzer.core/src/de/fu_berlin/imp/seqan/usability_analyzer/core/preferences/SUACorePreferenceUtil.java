@@ -2,6 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -24,7 +26,16 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 		String logfilePath = getPreferenceStore().getString(
 				SUACorePreferenceConstants.LOGFILE_PATH);
 		return (logfilePath != null && !logfilePath.isEmpty()) ? new File(
-				logfilePath) : null;
+				Normalizer.normalize(logfilePath, Form.NFC)) : null;
+	}
+
+	public File getCachedSourcesDirectory() {
+		File logfilePath = getLogfilePath();
+		if (logfilePath == null)
+			return null;
+
+		return new File(logfilePath, "/sources");
+
 	}
 
 	public boolean logfilePathChanged(PropertyChangeEvent event) {
@@ -36,7 +47,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 		String surveyRecordPath = getPreferenceStore().getString(
 				SUACorePreferenceConstants.SURVEYFILE_PATH);
 		return (surveyRecordPath != null && !surveyRecordPath.isEmpty()) ? new File(
-				surveyRecordPath) : null;
+				Normalizer.normalize(surveyRecordPath, Form.NFC)) : null;
 	}
 
 	public boolean surveyRecordPathChanged(PropertyChangeEvent event) {

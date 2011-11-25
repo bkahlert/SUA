@@ -1,14 +1,19 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff;
 
 import java.io.FileFilter;
+import java.net.URL;
 import java.util.List;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.FileFilterUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 
 /**
@@ -22,7 +27,10 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
+	private SUACorePreferenceUtil corePreferenceUtil;
 	private SUADiffPreferenceUtil diffPreferenceUtil;
+
+	private DiffFileDirectory diffFileDirectory;
 
 	private List<FileFilter> oldFileFilters;
 	private IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
@@ -65,9 +73,20 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
+		URL confURL = getBundle().getEntry("log4j.properties");
+		PropertyConfigurator
+				.configure(FileLocator.toFileURL(confURL).getFile());
+
+		corePreferenceUtil = new SUACorePreferenceUtil();
 		diffPreferenceUtil = new SUADiffPreferenceUtil();
 		oldFileFilters = diffPreferenceUtil.getFileFilters();
 		diffPreferenceUtil.addPropertyChangeListener(propertyChangeListener);
+
+		diffFileDirectory = new DiffFileDirectory(
+				corePreferenceUtil.getLogfilePath(),
+				new SUADiffPreferenceUtil().getTrunkDirectory(),
+				corePreferenceUtil.getCachedSourcesDirectory());
 	}
 
 	/*
@@ -90,6 +109,10 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public DiffFileDirectory getDiffFileDirectory() {
+		return diffFileDirectory;
 	}
 
 }

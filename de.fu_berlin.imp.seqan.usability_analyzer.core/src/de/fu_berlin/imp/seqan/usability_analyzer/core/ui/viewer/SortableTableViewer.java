@@ -22,7 +22,7 @@ public class SortableTableViewer extends TableViewer {
 
 	@Override
 	public void setComparator(ViewerComparator comparator) {
-		// we manage the comparator on our owns
+		// we manage the comparator on our own
 	}
 
 	public TableViewerColumn createColumn(String title, int bound,

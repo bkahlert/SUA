@@ -9,7 +9,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DiffFileRecordMeta implements HasDateRange {
 	private static String getNameFromLine(String line) {
-		return line.substring(4).split("\t")[0];
+		String name = line.substring(4).split("\t")[0];
+		if (name.substring(0, "./".length()).equals("./")) {
+			name = name.substring("./".length());
+		}
+		return name;
 	}
 
 	/**

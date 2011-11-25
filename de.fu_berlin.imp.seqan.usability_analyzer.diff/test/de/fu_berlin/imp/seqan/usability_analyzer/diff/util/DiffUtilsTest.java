@@ -26,12 +26,14 @@ public class DiffUtilsTest {
 	};
 
 	public static final File logDirectory = new File("/log_directory");
+	public static final File cachedSourcesDirectory = new File(
+			"/log_directory/sources");
 
 	@Test
 	public void testGetSourceDirectory() {
-		DiffUtils diffUtils = new DiffUtils(logDirectory);
+		SourceCache diffUtils = new SourceCache(cachedSourcesDirectory);
 		Assert.assertEquals(new File("/log_directory/sources"),
-				diffUtils.getSourceRoot());
+				diffUtils.getSourceCacheDirectory());
 	}
 
 	@Test
@@ -56,10 +58,11 @@ public class DiffUtilsTest {
 			}
 		});
 
-		DiffUtils diffUtils = new DiffUtils(logDirectory);
+		SourceCache diffUtils = new SourceCache(cachedSourcesDirectory);
 		Assert.assertEquals(
 				new File(
 						"/log_directory/sources/the_id/27837/this/is/the/path/to/the/file.cpp"),
-				diffUtils.getSourceFile(diffFileRecord));
+				diffUtils.getCachedSourceFile(diffFileRecord.getDiffFile(),
+						diffFileRecord.getFilename()));
 	}
 }

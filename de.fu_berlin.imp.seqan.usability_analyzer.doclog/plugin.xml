@@ -96,7 +96,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.DateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">

@@ -28,19 +28,6 @@
       </page>
    </extension>
    <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
-            name="Add Code...">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode">
-      </handler>
-   </extension>
-   <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
@@ -52,14 +39,6 @@
          <control
                class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.controls.FileFilterPatternsText">
          </control>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView">
-         <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
-               style="push">
-         </command>
       </menuContribution>
    </extension>
    <extension

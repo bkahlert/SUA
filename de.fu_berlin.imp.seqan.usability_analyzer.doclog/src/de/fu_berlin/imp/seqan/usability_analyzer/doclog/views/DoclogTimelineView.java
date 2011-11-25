@@ -6,12 +6,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
@@ -30,10 +38,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.DoclogManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
@@ -41,21 +48,24 @@ public class DoclogTimelineView extends ViewPart {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			Map<ID, List<TimeZoneDateRange>> idDateRanges = IdDateRange
+			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
+			groupedDateRanges.putAll(IdDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
-							IdDateRange.class).getSelection());
-
-			Map<Fingerprint, List<TimeZoneDateRange>> fingerprintDateRanges = FingerprintDateRange
+							IdDateRange.class).getSelection()));
+			groupedDateRanges.putAll(FingerprintDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
-							FingerprintDateRange.class).getSelection());
+							FingerprintDateRange.class).getSelection()));
 
-			Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
-			groupedDateRanges.putAll(idDateRanges);
-			groupedDateRanges.putAll(fingerprintDateRanges);
-
-			if (groupedDateRanges.size() > 0) {
-				refresh(groupedDateRanges);
-			}
+			Job job = new Job("Preparing " + Timeline.class.getName()) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					if (groupedDateRanges.size() > 0) {
+						refresh(groupedDateRanges, monitor);
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			job.schedule();
 		}
 	};
 
@@ -65,11 +75,20 @@ public class DoclogTimelineView extends ViewPart {
 			if (!part.getClass().equals(DoclogExplorerView.class)
 					&& !part.getSite().getId().contains("DiffExplorerView")) {
 
-				List<DoclogFile> doclogFiles = SelectionRetrieverFactory
-						.getSelectionRetriever(DoclogFile.class).getSelection();
-				if (doclogFiles.size() > 0) {
-					init(doclogFiles);
-				}
+				final Set<Object> keys = new HashSet<Object>();
+				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
+						ID.class).getSelection());
+				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
+						Fingerprint.class).getSelection());
+
+				Job job = new Job("Preparing " + Timeline.class.getSimpleName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						init(keys, monitor);
+						return Status.OK_STATUS;
+					}
+				};
+				job.schedule();
 			}
 		}
 	};
@@ -98,95 +117,128 @@ public class DoclogTimelineView extends ViewPart {
 		super.dispose();
 	}
 
-	public void init(List<DoclogFile> doclogFiles) {
-		disposeUnusedDoclogTimelines(doclogFiles);
+	public void init(Set<Object> keys, IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask(
+				"Preparing " + Timeline.class.getName() + "s", keys.size() + 2);
 
-		for (DoclogFile doclogFile : doclogFiles) {
-			createDoclogTimeline(doclogFile);
+		disposeUnusedDoclogTimelines(keys);
+
+		progressMonitor.worked(2);
+
+		for (Object key : keys) {
+			createDoclogTimeline(key,
+					new SubProgressMonitor(progressMonitor, 1));
 		}
 
-		composite.layout();
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				composite.layout();
+			}
+		});
+
+		progressMonitor.done();
 	}
 
-	public void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges) {
+	public void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges,
+			IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask("Upading " + Timeline.class.getName() + "s",
+				groupedDateRanges.keySet().size() + 2);
+
 		disposeUnusedDoclogTimelines(groupedDateRanges.keySet());
 
+		progressMonitor.worked(2);
+
 		for (Object key : groupedDateRanges.keySet()) {
-			Pair<DoclogFile, DoclogTimeline> doclog = createDoclogTimeline(key);
+			Pair<DoclogFile, DoclogTimeline> doclog = createDoclogTimeline(key,
+					new NullProgressMonitor());
 			DoclogFile doclogFile = doclog.getValue0();
-			DoclogTimeline doclogTimeline = doclog.getValue1();
+			final DoclogTimeline doclogTimeline = doclog.getValue1();
 
-			List<TimeZoneDateRange> dateRanges = groupedDateRanges.get(key);
-			TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
+			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
+					.get(key);
+			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
 					doclogFile, dateRanges);
-			if (minMaxDateRange.getStartDate() != null)
-				doclogTimeline.setCenterVisibleDate(minMaxDateRange
-						.getStartDate().toISO8601());
-			else if (minMaxDateRange.getEndDate() != null)
-				doclogTimeline.setCenterVisibleDate(minMaxDateRange
-						.getEndDate().toISO8601());
-			doclogTimeline.highlight(dateRanges);
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (minMaxDateRange.getStartDate() != null)
+						doclogTimeline.setCenterVisibleDate(minMaxDateRange
+								.getStartDate().toISO8601());
+					else if (minMaxDateRange.getEndDate() != null)
+						doclogTimeline.setCenterVisibleDate(minMaxDateRange
+								.getEndDate().toISO8601());
+					doclogTimeline.highlight(dateRanges);
+				}
+			});
 		}
 
-		composite.layout();
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				composite.layout();
+			}
+		});
+
+		progressMonitor.done();
 	}
 
-	protected DoclogTimeline createDoclogTimeline(DoclogFile doclogFile) {
-		if (doclogFile.getId() != null) {
-			return createDoclogTimeline(doclogFile.getId()).getValue1();
+	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(Object key,
+			IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask("Creating " + Timeline.class.getSimpleName(),
+				3);
+
+		DoclogFile doclogFile = DoclogCache.getInstance().getPayload(key,
+				new SubProgressMonitor(progressMonitor, 1));
+		if (doclogFile == null)
+			return null; // DoclogFile is ID based
+
+		String title;
+		if (key instanceof ID) {
+			title = "ID: " + key.toString();
+		} else if (key instanceof Fingerprint) {
+			title = "Fingerprint: " + key.toString();
 		} else {
-			return createDoclogTimeline(doclogFile.getFingerprint())
-					.getValue1();
+			progressMonitor.done();
+			throw new InvalidParameterException(key + " was not of valid type");
 		}
+
+		Pair<DoclogFile, DoclogTimeline> rt = new Pair<DoclogFile, DoclogTimeline>(
+				doclogFile, createDoclogTimeline(key, doclogFile, title));
+		progressMonitor.worked(2);
+		progressMonitor.done();
+		return rt;
 	}
 
-	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(Object key) {
-		if (key instanceof ID)
-			return createDoclogTimeline((ID) key);
-		if (key instanceof Fingerprint)
-			return createDoclogTimeline((Fingerprint) key);
-		throw new InvalidParameterException(key + " was not of valid type");
-	}
-
-	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(ID id) {
-		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
-		DoclogFile doclogFile = doclogManager.getDoclogFile(id);
-		String title = "ID: " + id.toString();
-		return new Pair<DoclogFile, DoclogTimeline>(doclogFile,
-				createDoclogTimeline(id, doclogFile, title));
-	}
-
-	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(
-			Fingerprint fingerprint) {
-		DoclogManager doclogManager = Activator.getDefault().getDoclogManager();
-		DoclogFile doclogFile = doclogManager.getDoclogFile(fingerprint);
-		String title = "Fingerprint: " + fingerprint.toString();
-		return new Pair<DoclogFile, DoclogTimeline>(doclogFile,
-				createDoclogTimeline(fingerprint, doclogFile, title));
-	}
-
-	private DoclogTimeline createDoclogTimeline(Object key,
-			DoclogFile doclogFile, String title) {
-		DoclogTimeline doclogTimeline = this.doclogTimelines.get(key);
-		if (doclogTimeline == null) {
-			doclogTimeline = new DoclogTimeline(composite, SWT.NONE, title);
-			this.doclogTimelines.put(key, doclogTimeline);
-			doclogTimeline.show(doclogFile);
+	private DoclogTimeline createDoclogTimeline(final Object key,
+			final DoclogFile doclogFile, final String title) {
+		final AtomicReference<DoclogTimeline> doclogTimeline = new AtomicReference<DoclogTimeline>(
+				this.doclogTimelines.get(key));
+		if (doclogTimeline.get() == null) {
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					doclogTimeline.set(new DoclogTimeline(composite, SWT.NONE,
+							title));
+					doclogTimelines.put(key, doclogTimeline.get());
+					doclogTimeline.get().show(doclogFile);
+				}
+			});
 		}
-		return doclogTimeline;
+		return doclogTimeline.get();
 	}
 
 	/**
-	 * Given a {@link List} of {@link TimeZoneDateRange}s and a {@link DoclogFile}
-	 * this method returns the earliest and latest dates that in which
-	 * {@link DoclogRecord} events occurred.
+	 * Given a {@link List} of {@link TimeZoneDateRange}s and a
+	 * {@link DoclogFile} this method returns the earliest and latest dates that
+	 * in which {@link DoclogRecord} events occurred.
 	 * 
 	 * @param doclogFile
 	 * @param dateRanges
 	 * @return
 	 */
-	private TimeZoneDateRange calculateIntersectedDateRange(DoclogFile doclogFile,
-			List<TimeZoneDateRange> dateRanges) {
+	private TimeZoneDateRange calculateIntersectedDateRange(
+			DoclogFile doclogFile, List<TimeZoneDateRange> dateRanges) {
 		TimeZoneDate earliestDate = null;
 		TimeZoneDate latestDate = null;
 		for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
@@ -214,32 +266,27 @@ public class DoclogTimelineView extends ViewPart {
 		return new TimeZoneDateRange(earliestDate, latestDate);
 	}
 
-	private void disposeUnusedDoclogTimelines(List<DoclogFile> doclogFilesToKeep) {
-		HashSet<Object> usedDoclogTimelines = new HashSet<Object>();
-		for (DoclogFile doclogFile : doclogFilesToKeep) {
-			if (doclogFile.getId() != null)
-				usedDoclogTimelines.add(doclogFile.getId());
-			else if (doclogFile.getFingerprint() != null)
-				usedDoclogTimelines.add(doclogFile.getFingerprint());
-			else
-				throw new InvalidParameterException(
-						DoclogFile.class.getSimpleName() + " has no valid "
-								+ ID.class.getSimpleName() + " or "
-								+ Fingerprint.class.getSimpleName());
-		}
-		disposeUnusedDoclogTimelines(usedDoclogTimelines);
-	}
-
 	private void disposeUnusedDoclogTimelines(Set<Object> doclogTimelinesToKeep) {
 		for (Object key : this.doclogTimelines.keySet()) {
 			if (!doclogTimelinesToKeep.contains(key)) {
-				Timeline doclogTimeline = this.doclogTimelines.get(key);
+				final Timeline doclogTimeline = this.doclogTimelines.get(key);
 				this.doclogTimelines.remove(key);
-				if (doclogTimeline != null && !doclogTimeline.isDisposed())
-					doclogTimeline.dispose();
+				if (doclogTimeline != null && !doclogTimeline.isDisposed()) {
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							doclogTimeline.dispose();
+						}
+					});
+				}
 			}
 		}
-		this.composite.layout();
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				composite.layout();
+			}
+		});
 	}
 
 	protected void clear() {

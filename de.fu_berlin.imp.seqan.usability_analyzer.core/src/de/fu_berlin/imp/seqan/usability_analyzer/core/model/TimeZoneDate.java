@@ -87,7 +87,24 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * @return
 	 */
 	public long getTime() {
-		return this.getDate().getTime();
+		return this.calendar.getTimeInMillis();
+	}
+
+	@Override
+	public int compareTo(TimeZoneDate date) {
+		long time = this.getTime();
+		long otherTime = date.getTime();
+		return new Long(time).compareTo(otherTime);
+	}
+
+	/**
+	 * Return the milliseconds passed since 1.1.1970 00:00:00.000 [TimeZone]
+	 * 
+	 * @return
+	 */
+	public long getLocalTime() {
+		return calendar.getTimeInMillis()
+				+ calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
 	}
 
 	public TimeZoneDate addMilliseconds(Long amount) {
@@ -96,14 +113,15 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		return this;
 	}
 
+	public int compareToTimeZoneLess(TimeZoneDate date) {
+		long localTime = this.getLocalTime();
+		long otherLocalTime = date.getLocalTime();
+		return new Long(localTime).compareTo(otherLocalTime);
+	}
+
 	public TimeZoneDate addMilliseconds(int amount) {
 		this.calendar.add(Calendar.MILLISECOND, amount);
 		return this;
-	}
-
-	@Override
-	public int compareTo(TimeZoneDate localDate) {
-		return new Long(this.getTime()).compareTo(localDate.getTime());
 	}
 
 	public boolean before(TimeZoneDate date) {
@@ -157,7 +175,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		if (calendar == null) {
 			if (other.calendar != null)
 				return false;
-		} else if (!calendar.equals(other.calendar))
+		} else if (this.compareTo(other) != 0)
 			return false;
 		return true;
 	}

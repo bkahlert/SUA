@@ -23,11 +23,54 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	/*
 	 * [^\\t] selects everything but a tabulator
 	 */
-	public static final String PATTERN = "([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?"
-			+ "\\t([^\\t]+?)(-([^\\t]+?))?" // action + param
-			+ "\\t([^\\t]+)" // url
-			+ "\\t([^\\t]+)\\t([^\\t]+)" // ip + proxy ip
-			+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)"; // scroll x,y + window w,h
+	public static final Pattern PATTERN = Pattern
+			.compile("([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?" /*
+																													 * date
+																													 * +
+																													 * optional
+																													 * time
+																													 * zone
+																													 */
+					+ "\\t([^\\t]+?)(-([^\\t]+?))?" // action + param
+					+ "\\t([^\\t]+)" // url
+					+ "\\t([^\\t]+)\\t([^\\t]+)" // ip + proxy ip
+					+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)"); // scroll x,y +
+																// window w,h
+
+	public static TimeZoneDate getDate(String line) {
+		TimeZoneDate date = null;
+		Matcher matcher = PATTERN.matcher(line);
+		if (matcher.find()) {
+			if (matcher.group(7) != null) {
+				// Date contains time zone
+				date = new TimeZoneDate(matcher.group(1) + "-"
+						+ matcher.group(2) + "-" + matcher.group(3) + "T"
+						+ matcher.group(4) + ":" + matcher.group(5) + ":"
+						+ matcher.group(6) + matcher.group(8) + ":"
+						+ matcher.group(9));
+			} else {
+				// Date does not contain a time zone
+				Date rawDate = DateUtil.getDate(
+						Integer.valueOf(matcher.group(1)),
+						Integer.valueOf(matcher.group(2)) - 1,
+						Integer.valueOf(matcher.group(3)),
+						Integer.valueOf(matcher.group(4)),
+						Integer.valueOf(matcher.group(5)),
+						Integer.valueOf(matcher.group(6)));
+
+				TimeZone timeZone;
+				try {
+					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
+				} catch (Exception e) {
+					timeZone = TimeZone.getDefault();
+				}
+				rawDate.setTime(rawDate.getTime()
+						- timeZone.getOffset(rawDate.getTime()));
+				date = new TimeZoneDate(rawDate, timeZone);
+			}
+		}
+		return date;
+	}
 
 	private static int MAX_SHORT_URL_LENGTH = 30;
 	private static String SHORT_URL_SHORTENER = "...";
@@ -52,7 +95,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 		this.doclogFile = doclogFile;
 		this.rawContent = line;
 
-		Matcher matcher = Pattern.compile(PATTERN).matcher(line);
+		Matcher matcher = PATTERN.matcher(line);
 		if (matcher.find()) {
 			this.url = cleanUrl(matcher.group(13));
 			if (this.url == null)
@@ -63,32 +106,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 			this.action = DoclogAction.getByString(matcher.group(10));
 			this.actionParameter = matcher.group(12);
 
-			if (matcher.group(7) != null) {
-				// Date contains time zone
-				this.date = new TimeZoneDate(matcher.group(1) + "-"
-						+ matcher.group(2) + "-" + matcher.group(3) + "T"
-						+ matcher.group(4) + ":" + matcher.group(5) + ":"
-						+ matcher.group(6) + matcher.group(8) + ":"
-						+ matcher.group(9));
-			} else {
-				// Date does not contain a time zone
-				Date date = DateUtil.getDate(Integer.valueOf(matcher.group(1)),
-						Integer.valueOf(matcher.group(2)) - 1,
-						Integer.valueOf(matcher.group(3)),
-						Integer.valueOf(matcher.group(4)),
-						Integer.valueOf(matcher.group(5)),
-						Integer.valueOf(matcher.group(6)));
-
-				TimeZone timeZone;
-				try {
-					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
-				} catch (Exception e) {
-					timeZone = TimeZone.getDefault();
-				}
-				date.setTime(date.getTime()
-						- timeZone.getOffset(date.getTime()));
-				this.date = new TimeZoneDate(date, timeZone);
-			}
+			this.date = getDate(line);
 
 			this.scrollPosition = new Point(
 					Integer.parseInt(matcher.group(16)),

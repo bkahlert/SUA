@@ -1,31 +1,44 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
-import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import difflib.PatchFailedException;
 
 public class DiffUtils {
-	private File logDirectory;
-
-	public DiffUtils(File logDirectory) {
-		this.logDirectory = logDirectory;
+	/**
+	 * Patches a string by a given patch
+	 * 
+	 * @param original
+	 *            as list of lines
+	 * @param patch
+	 *            as list of lines; must be in <a href=
+	 *            "http://www.artima.com/weblogs/viewpost.jsp?thread=164293"
+	 *            >unified diff format</a>
+	 * @return
+	 * @throws PatchFailedException
+	 */
+	public static List<String> patch(List<String> original, List<String> patch)
+			throws PatchFailedException {
+		@SuppressWarnings("unchecked")
+		List<String> newSource = (List<String>) difflib.DiffUtils.patch(
+				original, difflib.DiffUtils.parseUnifiedDiff(patch));
+		return newSource;
 	}
 
-	public File getSourceRoot() {
-		String path = this.logDirectory + "/sources";
-		return new File(path.replace("//", "/"));
-	}
-
-	public File getSourceFile(DiffFileRecord diffFileRecord) {
-		DiffFile diffFile = diffFileRecord.getDiffFile();
-		ID id = diffFile.getId();
-		long revision = Long.parseLong(diffFile.getRevision());
-		String filename = diffFileRecord.getFilename();
-
-		String path = this.getSourceRoot().getAbsolutePath() + "/" + id + "/"
-				+ revision + "/" + filename;
-		return new File(path.replace("//", "/"));
+	/**
+	 * Patches a string by a given patch
+	 * 
+	 * @param original
+	 * @param patch
+	 *            as list of lines; must be in <a href=
+	 *            "http://www.artima.com/weblogs/viewpost.jsp?thread=164293"
+	 *            >unified diff format</a>
+	 * @return
+	 * @throws PatchFailedException
+	 */
+	public static List<String> patch(String original, List<String> patchLines)
+			throws PatchFailedException {
+		return patch(Arrays.asList(original.split("\n")), patchLines);
 	}
 }
