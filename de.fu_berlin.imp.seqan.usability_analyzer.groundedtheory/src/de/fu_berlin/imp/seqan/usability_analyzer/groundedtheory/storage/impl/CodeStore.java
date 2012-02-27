@@ -34,6 +34,7 @@ import org.xml.sax.SAXParseException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -191,8 +192,8 @@ class CodeStore implements ICodeStore {
 			String id = codeItemAttributes.getNamedItem("id").getNodeValue();
 			TimeZoneDate creation = new TimeZoneDate(codeItemAttributes
 					.getNamedItem("creation").getNodeValue());
-			codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId), id,
-					creation);
+			codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId),
+					CodeInstanceID.createRaw(id), creation);
 		}
 
 		return codeInstances;
@@ -296,7 +297,8 @@ class CodeStore implements ICodeStore {
 			Element codeInstanceElement = doc.createElement("codeInstance");
 			codeInstanceElement.setAttribute("codeId",
 					Long.valueOf(codeInstance.getCode().getId()).toString());
-			codeInstanceElement.setAttribute("id", codeInstance.getId());
+			codeInstanceElement.setAttribute("id", codeInstance.getId()
+					.toString());
 			codeInstanceElement.setAttribute("creation", codeInstance
 					.getCreation().toISO8601());
 			codeInstancesNode.appendChild(codeInstanceElement);

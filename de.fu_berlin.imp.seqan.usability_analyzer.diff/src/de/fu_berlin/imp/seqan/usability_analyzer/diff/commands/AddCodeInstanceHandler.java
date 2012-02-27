@@ -62,7 +62,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				int startLine = textSeDocument.getStartLine();
 				int offset = textSeDocument.getOffset();
 				int length = textSeDocument.getLength();
-				System.out.println("Selected " + length + " chars in "
+				System.out.println("Selectedssss " + length + " chars in "
 						+ diffFileRecord.getFilename());
 
 				// TODO addAnnotation(new Marker, selection, editor);

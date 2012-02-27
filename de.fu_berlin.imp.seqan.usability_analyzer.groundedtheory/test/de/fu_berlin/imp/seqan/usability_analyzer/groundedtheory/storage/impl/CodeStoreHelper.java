@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceTest;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -41,11 +42,14 @@ public class CodeStoreHelper {
 	protected ICode code1 = new Code(234233209l, "Code #1");
 	protected ICode code2 = new Code(9908372l, "Code #2");
 	protected ICodeInstance codeInstance1 = new CodeInstance(code2,
-			"dslkjsdjk278sdi", new TimeZoneDate("1984-05-15T14:30:00+02:00"));
+			CodeInstanceID.createRaw("dslkjsdjk278sdi"), new TimeZoneDate(
+					"1984-05-15T14:30:00+02:00"));
 	protected ICodeInstance codeInstance2 = new CodeInstance(code1,
-			"äk,dskllsödj", new TimeZoneDate("2011-11-11T11:11:11+11:00"));
-	protected ICodeInstance codeInstance3 = new CodeInstance(code2, "-20",
-			new TimeZoneDate("2002-09-23T23:08:01-04:30"));
+			CodeInstanceID.createRaw("äk,dskllsödj"), new TimeZoneDate(
+					"2011-11-11T11:11:11+11:00"));
+	protected ICodeInstance codeInstance3 = new CodeInstance(code2,
+			CodeInstanceID.createRaw("-20"), new TimeZoneDate(
+					"2002-09-23T23:08:01-04:30"));
 
 	protected ICode[] codes = new ICode[] { code1, code2 };
 	protected ICodeInstance[] codeInstances = new ICodeInstance[] {

@@ -38,7 +38,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IData
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.filters.DataSourceFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.preferences.SUAEntityPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.UsabilityLogContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableContentProvider;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -123,7 +123,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		this.entityTableViewer
-				.setContentProvider(new UsabilityLogContentProvider());
+				.setContentProvider(new EntityTableContentProvider());
 		this.entityTableViewer.setInput(Activator.getDefault()
 				.getPersonManager());
 

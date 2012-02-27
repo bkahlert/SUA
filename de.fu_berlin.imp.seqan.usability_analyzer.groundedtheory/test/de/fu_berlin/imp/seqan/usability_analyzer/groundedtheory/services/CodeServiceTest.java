@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
@@ -60,7 +61,8 @@ public class CodeServiceTest extends CodeServicesHelper {
 				will(returnValue(codeInstance1.getId()));
 
 				allowing(codeable2).getCodeInstanceId();
-				will(returnValue("completely_new_instance_id"));
+				will(returnValue(CodeInstanceID
+						.createRaw("completely_new_instance_id")));
 			}
 		});
 

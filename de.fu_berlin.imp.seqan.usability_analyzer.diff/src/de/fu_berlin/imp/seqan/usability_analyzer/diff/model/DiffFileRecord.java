@@ -11,9 +11,14 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import difflib.PatchFailedException;
 
-public class DiffFileRecord implements HasDateRange {
+public class DiffFileRecord implements HasDateRange, ICodeable {
+
+	private static final long serialVersionUID = -1200532570493919910L;
 
 	private Logger logger = Logger.getLogger(DiffFileRecord.class);
 
@@ -53,6 +58,12 @@ public class DiffFileRecord implements HasDateRange {
 		this.patchEnd = contentEnd;
 
 		getSource(); // implicitly patches
+	}
+
+	@Override
+	public ICodeInstanceID getCodeInstanceId() {
+		return new CodeInstanceID("DiffRecord", this.getDiffFile()
+				.getCodeInstanceId(), originalSourceFile.getAbsolutePath());
 	}
 
 	public DiffFile getDiffFile() {

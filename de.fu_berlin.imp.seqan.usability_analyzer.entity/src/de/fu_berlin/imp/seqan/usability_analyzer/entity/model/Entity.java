@@ -16,6 +16,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
@@ -43,8 +45,8 @@ public class Entity implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public String getCodeInstanceId() {
-		return this.getInternalId();
+	public ICodeInstanceID getCodeInstanceId() {
+		return new CodeInstanceID("Entity", this.getInternalId());
 	}
 
 	private String getInternalId() throws NoInternalIdentifierException {

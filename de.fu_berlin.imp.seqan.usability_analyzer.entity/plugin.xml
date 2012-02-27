@@ -15,6 +15,15 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
+            locationURI="menu:de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+               label="xxxxxxxxx"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView">
          <control
                class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.controls.DiffOnlyPersonsButton">

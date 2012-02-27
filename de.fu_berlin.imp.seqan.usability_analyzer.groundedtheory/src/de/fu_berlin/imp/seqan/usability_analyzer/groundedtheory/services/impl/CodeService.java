@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.Assert;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -63,10 +62,6 @@ class CodeService implements ICodeService {
 			}
 		} catch (CodeStoreReadException e) {
 			throw new CodeServiceException(e);
-		}
-		String codeInstanceId = codeable.getCodeInstanceId();
-		if ("0xigg7z3soutj46b".equals(codeInstanceId)) {
-			codes.add(new Code(1l, "Ich bin ein Code"));
 		}
 		return codes;
 	}

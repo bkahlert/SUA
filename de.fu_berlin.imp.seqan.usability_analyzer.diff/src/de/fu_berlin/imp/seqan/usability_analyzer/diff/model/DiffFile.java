@@ -21,8 +21,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffFile extends File implements HasDateRange {
+public class DiffFile extends File implements HasDateRange, ICodeable {
 
 	private static final long serialVersionUID = 5159431028889474742L;
 	public static final Pattern PATTERN = Pattern
@@ -34,6 +37,12 @@ public class DiffFile extends File implements HasDateRange {
 		if (matcher.find())
 			id = new ID(matcher.group(1));
 		return id;
+	}
+
+	@Override
+	public ICodeInstanceID getCodeInstanceId() {
+		return new CodeInstanceID("DiffSet", getId().toString(),
+				Integer.parseInt(getRevision()));
 	}
 
 	public static String getRevision(File file) {

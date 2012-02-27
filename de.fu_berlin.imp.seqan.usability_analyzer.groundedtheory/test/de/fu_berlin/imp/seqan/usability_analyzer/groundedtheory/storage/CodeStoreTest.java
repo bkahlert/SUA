@@ -18,7 +18,9 @@ import org.xml.sax.SAXParseException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
@@ -348,7 +350,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		context.checking(new Expectations() {
 			{
 				allowing(codeable).getCodeInstanceId();
-				will(returnValue("my_id"));
+				will(returnValue(CodeInstanceID.createRaw("my_id")));
 			}
 		});
 
@@ -369,7 +371,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 					}
 
 					@Override
-					public String getId() {
+					public ICodeInstanceID getId() {
 						return codeInstance.getId();
 					}
 

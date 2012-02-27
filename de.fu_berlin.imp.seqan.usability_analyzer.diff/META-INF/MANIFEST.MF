@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
  org.eclipse.jface.text;bundle-version="3.7.0",
  org.eclipse.ui.editors;bundle-version="3.7.0",
- org.eclipse.core.resources;bundle-version="3.7.100"
+ org.eclipse.core.resources;bundle-version="3.7.100",
+ de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff,

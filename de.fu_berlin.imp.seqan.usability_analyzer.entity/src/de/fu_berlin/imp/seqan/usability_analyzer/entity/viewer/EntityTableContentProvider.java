@@ -13,7 +13,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class UsabilityLogContentProvider implements IStructuredContentProvider,
+public class EntityTableContentProvider implements IStructuredContentProvider,
 		ITreeContentProvider {
 
 	private Viewer viewer;
