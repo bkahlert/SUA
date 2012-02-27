@@ -14,4 +14,24 @@
       <command id="de.fu_berlin.imp.seqan.usability_analyzer.commands.Empty" name="EMPTY">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.Perspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.app.perspective"
+            name="SeqAn Usability Analyzer">
+      </perspective>
+   </extension>
+   <extension
+         id="de.fu_berlin.imp.seqan.usability_analyzer.application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="de.fu_berlin.imp.seqan.usability_analyzer.Application">
+         </run>
+      </application>
+   </extension>
 </plugin>

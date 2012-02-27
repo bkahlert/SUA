@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SeqAn Log Analyzer
-Bundle-SymbolicName: de.fu_berlin.imp.seqan.usability_analyzer; singleton:=true
+Bundle-SymbolicName: de.fu_berlin.imp.seqan.usability_analyzer;singleton:=true
 Bundle-Version: 0.1.0.0
 Bundle-Activator: de.fu_berlin.imp.seqan.usability_analyzer.Activator
 Bundle-Vendor: AG Algorithmic Bioinformatics, Freie Universitität Berlin
@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.ui,
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.0",
  org.junit,
  de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
+ de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.diff;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.doclog;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.entity;bundle-version="1.0.0",

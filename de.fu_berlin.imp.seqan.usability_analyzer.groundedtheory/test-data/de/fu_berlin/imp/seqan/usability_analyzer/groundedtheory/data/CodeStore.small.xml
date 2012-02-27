@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SUACodes>
+	<codes>
+		<code id="234233209" caption="Code #1"/>
+		<code id="9908372" caption="Code #2"/>
+	</codes>
+	<codeInstances>
+		<codeInstance codeId="9908372" id="dslkjsdjk278sdi" creation="1984-05-15T14:30:00+02:00"/>
+		<codeInstance codeId="234233209" id="äk,dskllsödj" creation="2011-11-11T11:11:11+11:00"/>
+		<codeInstance codeId="9908372" id="-20" creation="2002-09-23T23:08:01-04:30"/>
+	</codeInstances>
+</SUACodes>

@@ -10,7 +10,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.app"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -55,7 +55,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given plug-in
+	 * Returns an image descriptor for the image small at the given plug-in
 	 * relative path
 	 * 
 	 * @param path
