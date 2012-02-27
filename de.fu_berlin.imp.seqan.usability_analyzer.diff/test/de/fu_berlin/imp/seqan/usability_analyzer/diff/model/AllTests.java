@@ -7,7 +7,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 		de.fu_berlin.imp.seqan.usability_analyzer.diff.model.diff.AllTests.class,
-		DiffFileManagerTest.class, DiffFileTest.class })
+		DiffFileRecordTest.class, DiffFileDirectoryTest.class,
+		DiffFileTest.class })
 public class AllTests {
 
 }

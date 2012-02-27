@@ -20,10 +20,21 @@ public class DiffFileRecord implements HasDateRange {
 	private DiffFile diffFile;
 	private File originalSourceFile;
 	private File cachedSourceFile;
-	private List<String> raw;
 
 	private String commandLine;
 	private DiffFileRecordMeta meta;
+
+	/**
+	 * Contains the byte position within the parent {@link DiffFile} where the
+	 * patch starts
+	 */
+	private long patchStart;
+
+	/**
+	 * Contains the byte position within the parent {@link DiffFile} where the
+	 * patch end
+	 */
+	private long patchEnd;
 
 	private DiffFileRecord predecessor = null;
 
@@ -31,15 +42,17 @@ public class DiffFileRecord implements HasDateRange {
 
 	public DiffFileRecord(DiffFile diffFile, File originalSourceFile,
 			File cachedSourceFile, String commandLine, DiffFileRecordMeta meta,
-			List<String> lines) {
+			long contentStart, long contentEnd) {
 		this.diffFile = diffFile;
 		this.originalSourceFile = originalSourceFile;
 		this.cachedSourceFile = cachedSourceFile;
 
 		this.commandLine = commandLine;
-		this.raw = lines;
 		this.meta = meta;
-		getSource();
+		this.patchStart = contentStart;
+		this.patchEnd = contentEnd;
+
+		getSource(); // implicitly patches
 	}
 
 	public DiffFile getDiffFile() {
@@ -81,7 +94,7 @@ public class DiffFileRecord implements HasDateRange {
 	 * @return list of patch lines
 	 */
 	public List<String> getPatchLines() {
-		return raw;
+		return this.getDiffFile().getContent(this.patchStart, this.patchEnd);
 	}
 
 	@Override
@@ -103,7 +116,8 @@ public class DiffFileRecord implements HasDateRange {
 	}
 
 	public boolean sourceExists() {
-		return this.cachedSourceFile.canRead();
+		return this.cachedSourceFile != null ? this.cachedSourceFile.canRead()
+				: false;
 	}
 
 	public String getSource() {
@@ -147,7 +161,8 @@ public class DiffFileRecord implements HasDateRange {
 				String lastLine = newSource.get(newSource.size() - 1);
 				if (lastLine.equals(""))
 					newSource.remove(newSource.size() - 1);
-				if (newSource.get(newSource.size() - 1).endsWith("\n"))
+				if (newSource.size() > 0
+						&& newSource.get(newSource.size() - 1).endsWith("\n"))
 					newSource.get(newSource.size() - 1).replace("\n$", "");
 				this.setAndPersistSource(newSource);
 				return StringUtils.join(newSource, "\n");
@@ -162,6 +177,9 @@ public class DiffFileRecord implements HasDateRange {
 	}
 
 	void setAndPersistSource(List<String> source) {
+		// this method consumes much space
+		Runtime.getRuntime().gc();
+
 		String sourceString = StringUtils.join(source, "\n");
 		if (sourceString.endsWith("\n")) {
 			sourceString = sourceString.substring(0, sourceString.length() - 1);

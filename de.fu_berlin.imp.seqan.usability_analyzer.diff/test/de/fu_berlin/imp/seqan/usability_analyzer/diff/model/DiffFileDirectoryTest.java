@@ -17,10 +17,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 
-public class DiffFileManagerTest {
+public class DiffFileDirectoryTest {
 
 	private static final String root = "/"
-			+ DiffFileManagerTest.class.getPackage().getName()
+			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 	private static final String logDirectory = root + "/data";
 	private static final String trunkDirectory = root + "/trunk";
@@ -31,9 +31,9 @@ public class DiffFileManagerTest {
 	private static DiffFileDirectory getDiffFileManager()
 			throws DataSourceInvalidException, URISyntaxException {
 		return new DiffFileDirectory(FileUtils.getFile(
-				DiffFileManagerTest.class, logDirectory), FileUtils.getFile(
-				DiffFileManagerTest.class, cachedSourcesDirectory),
-				FileUtils.getFile(DiffFileManagerTest.class, trunkDirectory));
+				DiffFileDirectoryTest.class, logDirectory), FileUtils.getFile(
+				DiffFileDirectoryTest.class, cachedSourcesDirectory),
+				FileUtils.getFile(DiffFileDirectoryTest.class, trunkDirectory));
 	}
 
 	private DiffFileRecordHistory getDiffFileRecordHistory()

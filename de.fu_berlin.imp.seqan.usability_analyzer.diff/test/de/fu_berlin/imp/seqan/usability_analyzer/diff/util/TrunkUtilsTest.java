@@ -7,12 +7,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileManagerTest;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectoryTest;
 
 public class TrunkUtilsTest {
 
 	private static final String root = "/"
-			+ DiffFileManagerTest.class.getPackage().getName()
+			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
 	@Test

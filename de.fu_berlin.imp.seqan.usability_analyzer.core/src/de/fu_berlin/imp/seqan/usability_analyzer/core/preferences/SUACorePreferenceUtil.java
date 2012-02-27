@@ -22,7 +22,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 		super(Activator.getDefault());
 	}
 
-	public File getLogfilePath() {
+	public File getLogDirectory() {
 		String logfilePath = getPreferenceStore().getString(
 				SUACorePreferenceConstants.LOGFILE_PATH);
 		return (logfilePath != null && !logfilePath.isEmpty()) ? new File(
@@ -30,7 +30,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public File getCachedSourcesDirectory() {
-		File logfilePath = getLogfilePath();
+		File logfilePath = getLogDirectory();
 		if (logfilePath == null)
 			return null;
 

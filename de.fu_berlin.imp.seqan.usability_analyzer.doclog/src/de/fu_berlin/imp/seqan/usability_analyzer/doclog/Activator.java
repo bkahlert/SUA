@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog;
 
 import java.awt.AWTException;
+import java.io.File;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
@@ -52,8 +53,14 @@ public class Activator extends AbstractUIPlugin {
 		Logger logger = Logger.getLogger(Activator.class);
 
 		SUACorePreferenceUtil corePreferenceUtil = new SUACorePreferenceUtil();
-		doclogDirectory = new DoclogDirectory(
-				corePreferenceUtil.getLogfilePath());
+		File logDirectory = corePreferenceUtil.getLogDirectory();
+		if (logDirectory != null && logDirectory.isDirectory()
+				&& logDirectory.canRead()) {
+			doclogDirectory = new DoclogDirectory(logDirectory);
+			doclogDirectory.scan();
+		} else {
+			logger.warn("No valid log directory specified");
+		}
 
 		try {
 			this.maxCaptureArea = new ScreenshotTaker().getMaxCaptureArea();

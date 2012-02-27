@@ -9,6 +9,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
 public class SortableTreeViewer extends TreeViewer {
@@ -20,19 +21,24 @@ public class SortableTreeViewer extends TreeViewer {
 		super.setComparator(this.genericColumnViewerComparator);
 	}
 
+	public SortableTreeViewer(Tree tree) {
+		super(tree);
+		super.setComparator(this.genericColumnViewerComparator);
+	}
+
 	@Override
 	public void setComparator(ViewerComparator comparator) {
 		// we manage the comparator on our owns
 	}
 
-	public TreeViewerColumn createColumn(String title, int bound,
+	public TreeViewerColumn createColumn(String title, int width,
 			boolean isResizable, boolean isMoveable,
 			Comparator<Object> comparator, Class<?>[] comparatorClasses) {
 		final TreeViewerColumn viewerColumn = new TreeViewerColumn(this,
 				SWT.NONE);
 		final TreeColumn column = viewerColumn.getColumn();
 		column.setText(title);
-		column.setWidth(bound);
+		column.setWidth(width);
 		column.setResizable(isResizable);
 		column.setMoveable(isMoveable);
 		column.addSelectionListener(new SelectionAdapter() {
@@ -49,15 +55,15 @@ public class SortableTreeViewer extends TreeViewer {
 		return viewerColumn;
 	}
 
-	public TreeViewerColumn createColumn(String title, int bound,
+	public TreeViewerColumn createColumn(String title, int width,
 			boolean isResizableAndMovable, Comparator<Object> comparator,
 			Class<?>[] comparatorClasses) {
-		return this.createColumn(title, bound, isResizableAndMovable,
+		return this.createColumn(title, width, isResizableAndMovable,
 				isResizableAndMovable, comparator, comparatorClasses);
 	}
 
-	public TreeViewerColumn createColumn(String title, int bound) {
-		return this.createColumn(title, bound, true, true, null, null);
+	public TreeViewerColumn createColumn(String title, int width) {
+		return this.createColumn(title, width, true, true, null, null);
 	}
 
 	public TreeColumn getColumn(int colNumber) {

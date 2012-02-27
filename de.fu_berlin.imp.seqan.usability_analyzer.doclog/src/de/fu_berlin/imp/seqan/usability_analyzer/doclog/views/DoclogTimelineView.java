@@ -1,16 +1,19 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.views;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.collections.ListUtils;
+import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -26,7 +29,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-import org.javatuples.Pair;
 
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
@@ -38,12 +40,28 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
+
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView";
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogTimelineView.class);
+
+	private static Set<Object> filterValidKeys(List<?> keys) {
+		HashSet<Object> validKeys = new HashSet<Object>();
+		for (Object key : keys) {
+			if (Activator.getDefault().getDoclogDirectory().getDateRange(key) != null)
+				validKeys.add(key);
+		}
+		return validKeys;
+	}
+
+	Job timelineLoader = null;
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
@@ -56,7 +74,14 @@ public class DoclogTimelineView extends ViewPart {
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
 							FingerprintDateRange.class).getSelection()));
 
-			Job job = new Job("Preparing " + Timeline.class.getName()) {
+			if (groupedDateRanges.keySet().size() == 0)
+				return;
+
+			if (timelineLoader != null)
+				timelineLoader.cancel();
+
+			timelineLoader = new Job("Preparing "
+					+ Timeline.class.getSimpleName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					if (groupedDateRanges.size() > 0) {
@@ -65,36 +90,51 @@ public class DoclogTimelineView extends ViewPart {
 					return Status.OK_STATUS;
 				}
 			};
-			job.schedule();
+			timelineLoader.schedule();
 		}
 	};
 
+	/**
+	 * This {@link ISelectionListener} is responsible for the initialization of
+	 * {@link DoclogTimeline}s.
+	 * <p>
+	 * Existing {@link DoclogTimeline}s are recycled. New {@link DoclogTimeline}
+	 * s will be created if necessary. If free {@link DoclogTimeline}s stay
+	 * unused they will be disposed.
+	 */
 	private ISelectionListener postSelectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			if (!part.getClass().equals(DoclogExplorerView.class)
 					&& !part.getSite().getId().contains("DiffExplorerView")) {
 
-				final Set<Object> keys = new HashSet<Object>();
-				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
-						ID.class).getSelection());
-				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
-						Fingerprint.class).getSelection());
+				final List<Object> keys = new LinkedList<Object>();
+				keys.addAll(filterValidKeys(SelectionRetrieverFactory
+						.getSelectionRetriever(ID.class).getSelection()));
+				keys.addAll(filterValidKeys(SelectionRetrieverFactory
+						.getSelectionRetriever(Fingerprint.class)
+						.getSelection()));
 
-				Job job = new Job("Preparing " + Timeline.class.getSimpleName()) {
+				if (keys.size() == 0)
+					return;
+
+				if (timelineLoader != null)
+					timelineLoader.cancel();
+
+				timelineLoader = new Job("Preparing "
+						+ Timeline.class.getSimpleName()) {
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
 						init(keys, monitor);
 						return Status.OK_STATUS;
 					}
 				};
-				job.schedule();
+				timelineLoader.schedule();
 			}
 		}
 	};
 
 	private Composite composite;
-	private Map<Object, DoclogTimeline> doclogTimelines = new HashMap<Object, DoclogTimeline>();
 
 	public DoclogTimelineView() {
 	}
@@ -117,17 +157,72 @@ public class DoclogTimelineView extends ViewPart {
 		super.dispose();
 	}
 
-	public void init(Set<Object> keys, IProgressMonitor progressMonitor) {
-		progressMonitor.beginTask(
-				"Preparing " + Timeline.class.getName() + "s", keys.size() + 2);
-
-		disposeUnusedDoclogTimelines(keys);
+	public void init(List<Object> keys, IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask("Preparing " + Timeline.class.getSimpleName()
+				+ "s", keys.size() * 3 + 2);
+		if (progressMonitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
+		prepareExistingTimelines(keys);
+		if (progressMonitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
 
 		progressMonitor.worked(2);
 
-		for (Object key : keys) {
-			createDoclogTimeline(key,
+		for (final Object key : keys) {
+			if (progressMonitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
+
+			DoclogFile doclogFile = DoclogCache.getInstance().getPayload(key,
 					new SubProgressMonitor(progressMonitor, 1));
+
+			if (doclogFile == null) {
+				LOGGER.error(DoclogFile.class.getSimpleName() + " for " + key
+						+ " was null. Only valid (= "
+						+ DoclogFile.class.getSimpleName()
+						+ " exists) are allowed.");
+				continue;
+			}
+
+			progressMonitor.worked(1);
+
+			final AtomicReference<DoclogTimeline> doclogTimeline = new AtomicReference<DoclogTimeline>(
+					getTimeline(key));
+			final AtomicReference<Object> doclogTimelineKey = new AtomicReference<Object>();
+			if (doclogTimeline.get() != null) {
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						doclogTimelineKey.set(doclogTimeline.get().getData());
+					}
+				});
+				progressMonitor.worked(1);
+			} else {
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						doclogTimeline.set(new DoclogTimeline(composite,
+								SWT.NONE));
+						doclogTimeline.get().setData(key);
+						doclogTimelineKey.set(key);
+					}
+				});
+				progressMonitor.worked(1);
+			}
+			if (key.equals(doclogTimelineKey)) {
+				progressMonitor.worked(1);
+			} else {
+				doclogTimeline.get().show(doclogFile, getTitle(key));
+				progressMonitor.worked(1);
+			}
+			progressMonitor.done();
+
+			if (progressMonitor.isCanceled()) {
+				disposeTimelines(key);
+				throw new OperationCanceledException();
+			}
 		}
 
 		Display.getDefault().syncExec(new Runnable() {
@@ -140,92 +235,65 @@ public class DoclogTimelineView extends ViewPart {
 		progressMonitor.done();
 	}
 
-	public void refresh(Map<Object, List<TimeZoneDateRange>> groupedDateRanges,
-			IProgressMonitor progressMonitor) {
-		progressMonitor.beginTask("Upading " + Timeline.class.getName() + "s",
-				groupedDateRanges.keySet().size() + 2);
-
-		disposeUnusedDoclogTimelines(groupedDateRanges.keySet());
-
-		progressMonitor.worked(2);
-
-		for (Object key : groupedDateRanges.keySet()) {
-			Pair<DoclogFile, DoclogTimeline> doclog = createDoclogTimeline(key,
-					new NullProgressMonitor());
-			DoclogFile doclogFile = doclog.getValue0();
-			final DoclogTimeline doclogTimeline = doclog.getValue1();
-
-			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
-					.get(key);
-			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
-					doclogFile, dateRanges);
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (minMaxDateRange.getStartDate() != null)
-						doclogTimeline.setCenterVisibleDate(minMaxDateRange
-								.getStartDate().toISO8601());
-					else if (minMaxDateRange.getEndDate() != null)
-						doclogTimeline.setCenterVisibleDate(minMaxDateRange
-								.getEndDate().toISO8601());
-					doclogTimeline.highlight(dateRanges);
-				}
-			});
-		}
-
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				composite.layout();
-			}
-		});
-
-		progressMonitor.done();
-	}
-
-	protected Pair<DoclogFile, DoclogTimeline> createDoclogTimeline(Object key,
-			IProgressMonitor progressMonitor) {
-		progressMonitor.beginTask("Creating " + Timeline.class.getSimpleName(),
-				3);
-
-		DoclogFile doclogFile = DoclogCache.getInstance().getPayload(key,
-				new SubProgressMonitor(progressMonitor, 1));
-		if (doclogFile == null)
-			return null; // DoclogFile is ID based
-
+	private static String getTitle(Object key) {
 		String title;
 		if (key instanceof ID) {
 			title = "ID: " + key.toString();
 		} else if (key instanceof Fingerprint) {
 			title = "Fingerprint: " + key.toString();
 		} else {
-			progressMonitor.done();
-			throw new InvalidParameterException(key + " was not of valid type");
+			title = "INVALID TYPE";
 		}
-
-		Pair<DoclogFile, DoclogTimeline> rt = new Pair<DoclogFile, DoclogTimeline>(
-				doclogFile, createDoclogTimeline(key, doclogFile, title));
-		progressMonitor.worked(2);
-		progressMonitor.done();
-		return rt;
+		return title;
 	}
 
-	private DoclogTimeline createDoclogTimeline(final Object key,
-			final DoclogFile doclogFile, final String title) {
-		final AtomicReference<DoclogTimeline> doclogTimeline = new AtomicReference<DoclogTimeline>(
-				this.doclogTimelines.get(key));
-		if (doclogTimeline.get() == null) {
+	public void refresh(
+			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges,
+			IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask("Updading " + Timeline.class.getSimpleName()
+				+ "s", groupedDateRanges.keySet().size());
+		for (Object key : groupedDateRanges.keySet()) {
+			if (progressMonitor.isCanceled())
+				throw new OperationCanceledException();
+			DoclogTimeline timeline = getTimeline(key);
+			if (timeline == null) {
+				LOGGER.warn(DoclogTimeline.class.getSimpleName()
+						+ " does not exist anymore for " + key);
+				continue;
+			}
+
+			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
+					.get(key);
+			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
+					DoclogCache.getInstance().getPayload(key, progressMonitor),
+					dateRanges);
+			final DoclogTimeline timeline_ = timeline;
+			if (progressMonitor.isCanceled())
+				throw new OperationCanceledException();
 			Display.getDefault().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					doclogTimeline.set(new DoclogTimeline(composite, SWT.NONE,
-							title));
-					doclogTimelines.put(key, doclogTimeline.get());
-					doclogTimeline.get().show(doclogFile);
+					if (minMaxDateRange.getStartDate() != null)
+						timeline_.setCenterVisibleDate(minMaxDateRange
+								.getStartDate().toISO8601());
+					else if (minMaxDateRange.getEndDate() != null)
+						timeline_.setCenterVisibleDate(minMaxDateRange
+								.getEndDate().toISO8601());
+					timeline_.highlight(dateRanges);
 				}
 			});
+			if (progressMonitor.isCanceled())
+				throw new OperationCanceledException();
 		}
-		return doclogTimeline.get();
+
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				composite.layout();
+			}
+		});
+
+		progressMonitor.done();
 	}
 
 	/**
@@ -266,20 +334,90 @@ public class DoclogTimelineView extends ViewPart {
 		return new TimeZoneDateRange(earliestDate, latestDate);
 	}
 
-	private void disposeUnusedDoclogTimelines(Set<Object> doclogTimelinesToKeep) {
-		for (Object key : this.doclogTimelines.keySet()) {
-			if (!doclogTimelinesToKeep.contains(key)) {
-				final Timeline doclogTimeline = this.doclogTimelines.get(key);
-				this.doclogTimelines.remove(key);
-				if (doclogTimeline != null && !doclogTimeline.isDisposed()) {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							doclogTimeline.dispose();
-						}
-					});
+	private List<Object> getTimelineKeys() {
+		final List<Object> keys = new LinkedList<Object>();
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (Control control : composite.getChildren()) {
+					if (!control.isDisposed()
+							&& control instanceof DoclogTimeline) {
+						keys.add(control.getData());
+					}
 				}
 			}
+		});
+		return keys;
+	}
+
+	private DoclogTimeline getTimeline(final Object key) {
+		Assert.isNotNull(key);
+		final AtomicReference<DoclogTimeline> timelineReference = new AtomicReference<DoclogTimeline>();
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (Control control : composite.getChildren()) {
+					if (!control.isDisposed()
+							&& control instanceof DoclogTimeline) {
+						DoclogTimeline timeline = (DoclogTimeline) control;
+						if (key.equals(timeline.getData())) {
+							timelineReference.set(timeline);
+							return;
+						}
+					}
+				}
+			}
+		});
+		return timelineReference.get();
+	}
+
+	/**
+	 * Prepares already instantiated {@link DoclogTimeline}s in the following
+	 * way:
+	 * <ul>
+	 * <li>{@link DoclogTimeline}s already associated with a given key stay
+	 * untouched
+	 * <li>the other {@link DoclogTimeline} are associated with a new key
+	 * <li>{@link DoclogTimeline} that are not needed anymore get disposed
+	 * <li>the still not associated keys are returned
+	 * </ul>
+	 * 
+	 * @param usedTimelineKeys
+	 * @return keys that were not associated to an existing
+	 *         {@link DoclogTimeline}
+	 */
+	private List<?> prepareExistingTimelines(List<Object> usedTimelineKeys) {
+		List<Object> existingTimelines = getTimelineKeys();
+		List<?> preparedTimelines = ListUtils.intersection(existingTimelines,
+				usedTimelineKeys);
+		final List<?> unpreparedTimelines = ListUtils.subtract(
+				usedTimelineKeys, preparedTimelines);
+		final List<?> freeTimelines = ListUtils.subtract(existingTimelines,
+				preparedTimelines);
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (freeTimelines.size() > 0
+						&& unpreparedTimelines.size() > 0) {
+					getTimeline(freeTimelines.remove(0)).setData(
+							unpreparedTimelines.remove(0));
+				}
+			}
+		});
+		disposeTimelines(freeTimelines.toArray());
+		return unpreparedTimelines;
+	}
+
+	private void disposeTimelines(final Object... timelineKeys) {
+		for (final Object key : timelineKeys) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					Timeline doclogTimeline = getTimeline(key);
+					if (doclogTimeline != null && !doclogTimeline.isDisposed())
+						doclogTimeline.dispose();
+				}
+			});
 		}
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -301,7 +439,7 @@ public class DoclogTimelineView extends ViewPart {
 		parent.setLayout(new FillLayout(SWT.VERTICAL));
 		this.composite = parent;
 
-		// getSite().setSelectionProvider(null);
+		// TODO getSite().setSelectionProvider(null);
 	}
 
 	@Override

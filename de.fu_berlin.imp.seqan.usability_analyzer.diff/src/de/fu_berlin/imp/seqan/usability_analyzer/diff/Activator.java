@@ -1,9 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff;
 
+import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -23,6 +25,8 @@ public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff"; //$NON-NLS-1$
+
+	private final Logger logger = Logger.getLogger(Activator.class);
 
 	// The shared instance
 	private static Activator plugin;
@@ -83,10 +87,17 @@ public class Activator extends AbstractUIPlugin {
 		oldFileFilters = diffPreferenceUtil.getFileFilters();
 		diffPreferenceUtil.addPropertyChangeListener(propertyChangeListener);
 
-		diffFileDirectory = new DiffFileDirectory(
-				corePreferenceUtil.getLogfilePath(),
-				new SUADiffPreferenceUtil().getTrunkDirectory(),
-				corePreferenceUtil.getCachedSourcesDirectory());
+		File logDirectory = corePreferenceUtil.getLogDirectory();
+		if (logDirectory != null && logDirectory.isDirectory()
+				&& logDirectory.canRead()) {
+			diffFileDirectory = new DiffFileDirectory(logDirectory,
+					new SUADiffPreferenceUtil().getTrunkDirectory(),
+					corePreferenceUtil.getCachedSourcesDirectory());
+			diffFileDirectory.scan();
+		} else {
+			logger.warn("No valid log directory specified");
+		}
+
 	}
 
 	/*

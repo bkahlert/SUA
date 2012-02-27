@@ -20,8 +20,9 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.core.views.DateTimeRangeView"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.core.views.DateTimeRangeView"
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView"
             name="Date &amp; Time Range"
             restorable="true">
       </view>

@@ -1,5 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core;
 
+import java.io.File;
+
+import org.apache.log4j.Logger;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -19,12 +22,14 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.core"; //$NON-NLS-1$
 
+	private final Logger logger = Logger.getLogger(Activator.class);
+
 	// The shared instance
 	private static Activator plugin;
 
 	private DataSetInfo dataSetInfo;
 
-	private SUACorePreferenceUtil preferenceUtil;
+	private SUACorePreferenceUtil corePreferenceUtil;
 
 	private TimeZoneDate oldDateRangeStart;
 	private TimeZoneDate oldDateRangeEnd;
@@ -43,13 +48,14 @@ public class Activator extends AbstractUIPlugin {
 			boolean newDateRangeStartEnabled = oldDateRangeStartEnabled;
 			boolean newDateRangeEndEnabled = oldDateRangeEndEnabled;
 
-			if (preferenceUtil.dateRangeStartChanged(event)) {
-				newDateRangeStart = new TimeZoneDate((String) event.getNewValue());
-			} else if (preferenceUtil.dateRangeEndChanged(event)) {
+			if (corePreferenceUtil.dateRangeStartChanged(event)) {
+				newDateRangeStart = new TimeZoneDate(
+						(String) event.getNewValue());
+			} else if (corePreferenceUtil.dateRangeEndChanged(event)) {
 				newDateRangeEnd = new TimeZoneDate((String) event.getNewValue());
-			} else if (preferenceUtil.dateRangeStartEnabledChanged(event)) {
+			} else if (corePreferenceUtil.dateRangeStartEnabledChanged(event)) {
 				newDateRangeStartEnabled = (Boolean) event.getNewValue();
-			} else if (preferenceUtil.dateRangeEndEnabledChanged(event)) {
+			} else if (corePreferenceUtil.dateRangeEndEnabledChanged(event)) {
 				newDateRangeEndEnabled = (Boolean) event.getNewValue();
 			}
 
@@ -83,16 +89,23 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		preferenceUtil = new SUACorePreferenceUtil();
+		corePreferenceUtil = new SUACorePreferenceUtil();
 
-		dataSetInfo = new DataSetInfo(preferenceUtil.getLogfilePath() + "/"
-				+ DataSetInfo.FILENAME);
+		File logDirectory = corePreferenceUtil.getLogDirectory();
+		if (logDirectory != null && logDirectory.isDirectory()
+				&& logDirectory.canRead()) {
+			dataSetInfo = new DataSetInfo(corePreferenceUtil.getLogDirectory()
+					+ "/" + DataSetInfo.FILENAME);
+		} else {
+			logger.warn("No valid log directory specified");
+		}
 
-		preferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
-		oldDateRangeStart = preferenceUtil.getDateRangeStart();
-		oldDateRangeEnd = preferenceUtil.getDateRangeEnd();
-		oldDateRangeStartEnabled = preferenceUtil.getDateRangeStartEnabled();
-		oldDateRangeEndEnabled = preferenceUtil.getDateRangeEndEnabled();
+		corePreferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
+		oldDateRangeStart = corePreferenceUtil.getDateRangeStart();
+		oldDateRangeEnd = corePreferenceUtil.getDateRangeEnd();
+		oldDateRangeStartEnabled = corePreferenceUtil
+				.getDateRangeStartEnabled();
+		oldDateRangeEndEnabled = corePreferenceUtil.getDateRangeEndEnabled();
 	}
 
 	/*
@@ -103,7 +116,8 @@ public class Activator extends AbstractUIPlugin {
 	 * )
 	 */
 	public void stop(BundleContext context) throws Exception {
-		preferenceUtil.removePropertyChangeListener(dateRangeChangeListener);
+		corePreferenceUtil
+				.removePropertyChangeListener(dateRangeChangeListener);
 		plugin = null;
 		super.stop(context);
 	}

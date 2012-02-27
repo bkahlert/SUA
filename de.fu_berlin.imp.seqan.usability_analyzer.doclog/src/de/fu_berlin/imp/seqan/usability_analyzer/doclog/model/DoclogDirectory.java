@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Logger;
@@ -18,6 +21,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
 
 public class DoclogDirectory extends File {
 
@@ -49,24 +53,51 @@ public class DoclogDirectory extends File {
 	public DoclogDirectory(File dataDirectory)
 			throws DataSourceInvalidException {
 		super(dataDirectory.getAbsolutePath());
+	}
 
+	public void scan() {
 		long start = System.currentTimeMillis();
 		this.files = readDoclogFileMappings(this);
 		this.fileDateRanges = new HashMap<Object, TimeZoneDateRange>(
 				this.files.size());
 		this.fileToken = new HashMap<Object, Token>(this.files.size());
-		for (Object key : this.files.keySet()) {
-			if (key.equals(new Fingerprint("4cc22d53a1f8e318697b8e9613c0134d"))) {
-				System.err.println("k");
-			}
-			this.fileDateRanges.put(key,
-					DoclogFile.getDateRange(this.files.get(key)));
-			this.fileToken.put(key, DoclogFile.getToken(this.files.get(key)));
+
+		ExecutorService executorService = ExecutorsUtil
+				.newFixedMultipleOfProcessorsThreadPool(2);
+		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
+		// force class loading since DoclogRecord is used in the Callable
+		DoclogRecord.class.getClass();
+		for (final Object key : this.files.keySet()) {
+			final File file = this.files.get(key);
+			callables.add(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					try {
+						TimeZoneDateRange dateRange = DoclogFile
+								.getDateRange(file);
+						Token token = DoclogFile.getToken(file);
+						synchronized (fileDateRanges) {
+							fileDateRanges.put(key, dateRange);
+						}
+						synchronized (fileToken) {
+							fileToken.put(key, token);
+						}
+					} catch (Exception e) {
+						LOGGER.fatal(e);
+					}
+					return null;
+				}
+			});
+		}
+		try {
+			executorService.invokeAll(callables);
+		} catch (InterruptedException e) {
+			LOGGER.fatal(
+					"Error parsing " + DoclogDirectory.class.getSimpleName(), e);
 		}
 		long end = System.currentTimeMillis();
 		LOGGER.info(DoclogDirectory.class.getSimpleName() + " "
-				+ dataDirectory.getName() + " scanned within " + (end - start)
-				+ "ms.");
+				+ this.getName() + " scanned within " + (end - start) + "ms.");
 	}
 
 	/**

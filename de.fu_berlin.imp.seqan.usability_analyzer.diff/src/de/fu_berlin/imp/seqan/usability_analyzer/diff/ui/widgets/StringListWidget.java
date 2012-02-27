@@ -17,7 +17,7 @@ public class StringListWidget extends Composite {
 	private Composite textContainer;
 
 	public StringListWidget(Composite composite, int style) {
-		super(composite, style | SWT.BORDER);
+		super(composite, style);
 
 		this.setLayout(GridLayoutFactory.fillDefaults().margins(10, 10)
 				.create());

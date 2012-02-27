@@ -1,7 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
@@ -149,6 +152,12 @@ public class DiffFile extends File implements HasDateRange {
 			}
 		}
 		return true;
+	}
+
+	public List<String> getContent(long contentStart, long contentEnd) {
+		String content = new String(FileUtils.readBytesFromTo(this,
+				contentStart, contentEnd));
+		return Arrays.asList(content.split("\n"));
 	}
 
 }

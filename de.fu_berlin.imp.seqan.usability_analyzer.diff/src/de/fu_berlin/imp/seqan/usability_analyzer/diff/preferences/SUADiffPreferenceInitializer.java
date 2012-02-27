@@ -9,7 +9,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 public class SUADiffPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	public static final String[] defaultFileFilterPatterns = new String[] {
-			"^/?bin(/.*|$)", "^/?core(/.*|$)" };
+			"^/?bin(/.*|$)", "^/?core(/.*|$)", "^(.*)?/?CMakeFiles(/.*|$)",
+			"^.*\\.cmake$", "^.*CMakeLists.txt$", "^.*Makefile$" };
 
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();

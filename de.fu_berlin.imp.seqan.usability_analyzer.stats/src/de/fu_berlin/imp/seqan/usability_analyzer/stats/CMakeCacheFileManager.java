@@ -21,8 +21,6 @@ public class CMakeCacheFileManager extends DataSourceManager {
 		super(logDirectory);
 
 		this.logDirectory = logDirectory;
-
-		this.scanFiles();
 	}
 
 	public void scanFiles() {

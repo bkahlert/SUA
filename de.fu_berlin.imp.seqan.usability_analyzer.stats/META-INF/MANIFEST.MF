@@ -18,5 +18,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.stats,
  de.fu_berlin.imp.seqan.usability_analyzer.stats.model
-Bundle-ClassPath: .,
- lib/json-lib-2.4-jdk15.jar
+Bundle-ClassPath: .

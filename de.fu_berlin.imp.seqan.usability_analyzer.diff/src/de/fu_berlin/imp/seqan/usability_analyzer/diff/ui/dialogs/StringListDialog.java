@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.dialogs;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -31,7 +32,8 @@ public class StringListDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(400, 300);
+		Rectangle bounds = this.getContents().getBounds();
+		return new Point(bounds.width + 50, bounds.height + 150);
 	}
 
 	@Override
@@ -40,6 +42,7 @@ public class StringListDialog extends Dialog {
 		composite.setLayout(new FillLayout());
 		stringListWidget = new StringListWidget(composite, SWT.NONE);
 		stringListWidget.setTexts(strings);
+		parent.pack();
 		return composite;
 	}
 

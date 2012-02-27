@@ -18,7 +18,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.inf.nebula.explanation.note.SimpleNoteComposite;
 
-public class DateTimeRangeView extends ViewPart {
+public class TimeZoneDateRangeView extends ViewPart {
+
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView";
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private CDateTime startDateTime;
@@ -28,7 +30,8 @@ public class DateTimeRangeView extends ViewPart {
 
 	private int numColumns = 3;
 
-	public DateTimeRangeView() {
+	public TimeZoneDateRangeView() {
+
 	}
 
 	@Override

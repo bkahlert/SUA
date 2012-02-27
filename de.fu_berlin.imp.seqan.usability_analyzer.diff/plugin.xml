@@ -32,13 +32,6 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView">
-         <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.addCode"
-               style="push">
-         </command>
-         <control
-               class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.controls.FileFilterPatternsText">
-         </control>
       </menuContribution>
    </extension>
    <extension
@@ -47,7 +40,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
@@ -57,7 +50,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocalDateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
@@ -75,6 +68,21 @@
       <FileFilterListenerFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
       </FileFilterListenerFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.commands.AddCodeInstanceHandler"
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="org.eclipse.compare.CompareEditor">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
 
 </plugin>

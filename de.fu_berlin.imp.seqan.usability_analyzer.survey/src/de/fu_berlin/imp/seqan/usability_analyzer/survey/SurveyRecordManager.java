@@ -28,8 +28,6 @@ public class SurveyRecordManager extends DataSourceManager {
 		super(surveyCSV);
 
 		this.surveyCSV = surveyCSV;
-
-		scanRecords();
 	}
 
 	public void scanRecords() {

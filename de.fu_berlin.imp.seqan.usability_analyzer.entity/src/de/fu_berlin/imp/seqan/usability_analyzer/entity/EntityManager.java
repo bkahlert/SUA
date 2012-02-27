@@ -2,8 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.entity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -11,6 +14,7 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -49,32 +53,99 @@ public class EntityManager {
 
 		this.mapper = mapper;
 
-		this.persons = new ArrayList<Entity>();
+		scan();
+	}
 
-		/*
-		 * Diff based
-		 */
-		List<Entity> diffBasedPersons = this.getPersonsDiffBased();
-		persons.addAll(diffBasedPersons);
+	public void scan() {
+		final ArrayList<Entity> entities = new ArrayList<Entity>();
 
-		/*
-		 * Doclog based
-		 */
-		this.checkPersonsDoclogIdBased();
-		persons.addAll(this.buildPersonsDoclogFingerprintBased());
+		ExecutorService executorService = ExecutorsUtil
+				.newFixedMultipleOfProcessorsThreadPool(2);
+		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
+		// force class loading since they are used in the Callable
+		Entity.class.getClass();
+		NoInternalIdentifierException.class.getClass();
+		Token.class.getClass();
+		callables.add(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					/*
+					 * Diff based
+					 */
+					List<Entity> diffBasedEntities = getEntitiesDiffBased();
+					synchronized (entities) {
+						entities.addAll(diffBasedEntities);
+					}
+				} catch (Exception e) {
+					logger.fatal(e);
+				}
+				return null;
+			}
+		});
+		callables.add(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					/*
+					 * Doclog based
+					 */
+					checkPersonsDoclogIdBased();
+				} catch (Exception e) {
+					logger.fatal(e);
+				}
+				return null;
+			}
+		});
+		callables.add(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					/*
+					 * Doclog based
+					 */
+					List<Entity> fingerprintBasedEntities = buildEntitiesDoclogFingerprintBased();
+					synchronized (entities) {
+						entities.addAll(fingerprintBasedEntities);
+					}
+				} catch (Exception e) {
+					logger.fatal(e);
+				}
+				return null;
+			}
+		});
+		callables.add(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					/*
+					 * Token based
+					 */
+					List<Entity> tokenBasedEntities = getEntitiesTokenBased();
+					synchronized (entities) {
+						entities.addAll(tokenBasedEntities);
+					}
+				} catch (Exception e) {
+					logger.fatal(e);
+				}
+				return null;
+			}
+		});
+		try {
+			executorService.invokeAll(callables);
+		} catch (InterruptedException e) {
+			logger.fatal(
+					"Error matching " + Entity.class.getSimpleName() + "s", e);
+		}
 
-		/*
-		 * Token based
-		 */
-		List<Entity> tokenBasedPersons = this.getPersonsTokenBased();
-		persons.addAll(tokenBasedPersons);
+		this.persons = entities;
 	}
 
 	public List<Entity> getPersons() {
 		return this.persons;
 	}
 
-	private List<Entity> getPersonsDiffBased() {
+	private List<Entity> getEntitiesDiffBased() {
 		List<Entity> persons = new ArrayList<Entity>();
 
 		Set<ID> ids = this.diffFileDirectory.getIDs();
@@ -124,7 +195,7 @@ public class EntityManager {
 		}
 	}
 
-	private List<Entity> buildPersonsDoclogFingerprintBased() {
+	private List<Entity> buildEntitiesDoclogFingerprintBased() {
 		List<Entity> persons = new ArrayList<Entity>();
 
 		List<Fingerprint> fingerprints = this.doclogDirectory.getFingerprints();
@@ -166,7 +237,7 @@ public class EntityManager {
 		return persons;
 	}
 
-	private List<Entity> getPersonsTokenBased() {
+	private List<Entity> getEntitiesTokenBased() {
 		List<Entity> persons = new ArrayList<Entity>();
 
 		List<Token> tokens = this.surveyRecordManager.getTokens();

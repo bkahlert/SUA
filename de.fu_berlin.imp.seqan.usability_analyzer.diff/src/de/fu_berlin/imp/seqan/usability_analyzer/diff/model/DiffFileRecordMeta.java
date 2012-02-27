@@ -47,9 +47,12 @@ public class DiffFileRecordMeta implements HasDateRange {
 		this.fromFileDate = getDateFromLine(fromFileLine);
 		this.toFileName = getNameFromLine(toFileLine);
 		this.toFileDate = getDateFromLine(toFileLine);
-		this.dateRange = new TimeZoneDateRange(
-				DateUtil.isUnixTimeStart(fromFileDate.getDate()) ? null
-						: fromFileDate, toFileDate);
+
+		TimeZoneDate startDate = DateUtil.isUnixTimeStart(fromFileDate
+				.getDate()) ? null : fromFileDate;
+		TimeZoneDate endDate = DateUtil.isUnixTimeStart(toFileDate.getDate()) ? null
+				: toFileDate;
+		this.dateRange = new TimeZoneDateRange(startDate, endDate);
 	}
 
 	public String getFromFileName() {

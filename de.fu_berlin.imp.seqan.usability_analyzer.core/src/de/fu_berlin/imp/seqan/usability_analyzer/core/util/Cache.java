@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+// TODO improve parallelization
 public class Cache<KEY, PAYLOAD> {
 
 	public static interface CacheFetcher<KEY, PAYLOAD> {
@@ -43,7 +44,8 @@ public class Cache<KEY, PAYLOAD> {
 		this.cache = new HashMap<KEY, DiffCacheEntry>();
 	}
 
-	public PAYLOAD getPayload(KEY id, IProgressMonitor progressMonitor) {
+	public synchronized PAYLOAD getPayload(KEY id,
+			IProgressMonitor progressMonitor) {
 		if (!this.cache.containsKey(id)) {
 			shrinkCache();
 			DiffCacheEntry cacheEntry = new DiffCacheEntry(id);
@@ -54,11 +56,11 @@ public class Cache<KEY, PAYLOAD> {
 		return cacheEntry.getPayload(id, progressMonitor);
 	}
 
-	public Set<KEY> getCachedKeys() {
+	public synchronized Set<KEY> getCachedKeys() {
 		return cache.keySet();
 	}
 
-	private void shrinkCache() {
+	synchronized private void shrinkCache() {
 		if (this.cache.size() >= cacheSize) {
 			KEY delete = null;
 			int minUsedCount = Integer.MAX_VALUE;

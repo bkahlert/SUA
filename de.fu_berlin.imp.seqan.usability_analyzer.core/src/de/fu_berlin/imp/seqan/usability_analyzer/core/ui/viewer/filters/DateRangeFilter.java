@@ -27,7 +27,8 @@ public class DateRangeFilter extends ViewerFilter {
 			return true;
 
 		if (element instanceof HasDateRange) {
-			TimeZoneDateRange dateRange = ((HasDateRange) element).getDateRange();
+			TimeZoneDateRange dateRange = ((HasDateRange) element)
+					.getDateRange();
 			return this.dateRange.isIntersected(dateRange);
 		}
 

@@ -42,8 +42,9 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 		File file = null;
 		TimeZoneDate date = null;
 
-		progressMonitor.beginTask("Parsing " + DiffFile.class.getSimpleName()
-				+ "s", files.size());
+		progressMonitor.beginTask(
+				"Processing " + DiffFile.class.getSimpleName() + "s",
+				files.size());
 
 		for (File nextFile : files) { // look ahead = 1
 			TimeZoneDate nextDate = DiffFile.getDate(nextFile);
@@ -76,6 +77,9 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 					dateRange, sourceOrigin, sourceCache,
 					new SubProgressMonitor(progressMonitor, 1));
 			diffFiles.add(diffFile);
+
+			// clean up since an DiffFile can temporally consume much heap
+			Runtime.getRuntime().gc();
 		}
 
 		progressMonitor.done();
@@ -103,12 +107,16 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 	 * {@link DiffFileRecordList}
 	 * 
 	 * @param commandLine
-	 * @param content
+	 * @param metaOldLine
+	 * @param metaNewLine
+	 * @param contentStart
+	 * @param contentEnd
 	 */
 	public DiffFileRecord createAndAddRecord(String commandLine,
-			ArrayList<String> content) {
-		DiffFileRecordMeta meta = new DiffFileRecordMeta(content.get(0),
-				content.get(1));
+			String metaOldLine, String metaNewLine, long contentStart,
+			long contentEnd) {
+		DiffFileRecordMeta meta = new DiffFileRecordMeta(metaOldLine,
+				metaNewLine);
 
 		File originalSourceFile = sourceOrigin.getOriginSourceFile(meta
 				.getToFileName());
@@ -116,7 +124,7 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 				meta.getToFileName());
 		DiffFileRecord diffFileRecord = new DiffFileRecord(this.diffFile,
 				originalSourceFile, cachedSourceFile, commandLine, meta,
-				content);
+				contentStart, contentEnd);
 		if (!diffFileRecord.isTemporary()) {
 			this.add(diffFileRecord);
 			return diffFileRecord;

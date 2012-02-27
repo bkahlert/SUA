@@ -11,7 +11,7 @@ public class DoclogCache extends Cache<Object, DoclogFile> {
 
 	private static DoclogCache INSTANCE;
 
-	public static DoclogCache getInstance() {
+	public synchronized static DoclogCache getInstance() {
 		if (INSTANCE == null)
 			INSTANCE = new DoclogCache(Activator.getDefault()
 					.getDoclogDirectory(), 10);

@@ -20,6 +20,9 @@ public class DiffUtils {
 	 */
 	public static List<String> patch(List<String> original, List<String> patch)
 			throws PatchFailedException {
+		if (patch == null)
+			throw new PatchFailedException("Patch must no be null");
+
 		@SuppressWarnings("unchecked")
 		List<String> newSource = (List<String>) difflib.DiffUtils.patch(
 				original, difflib.DiffUtils.parseUnifiedDiff(patch));

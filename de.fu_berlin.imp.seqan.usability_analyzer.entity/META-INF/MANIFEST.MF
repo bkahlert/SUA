@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.apache.commons.lang;bundle-version="2.4.0",
  org.apache.log4j;bundle-version="1.2.15",
- de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.stats,
  de.fu_berlin.imp.seqan.usability_analyzer.diff,
@@ -18,11 +17,14 @@ Require-Bundle: org.eclipse.ui,
  org.junit,
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1",
  org.eclipse.jface.text;bundle-version="3.7.0",
- org.eclipse.compare;bundle-version="3.5.200",
- org.eclipse.core.filebuffers;bundle-version="3.5.200",
  org.eclipse.core.resources;bundle-version="3.7.100",
- org.eclipse.ui.editors;bundle-version="3.7.0"
+ org.eclipse.ui.editors;bundle-version="3.7.0",
+ org.eclipse.compare;bundle-version="3.5.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.entity
+Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.entity,
+ de.fu_berlin.imp.seqan.usability_analyzer.entity.views
+Import-Package: 
+ de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model,
+ de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services

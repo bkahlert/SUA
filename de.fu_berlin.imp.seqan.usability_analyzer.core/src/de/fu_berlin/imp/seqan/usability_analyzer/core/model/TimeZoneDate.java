@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.Assert;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 /**
@@ -92,6 +94,10 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	@Override
 	public int compareTo(TimeZoneDate date) {
+		if (date == null) {
+			System.err.println("k");
+		}
+		Assert.assertNotNull(date);
 		long time = this.getTime();
 		long otherTime = date.getTime();
 		return new Long(time).compareTo(otherTime);

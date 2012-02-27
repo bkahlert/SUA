@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 public class DiffFileTest {
 
 	private static final String root = "/"
-			+ DiffFileManagerTest.class.getPackage().getName()
+			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 	private static final String sourcesRoot = "/fake/sources";
 
@@ -55,6 +55,25 @@ public class DiffFileTest {
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				DiffFile.getDate(new File(
 						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+	}
+
+	@Test
+	public void testGetContent() throws URISyntaxException {
+		DiffFile smallDiffFile = getDiffFile(
+				"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff", new ID(
+						"o6lmo5tpxvn3b6fg"), "00000048", new TimeZoneDateRange(
+						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
+
+		String firstLine = "--- ./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log	2011-09-13 12:10:14.578125000 +0200";
+		Assert.assertEquals(firstLine,
+				smallDiffFile.getContent(997l, 997l + firstLine.length())
+						.get(0));
+
+		String lastLine = "+Time Elapsed 00:00:00.28";
+		Assert.assertEquals(
+				lastLine,
+				smallDiffFile.getContent(1681l - lastLine.length(), 1681l).get(
+						0));
 	}
 
 	@Test

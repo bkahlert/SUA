@@ -1,9 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.security.InvalidParameterException;
 
 /**
- * This class describes a range defined by two {@link TimeZoneDate}s. To define a
- * unbounded range, simply pass <code>null</code> as one argument.
+ * This class describes a range defined by two {@link TimeZoneDate}s. To define
+ * a unbounded range, simply pass <code>null</code> as one argument.
  * 
  * @author bkahlert
  */
@@ -15,11 +16,15 @@ public class TimeZoneDateRange {
 		TimeZoneDate latestDate = null;
 
 		for (TimeZoneDateRange dateRange : dateRanges) {
-			if (earliestDate == null
-					|| earliestDate.compareTo(dateRange.getStartDate()) > 0)
+			if (dateRange == null)
+				continue;
+			if (dateRange.getStartDate() != null
+					&& (earliestDate == null || earliestDate
+							.compareTo(dateRange.getStartDate()) > 0))
 				earliestDate = dateRange.getStartDate();
-			if (latestDate == null
-					|| latestDate.compareTo(dateRange.getEndDate()) < 0)
+			if (dateRange.getEndDate() != null
+					&& (latestDate == null || latestDate.compareTo(dateRange
+							.getEndDate()) < 0))
 				latestDate = dateRange.getEndDate();
 		}
 
@@ -31,6 +36,10 @@ public class TimeZoneDateRange {
 
 	public TimeZoneDateRange(TimeZoneDate startDate, TimeZoneDate endDate) {
 		super();
+		if (startDate != null && endDate != null
+				&& startDate.compareTo(endDate) > 0)
+			throw new InvalidParameterException(
+					"start date must be before or on the end date");
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
@@ -89,8 +98,8 @@ public class TimeZoneDateRange {
 	}
 
 	/**
-	 * Returns true if the given {@link TimeZoneDateRange} intersects the current
-	 * {@link TimeZoneDateRange}.
+	 * Returns true if the given {@link TimeZoneDateRange} intersects the
+	 * current {@link TimeZoneDateRange}.
 	 * 
 	 * @param dateRange
 	 * @return
@@ -104,6 +113,12 @@ public class TimeZoneDateRange {
 		boolean startAndEndAfterRange = this.isAfterRange(dateRange
 				.getStartDate()) && this.isAfterRange(dateRange.getEndDate());
 		return !(startAndEndBeforeRange || startAndEndAfterRange);
+	}
+
+	@Override
+	public String toString() {
+		return ((startDate != null) ? startDate.toISO8601() : "-inf") + " - "
+				+ ((endDate != null) ? endDate.toISO8601() : "+inf");
 	}
 
 }

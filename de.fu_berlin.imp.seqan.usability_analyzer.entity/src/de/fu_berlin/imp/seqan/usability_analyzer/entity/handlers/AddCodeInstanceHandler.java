@@ -15,14 +15,15 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareInput;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 
-public class AddCodeHandler extends AbstractHandler {
+public class AddCodeInstanceHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+
+		// TODO: move to diff plugin
 		ISelection selection = SelectionUtils.getSelection();
 		if (selection instanceof TextSelection) {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
@@ -38,26 +39,16 @@ public class AddCodeHandler extends AbstractHandler {
 				System.out.println("Selected " + length + " chars in "
 						+ diffFileRecord.getFilename());
 			}
-		} else {
-			List<Entity> entities = SelectionRetrieverFactory
-					.getSelectionRetriever(Entity.class).getSelection();
-			if (entities.size() > 0) {
-				for (Entity entity : entities) {
-					System.out.println("Code added to " + entity);
-				}
-			}
-
-			List<DiffFile> diffFiles = SelectionRetrieverFactory
-					.getSelectionRetriever(DiffFile.class).getSelection();
-			if (diffFiles.size() > 0) {
-				for (DiffFile diffFile : diffFiles) {
-					System.out.println("Code added to " + diffFile);
-				}
-			}
-
-			// TODO
-
 		}
+
+		List<Entity> entities = SelectionRetrieverFactory
+				.getSelectionRetriever(Entity.class).getSelection();
+		if (entities.size() > 0) {
+			for (Entity entity : entities) {
+				System.out.println("Code added to " + entity);
+			}
+		}
+
 		return null;
 	}
 

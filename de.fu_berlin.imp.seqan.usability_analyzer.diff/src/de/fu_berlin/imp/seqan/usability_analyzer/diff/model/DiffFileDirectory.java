@@ -5,8 +5,11 @@ import java.io.FileFilter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Logger;
@@ -17,6 +20,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 
@@ -38,15 +43,9 @@ public class DiffFileDirectory extends File {
 		return rawFiles;
 	}
 
-	private static void sortDiffFiles(FileList diffFiles) {
-		Collections.sort(diffFiles, new Comparator<File>() {
-			@Override
-			public int compare(File file1, File file2) {
-				TimeZoneDate date1 = DiffFile.getDate(file1);
-				TimeZoneDate date2 = DiffFile.getDate(file2);
-				return date1.compareTo(date2);
-			}
-		});
+	private static void sortDiffFiles(FileList diffFiles,
+			Comparator<File> fileComparator) {
+		Collections.sort(diffFiles, fileComparator);
 	}
 
 	private static TimeZoneDateRange calculateDateRange(FileList fileList) {
@@ -83,35 +82,46 @@ public class DiffFileDirectory extends File {
 		Assert.isNotNull(dataDirectory);
 		this.sourceOrigin = new SourceOrigin(originalSourcesDirectory);
 		this.sourceCache = new SourceCache(cachedSourcesDirectory);
+	}
 
+	public void scan() {
 		long start = System.currentTimeMillis();
 		this.fileLists = readDiffFilesMapping(this);
 		this.fileDateRanges = new HashMap<ID, TimeZoneDateRange>(
 				this.fileLists.size());
-		// ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+		ExecutorService executorService = ExecutorsUtil
+				.newFixedMultipleOfProcessorsThreadPool(2);
+		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		for (final ID id : this.fileLists.keySet()) {
 			final FileList fileList = this.fileLists.get(id);
-			//
-			// executorService.execute(new Runnable() {
-			// @Override
-			// public void run() {
-			sortDiffFiles(fileList);
-			fileDateRanges.put(id, calculateDateRange(fileList));
-			// }
-			// });
+			final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
+			callables.add(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					try {
+						sortDiffFiles(fileList, cachingDiffFileComparator);
+						TimeZoneDateRange dateRange = calculateDateRange(fileList);
+						synchronized (fileDateRanges) {
+							fileDateRanges.put(id, dateRange);
+						}
+					} catch (Exception e) {
+						LOGGER.fatal(e);
+					}
+					return null;
+				}
+			});
 		}
-		// try {
-		// executorService.awaitTermination(30, TimeUnit.SECONDS);
-		// } catch (InterruptedException e) {
-		// LOGGER.fatal(
-		// "Could not complete "
-		// + DiffFileDirectory.class.getSimpleName() + " scan",
-		// e);
-		// }
-		long end = System.currentTimeMillis();
+		try {
+			executorService.invokeAll(callables);
+		} catch (InterruptedException e) {
+			LOGGER.fatal(
+					"Error parsing " + DiffFileDirectory.class.getSimpleName(),
+					e);
+		}
 		LOGGER.info(DiffFileDirectory.class.getSimpleName() + " "
-				+ dataDirectory.getName() + " scanned within " + (end - start)
-				+ "ms.");
+				+ this.getName() + " scanned within "
+				+ (System.currentTimeMillis() - start) + "ms.");
 	}
 
 	/**
@@ -121,6 +131,7 @@ public class DiffFileDirectory extends File {
 	 * @return
 	 */
 	public Set<ID> getIDs() {
+		scanIfNecessary();
 		return this.fileLists.keySet();
 	}
 
@@ -132,6 +143,7 @@ public class DiffFileDirectory extends File {
 	 * @return
 	 */
 	public TimeZoneDateRange getDateRange(ID id) {
+		scanIfNecessary();
 		return this.fileDateRanges.get(id);
 	}
 
@@ -143,9 +155,24 @@ public class DiffFileDirectory extends File {
 	 * @return
 	 */
 	public DiffFileList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
+		scanIfNecessary();
 		DiffFileList diffFiles = DiffFileRecordList.create(
 				this.fileLists.get(id), this.sourceOrigin, this.sourceCache,
 				progressMonitor);
 		return diffFiles;
+	}
+
+	public void scanIfNecessary() {
+		if (this.fileLists == null && this.fileDateRanges == null) {
+			scan();
+		} else if (this.fileLists == null && this.fileDateRanges != null) {
+			LOGGER.fatal("State error in "
+					+ DiffFileDirectory.class.getSimpleName() + "");
+		} else if (this.fileLists != null && this.fileDateRanges == null) {
+			LOGGER.fatal("State error in "
+					+ DiffFileDirectory.class.getSimpleName() + "");
+		} else {
+			// nothing to do
+		}
 	}
 }

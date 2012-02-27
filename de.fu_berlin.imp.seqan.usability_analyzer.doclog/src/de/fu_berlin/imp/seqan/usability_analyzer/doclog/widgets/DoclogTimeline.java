@@ -14,6 +14,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 
@@ -34,8 +35,8 @@ public class DoclogTimeline extends Timeline {
 	private static Pattern DOCLOG_INDEX_PATTERN = Pattern
 			.compile("^sua://doclog/(\\d*)$");
 
-	private class CustomFunction extends BrowserFunction {
-		CustomFunction(Browser browser, String name) {
+	private class DoclogClickHandler extends BrowserFunction {
+		DoclogClickHandler(Browser browser, String name) {
 			super(browser, name);
 		}
 
@@ -76,80 +77,122 @@ public class DoclogTimeline extends Timeline {
 							+ DoclogRecord.class.getSimpleName() + " index");
 				}
 			} else {
-				logger.error(CustomFunction.class.getSimpleName()
+				logger.error(DoclogClickHandler.class.getSimpleName()
 						+ " call parameters are invalid");
 			}
 			return null;
 		}
 	}
 
-	private String title = null;
-
 	private DoclogFile doclogFile;
 
 	public DoclogTimeline(Composite parent, int style) {
 		super(parent, style);
-		new CustomFunction(browser, DOCLOG_CLICK_HANDLER_NAME);
+		new DoclogClickHandler(browser, DOCLOG_CLICK_HANDLER_NAME);
 	}
 
-	public DoclogTimeline(Composite parent, int style, String title) {
-		this(parent, style);
-		this.title = title;
-	}
-
-	public void show(DoclogFile doclogFile) {
+	/**
+	 * Displays a {@link DoclogFile}'s content.
+	 * <p>
+	 * Hint: This method may be called from a non-UI thread. The relatively
+	 * time-consuming JSON conversion is done asynchronously making this method
+	 * return immediately.
+	 * 
+	 * @param doclogFile
+	 * @param title
+	 */
+	public void show(final DoclogFile doclogFile, final String title) {
 		this.doclogFile = doclogFile;
 
-		HashMap<String, Object> options = new HashMap<String, Object>();
-		if (this.title != null)
-			options.put("title", this.title);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				HashMap<String, Object> options = new HashMap<String, Object>();
+				if (title != null)
+					options.put("title", title);
 
-		TimeZoneDateRange dateRange = doclogFile.getDateRange();
-		if (dateRange.getStartDate() != null)
-			options.put("centerStart", dateRange.getStartDate().clone()
-					.addMilliseconds(-10000l).toISO8601());
-		// if (dateRange.getStartDate() != null)
-		// options.put("timeline_start",
-		// JsonUtils.formatDate(dateRange.getStartDate()));
-		// if (dateRange.getEndDate() != null)
-		// options.put("timeline_end",
-		// JsonUtils.formatDate(dateRange.getEndDate()));
-		DataSetInfo dataSetInfo = Activator.getDefault().getDataSetInfo();
+				TimeZoneDateRange dateRange = doclogFile.getDateRange();
+				if (dateRange.getStartDate() != null)
+					options.put("centerStart", dateRange.getStartDate().clone()
+							.addMilliseconds(-10000l).toISO8601());
+				/*
+				 * TODO fix timeline javascript to support timeline_start and
+				 * timeline_end
+				 */
+				// if (dateRange.getStartDate() != null)
+				// options.put("timeline_start",
+				// JsonUtils.formatDate(dateRange.getStartDate()));
+				// if (dateRange.getEndDate() != null)
+				// options.put("timeline_end",
+				// JsonUtils.formatDate(dateRange.getEndDate()));
+				DataSetInfo dataSetInfo = Activator.getDefault()
+						.getDataSetInfo();
 
-		options.put("show_bubble", DOCLOG_CLICK_HANDLER_NAME);
-		options.put("show_bubble_field", DOCLOG_CLICK_HANDLER_PARAM_FIELD);
-		options.put("zones", new Timeline.Zone[] { new Timeline.Zone(
-				dataSetInfo.getStartDate().toISO8601(), dataSetInfo
-						.getEndDate().toISO8601()) });
-		options.put(
-				"decorators",
-				new Timeline.Decorator[] { new Timeline.Decorator(dateRange
-						.getStartDate().toISO8601(), dataSetInfo.getName(),
-						dateRange.getEndDate().toISO8601(), dataSetInfo
-								.getName()) });
+				options.put("show_bubble", DOCLOG_CLICK_HANDLER_NAME);
+				options.put("show_bubble_field",
+						DOCLOG_CLICK_HANDLER_PARAM_FIELD);
+				options.put("zones", new Timeline.Zone[] { new Timeline.Zone(
+						dataSetInfo.getStartDate().toISO8601(), dataSetInfo
+								.getEndDate().toISO8601()) });
+				options.put("decorators",
+						new Timeline.Decorator[] { new Timeline.Decorator(
+								dateRange.getStartDate().toISO8601(),
+								dataSetInfo.getName(), dateRange.getEndDate()
+										.toISO8601(), dataSetInfo.getName()) });
 
-		LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
-		for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
-			if (doclogRecord.getAction() == DoclogAction.UNLOAD)
-				continue;
-			if (doclogRecord.getUrl().contains("dddoc/html_devel/INDEX_"))
-				continue;
-			filteredDoclogRecords.add(doclogRecord);
-		}
-		String json = JsonUtils.generateJSON(filteredDoclogRecords, options,
-				false);
-		super.show(json);
+				LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
+				for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
+					if (doclogRecord.getAction() == DoclogAction.UNLOAD)
+						continue;
+					if (doclogRecord.getUrl().contains(
+							"dddoc/html_devel/INDEX_"))
+						continue;
+					filteredDoclogRecords.add(doclogRecord);
+				}
+				final String json = JsonUtils.generateJSON(
+						filteredDoclogRecords, options, false);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						DoclogTimeline.super.show(json);
+					}
+				});
+			}
+		}).start();
 	}
 
-	public void highlight(List<TimeZoneDateRange> dateRanges) {
-		ArrayList<Decorator> decorators = new ArrayList<Timeline.Decorator>(
-				dateRanges.size());
-		for (TimeZoneDateRange dateRange : dateRanges) {
-			if (dateRange.getStartDate() != null
-					&& dateRange.getEndDate() != null)
-				decorators.add(new Decorator(dateRange.getStartDate()
-						.toISO8601(), dateRange.getEndDate().toISO8601()));
-		}
-		applyDecorators(JsonUtils.jsonDecoratorList(decorators, false));
+	/**
+	 * Highlights the {@link DoclogFile}'s parts that fall in the given
+	 * {@link TimeZoneDateRange}s.
+	 * <p>
+	 * Hint: This method may be called from a non-UI thread. The relatively
+	 * time-consuming JSON conversion is done asynchronously making this method
+	 * return immediately.
+	 * 
+	 * @param dateRanges
+	 */
+	public void highlight(final List<TimeZoneDateRange> dateRanges) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				ArrayList<Decorator> decorators = new ArrayList<Timeline.Decorator>(
+						dateRanges.size());
+				for (TimeZoneDateRange dateRange : dateRanges) {
+					if (dateRange.getStartDate() != null
+							&& dateRange.getEndDate() != null)
+						decorators.add(new Decorator(dateRange.getStartDate()
+								.toISO8601(), dateRange.getEndDate()
+								.toISO8601()));
+				}
+				final String decoratorJSON = JsonUtils.jsonDecoratorList(
+						decorators, false);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						applyDecorators(decoratorJSON);
+					}
+				});
+			}
+		}).start();
 	}
 }

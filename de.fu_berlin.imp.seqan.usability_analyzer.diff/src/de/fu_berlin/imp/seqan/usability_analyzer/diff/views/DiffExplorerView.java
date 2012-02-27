@@ -2,9 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
 import java.io.FileFilter;
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.internal.CompareEditor;
@@ -13,7 +15,6 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -21,11 +22,12 @@ import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -56,6 +58,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
@@ -67,7 +70,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView";
 
-	public static final int DIFF_CACHE_SIZE = 0;
+	public static final int DIFF_CACHE_SIZE = 5;
 
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
@@ -90,6 +93,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private SUADiffPreferenceUtil diffPreferenceUtil = new SUADiffPreferenceUtil();
 	private SortableTreeViewer treeViewer;
+	private Map<ID, Job> diffFileLoaders = Collections
+			.synchronizedMap(new HashMap<ID, Job>(2));
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
@@ -97,41 +102,55 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					|| part.getSite().getId().contains("DoclogExplorerView"))
 				return;
 
-			final List<ID> ids = SelectionRetrieverFactory
-					.getSelectionRetriever(ID.class).getSelection();
+			final List<ID> ids = Collections
+					.synchronizedList(SelectionRetrieverFactory
+							.getSelectionRetriever(ID.class).getSelection());
 			final LinkedList<DiffFileList> diffFileLists = new LinkedList<DiffFileList>();
-			Job job = new Job("Loading " + DiffFile.class.getSimpleName() + "s") {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					monitor.beginTask(
-							"Loading " + DiffFile.class.getSimpleName() + "s",
-							ids.size());
-					for (ID id : ids) {
-						diffFileLists.add(diffCache.getPayload(id,
-								new SubProgressMonitor(monitor, 1)));
-					}
-					monitor.done();
-					return Status.OK_STATUS;
-				}
-			};
-			job.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (treeViewer != null
-									&& !treeViewer.getTree().isDisposed()
-									&& diffFileLists.size() > 0) {
-								treeViewer.setInput(diffFileLists);
-								treeViewer.expandAll();
-							}
-						}
-					});
+			for (final ID id : ids) {
+				if (diffFileLoaders.containsKey(id))
+					continue;
 
-				}
-			});
-			job.schedule();
+				Job diffFileLoader = new Job("Loading "
+						+ DiffFile.class.getSimpleName() + "s") {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						DiffFileList diffFileList = diffCache.getPayload(id,
+								monitor);
+						synchronized (diffFileLists) {
+							diffFileLists.add(diffFileList);
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				diffFileLoaders.put(id, diffFileLoader);
+				diffFileLoader.addJobChangeListener(new JobChangeAdapter() {
+					@Override
+					public void done(IJobChangeEvent event) {
+						boolean jobsFinished;
+						synchronized (diffFileLists) {
+							jobsFinished = diffFileLists.size() == ids.size();
+						}
+						if (jobsFinished
+								&& event.getResult() == Status.OK_STATUS) {
+							Display.getDefault().syncExec(new Runnable() {
+								@Override
+								public void run() {
+									if (treeViewer != null
+											&& !treeViewer.getTree()
+													.isDisposed()
+											&& diffFileLists.size() > 0) {
+										treeViewer.setInput(diffFileLists);
+										treeViewer.expandAll();
+									}
+								}
+							});
+						}
+						diffFileLoaders.remove(id);
+					}
+				});
+				diffFileLoaders.put(id, diffFileLoader);
+				diffFileLoader.schedule();
+			}
 		}
 	};
 
@@ -169,11 +188,17 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout());
+		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
+				.create());
+
+		FileFilterComposite filters = new FileFilterComposite(parent,
+				SWT.BORDER);
+		filters.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		treeViewer = new DiffFileListsViewer(parent, SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
 		final Tree tree = treeViewer.getTree();
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
