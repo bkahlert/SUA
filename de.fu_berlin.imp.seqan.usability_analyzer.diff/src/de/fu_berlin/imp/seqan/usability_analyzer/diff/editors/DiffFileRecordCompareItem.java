@@ -7,11 +7,22 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.compare.IModificationDate;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 
+/**
+ * One of the items a {@link CompareEditor} is made of. Typically the editor
+ * consists of the left and right side thus two elements.
+ * <p>
+ * Designed for use in conjunction with {@link DiffFileRecordCompareEditorInput}.
+ * 
+ * @author bkahlert
+ * 
+ */
+@SuppressWarnings("restriction")
 public class DiffFileRecordCompareItem implements ITypedElement,
 		IModificationDate, IStreamContentAccessor {
 	private DiffFileRecord diffFileRecord;

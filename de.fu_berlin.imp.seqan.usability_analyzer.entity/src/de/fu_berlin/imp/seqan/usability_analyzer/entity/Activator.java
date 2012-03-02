@@ -34,7 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyRecordManager;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.person"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.entity"; //$NON-NLS-1$
 
 	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 

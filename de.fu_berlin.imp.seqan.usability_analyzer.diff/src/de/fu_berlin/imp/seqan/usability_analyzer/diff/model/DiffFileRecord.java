@@ -2,6 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -11,8 +13,6 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import difflib.PatchFailedException;
 
@@ -61,9 +61,16 @@ public class DiffFileRecord implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public ICodeInstanceID getCodeInstanceId() {
-		return new CodeInstanceID("DiffRecord", this.getDiffFile()
-				.getCodeInstanceId(), originalSourceFile.getAbsolutePath());
+	public String getCodeInstanceID() {
+		try {
+			return this.getDiffFile().getCodeInstanceID()
+					+ "/"
+					+ URLEncoder.encode(originalSourceFile.getAbsolutePath(),
+							"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.fatal("Could not calculate ID of " + this);
+			return null;
+		}
 	}
 
 	public DiffFile getDiffFile() {

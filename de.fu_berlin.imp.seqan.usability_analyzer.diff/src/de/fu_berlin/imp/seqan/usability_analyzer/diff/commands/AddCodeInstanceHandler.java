@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.commands;
 
+import org.apache.log4j.Logger;
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -10,6 +12,9 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -19,10 +24,15 @@ import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
+@SuppressWarnings("restriction")
 public class AddCodeInstanceHandler extends AbstractHandler {
+
+	private final Logger log = Logger.getLogger(AddCodeInstanceHandler.class);
 
 	public static void addAnnotation(IMarker marker, ITextSelection selection,
 			ITextEditor editor) {
@@ -48,22 +58,51 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		iamf.disconnect(document);
 	}
 
+	@SuppressWarnings({ "serial" })
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = SelectionUtils.getSelection();
 		if (selection instanceof TextSelection) {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
 			IEditorInput editorInput = editor.getEditorInput();
-			if (editorInput instanceof DiffFileRecordCompareInput) {
-				DiffFileRecord diffFileRecord = ((DiffFileRecordCompareInput) editorInput)
+			if (editorInput instanceof DiffFileRecordCompareEditorInput) {
+				DiffFileRecordCompareEditorInput diffFileRecordCompareEditorInput = (DiffFileRecordCompareEditorInput) editorInput;
+				DiffFileRecord diffFileRecord = diffFileRecordCompareEditorInput
 						.getDiffFileRecord();
 
+				Control focusControl = Display.getCurrent().getFocusControl();
+				DiffFileRecord focusDiffFileRecord = null;
+
+				if (focusControl instanceof StyledText) {
+					String text = ((StyledText) focusControl).getText();
+					String left = diffFileRecord.getPredecessor().getSource();
+					String right = diffFileRecord.getSource();
+					if (text.equals(left))
+						focusDiffFileRecord = diffFileRecord.getPredecessor();
+					else if (text.equals(right))
+						focusDiffFileRecord = diffFileRecord;
+				} else {
+					log.error("The control in focus was not of type "
+							+ StyledText.class.getSimpleName()
+							+ " although this command is only intended to work with one.");
+				}
+
 				TextSelection textSeDocument = (TextSelection) selection;
-				int startLine = textSeDocument.getStartLine();
-				int offset = textSeDocument.getOffset();
-				int length = textSeDocument.getLength();
-				System.out.println("Selectedssss " + length + " chars in "
-						+ diffFileRecord.getFilename());
+				final int offset = textSeDocument.getOffset();
+				final int length = textSeDocument.getLength();
+				if (focusDiffFileRecord != null) {
+					final DiffFileRecord tmp = focusDiffFileRecord;
+					WizardUtils.openAddCodeWizard(new ICodeable() {
+						@Override
+						public String getCodeInstanceID() {
+							return tmp.getCodeInstanceID() + "#" + offset + "+"
+									+ length;
+						}
+					});
+				} else {
+					log.error("Could not determine the "
+							+ CompareEditor.class.getSimpleName() + " in focus");
+				}
 
 				// TODO addAnnotation(new Marker, selection, editor);
 			}

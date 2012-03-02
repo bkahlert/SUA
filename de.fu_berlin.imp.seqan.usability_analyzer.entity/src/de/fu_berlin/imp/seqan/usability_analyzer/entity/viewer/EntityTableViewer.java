@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
@@ -17,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTableViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
@@ -40,30 +41,13 @@ public class EntityTableViewer extends SortableTableViewer {
 		table.setLinesVisible(true);
 
 		createColumns();
-		sort(1);
+		sort(0);
 	}
 
 	private void createColumns() {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		if (codeService != null) {
-			this.createColumn("Code", 50).setLabelProvider(
-					new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							Entity person = (Entity) element;
-							try {
-								List<ICode> codes = codeService
-										.getCodes(person);
-								return StringUtils.join(codes, ", ");
-							} catch (CodeServiceException e) {
-								return "error";
-							}
-						}
-					});
-		} else {
-			LOGGER.info("Deactivated Grounded Theory support");
-		}
+
 		this.createColumn("ID", 150).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
@@ -71,6 +55,20 @@ public class EntityTableViewer extends SortableTableViewer {
 						Entity person = (Entity) element;
 						ID id = person.getId();
 						return (id != null) ? id.toString() : "";
+					}
+
+					@Override
+					public Image getImage(Object element) {
+						Entity person = (Entity) element;
+						try {
+							if (codeService.getCodes(person).size() > 0) {
+								return ImageManager.ENTITY_CODED;
+							}
+						} catch (CodeServiceException e) {
+							LOGGER.error("Can't access "
+									+ ICodeService.class.getSimpleName());
+						}
+						return ImageManager.ENTITY;
 					}
 				});
 
@@ -146,5 +144,4 @@ public class EntityTableViewer extends SortableTableViewer {
 					}
 				});
 	}
-
 }

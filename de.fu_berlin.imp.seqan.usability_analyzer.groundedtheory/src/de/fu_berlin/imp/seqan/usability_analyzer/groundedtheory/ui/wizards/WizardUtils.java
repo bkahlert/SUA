@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -87,5 +88,19 @@ public class WizardUtils {
 	public static AddCodeWizard openAddCodeWizard(List<ICodeable> codeables) {
 		return openWizardSuccessfully(new AddCodeWizard(codeables), new Point(
 				800, 600));
+	}
+
+	/**
+	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
+	 * instance in case of success.
+	 */
+	@SuppressWarnings("serial")
+	public static AddCodeWizard openAddCodeWizard(final ICodeable codeable) {
+		return openWizardSuccessfully(new AddCodeWizard(
+				new ArrayList<ICodeable>() {
+					{
+						add(codeable);
+					}
+				}), new Point(800, 600));
 	}
 }

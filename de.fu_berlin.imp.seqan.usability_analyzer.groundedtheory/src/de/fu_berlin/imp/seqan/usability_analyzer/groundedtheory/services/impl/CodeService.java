@@ -56,7 +56,7 @@ class CodeService implements ICodeService {
 		try {
 			for (ICodeInstance codeInstance : this.codeStore
 					.loadCodeInstances()) {
-				if (codeInstance.getId().equals(codeable.getCodeInstanceId())) {
+				if (codeInstance.getId().equals(codeable.getCodeInstanceID())) {
 					codes.add(codeInstance.getCode());
 				}
 			}
@@ -135,7 +135,7 @@ class CodeService implements ICodeService {
 					.loadCodeInstances()) {
 				if (codeInstance.getCode().equals(code)
 						&& codeInstance.getId().equals(
-								codeable.getCodeInstanceId())) {
+								codeable.getCodeInstanceID())) {
 					this.codeStore.deleteCodeInstance(codeInstance);
 					codeServiceListenerNotifier.codeRemoved(code,
 							new ArrayList<ICodeable>() {

@@ -34,7 +34,6 @@ import org.xml.sax.SAXParseException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -88,7 +87,7 @@ class CodeStore implements ICodeStore {
 		for (ICode currentCode : loadCodes()) {
 			if (currentCode.equals(code)) {
 				ICodeInstance codeInstance = new CodeInstance(code,
-						codeable.getCodeInstanceId(), new TimeZoneDate(
+						codeable.getCodeInstanceID(), new TimeZoneDate(
 								new Date(), TimeZone.getDefault()));
 				if (ArrayUtils.contains(loadCodeInstances(), codeInstance)) {
 					throw new DuplicateCodeInstanceException();
@@ -192,8 +191,8 @@ class CodeStore implements ICodeStore {
 			String id = codeItemAttributes.getNamedItem("id").getNodeValue();
 			TimeZoneDate creation = new TimeZoneDate(codeItemAttributes
 					.getNamedItem("creation").getNodeValue());
-			codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId),
-					CodeInstanceID.createRaw(id), creation);
+			codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId), id,
+					creation);
 		}
 
 		return codeInstances;

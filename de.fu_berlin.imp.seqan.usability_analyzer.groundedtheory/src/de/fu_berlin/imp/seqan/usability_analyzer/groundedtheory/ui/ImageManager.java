@@ -15,9 +15,7 @@ public class ImageManager {
 	/*
 	 * overlays
 	 */
-	public static final ImageDescriptor OVERLAY_FOLLOWMODE = getImageDescriptor("icons/ovr16/followmode.png"); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_READONLY = getImageDescriptor("icons/ovr16/readonly.png"); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_AWAY = getImageDescriptor("icons/ovr16/away.png"); //$NON-NLS-1$
+	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
 
 	/*
 	 * wizard banners
@@ -61,7 +59,8 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
-	//	public static final Image ICON_GROUP = getImage("icons/obj16/group_obj.png"); //$NON-NLS-1$
+	public static final Image CODE = getImage("icons/obj16/code_obj.png"); //$NON-NLS-1$
+
 	//	public static final Image ICON_BUDDY = getImage("icons/obj16/buddy_obj.png"); //$NON-NLS-1$
 	//	public static final Image ICON_BUDDY_OFFLINE = getImage("icons/obj16/buddy_offline_obj.png"); //$NON-NLS-1$
 	// public static final Image ICON_BUDDY_AWAY = new DecorationOverlayIcon(

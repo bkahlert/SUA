@@ -21,8 +21,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DiffFile extends File implements HasDateRange, ICodeable {
@@ -40,9 +38,9 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public ICodeInstanceID getCodeInstanceId() {
-		return new CodeInstanceID("DiffSet", getId().toString(),
-				Integer.parseInt(getRevision()));
+	public String getCodeInstanceID() {
+		return "sua://diff/" + getId().toString() + "/"
+				+ Integer.parseInt(getRevision());
 	}
 
 	public static String getRevision(File file) {

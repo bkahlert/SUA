@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
@@ -29,7 +28,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 			}
 		});
@@ -57,12 +56,11 @@ public class CodeServiceTest extends CodeServicesHelper {
 				"ICodeable #2");
 		context.checking(new Expectations() {
 			{
-				allowing(codeable1).getCodeInstanceId();
+				allowing(codeable1).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 
-				allowing(codeable2).getCodeInstanceId();
-				will(returnValue(CodeInstanceID
-						.createRaw("completely_new_instance_id")));
+				allowing(codeable2).getCodeInstanceID();
+				will(returnValue("completely_new_instance_id"));
 			}
 		});
 
@@ -100,7 +98,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 			}
 		});
@@ -116,7 +114,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 			}
 		});
@@ -130,7 +128,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 			}
 		});
@@ -144,7 +142,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 			}
 		});
@@ -163,13 +161,13 @@ public class CodeServiceTest extends CodeServicesHelper {
 				"ICodeable #3");
 		context.checking(new Expectations() {
 			{
-				allowing(codeable1).getCodeInstanceId();
+				allowing(codeable1).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 
-				allowing(codeable2).getCodeInstanceId();
+				allowing(codeable2).getCodeInstanceID();
 				will(returnValue(codeInstance2.getId()));
 
-				allowing(codeable3).getCodeInstanceId();
+				allowing(codeable3).getCodeInstanceID();
 				will(returnValue(codeInstance3.getId()));
 			}
 		});
@@ -229,13 +227,13 @@ public class CodeServiceTest extends CodeServicesHelper {
 				"ICodeable #3");
 		context.checking(new Expectations() {
 			{
-				allowing(codeable1).getCodeInstanceId();
+				allowing(codeable1).getCodeInstanceID();
 				will(returnValue(codeInstance1.getId()));
 
-				allowing(codeable2).getCodeInstanceId();
+				allowing(codeable2).getCodeInstanceID();
 				will(returnValue(codeInstance2.getId()));
 
-				allowing(codeable3).getCodeInstanceId();
+				allowing(codeable3).getCodeInstanceID();
 				will(returnValue(codeInstance3.getId()));
 			}
 		});

@@ -1,7 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -11,6 +13,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAG
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 
 public class CodeStoreFactory {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(CodeStoreFactory.class);
 
 	private static ICodeStore CODE_STORE;
 
@@ -32,6 +37,15 @@ public class CodeStoreFactory {
 							"No, choose manually", "Yes" }, 1);
 			if (messageDialog.open() == 1) {
 				codeServiceFile = preferenceUtil.getDefaultCodeStoreFile();
+				try {
+					codeServiceFile.createNewFile();
+				} catch (IOException e) {
+					MessageDialog.openError(parentShell,
+							"Grounded Theory File", "The creation of "
+									+ codeServiceFile.getAbsolutePath()
+									+ " failed!");
+					LOGGER.error("Grounded Theory File creation failed", e);
+				}
 			} else {
 				DirectoryDialog directoryDialog = new DirectoryDialog(
 						parentShell);

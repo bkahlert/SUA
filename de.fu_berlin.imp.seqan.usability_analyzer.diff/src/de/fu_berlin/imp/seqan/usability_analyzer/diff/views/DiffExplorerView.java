@@ -52,7 +52,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
@@ -252,7 +252,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	 * @param diffFileRecord
 	 */
 	private void openCompareEditor(DiffFileRecord diffFileRecord) {
-		CompareUI.openCompareEditor(new DiffFileRecordCompareInput(
+		CompareUI.openCompareEditor(new DiffFileRecordCompareEditorInput(
 				diffFileRecord));
 	}
 
@@ -268,8 +268,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 				.getEditorReferences();
 		for (IEditorReference editorReference : editorReferences) {
 			try {
-				if (editorReference.getEditorInput() instanceof DiffFileRecordCompareInput) {
-					DiffFileRecordCompareInput currentCompareInput = (DiffFileRecordCompareInput) editorReference
+				if (editorReference.getEditorInput() instanceof DiffFileRecordCompareEditorInput) {
+					DiffFileRecordCompareEditorInput currentCompareInput = (DiffFileRecordCompareEditorInput) editorReference
 							.getEditorInput();
 					String currentFilename = currentCompareInput
 							.getDiffFileRecord().getFilename();

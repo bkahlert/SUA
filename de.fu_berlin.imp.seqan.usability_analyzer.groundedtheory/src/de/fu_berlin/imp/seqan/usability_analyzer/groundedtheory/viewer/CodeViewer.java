@@ -12,7 +12,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -48,11 +47,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeInstance
-									.getId()
-									.toString()
-									.replace(CodeInstanceID.DELIMITER,
-											CodeInstanceID.PRINTABLE_DELIMITER);
+							return codeInstance.getId();
 						}
 						return "ERROR";
 					}

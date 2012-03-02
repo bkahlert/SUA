@@ -14,7 +14,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 
@@ -28,8 +28,8 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		if (selection instanceof TextSelection) {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
 			IEditorInput editorInput = editor.getEditorInput();
-			if (editorInput instanceof DiffFileRecordCompareInput) {
-				DiffFileRecord diffFileRecord = ((DiffFileRecordCompareInput) editorInput)
+			if (editorInput instanceof DiffFileRecordCompareEditorInput) {
+				DiffFileRecord diffFileRecord = ((DiffFileRecordCompareEditorInput) editorInput)
 						.getDiffFileRecord();
 
 				TextSelection textSeDocument = (TextSelection) selection;

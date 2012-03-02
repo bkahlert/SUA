@@ -18,9 +18,7 @@ import org.xml.sax.SAXParseException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.CodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeInstanceID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
@@ -309,7 +307,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 				allowing(code).getId();
 				will(returnValue(code1.getId()));
 
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue("my_id"));
 			}
 		});
@@ -331,7 +329,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 				allowing(code).getId();
 				will(returnValue(code1.getId()));
 
-				allowing(codeable).getCodeInstanceId();
+				allowing(codeable).getCodeInstanceID();
 				will(returnValue("my_id"));
 			}
 		});
@@ -349,8 +347,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceId();
-				will(returnValue(CodeInstanceID.createRaw("my_id")));
+				allowing(codeable).getCodeInstanceID();
+				will(returnValue("my_id"));
 			}
 		});
 
@@ -371,7 +369,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 					}
 
 					@Override
-					public ICodeInstanceID getId() {
+					public String getId() {
 						return codeInstance.getId();
 					}
 
