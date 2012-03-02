@@ -2,7 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -61,16 +61,18 @@ public class DiffFileRecord implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public String getCodeInstanceID() {
+	public URI getCodeInstanceID() {
 		try {
-			return this.getDiffFile().getCodeInstanceID()
+			return new URI(this.getDiffFile().getCodeInstanceID().toString()
 					+ "/"
 					+ URLEncoder.encode(originalSourceFile.getAbsolutePath(),
-							"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.fatal("Could not calculate ID of " + this);
-			return null;
+							"UTF-8"));
+		} catch (Exception e) {
+			logger.error(
+					"Could not create ID for a "
+							+ DiffFileRecord.class.getSimpleName(), e);
 		}
+		return null;
 	}
 
 	public DiffFile getDiffFile() {

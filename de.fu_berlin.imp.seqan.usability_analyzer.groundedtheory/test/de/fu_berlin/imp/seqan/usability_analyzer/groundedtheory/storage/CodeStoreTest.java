@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,7 +40,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		}
 	};
 
-	public CodeStoreTest() throws IOException {
+	public CodeStoreTest() throws IOException, URISyntaxException {
 		super();
 	}
 
@@ -343,12 +345,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testSmallCreateCodeInstance() throws IOException,
-			InvalidParameterException, DuplicateCodeInstanceException {
+			InvalidParameterException, DuplicateCodeInstanceException,
+			URISyntaxException {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
 				allowing(codeable).getCodeInstanceID();
-				will(returnValue("my_id"));
+				will(returnValue(new URI("sua://new_id")));
 			}
 		});
 
@@ -369,7 +372,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 					}
 
 					@Override
-					public String getId() {
+					public URI getId() {
 						return codeInstance.getId();
 					}
 

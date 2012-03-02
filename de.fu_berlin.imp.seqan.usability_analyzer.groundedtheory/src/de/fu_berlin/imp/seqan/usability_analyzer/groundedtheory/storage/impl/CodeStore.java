@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,8 +193,13 @@ class CodeStore implements ICodeStore {
 			String id = codeItemAttributes.getNamedItem("id").getNodeValue();
 			TimeZoneDate creation = new TimeZoneDate(codeItemAttributes
 					.getNamedItem("creation").getNodeValue());
-			codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId), id,
-					creation);
+			try {
+				codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId),
+						new URI(id), creation);
+			} catch (URISyntaxException e) {
+				logger.error("Invalid " + URI.class.getSimpleName()
+						+ " found in " + CodeStore.class, e);
+			}
 		}
 
 		return codeInstances;

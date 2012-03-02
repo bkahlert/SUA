@@ -1,20 +1,20 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
+import java.net.URI;
 import java.security.InvalidParameterException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 class CodeInstance implements ICodeInstance {
 
 	private final ICode code;
-	private final String id;
+	private final URI id;
 	private final TimeZoneDate creation;
 
-	public CodeInstance(ICode code, String id, TimeZoneDate creation) {
+	public CodeInstance(ICode code, URI id, TimeZoneDate creation) {
 		super();
 		if (code == null)
 			throw new InvalidParameterException("code must not be null");
@@ -37,7 +37,7 @@ class CodeInstance implements ICodeInstance {
 	}
 
 	@Override
-	public String getId() {
+	public URI getId() {
 		return id;
 	}
 

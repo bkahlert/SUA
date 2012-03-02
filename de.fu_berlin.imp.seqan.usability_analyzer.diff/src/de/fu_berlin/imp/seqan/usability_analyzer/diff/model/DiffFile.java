@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -25,6 +27,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DiffFile extends File implements HasDateRange, ICodeable {
 
+	private static final Logger LOGGER = Logger.getLogger(DiffFile.class);
+
 	private static final long serialVersionUID = 5159431028889474742L;
 	public static final Pattern PATTERN = Pattern
 			.compile("([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff");
@@ -38,9 +42,16 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public String getCodeInstanceID() {
-		return "sua://diff/" + getId().toString() + "/"
-				+ Integer.parseInt(getRevision());
+	public URI getCodeInstanceID() {
+		try {
+			return new URI("sua://diff/" + getId().toString() + "/"
+					+ Integer.parseInt(getRevision()));
+		} catch (Exception e) {
+			LOGGER.error(
+					"Could not create ID for a "
+							+ DiffFile.class.getSimpleName(), e);
+		}
+		return null;
 	}
 
 	public static String getRevision(File file) {

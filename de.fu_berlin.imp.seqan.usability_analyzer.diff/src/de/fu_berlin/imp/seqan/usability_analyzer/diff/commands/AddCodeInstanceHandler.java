@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.commands;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.AbstractHandler;
@@ -94,9 +96,20 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 					final DiffFileRecord tmp = focusDiffFileRecord;
 					WizardUtils.openAddCodeWizard(new ICodeable() {
 						@Override
-						public String getCodeInstanceID() {
-							return tmp.getCodeInstanceID() + "#" + offset + "+"
-									+ length;
+						public URI getCodeInstanceID() {
+							try {
+								return new URI(tmp.getCodeInstanceID()
+										.toString()
+										+ "#"
+										+ offset
+										+ "+"
+										+ length);
+							} catch (Exception e) {
+								log.error("Could not create ID for a "
+										+ DiffFileRecord.class.getSimpleName()
+										+ " snippet", e);
+							}
+							return null;
 						}
 					});
 				} else {

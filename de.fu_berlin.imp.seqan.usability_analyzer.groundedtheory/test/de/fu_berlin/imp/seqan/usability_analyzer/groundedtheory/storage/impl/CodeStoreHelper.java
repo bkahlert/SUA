@@ -2,6 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import junit.framework.Assert;
 
@@ -38,20 +40,16 @@ public class CodeStoreHelper {
 		return file;
 	}
 
-	protected ICode code1 = new Code(234233209l, "Code #1");
-	protected ICode code2 = new Code(9908372l, "Code #2");
-	protected ICodeInstance codeInstance1 = new CodeInstance(code2,
-			"dslkjsdjk278sdi", new TimeZoneDate("1984-05-15T14:30:00+02:00"));
-	protected ICodeInstance codeInstance2 = new CodeInstance(code1,
-			"äk,dskllsödj", new TimeZoneDate("2011-11-11T11:11:11+11:00"));
-	protected ICodeInstance codeInstance3 = new CodeInstance(code2, "-20",
-			new TimeZoneDate("2002-09-23T23:08:01-04:30"));
+	protected ICode code1;
+	protected ICode code2;
+	protected ICodeInstance codeInstance1;
+	protected ICodeInstance codeInstance2;
+	protected ICodeInstance codeInstance3;
 
-	protected ICode[] codes = new ICode[] { code1, code2 };
-	protected ICodeInstance[] codeInstances = new ICodeInstance[] {
-			codeInstance1, codeInstance2, codeInstance3 };
+	protected ICode[] codes;
+	protected ICodeInstance[] codeInstances;
 
-	public CodeStoreHelper() {
+	public CodeStoreHelper() throws URISyntaxException {
 		empty = new File(
 				CodeServiceTest.class
 						.getResource(
@@ -63,6 +61,21 @@ public class CodeStoreHelper {
 						.getResource(
 								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.small.xml")
 						.getFile());
+
+		code1 = new Code(234233209l, "Code #1");
+		code2 = new Code(9908372l, "Code #2");
+
+		codes = new ICode[] { code1, code2 };
+
+		codeInstance1 = new CodeInstance(code2, new URI("sua://codeInstance1"),
+				new TimeZoneDate("1984-05-15T14:30:00+02:00"));
+		codeInstance2 = new CodeInstance(code1, new URI("sua://codeInstance2"),
+				new TimeZoneDate("2011-11-11T11:11:11+11:00"));
+		codeInstance3 = new CodeInstance(code2, new URI("sua://codeInstance3"),
+				new TimeZoneDate("2002-09-23T23:08:01-04:30"));
+
+		codeInstances = new ICodeInstance[] { codeInstance1, codeInstance2,
+				codeInstance3 };
 	}
 
 	protected void testCodes(ICodeStore codeStore, ICode[] codes)

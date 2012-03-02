@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -13,6 +15,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
 
 public class CodeServiceTest extends CodeServicesHelper {
+
+	public CodeServiceTest() throws URISyntaxException {
+		super();
+	}
 
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -49,7 +55,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 	}
 
 	@Test
-	public void testAddCode() throws IOException {
+	public void testAddCode() throws IOException, URISyntaxException {
 		final ICodeable codeable1 = context.mock(ICodeable.class,
 				"ICodeable #1");
 		final ICodeable codeable2 = context.mock(ICodeable.class,
@@ -60,7 +66,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 				will(returnValue(codeInstance1.getId()));
 
 				allowing(codeable2).getCodeInstanceID();
-				will(returnValue("completely_new_instance_id"));
+				will(returnValue(new URI("invalid://id")));
 			}
 		});
 

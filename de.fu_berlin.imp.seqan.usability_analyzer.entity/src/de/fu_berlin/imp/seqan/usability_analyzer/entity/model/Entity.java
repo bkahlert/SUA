@@ -1,9 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.model;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -12,6 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
@@ -22,6 +25,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class Entity implements HasDateRange, ICodeable {
+
+	private static final Logger LOGGER = Logger.getLogger(Entity.class);
 
 	private static final long serialVersionUID = 1969965491590110977L;
 
@@ -43,8 +48,15 @@ public class Entity implements HasDateRange, ICodeable {
 	}
 
 	@Override
-	public String getCodeInstanceID() {
-		return "sua://entity/" + this.getInternalId();
+	public URI getCodeInstanceID() {
+		try {
+			return new URI("sua://entity/" + this.getInternalId());
+		} catch (Exception e) {
+			LOGGER.error(
+					"Could not create ID for a "
+							+ DiffFile.class.getSimpleName(), e);
+		}
+		return null;
 	}
 
 	private String getInternalId() throws NoInternalIdentifierException {

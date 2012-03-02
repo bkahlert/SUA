@@ -47,7 +47,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeInstance.getId();
+							return codeInstance.getId().toString();
 						}
 						return "ERROR";
 					}
