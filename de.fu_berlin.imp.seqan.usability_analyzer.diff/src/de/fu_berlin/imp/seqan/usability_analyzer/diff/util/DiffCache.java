@@ -13,7 +13,7 @@ public class DiffCache extends Cache<ID, DiffFileList> {
 		super(new CacheFetcher<ID, DiffFileList>() {
 			@Override
 			public DiffFileList fetch(ID key, IProgressMonitor progressMonitor) {
-				return diffFileDirectory.getDiffFiles(key, progressMonitor);
+				return diffFileDirectory.createDiffFiles(key, progressMonitor);
 			}
 		}, cacheSize);
 	}

@@ -38,8 +38,9 @@ public class DiffFileDirectoryTest {
 
 	private DiffFileRecordHistory getDiffFileRecordHistory()
 			throws DataSourceInvalidException, URISyntaxException {
-		return getDiffFileManager().getDiffFiles(id, new NullProgressMonitor())
-				.getHistory("sandbox/mordor/apps/exastellar/exastellar.cpp");
+		return getDiffFileManager().createDiffFiles(id,
+				new NullProgressMonitor()).getHistory(
+				"sandbox/mordor/apps/exastellar/exastellar.cpp");
 	}
 
 	@Before
@@ -79,7 +80,7 @@ public class DiffFileDirectoryTest {
 	public void testGetDiffFiles() throws Exception {
 		DiffFileDirectory diffFileManager = getDiffFileManager();
 
-		DiffFileList diffFiles = diffFileManager.getDiffFiles(id,
+		DiffFileList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 		Assert.assertEquals(6, diffFiles.size());
 	}
@@ -88,7 +89,7 @@ public class DiffFileDirectoryTest {
 	public void testGetRevision() throws Exception {
 		DiffFileDirectory diffFileManager = getDiffFileManager();
 
-		DiffFileList diffFiles = diffFileManager.getDiffFiles(id,
+		DiffFileList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 
 		for (int i = 0; i < diffFiles.size(); i++) {

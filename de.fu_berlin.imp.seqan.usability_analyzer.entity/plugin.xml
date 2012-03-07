@@ -7,6 +7,7 @@
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView"
+            icon="icons/view16/entity_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView"
             name="Entities">
       </view>
@@ -110,5 +111,11 @@
                 <type markerSeverity="0"
 super="org.eclipse.ui.workbench.texteditor.info"
 name="com.ibm.example.myannotation" markerType="com.ibm.mymarkers.mymarker"/>
+</extension>
+<extension
+      point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+   <CodeableProviderFactory
+         class="de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProviderFactory">
+   </CodeableProviderFactory>
 </extension>
 </plugin>

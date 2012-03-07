@@ -22,12 +22,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 
 public class DoclogDirectory extends File {
 
 	private static final long serialVersionUID = 6163186892736791622L;
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogDirectory.class);
+
+	public static final int DOCLOG_CACHE_SIZE = 10;
 
 	private static Map<Object, File> readDoclogFileMappings(File directory) {
 		Map<Object, File> rawFiles = new HashMap<Object, File>();
@@ -50,9 +53,13 @@ public class DoclogDirectory extends File {
 	private Map<Object, TimeZoneDateRange> fileDateRanges;
 	private Map<Object, Token> fileToken;
 
+	private DoclogCache doclogCache;
+
 	public DoclogDirectory(File dataDirectory)
 			throws DataSourceInvalidException {
 		super(dataDirectory.getAbsolutePath());
+
+		this.doclogCache = new DoclogCache(this, DOCLOG_CACHE_SIZE);
 	}
 
 	public void scan() {
@@ -235,13 +242,29 @@ public class DoclogDirectory extends File {
 	}
 
 	/**
-	 * Returns the {@link DoclogFile} associated with a given key
+	 * Returns the {@link DoclogFile} associated with a given key using an
+	 * internal {@link DoclogCache}.
 	 * 
 	 * @param key
 	 * @param progressMonitor
 	 * @return
 	 */
 	public DoclogFile getDoclogFile(Object key, IProgressMonitor progressMonitor) {
+		return this.doclogCache.getPayload(key, progressMonitor);
+	}
+
+	/**
+	 * Returns the {@link DoclogFile} associated with a given key.
+	 * <p>
+	 * In contrast to {@link #getDoclogFile(Object, IProgressMonitor)} this
+	 * method always creates the needed objects anew without using any cache.
+	 * 
+	 * @param key
+	 * @param progressMonitor
+	 * @return
+	 */
+	public DoclogFile createDoclogFile(Object key,
+			IProgressMonitor progressMonitor) {
 		progressMonitor.beginTask(
 				"Parsing " + DoclogFile.class.getSimpleName(), 2);
 		File file = this.files.get(key);

@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,9 +19,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DoclogFile extends File implements HasDateRange {
+public class DoclogFile extends File implements HasDateRange, ICodeable {
 
 	Logger logger = Logger.getLogger(DoclogFile.class);
 
@@ -114,6 +117,22 @@ public class DoclogFile extends File implements HasDateRange {
 
 		scanRecords(file);
 		calculateRecordMillisecondsPassed();
+	}
+
+	@Override
+	public URI getCodeInstanceID() {
+		try {
+			return new URI("sua://"
+					+ DoclogCodeableProvider.DOCLOG_NAMESPACE
+					+ "/"
+					+ ((getId() != null) ? getId().toString()
+							: getFingerprint().toString()));
+		} catch (Exception e) {
+			logger.error(
+					"Could not create ID for a "
+							+ DoclogFile.class.getSimpleName(), e);
+		}
+		return null;
 	}
 
 	public void scanRecords(File doclogFile) {

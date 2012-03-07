@@ -13,10 +13,12 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -27,6 +29,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class DoclogFilesViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
@@ -53,6 +58,10 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
+
+		final ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
+
 		this.createColumn("Date", 160).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
@@ -72,6 +81,24 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 									: "";
 						}
 						return "";
+					}
+
+					@Override
+					public Image getImage(Object element) {
+						if (element instanceof DoclogFile) {
+							return ImageManager.DOCLOGFILE;
+						}
+						if (element instanceof DoclogRecord) {
+							DoclogRecord doclogRecord = (DoclogRecord) element;
+							try {
+								return (codeService.getCodes(doclogRecord)
+										.size() > 0) ? ImageManager.DOCLOGRECORD_CODED
+										: ImageManager.DOCLOGRECORD;
+							} catch (CodeServiceException e) {
+								return ImageManager.DOCLOGRECORD;
+							}
+						}
+						return super.getImage(element);
 					}
 				});
 
@@ -250,8 +277,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * Returns the {@link TreePath}s that describe {@link DoclogRecord}
 	 * fulfilling the following criteria:
 	 * <ol>
-	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of the
-	 * given {@link TimeZoneDateRange}s
+	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
+	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
 	 * 
 	 * @param treeItems
@@ -280,8 +307,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * <ol>
 	 * <li>{@link DoclogRecord} belongs to a {@link DoclogFile} with the given
 	 * {@link ID}
-	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of the
-	 * given {@link TimeZoneDateRange}s
+	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
+	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
 	 * 
 	 * @param treeItems

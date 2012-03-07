@@ -3,13 +3,16 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer;
 import java.util.Comparator;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 /**
  * Generic {@link ViewerComparator} for use in conjunction with
@@ -67,10 +70,28 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 			rc = customComparator.compare(e1, e2);
 		} else {
 			ColumnViewer columnViewer = (ColumnViewer) viewer;
-			ColumnLabelProvider columnLabelProvider = (ColumnLabelProvider) columnViewer
-					.getLabelProvider(propertyIndex);
-			String str1 = columnLabelProvider.getText(e1);
-			String str2 = columnLabelProvider.getText(e2);
+			String str1 = null, str2 = null;
+			// TODO find a way to directly call the LabelProvider since using
+			// getCellByElement increases run time
+			if (columnViewer.getControl() instanceof Table) {
+				TableItem tableItem1 = getTableItemByElement(columnViewer, e1);
+				TableItem tableItem2 = getTableItemByElement(columnViewer, e2);
+				if (tableItem1 != null)
+					str1 = tableItem1.getText(propertyIndex);
+				if (tableItem2 != null)
+					str2 = tableItem2.getText(propertyIndex);
+			} else if (columnViewer.getControl() instanceof Tree) {
+				TreeItem treeItem1 = getTreeItemByElement(columnViewer, e1);
+				TreeItem treeItem2 = getTreeItemByElement(columnViewer, e2);
+				if (treeItem1 != null)
+					str1 = treeItem1.getText(propertyIndex);
+				if (treeItem2 != null)
+					str2 = treeItem2.getText(propertyIndex);
+			}
+			if (str1 == null)
+				str1 = "";
+			if (str2 == null)
+				str2 = "";
 			try {
 				rc = new Integer(Integer.parseInt(str1)).compareTo(Integer
 						.parseInt(str2));
@@ -89,5 +110,29 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 		for (Class<?> comparatorClass : comparatorClasses) {
 			comparators.put(colNumber, comparatorClass, comparator);
 		}
+	}
+
+	private static TableItem getTableItemByElement(ColumnViewer columnViewer,
+			Object e) {
+		if (columnViewer.getControl() instanceof Table) {
+			Table table = (Table) columnViewer.getControl();
+			for (TableItem item : table.getItems()) {
+				if (item.getData() != null && item.getData().equals(e))
+					return item;
+			}
+		}
+		return null;
+	}
+
+	private static TreeItem getTreeItemByElement(ColumnViewer columnViewer,
+			Object e) {
+		if (columnViewer.getControl() instanceof Tree) {
+			Tree tree = (Tree) columnViewer.getControl();
+			for (TreeItem item : tree.getItems()) {
+				if (item.getData() != null && item.getData().equals(e))
+					return item;
+			}
+		}
+		return null;
 	}
 }

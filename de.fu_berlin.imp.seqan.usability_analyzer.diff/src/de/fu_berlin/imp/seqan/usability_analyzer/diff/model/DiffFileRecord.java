@@ -64,9 +64,7 @@ public class DiffFileRecord implements HasDateRange, ICodeable {
 	public URI getCodeInstanceID() {
 		try {
 			return new URI(this.getDiffFile().getCodeInstanceID().toString()
-					+ "/"
-					+ URLEncoder.encode(originalSourceFile.getAbsolutePath(),
-							"UTF-8"));
+					+ "/" + URLEncoder.encode(meta.getToFileName(), "UTF-8"));
 		} catch (Exception e) {
 			logger.error(
 					"Could not create ID for a "

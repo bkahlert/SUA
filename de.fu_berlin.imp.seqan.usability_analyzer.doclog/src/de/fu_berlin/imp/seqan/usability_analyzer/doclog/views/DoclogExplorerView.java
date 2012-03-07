@@ -52,8 +52,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogFilesViewer;
 
 public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
@@ -97,8 +97,10 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
 						for (Object key : keys) {
-							DoclogFile doclogFile = DoclogCache.getInstance()
-									.getPayload(key,
+							DoclogFile doclogFile = Activator
+									.getDefault()
+									.getDoclogDirectory()
+									.getDoclogFile(key,
 											new SubProgressMonitor(monitor, 1));
 							if (doclogFile != null)
 								doclogFiles.add(doclogFile);

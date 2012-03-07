@@ -1,6 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -11,12 +18,16 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class CodeViewer extends Composite implements ISelectionProvider {
+
+	private Logger logger = Logger.getLogger(CodeViewer.class);
 
 	private SortableTreeViewer treeViewer;
 
@@ -30,6 +41,20 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.setAutoExpandLevel(2);
+		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				ICodeService codeService = (ICodeService) PlatformUI
+						.getWorkbench().getService(ICodeService.class);
+				List<URI> codeInstanceIDs = getURIs(event.getSelection());
+				if (codeService != null) {
+					codeService.showCodedObjectsInWorkspace(codeInstanceIDs);
+				} else {
+					logger.error("Could not retrieve "
+							+ ICodeService.class.getSimpleName());
+				}
+			}
+		});
 		createColumns();
 		this.treeViewer.setContentProvider(new CodeViewerContentProvider());
 		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
@@ -37,6 +62,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	private void createColumns() {
+		final ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
 		treeViewer.createColumn("Code", 150).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
@@ -47,7 +74,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeInstance.getId().toString();
+							return codeService.getCodedObject(
+									codeInstance.getId()).toString();
 						}
 						return "ERROR";
 					}
@@ -62,7 +90,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeInstance.toString();
+							return codeInstance.getId().toString();
+
 						}
 						return "ERROR";
 					}
@@ -108,6 +137,31 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	@Override
 	public void setSelection(ISelection selection) {
 		this.treeViewer.setSelection(selection);
+	}
+
+	/**
+	 * Returns all {@link URI}s that can be retrieved from an {@link ISelection}
+	 * .
+	 * <p>
+	 * E.g. if you selection contains a {@link ICode} and a
+	 * {@link ICodeInstance} the resulting list contains all occurrences
+	 * instances of the code and the code instance itself.
+	 * 
+	 * @param selection
+	 * @return
+	 */
+	public static List<URI> getURIs(ISelection selection) {
+		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+				.getService(ICodeService.class);
+		List<URI> uris = new ArrayList<URI>();
+		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
+				selection, ICodeInstance.class);
+		for (ICode code : SelectionUtils.getAdaptableObjects(selection,
+				ICode.class))
+			codeInstances.addAll(codeService.getInstances(code));
+		for (ICodeInstance codeInstance : codeInstances)
+			uris.add(codeInstance.getId());
+		return uris;
 	}
 
 }

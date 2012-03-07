@@ -20,6 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
@@ -44,7 +45,8 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 	@Override
 	public URI getCodeInstanceID() {
 		try {
-			return new URI("sua://diff/" + getId().toString() + "/"
+			return new URI("sua://" + DiffCodeableProvider.DIFF_NAMESPACE + "/"
+					+ getId().toString() + "/"
 					+ Integer.parseInt(getRevision()));
 		} catch (Exception e) {
 			LOGGER.error(
@@ -176,6 +178,13 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 		String content = new String(FileUtils.readBytesFromTo(this,
 				contentStart, contentEnd));
 		return Arrays.asList(content.split("\n"));
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": "
+				+ Integer.parseInt(this.getRevision()) + "@"
+				+ this.getId().toString();
 	}
 
 }

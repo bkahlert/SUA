@@ -18,6 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
@@ -50,7 +51,8 @@ public class Entity implements HasDateRange, ICodeable {
 	@Override
 	public URI getCodeInstanceID() {
 		try {
-			return new URI("sua://entity/" + this.getInternalId());
+			return new URI("sua://" + EntityCodeableProvider.ENTITY_NAMESPACE
+					+ "/" + this.getInternalId());
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "

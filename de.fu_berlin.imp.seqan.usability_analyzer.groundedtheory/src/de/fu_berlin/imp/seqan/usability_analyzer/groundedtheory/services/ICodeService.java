@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
+import java.net.URI;
 import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -46,4 +47,19 @@ public interface ICodeService {
 	 * @throws CodeServiceException
 	 */
 	public void deleteCode(ICode code) throws CodeServiceException;
+
+	/**
+	 * @see ICodeableProvider#getCodedObject(URI)
+	 */
+	public ICodeable getCodedObject(URI codeInstanceID);
+
+	/**
+	 * @see ICodeableProvider#showCodedObjectsInWorkspace(List)
+	 */
+	public void showCodedObjectInWorkspace(URI codeInstanceID);
+
+	/**
+	 * @see ICodeableProvider#showCodedObjectsInWorkspace(List)
+	 */
+	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
 }

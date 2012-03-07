@@ -3,12 +3,15 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.olat.core.util.URIHelper;
 
@@ -18,8 +21,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
+public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
+		ICodeable {
+
+	private static final long serialVersionUID = -8279575943640177616L;
+
+	private Logger logger = Logger.getLogger(DoclogRecord.class);
+
 	/*
 	 * [^\\t] selects everything but a tabulator
 	 */
@@ -126,6 +136,23 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 			throw new DataSourceInvalidException(
 					"The doclog line did not match to the expected format.");
 		}
+	}
+
+	@Override
+	public URI getCodeInstanceID() {
+		try {
+			return new URI(this.getDoclogPath().getCodeInstanceID().toString()
+					+ "/" + URLEncoder.encode(this.getRawContent(), "UTF-8"));
+		} catch (Exception e) {
+			logger.error(
+					"Could not create ID for a "
+							+ DoclogRecord.class.getSimpleName(), e);
+		}
+		return null;
+	}
+
+	public String getRawContent() {
+		return this.rawContent;
 	}
 
 	protected static String cleanUrl(String url) {
@@ -242,4 +269,5 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange {
 	public String toString() {
 		return this.getClass().getSimpleName() + ": " + this.rawContent;
 	}
+
 }

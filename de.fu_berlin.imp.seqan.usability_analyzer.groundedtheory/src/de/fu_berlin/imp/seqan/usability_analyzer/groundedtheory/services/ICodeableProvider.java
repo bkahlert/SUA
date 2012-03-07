@@ -1,0 +1,25 @@
+package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
+
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.FutureTask;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+
+public interface ICodeableProvider {
+	/**
+	 * Returns the object the given code instance ID is associated with.
+	 * 
+	 * @param codeInstanceID
+	 * @return
+	 */
+	public FutureTask<ICodeable> getCodedObject(URI codeInstanceID);
+
+	/**
+	 * Shows / highlights the objects associated with the given code instance
+	 * IDs in the active Eclipse Workbench.
+	 * 
+	 * @param codeInstanceIDs
+	 */
+	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+}

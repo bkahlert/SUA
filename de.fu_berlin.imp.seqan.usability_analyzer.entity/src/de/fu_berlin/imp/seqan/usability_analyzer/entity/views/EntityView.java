@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.views;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -12,6 +13,8 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -37,8 +40,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IDataSourceFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.filters.DataSourceFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.preferences.SUAEntityPreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableViewer;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -127,6 +130,19 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.entityTableViewer.setInput(Activator.getDefault()
 				.getPersonManager());
 
+		this.entityTableViewer
+				.addDoubleClickListener(new IDoubleClickListener() {
+					@Override
+					public void doubleClick(DoubleClickEvent event) {
+						List<Object> objects = SelectionUtils
+								.getAdaptableObjects(event.getSelection(),
+										Object.class);
+						if (objects.size() > 0)
+							entityTableViewer.setBold(objects.get(0));
+						entityTableViewer.refresh();
+					}
+				});
+
 		this.status = new Label(parent, SWT.BORDER);
 		this.status.setLayoutData(GridDataFactory.fillDefaults().create());
 
@@ -156,6 +172,10 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		Menu menu = menuMgr.createContextMenu(entityTableViewer.getControl());
 		entityTableViewer.getControl().setMenu(menu);
 		getSite().registerContextMenu(menuMgr, entityTableViewer);
+	}
+
+	public EntityTableViewer getEntityTableViewer() {
+		return entityTableViewer;
 	}
 
 	/**

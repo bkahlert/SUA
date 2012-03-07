@@ -7,6 +7,7 @@
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
+            icon="icons/view16/diff_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
             name="Diff Explorer"
             restorable="true">
@@ -83,6 +84,12 @@
             </with>
          </activeWhen>
       </handler>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+      <CodeableProviderFactory
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProviderFactory">
+      </CodeableProviderFactory>
    </extension>
 
 </plugin>

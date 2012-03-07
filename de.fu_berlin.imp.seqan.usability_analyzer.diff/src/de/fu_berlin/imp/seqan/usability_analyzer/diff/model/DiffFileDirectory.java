@@ -22,6 +22,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 
@@ -30,6 +31,8 @@ public class DiffFileDirectory extends File {
 	private static final long serialVersionUID = -1044615563054968853L;
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffFileDirectory.class);
+
+	public static final int DIFF_CACHE_SIZE = 5;
 
 	private static Map<ID, FileList> readDiffFilesMapping(File directory) {
 		Map<ID, FileList> rawFiles = new HashMap<ID, FileList>();
@@ -63,6 +66,8 @@ public class DiffFileDirectory extends File {
 	private Map<ID, FileList> fileLists;
 	private Map<ID, TimeZoneDateRange> fileDateRanges;
 
+	private DiffCache diffCache;
+
 	/**
 	 * Returns a {@link DiffFileDirectory} instance that can handle contained
 	 * {@link DiffFile}s
@@ -82,6 +87,8 @@ public class DiffFileDirectory extends File {
 		Assert.isNotNull(dataDirectory);
 		this.sourceOrigin = new SourceOrigin(originalSourcesDirectory);
 		this.sourceCache = new SourceCache(cachedSourcesDirectory);
+
+		this.diffCache = new DiffCache(this, DIFF_CACHE_SIZE);
 	}
 
 	public void scan() {
@@ -149,12 +156,33 @@ public class DiffFileDirectory extends File {
 
 	/**
 	 * Returns all {@link DiffFile}s associated with a given {@link ID}.
+	 * <p>
+	 * If the {@link DiffFileList} is already in the cached the cached version
+	 * is returned. Otherwise a new {@link DiffFileList} is constructed and
+	 * added to the cache.
+	 * 
+	 * @param id
+	 * @param progressMonitor
+	 * @return
+	 * 
+	 * @see DiffCache
+	 */
+	public DiffFileList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
+		return diffCache.getPayload(id, progressMonitor);
+	}
+
+	/**
+	 * Returns all {@link DiffFile}s associated with a given {@link ID}.
+	 * <p>
+	 * In contrast to {@link #getDiffFiles(ID, IProgressMonitor)} this method
+	 * always creates the objects anew and does not use any caching
+	 * functionality.
 	 * 
 	 * @param id
 	 * @param progressMonitor
 	 * @return
 	 */
-	public DiffFileList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
+	public DiffFileList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary();
 		DiffFileList diffFiles = DiffFileRecordList.create(
 				this.fileLists.get(id), this.sourceOrigin, this.sourceCache,

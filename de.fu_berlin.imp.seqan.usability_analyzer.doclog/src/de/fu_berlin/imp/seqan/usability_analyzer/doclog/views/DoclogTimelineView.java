@@ -43,7 +43,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
@@ -175,8 +174,11 @@ public class DoclogTimelineView extends ViewPart {
 				throw new OperationCanceledException();
 			}
 
-			DoclogFile doclogFile = DoclogCache.getInstance().getPayload(key,
-					new SubProgressMonitor(progressMonitor, 1));
+			DoclogFile doclogFile = Activator
+					.getDefault()
+					.getDoclogDirectory()
+					.getDoclogFile(key,
+							new SubProgressMonitor(progressMonitor, 1));
 
 			if (doclogFile == null) {
 				LOGGER.error(DoclogFile.class.getSimpleName() + " for " + key
@@ -265,8 +267,8 @@ public class DoclogTimelineView extends ViewPart {
 			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
 					.get(key);
 			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
-					DoclogCache.getInstance().getPayload(key, progressMonitor),
-					dateRanges);
+					Activator.getDefault().getDoclogDirectory()
+							.getDoclogFile(key, progressMonitor), dateRanges);
 			final DoclogTimeline timeline_ = timeline;
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
