@@ -18,8 +18,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 @RunWith(Parameterized.class)
 public class DoclogRecordTest {
 
-	private static final TimeZoneDate PAST_DATE = new TimeZoneDate(DateUtil.getDate(
-			2011, 8, 13, 9, 15, 14), TimeZone.getDefault());
+	private static final TimeZoneDate PAST_DATE = new TimeZoneDate(
+			DateUtil.getDate(2011, 8, 13, 9, 15, 14), TimeZone.getDefault());
 	private static final TimeZoneDate FUTURE_DATE = new TimeZoneDate(
 			DateUtil.getDate(2011, 8, 13, 13, 12, 57), TimeZone.getDefault());
 

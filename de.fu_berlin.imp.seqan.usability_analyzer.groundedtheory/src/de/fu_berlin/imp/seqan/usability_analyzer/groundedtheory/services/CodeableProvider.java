@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.widgets.Display;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -146,4 +147,19 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 */
 	public abstract void showCodedObjectsInWorkspace2(
 			List<ICodeable> codedObjects);
+
+	public ILabelProvider getLabelProvider(URI codeInstanceID) {
+		if (getAllowedNamespaces().contains(codeInstanceID.getHost()))
+			return getLabelProvider();
+		return null;
+	}
+
+	/**
+	 * Returns a label provider able to provide a label and image for the
+	 * {@link ICodeable}s described by the namespaces returned by
+	 * {@link #getAllowedNamespaces()}.
+	 * 
+	 * @return
+	 */
+	protected abstract ILabelProvider getLabelProvider();
 }

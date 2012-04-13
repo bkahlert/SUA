@@ -39,7 +39,10 @@ public class CMakeCacheFile extends File {
 			Set<Object> keys = properties.keySet();
 			for (Object key : keys) {
 				String value = properties.getProperty((String) key);
-				this.values.put((String) key, value);
+				String[] valueParts = value.split("="); // ignore possibly
+														// leading keys
+				this.values
+						.put((String) key, valueParts[valueParts.length - 1]);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -60,7 +63,7 @@ public class CMakeCacheFile extends File {
 			generators.add(generator);
 		if (extraGenerator != null)
 			generators.add(extraGenerator);
-		return StringUtils.join(generators, ";");
+		return StringUtils.join(generators, " + ");
 	}
 
 }

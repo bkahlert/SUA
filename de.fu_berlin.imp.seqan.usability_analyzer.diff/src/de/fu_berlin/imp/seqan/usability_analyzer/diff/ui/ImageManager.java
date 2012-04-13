@@ -47,7 +47,7 @@ public class ImageManager {
 			IDecoration.BOTTOM_RIGHT).createImage();
 	public static final Image DIFFFILERECORD = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFFILERECORD_CODED = new DecorationOverlayIcon(
-			DIFFFILE,
+			DIFFFILERECORD,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 

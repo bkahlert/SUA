@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -17,6 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeView
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
@@ -44,14 +46,34 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (ICodeable.class.isInstance(element)) {
-							return element.toString();
-						}
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
 							return code.getCaption();
 						}
+						if (ICodeable.class.isInstance(element)) {
+							ICodeable codedObject = (ICodeable) element;
+							return codeService.getLabelProvider(
+									codedObject.getCodeInstanceID()).getText(
+									codedObject);
+						}
+						if (NoCodesNode.class.isInstance(element)) {
+							return "no codes";
+						}
 						return "ERROR";
+					}
+
+					@Override
+					public Image getImage(Object element) {
+						if (ICode.class.isInstance(element)) {
+							return ImageManager.CODE;
+						}
+						if (ICodeable.class.isInstance(element)) {
+							ICodeable codedObject = (ICodeable) element;
+							return codeService.getLabelProvider(
+									codedObject.getCodeInstanceID()).getImage(
+									codedObject);
+						}
+						return null;
 					}
 				});
 		treeViewer.createColumn("URI", 300).setLabelProvider(
@@ -65,6 +87,9 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
 							return new Long(code.getId()).toString();
+						}
+						if (NoCodesNode.class.isInstance(element)) {
+							return "";
 						}
 						return "ERROR";
 					}

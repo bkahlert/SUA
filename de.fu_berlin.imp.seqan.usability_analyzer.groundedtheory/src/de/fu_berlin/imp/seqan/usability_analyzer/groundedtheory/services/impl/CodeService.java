@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.viewers.ILabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -242,6 +243,21 @@ class CodeService implements ICodeService {
 		for (ICodeableProvider codeableProvider : codeableProviders) {
 			codeableProvider.showCodedObjectsInWorkspace(codeInstanceIDs);
 		}
+	}
+
+	@Override
+	public ILabelProvider getLabelProvider(URI codeInstanceID) {
+		List<ICodeableProvider> codeableProviders = this
+				.getRegisteredCodeableProviders();
+		if (codeableProviders == null)
+			return null;
+		for (ICodeableProvider codeableProvider : codeableProviders) {
+			ILabelProvider labelProvider = codeableProvider
+					.getLabelProvider(codeInstanceID);
+			if (labelProvider != null)
+				return labelProvider;
+		}
+		return null;
 	}
 
 }

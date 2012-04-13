@@ -3,6 +3,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 import java.net.URI;
 import java.util.List;
 
+import org.eclipse.jface.viewers.ILabelProvider;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -49,17 +51,22 @@ public interface ICodeService {
 	public void deleteCode(ICode code) throws CodeServiceException;
 
 	/**
-	 * @see ICodeableProvider#getCodedObject(URI)
+	 * @see {@link ICodeableProvider#getCodedObject(URI)}
 	 */
 	public ICodeable getCodedObject(URI codeInstanceID);
 
 	/**
-	 * @see ICodeableProvider#showCodedObjectsInWorkspace(List)
+	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
 	 */
 	public void showCodedObjectInWorkspace(URI codeInstanceID);
 
 	/**
-	 * @see ICodeableProvider#showCodedObjectsInWorkspace(List)
+	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
 	 */
 	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+
+	/**
+	 * @see {@link ICodeableProvider#getLabelProvider(String)}
+	 */
+	public ILabelProvider getLabelProvider(URI codeInstanceID);
 }

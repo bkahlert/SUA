@@ -116,7 +116,12 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 			return new Object[0];
 
 		try {
-			return ((ICodeService) inputElement).getCodeStore().loadCodes();
+			ICode[] codes = ((ICodeService) inputElement).getCodeStore()
+					.loadCodes();
+			if (codes.length > 0)
+				return codes;
+			else
+				return new Object[] { new NoCodesNode() };
 		} catch (CodeStoreReadException e) {
 			return new Object[0];
 		}

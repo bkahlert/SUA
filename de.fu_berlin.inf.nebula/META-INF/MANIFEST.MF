@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.0
 Bundle-Activator: de.fu_berlin.inf.nebula.Activator
 Bundle-Vendor: Freie Universität Berlin
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.junit;bundle-version="4.8.2"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.inf.nebula.explanation;

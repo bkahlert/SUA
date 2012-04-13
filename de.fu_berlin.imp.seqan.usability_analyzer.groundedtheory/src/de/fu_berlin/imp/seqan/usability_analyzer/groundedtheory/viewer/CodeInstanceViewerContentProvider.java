@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -81,12 +80,7 @@ public class CodeInstanceViewerContentProvider implements
 	@Override
 	public boolean hasChildren(Object element) {
 		if (ICodeable.class.isInstance(element)) {
-			ICodeable codeable = (ICodeable) element;
-			try {
-				return codeService.getCodes(codeable).size() > 0;
-			} catch (CodeServiceException e) {
-
-			}
+			return true;
 		}
 		return false;
 	}
@@ -96,11 +90,11 @@ public class CodeInstanceViewerContentProvider implements
 		if (ICodeable.class.isInstance(parentElement)) {
 			ICodeable codeable = (ICodeable) parentElement;
 			try {
-				ArrayList<ICode> codes = new ArrayList<ICode>();
-				for (ICode code : codeService.getCodes(codeable)) {
-					codes.add(code);
-				}
-				return codes.toArray();
+				List<ICode> codes = codeService.getCodes(codeable);
+				if (codes.size() > 0)
+					return codes.toArray();
+				else
+					return new Object[] { new NoCodesNode() };
 			} catch (CodeServiceException e) {
 				return null;
 			}
@@ -113,7 +107,11 @@ public class CodeInstanceViewerContentProvider implements
 		if (!(inputElement instanceof List))
 			return new Object[0];
 
-		return ((List<?>) inputElement).toArray();
+		List<?> list = (List<?>) inputElement;
+		if (list.size() > 0)
+			return list.toArray();
+		else
+			return new Object[] { new NoCodesNode() };
 	}
 
 }

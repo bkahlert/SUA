@@ -73,6 +73,7 @@ public class DoclogDirectory extends File {
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		// force class loading since DoclogRecord is used in the Callable
+		DoclogAction.class.getClass();
 		DoclogRecord.class.getClass();
 		for (final Object key : this.files.keySet()) {
 			final File file = this.files.get(key);

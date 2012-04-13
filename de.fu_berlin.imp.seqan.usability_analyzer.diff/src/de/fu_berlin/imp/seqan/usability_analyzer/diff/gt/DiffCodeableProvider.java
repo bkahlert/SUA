@@ -10,19 +10,27 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class DiffCodeableProvider extends CodeableProvider {
 
@@ -104,5 +112,65 @@ public class DiffCodeableProvider extends CodeableProvider {
 			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
 					+ " " + DiffExplorerView.ID, e);
 		}
+	}
+
+	@Override
+	public ILabelProvider getLabelProvider() {
+		return new LabelProvider() {
+
+			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+					.getService(ICodeService.class);
+
+			@Override
+			public String getText(Object element) {
+				if (element instanceof DiffFileList) {
+					DiffFileList diffFileList = (DiffFileList) element;
+					ID id = null;
+					if (diffFileList.size() > 0) {
+						id = diffFileList.get(0).getId();
+					}
+					return (id != null) ? id.toString() : "";
+				}
+				if (element instanceof DiffFile) {
+					DiffFile diffFile = (DiffFile) element;
+					TimeZoneDate date = diffFile.getDateRange().getStartDate();
+					return (date != null) ? date
+							.format(new SUACorePreferenceUtil().getDateFormat())
+							: "";
+				}
+				if (element instanceof DiffFileRecord) {
+					DiffFileRecord diffFileRecord = (DiffFileRecord) element;
+					String name = diffFileRecord.getFilename();
+					return (name != null) ? name : "";
+				}
+				return "";
+			}
+
+			@Override
+			public Image getImage(Object element) {
+				if (element instanceof DiffFileList) {
+					return ImageManager.DIFFFILELIST;
+				}
+				if (element instanceof DiffFile) {
+					DiffFile diffFile = (DiffFile) element;
+					try {
+						return (codeService.getCodes(diffFile).size() > 0) ? ImageManager.DIFFFILE_CODED
+								: ImageManager.DIFFFILE;
+					} catch (CodeServiceException e) {
+						return ImageManager.DIFFFILE;
+					}
+				}
+				if (element instanceof DiffFileRecord) {
+					DiffFileRecord diffFileRecord = (DiffFileRecord) element;
+					try {
+						return (codeService.getCodes(diffFileRecord).size() > 0) ? ImageManager.DIFFFILERECORD_CODED
+								: ImageManager.DIFFFILERECORD;
+					} catch (CodeServiceException e) {
+						return ImageManager.DIFFFILERECORD;
+					}
+				}
+				return super.getImage(element);
+			}
+		};
 	}
 }

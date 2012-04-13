@@ -16,7 +16,7 @@ public class StatsFile extends File {
 	public static final String PATTERN = "([A-Za-z\\d]+)_stats.txt";
 
 	private ID id;
-	private String node;
+	private String node; // e.g. wensicia.local
 	private String platform; // e.g. win32
 	private String system; // e.g. Windows
 	private String release; // e.g. 7

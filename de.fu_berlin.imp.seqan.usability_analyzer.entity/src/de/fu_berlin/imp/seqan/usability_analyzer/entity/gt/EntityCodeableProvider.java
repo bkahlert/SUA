@@ -8,16 +8,23 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class EntityCodeableProvider extends CodeableProvider {
 
@@ -62,5 +69,38 @@ public class EntityCodeableProvider extends CodeableProvider {
 			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
 					+ " " + EntityView.ID, e);
 		}
+	}
+
+	@Override
+	public ILabelProvider getLabelProvider() {
+		return new LabelProvider() {
+
+			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+					.getService(ICodeService.class);
+
+			@Override
+			public String getText(Object element) {
+				Entity entity = (Entity) element;
+
+				ID id = entity.getId();
+				return (id != null) ? id.toString() : "";
+			}
+
+			@Override
+			public Image getImage(Object element) {
+				Entity person = (Entity) element;
+				try {
+					if (codeService.getCodes(person).size() > 0) {
+						return ImageManager.ENTITY_CODED;
+					} else {
+						return ImageManager.ENTITY;
+					}
+				} catch (CodeServiceException e) {
+					LOGGER.error("Can't access "
+							+ ICodeService.class.getSimpleName());
+				}
+				return ImageManager.ENTITY;
+			}
+		};
 	}
 }

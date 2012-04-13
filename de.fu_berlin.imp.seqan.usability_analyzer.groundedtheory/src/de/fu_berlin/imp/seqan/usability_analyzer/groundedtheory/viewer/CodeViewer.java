@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -22,8 +23,10 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class CodeViewer extends Composite implements ISelectionProvider {
 
@@ -62,6 +65,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	private void createColumns() {
+		// TODO: Cache labelProviders on URI base
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 		treeViewer.createColumn("Code", 150).setLabelProvider(
@@ -74,10 +78,27 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeService.getCodedObject(
-									codeInstance.getId()).toString();
+							ICodeable codedObject = codeService
+									.getCodedObject(codeInstance.getId());
+							return codeService.getLabelProvider(
+									codeInstance.getId()).getText(codedObject);
 						}
 						return "ERROR";
+					}
+
+					@Override
+					public Image getImage(Object element) {
+						if (ICode.class.isInstance(element)) {
+							return ImageManager.CODE;
+						}
+						if (ICodeInstance.class.isInstance(element)) {
+							ICodeInstance codeInstance = (ICodeInstance) element;
+							ICodeable codedObject = codeService
+									.getCodedObject(codeInstance.getId());
+							return codeService.getLabelProvider(
+									codeInstance.getId()).getImage(codedObject);
+						}
+						return null;
 					}
 				});
 		treeViewer.createColumn("ID", 150).setLabelProvider(
