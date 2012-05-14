@@ -73,7 +73,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	public TimeZoneDate getDateRangeStart() {
 		String rangeStart = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_START);
-		return new TimeZoneDate(rangeStart);
+		return (rangeStart.isEmpty()) ? null : new TimeZoneDate(rangeStart);
 	}
 
 	public void setDateRangeStart(TimeZoneDate rangeStart) {
@@ -90,7 +90,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	public TimeZoneDate getDateRangeEnd() {
 		String rangeEnd = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_END);
-		return new TimeZoneDate(rangeEnd);
+		return (rangeEnd.isEmpty()) ? null : new TimeZoneDate(rangeEnd);
 	}
 
 	public void setDateRangeEnd(TimeZoneDate rangeEnd) {

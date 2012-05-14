@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.commands;
 
-import java.net.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.AbstractHandler;
@@ -28,7 +26,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 @SuppressWarnings("restriction")
@@ -93,25 +91,9 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				final int offset = textSeDocument.getOffset();
 				final int length = textSeDocument.getLength();
 				if (focusDiffFileRecord != null) {
-					final DiffFileRecord tmp = focusDiffFileRecord;
-					WizardUtils.openAddCodeWizard(new ICodeable() {
-						@Override
-						public URI getCodeInstanceID() {
-							try {
-								return new URI(tmp.getCodeInstanceID()
-										.toString()
-										+ "#"
-										+ offset
-										+ "+"
-										+ length);
-							} catch (Exception e) {
-								log.error("Could not create ID for a "
-										+ DiffFileRecord.class.getSimpleName()
-										+ " snippet", e);
-							}
-							return null;
-						}
-					});
+					DiffFileRecordSegment segment = new DiffFileRecordSegment(
+							focusDiffFileRecord, offset, length);
+					WizardUtils.openAddCodeWizard(segment);
 				} else {
 					log.error("Could not determine the "
 							+ CompareEditor.class.getSimpleName() + " in focus");

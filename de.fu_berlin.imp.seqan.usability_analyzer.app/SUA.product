@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SeqAn Usability Analyzer" uid="de.fu_berlin.imp.seqan.usability_analyzer.app.product" application="de.fu_berlin.imp.seqan.usability_analyzer.application" version="1.0.0.0" useFeatures="false" includeLaunchers="true">
+<product name="SeqAn Usability Analyzer" uid="de.fu_berlin.imp.seqan.usability_analyzer.app.product" id="de.fu_berlin.imp.seqan.usability_analyzer.product" application="de.fu_berlin.imp.seqan.usability_analyzer.application" version="1.0.0.0" useFeatures="false" includeLaunchers="true">
 
+   <aboutInfo>
+      <image path="/de.fu_berlin.imp.seqan.usability_analyzer/about.png"/>
+      <text>
+         %productBlurb
+      </text>
+   </aboutInfo>
 
    <configIni use="default">
    </configIni>
@@ -17,7 +23,10 @@
    <windowImages/>
 
    <splash
-      location="de.fu_berlin.imp.seqan.usability_analyzer" />
+      location="de.fu_berlin.imp.seqan.usability_analyzer"
+      startupProgressRect="32,268,278,15"
+      startupMessageRect="32,288,278,10"
+      startupForegroundColor="000000" />
    <launcher name="SeqAn Usability Analyzer">
       <solaris/>
       <win useIco="false">
@@ -28,6 +37,23 @@
 
    <vm>
    </vm>
+
+   <license>
+        <url>http://www.gnu.org/licenses/gpl.html</url>
+        <text>
+   Copyright (C) 2011-2012 BJörn Kahlert
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+         </text>
+   </license>
 
    <plugins>
       <plugin id="com.bkahlert.devel.nebula"/>
@@ -119,6 +145,7 @@
       <plugin id="org.eclipse.ui.editors"/>
       <plugin id="org.eclipse.ui.forms"/>
       <plugin id="org.eclipse.ui.ide"/>
+      <plugin id="org.eclipse.ui.intro"/>
       <plugin id="org.eclipse.ui.navigator"/>
       <plugin id="org.eclipse.ui.navigator.resources"/>
       <plugin id="org.eclipse.ui.views"/>

@@ -8,9 +8,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -80,8 +82,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							ICodeInstance codeInstance = (ICodeInstance) element;
 							ICodeable codedObject = codeService
 									.getCodedObject(codeInstance.getId());
-							return codeService.getLabelProvider(
-									codeInstance.getId()).getText(codedObject);
+							ILabelProvider labelProvider = codeService
+									.getLabelProvider(codeInstance.getId());
+							return (labelProvider != null) ? labelProvider
+									.getText(codedObject) : "[UNKNOWN ORIGIN]";
 						}
 						return "ERROR";
 					}
@@ -95,8 +99,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							ICodeInstance codeInstance = (ICodeInstance) element;
 							ICodeable codedObject = codeService
 									.getCodedObject(codeInstance.getId());
-							return codeService.getLabelProvider(
-									codeInstance.getId()).getImage(codedObject);
+							ILabelProvider labelProvider = codeService
+									.getLabelProvider(codeInstance.getId());
+							return (labelProvider != null) ? labelProvider
+									.getImage(codedObject) : null;
 						}
 						return null;
 					}
@@ -174,15 +180,20 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	public static List<URI> getURIs(ISelection selection) {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
-		List<URI> uris = new ArrayList<URI>();
+
 		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
 				selection, ICodeInstance.class);
 		for (ICode code : SelectionUtils.getAdaptableObjects(selection,
 				ICode.class))
 			codeInstances.addAll(codeService.getInstances(code));
+		List<URI> uris = new ArrayList<URI>();
 		for (ICodeInstance codeInstance : codeInstances)
 			uris.add(codeInstance.getId());
 		return uris;
+	}
+
+	public StructuredViewer getViewer() {
+		return treeViewer;
 	}
 
 }

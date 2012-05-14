@@ -45,7 +45,8 @@ public class DateUtil {
 				+ missingDots.substring(missingDots.length() - 2);
 	}
 
-	public static Calendar fromISO8601(String lexicalRepresentation) {
+	public static Calendar fromISO8601(String lexicalRepresentation)
+			throws IllegalArgumentException {
 		try {
 			return DatatypeFactory.newInstance()
 					.newXMLGregorianCalendar(lexicalRepresentation)

@@ -86,9 +86,11 @@ public class TimeZoneDateRangeView extends ViewPart {
 	}
 
 	private void configure() {
-		if (startDateTime != null && !startDateTime.isDisposed()) {
-			startDateTime.setSelection(preferenceUtil.getDateRangeStart()
-					.getDate());
+		TimeZoneDate dateRangeStart = preferenceUtil.getDateRangeStart();
+		TimeZoneDate dateRangeEnd = preferenceUtil.getDateRangeEnd();
+		if (startDateTime != null && !startDateTime.isDisposed()
+				&& dateRangeStart != null) {
+			startDateTime.setSelection(dateRangeStart.getDate());
 			startDateTime.setEnabled(preferenceUtil.getDateRangeStartEnabled());
 			startDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -98,9 +100,9 @@ public class TimeZoneDateRangeView extends ViewPart {
 				}
 			});
 		}
-		if (endDateTime != null && !endDateTime.isDisposed()) {
-			endDateTime
-					.setSelection(preferenceUtil.getDateRangeEnd().getDate());
+		if (endDateTime != null && !endDateTime.isDisposed()
+				&& dateRangeEnd != null) {
+			endDateTime.setSelection(dateRangeEnd.getDate());
 			endDateTime.setEnabled(preferenceUtil.getDateRangeEndEnabled());
 			endDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override

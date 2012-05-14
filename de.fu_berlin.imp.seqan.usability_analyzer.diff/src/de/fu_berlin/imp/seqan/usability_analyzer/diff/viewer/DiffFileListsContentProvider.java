@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -63,8 +63,8 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof List<?>) {
-			Object[] objects = ((List<?>) inputElement).toArray();
+		if (inputElement instanceof Collection<?>) {
+			Object[] objects = ((Collection<?>) inputElement).toArray();
 			/*
 			 * If the list contains only one element and this element is a list
 			 * return the mentioned child list. This way we save one hierarchy

@@ -2,10 +2,6 @@
 <?eclipse version="3.4"?>
 
 <plugin>
-   <extension point="org.eclipse.ui.views">
-      <category id="de.fu_berlin.imp.seqan.usability_analyzer.category" name="Usability Analysis">
-      </category>
-   </extension>
    <extension point="org.eclipse.help.contexts">
       <contexts file="contexts.xml">
       </contexts>
@@ -33,5 +29,25 @@
                class="de.fu_berlin.imp.seqan.usability_analyzer.Application">
          </run>
       </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="de.fu_berlin.imp.seqan.usability_analyzer.application"
+            name="SeqAn Usability Analyzer">
+         <property
+               name="startupForegroundColor"
+               value="000000">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="32,268,278,15">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="32,288,278,15">
+         </property>
+      </product>
    </extension>
 </plugin>

@@ -1,10 +1,26 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.util.regex.Pattern;
+
 public class Fingerprint implements Comparable<Fingerprint> {
+	// TODO: Daten vom Retreat 2011 zu umschreiben, dass pattern passt
+	public static final Pattern PATTERN = Pattern.compile("^![A-Za-z\\d]+$");
+
+	public static final boolean isValid(String id) {
+		if (id == null)
+			return false;
+		return PATTERN.matcher(id).find();
+	}
+
 	private String fingerprint;
 
 	public Fingerprint(String fingerprint) {
 		super();
+		/*
+		 * siehe TODO oben if (!isValid(fingerprint)) throw new
+		 * InvalidParameterException( Fingerprint.class.getSimpleName() +
+		 * " must only contain alphanumeric characters");
+		 */
 		this.fingerprint = fingerprint;
 	}
 

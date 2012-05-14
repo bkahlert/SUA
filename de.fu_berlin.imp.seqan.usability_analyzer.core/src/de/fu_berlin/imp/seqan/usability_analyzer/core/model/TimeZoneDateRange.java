@@ -1,6 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
 import java.security.InvalidParameterException;
+import java.util.LinkedList;
+import java.util.List;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
  * This class describes a range defined by two {@link TimeZoneDate}s. To define
@@ -29,6 +33,15 @@ public class TimeZoneDateRange {
 		}
 
 		return new TimeZoneDateRange(earliestDate, latestDate);
+	}
+
+	public static TimeZoneDateRange calculateOuterDateRange(
+			HasDateRange... hasDateRanges) {
+		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
+		for (HasDateRange hasDateRange : hasDateRanges)
+			dateRanges.add(hasDateRange.getDateRange());
+		return calculateOuterDateRange(dateRanges
+				.toArray(new TimeZoneDateRange[0]));
 	}
 
 	private TimeZoneDate startDate;

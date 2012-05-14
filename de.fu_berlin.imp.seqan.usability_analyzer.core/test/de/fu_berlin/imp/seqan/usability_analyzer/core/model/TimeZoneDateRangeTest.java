@@ -464,7 +464,8 @@ public class TimeZoneDateRangeTest {
 	public void testCalculateOuterDateRange() {
 		TimeZoneDateRange outerRange;
 
-		outerRange = TimeZoneDateRange.calculateOuterDateRange();
+		outerRange = TimeZoneDateRange
+				.calculateOuterDateRange(new TimeZoneDateRange[0]);
 		Assert.assertNull(outerRange.getStartDate());
 		Assert.assertNull(outerRange.getEndDate());
 

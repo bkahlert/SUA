@@ -8,7 +8,6 @@ Bundle-Vendor: AG Algorithmic Bioinformatics, Freie Universitität Berlin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.0",
- org.junit,
  de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.diff;bundle-version="1.0.0",

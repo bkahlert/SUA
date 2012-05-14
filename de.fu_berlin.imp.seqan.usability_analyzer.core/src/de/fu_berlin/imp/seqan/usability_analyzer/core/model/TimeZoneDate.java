@@ -6,8 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.junit.Assert;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 /**
@@ -32,12 +30,13 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * 
 	 * @param lexicalRepresentation
 	 */
-	public TimeZoneDate(String lexicalRepresentation) {
+	public TimeZoneDate(String lexicalRepresentation)
+			throws IllegalArgumentException {
 		this.calendar = DateUtil.fromISO8601(lexicalRepresentation);
 	}
 
 	/**
-	 * Constructs a new instance based on a {@link Date}Êand a {@link TimeZone}.
+	 * Constructs a new instance based on a {@link Date}ï¿½and a {@link TimeZone}.
 	 * 
 	 * @param date
 	 *            milliseconds passed since 1.1.1970 00:00:00.000 GMT
@@ -97,7 +96,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		if (date == null) {
 			System.err.println("k");
 		}
-		Assert.assertNotNull(date);
+		assert date != null;
 		long time = this.getTime();
 		long otherTime = date.getTime();
 		return new Long(time).compareTo(otherTime);

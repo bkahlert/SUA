@@ -33,11 +33,15 @@ public class SUADiffPreferenceUtil extends PreferenceUtil {
 	private HashMap<String, FileFilter> fileFilters = new HashMap<String, FileFilter>();
 
 	public String[] getFileFilterPatterns() {
-		String[] fileFilterPatterns = (String[]) SerializationUtils
-				.deserialize(getPreferenceStore().getString(
-						SUADiffPreferenceConstants.FILE_FILTER_PATTERNS)
-						.getBytes());
-		return fileFilterPatterns;
+		try {
+			String[] fileFilterPatterns = (String[]) SerializationUtils
+					.deserialize(getPreferenceStore().getString(
+							SUADiffPreferenceConstants.FILE_FILTER_PATTERNS)
+							.getBytes());
+			return fileFilterPatterns;
+		} catch (Exception e) {
+			return new String[0];
+		}
 	}
 
 	public ArrayList<FileFilter> getFileFilters() {

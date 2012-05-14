@@ -1,10 +1,25 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.security.InvalidParameterException;
+import java.util.regex.Pattern;
+
 public class ID implements Comparable<ID> {
+
+	public static final Pattern PATTERN = Pattern.compile("^[A-Za-z\\d]+$");
+
+	public static final boolean isValid(String id) {
+		if (id == null)
+			return false;
+		return PATTERN.matcher(id).find();
+	}
+
 	private String id;
 
 	public ID(String id) {
 		super();
+		if (!isValid(id))
+			throw new InvalidParameterException(ID.class.getSimpleName()
+					+ " must only contain alphanumeric characters");
 		this.id = id;
 	}
 

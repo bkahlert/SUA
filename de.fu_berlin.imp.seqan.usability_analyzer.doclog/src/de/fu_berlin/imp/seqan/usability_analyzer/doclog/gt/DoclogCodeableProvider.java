@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -12,8 +14,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
+
+import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -23,6 +30,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
@@ -92,9 +103,66 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public void showCodedObjectsInWorkspace2(List<ICodeable> codedObjects) {
-		// TODO Auto-generated method stub
+	public void showCodedObjectsInWorkspace2(final List<ICodeable> codedObjects) {
+		try {
+			if (codedObjects.size() > 0) {
+				openAndSelectFilesInExplorer(codedObjects, showDoclogExplorer());
+				openAndSelectFilesInTimeline(codedObjects, showDoclogTimeline());
+			}
+		} catch (PartInitException e) {
+			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
+					+ " " + DoclogExplorerView.ID, e);
+		}
+	}
 
+	public DoclogExplorerView showDoclogExplorer() throws PartInitException {
+		return (DoclogExplorerView) PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.showView(DoclogExplorerView.ID);
+	}
+
+	public DoclogTimelineView showDoclogTimeline() throws PartInitException {
+		return (DoclogTimelineView) PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.showView(DoclogTimelineView.ID);
+	}
+
+	public void openAndSelectFilesInExplorer(
+			final List<ICodeable> codedObjects,
+			final DoclogExplorerView doclogExplorerView) {
+		Set<Object> keys = CodeableUtils.getKeys(codedObjects);
+
+		// open
+		doclogExplorerView.open(keys, new Runnable() {
+			public void run() {
+				// select
+				doclogExplorerView.getDoclogFilesViewer().setSelection(
+						new StructuredSelection(codedObjects), true);
+			}
+		});
+	}
+
+	public void openAndSelectFilesInTimeline(
+			final List<ICodeable> codedObjects,
+			final DoclogTimelineView doclogTimelineView) {
+		final Set<Object> keys = CodeableUtils.getKeys(codedObjects);
+
+		// open
+		doclogTimelineView.open(keys, new Runnable() {
+			public void run() {
+				// select
+				for (Object key : keys) {
+					DoclogTimeline timeline = doclogTimelineView
+							.getTimeline(key);
+					Set<DoclogRecord> doclogRecords = new HashSet<DoclogRecord>(
+							ArrayUtils.getAdaptableObjects(
+									codedObjects.toArray(), DoclogRecord.class));
+
+					timeline.center(doclogRecords);
+					timeline.highlight(doclogRecords);
+				}
+			}
+		});
 	}
 
 	@Override

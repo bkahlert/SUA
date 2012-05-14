@@ -1,5 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTableViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.StyledColumnLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FontUtils;
@@ -34,7 +38,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
-public class EntityTableViewer extends SortableTableViewer {
+public class EntityTableViewer extends SortableTableViewer implements
+		IBoldViewer {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(EntityTableViewer.class);
@@ -42,7 +47,7 @@ public class EntityTableViewer extends SortableTableViewer {
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
 	private Styler boldStyler = null;
-	private Object boldObject = null;
+	private Collection<?> boldObjects = new LinkedList<Object>();
 
 	public EntityTableViewer(Composite parent, int style) {
 		super(parent, style);
@@ -84,7 +89,7 @@ public class EntityTableViewer extends SortableTableViewer {
 								ID id = entity.getId();
 								StyledString styledString = new StyledString(
 										(id != null) ? id.toString() : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -119,7 +124,7 @@ public class EntityTableViewer extends SortableTableViewer {
 										(secondaryFingerprints != null) ? StringUtils
 												.join(secondaryFingerprints,
 														", ") : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -134,7 +139,7 @@ public class EntityTableViewer extends SortableTableViewer {
 								Token token = person.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -150,7 +155,7 @@ public class EntityTableViewer extends SortableTableViewer {
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -167,7 +172,7 @@ public class EntityTableViewer extends SortableTableViewer {
 								StyledString styledString = new StyledString(
 										(cMakeCacheFile != null) ? cMakeCacheFile
 												.getGenerator() : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -185,7 +190,7 @@ public class EntityTableViewer extends SortableTableViewer {
 										(earliestDate != null) ? earliestDate
 												.format(preferenceUtil
 														.getDateFormat()) : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -203,7 +208,7 @@ public class EntityTableViewer extends SortableTableViewer {
 										(lastestDate != null) ? lastestDate
 												.format(preferenceUtil
 														.getDateFormat()) : "",
-										(element.equals(boldObject) ? boldStyler
+										(boldObjects.contains(element) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -211,8 +216,12 @@ public class EntityTableViewer extends SortableTableViewer {
 	}
 
 	public void setBold(Object boldObject) {
-		if (this.boldObject != boldObject) {
-			this.boldObject = boldObject;
+		this.boldObjects = Arrays.asList(boldObject);
+	}
+
+	public void setBold(Collection<?> boldObjects) {
+		if (this.boldObjects != boldObjects) {
+			this.boldObjects = boldObjects;
 		}
 	}
 }

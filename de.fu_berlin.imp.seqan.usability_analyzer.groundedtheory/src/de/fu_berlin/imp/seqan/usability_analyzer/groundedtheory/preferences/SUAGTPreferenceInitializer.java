@@ -15,10 +15,9 @@ public class SUAGTPreferenceInitializer extends AbstractPreferenceInitializer {
 
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setDefault(SUAGTPreferenceConstants.CODESTORE_FILE,
-				ResourcesPlugin.getWorkspace().getRoot().getLocation()
-						.toOSString()
-						+ File.separator + "CodeStore.xml");
+		String file = ResourcesPlugin.getWorkspace().getRoot().getLocation()
+				.toOSString()
+				+ File.separator + "CodeStore.xml";
+		store.setDefault(SUAGTPreferenceConstants.CODESTORE_FILE, file);
 	}
-
 }

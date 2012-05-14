@@ -12,16 +12,18 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
- org.junit
+ com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model,
  de.fu_berlin.imp.seqan.usability_analyzer.core.preferences,
+ de.fu_berlin.imp.seqan.usability_analyzer.core.services,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters,
  de.fu_berlin.imp.seqan.usability_analyzer.core.util,
- de.fu_berlin.imp.seqan.usability_analyzer.core.views
-Bundle-ClassPath: lib/JAXB2_20110512.jar,
- .
+ de.fu_berlin.imp.seqan.usability_analyzer.core.views,
+ de.ralfebert.rcputils.menus
+Bundle-ClassPath: .,
+ lib/junit-dep-4.10.jar

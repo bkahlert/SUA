@@ -7,24 +7,22 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class DiffFileListsViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
@@ -50,8 +48,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
 
-		final ICodeService codeService = (ICodeService) PlatformUI
-				.getWorkbench().getService(ICodeService.class);
+		final ILabelProvider imageProvider = new DiffCodeableProvider()
+				.getLabelProvider();
 
 		this.createColumn("Date", 350).setLabelProvider(
 				new ColumnLabelProvider() {
@@ -82,29 +80,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						if (element instanceof DiffFileList) {
-							return ImageManager.DIFFFILELIST;
-						}
-						if (element instanceof DiffFile) {
-							DiffFile diffFile = (DiffFile) element;
-							try {
-								return (codeService.getCodes(diffFile).size() > 0) ? ImageManager.DIFFFILE_CODED
-										: ImageManager.DIFFFILE;
-							} catch (CodeServiceException e) {
-								return ImageManager.DIFFFILE;
-							}
-						}
-						if (element instanceof DiffFileRecord) {
-							DiffFileRecord diffFileRecord = (DiffFileRecord) element;
-							try {
-								return (codeService.getCodes(diffFileRecord)
-										.size() > 0) ? ImageManager.DIFFFILERECORD_CODED
-										: ImageManager.DIFFFILERECORD;
-							} catch (CodeServiceException e) {
-								return ImageManager.DIFFFILERECORD;
-							}
-						}
-						return super.getImage(element);
+						return imageProvider.getImage(element);
 					}
 				});
 

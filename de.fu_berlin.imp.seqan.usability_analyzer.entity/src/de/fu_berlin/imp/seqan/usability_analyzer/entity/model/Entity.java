@@ -12,6 +12,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
@@ -25,7 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
-public class Entity implements HasDateRange, ICodeable {
+public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
 
 	private static final Logger LOGGER = Logger.getLogger(Entity.class);
 
@@ -61,7 +62,12 @@ public class Entity implements HasDateRange, ICodeable {
 		return null;
 	}
 
-	private String getInternalId() throws NoInternalIdentifierException {
+	@Override
+	public String getName() {
+		return getInternalId();
+	}
+
+	public String getInternalId() throws NoInternalIdentifierException {
 		ID id = this.getId();
 		if (id != null)
 			return id.toString();
@@ -72,7 +78,7 @@ public class Entity implements HasDateRange, ICodeable {
 
 		List<Fingerprint> fingerprints = this.getFingerprints();
 		if (fingerprints != null && fingerprints.size() > 0)
-			return StringUtils.join(fingerprints, "");
+			return "!" + StringUtils.join(fingerprints, "!,");
 
 		throw new NoInternalIdentifierException(this);
 	}

@@ -50,6 +50,11 @@ public class ImageManager {
 			DIFFFILERECORD,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILERECORDSEGMENT = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$
+	public static final Image DIFFFILERECORDSEGMENT_CODED = new DecorationOverlayIcon(
+			DIFFFILERECORDSEGMENT,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

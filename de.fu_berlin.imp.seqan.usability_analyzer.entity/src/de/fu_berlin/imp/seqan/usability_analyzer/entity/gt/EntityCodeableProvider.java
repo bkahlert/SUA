@@ -16,7 +16,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
@@ -62,6 +61,7 @@ public class EntityCodeableProvider extends CodeableProvider {
 				EntityView entityView = (EntityView) PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getActivePage()
 						.showView(EntityView.ID);
+
 				entityView.getEntityTableViewer().setSelection(
 						new StructuredSelection(codedObjects), true);
 			}
@@ -82,8 +82,8 @@ public class EntityCodeableProvider extends CodeableProvider {
 			public String getText(Object element) {
 				Entity entity = (Entity) element;
 
-				ID id = entity.getId();
-				return (id != null) ? id.toString() : "";
+				String id = entity.getInternalId();
+				return (id != null) ? id : "";
 			}
 
 			@Override

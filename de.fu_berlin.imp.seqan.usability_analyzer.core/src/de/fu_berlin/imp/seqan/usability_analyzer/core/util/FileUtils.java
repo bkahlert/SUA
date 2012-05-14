@@ -9,8 +9,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.InvalidParameterException;
 
-import org.junit.Assert;
-
 public class FileUtils {
 	/**
 	 * Gets the {@link File} that is described by the passed class's location
@@ -96,9 +94,9 @@ public class FileUtils {
 
 	public static byte[] readBytesFromTo(File file, long from, long to) {
 		long fileLength = file.length();
-		Assert.assertTrue(from <= fileLength);
-		Assert.assertTrue(to <= fileLength);
-		Assert.assertTrue(from <= to);
+		assert from <= fileLength;
+		assert to <= fileLength;
+		assert from <= to;
 		byte[] bytes = new byte[(int) (to - from)];
 		try {
 			RandomAccessFile fileHandler = new RandomAccessFile(file, "r");

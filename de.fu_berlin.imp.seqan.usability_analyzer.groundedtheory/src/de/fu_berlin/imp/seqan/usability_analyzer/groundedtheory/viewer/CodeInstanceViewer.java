@@ -6,6 +6,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -125,6 +126,10 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 
 	public void setInput(List<ICodeable> codeables) {
 		this.treeViewer.setInput(codeables);
+	}
+
+	public StructuredViewer getViewer() {
+		return treeViewer;
 	}
 
 }

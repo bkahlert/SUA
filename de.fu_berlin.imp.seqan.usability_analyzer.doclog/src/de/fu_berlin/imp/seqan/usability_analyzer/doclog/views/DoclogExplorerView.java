@@ -2,12 +2,13 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.views;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -17,10 +18,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -29,18 +26,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
@@ -50,14 +46,20 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogFilesViewer;
+import de.ralfebert.rcputils.menus.ContextMenu;
 
 public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogExplorerView.class);
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView";
 
 	public static class Factory implements IExecutableExtensionFactory {
@@ -74,61 +76,19 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		}
 	}
 
-	private Job doclogLoader;
+	private Map<Object, DoclogFile> openedDoclogFiles = new HashMap<Object, DoclogFile>();
+	private Map<Object, Job> doclogLoaders = new HashMap<Object, Job>();
 
-	private ISelectionListener postSelectionListener = new ISelectionListener() {
+	private IWorkSessionService workSessionService;
+	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (!part.getClass().equals(DoclogExplorerView.class)
-					&& !part.getSite().getId().contains("DiffExplorerView")) {
-
-				final Set<Object> keys = new HashSet<Object>();
-				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
-						ID.class).getSelection());
-				keys.addAll(SelectionRetrieverFactory.getSelectionRetriever(
-						Fingerprint.class).getSelection());
-
-				if (doclogLoader != null)
-					doclogLoader.cancel();
-
-				final LinkedList<DoclogFile> doclogFiles = new LinkedList<DoclogFile>();
-				doclogLoader = new Job("Loading "
-						+ DoclogFile.class.getSimpleName() + "s") {
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						for (Object key : keys) {
-							DoclogFile doclogFile = Activator
-									.getDefault()
-									.getDoclogDirectory()
-									.getDoclogFile(key,
-											new SubProgressMonitor(monitor, 1));
-							if (doclogFile != null)
-								doclogFiles.add(doclogFile);
-						}
-						return Status.OK_STATUS;
-					}
-				};
-				doclogLoader.addJobChangeListener(new JobChangeAdapter() {
-					@Override
-					public void done(IJobChangeEvent event) {
-						if (event.getResult() == Status.OK_STATUS) {
-							Display.getDefault().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									if (treeViewer != null
-											&& !treeViewer.getTree()
-													.isDisposed()
-											&& doclogFiles.size() > 0) {
-										treeViewer.setInput(doclogFiles);
-										treeViewer.expandAll();
-									}
-								}
-							});
-						}
-					}
-				});
-				doclogLoader.schedule();
-			}
+		public void IWorkSessionStarted(IWorkSession workSession) {
+			final Set<Object> keys = new HashSet<Object>();
+			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
+					.getEntities().toArray(), ID.class));
+			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
+					.getEntities().toArray(), Fingerprint.class));
+			open(keys, null);
 		}
 	};
 
@@ -184,7 +144,11 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			.getTimeDifferenceFormat();
 
 	public DoclogExplorerView() {
-
+		this.workSessionService = (IWorkSessionService) PlatformUI
+				.getWorkbench().getService(IWorkSessionService.class);
+		if (this.workSessionService == null)
+			LOGGER.warn("Could not get "
+					+ IWorkSessionService.class.getSimpleName());
 	}
 
 	public String getId() {
@@ -194,8 +158,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		SelectionUtils.getSelectionService().addPostSelectionListener(
-				postSelectionListener);
+		if (this.workSessionService != null)
+			this.workSessionService.addWorkSessionListener(workSessionListener);
 		SelectionUtils.getSelectionService().addPostSelectionListener(
 				dateRangePostSelectionListener);
 	}
@@ -204,8 +168,9 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public void dispose() {
 		SelectionUtils.getSelectionService().removePostSelectionListener(
 				dateRangePostSelectionListener);
-		SelectionUtils.getSelectionService().removePostSelectionListener(
-				postSelectionListener);
+		if (this.workSessionService != null)
+			this.workSessionService
+					.removeWorkSessionListener(workSessionListener);
 		super.dispose();
 	}
 
@@ -221,22 +186,16 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 		this.dateRangeChanged(null, preferenceUtil.getDateRange());
 
-		hookContextMenu();
-		getSite().setSelectionProvider(treeViewer);
+		new ContextMenu(treeViewer, getSite()) {
+			@Override
+			protected String getDefaultCommandID() {
+				return null;
+			}
+		};
 	}
 
-	private void hookContextMenu() {
-		final MenuManager menuMgr = new MenuManager("#PopupMenu");
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
-				menuMgr.add(new GroupMarker(
-						IWorkbenchActionConstants.MB_ADDITIONS));
-			}
-		});
-		Menu menu = menuMgr.createContextMenu(treeViewer.getControl());
-		treeViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, treeViewer);
+	public TreeViewer getDoclogFilesViewer() {
+		return this.treeViewer;
 	}
 
 	@Override
@@ -252,4 +211,90 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		this.treeViewer.addFilter(this.dateRangeFilter);
 	}
 
+	/**
+	 * Opens the given {@link ID}s and {@link Fingerprint}s in the
+	 * {@link DoclogFilesViewer}. If the corresponding {@link DoclogFile}s could
+	 * be successfully opened a caller defined {@link Runnable} gets executed.
+	 * <p>
+	 * Note: The {@link Runnable} is executed in the UI thread.
+	 * 
+	 * @param keys
+	 * @param success
+	 */
+	public void open(final Set<Object> keys, final Runnable success) {
+		for (Object key : keys)
+			assert key instanceof ID || key instanceof Fingerprint;
+
+		final HashMap<Object, DoclogFile> newOpenedDoclogFiles = new HashMap<Object, DoclogFile>();
+
+		// do not load already opened doclog files
+		for (Object openedKey : openedDoclogFiles.keySet()) {
+			if (keys.contains(openedKey)) {
+				newOpenedDoclogFiles.put(openedKey,
+						openedDoclogFiles.get(openedKey));
+				keys.remove(openedKey);
+			}
+		}
+
+		// keys only contains not yet loaded keys
+		final int alreadyLoaded = newOpenedDoclogFiles.size();
+
+		if (keys.size() == 0 && success != null)
+			success.run();
+
+		// load not yet loaded doclog files
+		for (final Object key : keys) {
+			if (doclogLoaders.containsKey(key))
+				continue;
+
+			Job doclogFileLoader = new Job("Loading "
+					+ DoclogFile.class.getSimpleName() + "s") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					DoclogFile doclogFile = Activator
+							.getDefault()
+							.getDoclogDirectory()
+							.getDoclogFile(key,
+									new SubProgressMonitor(monitor, 1));
+					synchronized (newOpenedDoclogFiles) {
+						if (doclogFile != null)
+							newOpenedDoclogFiles.put(key, doclogFile);
+						else
+							keys.remove(key);
+					}
+					return Status.OK_STATUS;
+				};
+			};
+			doclogFileLoader.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					boolean jobsFinished;
+					synchronized (newOpenedDoclogFiles) {
+						jobsFinished = newOpenedDoclogFiles.size() == keys
+								.size() + alreadyLoaded;
+					}
+					if (jobsFinished && event.getResult() == Status.OK_STATUS) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								openedDoclogFiles = newOpenedDoclogFiles;
+								if (treeViewer != null
+										&& !treeViewer.getTree().isDisposed()
+										&& newOpenedDoclogFiles.size() > 0) {
+									treeViewer.setInput(newOpenedDoclogFiles
+											.values());
+									treeViewer.expandAll();
+									if (success != null)
+										success.run();
+								}
+							}
+						});
+					}
+					doclogLoaders.remove(key);
+				}
+			});
+			doclogLoaders.put(key, doclogFileLoader);
+			doclogFileLoader.schedule();
+		}
+	}
 }

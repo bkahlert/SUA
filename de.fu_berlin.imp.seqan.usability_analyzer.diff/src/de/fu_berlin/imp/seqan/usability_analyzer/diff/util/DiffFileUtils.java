@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -15,6 +16,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DiffFileUtils {
 	public static Logger logger = Logger.getLogger(DiffFileUtils.class);
@@ -161,6 +164,25 @@ public class DiffFileUtils {
 				+ (System.currentTimeMillis() - start) + "ms.");
 		progressMonitor.done();
 
+		return diffFileRecords;
+	}
+
+	/**
+	 * Looks for a {@link DiffFileRecordSegment}s and returns a list of the
+	 * corresponding {@link DiffFileRecord}s.
+	 * 
+	 * @param codeables
+	 * @return
+	 */
+	public static List<DiffFileRecord> getRecordsFromSegments(
+			List<ICodeable> codeables) {
+		List<DiffFileRecord> diffFileRecords = new LinkedList<DiffFileRecord>();
+		for (ICodeable codeable : codeables) {
+			if (codeable instanceof DiffFileRecordSegment) {
+				DiffFileRecordSegment segment = (DiffFileRecordSegment) codeable;
+				diffFileRecords.add(segment.getDiffFileRecord());
+			}
+		}
 		return diffFileRecords;
 	}
 }

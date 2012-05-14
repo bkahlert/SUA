@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -162,6 +163,25 @@ public class DoclogTimeline extends Timeline {
 	}
 
 	/**
+	 * Centers the {@link DoclogTimeline} in a way that the given
+	 * {@link TimeZoneDateRange} is in focus.
+	 * 
+	 * @param minMaxDateRange
+	 */
+	public void center(TimeZoneDateRange minMaxDateRange) {
+		if (minMaxDateRange.getStartDate() != null)
+			this.setCenterVisibleDate(minMaxDateRange.getStartDate()
+					.toISO8601());
+		else if (minMaxDateRange.getEndDate() != null)
+			this.setCenterVisibleDate(minMaxDateRange.getEndDate().toISO8601());
+	}
+
+	public void center(Set<DoclogRecord> doclogRecords) {
+		center(TimeZoneDateRange.calculateOuterDateRange(doclogRecords
+				.toArray(new DoclogRecord[0])));
+	}
+
+	/**
 	 * Highlights the {@link DoclogFile}'s parts that fall in the given
 	 * {@link TimeZoneDateRange}s.
 	 * <p>
@@ -194,5 +214,20 @@ public class DoclogTimeline extends Timeline {
 				});
 			}
 		}).start();
+	}
+
+/**
+	 * Highlights the provided {@link DoclogFile}.
+	 * <p>
+	 * This method internally uses {@link #highlight(List)
+	 * 
+	 * @param doclogRecords
+	 */
+	public void highlight(Set<DoclogRecord> doclogRecords) {
+		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
+		for (DoclogRecord doclogRecord : doclogRecords) {
+			dateRanges.add(doclogRecord.getDateRange());
+		}
+		this.highlight(dateRanges);
 	}
 }
