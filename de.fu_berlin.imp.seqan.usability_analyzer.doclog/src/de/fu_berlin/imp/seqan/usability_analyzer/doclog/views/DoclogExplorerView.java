@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
@@ -278,6 +279,10 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 							@Override
 							public void run() {
 								openedDoclogFiles = newOpenedDoclogFiles;
+								setPartName("Doclogs - "
+										+ StringUtils.join(
+												newOpenedDoclogFiles.keySet(),
+												", "));
 								if (treeViewer != null
 										&& !treeViewer.getTree().isDisposed()
 										&& newOpenedDoclogFiles.size() > 0) {

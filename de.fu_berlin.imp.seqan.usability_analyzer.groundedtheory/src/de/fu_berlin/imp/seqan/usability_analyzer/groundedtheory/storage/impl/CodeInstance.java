@@ -77,4 +77,9 @@ class CodeInstance implements ICodeInstance {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return getId().toString();
+	}
+
 }

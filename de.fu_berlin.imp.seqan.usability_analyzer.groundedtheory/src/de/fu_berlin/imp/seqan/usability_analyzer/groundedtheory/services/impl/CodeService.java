@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,8 +20,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -45,15 +46,15 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void addCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
-		codeServiceListenerNotifier.addCodeServiceListener(iCodeServiceListener);
+	public void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
+		codeServiceListenerNotifier.addCodeServiceListener(codeServiceListener);
 	}
 
 	@Override
 	public void removeCodeServiceListener(
-			ICodeServiceListener iCodeServiceListener) {
+			ICodeServiceListener codeServiceListener) {
 		codeServiceListenerNotifier
-				.removeCodeServiceListener(iCodeServiceListener);
+				.removeCodeServiceListener(codeServiceListener);
 	}
 
 	@Override
@@ -88,7 +89,6 @@ class CodeService implements ICodeService {
 		}
 	}
 
-	@SuppressWarnings("serial")
 	public ICode addCode(ICode code, final ICodeable codeable)
 			throws CodeServiceException {
 		try {
@@ -100,11 +100,7 @@ class CodeService implements ICodeService {
 					codeable);
 			codeStore.addAndSaveCodeInstance(codeInstance);
 			codeServiceListenerNotifier.codeAssigned(code,
-					new ArrayList<ICodeable>() {
-						{
-							add(codeable);
-						}
-					});
+					Arrays.asList(codeable));
 			return code;
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
@@ -136,7 +132,6 @@ class CodeService implements ICodeService {
 
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	public void removeCode(ICode code, final ICodeable codeable)
 			throws CodeServiceException {
@@ -149,11 +144,7 @@ class CodeService implements ICodeService {
 								codeable.getCodeInstanceID())) {
 					this.codeStore.deleteCodeInstance(codeInstance);
 					codeServiceListenerNotifier.codeRemoved(code,
-							new ArrayList<ICodeable>() {
-								{
-									add(codeable);
-								}
-							});
+							Arrays.asList(codeable));
 					numRemoved++;
 				}
 			}

@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
  de.fu_berlin.inf.dpp.nebula;bundle-version="1.0.0",
- com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1"
+ com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1",
+ org.eclipse.core.expressions;bundle-version="3.4.300"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,

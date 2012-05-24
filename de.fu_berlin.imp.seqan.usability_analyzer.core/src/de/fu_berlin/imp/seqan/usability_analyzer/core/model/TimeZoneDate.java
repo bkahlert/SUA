@@ -148,6 +148,11 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		return DateUtil.toISO8601(this.calendar);
 	}
 
+	public String toShort() {
+		return DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+				DateFormat.SHORT).format(this.calendar.getTime());
+	}
+
 	@Override
 	public String toString() {
 		return this.toISO8601();

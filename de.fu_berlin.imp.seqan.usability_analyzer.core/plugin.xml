@@ -69,7 +69,7 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
                visible="true">
@@ -80,11 +80,35 @@
                icon="icons/etool16/worksession_start_tsk.png"
                style="push"
                tooltip="Stop the existing work session and starts a new one">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.hasMultipleIWorkSessionEntities">
+                  </reference>
+               </and>
+            </visibleWhen>
          </command>
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
                visible="true">
          </separator>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.hasMultipleIWorkSessionEntities">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
    </extension>
 </plugin>

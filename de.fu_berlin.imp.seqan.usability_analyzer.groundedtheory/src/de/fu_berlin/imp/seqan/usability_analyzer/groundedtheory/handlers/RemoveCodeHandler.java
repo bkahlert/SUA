@@ -26,11 +26,17 @@ public class RemoveCodeHandler extends AbstractHandler {
 		List<ICodeInstance> codeInstances = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeInstance.class).getSelection();
 
-		boolean delete = MessageDialog.openQuestion(PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell(), "Remove Code"
-				+ ((codeInstances.size() != 1) ? "s" : ""),
-				"Do you really want to remove the following codes:\n"
-						+ StringUtils.join(codeInstances.toArray()));
+		if (codeInstances.size() == 0)
+			return null;
+
+		boolean delete = MessageDialog
+				.openQuestion(PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getShell(), "Remove Code"
+						+ ((codeInstances.size() != 1) ? "s" : ""),
+						"Do you really want to remove code \""
+								+ codeInstances.get(0).getCode()
+								+ "\" from the following objects:\n"
+								+ StringUtils.join(codeInstances.toArray()));
 
 		if (delete) {
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
@@ -38,9 +44,8 @@ public class RemoveCodeHandler extends AbstractHandler {
 
 			for (ICodeInstance codeInstance : codeInstances) {
 				try {
-					codeService.removeCode(codeInstance.getCode(), null); // TODO
-																			// null
-																			// ermitteln
+					codeService.removeCode(codeInstance.getCode(),
+							codeService.getCodedObject(codeInstance.getId()));
 				} catch (Exception e) {
 					LOGGER.error("Error removing code", e);
 				}

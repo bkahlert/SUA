@@ -23,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -33,6 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 public class CodeViewer extends Composite implements ISelectionProvider {
 
 	private Logger logger = Logger.getLogger(CodeViewer.class);
+	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
 	private SortableTreeViewer treeViewer;
 
@@ -138,7 +140,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return codeInstance.getCreation().toISO8601();
+							return preferenceUtil.getDateFormat().format(
+									codeInstance.getCreation().getDate());
 						}
 						if (NoCodesNode.class.isInstance(element)) {
 							return "";

@@ -38,11 +38,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
-public class EntityViewer extends SortableTableViewer implements
-		IBoldViewer {
+public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(EntityViewer.class);
+	private static final Logger LOGGER = Logger.getLogger(EntityViewer.class);
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 

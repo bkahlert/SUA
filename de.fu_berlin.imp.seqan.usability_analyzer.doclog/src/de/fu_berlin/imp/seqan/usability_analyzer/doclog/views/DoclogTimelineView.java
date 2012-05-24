@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -300,6 +301,8 @@ public class DoclogTimelineView extends ViewPart {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
+				setPartName("Doclogs - "
+						+ StringUtils.join(groupedDateRanges.keySet(), ", "));
 				composite.layout();
 			}
 		});

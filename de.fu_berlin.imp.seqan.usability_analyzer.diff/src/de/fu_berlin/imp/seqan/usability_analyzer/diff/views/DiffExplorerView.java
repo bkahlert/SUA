@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
@@ -251,6 +252,10 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 							@Override
 							public void run() {
 								openedDiffFileLists = newOpenedDiffFileLists;
+								setPartName("Diffs - "
+										+ StringUtils.join(
+												newOpenedDiffFileLists.keySet(),
+												", "));
 								if (diffFileListsViewer != null
 										&& !diffFileListsViewer.getTree()
 												.isDisposed()

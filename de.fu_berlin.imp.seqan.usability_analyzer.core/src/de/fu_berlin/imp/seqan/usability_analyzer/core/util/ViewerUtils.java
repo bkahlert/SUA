@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Item;
 
 public class ViewerUtils {
@@ -68,6 +69,11 @@ public class ViewerUtils {
 			}
 		}
 		return new TreePath(segments.toArray());
+	}
+
+	public static void refresh(Viewer viewer) {
+		if (viewer != null)
+			viewer.refresh();
 	}
 
 }

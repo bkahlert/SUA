@@ -58,7 +58,6 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		iamf.disconnect(document);
 	}
 
-	@SuppressWarnings({ "serial" })
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = SelectionUtils.getSelection();
