@@ -38,18 +38,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
-public class EntityTableViewer extends SortableTableViewer implements
+public class EntityViewer extends SortableTableViewer implements
 		IBoldViewer {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(EntityTableViewer.class);
+			.getLogger(EntityViewer.class);
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
 	private Styler boldStyler = null;
 	private Collection<?> boldObjects = new LinkedList<Object>();
 
-	public EntityTableViewer(Composite parent, int style) {
+	public EntityViewer(Composite parent, int style) {
 		super(parent, style);
 
 		final Table table = getTable();

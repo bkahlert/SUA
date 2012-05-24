@@ -7,55 +7,49 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
-public class EntityTableContentProvider implements IStructuredContentProvider,
+public class EntityContentProvider implements IStructuredContentProvider,
 		ITreeContentProvider {
 
 	private Viewer viewer;
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-
-	private CodeServiceListener codeServiceListener = new CodeServiceListener() {
+	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codeAdded(ICode code) {
-			viewer.refresh();
+			ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeAssigned(ICode code, List<ICodeable> codeables) {
-			viewer.refresh();
+			ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeRemoved(ICode code, List<ICodeable> codeables) {
-			viewer.refresh();
+			ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			viewer.refresh();
+			ViewerUtils.refresh(viewer);
 		}
 	};
 
-	private EntityManager personManager;
+	public EntityContentProvider() {
+		codeService.addCodeServiceListener(codeServiceListener);
+	}
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = viewer;
-
-		if (newInput instanceof EntityManager) {
-			this.personManager = (EntityManager) newInput;
-			codeService.addCodeServiceListener(codeServiceListener);
-		} else {
-			codeService.removeCodeServiceListener(codeServiceListener);
-			this.personManager = null;
-		}
 	}
 
 	@Override
@@ -80,10 +74,11 @@ public class EntityTableContentProvider implements IStructuredContentProvider,
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (this.personManager == null)
-			return new Object[0];
+		if (inputElement instanceof EntityManager) {
+			return ((EntityManager) inputElement).getPersons().toArray();
+		}
 
-		return personManager.getPersons().toArray();
+		return new Object[0];
 	}
 
 }

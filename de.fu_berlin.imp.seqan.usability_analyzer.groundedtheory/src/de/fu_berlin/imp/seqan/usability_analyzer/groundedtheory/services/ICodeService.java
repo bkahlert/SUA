@@ -16,10 +16,10 @@ public interface ICodeService {
 
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException;
 
-	public void addCodeServiceListener(CodeServiceListener codeServiceListener);
+	public void addCodeServiceListener(ICodeServiceListener iCodeServiceListener);
 
 	public void removeCodeServiceListener(
-			CodeServiceListener codeServiceListener);
+			ICodeServiceListener iCodeServiceListener);
 
 	public ICode addCode(String codeCaption, ICodeable codeable)
 			throws CodeServiceException;

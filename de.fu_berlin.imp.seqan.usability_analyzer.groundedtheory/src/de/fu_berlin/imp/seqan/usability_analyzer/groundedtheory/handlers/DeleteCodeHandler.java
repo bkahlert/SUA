@@ -31,7 +31,7 @@ public class DeleteCodeHandler extends AbstractHandler {
 				.getActiveWorkbenchWindow().getShell(),
 				"Delete Code" + ((codes.size() != 1) ? "s" : ""),
 				"Do you really want to delete the following codes:\n"
-						+ StringUtils.join(codes.toArray()));
+						+ StringUtils.join(codes.toArray(), "\n"));
 
 		if (delete) {
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()

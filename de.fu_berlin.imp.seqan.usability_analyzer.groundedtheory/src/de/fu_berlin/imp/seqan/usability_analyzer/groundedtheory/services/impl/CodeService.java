@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -45,15 +45,15 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void addCodeServiceListener(CodeServiceListener codeServiceListener) {
-		codeServiceListenerNotifier.addCodeServiceListener(codeServiceListener);
+	public void addCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
+		codeServiceListenerNotifier.addCodeServiceListener(iCodeServiceListener);
 	}
 
 	@Override
 	public void removeCodeServiceListener(
-			CodeServiceListener codeServiceListener) {
+			ICodeServiceListener iCodeServiceListener) {
 		codeServiceListenerNotifier
-				.removeCodeServiceListener(codeServiceListener);
+				.removeCodeServiceListener(iCodeServiceListener);
 	}
 
 	@Override

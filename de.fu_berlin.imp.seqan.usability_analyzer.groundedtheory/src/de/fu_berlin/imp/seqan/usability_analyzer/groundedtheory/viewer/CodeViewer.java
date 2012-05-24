@@ -87,6 +87,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							return (labelProvider != null) ? labelProvider
 									.getText(codedObject) : "[UNKNOWN ORIGIN]";
 						}
+						if (NoCodesNode.class.isInstance(element)) {
+							return "no code";
+						}
 						return "ERROR";
 					}
 
@@ -120,6 +123,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							return codeInstance.getId().toString();
 
 						}
+						if (NoCodesNode.class.isInstance(element)) {
+							return "";
+						}
 						return "ERROR";
 					}
 				});
@@ -133,6 +139,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
 							return codeInstance.getCreation().toISO8601();
+						}
+						if (NoCodesNode.class.isInstance(element)) {
+							return "";
 						}
 						return "ERROR";
 					}

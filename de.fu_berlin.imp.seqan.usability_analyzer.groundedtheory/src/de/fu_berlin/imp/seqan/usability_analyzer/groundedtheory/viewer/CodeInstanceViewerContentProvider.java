@@ -10,7 +10,7 @@ import org.eclipse.ui.PlatformUI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.inf.nebula.utils.ViewerUtils;
@@ -23,7 +23,7 @@ public class CodeInstanceViewerContentProvider implements
 			.getService(ICodeService.class);
 	private List<ICodeable> codeables;
 
-	private CodeServiceListener codeServiceListener = new CodeServiceListener() {
+	private ICodeServiceListener iCodeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codeAdded(ICode code) {
@@ -53,10 +53,10 @@ public class CodeInstanceViewerContentProvider implements
 
 		if (List.class.isInstance(newInput)) {
 			this.codeables = (List<ICodeable>) newInput;
-			this.codeService.addCodeServiceListener(codeServiceListener);
+			this.codeService.addCodeServiceListener(iCodeServiceListener);
 		} else {
 			if (this.codeables != null) {
-				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService.removeCodeServiceListener(iCodeServiceListener);
 			}
 			this.codeables = null;
 		}
@@ -65,7 +65,7 @@ public class CodeInstanceViewerContentProvider implements
 	@Override
 	public void dispose() {
 		if (this.codeables != null) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService.removeCodeServiceListener(iCodeServiceListener);
 		}
 	}
 

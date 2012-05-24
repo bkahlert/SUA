@@ -5,40 +5,40 @@ import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
 public class CodeServiceListenerNotifier {
-	private List<CodeServiceListener> codeServiceListeners = new ArrayList<CodeServiceListener>();
+	private List<ICodeServiceListener> iCodeServiceListeners = new ArrayList<ICodeServiceListener>();
 
-	void addCodeServiceListener(CodeServiceListener codeServiceListener) {
-		codeServiceListeners.add(codeServiceListener);
+	void addCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
+		iCodeServiceListeners.add(iCodeServiceListener);
 	}
 
-	void removeCodeServiceListener(CodeServiceListener codeServiceListener) {
-		codeServiceListeners.remove(codeServiceListeners);
+	void removeCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
+		iCodeServiceListeners.remove(iCodeServiceListeners);
 	}
 
 	void codeCreated(ICode code) {
-		for (CodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeAdded(code);
+		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
+			iCodeServiceListener.codeAdded(code);
 		}
 	}
 
 	void codeAssigned(ICode code, List<ICodeable> codeables) {
-		for (CodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeAssigned(code, codeables);
+		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
+			iCodeServiceListener.codeAssigned(code, codeables);
 		}
 	}
 
 	void codeRemoved(ICode code, List<ICodeable> codeables) {
-		for (CodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeRemoved(code, codeables);
+		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
+			iCodeServiceListener.codeRemoved(code, codeables);
 		}
 	}
 
 	void codeDeleted(ICode code) {
-		for (CodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeDeleted(code);
+		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
+			iCodeServiceListener.codeDeleted(code);
 		}
 	}
 }

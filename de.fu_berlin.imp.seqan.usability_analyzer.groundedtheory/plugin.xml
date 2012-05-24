@@ -94,17 +94,38 @@
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+                  </reference>
+               </or>
+            </visibleWhen>
          </command>
-         <separator
-               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator1">
-         </separator>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.removeCode"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeaInstances">
+                  </reference>
+               </and>
+            </visibleWhen>
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.deleteCode"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodes">
+                  </reference>
+               </and>
+            </visibleWhen>
          </command>
       </menuContribution>
    </extension>
@@ -158,5 +179,57 @@
                visible="true">
          </view>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodes">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeaInstances">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstanceAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+         </adapter>
+      </factory>
    </extension>
 </plugin>

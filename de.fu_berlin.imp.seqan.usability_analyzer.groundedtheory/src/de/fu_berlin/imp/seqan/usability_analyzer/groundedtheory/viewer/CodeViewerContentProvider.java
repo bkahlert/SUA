@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -21,7 +21,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	private Viewer viewer;
 	private ICodeService codeService;
 
-	private CodeServiceListener codeServiceListener = new CodeServiceListener() {
+	private ICodeServiceListener iCodeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codeAdded(ICode code) {
@@ -50,10 +50,10 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 
 		if (ICodeService.class.isInstance(newInput)) {
 			this.codeService = (ICodeService) newInput;
-			this.codeService.addCodeServiceListener(codeServiceListener);
+			this.codeService.addCodeServiceListener(iCodeServiceListener);
 		} else {
 			if (this.codeService != null) {
-				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService.removeCodeServiceListener(iCodeServiceListener);
 			}
 			this.codeService = null;
 		}
@@ -62,7 +62,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	@Override
 	public void dispose() {
 		if (this.codeService != null) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService.removeCodeServiceListener(iCodeServiceListener);
 		}
 	}
 

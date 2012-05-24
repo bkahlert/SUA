@@ -32,8 +32,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IDataSourceFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.filters.DataSourceFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.preferences.SUAEntityPreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableContentProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityTableViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
 /**
@@ -71,7 +71,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	}
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
-	private EntityTableViewer entityTableViewer;
+	private EntityViewer entityViewer;
 	private Label status;
 
 	private ISelectionListener postSelectionListener = new ISelectionListener() {
@@ -116,18 +116,18 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void createPartControl(Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().create());
 
-		this.entityTableViewer = new EntityTableViewer(parent, SWT.MULTI
+		this.entityViewer = new EntityViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
-		this.entityTableViewer
-				.setContentProvider(new EntityTableContentProvider());
-		this.entityTableViewer.setInput(Activator.getDefault()
+		this.entityViewer
+				.setContentProvider(new EntityContentProvider());
+		this.entityViewer.setInput(Activator.getDefault()
 				.getPersonManager());
 
 		this.status = new Label(parent, SWT.BORDER);
 		this.status.setLayoutData(GridDataFactory.fillDefaults().create());
 
-		new ContextMenu(this.entityTableViewer, this.getSite()) {
+		new ContextMenu(this.entityViewer, this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
 				return "de.fu_berlin.imp.seqan.usability_analyzer.core.commands.startWorkSession";
@@ -145,15 +145,15 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.dateRangeChanged(null, preferenceUtil.getDateRange());
 	}
 
-	public EntityTableViewer getEntityTableViewer() {
-		return entityTableViewer;
+	public EntityViewer getEntityTableViewer() {
+		return entityViewer;
 	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
-		entityTableViewer.getControl().setFocus();
+		entityViewer.getControl().setFocus();
 	}
 
 	@Override
@@ -162,9 +162,9 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 				.get(dataSource);
 
 		if (isOn) {
-			this.entityTableViewer.addFilter(dataSourceFilter);
+			this.entityViewer.addFilter(dataSourceFilter);
 		} else {
-			this.entityTableViewer.removeFilter(dataSourceFilter);
+			this.entityViewer.removeFilter(dataSourceFilter);
 		}
 
 		updateStatus();
@@ -174,15 +174,15 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null)
-			this.entityTableViewer.removeFilter(this.dateRangeFilter);
+			this.entityViewer.removeFilter(this.dateRangeFilter);
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);
-		this.entityTableViewer.addFilter(this.dateRangeFilter);
+		this.entityViewer.addFilter(this.dateRangeFilter);
 
 		updateStatus();
 	}
 
 	private void updateStatus() {
-		int numEntries = entityTableViewer.getTable().getItems().length;
+		int numEntries = entityViewer.getTable().getItems().length;
 		this.status.setText(numEntries
 				+ ((numEntries != 1) ? " entries" : " entry"));
 		IStatusLineManager manager = getViewSite().getActionBars()
