@@ -8,37 +8,50 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
 public class CodeServiceListenerNotifier {
-	private List<ICodeServiceListener> iCodeServiceListeners = new ArrayList<ICodeServiceListener>();
+	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
 
 	void addCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
-		iCodeServiceListeners.add(iCodeServiceListener);
+		codeServiceListeners.add(iCodeServiceListener);
 	}
 
 	void removeCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
-		iCodeServiceListeners.remove(iCodeServiceListeners);
+		codeServiceListeners.remove(codeServiceListeners);
 	}
 
 	void codeCreated(ICode code) {
-		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
-			iCodeServiceListener.codeAdded(code);
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeAdded(code);
 		}
 	}
 
 	void codeAssigned(ICode code, List<ICodeable> codeables) {
-		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
-			iCodeServiceListener.codeAssigned(code, codeables);
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeAssigned(code, codeables);
+		}
+	}
+
+	public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeRenamed(code, oldCaption, newCaption);
 		}
 	}
 
 	void codeRemoved(ICode code, List<ICodeable> codeables) {
-		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
-			iCodeServiceListener.codeRemoved(code, codeables);
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeRemoved(code, codeables);
+		}
+	}
+
+	public void codeMoved(ICode code, ICode oldParentCode, ICode newParentCode) {
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeMoved(code, oldParentCode, newParentCode);
 		}
 	}
 
 	void codeDeleted(ICode code) {
-		for (ICodeServiceListener iCodeServiceListener : iCodeServiceListeners) {
+		for (ICodeServiceListener iCodeServiceListener : codeServiceListeners) {
 			iCodeServiceListener.codeDeleted(code);
 		}
 	}
+
 }

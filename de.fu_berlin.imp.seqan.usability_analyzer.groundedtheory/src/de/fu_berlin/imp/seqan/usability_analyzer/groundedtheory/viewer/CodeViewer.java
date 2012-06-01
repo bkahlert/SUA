@@ -6,15 +6,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -26,14 +24,12 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class CodeViewer extends Composite implements ISelectionProvider {
 
-	private Logger logger = Logger.getLogger(CodeViewer.class);
+	private static Logger LOGGER = Logger.getLogger(CodeViewer.class);
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
 	private SortableTreeViewer treeViewer;
@@ -42,7 +38,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
-		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI);
+		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
@@ -57,7 +53,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				if (codeService != null) {
 					codeService.showCodedObjectsInWorkspace(codeInstanceIDs);
 				} else {
-					logger.error("Could not retrieve "
+					LOGGER.error("Could not retrieve "
 							+ ICodeService.class.getSimpleName());
 				}
 			}
@@ -72,46 +68,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		// TODO: Cache labelProviders on URI base
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		treeViewer.createColumn("Code", 150).setLabelProvider(
-				new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							return code.getCaption();
-						}
-						if (ICodeInstance.class.isInstance(element)) {
-							ICodeInstance codeInstance = (ICodeInstance) element;
-							ICodeable codedObject = codeService
-									.getCodedObject(codeInstance.getId());
-							ILabelProvider labelProvider = codeService
-									.getLabelProvider(codeInstance.getId());
-							return (labelProvider != null) ? labelProvider
-									.getText(codedObject) : "[UNKNOWN ORIGIN]";
-						}
-						if (NoCodesNode.class.isInstance(element)) {
-							return "no code";
-						}
-						return "ERROR";
-					}
+		CodeViewerUtils.createCodeColumn(treeViewer, codeService);
 
-					@Override
-					public Image getImage(Object element) {
-						if (ICode.class.isInstance(element)) {
-							return ImageManager.CODE;
-						}
-						if (ICodeInstance.class.isInstance(element)) {
-							ICodeInstance codeInstance = (ICodeInstance) element;
-							ICodeable codedObject = codeService
-									.getCodedObject(codeInstance.getId());
-							ILabelProvider labelProvider = codeService
-									.getLabelProvider(codeInstance.getId());
-							return (labelProvider != null) ? labelProvider
-									.getImage(codedObject) : null;
-						}
-						return null;
-					}
-				});
 		treeViewer.createColumn("ID", 150).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
@@ -204,7 +162,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		return uris;
 	}
 
-	public StructuredViewer getViewer() {
+	public ColumnViewer getViewer() {
 		return treeViewer;
 	}
 

@@ -7,6 +7,7 @@ import org.eclipse.ui.services.AbstractServiceFactory;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.CodeStoreFactory;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -24,8 +25,9 @@ public class ServiceFactory extends AbstractServiceFactory {
 		if (serviceInterface == ICodeService.class) {
 			if (CODE_SERVICE == null) {
 				try {
-					CODE_SERVICE = new CodeService(
-							new CodeStoreFactory().getCodeStore());
+					ICodeStore codeStore = new CodeStoreFactory()
+							.getCodeStore();
+					CODE_SERVICE = new CodeService(codeStore);
 				} catch (IOException e) {
 					LOGGER.error("Could not create " + ICodeService.class, e);
 				}

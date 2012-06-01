@@ -2,37 +2,25 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXParseException;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
@@ -47,37 +35,96 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedCodeInstancesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreWriteException;
 
+@XStreamAlias("codeStore")
 class CodeStore implements ICodeStore {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(CodeStore.class);
 
+	@XStreamOmitField
 	private File codeStoreFile;
-	private LinkedList<Long> createdIds = new LinkedList<Long>();
-	private ICode[] codes = null;
-	private ICodeInstance[] codeInstances = null;
 
-	public CodeStore(File codeStoreFile) {
+	@XStreamAlias("createdIDs")
+	private Set<Long> createdIds = new TreeSet<Long>();
+
+	@XStreamAlias("codes")
+	private HashSet<ICode> codes = null;
+
+	@XStreamAlias("instances")
+	private HashSet<ICodeInstance> codeInstances = null;
+
+	private static XStream xstream;
+
+	static {
+		xstream = new XStream();
+		xstream.alias("code", Code.class);
+		xstream.alias("instance", CodeInstance.class);
+		xstream.processAnnotations(CodeStore.class);
+	}
+
+	public static ICodeStore create(File codeStoreFile) {
+		return new CodeStore(codeStoreFile);
+	}
+
+	public static ICodeStore load(File codeStoreFile)
+			throws CodeStoreReadException {
+		if (codeStoreFile == null || !codeStoreFile.exists())
+			throw new CodeStoreReadException(new FileNotFoundException(
+					codeStoreFile.getAbsolutePath()));
+
+		try {
+			CodeStore codeStore = (CodeStore) xstream.fromXML(codeStoreFile);
+			codeStore.setCodeStoreFile(codeStoreFile);
+			return codeStore;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return new CodeStore(codeStoreFile);
+		} catch (Exception e) {
+			throw new CodeStoreReadException(e);
+		}
+	}
+
+	private CodeStore(File codeStoreFile) {
 		this.codeStoreFile = codeStoreFile;
-		this.codes = null;
+		this.codes = new HashSet<ICode>();
+		this.codeInstances = new HashSet<ICodeInstance>();
+	}
+
+	@Override
+	public ICode getCode(long id) {
+		for (ICode code : this.codes) {
+			if (code.getId() == id) {
+				return code;
+			}
+		}
+		return null;
+	}
+
+	private void setCodeStoreFile(File codeStoreFile) {
+		this.codeStoreFile = codeStoreFile;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<ICode> getTopLevelCodes() {
+		return (Set<ICode>) this.codes.clone();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<ICodeInstance> loadInstances() {
+		return (Set<ICodeInstance>) this.codeInstances.clone();
 	}
 
 	public ICode createCode(String caption) throws CodeStoreFullException {
 		Long id = Long.MAX_VALUE;
-		try {
-			ICode[] codes = this.loadCodes();
-			ArrayList<Long> ids = new ArrayList<Long>(codes.length);
-			for (ICode code : codes) {
-				if (code.getId() == Long.MAX_VALUE)
-					throw new CodeStoreFullException();
-				ids.add(code.getId());
-			}
-			ids.addAll(createdIds);
-			id = Code.calculateId(ids);
-		} catch (CodeStoreReadException e) {
-			logger.fatal(
-					"Could not calculate a new " + ICode.class.getSimpleName()
-							+ " ID", e);
+		ArrayList<Long> ids = new ArrayList<Long>(codes.size());
+		for (ICode code : codes) {
+			if (code.getId() == Long.MAX_VALUE)
+				throw new CodeStoreFullException();
+			ids.add(code.getId());
 		}
+		ids.addAll(createdIds);
+		id = Code.calculateId(ids);
 		createdIds.add(id);
 		return new Code(id, caption);
 	}
@@ -86,12 +133,12 @@ class CodeStore implements ICodeStore {
 	public ICodeInstance createCodeInstance(ICode code, ICodeable codeable)
 			throws InvalidParameterException, CodeStoreReadException,
 			DuplicateCodeInstanceException {
-		for (ICode currentCode : loadCodes()) {
+		for (ICode currentCode : codes) {
 			if (currentCode.equals(code)) {
 				ICodeInstance codeInstance = new CodeInstance(code,
 						codeable.getCodeInstanceID(), new TimeZoneDate(
 								new Date(), TimeZone.getDefault()));
-				if (ArrayUtils.contains(loadCodeInstances(), codeInstance)) {
+				if (codeInstances.contains(codeInstance)) {
 					throw new DuplicateCodeInstanceException();
 				} else {
 					return codeInstance;
@@ -103,229 +150,49 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public ICode[] loadCodes() throws CodeStoreReadException {
-		if (!this.codeStoreFile.exists())
-			throw new CodeStoreReadException(new FileNotFoundException(
-					codeStoreFile.getAbsolutePath()));
-
-		if (this.codes != null)
-			return this.codes;
-
-		NodeList nodes = null;
-		if (codeStoreFile.length() > 0) {
-			try {
-				nodes = (NodeList) CodeStoreUtils.runXPathExpression(
-						codeStoreFile, new CodeStoreUtils.XPathRunnable() {
-							@Override
-							public Object run(Document doc, XPath xpath)
-									throws XPathExpressionException {
-								return xpath.compile("//code").evaluate(doc,
-										XPathConstants.NODESET);
-							}
-						});
-			} catch (Exception e) {
-				logger.error("Could not read " + ICode.class.getSimpleName()
-						+ "s from " + codeStoreFile.getName(), e);
-				throw new CodeStoreReadException(e);
-			}
-		}
-
-		if (nodes == null)
-			return (ICode[]) new ICode[0];
-
-		ICode[] codes = new ICode[nodes.getLength()];
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node codeItem = nodes.item(i);
-			NamedNodeMap codeItemAttributes = codeItem.getAttributes();
-			long id = Long.parseLong(codeItemAttributes.getNamedItem("id")
-					.getNodeValue());
-			String caption = codeItemAttributes.getNamedItem("caption")
-					.getNodeValue();
-			codes[i] = new Code(id, caption);
-		}
-
-		this.codes = codes;
-
-		return codes;
-	}
-
-	@Override
-	public ICodeInstance[] loadCodeInstances() throws CodeStoreReadException {
-		if (!this.codeStoreFile.exists())
-			throw new CodeStoreReadException(new FileNotFoundException(
-					codeStoreFile.getAbsolutePath()));
-
-		if (this.codeInstances != null)
-			return this.codeInstances;
-
-		NodeList nodes = null;
-		if (codeStoreFile.length() > 0) {
-			try {
-				nodes = (NodeList) CodeStoreUtils.runXPathExpression(
-						codeStoreFile, new CodeStoreUtils.XPathRunnable() {
-							@Override
-							public Object run(Document doc, XPath xpath)
-									throws XPathExpressionException {
-								return xpath.compile("//codeInstance")
-										.evaluate(doc, XPathConstants.NODESET);
-							}
-						});
-			} catch (Exception e) {
-				logger.error(
-						"Could not read " + ICodeInstance.class.getSimpleName()
-								+ "s from " + codeStoreFile.getName(), e);
-				throw new CodeStoreReadException(e);
-			}
-		}
-
-		if (nodes == null)
-			return (ICodeInstance[]) new ICodeInstance[0];
-
-		CodeMapper codeMapper = new CodeMapper(loadCodes());
-
-		ICodeInstance[] codeInstances = (ICodeInstance[]) new ICodeInstance[nodes
-				.getLength()];
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node codeItem = nodes.item(i);
-			NamedNodeMap codeItemAttributes = codeItem.getAttributes();
-			long codeId = Long.parseLong(codeItemAttributes.getNamedItem(
-					"codeId").getNodeValue());
-			String id = codeItemAttributes.getNamedItem("id").getNodeValue();
-			TimeZoneDate creation = new TimeZoneDate(codeItemAttributes
-					.getNamedItem("creation").getNodeValue());
-			try {
-				codeInstances[i] = new CodeInstance(codeMapper.getCode(codeId),
-						new URI(id), creation);
-			} catch (URISyntaxException e) {
-				logger.error("Invalid " + URI.class.getSimpleName()
-						+ " found in " + CodeStore.class, e);
-			}
-		}
-
-		return codeInstances;
-	}
-
-	@Override
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException {
-		saveCodes((ICode[]) ArrayUtils.add(loadCodes(), code));
+		this.codes.add(code);
+		this.save();
 	}
 
 	@Override
 	public void addAndSaveCodeInstance(ICodeInstance codeInstance)
-			throws CodeStoreWriteException, CodeStoreReadException {
-		saveCodeInstances((ICodeInstance[]) ArrayUtils.add(loadCodeInstances(),
-				codeInstance));
-	}
-
-	@Override
-	public void saveCodes(ICode[] codes) throws CodeStoreWriteException,
-			CodeStoreReadException {
-		save(codes, loadCodeInstances());
-	}
-
-	@Override
-	public void saveCodeInstances(ICodeInstance[] codeInstances)
-			throws CodeStoreWriteException, CodeStoreReadException {
-		save(loadCodes(), codeInstances);
-	}
-
-	@Override
-	public void save(ICode[] codes, ICodeInstance[] codeInstances)
 			throws CodeStoreWriteException {
-		this.codes = codes;
-		this.codeInstances = codeInstances;
-
-		// sanity check
-		LinkedList<ICodeInstance> abandonedCodeInstances = new LinkedList<ICodeInstance>();
-		for (ICodeInstance codeInstance : codeInstances) {
-			if (!ArrayUtils.contains(codes, codeInstance.getCode()))
-				abandonedCodeInstances.add(codeInstance);
-		}
-		if (abandonedCodeInstances.size() > 0) {
+		if (!this.codes.contains(codeInstance.getCode()))
 			throw new CodeStoreWriteAbandonedCodeInstancesException(
-					abandonedCodeInstances
-							.toArray(new ICodeInstance[abandonedCodeInstances
-									.size()]));
-		}
+					Arrays.asList(codeInstance));
+		;
+		this.codeInstances.add(codeInstance);
+		this.save();
+	}
 
-		Document doc = null;
+	@Override
+	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
+			CodeStoreReadException {
+		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
+		for (ICodeInstance instance : this.codeInstances)
+			if (instance.getCode().equals(code))
+				abandoned.add(instance);
+		if (abandoned.size() > 0)
+			throw new CodeStoreWriteAbandonedCodeInstancesException(abandoned);
+
+		this.codes.remove(code);
+		this.save();
+	}
+
+	@Override
+	public void removeAndSaveCodeInstance(ICodeInstance codeInstance)
+			throws CodeStoreWriteException, CodeStoreReadException {
+		this.codeInstances.remove(codeInstance);
+		this.save();
+	}
+
+	@Override
+	public void save() throws CodeStoreWriteException {
 		try {
-			doc = CodeStoreUtils.loadDocument(codeStoreFile);
-		} catch (SAXParseException e) {
-			try {
-				doc = CodeStoreUtils.newDocument();
-			} catch (Exception f) {
-				throw new CodeStoreWriteException(f);
-			}
-		} catch (Exception e) {
-			throw new CodeStoreWriteException(e);
-		}
-
-		Node rootNode;
-		if (doc.getChildNodes().getLength() == 0) {
-			rootNode = doc.appendChild(doc.createElement("SUACodeStore"));
-		} else {
-			rootNode = doc.getChildNodes().item(0);
-		}
-
-		Node codesNode = null;
-		Node codeInstancesNode = null;
-		for (int i = 0, m = rootNode.getChildNodes().getLength(); i < m; i++) {
-			Node childNode = rootNode.getChildNodes().item(i);
-			if (childNode.getNodeName().equals("codes"))
-				codesNode = childNode;
-			else if (childNode.getNodeName().equals("codeInstances"))
-				codeInstancesNode = childNode;
-		}
-
-		if (codesNode == null) {
-			codesNode = rootNode.appendChild(doc.createElement("codes"));
-		}
-
-		if (codeInstancesNode == null) {
-			codeInstancesNode = rootNode.appendChild(doc
-					.createElement("codeInstances"));
-		}
-
-		CodeStoreUtils.clearChildren(codesNode);
-		CodeStoreUtils.clearChildren(codeInstancesNode);
-
-		for (ICode code : codes) {
-			Element codeElement = doc.createElement("code");
-			codeElement.setAttribute("id", Long.valueOf(code.getId())
-					.toString());
-			codeElement.setAttribute("caption", code.getCaption());
-			codesNode.appendChild(codeElement);
-		}
-
-		for (ICodeInstance codeInstance : codeInstances) {
-			Element codeInstanceElement = doc.createElement("codeInstance");
-			codeInstanceElement.setAttribute("codeId",
-					Long.valueOf(codeInstance.getCode().getId()).toString());
-			codeInstanceElement.setAttribute("id", codeInstance.getId()
-					.toString());
-			codeInstanceElement.setAttribute("creation", codeInstance
-					.getCreation().toISO8601());
-			codeInstancesNode.appendChild(codeInstanceElement);
-		}
-
-		try {
-			TransformerFactory transfac = TransformerFactory.newInstance();
-			Transformer trans = transfac.newTransformer();
-			trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-			trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			trans.setOutputProperty(OutputKeys.INDENT, "yes");
-
-			FileOutputStream writer = new FileOutputStream(codeStoreFile);
-			trans.transform(new DOMSource(doc), new StreamResult(writer));
-			writer.close();
-		} catch (TransformerConfigurationException e) {
-			throw new CodeStoreWriteException(e);
-		} catch (FileNotFoundException e) {
-			throw new CodeStoreWriteException(e);
-		} catch (TransformerException e) {
-			throw new CodeStoreWriteException(e);
+			xstream.toXML(this, new FileWriter(codeStoreFile));
+			System.err.println(xstream.toXML(this));
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
@@ -335,33 +202,30 @@ class CodeStore implements ICodeStore {
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeInstanceDoesNotExistException, CodeStoreWriteException,
 			CodeStoreReadException {
-		List<ICodeInstance> codesInstances = new ArrayList<ICodeInstance>(
-				Arrays.asList(loadCodeInstances()));
-		if (!codesInstances.contains(codeInstance))
+		if (!this.codeInstances.contains(codeInstance))
 			throw new CodeInstanceDoesNotExistException();
-		codesInstances.remove(codeInstance);
-		saveCodeInstances(codesInstances.toArray(new ICodeInstance[0]));
+		this.codeInstances.remove(codeInstance);
+		this.save();
 	}
 
 	public void deleteCodeInstances(ICode code) throws CodeStoreReadException,
 			CodeStoreWriteException {
-		List<ICodeInstance> codeInstancesToKeep = new LinkedList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.loadCodeInstances()) {
-			if (!codeInstance.getCode().equals(code)) {
-				codeInstancesToKeep.add(codeInstance);
+		for (Iterator<ICodeInstance> iter = this.codeInstances.iterator(); iter
+				.hasNext();) {
+			if (iter.next().getCode().equals(code)) {
+				iter.remove();
 			}
 		}
-		saveCodeInstances(codeInstancesToKeep.toArray(new ICodeInstance[0]));
+		this.save();
 	}
 
 	@Override
 	public void deleteCode(ICode code) throws CodeStoreReadException,
 			CodeStoreWriteException, CodeDoesNotExistException {
-		List<ICode> codes = new ArrayList<ICode>(Arrays.asList(loadCodes()));
 		if (!codes.contains(code))
 			throw new CodeDoesNotExistException();
 		deleteCodeInstances(code);
-		codes.remove(code);
-		saveCodes(codes.toArray(new ICode[0]));
+		this.codes.remove(code);
+		this.save();
 	}
 }

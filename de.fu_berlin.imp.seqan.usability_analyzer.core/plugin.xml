@@ -45,6 +45,10 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.startWorkSession"
             name="Start Work Session">
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.rename"
+            name="Rename...">
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -89,6 +93,20 @@
                </and>
             </visibleWhen>
          </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.rename"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
                visible="true">

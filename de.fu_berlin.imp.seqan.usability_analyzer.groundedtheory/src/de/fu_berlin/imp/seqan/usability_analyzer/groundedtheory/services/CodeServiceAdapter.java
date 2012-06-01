@@ -16,7 +16,15 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
+	public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+	}
+
+	@Override
 	public void codeRemoved(ICode code, List<ICodeable> codeables) {
+	}
+
+	@Override
+	public void codeMoved(ICode code, ICode oldParentCode, ICode newParentCode) {
 	}
 
 	@Override

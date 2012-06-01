@@ -1,12 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<SUACodes>
-	<codes>
-		<code id="234233209" caption="Code #1"/>
-		<code id="9908372" caption="Code #2"/>
-	</codes>
-	<codeInstances>
-		<codeInstance codeId="9908372" id="sua://codeInstance1" creation="1984-05-15T14:30:00+02:00"/>
-		<codeInstance codeId="234233209" id="sua://codeInstance2" creation="2011-11-11T11:11:11+11:00"/>
-		<codeInstance codeId="9908372" id="sua://codeInstance3" creation="2002-09-23T23:08:01-04:30"/>
-	</codeInstances>
-</SUACodes>
+<codeStore>
+  <createdIDs class="sorted-set"/>
+  <codes>
+    <code>
+      <childCodes/>
+      <id>234233209</id>
+      <caption>Code #1</caption>
+    </code>
+    <code>
+      <childCodes/>
+      <id>9908372</id>
+      <caption>Code #2</caption>
+    </code>
+  </codes>
+  <instances>
+    <instance>
+      <code class="code" reference="../../../codes/code[2]"/>
+      <id>sua://codeInstance3</id>
+      <creation>
+        <calendar>
+          <time>1032838681000</time>
+          <timezone>GMT-04:30</timezone>
+        </calendar>
+      </creation>
+    </instance>
+    <instance>
+      <code class="code" reference="../../../codes/code"/>
+      <id>sua://codeInstance2</id>
+      <creation>
+        <calendar>
+          <time>1320970271000</time>
+          <timezone>GMT+11:00</timezone>
+        </calendar>
+      </creation>
+    </instance>
+    <instance>
+      <code class="code" reference="../../../codes/code[2]"/>
+      <id>sua://codeInstance1</id>
+      <creation>
+        <calendar>
+          <time>453472200000</time>
+          <timezone>GMT+02:00</timezone>
+        </calendar>
+      </creation>
+    </instance>
+  </instances>
+</codeStore>

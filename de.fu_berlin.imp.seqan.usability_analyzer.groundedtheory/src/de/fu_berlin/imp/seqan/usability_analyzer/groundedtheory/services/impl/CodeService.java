@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -63,17 +62,17 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
+	public ICode getCode(long id) {
+		return this.codeStore.getCode(id);
+	}
+
+	@Override
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
-		try {
-			for (ICodeInstance codeInstance : this.codeStore
-					.loadCodeInstances()) {
-				if (codeInstance.getId().equals(codeable.getCodeInstanceID())) {
-					codes.add(codeInstance.getCode());
-				}
+		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+			if (codeInstance.getId().equals(codeable.getCodeInstanceID())) {
+				codes.add(codeInstance.getCode());
 			}
-		} catch (CodeStoreReadException e) {
-			throw new CodeServiceException(e);
 		}
 		return codes;
 	}
@@ -92,7 +91,7 @@ class CodeService implements ICodeService {
 	public ICode addCode(ICode code, final ICodeable codeable)
 			throws CodeServiceException {
 		try {
-			if (!ArrayUtils.contains(codeStore.loadCodes(), code)) {
+			if (!codeStore.getTopLevelCodes().contains(code)) {
 				codeStore.addAndSaveCode(code);
 				codeServiceListenerNotifier.codeCreated(code);
 			}
@@ -114,16 +113,12 @@ class CodeService implements ICodeService {
 
 	@Override
 	public List<ICodeInstance> getInstances(ICode code) {
-		try {
-			ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-			for (ICodeInstance codeInstance : codeStore.loadCodeInstances()) {
-				if (codeInstance.getCode().equals(code))
-					codeInstances.add(codeInstance);
-			}
-			return codeInstances;
-		} catch (CodeStoreReadException e) {
-			return null;
+		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+		for (ICodeInstance codeInstance : codeStore.loadInstances()) {
+			if (codeInstance.getCode().equals(code))
+				codeInstances.add(codeInstance);
 		}
+		return codeInstances;
 	}
 
 	@Override
@@ -133,12 +128,42 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
+	public void renameCode(ICode code, String newCaption)
+			throws CodeServiceException {
+		String oldCaption = code.getCaption();
+		try {
+			code.setCaption(newCaption);
+			codeServiceListenerNotifier.codeRenamed(code, oldCaption,
+					newCaption);
+		} catch (Exception e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void setParent(ICode childNode, ICode newParentNode) {
+		ICode oldParentNode = null;
+
+		for (ICode code : this.codeStore.getTopLevelCodes()) {
+			if (code.getChildCodes().contains(childNode)) {
+				code.getChildCodes().remove(childNode);
+				oldParentNode = code;
+			}
+		}
+
+		if (newParentNode != null)
+			newParentNode.addChildCode(childNode);
+
+		codeServiceListenerNotifier.codeMoved(childNode, oldParentNode,
+				newParentNode);
+	}
+
+	@Override
 	public void removeCode(ICode code, final ICodeable codeable)
 			throws CodeServiceException {
 		try {
 			int numRemoved = 0;
-			for (ICodeInstance codeInstance : this.codeStore
-					.loadCodeInstances()) {
+			for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
 				if (codeInstance.getCode().equals(code)
 						&& codeInstance.getId().equals(
 								codeable.getCodeInstanceID())) {

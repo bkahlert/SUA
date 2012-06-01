@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -78,42 +80,86 @@ public class CodeStoreHelper {
 				codeInstance3 };
 	}
 
+	/**
+	 * Tests whether the {@link ICodeStore} only contains all given
+	 * {@link ICode}s.
+	 * 
+	 * @param codeStore
+	 * @param codes
+	 * @throws IOException
+	 */
 	protected void testCodes(ICodeStore codeStore, ICode[] codes)
 			throws IOException {
-		ICode[] loadedCodes = codeStore.loadCodes();
-		Assert.assertEquals(codes.length, loadedCodes.length);
+		Set<ICode> loadedCodes = codeStore.getTopLevelCodes();
+		Assert.assertEquals(codes.length, loadedCodes.size());
 
-		for (int i = 0, m = codes.length; i < m; i++) {
-			Assert.assertEquals(codes[i].getId(), loadedCodes[i].getId());
-			Assert.assertEquals(codes[i].getCaption(),
-					loadedCodes[i].getCaption());
+		HashMap<ICode, Boolean> inCodeStore = new HashMap<ICode, Boolean>();
+		for (ICode loadedCode : loadedCodes)
+			inCodeStore.put(loadedCode, false);
+
+		for (ICode loadedCode : loadedCodes) {
+			for (ICode code : codes) {
+				if (loadedCode.getId() == code.getId()) {
+					Assert.assertEquals(code.getCaption(),
+							loadedCode.getCaption());
+					inCodeStore.put(code, true);
+				}
+			}
+			Assert.assertTrue(ICode.class.getSimpleName() + " " + loadedCode
+					+ " is not in the test set", inCodeStore.get(loadedCode));
+		}
+
+		for (ICode code : inCodeStore.keySet()) {
+			Assert.assertTrue(ICode.class.getSimpleName() + " " + code
+					+ " is not in the " + ICodeStore.class.getSimpleName(),
+					inCodeStore.get(code));
 		}
 	}
 
 	protected void testCodeInstances(ICodeStore codeStore,
 			ICodeInstance[] codeInstances) throws CodeStoreReadException {
-		ICodeInstance[] loadedCodeInstances = codeStore.loadCodeInstances();
-		Assert.assertEquals(codeInstances.length, loadedCodeInstances.length);
+		Set<ICodeInstance> loadedCodeInstances = codeStore.loadInstances();
+		Assert.assertEquals(codeInstances.length, loadedCodeInstances.size());
 
-		for (int i = 0, m = codeInstances.length; i < m; i++) {
-			Assert.assertEquals(codeInstances[i].getCode(),
-					loadedCodeInstances[i].getCode());
-			Assert.assertEquals(codeInstances[i].getId(),
-					loadedCodeInstances[i].getId());
-			Assert.assertEquals(codeInstances[i].getCreation(),
-					loadedCodeInstances[i].getCreation());
+		HashMap<ICodeInstance, Boolean> inCodeStore = new HashMap<ICodeInstance, Boolean>();
+		for (ICodeInstance loadedInstance : loadedCodeInstances)
+			inCodeStore.put(loadedInstance, false);
+
+		for (ICodeInstance loadedInstance : loadedCodeInstances) {
+			for (ICodeInstance instance : codeInstances) {
+				if (loadedInstance.getId().equals(instance.getId())) {
+					Assert.assertEquals(instance.getCode(),
+							loadedInstance.getCode());
+					Assert.assertEquals(instance.getId(),
+							loadedInstance.getId());
+					Assert.assertEquals(instance.getCreation(),
+							loadedInstance.getCreation());
+					inCodeStore.put(loadedInstance, true);
+				}
+			}
+			Assert.assertTrue(ICodeInstance.class.getSimpleName() + " "
+					+ loadedInstance + " is not in the test set",
+					inCodeStore.get(loadedInstance));
+		}
+
+		for (ICodeInstance instance : inCodeStore.keySet()) {
+			Assert.assertTrue(
+					ICodeInstance.class.getSimpleName() + " " + instance
+							+ " is not in the "
+							+ ICodeStore.class.getSimpleName(),
+					inCodeStore.get(instance));
 		}
 	}
 
 	protected ICodeStore getNonExistingCodeStore() throws IOException {
-		return new CodeStore(new File("/I/do/not/exist"));
+		return CodeStore.load(new File("/I/do/not/exist"));
 	}
 
 	protected ICodeStore getEmptyCodeStore() throws IOException {
-		return new CodeStore(getEmptyFile());
+		return CodeStore.create(getEmptyFile());
 	}
 
 	protected ICodeStore getSmallCodeStore() throws IOException {
-		return new CodeStore(getSmallFile());
+		return CodeStore.load(getSmallFile());
 	}
 }

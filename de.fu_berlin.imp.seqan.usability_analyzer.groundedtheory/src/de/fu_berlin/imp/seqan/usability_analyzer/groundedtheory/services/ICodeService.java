@@ -16,14 +16,52 @@ public interface ICodeService {
 
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException;
 
-	public void addCodeServiceListener(ICodeServiceListener iCodeServiceListener);
+	/**
+	 * Registers a {@link ICodeServiceListener}
+	 * 
+	 * @param codeServiceListener
+	 */
+	public void addCodeServiceListener(ICodeServiceListener codeServiceListener);
 
+	/**
+	 * Unregisters a {@link ICodeServiceListener}
+	 * 
+	 * @param codeServiceListener
+	 */
 	public void removeCodeServiceListener(
-			ICodeServiceListener iCodeServiceListener);
+			ICodeServiceListener codeServiceListener);
 
+	/**
+	 * Returns an existing {@link ICode} based on it's internal id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ICode getCode(long movedCodeID);
+
+	/**
+	 * TODO
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
+	 * 
+	 * @param codeCaption
+	 * @param codeable
+	 * @return
+	 * @throws CodeServiceException
+	 */
 	public ICode addCode(String codeCaption, ICodeable codeable)
 			throws CodeServiceException;
 
+	/**
+	 * TODO
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
+	 * 
+	 * @param code
+	 * @param codeable
+	 * @return
+	 * @throws CodeServiceException
+	 */
 	public ICode addCode(ICode code, ICodeable codeable)
 			throws CodeServiceException;
 
@@ -32,7 +70,31 @@ public interface ICodeService {
 	public void putInstances(ICode code, List<ICodeable> instances);
 
 	/**
-	 * Removes an {@link ICode} from an {@link ICodeable}
+	 * Renames a {@link ICode}
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
+	 * 
+	 * @param code
+	 * @param newCaption
+	 * @throws CodeServiceException
+	 */
+	public void renameCode(ICode code, String newCaption)
+			throws CodeServiceException;
+
+	/**
+	 * Sets a parent {@link ICode} for a given {@link ICode} allowing the
+	 * modeling of hierarchies.
+	 * 
+	 * @param childNode
+	 * @param parentNode
+	 *            can be null if childNode should be a top level {@link ICode}
+	 */
+	public void setParent(ICode childNode, ICode parentNode);
+
+	/**
+	 * Removes a {@link ICode} from an {@link ICodeable}
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param code
 	 * @param codeable
@@ -42,8 +104,10 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * Removes an {@link ICode} from all {@link ICodeable}s and deletes the
+	 * Removes a {@link ICode} from all {@link ICodeable}s and deletes the
 	 * {@link ICode} itself
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param code
 	 * @throws CodeServiceException

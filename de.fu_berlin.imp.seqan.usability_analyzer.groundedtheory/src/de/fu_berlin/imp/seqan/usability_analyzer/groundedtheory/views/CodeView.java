@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ResortableCodeViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
 public class CodeView extends ViewPart {
@@ -19,7 +20,7 @@ public class CodeView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
-		this.codeViewer = new CodeViewer(parent, SWT.NONE);
+		this.codeViewer = new ResortableCodeViewer(parent, SWT.NONE);
 		new ContextMenu(this.codeViewer.getViewer(), getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
@@ -29,10 +30,14 @@ public class CodeView extends ViewPart {
 		};
 	}
 
+	public CodeViewer getCodeViewer() {
+		return this.codeViewer;
+	}
+
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
+		if (this.codeViewer != null && !this.codeViewer.isDisposed())
+			this.codeViewer.setFocus();
 	}
 
 }

@@ -1,10 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 
 public class Code implements ICode {
+
+	private Set<ICode> childCodes = new HashSet<ICode>();
 
 	/**
 	 * Calculates a unique {@link ID} based on given {@link ID}s
@@ -21,7 +25,7 @@ public class Code implements ICode {
 	}
 
 	private final long id;
-	private final String caption;
+	private String caption;
 
 	public Code(long id, String caption) {
 		this.id = id;
@@ -35,6 +39,26 @@ public class Code implements ICode {
 	@Override
 	public String getCaption() {
 		return caption;
+	}
+
+	@Override
+	public void setCaption(String newCaption) {
+		this.caption = newCaption;
+	}
+
+	@Override
+	public Set<ICode> getChildCodes() {
+		return this.childCodes;
+	}
+
+	@Override
+	public void addChildCode(ICode code) {
+		this.childCodes.add(code);
+	}
+
+	@Override
+	public void removeChildCode(ICode code) {
+		this.childCodes.remove(code);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
 import java.security.InvalidParameterException;
+import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -13,30 +14,37 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.Dup
 
 public interface ICodeStore {
 
+	public Set<ICode> getTopLevelCodes();
+
+	public Set<ICodeInstance> loadInstances();
+
+	/**
+	 * Returns an existing {@link ICode} based on it's internal id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ICode getCode(long id);
+
 	public ICode createCode(String caption) throws CodeStoreFullException;
 
 	public ICodeInstance createCodeInstance(ICode code, ICodeable codeable)
 			throws InvalidParameterException, CodeStoreReadException,
 			DuplicateCodeInstanceException;
 
-	public ICode[] loadCodes() throws CodeStoreReadException;
-
-	public ICodeInstance[] loadCodeInstances() throws CodeStoreReadException;
-
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException;
-
-	public void saveCodes(ICode[] codes) throws CodeStoreReadException,
-			CodeStoreWriteException;
 
 	public void addAndSaveCodeInstance(ICodeInstance codeInstance)
 			throws CodeStoreWriteException, CodeStoreReadException;
 
-	public void saveCodeInstances(ICodeInstance[] codeInstances)
-			throws CodeStoreReadException, CodeStoreWriteException;
+	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
+			CodeStoreReadException;
 
-	public void save(ICode[] codes, ICodeInstance[] codeInstances)
-			throws CodeStoreWriteException;
+	public void removeAndSaveCodeInstance(ICodeInstance codeInstance)
+			throws CodeStoreWriteException, CodeStoreReadException;
+
+	public void save() throws CodeStoreWriteException;
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeInstanceDoesNotExistException, CodeStoreWriteException,

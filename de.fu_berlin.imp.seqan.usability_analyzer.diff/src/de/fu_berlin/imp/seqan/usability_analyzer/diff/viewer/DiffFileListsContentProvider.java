@@ -37,7 +37,18 @@ public class DiffFileListsContentProvider implements
 		}
 
 		@Override
+		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
 		public void codeRemoved(ICode code, List<ICodeable> codeables) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void codeMoved(ICode code, ICode oldParentCode,
+				ICode newParentCode) {
 			ViewerUtils.refresh(viewer);
 		}
 
