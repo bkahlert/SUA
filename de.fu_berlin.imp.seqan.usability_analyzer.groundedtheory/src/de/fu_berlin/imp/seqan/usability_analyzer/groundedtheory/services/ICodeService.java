@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 
@@ -32,12 +33,21 @@ public interface ICodeService {
 			ICodeServiceListener codeServiceListener);
 
 	/**
+	 * Creates a {@link ICode} with the given caption.
+	 * 
+	 * @param caption
+	 * @return
+	 * @throws CodeServiceException
+	 */
+	public ICode createCode(String caption) throws CodeServiceException;
+
+	/**
 	 * Returns an existing {@link ICode} based on it's internal id
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public ICode getCode(long movedCodeID);
+	public ICode getCode(long id);
 
 	/**
 	 * TODO
@@ -65,6 +75,8 @@ public interface ICodeService {
 	public ICode addCode(ICode code, ICodeable codeable)
 			throws CodeServiceException;
 
+	public Set<URI> getCodedIDs();
+
 	public List<ICodeInstance> getInstances(ICode code);
 
 	public void putInstances(ICode code, List<ICodeable> instances);
@@ -88,8 +100,10 @@ public interface ICodeService {
 	 * @param childNode
 	 * @param parentNode
 	 *            can be null if childNode should be a top level {@link ICode}
+	 * @throws CodeServiceException
 	 */
-	public void setParent(ICode childNode, ICode parentNode);
+	public void setParent(ICode childNode, ICode parentNode)
+			throws CodeServiceException;
 
 	/**
 	 * Removes a {@link ICode} from an {@link ICodeable}
@@ -115,6 +129,19 @@ public interface ICodeService {
 	public void deleteCode(ICode code) throws CodeServiceException;
 
 	/**
+	 * Removes a {@link ICode} from all {@link ICodeable}s and deletes the
+	 * {@link ICode} itself
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
+	 * 
+	 * @param code
+	 * @param forceDelete
+	 * @throws CodeServiceException
+	 */
+	public void deleteCode(ICode code, boolean forceDelete)
+			throws CodeServiceException;
+
+	/**
 	 * @see {@link ICodeableProvider#getCodedObject(URI)}
 	 */
 	public ICodeable getCodedObject(URI codeInstanceID);
@@ -133,4 +160,13 @@ public interface ICodeService {
 	 * @see {@link ICodeableProvider#getLabelProvider(String)}
 	 */
 	public ILabelProvider getLabelProvider(URI codeInstanceID);
+
+	public ICode getParent(ICode code);
+
+	public List<ICode> getChildren(ICode code);
+
+	public List<ICode> getTopLevelCodes();
+
+	public void deleteCodeInstance(ICodeInstance codeInstance)
+			throws CodeServiceException;
 }

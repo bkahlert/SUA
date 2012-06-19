@@ -10,8 +10,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 public class CodeServiceListenerNotifier {
 	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
 
-	void addCodeServiceListener(ICodeServiceListener iCodeServiceListener) {
-		codeServiceListeners.add(iCodeServiceListener);
+	void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
+		codeServiceListeners.add(codeServiceListener);
 	}
 
 	void removeCodeServiceListener(ICodeServiceListener iCodeServiceListener) {

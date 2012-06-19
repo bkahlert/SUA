@@ -1,11 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
 import java.security.InvalidParameterException;
+import java.util.List;
 import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -14,7 +16,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.Dup
 
 public interface ICodeStore {
 
-	public Set<ICode> getTopLevelCodes();
+	public List<ICode> getTopLevelCodes();
 
 	public Set<ICodeInstance> loadInstances();
 
@@ -39,7 +41,11 @@ public interface ICodeStore {
 			throws CodeStoreWriteException, CodeStoreReadException;
 
 	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
-			CodeStoreReadException;
+			CodeHasChildCodesException, CodeDoesNotExistException;
+
+	public void removeAndSaveCode(ICode code, boolean deleteInstances)
+			throws CodeStoreWriteException, CodeHasChildCodesException,
+			CodeDoesNotExistException;
 
 	public void removeAndSaveCodeInstance(ICodeInstance codeInstance)
 			throws CodeStoreWriteException, CodeStoreReadException;
@@ -47,12 +53,17 @@ public interface ICodeStore {
 	public void save() throws CodeStoreWriteException;
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)
-			throws CodeInstanceDoesNotExistException, CodeStoreWriteException,
-			CodeStoreReadException;
+			throws CodeInstanceDoesNotExistException, CodeStoreWriteException;
 
 	public void deleteCodeInstances(ICode code) throws CodeStoreReadException,
 			CodeStoreWriteException;
 
-	public void deleteCode(ICode code) throws CodeStoreReadException,
-			CodeStoreWriteException, CodeDoesNotExistException;
+	public ICode getParent(ICode code);
+
+	public ICode setParent(ICode childNode, ICode newParentNode)
+			throws CodeDoesNotExistException, CodeStoreWriteException;
+
+	public List<ICode> getChildren(ICode code);
+
+	public boolean codeExists(ICode code);
 }

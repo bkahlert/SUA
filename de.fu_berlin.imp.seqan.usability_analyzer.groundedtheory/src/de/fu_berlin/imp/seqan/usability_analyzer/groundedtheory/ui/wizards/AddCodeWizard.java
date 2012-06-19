@@ -59,7 +59,7 @@ public class AddCodeWizard extends Wizard {
 					LOGGER.info("Code " + createdCode + " added to " + codeable);
 				} catch (CodeServiceException e) {
 					LOGGER.error("Code " + codeCaption
-							+ " couldn't be added to " + codeable);
+							+ " couldn't be added to " + codeable, e);
 				}
 			}
 		} else {
@@ -70,7 +70,7 @@ public class AddCodeWizard extends Wizard {
 						LOGGER.info("Code " + code + " added to " + codeable);
 					} catch (CodeServiceException e) {
 						LOGGER.error("Code " + code + " couldn't be added to "
-								+ codeable);
+								+ codeable, e);
 					}
 				}
 				affectedCodes.add(code);

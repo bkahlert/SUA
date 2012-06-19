@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
@@ -25,6 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeab
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -62,6 +65,18 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
+	public ICode createCode(String caption) throws CodeServiceException {
+		ICode code;
+		try {
+			code = codeStore.createCode(caption);
+		} catch (CodeStoreFullException e) {
+			throw new CodeServiceException(e);
+		}
+		codeServiceListenerNotifier.codeCreated(code);
+		return code;
+	}
+
+	@Override
 	public ICode getCode(long id) {
 		return this.codeStore.getCode(id);
 	}
@@ -79,19 +94,15 @@ class CodeService implements ICodeService {
 
 	public ICode addCode(String codeCaption, ICodeable codeable)
 			throws CodeServiceException {
-		try {
-			ICode code = codeStore.createCode(codeCaption);
-			addCode(code, codeable);
-			return code;
-		} catch (CodeStoreFullException e) {
-			throw new CodeServiceException(e);
-		}
+		ICode code = createCode(codeCaption);
+		addCode(code, codeable);
+		return code;
 	}
 
 	public ICode addCode(ICode code, final ICodeable codeable)
 			throws CodeServiceException {
 		try {
-			if (!codeStore.getTopLevelCodes().contains(code)) {
+			if (!codeStore.codeExists(code)) {
 				codeStore.addAndSaveCode(code);
 				codeServiceListenerNotifier.codeCreated(code);
 			}
@@ -109,6 +120,17 @@ class CodeService implements ICodeService {
 			throw new CodeServiceException(e);
 		}
 
+	}
+
+	@Override
+	public Set<URI> getCodedIDs() {
+		Set<URI> codedIDs = new HashSet<URI>();
+		for (ICodeInstance instance : this.codeStore.loadInstances()) {
+			URI id = instance.getId();
+			if (!codedIDs.contains(id))
+				codedIDs.add(id);
+		}
+		return codedIDs;
 	}
 
 	@Override
@@ -141,21 +163,33 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void setParent(ICode childNode, ICode newParentNode) {
-		ICode oldParentNode = null;
+	public List<ICode> getTopLevelCodes() {
+		return this.codeStore.getTopLevelCodes();
+	}
 
-		for (ICode code : this.codeStore.getTopLevelCodes()) {
-			if (code.getChildCodes().contains(childNode)) {
-				code.getChildCodes().remove(childNode);
-				oldParentNode = code;
-			}
+	@Override
+	public ICode getParent(ICode code) {
+		return this.codeStore.getParent(code);
+	}
+
+	@Override
+	public void setParent(ICode code, ICode parentCode)
+			throws CodeServiceException {
+		ICode oldParentCode;
+		try {
+			oldParentCode = this.codeStore.setParent(code, parentCode);
+			codeServiceListenerNotifier.codeMoved(code, oldParentCode,
+					parentCode);
+		} catch (CodeDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
 		}
+	}
 
-		if (newParentNode != null)
-			newParentNode.addChildCode(childNode);
-
-		codeServiceListenerNotifier.codeMoved(childNode, oldParentNode,
-				newParentNode);
+	@Override
+	public List<ICode> getChildren(ICode code) {
+		return this.codeStore.getChildren(code);
 	}
 
 	@Override
@@ -175,8 +209,6 @@ class CodeService implements ICodeService {
 			}
 			if (numRemoved == 0)
 				throw new CodeInstanceDoesNotExistException();
-		} catch (CodeStoreReadException e) {
-			throw new CodeServiceException(e);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
@@ -187,13 +219,28 @@ class CodeService implements ICodeService {
 	@Override
 	public void deleteCode(ICode code) throws CodeServiceException {
 		try {
-			this.codeStore.deleteCode(code);
+			this.codeStore.removeAndSaveCode(code);
 			codeServiceListenerNotifier.codeDeleted(code);
-		} catch (CodeStoreReadException e) {
-			throw new CodeServiceException(e);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeHasChildCodesException e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void deleteCode(ICode code, boolean forceDelete)
+			throws CodeServiceException {
+		try {
+			this.codeStore.removeAndSaveCode(code, forceDelete);
+			codeServiceListenerNotifier.codeDeleted(code);
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeHasChildCodesException e) {
 			throw new CodeServiceException(e);
 		}
 	}
@@ -276,4 +323,19 @@ class CodeService implements ICodeService {
 		return null;
 	}
 
+	@Override
+	public void deleteCodeInstance(ICodeInstance codeInstance)
+			throws CodeServiceException {
+		try {
+			this.codeStore.deleteCodeInstance(codeInstance);
+			ICode code = codeInstance.getCode();
+			List<ICodeable> codeables = Arrays.asList(this
+					.getCodedObject(codeInstance.getId()));
+			this.codeServiceListenerNotifier.codeRemoved(code, codeables);
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeInstanceDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		}
+	}
 }

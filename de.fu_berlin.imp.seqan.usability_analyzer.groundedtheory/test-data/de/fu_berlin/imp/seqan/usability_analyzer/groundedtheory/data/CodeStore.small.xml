@@ -1,20 +1,24 @@
 <codeStore>
   <createdIDs class="sorted-set"/>
-  <codes>
-    <code>
-      <childCodes/>
-      <id>234233209</id>
-      <caption>Code #1</caption>
-    </code>
-    <code>
-      <childCodes/>
-      <id>9908372</id>
-      <caption>Code #2</caption>
-    </code>
-  </codes>
+  <codeTrees>
+    <org.j4me.collections.TreeNode>
+      <children/>
+      <data class="codes">
+        <id>234233209</id>
+        <caption>Code #1</caption>
+      </data>
+    </org.j4me.collections.TreeNode>
+    <org.j4me.collections.TreeNode>
+      <children/>
+      <data class="codes">
+        <id>9908372</id>
+        <caption>Code #2</caption>
+      </data>
+    </org.j4me.collections.TreeNode>
+  </codeTrees>
   <instances>
     <instance>
-      <code class="code" reference="../../../codes/code[2]"/>
+      <code class="codes" reference="../../../codeTrees/org.j4me.collections.TreeNode[2]/data"/>
       <id>sua://codeInstance3</id>
       <creation>
         <calendar>
@@ -24,7 +28,7 @@
       </creation>
     </instance>
     <instance>
-      <code class="code" reference="../../../codes/code"/>
+      <code class="codes" reference="../../../codeTrees/org.j4me.collections.TreeNode/data"/>
       <id>sua://codeInstance2</id>
       <creation>
         <calendar>
@@ -34,7 +38,7 @@
       </creation>
     </instance>
     <instance>
-      <code class="code" reference="../../../codes/code[2]"/>
+      <code class="codes" reference="../../../codeTrees/org.j4me.collections.TreeNode[2]/data"/>
       <id>sua://codeInstance1</id>
       <creation>
         <calendar>

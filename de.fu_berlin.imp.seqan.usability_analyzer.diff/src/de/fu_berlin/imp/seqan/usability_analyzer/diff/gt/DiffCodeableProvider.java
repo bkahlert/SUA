@@ -197,7 +197,10 @@ public class DiffCodeableProvider extends CodeableProvider {
 				if (element instanceof DiffFileRecord) {
 					DiffFileRecord diffFileRecord = (DiffFileRecord) element;
 					String name = diffFileRecord.getFilename();
-					return (name != null) ? new File(name).getName() : "";
+					return (name != null) ? new File(name).getName()
+							+ "@"
+							+ Integer.parseInt(diffFileRecord.getDiffFile()
+									.getRevision()) : "";
 				}
 				if (element instanceof DiffFileRecordSegment) {
 					DiffFileRecordSegment diffFileRecordSegment = (DiffFileRecordSegment) element;

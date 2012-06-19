@@ -16,10 +16,12 @@ public class ImageManager {
 	 * overlays
 	 */
 	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
+	public static final ImageDescriptor OVERLAY_PARTIALLY_CODED = getImageDescriptor("icons/ovr16/partially_coded.png"); //$NON-NLS-1$
 
 	/*
 	 * wizard banners
 	 */
+	public static final ImageDescriptor WIZBAN_CREATE_CODE = getImageDescriptor("icons/wizban/create_code_wiz.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor WIZBAN_ADD_CODE = getImageDescriptor("icons/wizban/add_code_wiz.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor WIZBAN_EDIT_CODE = getImageDescriptor("icons/wizban/edit_code_wiz.gif"); //$NON-NLS-1$
 

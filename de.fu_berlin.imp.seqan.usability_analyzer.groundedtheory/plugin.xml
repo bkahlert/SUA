@@ -22,21 +22,31 @@
    </extension>
      <extension
          point="org.eclipse.ui.commands">
+        <command
+              id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+              name="Create Code...">
+        </command>
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
             name="Add Code...">
       </command>
-      <command
-            id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.removeCode"
-            name="Remove Code...">
-      </command>
-      <command
-            id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.deleteCode"
-            name="Delete Code...">
-      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.CreateCodeHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.emptySelection">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                 </reference>
+              </or>
+           </activeWhen>
+        </handler>
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.AddCodeInstanceHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance">
@@ -53,38 +63,6 @@
               </with>
            </activeWhen>
         </handler>
-        <handler
-              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RemoveCodeHandler"
-              commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.removeCode">
-           <activeWhen>
-              <with
-                    variable="selection">
-                 <iterate
-                       ifEmpty="false"
-                       operator="or">
-                    <adapt
-                          type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
-                    </adapt>
-                 </iterate>
-              </with>
-           </activeWhen>
-        </handler>
-        <handler
-              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.DeleteCodeHandler"
-              commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.deleteCode">
-           <activeWhen>
-              <with
-                    variable="selection">
-                 <iterate
-                       ifEmpty="false"
-                       operator="or">
-                    <adapt
-                          type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
-                    </adapt>
-                 </iterate>
-              </with>
-           </activeWhen>
-        </handler>
      </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -92,7 +70,40 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+               label="Create Code..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.emptySelection">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+               label="Create Child Code..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+               label="Add Code to Phenomenon..."
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -104,25 +115,41 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.removeCode"
+               commandId="org.eclipse.ui.edit.delete"
+               label="Remove Code from Phenomenon..."
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <and>
-                  <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeaInstances">
-                  </reference>
-               </and>
+               <or>
+                  <and>
+                     <reference
+                           definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                     </reference>
+                     <reference
+                           definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeInstancesView">
+                     </reference></and>
+                  <and>
+                     <reference
+                           definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeInstances">
+                     </reference>
+                     <reference
+                           definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+                     </reference></and>
+               </or>
             </visibleWhen>
          </command>
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.deleteCode"
+               commandId="org.eclipse.ui.edit.delete"
+               label="Delete Code..."
                style="push">
             <visibleWhen
                   checkEnabled="false">
                <and>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodes">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
                   </reference>
                </and>
             </visibleWhen>
@@ -133,13 +160,53 @@
          point="org.eclipse.ui.handlers">
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RenameCodeHandler"
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.rename">
+            commandId="org.eclipse.ui.edit.rename">
          <activeWhen>
             <and>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+               </reference>
                <reference
                      definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
                </reference>
             </and></activeWhen>
+      </handler>
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RemoveCodeHandlerCodeBased"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
+               </reference>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeInstancesView">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RemoveCodeHandlerInstanceBased"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeInstances">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.DeleteCodeHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
+               </reference>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+               </reference>
+            </and>
+         </activeWhen>
       </handler>
    </extension>
    <extension
@@ -209,22 +276,6 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
-         <with
-               variable="selection">
-            <iterate
-                  ifEmpty="false"
-                  operator="and">
-               <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
-               </adapt>
-            </iterate>
-            <count
-                  value="1">
-            </count>
-         </with>
-      </definition>
-      <definition
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodes">
          <with
                variable="selection">
@@ -250,6 +301,101 @@
             </iterate>
          </with>
       </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.emptySelection">
+         <with
+               variable="selection">
+            <count
+                  value="0">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView">
+            </equals>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeables">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+               </adapt>
+            </iterate>
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeInstancesView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView">
+            </equals>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeInstances">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeInstances">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
@@ -260,5 +406,25 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.sourceProviders.SourceProvider">
+         <variable
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.variable1"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.ICodePropertyTester"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.CodePropertyTester"
+            namespace="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory"
+            properties="hasInstances"
+            type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+      </propertyTester>
    </extension>
 </plugin>

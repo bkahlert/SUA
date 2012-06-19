@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences;
 
-import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -16,8 +16,8 @@ public class SUAGTPreferences extends FieldEditorPreferencePage implements
 	}
 
 	public void createFieldEditors() {
-		addField(new DirectoryFieldEditor(SUAGTPreferenceConstants.CODESTORE_FILE,
-				"&Directory preference:", getFieldEditorParent()));
+		addField(new FileFieldEditor(SUAGTPreferenceConstants.CODESTORE_FILE,
+				"&Code store file:", getFieldEditorParent()));
 	}
 
 	public void init(IWorkbench workbench) {

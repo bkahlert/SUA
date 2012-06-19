@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -99,6 +100,29 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 									if (codeService.getCodes(person).size() > 0) {
 										return ImageManager.ENTITY_CODED;
 									} else {
+										for (URI id : codeService.getCodedIDs()) {
+											String[] parts = id.getPath()
+													.split("/");
+											if (parts.length > 0) {
+												String key = parts[1];
+												if (ID.isValid(key)
+														&& person.getId() != null
+														&& person.getId()
+																.equals(new ID(
+																		key))) {
+													return ImageManager.ENTITY_PARTIALLY_CODED;
+												}
+												if (Fingerprint.isValid(key)
+														&& person
+																.getFingerprints()
+																.contains(
+																		new Fingerprint(
+																				key))) {
+													return ImageManager.ENTITY_PARTIALLY_CODED;
+												}
+											}
+										}
+
 										return ImageManager.ENTITY;
 									}
 								} catch (CodeServiceException e) {

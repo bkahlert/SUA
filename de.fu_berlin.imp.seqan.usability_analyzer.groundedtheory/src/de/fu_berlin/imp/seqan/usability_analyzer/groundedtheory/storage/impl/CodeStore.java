@@ -17,6 +17,7 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+import org.j4me.collections.TreeNode;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -29,6 +30,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -45,10 +47,10 @@ class CodeStore implements ICodeStore {
 	private File codeStoreFile;
 
 	@XStreamAlias("createdIDs")
-	private Set<Long> createdIds = new TreeSet<Long>();
+	private Set<Long> createdIds = null;
 
-	@XStreamAlias("codes")
-	private HashSet<ICode> codes = null;
+	@XStreamAlias("codeTrees")
+	private LinkedList<TreeNode<ICode>> codeTrees = null;
 
 	@XStreamAlias("instances")
 	private HashSet<ICodeInstance> codeInstances = null;
@@ -57,7 +59,7 @@ class CodeStore implements ICodeStore {
 
 	static {
 		xstream = new XStream();
-		xstream.alias("code", Code.class);
+		xstream.alias("codes", Code.class);
 		xstream.alias("instance", CodeInstance.class);
 		xstream.processAnnotations(CodeStore.class);
 	}
@@ -75,6 +77,12 @@ class CodeStore implements ICodeStore {
 		try {
 			CodeStore codeStore = (CodeStore) xstream.fromXML(codeStoreFile);
 			codeStore.setCodeStoreFile(codeStoreFile);
+			if (codeStore.createdIds == null)
+				codeStore.createdIds = new TreeSet<Long>();
+			if (codeStore.codeTrees == null)
+				codeStore.codeTrees = new LinkedList<TreeNode<ICode>>();
+			if (codeStore.codeInstances == null)
+				codeStore.codeInstances = new HashSet<ICodeInstance>();
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
@@ -85,28 +93,71 @@ class CodeStore implements ICodeStore {
 
 	private CodeStore(File codeStoreFile) {
 		this.codeStoreFile = codeStoreFile;
-		this.codes = new HashSet<ICode>();
+		this.createdIds = new TreeSet<Long>();
+		this.codeTrees = new LinkedList<TreeNode<ICode>>();
 		this.codeInstances = new HashSet<ICodeInstance>();
 	}
 
 	@Override
 	public ICode getCode(long id) {
-		for (ICode code : this.codes) {
-			if (code.getId() == id) {
-				return code;
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			for (ICode code : codeTree) {
+				if (code.getId() == id) {
+					return code;
+				}
 			}
 		}
 		return null;
+	}
+
+	public boolean codeExists(ICode code) {
+		for (TreeNode<ICode> codeTree : codeTrees) {
+			if (codeTree.find(code).size() > 0)
+				return true;
+		}
+		return false;
 	}
 
 	private void setCodeStoreFile(File codeStoreFile) {
 		this.codeStoreFile = codeStoreFile;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Set<ICode> getTopLevelCodes() {
-		return (Set<ICode>) this.codes.clone();
+	public List<ICode> getTopLevelCodes() {
+		List<ICode> topLevelCodes = new ArrayList<ICode>();
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			topLevelCodes.add(codeTree.getData());
+		}
+		return topLevelCodes;
+	}
+
+	/**
+	 * Returns all {@link TreeNode}s that are describe the given {@link ICode}
+	 * 
+	 * @param code
+	 * @return
+	 */
+	protected List<TreeNode<ICode>> find(ICode code) {
+		List<TreeNode<ICode>> treeNodes = new ArrayList<TreeNode<ICode>>();
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			treeNodes.addAll(codeTree.find(code));
+		}
+		return treeNodes;
+	}
+
+	/**
+	 * Returns the {@link TreeNode} that describes the given {@link ICode}.
+	 * <p>
+	 * In contrast to {@link #find(ICode)} this method checks via
+	 * <code>assert</code> if no more than one {@link TreeNode} is found.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	protected TreeNode<ICode> assertiveFind(ICode code) {
+		List<TreeNode<ICode>> treeNodes = find(code);
+		assert treeNodes.size() < 2;
+		return treeNodes.size() == 0 ? null : treeNodes.get(0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,24 +168,29 @@ class CodeStore implements ICodeStore {
 
 	public ICode createCode(String caption) throws CodeStoreFullException {
 		Long id = Long.MAX_VALUE;
-		ArrayList<Long> ids = new ArrayList<Long>(codes.size());
-		for (ICode code : codes) {
-			if (code.getId() == Long.MAX_VALUE)
-				throw new CodeStoreFullException();
-			ids.add(code.getId());
+		ArrayList<Long> ids = new ArrayList<Long>(codeTrees.size());
+		for (TreeNode<ICode> codeTree : codeTrees) {
+			for (ICode code : codeTree) {
+				if (code.getId() == Long.MAX_VALUE)
+					throw new CodeStoreFullException();
+				ids.add(code.getId());
+			}
 		}
 		ids.addAll(createdIds);
 		id = Code.calculateId(ids);
 		createdIds.add(id);
-		return new Code(id, caption);
+
+		ICode code = new Code(id, caption, new TimeZoneDate());
+		codeTrees.add(new TreeNode<ICode>(code));
+		return code;
 	}
 
 	@Override
 	public ICodeInstance createCodeInstance(ICode code, ICodeable codeable)
 			throws InvalidParameterException, CodeStoreReadException,
 			DuplicateCodeInstanceException {
-		for (ICode currentCode : codes) {
-			if (currentCode.equals(code)) {
+		for (TreeNode<ICode> codeTree : codeTrees) {
+			if (codeTree.find(code).size() > 0) {
 				ICodeInstance codeInstance = new CodeInstance(code,
 						codeable.getCodeInstanceID(), new TimeZoneDate(
 								new Date(), TimeZone.getDefault()));
@@ -152,14 +208,14 @@ class CodeStore implements ICodeStore {
 	@Override
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException {
-		this.codes.add(code);
+		this.codeTrees.add(new TreeNode<ICode>(code));
 		this.save();
 	}
 
 	@Override
 	public void addAndSaveCodeInstance(ICodeInstance codeInstance)
 			throws CodeStoreWriteException {
-		if (!this.codes.contains(codeInstance.getCode()))
+		if (!this.codeExists(codeInstance.getCode()))
 			throw new CodeStoreWriteAbandonedCodeInstancesException(
 					Arrays.asList(codeInstance));
 		;
@@ -167,17 +223,41 @@ class CodeStore implements ICodeStore {
 		this.save();
 	}
 
-	@Override
 	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
-			CodeStoreReadException {
+			CodeHasChildCodesException, CodeDoesNotExistException {
+		removeAndSaveCode(code, false);
+	}
+
+	@Override
+	public void removeAndSaveCode(ICode code, boolean deleteInstance)
+			throws CodeStoreWriteException, CodeHasChildCodesException,
+			CodeDoesNotExistException {
+
 		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
 		for (ICodeInstance instance : this.codeInstances)
 			if (instance.getCode().equals(code))
 				abandoned.add(instance);
-		if (abandoned.size() > 0)
+		if (deleteInstance) {
+			for (ICodeInstance instance : abandoned) {
+				this.codeInstances.remove(instance);
+			}
+		} else if (abandoned.size() > 0) {
 			throw new CodeStoreWriteAbandonedCodeInstancesException(abandoned);
+		}
 
-		this.codes.remove(code);
+		List<TreeNode<ICode>> codeNodes = this.find(code);
+		assert codeNodes.size() < 2;
+		if (codeNodes.size() == 0)
+			throw new CodeDoesNotExistException(code);
+
+		if (codeNodes.get(0).hasChildren())
+			throw new CodeHasChildCodesException();
+
+		if (this.codeTrees.contains(codeNodes.get(0)))
+			this.codeTrees.remove(codeNodes.get(0));
+		else
+			codeNodes.get(0).removeFromParent();
+
 		this.save();
 	}
 
@@ -189,10 +269,76 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
+	public ICode getParent(ICode code) {
+		List<TreeNode<ICode>> foundNodes = find(code);
+		assert foundNodes.size() < 2;
+		if (foundNodes.size() == 1) {
+			TreeNode<ICode> parent = foundNodes.get(0).getParent();
+			return parent != null ? parent.getData() : null;
+		}
+		return null;
+	}
+
+	@Override
+	public ICode setParent(ICode code, ICode parentCode)
+			throws CodeDoesNotExistException, CodeStoreWriteException {
+		TreeNode<ICode> childNode = assertiveFind(code);
+
+		if (childNode == null)
+			throw new CodeDoesNotExistException(code);
+
+		TreeNode<ICode> parentNode = assertiveFind(parentCode);
+		TreeNode<ICode> oldParentNode = childNode.getParent();
+
+		if (childNode == parentNode)
+			throw new CodeStoreIntegrityProtectionException("Child node"
+					+ childNode + " can't be his own parent node");
+		if (childNode.isAncestorOf(childNode))
+			throw new CodeStoreIntegrityProtectionException("Node" + childNode
+					+ " can't be made a child node of its current child node "
+					+ parentCode);
+
+		// TODO: Komplexe Schleife
+
+		// remove from old parent
+		if (oldParentNode != null) {
+			childNode.removeFromParent();
+		} else if (this.codeTrees.contains(childNode)) {
+			this.codeTrees.remove(childNode);
+		} else {
+			assert false;
+		}
+
+		// add to new parent
+		if (parentNode != null) {
+			parentNode.add(childNode);
+		} else {
+			this.codeTrees.add(childNode);
+		}
+
+		save();
+		return (oldParentNode != null) ? oldParentNode.getData() : null;
+	}
+
+	@Override
+	public List<ICode> getChildren(ICode code) {
+		List<ICode> childCodes = new ArrayList<ICode>();
+		for (TreeNode<ICode> codeTree : codeTrees) {
+			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
+			assert foundNodes.size() < 2;
+			if (foundNodes.size() == 1) {
+				for (TreeNode<ICode> childNode : foundNodes.get(0).children()) {
+					childCodes.add(childNode.getData());
+				}
+			}
+		}
+		return childCodes;
+	}
+
+	@Override
 	public void save() throws CodeStoreWriteException {
 		try {
 			xstream.toXML(this, new FileWriter(codeStoreFile));
-			System.err.println(xstream.toXML(this));
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
@@ -200,8 +346,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void deleteCodeInstance(ICodeInstance codeInstance)
-			throws CodeInstanceDoesNotExistException, CodeStoreWriteException,
-			CodeStoreReadException {
+			throws CodeInstanceDoesNotExistException, CodeStoreWriteException {
 		if (!this.codeInstances.contains(codeInstance))
 			throw new CodeInstanceDoesNotExistException();
 		this.codeInstances.remove(codeInstance);
@@ -216,16 +361,6 @@ class CodeStore implements ICodeStore {
 				iter.remove();
 			}
 		}
-		this.save();
-	}
-
-	@Override
-	public void deleteCode(ICode code) throws CodeStoreReadException,
-			CodeStoreWriteException, CodeDoesNotExistException {
-		if (!codes.contains(code))
-			throw new CodeDoesNotExistException();
-		deleteCodeInstances(code);
-		this.codes.remove(code);
 		this.save();
 	}
 }

@@ -24,6 +24,13 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	private Calendar calendar;
 
 	/**
+	 * Constructs a new instance that describes this very moment (now).
+	 */
+	public TimeZoneDate() throws IllegalArgumentException {
+		this(new Date(), TimeZone.getDefault());
+	}
+
+	/**
 	 * Constructs a new instance based on a ISO8601 date representation.
 	 * <p>
 	 * e.g. 1984-05-15T14:30:00+01:00

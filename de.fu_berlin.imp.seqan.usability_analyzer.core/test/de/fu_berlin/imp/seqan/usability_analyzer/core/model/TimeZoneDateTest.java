@@ -1,9 +1,17 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TimeZoneDateTest {
+
+	@Test
+	public void defaultConstructor() {
+		Assert.assertTrue(Math.abs(new Date().getTime()
+				- new TimeZoneDate().getTime()) < 10);
+	}
 
 	@Test
 	public void testFormat() {

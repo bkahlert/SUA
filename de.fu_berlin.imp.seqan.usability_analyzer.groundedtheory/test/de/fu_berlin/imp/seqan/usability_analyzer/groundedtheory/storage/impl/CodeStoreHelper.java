@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -64,8 +65,8 @@ public class CodeStoreHelper {
 								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.small.xml")
 						.getFile());
 
-		code1 = new Code(234233209l, "Code #1");
-		code2 = new Code(9908372l, "Code #2");
+		code1 = new Code(234233209l, "Code #1", new TimeZoneDate());
+		code2 = new Code(9908372l, "Code #2", new TimeZoneDate());
 
 		codes = new ICode[] { code1, code2 };
 
@@ -90,7 +91,7 @@ public class CodeStoreHelper {
 	 */
 	protected void testCodes(ICodeStore codeStore, ICode[] codes)
 			throws IOException {
-		Set<ICode> loadedCodes = codeStore.getTopLevelCodes();
+		List<ICode> loadedCodes = codeStore.getTopLevelCodes();
 		Assert.assertEquals(codes.length, loadedCodes.size());
 
 		HashMap<ICode, Boolean> inCodeStore = new HashMap<ICode, Boolean>();
@@ -116,17 +117,21 @@ public class CodeStoreHelper {
 		}
 	}
 
-	protected void testCodeInstances(ICodeStore codeStore,
-			ICodeInstance[] codeInstances) throws CodeStoreReadException {
-		Set<ICodeInstance> loadedCodeInstances = codeStore.loadInstances();
-		Assert.assertEquals(codeInstances.length, loadedCodeInstances.size());
+	protected void testCodeInstances(ICodeStore actualCodeInstances,
+			ICodeInstance[] expectedCodeInstances) throws CodeStoreReadException {
+		testCodeInstances(actualCodeInstances.loadInstances(), expectedCodeInstances);
+	}
+
+	protected void testCodeInstances(Set<ICodeInstance> actualCodeInstances,
+			ICodeInstance[] expectedCodeInstances) throws CodeStoreReadException {
+		Assert.assertEquals(expectedCodeInstances.length, actualCodeInstances.size());
 
 		HashMap<ICodeInstance, Boolean> inCodeStore = new HashMap<ICodeInstance, Boolean>();
-		for (ICodeInstance loadedInstance : loadedCodeInstances)
+		for (ICodeInstance loadedInstance : actualCodeInstances)
 			inCodeStore.put(loadedInstance, false);
 
-		for (ICodeInstance loadedInstance : loadedCodeInstances) {
-			for (ICodeInstance instance : codeInstances) {
+		for (ICodeInstance loadedInstance : actualCodeInstances) {
+			for (ICodeInstance instance : expectedCodeInstances) {
 				if (loadedInstance.getId().equals(instance.getId())) {
 					Assert.assertEquals(instance.getCode(),
 							loadedInstance.getCode());

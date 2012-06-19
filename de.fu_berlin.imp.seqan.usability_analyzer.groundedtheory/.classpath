@@ -14,6 +14,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="test-data"/>
+	<classpathentry kind="src" path="src-ext"/>
+	<classpathentry kind="src" path="test-ext"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

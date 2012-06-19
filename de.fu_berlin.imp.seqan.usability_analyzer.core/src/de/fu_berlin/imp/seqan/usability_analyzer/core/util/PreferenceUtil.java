@@ -9,7 +9,8 @@ public class PreferenceUtil {
 	private IPreferenceStore preferenceStore;
 
 	public PreferenceUtil(AbstractUIPlugin plugin) {
-		this.preferenceStore = plugin.getPreferenceStore();
+		this.preferenceStore = (plugin != null) ? plugin.getPreferenceStore()
+				: null;
 	}
 
 	public void addPropertyChangeListener(

@@ -13,6 +13,7 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
 
 public class CodeServiceTest extends CodeServicesHelper {
 
@@ -23,10 +24,9 @@ public class CodeServiceTest extends CodeServicesHelper {
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery();
 
-	@Test(expected = CodeServiceException.class)
+	@Test(expected = CodeStoreReadException.class)
 	public void testNonExistingGetCodes() throws IOException {
-		ICodeService nonExistingCodeService = getNonExistingCodeService();
-		nonExistingCodeService.getCodes(context.mock(ICodeable.class));
+		getNonExistingCodeService();
 	}
 
 	@Test
@@ -46,12 +46,6 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(1, smallCodeService.getCodes(codeable).size());
 		Assert.assertEquals(9908372l, smallCodeService.getCodes(codeable)
 				.get(0).getId());
-	}
-
-	@Test(expected = CodeServiceException.class)
-	public void testNonExistingAddCode() throws IOException {
-		ICodeService nonExistingCodeService = getNonExistingCodeService();
-		nonExistingCodeService.addCode("abc", context.mock(ICodeable.class));
 	}
 
 	@Test
@@ -113,20 +107,6 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(0, emptyCodeService.getCodes(codeable).size());
 		emptyCodeService.addCode(code2, codeable);
 		emptyCodeService.addCode(code2, codeable);
-	}
-
-	@Test(expected = CodeServiceException.class)
-	public void testNonExistingRemoveCode() throws IOException {
-		final ICodeable codeable = context.mock(ICodeable.class);
-		context.checking(new Expectations() {
-			{
-				allowing(codeable).getCodeInstanceID();
-				will(returnValue(codeInstance1.getId()));
-			}
-		});
-
-		ICodeService codeService = getNonExistingCodeService();
-		codeService.removeCode(code1, codeable);
 	}
 
 	@Test(expected = CodeServiceException.class)
@@ -197,12 +177,6 @@ public class CodeServiceTest extends CodeServicesHelper {
 	}
 
 	@Test(expected = CodeServiceException.class)
-	public void testNonExistingDeleteCodeNonExisting() throws IOException {
-		ICodeService codeService = getNonExistingCodeService();
-		codeService.deleteCode(code1);
-	}
-
-	@Test(expected = CodeServiceException.class)
 	public void testEmptyCodeNonExisting() throws IOException {
 		ICodeService codeService = getEmptyCodeService();
 		codeService.deleteCode(code1);
@@ -253,14 +227,13 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(1, codeService.getCodes(codeable3).size());
 		Assert.assertEquals(code2, codeService.getCodes(codeable3).get(0));
 
-		codeService.deleteCode(code2);
+		codeService.deleteCode(code2, true);
 
 		Assert.assertEquals(0, codeService.getCodes(codeable1).size());
 		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
 		Assert.assertEquals(code1, codeService.getCodes(codeable2).get(0));
 		Assert.assertEquals(0, codeService.getCodes(codeable3).size());
 
-		// TODO check if code2 has been actually removed (not only its
-		// instances)
+		Assert.assertNull(codeService.getCode(code2.getId()));
 	}
 }

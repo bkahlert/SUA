@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
-import java.util.Set;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 
 public interface ICode {
 	public long getId();
@@ -9,9 +9,5 @@ public interface ICode {
 
 	public void setCaption(String newCaption);
 
-	public Set<ICode> getChildCodes();
-
-	public void addChildCode(ICode code);
-
-	public void removeChildCode(ICode code);
+	public TimeZoneDate getCreation();
 }

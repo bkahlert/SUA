@@ -1,14 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 
 public class Code implements ICode {
-
-	private Set<ICode> childCodes = new HashSet<ICode>();
 
 	/**
 	 * Calculates a unique {@link ID} based on given {@link ID}s
@@ -26,10 +23,12 @@ public class Code implements ICode {
 
 	private final long id;
 	private String caption;
+	private TimeZoneDate creation;
 
-	public Code(long id, String caption) {
+	public Code(long id, String caption, TimeZoneDate creation) {
 		this.id = id;
 		this.caption = caption;
+		this.creation = creation;
 	}
 
 	public long getId() {
@@ -47,18 +46,8 @@ public class Code implements ICode {
 	}
 
 	@Override
-	public Set<ICode> getChildCodes() {
-		return this.childCodes;
-	}
-
-	@Override
-	public void addChildCode(ICode code) {
-		this.childCodes.add(code);
-	}
-
-	@Override
-	public void removeChildCode(ICode code) {
-		this.childCodes.remove(code);
+	public TimeZoneDate getCreation() {
+		return creation;
 	}
 
 	@Override

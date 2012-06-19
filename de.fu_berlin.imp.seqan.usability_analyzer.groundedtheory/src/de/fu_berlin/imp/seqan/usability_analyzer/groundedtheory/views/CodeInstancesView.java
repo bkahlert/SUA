@@ -67,8 +67,13 @@ public class CodeInstancesView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
+		this.codeInstanceViewer.setFocus();
+	}
 
+	public ICodeable getCodeable() {
+		if (this.codeInstanceViewer == null)
+			return null;
+		return this.codeInstanceViewer.getCodeable();
 	}
 
 }

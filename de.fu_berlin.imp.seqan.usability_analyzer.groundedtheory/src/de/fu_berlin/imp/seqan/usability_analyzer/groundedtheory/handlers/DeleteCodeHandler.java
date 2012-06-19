@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +16,7 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class DeleteCodeHandler extends AbstractHandler {
 
@@ -24,26 +26,64 @@ public class DeleteCodeHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
+		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+				.getService(ICodeService.class);
+
 		List<ICode> codes = SelectionRetrieverFactory.getSelectionRetriever(
 				ICode.class).getSelection();
 
-		boolean delete = MessageDialog.openQuestion(PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getShell(),
-				"Delete Code" + ((codes.size() != 1) ? "s" : ""),
-				"Do you really want to delete the following codes:\n"
-						+ StringUtils.join(codes.toArray(), "\n"));
+		boolean childCodesExist = false;
+		for (ICode code : codes) {
+			if (codeService.getChildren(code).size() > 0) {
+				childCodesExist = true;
+				break;
+			}
+		}
+		if (childCodesExist) {
+			MessageDialog.openError(PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getShell(), "Delete Code"
+					+ ((codes.size() != 1) ? "s" : ""),
+					"The code" + ((codes.size() != 1) ? "s have" : " has")
+							+ " child codes.\n"
+							+ "You need to manually delete all child codes "
+							+ "before deleting the selected ones.");
+			return null;
+		}
 
-		if (delete) {
-			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-					.getService(ICodeService.class);
+		List<ICodeInstance> codeInstances = new LinkedList<ICodeInstance>();
+		for (ICode code : codes)
+			codeInstances.addAll(codeService.getInstances(code));
 
+		if (codeInstances.size() == 0) {
 			for (ICode code : codes) {
 				try {
 					codeService.deleteCode(code);
 				} catch (CodeServiceException e) {
-					LOGGER.error("Error deleting code \"" + code + "\"", e);
+					LOGGER.error("Error deleting "
+							+ ICode.class.getSimpleName() + ": " + code);
 				}
 			}
+		} else {
+			boolean delete = MessageDialog.openQuestion(PlatformUI
+					.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					"Delete Code" + ((codes.size() != 1) ? "s" : ""),
+					"The code" + ((codes.size() != 1) ? "s" : "") + " ("
+							+ StringUtils.join(codes, ", ")
+							+ ") you are trying to delete are still in"
+							+ " use by the following artefact"
+							+ ((codeInstances.size() != 1) ? "s" : "") + ":\n"
+							+ StringUtils.join(codeInstances.toArray(), ", ")
+							+ "\n\nDo you really want to delete the code?"
+							+ ((codes.size() != 1) ? "s" : ""));
+			if (delete)
+				for (ICode code : codes) {
+					try {
+						codeService.deleteCode(code, true);
+					} catch (CodeServiceException e) {
+						LOGGER.error("Error deleting code \"" + code + "\"", e);
+					}
+				}
+			;
 		}
 
 		return null;

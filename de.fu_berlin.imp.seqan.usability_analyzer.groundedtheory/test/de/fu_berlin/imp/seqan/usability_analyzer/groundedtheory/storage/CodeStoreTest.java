@@ -1,9 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -58,7 +62,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testEmptyLoadCodes() throws IOException, SAXParseException {
-		Set<ICode> loadedCodes = getEmptyCodeStore().getTopLevelCodes();
+		List<ICode> loadedCodes = getEmptyCodeStore().getTopLevelCodes();
 		Assert.assertEquals(0, loadedCodes.size());
 	}
 
@@ -155,7 +159,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		ICode code3 = new Code(42l, "solution");
+		ICode code3 = new Code(42l, "solution", new TimeZoneDate());
 
 		codeStore.addAndSaveCode(code3);
 		Assert.assertEquals(3, codeStore.getTopLevelCodes().size());
@@ -166,7 +170,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test(expected = CodeStoreWriteAbandonedCodeInstancesException.class)
 	public void testSmallFileSaveCodesMakingInstancesInvalid()
-			throws IOException {
+			throws IOException, CodeHasChildCodesException,
+			CodeDoesNotExistException {
 		ICodeStore codeStore = getSmallCodeStore();
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
@@ -175,7 +180,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 	}
 
 	@Test
-	public void testSmallFileSaveCodeInstances() throws IOException {
+	public void testSmallFileSaveCodeInstances() throws IOException,
+			CodeHasChildCodesException, CodeDoesNotExistException {
 		ICodeStore codeStore = getSmallCodeStore();
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
@@ -210,7 +216,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test(expected = CodeStoreWriteAbandonedCodeInstancesException.class)
 	public void testSmallFileSaveCodeInstancesMakingInstancesInvalid()
-			throws IOException {
+			throws IOException, CodeHasChildCodesException,
+			CodeDoesNotExistException {
 		ICodeStore codeStore = getSmallCodeStore();
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
@@ -252,12 +259,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
 		Assert.assertEquals(0, codeStore.loadInstances().size());
 
-		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1"),
-				codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2"),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(5l, "Code #3"));
-		Assert.assertEquals(new Code(6l, "Code #4"),
+		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1",
+				new TimeZoneDate()), codeStore.createCode("Code #1"));
+		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2",
+				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
+		Assert.assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -268,12 +275,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
 		Assert.assertEquals(0, codeStore.loadInstances().size());
 
-		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1"),
-				codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2"),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(5l, "Code #3"));
-		Assert.assertEquals(new Code(6l, "Code #4"),
+		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1",
+				new TimeZoneDate()), codeStore.createCode("Code #1"));
+		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2",
+				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
+		Assert.assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -284,12 +291,14 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		Assert.assertEquals(new Code(234233209l + 1l, "Code #1"),
-				codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(234233209l + 2l, "Code #2"),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(300000000l, "Code #3"));
-		Assert.assertEquals(new Code(300000001l, "Code #4"),
+		Assert.assertEquals(new Code(234233209l + 1l, "Code #1",
+				new TimeZoneDate()), codeStore.createCode("Code #1"));
+		Assert.assertEquals(new Code(234233209l + 2l, "Code #2",
+				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		codeStore.addAndSaveCode(new Code(300000000l, "Code #3",
+				new TimeZoneDate()));
+		Assert.assertEquals(
+				new Code(300000001l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -300,7 +309,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		codeStore.addAndSaveCode(new Code(Long.MAX_VALUE, "Code #1"));
+		codeStore.addAndSaveCode(new Code(Long.MAX_VALUE, "Code #1",
+				new TimeZoneDate()));
 		codeStore.createCode("Code #2");
 	}
 
@@ -389,6 +399,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 						return creation;
 					}
 				} });
+	}
+
+	@Test
+	public void testLoadInstances() throws IOException {
+		ICodeStore codeStore = getSmallCodeStore();
+		assertEquals(codeStore.loadInstances(), codeInstances);
 	}
 
 	@Test(expected = CodeInstanceDoesNotExistException.class)
@@ -503,7 +519,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
 		Assert.assertEquals(0, codeStore.loadInstances().size());
 
-		codeStore.deleteCode(code);
+		codeStore.removeAndSaveCode(code);
 	}
 
 	@Test
@@ -513,7 +529,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance2, codeInstance3 });
 
-		codeStore.deleteCode(code2);
+		codeStore.removeAndSaveCode(code2, true);
 
 		testCodes(codeStore, new ICode[] { code1 });
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance2 });

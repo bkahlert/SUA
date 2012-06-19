@@ -65,6 +65,10 @@ public class ImageManager {
 			ENTITY,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image ENTITY_PARTIALLY_CODED = new DecorationOverlayIcon(
+			ENTITY,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
 
 	//	public static final Image ICON_BUDDY_SAROS = getImage("icons/obj16/buddy_saros_obj.png"); //$NON-NLS-1$
 	//	public static Image ICON_UPNP = getImage("icons/obj16/upnp_obj.png"); //$NON-NLS-1$

@@ -45,7 +45,7 @@ public class DiffUtilsTest {
 		context.checking(new Expectations() {
 			{
 				oneOf(diffFile).getId();
-				will(returnValue(new ID("the_id")));
+				will(returnValue(new ID("theID")));
 
 				oneOf(diffFile).getRevision();
 				will(returnValue("0000027837"));
@@ -61,7 +61,7 @@ public class DiffUtilsTest {
 		SourceCache diffUtils = new SourceCache(cachedSourcesDirectory);
 		Assert.assertEquals(
 				new File(
-						"/log_directory/sources/the_id/27837/this/is/the/path/to/the/file.cpp"),
+						"/log_directory/sources/theID/27837/this/is/the/path/to/the/file.cpp"),
 				diffUtils.getCachedSourceFile(diffFileRecord.getDiffFile(),
 						diffFileRecord.getFilename()));
 	}

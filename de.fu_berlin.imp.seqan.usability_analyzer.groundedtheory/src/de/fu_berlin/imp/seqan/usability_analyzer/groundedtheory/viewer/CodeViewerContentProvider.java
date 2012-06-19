@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -25,33 +24,41 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeAdded(ICode code) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(viewer, false);
+			ViewerUtils.expandAll(viewer, code);
 		}
 
 		@Override
 		public void codeAssigned(ICode code, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(viewer, code, true);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.update(viewer, code, null);
 		}
 
 		@Override
 		public void codeRemoved(ICode code, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(viewer, false);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(viewer, true);
+			if (oldParentCode == null || newParentCode == null) {
+				ViewerUtils.refresh(viewer, false);
+			} else {
+				if (oldParentCode != null)
+					ViewerUtils.refresh(viewer, oldParentCode, true);
+				if (newParentCode != null)
+					ViewerUtils.refresh(viewer, newParentCode, true);
+			}
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.remove(viewer, code);
 		}
 	};
 
@@ -59,14 +66,14 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = viewer;
 
+		if (this.codeService != null) {
+			this.codeService.removeCodeServiceListener(codeServiceListener);
+		}
+		this.codeService = null;
+
 		if (ICodeService.class.isInstance(newInput)) {
 			this.codeService = (ICodeService) newInput;
 			this.codeService.addCodeServiceListener(codeServiceListener);
-		} else {
-			if (this.codeService != null) {
-				this.codeService.removeCodeServiceListener(codeServiceListener);
-			}
-			this.codeService = null;
 		}
 	}
 
@@ -79,6 +86,14 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 
 	@Override
 	public Object getParent(Object element) {
+		if (ICode.class.isInstance(element)) {
+			ICode code = (ICode) element;
+			if (this.codeService != null) {
+				ICode parent = this.codeService.getParent(code);
+				return parent;
+			}
+			return null;
+		}
 		if (ICodeInstance.class.isInstance(element)) {
 			return ((ICodeInstance) element).getCode();
 		}
@@ -89,11 +104,10 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	public boolean hasChildren(Object element) {
 		if (ICode.class.isInstance(element)) {
 			ICode code = (ICode) element;
-			for (ICodeInstance codeInstance : codeService.getCodeStore()
-					.loadInstances()) {
-				if (codeInstance.getCode().equals(code))
-					return true;
-			}
+			if (this.codeService.getChildren(code).size() > 0)
+				return true;
+			if (this.codeService.getInstances(code).size() > 0)
+				return true;
 		}
 		return false;
 	}
@@ -103,16 +117,9 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		if (ICode.class.isInstance(parentElement)) {
 			ICode code = (ICode) parentElement;
 
-			// Child Codes
 			ArrayList<Object> childNodes = new ArrayList<Object>();
-			childNodes.addAll(code.getChildCodes());
-
-			// Instances
-			for (ICodeInstance codeInstance : codeService.getCodeStore()
-					.loadInstances()) {
-				if (codeInstance.getCode().equals(code))
-					childNodes.add(codeInstance);
-			}
+			childNodes.addAll(this.codeService.getChildren(code));
+			childNodes.addAll(this.codeService.getInstances(code));
 
 			return childNodes.toArray();
 		}
@@ -124,8 +131,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		if (!(inputElement instanceof ICodeService))
 			return new Object[0];
 
-		Set<ICode> codes = ((ICodeService) inputElement).getCodeStore()
-				.getTopLevelCodes();
+		List<ICode> codes = ((ICodeService) inputElement).getTopLevelCodes();
 		if (codes.size() > 0)
 			return codes.toArray();
 		else

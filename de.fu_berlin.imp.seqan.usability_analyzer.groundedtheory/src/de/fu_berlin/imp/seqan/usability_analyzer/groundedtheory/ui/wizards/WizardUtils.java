@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.inf.nebula.wizards.dialogs.CenteredWizardDialog;
 
@@ -93,6 +94,9 @@ public class WizardUtils {
 	/**
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
+	 * 
+	 * @param codeable
+	 * @return
 	 */
 	@SuppressWarnings("serial")
 	public static AddCodeWizard openAddCodeWizard(final ICodeable codeable) {
@@ -102,5 +106,18 @@ public class WizardUtils {
 						add(codeable);
 					}
 				}), new Point(800, 600));
+	}
+
+	/**
+	 * Opens a {@link CreateCodeWizard} in the SWT thread and returns the
+	 * displayed instance in case of success.
+	 * 
+	 * @param parentCode
+	 * @return
+	 * @return
+	 */
+	public static CreateCodeWizard openNewCodeWizard(ICode parentCode) {
+		return openWizardSuccessfully(new CreateCodeWizard(parentCode),
+				new Point(500, 300));
 	}
 }

@@ -67,8 +67,7 @@ public class CodeInstanceViewerContentProvider implements
 			this.codeService.addCodeServiceListener(codeServiceListener);
 		} else {
 			if (this.codeables != null) {
-				this.codeService
-						.removeCodeServiceListener(codeServiceListener);
+				this.codeService.removeCodeServiceListener(codeServiceListener);
 			}
 			this.codeables = null;
 		}
@@ -94,7 +93,8 @@ public class CodeInstanceViewerContentProvider implements
 		if (ICodeable.class.isInstance(element)) {
 			return true;
 		}
-		return false;
+		Object[] children = getChildren(element);
+		return children != null ? getChildren(element).length > 0 : false;
 	}
 
 	@Override
@@ -110,6 +110,14 @@ public class CodeInstanceViewerContentProvider implements
 			} catch (CodeServiceException e) {
 				return null;
 			}
+		}
+		if (ICode.class.isInstance(parentElement)) {
+			ICode code = (ICode) parentElement;
+			ICode parentCode = codeService.getParent(code);
+			if (parentCode != null)
+				return new Object[] { parentCode };
+			else
+				return new Object[0];
 		}
 		return null;
 	}

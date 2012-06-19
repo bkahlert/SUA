@@ -56,7 +56,7 @@ public class DoclogRecordListTest {
 			if (out != null)
 				out.close();
 		}
-		return new DoclogFile(file, new ID("fake_id"),
+		return new DoclogFile(file, new ID("fakeID"),
 				DoclogFile.getDateRange(file), DoclogFile.getToken(file));
 	}
 

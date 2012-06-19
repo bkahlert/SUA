@@ -94,7 +94,7 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.rename"
+               commandId="org.eclipse.ui.edit.rename"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -128,5 +128,24 @@
             </iterate>
          </with>
       </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <scheme
+            id="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            name="SeqAn Usability Analyzer">
+      </scheme>
+      <key
+            commandId="org.eclipse.ui.edit.rename"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="F2">
+      </key>
+      <key
+            commandId="org.eclipse.ui.edit.delete"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="Delete">
+      </key>
    </extension>
 </plugin>

@@ -25,252 +25,316 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ViewerUtils {
 
-    private ViewerUtils() {
-        // no instantiation allowed
-    }
+	private ViewerUtils() {
+		// no instantiation allowed
+	}
 
-    /**
-     * Sets a viewer's input and makes sure it runs in the SWT thread
-     * 
-     * @param viewer
-     * @param input
-     * 
-     * @see Viewer#setInput(Object)
-     */
-    public static void setInput(final Viewer viewer, final Object input) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Sets a viewer's input and makes sure it runs in the SWT thread
+	 * 
+	 * @param viewer
+	 * @param input
+	 * 
+	 * @see Viewer#setInput(Object)
+	 */
+	public static void setInput(final Viewer viewer, final Object input) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                viewer.setInput(input);
-            }
-        });
-    }
+				viewer.setInput(input);
+			}
+		});
+	}
 
-    /**
-     * Add the a new element to a given element in a viewer and makes sure it
-     * runs in the SWT thread. Runs a refresh in case the viewer does not
-     * support additions.
-     * 
-     * @param viewer
-     * @param parentElementOrTreePath
-     * @param childElement
-     * 
-     * @see StructuredViewer#refresh(boolean)
-     */
-    public static void add(final Viewer viewer,
-        final Object parentElementOrTreePath, final Object childElement) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Add the a new element to a given element in a viewer and makes sure it
+	 * runs in the SWT thread. Runs a refresh in case the viewer does not
+	 * support additions.
+	 * 
+	 * @param viewer
+	 * @param parentElementOrTreePath
+	 * @param childElement
+	 * 
+	 * @see StructuredViewer#refresh(boolean)
+	 */
+	public static void add(final Viewer viewer,
+			final Object parentElementOrTreePath, final Object childElement) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.add(parentElementOrTreePath, childElement);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.add(parentElementOrTreePath, childElement);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Add the new elements to a given element in a viewer and makes sure it
-     * runs in the SWT thread. Runs a refresh in case the viewer does not
-     * support additions.
-     * 
-     * @param viewer
-     * @param parentElementOrTreePath
-     * @param childElements
-     * 
-     * @see StructuredViewer#refresh(boolean)
-     */
-    public static void add(final Viewer viewer,
-        final Object parentElementOrTreePath, final Object[] childElements) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Add the new elements to a given element in a viewer and makes sure it
+	 * runs in the SWT thread. Runs a refresh in case the viewer does not
+	 * support additions.
+	 * 
+	 * @param viewer
+	 * @param parentElementOrTreePath
+	 * @param childElements
+	 * 
+	 * @see StructuredViewer#refresh(boolean)
+	 */
+	public static void add(final Viewer viewer,
+			final Object parentElementOrTreePath, final Object[] childElements) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.add(parentElementOrTreePath, childElements);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.add(parentElementOrTreePath, childElements);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Removes an existing element from a viewer and makes sure it runs in the
-     * SWT thread. Runs a refresh in case the viewer does not support removals.
-     * 
-     * @param viewer
-     * @param elementsOrTreePaths
-     * 
-     * @see StructuredViewer#refresh(boolean)
-     */
-    public static void remove(final Viewer viewer,
-        final Object elementsOrTreePaths) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Removes an existing element from a viewer and makes sure it runs in the
+	 * SWT thread. Runs a refresh in case the viewer does not support removals.
+	 * 
+	 * @param viewer
+	 * @param elementsOrTreePaths
+	 * 
+	 * @see StructuredViewer#refresh(boolean)
+	 */
+	public static void remove(final Viewer viewer,
+			final Object elementsOrTreePaths) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.remove(elementsOrTreePaths);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.remove(elementsOrTreePaths);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Removes existing elements from a viewer and makes sure it runs in the SWT
-     * thread. Runs a refresh in case the viewer does not support removals.
-     * 
-     * @param viewer
-     * @param elementsOrTreePaths
-     * 
-     * @see StructuredViewer#refresh(boolean)
-     */
-    public static void remove(final Viewer viewer,
-        final Object[] elementsOrTreePaths) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Removes existing elements from a viewer and makes sure it runs in the SWT
+	 * thread. Runs a refresh in case the viewer does not support removals.
+	 * 
+	 * @param viewer
+	 * @param elementsOrTreePaths
+	 * 
+	 * @see StructuredViewer#refresh(boolean)
+	 */
+	public static void remove(final Viewer viewer,
+			final Object[] elementsOrTreePaths) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.remove(elementsOrTreePaths);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.remove(elementsOrTreePaths);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Updates a viewer's element and makes sure it runs in the SWT thread. Runs
-     * a refresh in case the viewer does not support updates.
-     * 
-     * @param viewer
-     * @param element
-     * @param properties
-     * 
-     * @see StructuredViewer#update(Object, String[])
-     */
-    public static void update(final Viewer viewer, final Object element,
-        final String[] properties) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Updates a viewer's element and makes sure it runs in the SWT thread. Runs
+	 * a refresh in case the viewer does not support updates.
+	 * 
+	 * @param viewer
+	 * @param element
+	 * @param properties
+	 * 
+	 * @see StructuredViewer#update(Object, String[])
+	 */
+	public static void update(final Viewer viewer, final Object element,
+			final String[] properties) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof StructuredViewer) {
-                    StructuredViewer structuredViewer = (StructuredViewer) viewer;
-                    structuredViewer.update(element, properties);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof StructuredViewer) {
+					StructuredViewer structuredViewer = (StructuredViewer) viewer;
+					structuredViewer.update(element, properties);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Updates a viewer's elements and makes sure it runs in the SWT thread.
-     * Runs a refresh in case the viewer does not support updates.
-     * 
-     * @param viewer
-     * @param elements
-     * @param properties
-     * 
-     * @see StructuredViewer#update(Object[], String[])
-     */
-    public static void update(final Viewer viewer, final Object[] elements,
-        final String[] properties) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Updates a viewer's elements and makes sure it runs in the SWT thread.
+	 * Runs a refresh in case the viewer does not support updates.
+	 * 
+	 * @param viewer
+	 * @param elements
+	 * @param properties
+	 * 
+	 * @see StructuredViewer#update(Object[], String[])
+	 */
+	public static void update(final Viewer viewer, final Object[] elements,
+			final String[] properties) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof StructuredViewer) {
-                    StructuredViewer structuredViewer = (StructuredViewer) viewer;
-                    structuredViewer.update(elements, properties);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof StructuredViewer) {
+					StructuredViewer structuredViewer = (StructuredViewer) viewer;
+					structuredViewer.update(elements, properties);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * Refreshes a viewer's display and makes sure it runs in the SWT thread.
-     * 
-     * @param viewer
-     * @param updateLabels
-     * 
-     * @see Viewer#refresh()
-     * @see StructuredViewer#refresh(boolean)
-     */
-    public static void refresh(final Viewer viewer, final boolean updateLabels) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Refreshes a viewer's display and makes sure it runs in the SWT thread.
+	 * 
+	 * @param viewer
+	 * @param updateLabels
+	 * 
+	 * @see Viewer#refresh()
+	 * @see StructuredViewer#refresh(boolean)
+	 */
+	public static void refresh(final Viewer viewer, final boolean updateLabels) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof StructuredViewer) {
-                    StructuredViewer structuredViewer = (StructuredViewer) viewer;
-                    structuredViewer.refresh(updateLabels);
-                } else {
-                    viewer.refresh();
-                }
-            }
-        });
-    }
+				if (viewer instanceof StructuredViewer) {
+					StructuredViewer structuredViewer = (StructuredViewer) viewer;
+					structuredViewer.refresh(updateLabels);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * @see AbstractTreeViewer#expandToLevel(int)
-     */
-    public static void expandToLevel(final Viewer viewer, final int level) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * Refreshes a viewer's display and makes sure it runs in the SWT thread.
+	 * 
+	 * @param viewer
+	 * @param element
+	 * @param updateLabels
+	 * 
+	 * @see Viewer#refresh()
+	 * @see StructuredViewer#refresh(Object, boolean)
+	 */
+	public static void refresh(final Viewer viewer, final Object element,
+			final boolean updateLabels) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.expandToLevel(level);
-                }
-            }
-        });
-    }
+				if (viewer instanceof StructuredViewer) {
+					StructuredViewer structuredViewer = (StructuredViewer) viewer;
+					structuredViewer.refresh(element, updateLabels);
+				} else {
+					viewer.refresh();
+				}
+			}
+		});
+	}
 
-    /**
-     * If supported by the viewer expands all elements and makes sure it runs in
-     * the SWT thread.
-     * 
-     * @param viewer
-     * 
-     * @see AbstractTreeViewer#expandAll()
-     */
-    public static void expandAll(final Viewer viewer) {
-        Display.getDefault().syncExec(new Runnable() {
-            public void run() {
-                if (viewer == null || viewer.getControl().isDisposed())
-                    return;
+	/**
+	 * @see AbstractTreeViewer#expandToLevel(int)
+	 */
+	public static void expandToLevel(final Viewer viewer, final int level) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
 
-                if (viewer instanceof AbstractTreeViewer) {
-                    AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-                    treeViewer.expandAll();
-                }
-            }
-        });
-    }
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.expandToLevel(level);
+				}
+			}
+		});
+	}
+
+	/**
+	 * @see AbstractTreeViewer#expandToLevel(int)
+	 */
+	public static void expandToLevel(final Viewer viewer,
+			final Object elementOrTreePath, final int level) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
+
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.expandToLevel(elementOrTreePath, level);
+				}
+			}
+		});
+	}
+
+	/**
+	 * If supported by the viewer expands all elements and makes sure it runs in
+	 * the SWT thread.
+	 * 
+	 * @param viewer
+	 * 
+	 * @see AbstractTreeViewer#expandAll()
+	 */
+	public static void expandAll(final Viewer viewer) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
+
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.expandAll();
+				}
+			}
+		});
+	}
+
+	/**
+	 * @see AbstractTreeViewer#expandToLevel(int)
+	 */
+	public static void expandAll(final Viewer viewer,
+			final Object elementOrTreePath) {
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				if (viewer == null || viewer.getControl().isDisposed())
+					return;
+
+				if (viewer instanceof AbstractTreeViewer) {
+					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+					treeViewer.expandToLevel(elementOrTreePath,
+							Integer.MAX_VALUE);
+				}
+			}
+		});
+	}
 }

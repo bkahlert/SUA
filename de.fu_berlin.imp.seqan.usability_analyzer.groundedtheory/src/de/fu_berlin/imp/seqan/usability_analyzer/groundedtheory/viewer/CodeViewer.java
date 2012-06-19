@@ -43,7 +43,6 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		tree.setLinesVisible(true);
 
 		this.treeViewer = new SortableTreeViewer(tree);
-		this.treeViewer.setAutoExpandLevel(2);
 		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
@@ -94,7 +93,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 					@Override
 					public String getText(Object element) {
 						if (ICode.class.isInstance(element)) {
-							return "";
+							ICode code = (ICode) element;
+							return preferenceUtil.getDateFormat().format(
+									code.getCreation().getDate());
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;

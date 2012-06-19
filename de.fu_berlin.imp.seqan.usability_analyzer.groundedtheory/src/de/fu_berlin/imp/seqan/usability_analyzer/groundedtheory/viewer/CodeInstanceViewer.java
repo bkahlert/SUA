@@ -1,18 +1,21 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
@@ -23,6 +26,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger
+			.getLogger(CodeInstanceViewer.class);
 	private SortableTreeViewer treeViewer;
 
 	public CodeInstanceViewer(Composite parent, int style) {
@@ -34,7 +40,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		tree.setLinesVisible(true);
 
 		this.treeViewer = new SortableTreeViewer(tree);
-		this.treeViewer.setAutoExpandLevel(2);
+		this.treeViewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 		createColumns();
 		this.treeViewer
 				.setContentProvider(new CodeInstanceViewerContentProvider());
@@ -97,12 +103,6 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 				});
 	}
 
-	public Control getControl() {
-		if (this.treeViewer != null)
-			return this.treeViewer.getTree();
-		return null;
-	}
-
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		this.treeViewer.addSelectionChangedListener(listener);
@@ -130,6 +130,41 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 
 	public StructuredViewer getViewer() {
 		return treeViewer;
+	}
+
+	/**
+	 * Returns the {@link ICodeable} that is the root of the currently selected
+	 * item (e.g. a {@link ICode}).
+	 * 
+	 * @return
+	 */
+	public ICodeable getCodeable() {
+		List<ICodeable> codeables = new LinkedList<ICodeable>();
+		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
+		for (TreeItem treeItem : treeItems) {
+			ICodeable codeable = getCodeable(treeItem);
+			if (!codeables.contains(codeable))
+				codeables.add(codeable);
+		}
+		return codeables.size() == 1 ? codeables.get(0) : null;
+	}
+
+	/**
+	 * Returns the {@link ICodeable} that is the root of the given
+	 * {@link TreeItem}.
+	 * <p>
+	 * If the {@link TreeItem} is itself the representative for a
+	 * {@link ICodeable} it is also returned.
+	 * 
+	 * @param treeItem
+	 * @return
+	 */
+	public ICodeable getCodeable(TreeItem treeItem) {
+		if (treeItem.getData() instanceof ICodeable)
+			return (ICodeable) treeItem.getData();
+		if (treeItem.getParentItem() != null)
+			return getCodeable(treeItem.getParentItem());
+		return null;
 	}
 
 }
