@@ -28,6 +28,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeTransfer;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeableTransfer;
 
 public class ResortableCodeViewer extends CodeViewer {
 
@@ -41,8 +42,9 @@ public class ResortableCodeViewer extends CodeViewer {
 		final ISelectionRetriever<ICodeInstance> instanceRetriever = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeInstance.class);
 
-		int operations = DND.DROP_MOVE;
-		Transfer[] transferTypes = new Transfer[] { CodeTransfer.getInstance() };
+		int operations = DND.DROP_MOVE | DND.DROP_LINK;
+		Transfer[] transferTypes = new Transfer[] { CodeTransfer.getInstance(),
+				CodeableTransfer.getInstance() };
 
 		getViewer().addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
@@ -83,27 +85,41 @@ public class ResortableCodeViewer extends CodeViewer {
 								bounds = ((TableItem) event.item).getBounds();
 
 							if (event.item.getData() instanceof ICode) {
-								if (bounds != null) {
-									if (point.y < bounds.y + bounds.height / 3) {
-										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-									} else if (point.y > bounds.y + 2
-											* bounds.height / 3) {
-										event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+								if (CodeableTransfer.getInstance()
+										.isSupportedType(event.currentDataType)) {
+									event.feedback |= DND.FEEDBACK_SELECT;
+									event.detail = DND.DROP_LINK;
+								} else {
+									if (bounds != null) {
+										if (point.y < bounds.y + bounds.height
+												/ 3) {
+											event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+										} else if (point.y > bounds.y + 2
+												* bounds.height / 3) {
+											event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+										} else {
+											event.feedback |= DND.FEEDBACK_SELECT;
+										}
 									} else {
 										event.feedback |= DND.FEEDBACK_SELECT;
 									}
-								} else {
-									event.feedback |= DND.FEEDBACK_SELECT;
 								}
 							} else if (event.item.getData() instanceof ICodeInstance) {
-								if (bounds != null) {
-									if (point.y < bounds.y + bounds.height / 2) {
-										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-									} else {
-										event.feedback |= DND.FEEDBACK_INSERT_AFTER;
-									}
+								if (CodeableTransfer.getInstance()
+										.isSupportedType(event.currentDataType)) {
+									event.feedback = DND.FEEDBACK_NONE;
+									event.detail = DND.DROP_NONE;
 								} else {
-									event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+									if (bounds != null) {
+										if (point.y < bounds.y + bounds.height
+												/ 2) {
+											event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+										} else {
+											event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+										}
+									} else {
+										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+									}
 								}
 							}
 						}
@@ -127,23 +143,29 @@ public class ResortableCodeViewer extends CodeViewer {
 						List<ICodeInstance> sourceCodeInstances = ArrayUtils
 								.getAdaptableObjects(sourceObjects,
 										ICodeInstance.class);
+						List<ICodeable> sourceCodeables = ArrayUtils
+								.getAdaptableObjects(sourceObjects,
+										ICodeable.class);
 						if (event.item != null
 								&& event.item.getData() instanceof ICode) {
 							ICode targetCode = (ICode) event.item.getData();
-							for (ICode sourceCode : sourceCodes) {
-								try {
-									codeService.setParent(sourceCode,
-											targetCode);
-									LOGGER.info("[CODE][HIERARCHY] Moved "
-											+ sourceCodes + " to " + targetCode);
-								} catch (CodeServiceException e) {
-									LOGGER.error("Coud not make " + targetCode
-											+ " the parent of " + sourceCodes);
-								}
-							}
 
-							if (sourceCodes.size() == 0
-									&& sourceCodeInstances.size() > 0) {
+							if (sourceCodes.size() > 0) {
+								for (ICode sourceCode : sourceCodes) {
+									try {
+										codeService.setParent(sourceCode,
+												targetCode);
+										LOGGER.info("[CODE][HIERARCHY] Moved "
+												+ sourceCodes + " to "
+												+ targetCode);
+									} catch (CodeServiceException e) {
+										LOGGER.error("Coud not make "
+												+ targetCode
+												+ " the parent of "
+												+ sourceCodes);
+									}
+								}
+							} else if (sourceCodeInstances.size() > 0) {
 								for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
 									ICodeable coded = codeService
 											.getCodedObject(sourceCodeInstance
@@ -154,6 +176,20 @@ public class ResortableCodeViewer extends CodeViewer {
 										codeService.addCode(targetCode, coded);
 									} catch (CodeServiceException e) {
 										LOGGER.error(e);
+									}
+								}
+							} else if (sourceCodeables.size() > 0) {
+								for (ICodeable sourceCodeable : sourceCodeables) {
+									try {
+										codeService.addCode(targetCode,
+												sourceCodeable);
+										LOGGER.info("[CODE][ASSIGN] "
+												+ sourceCodeable
+												+ " assigned to " + targetCode);
+									} catch (CodeServiceException e) {
+										LOGGER.error("Coud not assign "
+												+ sourceCodeable + " to "
+												+ targetCode);
 									}
 								}
 							}

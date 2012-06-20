@@ -33,6 +33,20 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+               label="Add Code to Phenomenon..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeEditorId">
+                  <equals
+                        value="org.eclipse.compare.CompareEditor">
+                  </equals>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension

@@ -21,6 +21,7 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory,
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model,
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services,
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui,
+ de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd,
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards
 Bundle-ClassPath: .,
  lib/xstream-1.4.2.jar,

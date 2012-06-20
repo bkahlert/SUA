@@ -97,11 +97,8 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 					log.error("Could not determine the "
 							+ CompareEditor.class.getSimpleName() + " in focus");
 				}
-
-				// TODO addAnnotation(new Marker, selection, editor);
 			}
 		}
-
 		return null;
 	}
 }

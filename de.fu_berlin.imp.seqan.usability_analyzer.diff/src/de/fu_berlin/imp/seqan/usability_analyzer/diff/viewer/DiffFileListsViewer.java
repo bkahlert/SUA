@@ -2,18 +2,27 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
 import java.text.DateFormat;
 import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+
+import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
+import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -23,6 +32,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeableTransfer;
 
 public class DiffFileListsViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
@@ -41,6 +52,33 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 		});
 
 		initColumns(dateFormat, timeDifferenceFormat);
+
+		final ISelectionRetriever<ICodeable> codeableRetriever = SelectionRetrieverFactory
+				.getSelectionRetriever(ICodeable.class);
+
+		int operations = DND.DROP_LINK;
+		Transfer[] transferTypes = new Transfer[] { CodeableTransfer
+				.getInstance() };
+		this.addDragSupport(operations, transferTypes,
+				new DragSourceListener() {
+					public void dragStart(DragSourceEvent event) {
+						if (codeableRetriever.getSelection().size() > 0) {
+							event.doit = true;
+						} else {
+							event.doit = false;
+						}
+					};
+
+					public void dragSetData(DragSourceEvent event) {
+						List<Object> objects = new LinkedList<Object>();
+						objects.addAll(codeableRetriever.getSelection());
+						event.data = objects;
+					}
+
+					public void dragFinished(DragSourceEvent event) {
+
+					}
+				});
 
 		this.sort(0);
 	}
