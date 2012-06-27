@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,6 +145,16 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
+	public Collection<? extends ICodeInstance> getAllInstances(ICode code) {
+		List<ICodeInstance> instances = getInstances(code);
+		List<ICode> subCodes = getSubCodes(code);
+		for (ICode subCode : subCodes) {
+			instances.addAll(getInstances(subCode));
+		}
+		return instances;
+	}
+
+	@Override
 	public void putInstances(ICode code, List<ICodeable> instances) {
 		// TODO Auto-generated method stub
 
@@ -190,6 +201,11 @@ class CodeService implements ICodeService {
 	@Override
 	public List<ICode> getChildren(ICode code) {
 		return this.codeStore.getChildren(code);
+	}
+
+	@Override
+	public List<ICode> getSubCodes(ICode code) {
+		return this.codeStore.getSubCodes(code);
 	}
 
 	@Override
@@ -335,6 +351,50 @@ class CodeService implements ICodeService {
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public String loadMemo(ICode code) {
+		return this.codeStore.getMemo(code);
+	}
+
+	@Override
+	public String loadMemo(ICodeInstance codeInstance) {
+		return this.codeStore.getMemo(codeInstance);
+	}
+
+	@Override
+	public String loadMemo(ICodeable codeable) {
+		return this.codeStore.getMemo(codeable);
+	}
+
+	@Override
+	public void setMemo(ICode code, String html) throws CodeServiceException {
+		try {
+			this.codeStore.setMemo(code, html);
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void setMemo(ICodeInstance codeInstance, String html)
+			throws CodeServiceException {
+		try {
+			this.codeStore.setMemo(codeInstance, html);
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void setMemo(ICodeable codeable, String html)
+			throws CodeServiceException {
+		try {
+			this.codeStore.setMemo(codeable, html);
+		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
 	}

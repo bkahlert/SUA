@@ -82,15 +82,18 @@ public class AddCodeWizardPage extends ORWizardPage {
 		group.setText("Existing Code");
 
 		this.codeViewer = new CodeViewer(group, SWT.NONE);
-		codeViewer.setLayoutData(GridDataFactory.fillDefaults()
+		this.codeViewer.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
-		codeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				updatePageCompletion(SelectionUtils.getAdaptableObjects(
-						event.getSelection(), ICode.class));
-			}
-		});
+		this.codeViewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						updatePageCompletion(SelectionUtils
+								.getAdaptableObjects(event.getSelection(),
+										ICode.class));
+					}
+				});
+		this.codeViewer.getViewer().expandAll();
 	}
 
 	private void updateCompletion(String newCodeCaption) {

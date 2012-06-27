@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -155,15 +155,16 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
 				selection, ICodeInstance.class);
 		for (ICode code : SelectionUtils.getAdaptableObjects(selection,
-				ICode.class))
-			codeInstances.addAll(codeService.getInstances(code));
+				ICode.class)) {
+			codeInstances.addAll(codeService.getAllInstances(code));
+		}
 		List<URI> uris = new ArrayList<URI>();
 		for (ICodeInstance codeInstance : codeInstances)
 			uris.add(codeInstance.getId());
 		return uris;
 	}
 
-	public ColumnViewer getViewer() {
+	public AbstractTreeViewer getViewer() {
 		return treeViewer;
 	}
 

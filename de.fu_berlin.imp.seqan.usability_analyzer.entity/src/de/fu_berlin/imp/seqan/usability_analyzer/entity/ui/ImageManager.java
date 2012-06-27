@@ -36,7 +36,7 @@ public class ImageManager {
 	 * local tool bar
 	 */
 	//	public static final Image ELCL_SPACER = getImage("icons/elcl16/spacer.png"); //$NON-NLS-1$
-	//	public static final Image DLCL_SPACER = getImage("icons/dlcl16/spacer.png"); //$NON-NLS-1$
+	//	public static final Image DLCL_CREATE_CODE = getImage("icons/dlcl16/spacer.png"); //$NON-NLS-1$
 	//	public static final Image ELCL_PREFERENCES_OPEN = getImage("icons/elcl16/preferences_open_tsk.png"); //$NON-NLS-1$
 	//	public static final Image ELCL_XMPP_CONNECTED = getImage("icons/elcl16/xmpp_disconnect_tsk.png"); //$NON-NLS-1$
 	//	public static final Image DLCL_XMPP_CONNECTED = getImage("icons/dlcl16/xmpp_disconnect_tsk.png"); //$NON-NLS-1$

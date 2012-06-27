@@ -2,12 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
 import java.text.DateFormat;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.dnd.DND;
@@ -33,7 +32,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeableTransfer;
 
 public class DiffFileListsViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
@@ -57,12 +55,17 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 				.getSelectionRetriever(ICodeable.class);
 
 		int operations = DND.DROP_LINK;
-		Transfer[] transferTypes = new Transfer[] { CodeableTransfer
-				.getInstance() };
+		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
+				.getTransfer() };
 		this.addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
 					public void dragStart(DragSourceEvent event) {
 						if (codeableRetriever.getSelection().size() > 0) {
+							LocalSelectionTransfer.getTransfer().setSelection(
+									DiffFileListsViewer.this.getSelection());
+							LocalSelectionTransfer.getTransfer()
+									.setSelectionSetTime(
+											event.time & 0xFFFFFFFFL);
 							event.doit = true;
 						} else {
 							event.doit = false;
@@ -70,13 +73,17 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					};
 
 					public void dragSetData(DragSourceEvent event) {
-						List<Object> objects = new LinkedList<Object>();
-						objects.addAll(codeableRetriever.getSelection());
-						event.data = objects;
+						if (LocalSelectionTransfer.getTransfer()
+								.isSupportedType(event.dataType)) {
+							event.data = LocalSelectionTransfer.getTransfer()
+									.getSelection();
+						}
 					}
 
 					public void dragFinished(DragSourceEvent event) {
-
+						LocalSelectionTransfer.getTransfer().setSelection(null);
+						LocalSelectionTransfer.getTransfer()
+								.setSelectionSetTime(0);
 					}
 				});
 

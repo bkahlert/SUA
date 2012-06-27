@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -77,7 +78,28 @@ public interface ICodeService {
 
 	public Set<URI> getCodedIDs();
 
+	/**
+	 * Returns all direct {@link ICodeInstance}s of the given {@link ICode}.
+	 * <p>
+	 * If you also want to consider child {@link ICode}s see
+	 * {@link #getAllInstances(ICode)}.
+	 * 
+	 * @param code
+	 * @return
+	 */
 	public List<ICodeInstance> getInstances(ICode code);
+
+	/**
+	 * Returns all direct and indirect {@link ICodeInstance}s of the given
+	 * {@link ICode}. This includes those of sub {@link ICode}.
+	 * <p>
+	 * If you only want to get immediate {@link ICodeInstance}s use
+	 * {@link #getInstances(ICode)}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public Collection<? extends ICodeInstance> getAllInstances(ICode code);
 
 	public void putInstances(ICode code, List<ICodeable> instances);
 
@@ -163,10 +185,78 @@ public interface ICodeService {
 
 	public ICode getParent(ICode code);
 
+	/**
+	 * Returns all sub {@link ICode}s of the given {@link ICode} of depth 1.
+	 * 
+	 * @param code
+	 * @return
+	 */
 	public List<ICode> getChildren(ICode code);
+
+	/**
+	 * Returns all sub {@link ICode}s of the given {@link ICode} of arbitrary
+	 * depth.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public List<ICode> getSubCodes(ICode code);
 
 	public List<ICode> getTopLevelCodes();
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException;
+
+	/**
+	 * Sets the memo for the given {@link ICode}.
+	 * 
+	 * @param code
+	 * @param html
+	 * @throws CodeServiceException
+	 */
+	public void setMemo(ICode code, String html) throws CodeServiceException;
+
+	/**
+	 * Sets the memo for the given {@link ICodeInstance}.
+	 * 
+	 * @param code
+	 * @param html
+	 * @throws CodeServiceException
+	 */
+	public void setMemo(ICodeInstance codeInstance, String html)
+			throws CodeServiceException;
+
+	/**
+	 * Sets the memo for the given {@link ICodeable}.
+	 * 
+	 * @param code
+	 * @param html
+	 * @throws CodeServiceException
+	 */
+	public void setMemo(ICodeable codeable, String html)
+			throws CodeServiceException;
+
+	/**
+	 * Returns the memo for the given {@link ICode}.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public String loadMemo(ICode code);
+
+	/**
+	 * Returns the memo for the given {@link ICodeInstance}.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public String loadMemo(ICodeInstance codeInstance);
+
+	/**
+	 * Returns the memo for the given {@link ICodeable}.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public String loadMemo(ICodeable codeable);
 }

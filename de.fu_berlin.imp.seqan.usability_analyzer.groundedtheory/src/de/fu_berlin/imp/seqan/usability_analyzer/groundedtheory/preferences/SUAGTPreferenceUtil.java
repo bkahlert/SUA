@@ -32,4 +32,9 @@ public class SUAGTPreferenceUtil extends PreferenceUtil {
 		return event.getProperty().equals(
 				SUAGTPreferenceConstants.CODESTORE_FILE);
 	}
+
+	public long getMemoAutosaveAfterMilliseconds() {
+		return getPreferenceStore().getLong(
+				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS);
+	}
 }

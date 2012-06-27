@@ -65,5 +65,21 @@ public interface ICodeStore {
 
 	public List<ICode> getChildren(ICode code);
 
+	public List<ICode> getSubCodes(ICode code);
+
 	public boolean codeExists(ICode code);
+
+	public String getMemo(ICode code);
+
+	public String getMemo(ICodeInstance codeInstance);
+
+	public String getMemo(ICodeable codeable);
+
+	public void setMemo(ICode code, String html) throws CodeStoreWriteException;
+
+	public void setMemo(ICodeInstance codeInstance, String html)
+			throws CodeStoreWriteException;
+
+	public void setMemo(ICodeable codeable, String html)
+			throws CodeStoreWriteException;
 }

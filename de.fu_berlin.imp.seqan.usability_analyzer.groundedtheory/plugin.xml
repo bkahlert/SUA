@@ -71,6 +71,8 @@
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+               disabledIcon="icons/dtool16/create_code_tsk.png"
+               icon="icons/etool16/create_code_tsk.png"
                label="Create Code..."
                style="push">
             <visibleWhen
@@ -87,6 +89,8 @@
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+               disabledIcon="icons/dtool16/create_code_tsk.png"
+               icon="icons/etool16/create_code_tsk.png"
                label="Create Child Code..."
                style="push">
             <visibleWhen
@@ -103,6 +107,8 @@
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+               disabledIcon="icons/dtool16/add_code_tsk.png"
+               icon="icons/etool16/add_code_tsk.png"
                label="Add Code to Phenomenon..."
                style="push">
             <visibleWhen

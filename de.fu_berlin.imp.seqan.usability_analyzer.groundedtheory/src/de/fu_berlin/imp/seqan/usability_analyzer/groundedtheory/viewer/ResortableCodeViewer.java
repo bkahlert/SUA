@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
@@ -18,7 +21,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
@@ -27,8 +30,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeTransfer;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.dnd.CodeableTransfer;
 
 public class ResortableCodeViewer extends CodeViewer {
 
@@ -37,20 +38,31 @@ public class ResortableCodeViewer extends CodeViewer {
 	public ResortableCodeViewer(Composite parent, int style) {
 		super(parent, style);
 
-		final ISelectionRetriever<ICode> codeRetriever = SelectionRetrieverFactory
-				.getSelectionRetriever(ICode.class);
-		final ISelectionRetriever<ICodeInstance> instanceRetriever = SelectionRetrieverFactory
-				.getSelectionRetriever(ICodeInstance.class);
-
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;
-		Transfer[] transferTypes = new Transfer[] { CodeTransfer.getInstance(),
-				CodeableTransfer.getInstance() };
+		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
+				.getTransfer() };
 
 		getViewer().addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
+					final ISelectionRetriever<ICode> codeRetriever = SelectionRetrieverFactory
+							.getSelectionRetriever(ICode.class);
+					final ISelectionRetriever<ICodeInstance> instanceRetriever = SelectionRetrieverFactory
+							.getSelectionRetriever(ICodeInstance.class);
+
 					public void dragStart(DragSourceEvent event) {
+						List<ICode> codes = codeRetriever.getSelection();
+						List<ICodeInstance> instances = instanceRetriever
+								.getSelection();
 						if (codeRetriever.getSelection().size() > 0
 								|| instanceRetriever.getSelection().size() > 0) {
+							List<Object> elements = new LinkedList<Object>();
+							elements.addAll(codes);
+							elements.addAll(instances);
+							LocalSelectionTransfer.getTransfer().setSelection(
+									new StructuredSelection(elements));
+							LocalSelectionTransfer.getTransfer()
+									.setSelectionSetTime(
+											event.time & 0xFFFFFFFFL);
 							event.doit = true;
 						} else {
 							event.doit = false;
@@ -58,10 +70,11 @@ public class ResortableCodeViewer extends CodeViewer {
 					};
 
 					public void dragSetData(DragSourceEvent event) {
-						List<Object> objects = new LinkedList<Object>();
-						objects.addAll(codeRetriever.getSelection());
-						objects.addAll(instanceRetriever.getSelection());
-						event.data = objects;
+						if (LocalSelectionTransfer.getTransfer()
+								.isSupportedType(event.dataType)) {
+							event.data = LocalSelectionTransfer.getTransfer()
+									.getSelection();
+						}
 					}
 
 					public void dragFinished(DragSourceEvent event) {
@@ -72,9 +85,23 @@ public class ResortableCodeViewer extends CodeViewer {
 		getViewer().addDropSupport(operations, transferTypes,
 				new DropTargetAdapter() {
 					public void dragOver(DropTargetEvent event) {
-						event.feedback = DND.FEEDBACK_EXPAND
-								| DND.FEEDBACK_SCROLL;
-						if (event.item != null) {
+						ISelection selection = LocalSelectionTransfer
+								.getTransfer().getSelection();
+						List<ICode> sourceCodes = SelectionUtils
+								.getAdaptableObjects(selection, ICode.class);
+						List<ICodeInstance> sourceCodeInstances = SelectionUtils
+								.getAdaptableObjects(selection,
+										ICodeInstance.class);
+						List<ICodeable> sourceCodeables = SelectionUtils
+								.getAdaptableObjects(selection, ICodeable.class);
+
+						if (event.item != null
+								&& (sourceCodes.size() != 0
+										^ sourceCodeInstances.size() != 0 ^ sourceCodeables
+										.size() != 0)) {
+							event.feedback = DND.FEEDBACK_EXPAND
+									| DND.FEEDBACK_SCROLL;
+
 							Point point = Display.getCurrent().map(null,
 									getViewer().getControl(), event.x, event.y);
 
@@ -85,11 +112,8 @@ public class ResortableCodeViewer extends CodeViewer {
 								bounds = ((TableItem) event.item).getBounds();
 
 							if (event.item.getData() instanceof ICode) {
-								if (CodeableTransfer.getInstance()
-										.isSupportedType(event.currentDataType)) {
-									event.feedback |= DND.FEEDBACK_SELECT;
-									event.detail = DND.DROP_LINK;
-								} else {
+								if (sourceCodes.size() != 0
+										|| sourceCodeInstances.size() != 0) {
 									if (bounds != null) {
 										if (point.y < bounds.y + bounds.height
 												/ 3) {
@@ -103,13 +127,13 @@ public class ResortableCodeViewer extends CodeViewer {
 									} else {
 										event.feedback |= DND.FEEDBACK_SELECT;
 									}
+								} else {
+									event.feedback |= DND.FEEDBACK_SELECT;
+									event.detail = DND.DROP_LINK;
 								}
 							} else if (event.item.getData() instanceof ICodeInstance) {
-								if (CodeableTransfer.getInstance()
-										.isSupportedType(event.currentDataType)) {
-									event.feedback = DND.FEEDBACK_NONE;
-									event.detail = DND.DROP_NONE;
-								} else {
+								if (sourceCodes.size() != 0
+										|| sourceCodeInstances.size() != 0) {
 									if (bounds != null) {
 										if (point.y < bounds.y + bounds.height
 												/ 2) {
@@ -120,6 +144,9 @@ public class ResortableCodeViewer extends CodeViewer {
 									} else {
 										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
 									}
+								} else {
+									event.feedback = DND.FEEDBACK_NONE;
+									event.detail = DND.DROP_NONE;
 								}
 							}
 						}
@@ -136,16 +163,16 @@ public class ResortableCodeViewer extends CodeViewer {
 						if (codeService == null)
 							return;
 
-						Object[] sourceObjects = ((List<?>) event.data)
-								.toArray();
-						List<ICode> sourceCodes = ArrayUtils
-								.getAdaptableObjects(sourceObjects, ICode.class);
-						List<ICodeInstance> sourceCodeInstances = ArrayUtils
-								.getAdaptableObjects(sourceObjects,
+						ISelection selection = LocalSelectionTransfer
+								.getTransfer().getSelection();
+						List<ICode> sourceCodes = SelectionUtils
+								.getAdaptableObjects(selection, ICode.class);
+						List<ICodeInstance> sourceCodeInstances = SelectionUtils
+								.getAdaptableObjects(selection,
 										ICodeInstance.class);
-						List<ICodeable> sourceCodeables = ArrayUtils
-								.getAdaptableObjects(sourceObjects,
-										ICodeable.class);
+						List<ICodeable> sourceCodeables = SelectionUtils
+								.getAdaptableObjects(selection, ICodeable.class);
+
 						if (event.item != null
 								&& event.item.getData() instanceof ICode) {
 							ICode targetCode = (ICode) event.item.getData();

@@ -8,6 +8,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -55,6 +56,9 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("instances")
 	private HashSet<ICodeInstance> codeInstances = null;
 
+	@XStreamAlias("memos")
+	private HashMap<Object, String> memos = null;
+
 	private static XStream xstream;
 
 	static {
@@ -83,6 +87,8 @@ class CodeStore implements ICodeStore {
 				codeStore.codeTrees = new LinkedList<TreeNode<ICode>>();
 			if (codeStore.codeInstances == null)
 				codeStore.codeInstances = new HashSet<ICodeInstance>();
+			if (codeStore.memos == null)
+				codeStore.memos = new HashMap<Object, String>();
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
@@ -336,6 +342,22 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
+	// TODO test
+	public List<ICode> getSubCodes(ICode code) {
+		List<ICode> subCodes = new ArrayList<ICode>();
+		for (TreeNode<ICode> codeTree : codeTrees) {
+			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
+			assert foundNodes.size() < 2;
+			if (foundNodes.size() == 1) {
+				for (ICode subCode : foundNodes.get(0)) {
+					subCodes.add(subCode);
+				}
+			}
+		}
+		return subCodes;
+	}
+
+	@Override
 	public void save() throws CodeStoreWriteException {
 		try {
 			xstream.toXML(this, new FileWriter(codeStoreFile));
@@ -363,4 +385,37 @@ class CodeStore implements ICodeStore {
 		}
 		this.save();
 	}
+
+	@Override
+	public String getMemo(ICode code) {
+		return this.memos.get(code);
+	}
+
+	@Override
+	public String getMemo(ICodeInstance codeInstance) {
+		return this.memos.get(codeInstance);
+	}
+
+	public String getMemo(ICodeable codeable) {
+		return this.memos.get(codeable.getCodeInstanceID());
+	};
+
+	@Override
+	public void setMemo(ICode code, String html) throws CodeStoreWriteException {
+		this.memos.put(code, html);
+		this.save();
+	}
+
+	@Override
+	public void setMemo(ICodeInstance codeInstance, String html)
+			throws CodeStoreWriteException {
+		this.memos.put(codeInstance, html);
+		this.save();
+	}
+
+	public void setMemo(ICodeable codeable, String html)
+			throws CodeStoreWriteException {
+		this.memos.put(codeable.getCodeInstanceID(), html);
+		this.save();
+	};
 }

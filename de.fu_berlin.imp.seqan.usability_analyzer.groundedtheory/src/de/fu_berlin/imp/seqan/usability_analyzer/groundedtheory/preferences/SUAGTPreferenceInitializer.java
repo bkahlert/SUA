@@ -19,5 +19,8 @@ public class SUAGTPreferenceInitializer extends AbstractPreferenceInitializer {
 				.toOSString()
 				+ File.separator + "CodeStore.xml";
 		store.setDefault(SUAGTPreferenceConstants.CODESTORE_FILE, file);
+
+		store.setDefault(
+				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS, 5000);
 	}
 }
