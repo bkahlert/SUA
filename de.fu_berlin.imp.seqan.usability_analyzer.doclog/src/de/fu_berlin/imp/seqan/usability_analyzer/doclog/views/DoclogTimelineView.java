@@ -393,12 +393,14 @@ public class DoclogTimelineView extends ViewPart {
 	 * untouched
 	 * <li>the other {@link DoclogTimeline} are associated with a new key
 	 * <li>{@link DoclogTimeline}s that are not needed anymore become disposed
-	 * <li>the still not associated keys are returned
+	 * <li>all newly assigned keys and unassigned keys are returned
 	 * </ol>
 	 * 
 	 * @param usedTimelineKeys
 	 * @return keys that were not associated to an existing
-	 *         {@link DoclogTimeline}
+	 *         {@link DoclogTimeline} or were associated with a
+	 *         {@link DoclogTimeline} that before was responsible for another
+	 *         key
 	 */
 	private Object[] prepareExistingTimelines(Set<Object> usedTimelineKeys_) {
 		List<Object> usedTimelineKeys = new LinkedList<Object>(
@@ -414,11 +416,12 @@ public class DoclogTimelineView extends ViewPart {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
+				int i = 0;
 				while (freeTimelines.size() > 0
-						&& unpreparedTimelines.size() > 0) {
+						&& unpreparedTimelines.size() > i) {
 					DoclogTimeline timeline = getTimeline(freeTimelines
 							.remove(0));
-					timeline.setData(unpreparedTimelines.remove(0));
+					timeline.setData(unpreparedTimelines.get(i));
 				}
 			}
 		});
