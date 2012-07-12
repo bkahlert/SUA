@@ -10,6 +10,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -22,8 +24,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.web.screenshots.browser.BrowserDialog;
+import com.bkahlert.devel.web.screenshots.browser.BrowserException;
 
 public class ScreenshotTaker {
+	private static final Logger LOGGER = Logger.getLogger(ScreenshotTaker.class
+			.getName());
 	public static final String SCREENSHOT_FILE_PREFIX = "screenshot";
 
 	private Robot robot;
@@ -38,13 +43,22 @@ public class ScreenshotTaker {
 	 * @return
 	 */
 	public org.eclipse.swt.graphics.Rectangle getMaxCaptureArea() {
-		BrowserDialog dialog = new BrowserDialog(null, "about:blank",
-				new Point(Integer.MAX_VALUE, Integer.MAX_VALUE), null, 10);
-		dialog.setBlockOnOpen(false);
-		dialog.open();
-		org.eclipse.swt.graphics.Rectangle maxCaptureArea = getCaptureArea(dialog);
-		dialog.close();
-		return maxCaptureArea;
+		BrowserDialog dialog;
+		try {
+			dialog = new BrowserDialog(null, "about:blank", new Point(
+					Integer.MAX_VALUE, Integer.MAX_VALUE), null, 10);
+			dialog.setBlockOnOpen(false);
+			dialog.open();
+			org.eclipse.swt.graphics.Rectangle maxCaptureArea = getCaptureArea(dialog);
+			dialog.close();
+			return maxCaptureArea;
+		} catch (BrowserException e) {
+			LOGGER.log(
+					Level.WARNING,
+					"Could not determine correct maximum capture area for screenshots",
+					e);
+		}
+		return Display.getDefault().getBounds();
 	}
 
 	/**
@@ -72,23 +86,33 @@ public class ScreenshotTaker {
 			public void run() {
 				Shell shell = PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow().getShell();
-				final BrowserDialog dialog = new BrowserDialog(shell,
-						screenshot.getUrl(), screenshot.getWindowDimensions(),
-						screenshot.getScrollPosition(), timeout);
-				dialogReference.set(dialog);
-				Future<File> screenshotFuture = dialog
-						.addFinishedCallable(new Callable<File>() {
-							@Override
-							public File call() throws Exception {
-								BufferedImage image = captureScreen(dialog);
-								return imageToTempFile(image, format);
-							}
-						});
-				screenshotFutureReference.set(screenshotFuture);
-				dialog.setBlockOnOpen(false);
-				dialog.open();
+				try {
+					final BrowserDialog dialog = new BrowserDialog(shell,
+							screenshot.getUrl(), screenshot
+									.getWindowDimensions(), screenshot
+									.getScrollPosition(), timeout);
+					dialogReference.set(dialog);
+					Future<File> screenshotFuture = dialog
+							.addFinishedCallable(new Callable<File>() {
+								@Override
+								public File call() throws Exception {
+									BufferedImage image = captureScreen(dialog);
+									return imageToTempFile(image, format);
+								}
+							});
+					screenshotFutureReference.set(screenshotFuture);
+					dialog.setBlockOnOpen(false);
+					dialog.open();
+				} catch (BrowserException e) {
+					LOGGER.log(Level.WARNING, "Could not take screenshot of "
+							+ screenshot.getUrl(), e);
+				}
+
 			}
 		});
+
+		if (dialogReference.get() == null)
+			return null;
 
 		File screenshotFile = null;
 		try {

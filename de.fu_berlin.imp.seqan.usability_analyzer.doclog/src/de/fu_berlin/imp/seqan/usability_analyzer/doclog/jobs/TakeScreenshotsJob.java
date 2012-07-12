@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,36 +40,44 @@ public class TakeScreenshotsJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		int timeout = new SUADoclogPreferenceUtil().getScreenshotPageloadTimeout();
+		int timeout = new SUADoclogPreferenceUtil()
+				.getScreenshotPageloadTimeout();
 
 		List<DoclogRecord> filteredDoclogRecords = this
 				.getRelevantDoclogRecords(monitor, doclogRecords);
 
 		monitor.beginTask("Capturing", filteredDoclogRecords.size() * 11);
+		HashSet<String> handledScreenshots = new HashSet<String>();
 		try {
 			ScreenshotTaker screenshotTaker = new ScreenshotTaker();
 			for (final DoclogRecord doclogRecord : filteredDoclogRecords) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 
-				if (doclogRecord.getWindowDimensions().x > 0
-						|| doclogRecord.getWindowDimensions().y > 0) {
-					ScreenshotInfo screenshotInfo = new ScreenshotInfo(
-							doclogRecord.getUrl(),
-							doclogRecord.getScrollPosition(),
-							doclogRecord.getWindowDimensions());
-					File screenshotFile = screenshotTaker.takeScreenshot(
-							screenshotInfo, DoclogScreenshot.FORMAT, timeout);
-					try {
-						doclogRecord.setScreenshot(screenshotFile);
-					} catch (IOException e) {
-						logger.error("Could not create screenshot for "
-								+ doclogRecord, e);
+				String filename = doclogRecord.getScreenshot()
+						.calculateFilename();
+				if (!handledScreenshots.contains(filename)) {
+					if (doclogRecord.getWindowDimensions().x > 0
+							|| doclogRecord.getWindowDimensions().y > 0) {
+						ScreenshotInfo screenshotInfo = new ScreenshotInfo(
+								doclogRecord.getUrl(),
+								doclogRecord.getScrollPosition(),
+								doclogRecord.getWindowDimensions());
+						File screenshotFile = screenshotTaker.takeScreenshot(
+								screenshotInfo, DoclogScreenshot.FORMAT,
+								timeout);
+						try {
+							doclogRecord.setScreenshot(screenshotFile);
+							handledScreenshots.add(filename);
+						} catch (IOException e) {
+							logger.error("Could not create screenshot for "
+									+ doclogRecord, e);
+						}
+					} else {
+						logger.warn("Could not create screenshot for "
+								+ doclogRecord
+								+ " because of incorrect window dimensions");
 					}
-				} else {
-					logger.warn("Could not create screenshot for "
-							+ doclogRecord
-							+ " because of incorrect window dimensions");
 				}
 
 				monitor.worked(10);

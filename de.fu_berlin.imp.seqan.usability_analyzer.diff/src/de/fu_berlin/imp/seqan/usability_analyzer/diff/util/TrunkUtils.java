@@ -2,16 +2,21 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
 import java.io.File;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
-
 public class TrunkUtils {
+
+	private File data;
+
+	public TrunkUtils(File data) {
+		this.data = data;
+	}
+
 	public static File getTrunkFile(File trunkDirectory, String relativeFile) {
 		return new File(trunkDirectory.getPath() + File.separator
 				+ relativeFile);
 	}
 
-	public static File getTrunkFile(String relativeFile) {
-		return new File(new SUADiffPreferenceUtil().getTrunkDirectory(),
+	public File getTrunkFile(String relativeFile) {
+		return new File(data + File.separator + "trunk" + File.separator,
 				relativeFile);
 	}
 }

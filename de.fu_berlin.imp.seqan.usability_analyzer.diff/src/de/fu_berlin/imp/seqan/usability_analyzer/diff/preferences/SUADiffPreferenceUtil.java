@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences;
 
-import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,18 +15,6 @@ public class SUADiffPreferenceUtil extends PreferenceUtil {
 
 	public SUADiffPreferenceUtil() {
 		super(Activator.getDefault());
-	}
-
-	public File getTrunkDirectory() {
-		String trunkPath = getPreferenceStore().getString(
-				SUADiffPreferenceConstants.TRUNK_DIRECTORY);
-		return (trunkPath != null && !trunkPath.isEmpty()) ? new File(trunkPath)
-				: null;
-	}
-
-	public boolean trunkDirectoryChanged(PropertyChangeEvent event) {
-		return event.getProperty().equals(
-				SUADiffPreferenceConstants.TRUNK_DIRECTORY);
 	}
 
 	private HashMap<String, FileFilter> fileFilters = new HashMap<String, FileFilter>();

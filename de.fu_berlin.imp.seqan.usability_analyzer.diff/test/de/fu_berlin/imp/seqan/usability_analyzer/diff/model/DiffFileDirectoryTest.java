@@ -22,7 +22,7 @@ public class DiffFileDirectoryTest {
 	private static final String root = "/"
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
-	private static final String logDirectory = root + "/data";
+	private static final String dataDirectory = root + "/data";
 	private static final String trunkDirectory = root + "/trunk";
 	private static final String cachedSourcesDirectory = root + "/sources";
 
@@ -31,7 +31,7 @@ public class DiffFileDirectoryTest {
 	private static DiffFileDirectory getDiffFileManager()
 			throws DataSourceInvalidException, URISyntaxException {
 		return new DiffFileDirectory(FileUtils.getFile(
-				DiffFileDirectoryTest.class, logDirectory), FileUtils.getFile(
+				DiffFileDirectoryTest.class, dataDirectory), FileUtils.getFile(
 				DiffFileDirectoryTest.class, cachedSourcesDirectory),
 				FileUtils.getFile(DiffFileDirectoryTest.class, trunkDirectory));
 	}

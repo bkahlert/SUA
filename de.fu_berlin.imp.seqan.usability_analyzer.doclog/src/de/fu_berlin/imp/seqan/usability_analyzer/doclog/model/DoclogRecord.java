@@ -30,17 +30,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	private Logger logger = Logger.getLogger(DoclogRecord.class);
 
-	/*
-	 * [^\\t] selects everything but a tabulator
-	 */
+	// [^\\t] selects everything but a tabulator
+	// line #1: date + optional milliseconds + optional time zone
 	public static final Pattern PATTERN = Pattern
-			.compile("([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?" /*
-																													 * date
-																													 * +
-																													 * optional
-																													 * time
-																													 * zone
-																													 */
+			.compile("([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})[-:]([\\d]{2})[-:]([\\d]{2})(\\.[\\d]{3})?(([\\+-][\\d]{2}):?([\\d]{2}))?"
 					+ "\\t([^\\t]+?)(-([^\\t]+?))?" // action + param
 					+ "\\t([^\\t]+)" // url
 					+ "\\t([^\\t]+)\\t([^\\t]+)" // ip + proxy ip
@@ -51,15 +44,17 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		TimeZoneDate date = null;
 		Matcher matcher = PATTERN.matcher(line);
 		if (matcher.find()) {
-			if (matcher.group(7) != null) {
+			if (matcher.group(8) != null) {
 				// Date contains time zone
+				// Ignores milliseconds group(7)
 				date = new TimeZoneDate(matcher.group(1) + "-"
 						+ matcher.group(2) + "-" + matcher.group(3) + "T"
 						+ matcher.group(4) + ":" + matcher.group(5) + ":"
-						+ matcher.group(6) + matcher.group(8) + ":"
-						+ matcher.group(9));
+						+ matcher.group(6) + matcher.group(9) + ":"
+						+ matcher.group(10));
 			} else {
 				// Date does not contain a time zone
+				// Ignores milliseconds group(7)
 				Date rawDate = DateUtil.getDate(
 						Integer.valueOf(matcher.group(1)),
 						Integer.valueOf(matcher.group(2)) - 1,
@@ -107,22 +102,22 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 		Matcher matcher = PATTERN.matcher(line);
 		if (matcher.find()) {
-			this.url = cleanUrl(matcher.group(13));
+			this.url = cleanUrl(matcher.group(14));
 			if (this.url == null)
 				throw new DataSourceInvalidException("The url is invalid");
-			this.ip = matcher.group(14);
-			this.proxyIp = matcher.group(15);
+			this.ip = matcher.group(15);
+			this.proxyIp = matcher.group(16);
 
-			this.action = DoclogAction.getByString(matcher.group(10));
-			this.actionParameter = matcher.group(12);
+			this.action = DoclogAction.getByString(matcher.group(11));
+			this.actionParameter = matcher.group(13);
 
 			this.date = getDate(line);
 
 			this.scrollPosition = new Point(
-					Integer.parseInt(matcher.group(16)),
-					Integer.parseInt(matcher.group(17)));
+					Integer.parseInt(matcher.group(17)),
+					Integer.parseInt(matcher.group(18)));
 			this.windowDimensions = new Point(Integer.parseInt(matcher
-					.group(18)), Integer.parseInt(matcher.group(19)));
+					.group(19)), Integer.parseInt(matcher.group(20)));
 
 			try {
 				if (doclogFile != null)

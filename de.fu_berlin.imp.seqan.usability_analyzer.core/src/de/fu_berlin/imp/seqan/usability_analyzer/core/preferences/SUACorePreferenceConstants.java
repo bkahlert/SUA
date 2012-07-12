@@ -1,8 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
 public class SUACorePreferenceConstants {
-	public static final String LOGFILE_PATH = "logfile_path";
-	public static final String SURVEYFILE_PATH = "surveyfile_path";
+	public static final String DATA_DIRECTORY = "logfile_path";
 
 	public static final String DEFAULT_TIME_ZONE = "default_timezone";
 

@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -21,10 +20,7 @@ public class SUACorePreferences extends FieldEditorPreferencePage implements
 
 	public void createFieldEditors() {
 		addField(new DirectoryFieldEditor(
-				SUACorePreferenceConstants.LOGFILE_PATH,
-				"&Log file directory:", getFieldEditorParent()));
-		addField(new FileFieldEditor(
-				SUACorePreferenceConstants.SURVEYFILE_PATH, "&Survey file:",
+				SUACorePreferenceConstants.DATA_DIRECTORY, "&Data directory:",
 				getFieldEditorParent()));
 
 		addField(new StringFieldEditor(SUACorePreferenceConstants.DATEFORMAT,

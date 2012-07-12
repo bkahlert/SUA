@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
@@ -21,6 +22,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.inf.nebula.utils.ImageUtils;
 
 public class DoclogScreenshot implements HasDateRange {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogScreenshot.class);
 
 	public static enum Status implements Comparable<Status> {
 		OK, DIRTY, MISSING, ERROR;
@@ -47,7 +51,7 @@ public class DoclogScreenshot implements HasDateRange {
 	}
 
 	public static final String FORMAT = "png";
-	public static final String RELPATH = "/screenshots/";
+	public static final String RELPATH = "/../screenshots/";
 	public static final String RELFILE = "%s-%d,%d-%d,%d";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
@@ -68,8 +72,14 @@ public class DoclogScreenshot implements HasDateRange {
 		return this.doclogRecord;
 	}
 
-	public String calculateFilename() throws UnsupportedEncodingException {
-		String url = URLEncoder.encode(this.doclogRecord.getUrl(), "UTF-8");
+	public String calculateFilename() {
+		String url;
+		try {
+			url = URLEncoder.encode(this.doclogRecord.getUrl(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.error("Error calculating the screenshots filename", e);
+			return null;
+		}
 		int windowWidth = this.doclogRecord.getWindowDimensions().x;
 		int windowHeight = this.doclogRecord.getWindowDimensions().y;
 		int scrollX = this.doclogRecord.getScrollPosition().x;

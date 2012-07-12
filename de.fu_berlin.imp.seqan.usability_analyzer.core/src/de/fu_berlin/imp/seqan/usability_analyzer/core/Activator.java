@@ -91,10 +91,10 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		corePreferenceUtil = new SUACorePreferenceUtil();
 
-		File logDirectory = corePreferenceUtil.getLogDirectory();
-		if (logDirectory != null && logDirectory.isDirectory()
-				&& logDirectory.canRead()) {
-			dataSetInfo = new DataSetInfo(corePreferenceUtil.getLogDirectory()
+		File dataDirectory = corePreferenceUtil.getDataDirectory();
+		if (dataDirectory != null && dataDirectory.isDirectory()
+				&& dataDirectory.canRead()) {
+			dataSetInfo = new DataSetInfo(corePreferenceUtil.getDataDirectory()
 					+ "/" + DataSetInfo.FILENAME);
 		} else {
 			logger.warn("No valid log directory specified");

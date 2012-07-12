@@ -87,12 +87,14 @@ public class Activator extends AbstractUIPlugin {
 		oldFileFilters = diffPreferenceUtil.getFileFilters();
 		diffPreferenceUtil.addPropertyChangeListener(propertyChangeListener);
 
-		File logDirectory = corePreferenceUtil.getLogDirectory();
-		if (logDirectory != null && logDirectory.isDirectory()
-				&& logDirectory.canRead()) {
-			diffFileDirectory = new DiffFileDirectory(logDirectory,
-					new SUADiffPreferenceUtil().getTrunkDirectory(),
-					corePreferenceUtil.getCachedSourcesDirectory());
+		File dataDirectory = corePreferenceUtil.getDataDirectory();
+		if (dataDirectory != null && dataDirectory.isDirectory()
+				&& dataDirectory.canRead()) {
+			File diffFileDir = new File(dataDirectory, "diff");
+			File trunkDir = new File(dataDirectory, "trunk");
+			File srcDir = new File(dataDirectory, "sources");
+			diffFileDirectory = new DiffFileDirectory(diffFileDir, trunkDir,
+					srcDir);
 			diffFileDirectory.scan();
 		} else {
 			logger.warn("No valid log directory specified");

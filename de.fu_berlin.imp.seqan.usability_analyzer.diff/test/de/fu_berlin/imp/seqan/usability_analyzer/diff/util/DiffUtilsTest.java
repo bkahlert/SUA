@@ -25,7 +25,7 @@ public class DiffUtilsTest {
 		}
 	};
 
-	public static final File logDirectory = new File("/log_directory");
+	public static final File dataDirectory = new File("/log_directory");
 	public static final File cachedSourcesDirectory = new File(
 			"/log_directory/sources");
 

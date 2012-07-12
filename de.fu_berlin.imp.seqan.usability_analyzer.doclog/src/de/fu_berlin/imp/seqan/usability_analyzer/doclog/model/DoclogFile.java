@@ -29,9 +29,9 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 
 	private static final long serialVersionUID = 5159431028889474752L;
 	public static final Pattern ID_PATTERN = Pattern
-			.compile("^([A-Za-z\\d]+)_doclog\\.txt$");
+			.compile("^([A-Za-z\\d]+)\\.doclog$");
 	public static final Pattern FINGERPRINT_PATTERN = Pattern
-			.compile("^fingerprint_([A-Za-z\\d]+)_doclog\\.txt$");
+			.compile("^(![A-Za-z\\d]+)\\.doclog$");
 
 	public static ID getId(File file) {
 		ID id = null;
@@ -147,7 +147,8 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 				try {
 					this.doclogRecords.add(new DoclogRecord(this, strLine));
 				} catch (DataSourceInvalidException e) {
-					// just ignore the record
+					logger.warn(
+							"Skipped " + DoclogRecord.class.getSimpleName(), e);
 				}
 			}
 			in.close();

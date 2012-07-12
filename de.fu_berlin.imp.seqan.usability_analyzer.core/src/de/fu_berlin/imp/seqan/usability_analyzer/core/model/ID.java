@@ -3,6 +3,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 import java.security.InvalidParameterException;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.adapters.IDAdapter;
+
+@XmlJavaTypeAdapter(IDAdapter.class)
 public class ID implements Comparable<ID> {
 
 	public static final Pattern PATTERN = Pattern.compile("^[A-Za-z\\d]+$");

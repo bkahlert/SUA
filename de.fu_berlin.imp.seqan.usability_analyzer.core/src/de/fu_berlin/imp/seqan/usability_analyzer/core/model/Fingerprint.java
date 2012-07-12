@@ -1,7 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.security.InvalidParameterException;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.adapters.FingerprintAdapter;
+
+@XmlJavaTypeAdapter(FingerprintAdapter.class)
 public class Fingerprint implements Comparable<Fingerprint> {
 	// TODO: Daten vom Retreat 2011 zu umschreiben, dass pattern passt
 	public static final Pattern PATTERN = Pattern.compile("^![A-Za-z\\d]+$");
@@ -16,11 +22,10 @@ public class Fingerprint implements Comparable<Fingerprint> {
 
 	public Fingerprint(String fingerprint) {
 		super();
-		/*
-		 * siehe TODO oben if (!isValid(fingerprint)) throw new
-		 * InvalidParameterException( Fingerprint.class.getSimpleName() +
-		 * " must only contain alphanumeric characters");
-		 */
+		if (!isValid(fingerprint))
+			throw new InvalidParameterException(
+					Fingerprint.class.getSimpleName() + " " + fingerprint
+							+ " must only contain alphanumeric characters");
 		this.fingerprint = fingerprint;
 	}
 

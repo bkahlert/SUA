@@ -34,14 +34,34 @@ public class DiffFileDirectory extends File {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
+	/**
+	 * Scans through the given directory, looks for sub directories with valid
+	 * names (see {@link ID#isValid(String)}) and maps all containing files its
+	 * corresponding {@link ID}.
+	 * 
+	 * @param directory
+	 * @return
+	 */
 	private static Map<ID, FileList> readDiffFilesMapping(File directory) {
 		Map<ID, FileList> rawFiles = new HashMap<ID, FileList>();
-		for (File diffFile : directory
-				.listFiles((FileFilter) new RegexFileFilter(DiffFile.PATTERN))) {
-			ID id = DiffFile.getId(diffFile);
-			if (!rawFiles.containsKey(id))
-				rawFiles.put(id, new FileList());
-			rawFiles.get(id).add(diffFile);
+		for (File diffFileDir : directory.listFiles()) {
+			if (!diffFileDir.isDirectory())
+				continue;
+			if (!ID.isValid(diffFileDir.getName())) {
+				LOGGER.warn("Directory with invalid "
+						+ ID.class.getSimpleName() + " name detected: "
+						+ diffFileDir.toString());
+				continue;
+			}
+
+			for (File diffFile : diffFileDir
+					.listFiles((FileFilter) new RegexFileFilter(
+							DiffFile.PATTERN))) {
+				ID id = DiffFile.getId(diffFile);
+				if (!rawFiles.containsKey(id))
+					rawFiles.put(id, new FileList());
+				rawFiles.get(id).add(diffFile);
+			}
 		}
 		return rawFiles;
 	}

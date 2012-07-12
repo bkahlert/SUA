@@ -53,7 +53,7 @@ public class Activator extends AbstractUIPlugin {
 		Logger logger = Logger.getLogger(Activator.class);
 
 		SUACorePreferenceUtil corePreferenceUtil = new SUACorePreferenceUtil();
-		File logDirectory = corePreferenceUtil.getLogDirectory();
+		File logDirectory = corePreferenceUtil.getDataDirectory();
 		if (logDirectory != null && logDirectory.isDirectory()
 				&& logDirectory.canRead()) {
 			doclogDirectory = new DoclogDirectory(logDirectory);

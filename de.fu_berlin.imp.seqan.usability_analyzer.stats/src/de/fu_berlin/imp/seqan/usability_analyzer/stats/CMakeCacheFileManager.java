@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceManager;
@@ -13,23 +14,33 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 
 public class CMakeCacheFileManager extends DataSourceManager {
-	private File logDirectory;
+	private static final Logger LOGGER = Logger
+			.getLogger(CMakeCacheFileManager.class);
 	private List<CMakeCacheFile> cMakeCacheFiles;
 
-	public CMakeCacheFileManager(File logDirectory)
+	public CMakeCacheFileManager(File dataDirectory)
 			throws DataSourceInvalidException {
-		super(logDirectory);
-
-		this.logDirectory = logDirectory;
+		super(new File(dataDirectory, "diff"));
 	}
 
 	public void scanFiles() {
 		List<CMakeCacheFile> cMakeCacheFiles = new ArrayList<CMakeCacheFile>();
-		for (File cMakeCacheFile : this.logDirectory
-				.listFiles((FileFilter) new RegexFileFilter(
-						CMakeCacheFile.PATTERN))) {
-			cMakeCacheFiles.add(new CMakeCacheFile(cMakeCacheFile
-					.getAbsolutePath()));
+		for (File diffFileDir : this.getFile().listFiles()) {
+			if (!diffFileDir.isDirectory())
+				continue;
+			if (!ID.isValid(diffFileDir.getName())) {
+				LOGGER.warn("Directory with invalid "
+						+ ID.class.getSimpleName() + " name detected: "
+						+ diffFileDir.toString());
+				continue;
+			}
+
+			for (File cMakeCacheFile : diffFileDir
+					.listFiles((FileFilter) new RegexFileFilter(
+							CMakeCacheFile.PATTERN))) {
+				cMakeCacheFiles.add(new CMakeCacheFile(cMakeCacheFile
+						.getAbsolutePath()));
+			}
 		}
 		this.cMakeCacheFiles = cMakeCacheFiles;
 	}

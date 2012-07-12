@@ -15,26 +15,36 @@ import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
 public class StatsFileManager extends DataSourceManager {
 
-	private Logger log = Logger.getLogger(StatsFileManager.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(StatsFileManager.class);
 
-	private File logDirectory;
 	private List<StatsFile> statsFiles;
 
-	public StatsFileManager(File logDirectory)
+	public StatsFileManager(File dataDirectory)
 			throws DataSourceInvalidException {
-		super(logDirectory);
-
-		this.logDirectory = logDirectory;
+		super(new File(dataDirectory, "diff"));
 	}
 
 	public void scanFiles() {
 		List<StatsFile> statsFiles = new ArrayList<StatsFile>();
-		for (File statsFile : this.logDirectory
-				.listFiles((FileFilter) new RegexFileFilter(StatsFile.PATTERN))) {
-			try {
-				statsFiles.add(new StatsFile(statsFile.getAbsolutePath()));
-			} catch (DataSourceInvalidException e) {
-				log.warn("Could not process stats file", e);
+		for (File diffFileDir : this.getFile().listFiles()) {
+			if (!diffFileDir.isDirectory())
+				continue;
+			if (!ID.isValid(diffFileDir.getName())) {
+				LOGGER.warn("Directory with invalid "
+						+ ID.class.getSimpleName() + " name detected: "
+						+ diffFileDir.toString());
+				continue;
+			}
+
+			for (File statsFile : diffFileDir
+					.listFiles((FileFilter) new RegexFileFilter(
+							StatsFile.PATTERN))) {
+				try {
+					statsFiles.add(new StatsFile(statsFile.getAbsolutePath()));
+				} catch (DataSourceInvalidException e) {
+					LOGGER.warn("Could not process stats file", e);
+				}
 			}
 		}
 		this.statsFiles = statsFiles;

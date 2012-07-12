@@ -57,7 +57,7 @@ public class DoclogDirectory extends File {
 
 	public DoclogDirectory(File dataDirectory)
 			throws DataSourceInvalidException {
-		super(dataDirectory.getAbsolutePath());
+		super(new File(dataDirectory, "doclog").toString());
 
 		this.doclogCache = new DoclogCache(this, DOCLOG_CACHE_SIZE);
 	}

@@ -76,8 +76,8 @@ public class Activator extends AbstractUIPlugin {
 		Logger logger = Logger.getLogger(Activator.class);
 
 		this.preferenceUtil = new SUACorePreferenceUtil();
-		File logfilePath = this.preferenceUtil.getLogDirectory();
-		File surveyRecordPath = this.preferenceUtil.getSurveyRecordPath();
+		File dataDirectory = this.preferenceUtil.getDataDirectory();
+		File surveyRecordPath = new File(dataDirectory, "_survey.csv");
 
 		DiffFileDirectory diffFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
 				.getDefault().getDiffFileDirectory();
@@ -88,8 +88,9 @@ public class Activator extends AbstractUIPlugin {
 			long start = System.currentTimeMillis();
 
 			this.surveyRecordManager = new SurveyRecordManager(surveyRecordPath);
-			this.statsFileManager = new StatsFileManager(logfilePath);
-			this.cMakeCacheFileManager = new CMakeCacheFileManager(logfilePath);
+			this.statsFileManager = new StatsFileManager(dataDirectory);
+			this.cMakeCacheFileManager = new CMakeCacheFileManager(
+					dataDirectory);
 
 			ExecutorService executorService = ExecutorsUtil
 					.newFixedMultipleOfProcessorsThreadPool(2);
@@ -134,7 +135,7 @@ public class Activator extends AbstractUIPlugin {
 						e);
 			}
 
-			this.mapper = new Mapper(doclogDirectory, logfilePath);
+			this.mapper = new Mapper(doclogDirectory, dataDirectory);
 			this.entityManager = new EntityManager(diffFileDirectory,
 					doclogDirectory, surveyRecordManager,
 					this.statsFileManager, this.cMakeCacheFileManager, mapper);

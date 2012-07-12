@@ -22,37 +22,16 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 		super(Activator.getDefault());
 	}
 
-	public File getLogDirectory() {
-		String logfilePath = getPreferenceStore().getString(
-				SUACorePreferenceConstants.LOGFILE_PATH);
-		return (logfilePath != null && !logfilePath.isEmpty()) ? new File(
-				Normalizer.normalize(logfilePath, Form.NFC)) : null;
+	public File getDataDirectory() {
+		String dataDirectory = getPreferenceStore().getString(
+				SUACorePreferenceConstants.DATA_DIRECTORY);
+		return (dataDirectory != null && !dataDirectory.isEmpty()) ? new File(
+				Normalizer.normalize(dataDirectory, Form.NFC)) : null;
 	}
 
-	public File getCachedSourcesDirectory() {
-		File logfilePath = getLogDirectory();
-		if (logfilePath == null)
-			return null;
-
-		return new File(logfilePath, "/sources");
-
-	}
-
-	public boolean logfilePathChanged(PropertyChangeEvent event) {
+	public boolean dataDirectoryChanged(PropertyChangeEvent event) {
 		return event.getProperty().equals(
-				SUACorePreferenceConstants.LOGFILE_PATH);
-	}
-
-	public File getSurveyRecordPath() {
-		String surveyRecordPath = getPreferenceStore().getString(
-				SUACorePreferenceConstants.SURVEYFILE_PATH);
-		return (surveyRecordPath != null && !surveyRecordPath.isEmpty()) ? new File(
-				Normalizer.normalize(surveyRecordPath, Form.NFC)) : null;
-	}
-
-	public boolean surveyRecordPathChanged(PropertyChangeEvent event) {
-		return event.getProperty().equals(
-				SUACorePreferenceConstants.SURVEYFILE_PATH);
+				SUACorePreferenceConstants.DATA_DIRECTORY);
 	}
 
 	public TimeZone getDefaultTimeZone() {
