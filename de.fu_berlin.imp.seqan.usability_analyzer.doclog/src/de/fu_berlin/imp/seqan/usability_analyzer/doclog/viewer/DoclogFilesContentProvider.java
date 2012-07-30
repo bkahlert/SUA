@@ -54,6 +54,16 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 		public void codeDeleted(ICode code) {
 			ViewerUtils.refresh(viewer);
 		}
+
+		@Override
+		public void memoModified(ICode code) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void memoModified(ICodeable codeable) {
+			ViewerUtils.refresh(viewer);
+		}
 	};
 
 	public DoclogFilesContentProvider() {

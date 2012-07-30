@@ -46,7 +46,23 @@
          </property>
          <property
                name="startupMessageRect"
-               value="32,288,278,15">
+               value="32,288,278,10">
+         </property>
+         <property
+               name="appName"
+               value="SeqAn Usability Analyzer">
+         </property>
+         <property
+               name="aboutImage"
+               value="about.png">
+         </property>
+         <property
+               name="aboutText"
+               value="%productBlurb">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
          </property>
       </product>
    </extension>

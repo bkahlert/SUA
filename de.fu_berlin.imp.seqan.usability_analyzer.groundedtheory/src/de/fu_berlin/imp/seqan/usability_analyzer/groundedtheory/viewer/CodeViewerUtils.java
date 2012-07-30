@@ -1,8 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.util.HashMap;
+
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
@@ -46,7 +50,8 @@ public class CodeViewerUtils {
 			@Override
 			public Image getImage(Object element) {
 				if (ICode.class.isInstance(element)) {
-					return ImageManager.CODE;
+					return codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
+							: ImageManager.CODE;
 				}
 				if (ICodeInstance.class.isInstance(element)) {
 					ICodeInstance codeInstance = (ICodeInstance) element;
@@ -54,8 +59,11 @@ public class CodeViewerUtils {
 							.getCodedObject(codeInstance.getId());
 					ILabelProvider labelProvider = codeService
 							.getLabelProvider(codeInstance.getId());
-					return (labelProvider != null) ? labelProvider
+					Image image = (labelProvider != null) ? labelProvider
 							.getImage(codedObject) : null;
+
+					return (codeService.isMemo(codeInstance)) ? getMemoAnnotatedImage(image)
+							: image;
 				}
 				return null;
 			}
@@ -69,6 +77,22 @@ public class CodeViewerUtils {
 						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
 					}
 				}, TreeViewerEditor.DEFAULT);
+	}
+
+	private static HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
+
+	protected static Image getMemoAnnotatedImage(Image image) {
+		if (image == null)
+			return null;
+
+		if (!annotatedImages.containsKey(image)) {
+			Image annotatedImage = new DecorationOverlayIcon(image,
+					ImageManager.OVERLAY_MEMO, IDecoration.TOP_RIGHT)
+					.createImage();
+			annotatedImages.put(image, annotatedImage);
+		}
+
+		return annotatedImages.get(image);
 	}
 
 }

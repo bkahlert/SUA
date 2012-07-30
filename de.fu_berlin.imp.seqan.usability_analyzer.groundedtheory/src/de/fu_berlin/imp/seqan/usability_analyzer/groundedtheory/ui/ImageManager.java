@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -17,6 +19,7 @@ public class ImageManager {
 	 */
 	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
 	public static final ImageDescriptor OVERLAY_PARTIALLY_CODED = getImageDescriptor("icons/ovr16/partially_coded.png"); //$NON-NLS-1$
+	public static final ImageDescriptor OVERLAY_MEMO = getImageDescriptor("icons/ovr16/memo.png"); //$NON-NLS-1$
 
 	/*
 	 * wizard banners
@@ -45,60 +48,8 @@ public class ImageManager {
 	 * objects
 	 */
 	public static final Image CODE = getImage("icons/obj16/code_obj.png"); //$NON-NLS-1$
-
-	//	public static final Image ICON_BUDDY = getImage("icons/obj16/buddy_obj.png"); //$NON-NLS-1$
-	//	public static final Image ICON_BUDDY_OFFLINE = getImage("icons/obj16/buddy_offline_obj.png"); //$NON-NLS-1$
-	// public static final Image ICON_BUDDY_AWAY = new DecorationOverlayIcon(
-	// ICON_BUDDY, OVERLAY_AWAY, IDecoration.TOP_RIGHT).createImage();
-	//	public static final Image ICON_BUDDY_SAROS = getImage("icons/obj16/buddy_saros_obj.png"); //$NON-NLS-1$
-	//	public static Image ICON_UPNP = getImage("icons/obj16/upnp_obj.png"); //$NON-NLS-1$
-	//
-	// public static final Image ICON_BUDDY_SAROS_FOLLOWMODE = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS, OVERLAY_FOLLOWMODE, IDecoration.TOP_LEFT)
-	// .createImage();
-	// public static final Image ICON_BUDDY_SAROS_FOLLOWMODE_READONLY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS_FOLLOWMODE, OVERLAY_READONLY,
-	// IDecoration.BOTTOM_RIGHT).createImage();
-	// public static final Image ICON_BUDDY_SAROS_FOLLOWMODE_READONLY_AWAY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS_FOLLOWMODE_READONLY, OVERLAY_AWAY,
-	// IDecoration.TOP_RIGHT).createImage();
-	// public static final Image ICON_BUDDY_SAROS_FOLLOWMODE_AWAY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS_FOLLOWMODE, OVERLAY_AWAY, IDecoration.TOP_RIGHT)
-	// .createImage();
-	//
-	// public static final Image ICON_BUDDY_SAROS_READONLY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS, OVERLAY_READONLY, IDecoration.BOTTOM_RIGHT)
-	// .createImage();
-	// public static final Image ICON_BUDDY_SAROS_READONLY_AWAY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS_READONLY, OVERLAY_AWAY, IDecoration.TOP_RIGHT)
-	// .createImage();
-	//
-	// public static final Image ICON_BUDDY_SAROS_AWAY = new
-	// DecorationOverlayIcon(
-	// ICON_BUDDY_SAROS, OVERLAY_AWAY, IDecoration.TOP_RIGHT)
-	// .createImage();
-
-	/*
-	 * Getting Started
-	 */
-	//	public static final ImageDescriptor WIZBAN_GETTING_STARTED_STEP0 = getImageDescriptor("icons/wizban/getting_started_step0_wiz.gif"); //$NON-NLS-1$
-	//	public static final ImageDescriptor WIZBAN_GETTING_STARTED_STEP1 = getImageDescriptor("icons/wizban/getting_started_step1_wiz.gif"); //$NON-NLS-1$
-	//	public static final ImageDescriptor WIZBAN_GETTING_STARTED_STEP2 = getImageDescriptor("icons/wizban/getting_started_step2_wiz.gif"); //$NON-NLS-1$
-	//	public static final ImageDescriptor WIZBAN_GETTING_STARTED_STEP3 = getImageDescriptor("icons/wizban/getting_started_step3_wiz.gif"); //$NON-NLS-1$
-	//	public static final ImageDescriptor WIZBAN_GETTING_STARTED_STEP4 = getImageDescriptor("icons/wizban/getting_started_step4_wiz.gif"); //$NON-NLS-1$
-	//
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP0 = getImageDescriptor("assets/images/getting_started/step0.png"); //$NON-NLS-1$
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP1 = getImageDescriptor("assets/images/getting_started/step1.png"); //$NON-NLS-1$
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP2 = getImageDescriptor("assets/images/getting_started/step2.png"); //$NON-NLS-1$
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP3 = getImageDescriptor("assets/images/getting_started/step3.png"); //$NON-NLS-1$
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP4_CONFIG = getImageDescriptor("assets/images/getting_started/step4_config.png"); //$NON-NLS-1$
-	//	public static final ImageDescriptor IMAGE_GETTING_STARTED_STEP4_NOCONFIG = getImageDescriptor("assets/images/getting_started/step4_noconfig.png"); //$NON-NLS-1$
+	public static final Image CODE_MEMO = new DecorationOverlayIcon(CODE,
+			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

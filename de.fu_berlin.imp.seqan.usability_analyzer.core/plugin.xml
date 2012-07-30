@@ -116,6 +116,33 @@
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.singleSelection">
+         <with
+               variable="selection">
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.multipleSelections">
+         <with
+               variable="selection">
+            <and>
+               <not>
+                  <count
+                        value="0">
+                  </count>
+               </not>
+               <not>
+                  <count
+                        value="1">
+                  </count>
+               </not>
+            </and>
+         </with>
+      </definition>
+      <definition
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.hasMultipleIWorkSessionEntities">
          <with
                variable="selection">

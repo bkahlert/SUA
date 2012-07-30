@@ -13,14 +13,6 @@
       </view>
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogScreenshotsView"
-            icon="icons/view16/doclog_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogScreenshotsView"
-            name="Doclog Screenshots"
-            restorable="true">
-      </view>
-      <view
-            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
             icon="icons/view16/doclog_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
@@ -44,6 +36,11 @@
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.handlers.TakeScreenshotHandler"
             commandId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.commands.TakeScreenshots">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.hasScreenshots">
+            </reference>
+         </activeWhen>
       </handler>
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.handlers.TakeAllScreenshotHandler"
@@ -56,20 +53,45 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView">
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.commands.TakeScreenshots"
-               style="push">
-         </command>
-         <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.commands.TakeAllScreenshots"
                style="push">
          </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogScreenshotsView">
-         <control
-               class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.controls.ScreenshotWidthSlider">
-         </control>
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.commands.TakeScreenshots"
+               label="Take Screenshot..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.areScreenshots">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.singleSelection">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.commands.TakeScreenshots"
+               label="Take Screenshots..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.areScreenshots">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.multipleSelections">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -114,5 +136,40 @@
       <CodeableProviderFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProviderFactory">
       </CodeableProviderFactory>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.isScreenshot">
+         <adapt
+               type="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord">
+         </adapt>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.hasScreenshots">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.isScreenshot">
+               </reference>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.areScreenshots">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.isScreenshot">
+               </reference>
+            </iterate>
+         </with>
+      </definition>
    </extension>
 </plugin>

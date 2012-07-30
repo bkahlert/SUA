@@ -259,4 +259,28 @@ public interface ICodeService {
 	 * @param html
 	 */
 	public String loadMemo(ICodeable codeable);
+
+	/**
+	 * Returns true if the given {@link ICode} has a memo.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public boolean isMemo(ICode code);
+
+	/**
+	 * Returns true if the given {@link ICodeInstance} has a memo.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public boolean isMemo(ICodeInstance codeInstance);
+
+	/**
+	 * Returns true if the given {@link ICodeable} has a memo.
+	 * 
+	 * @param code
+	 * @param html
+	 */
+	public boolean isMemo(ICodeable codeable);
 }

@@ -35,12 +35,16 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private SortableTreeViewer treeViewer;
 
 	public CodeViewer(Composite parent, int style) {
+		this(parent, style, true);
+	}
+
+	public CodeViewer(Composite parent, int style, boolean showInstances) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
 		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		tree.setHeaderVisible(true);
-		tree.setLinesVisible(true);
+		tree.setLinesVisible(false);
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -58,7 +62,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			}
 		});
 		createColumns();
-		this.treeViewer.setContentProvider(new CodeViewerContentProvider());
+		this.treeViewer.setContentProvider(new CodeViewerContentProvider(
+				showInstances));
 		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
 				ICodeService.class));
 	}

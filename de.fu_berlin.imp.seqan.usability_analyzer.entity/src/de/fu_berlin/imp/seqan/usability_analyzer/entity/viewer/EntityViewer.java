@@ -98,7 +98,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 								Entity person = (Entity) element;
 								try {
 									if (codeService.getCodes(person).size() > 0) {
-										return ImageManager.ENTITY_CODED;
+										return codeService.isMemo(person) ? ImageManager.ENTITY_CODED_MEMO
+												: ImageManager.ENTITY_CODED;
 									} else {
 										for (URI id : codeService.getCodedIDs()) {
 											String[] parts = id.getPath()
@@ -110,7 +111,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 														&& person.getId()
 																.equals(new ID(
 																		key))) {
-													return ImageManager.ENTITY_PARTIALLY_CODED;
+													return codeService
+															.isMemo(person) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
 												if (Fingerprint.isValid(key)
 														&& person
@@ -118,12 +121,15 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 																.contains(
 																		new Fingerprint(
 																				key))) {
-													return ImageManager.ENTITY_PARTIALLY_CODED;
+													return codeService
+															.isMemo(person) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
 											}
 										}
 
-										return ImageManager.ENTITY;
+										return codeService.isMemo(person) ? ImageManager.ENTITY_MEMO
+												: ImageManager.ENTITY;
 									}
 								} catch (CodeServiceException e) {
 									LOGGER.error("Can't access "

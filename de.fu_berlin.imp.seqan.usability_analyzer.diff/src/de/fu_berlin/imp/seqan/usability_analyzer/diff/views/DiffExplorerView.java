@@ -109,11 +109,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	private IWorkSessionService workSessionService;
 
 	public DiffExplorerView() {
-		this.workSessionService = (IWorkSessionService) PlatformUI
-				.getWorkbench().getService(IWorkSessionService.class);
-		if (this.workSessionService == null)
-			LOGGER.warn("Could not get "
-					+ IWorkSessionService.class.getSimpleName());
+
 	}
 
 	public String getId() {
@@ -123,6 +119,12 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
+		this.workSessionService = (IWorkSessionService) PlatformUI
+				.getWorkbench().getService(IWorkSessionService.class);
+		if (this.workSessionService == null)
+			LOGGER.warn("Could not get "
+					+ IWorkSessionService.class.getSimpleName());
+
 		if (this.workSessionService != null)
 			this.workSessionService.addWorkSessionListener(workSessionListener);
 	}
@@ -148,7 +150,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		final Tree tree = diffFileListsViewer.getTree();
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.setHeaderVisible(true);
-		tree.setLinesVisible(true);
+		tree.setLinesVisible(false);
 
 		this.diffFileListsViewer
 				.setContentProvider(new DiffFileListsContentProvider());

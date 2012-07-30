@@ -6,6 +6,8 @@ import java.util.List;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class CodeServiceListenerNotifier {
 	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
@@ -49,8 +51,28 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codeDeleted(ICode code) {
-		for (ICodeServiceListener iCodeServiceListener : codeServiceListeners) {
-			iCodeServiceListener.codeDeleted(code);
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.codeDeleted(code);
+		}
+	}
+
+	void memoModified(ICode code, String html) {
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.memoModified(code);
+		}
+	}
+
+	void memoModified(ICodeInstance codeInstance, String html) {
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			if (codeServiceListener instanceof ICodeServiceListener2)
+				((ICodeServiceListener2) codeServiceListener)
+						.memoModified(codeInstance);
+		}
+	}
+
+	void memoModified(ICodeable codeable, String html) {
+		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			codeServiceListener.memoModified(codeable);
 		}
 	}
 

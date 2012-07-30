@@ -183,7 +183,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				| SWT.H_SCROLL | SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
 		final Tree table = treeViewer.getTree();
 		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
+		table.setLinesVisible(false);
 
 		this.dateRangeChanged(null, preferenceUtil.getDateRange());
 

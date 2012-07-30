@@ -37,7 +37,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 
 		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI);
 		tree.setHeaderVisible(true);
-		tree.setLinesVisible(true);
+		tree.setLinesVisible(false);
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);

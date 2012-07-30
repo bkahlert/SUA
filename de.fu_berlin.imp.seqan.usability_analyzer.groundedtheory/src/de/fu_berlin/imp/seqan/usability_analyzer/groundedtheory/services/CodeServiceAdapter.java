@@ -31,4 +31,12 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	public void codeDeleted(ICode code) {
 	}
 
+	@Override
+	public void memoModified(ICode code) {
+	}
+
+	@Override
+	public void memoModified(ICodeable codeable) {
+	}
+
 }

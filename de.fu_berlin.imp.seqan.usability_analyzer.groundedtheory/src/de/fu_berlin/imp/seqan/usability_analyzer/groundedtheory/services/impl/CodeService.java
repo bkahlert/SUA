@@ -374,6 +374,7 @@ class CodeService implements ICodeService {
 	public void setMemo(ICode code, String html) throws CodeServiceException {
 		try {
 			this.codeStore.setMemo(code, html);
+			this.codeServiceListenerNotifier.memoModified(code, html);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
@@ -384,6 +385,7 @@ class CodeService implements ICodeService {
 			throws CodeServiceException {
 		try {
 			this.codeStore.setMemo(codeInstance, html);
+			this.codeServiceListenerNotifier.memoModified(codeInstance, html);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
@@ -394,8 +396,27 @@ class CodeService implements ICodeService {
 			throws CodeServiceException {
 		try {
 			this.codeStore.setMemo(codeable, html);
+			this.codeServiceListenerNotifier.memoModified(codeable, html);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
+	}
+
+	@Override
+	public boolean isMemo(ICode code) {
+		String html = this.codeStore.getMemo(code);
+		return html != null && !html.trim().isEmpty();
+	}
+
+	@Override
+	public boolean isMemo(ICodeable codeable) {
+		String html = this.codeStore.getMemo(codeable);
+		return html != null && !html.trim().isEmpty();
+	}
+
+	@Override
+	public boolean isMemo(ICodeInstance codeInstance) {
+		String html = this.codeStore.getMemo(codeInstance);
+		return html != null && !html.trim().isEmpty();
 	}
 }

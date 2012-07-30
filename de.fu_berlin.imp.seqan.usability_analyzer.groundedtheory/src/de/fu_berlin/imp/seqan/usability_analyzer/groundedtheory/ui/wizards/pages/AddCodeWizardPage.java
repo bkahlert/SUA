@@ -81,7 +81,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 		group.setLayout(new GridLayout(1, false));
 		group.setText("Existing Code");
 
-		this.codeViewer = new CodeViewer(group, SWT.NONE);
+		this.codeViewer = new CodeViewer(group, SWT.NONE, false);
 		this.codeViewer.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
 		this.codeViewer

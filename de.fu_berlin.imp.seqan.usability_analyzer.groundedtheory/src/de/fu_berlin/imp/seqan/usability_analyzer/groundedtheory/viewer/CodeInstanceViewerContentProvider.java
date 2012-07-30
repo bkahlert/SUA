@@ -11,7 +11,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.inf.nebula.utils.ViewerUtils;
 
@@ -23,7 +23,7 @@ public class CodeInstanceViewerContentProvider implements
 			.getService(ICodeService.class);
 	private List<ICodeable> codeables;
 
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
 		@Override
 		public void codeAdded(ICode code) {
@@ -54,6 +54,21 @@ public class CodeInstanceViewerContentProvider implements
 		@Override
 		public void codeDeleted(ICode code) {
 			ViewerUtils.refresh(viewer, true);
+		}
+
+		@Override
+		public void memoModified(ICode code) {
+			ViewerUtils.update(viewer, code, null);
+		}
+
+		@Override
+		public void memoModified(ICodeInstance codeInstance) {
+			ViewerUtils.update(viewer, codeInstance, null);
+		}
+
+		@Override
+		public void memoModified(ICodeable codeable) {
+			ViewerUtils.update(viewer, codeable, null);
 		}
 	};
 

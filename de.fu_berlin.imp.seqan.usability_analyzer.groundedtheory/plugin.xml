@@ -30,6 +30,16 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
             name="Add Code...">
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
+            name="Show Artefact ID...">
+         <commandParameter
+               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
+               name="Just Copy"
+               optional="false"
+               values="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.BooleanValues">
+         </commandParameter>
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -63,12 +73,25 @@
               </with>
            </activeWhen>
         </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ShowArtifactIDHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+              </reference>
+           </activeWhen>
+        </handler>
      </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator1"
+               visible="true">
+         </separator>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
                disabledIcon="icons/dtool16/create_code_tsk.png"
@@ -159,6 +182,38 @@
                   </reference>
                </and>
             </visibleWhen>
+         </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
+               icon="icons/obj16/code_obj.png"
+               label="Show Artefact ID"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
+               icon="icons/obj16/code_obj.png"
+               label="Copy Artefact ID"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+               </reference>
+            </visibleWhen>
+            <parameter
+                  name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
+                  value="TRUE">
+            </parameter>
          </command>
       </menuContribution>
    </extension>
@@ -401,6 +456,36 @@
                </adapt>
             </iterate>
          </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.adaptsToICodeable">
+         <adapt
+               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+         </adapt>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeables">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+         <and>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeables">
+            </reference>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.singleSelection">
+            </reference>
+         </and>
       </definition>
    </extension>
    <extension

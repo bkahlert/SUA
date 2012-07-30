@@ -17,4 +17,8 @@ public interface ICodeServiceListener {
 	public void codeMoved(ICode code, ICode oldParentCode, ICode newParentCode);
 
 	public void codeDeleted(ICode code);
+
+	public void memoModified(ICode code);
+
+	public void memoModified(ICodeable codeable);
 }

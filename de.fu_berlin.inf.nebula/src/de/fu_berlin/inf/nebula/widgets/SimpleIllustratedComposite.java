@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Layout;
 
 import de.fu_berlin.inf.nebula.utils.FontUtils;
 
-
 /**
  * This composite displays a simple {@link IllustratedComposite} that can only
  * display text.
@@ -173,6 +172,11 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		}
 
 		this.layout();
+	}
+
+	public void changeFontSizeBy(SimpleIllustratedComposite noteComposite,
+			int fontSizeInc) {
+		FontUtils.changeFontSizeBy(this.contentLabel, fontSizeInc);
 	}
 
 	@Override

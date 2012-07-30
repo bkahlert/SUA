@@ -86,14 +86,26 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 					@Override
 					public Image getImage(Object element) {
 						if (element instanceof DoclogFile) {
-							return ImageManager.DOCLOGFILE;
+							DoclogFile doclogFile = (DoclogFile) element;
+							try {
+								return (codeService.getCodes(doclogFile).size() > 0) ? (codeService
+										.isMemo(doclogFile) ? ImageManager.DOCLOGFILE_CODED_MEMO
+										: ImageManager.DOCLOGFILE_CODED)
+										: (codeService.isMemo(doclogFile) ? ImageManager.DOCLOGFILE_MEMO
+												: ImageManager.DOCLOGFILE);
+							} catch (CodeServiceException e) {
+								return ImageManager.DOCLOGRECORD;
+							}
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
 							try {
 								return (codeService.getCodes(doclogRecord)
-										.size() > 0) ? ImageManager.DOCLOGRECORD_CODED
-										: ImageManager.DOCLOGRECORD;
+										.size() > 0) ? (codeService
+										.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_CODED_MEMO
+										: ImageManager.DOCLOGRECORD_CODED)
+										: (codeService.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_MEMO
+												: ImageManager.DOCLOGRECORD);
 							} catch (CodeServiceException e) {
 								return ImageManager.DOCLOGRECORD;
 							}

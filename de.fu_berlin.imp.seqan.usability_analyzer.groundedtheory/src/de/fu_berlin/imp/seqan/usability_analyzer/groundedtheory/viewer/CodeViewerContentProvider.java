@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.inf.nebula.utils.ViewerUtils;
 
@@ -20,7 +20,12 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	private Viewer viewer;
 	private ICodeService codeService;
 
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	/**
+	 * If false no {@link ICodeInstance}s are shown.
+	 */
+	private boolean showInstances;
+
+	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
 		@Override
 		public void codeAdded(ICode code) {
@@ -60,7 +65,33 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		public void codeDeleted(ICode code) {
 			ViewerUtils.remove(viewer, code);
 		}
+
+		@Override
+		public void memoModified(ICode code) {
+			ViewerUtils.update(viewer, code, null);
+		}
+
+		@Override
+		public void memoModified(ICodeInstance codeInstance) {
+			ViewerUtils.update(viewer, codeInstance, null);
+		}
+
+		@Override
+		public void memoModified(ICodeable codeable) {
+			ViewerUtils.update(viewer, codeable, null);
+		}
 	};
+
+	/**
+	 * Creates a new {@link CodeViewerContentProvider} that displays all
+	 * {@link ICode}s and optionally {@link ICodeInstance}s.
+	 * 
+	 * @param showInstances
+	 *            false if only {@link ICode}s should be displayed
+	 */
+	public CodeViewerContentProvider(boolean showInstances) {
+		this.showInstances = showInstances;
+	}
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -106,7 +137,8 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 			ICode code = (ICode) element;
 			if (this.codeService.getChildren(code).size() > 0)
 				return true;
-			if (this.codeService.getInstances(code).size() > 0)
+			if (this.showInstances
+					&& this.codeService.getInstances(code).size() > 0)
 				return true;
 		}
 		return false;
@@ -119,7 +151,8 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 
 			ArrayList<Object> childNodes = new ArrayList<Object>();
 			childNodes.addAll(this.codeService.getChildren(code));
-			childNodes.addAll(this.codeService.getInstances(code));
+			if (this.showInstances)
+				childNodes.addAll(this.codeService.getInstances(code));
 
 			return childNodes.toArray();
 		}

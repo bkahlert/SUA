@@ -65,8 +65,25 @@ public class ImageManager {
 			ENTITY,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image ENTITY_MEMO = new DecorationOverlayIcon(
+			ENTITY,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
+	public static final Image ENTITY_CODED_MEMO = new DecorationOverlayIcon(
+			ENTITY_MEMO,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+
 	public static final Image ENTITY_PARTIALLY_CODED = new DecorationOverlayIcon(
 			ENTITY,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image ENTITY_PARTIALLY_MEMO = new DecorationOverlayIcon(
+			ENTITY,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
+	public static final Image ENTITY_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
+			ENTITY_PARTIALLY_MEMO,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 

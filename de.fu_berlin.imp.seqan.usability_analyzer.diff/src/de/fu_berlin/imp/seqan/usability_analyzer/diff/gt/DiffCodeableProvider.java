@@ -221,8 +221,11 @@ public class DiffCodeableProvider extends CodeableProvider {
 				if (element instanceof DiffFile) {
 					DiffFile diffFile = (DiffFile) element;
 					try {
-						return (codeService.getCodes(diffFile).size() > 0) ? ImageManager.DIFFFILE_CODED
-								: ImageManager.DIFFFILE;
+						return (codeService.getCodes(diffFile).size() > 0) ? (codeService
+								.isMemo(diffFile) ? ImageManager.DIFFFILE_CODED_MEMO
+								: ImageManager.DIFFFILE_CODED)
+								: (codeService.isMemo(diffFile) ? ImageManager.DIFFFILE_MEMO
+										: ImageManager.DIFFFILE);
 					} catch (CodeServiceException e) {
 						return ImageManager.DIFFFILE;
 					}
@@ -230,8 +233,11 @@ public class DiffCodeableProvider extends CodeableProvider {
 				if (element instanceof DiffFileRecord) {
 					DiffFileRecord diffFileRecord = (DiffFileRecord) element;
 					try {
-						return (codeService.getCodes(diffFileRecord).size() > 0) ? ImageManager.DIFFFILERECORD_CODED
-								: ImageManager.DIFFFILERECORD;
+						return (codeService.getCodes(diffFileRecord).size() > 0) ? (codeService
+								.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_CODED_MEMO
+								: ImageManager.DIFFFILERECORD_CODED)
+								: (codeService.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_MEMO
+										: ImageManager.DIFFFILERECORD);
 					} catch (CodeServiceException e) {
 						return ImageManager.DIFFFILERECORD;
 					}
@@ -240,8 +246,11 @@ public class DiffCodeableProvider extends CodeableProvider {
 					DiffFileRecordSegment diffFileRecordSegment = (DiffFileRecordSegment) element;
 					try {
 						return (codeService.getCodes(diffFileRecordSegment)
-								.size() > 0) ? ImageManager.DIFFFILERECORDSEGMENT_CODED
-								: ImageManager.DIFFFILERECORDSEGMENT;
+								.size() > 0) ? (codeService
+								.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_CODED_MEMO
+								: ImageManager.DIFFFILERECORDSEGMENT_CODED)
+								: (codeService.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_MEMO
+										: ImageManager.DIFFFILERECORDSEGMENT);
 					} catch (CodeServiceException e) {
 						return ImageManager.DIFFFILERECORDSEGMENT;
 					}

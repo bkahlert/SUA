@@ -40,19 +40,46 @@ public class ImageManager {
 	 * objects
 	 */
 	public static final Image DIFFFILELIST = getImage("icons/obj16/difffilelist_obj.png"); //$NON-NLS-1$
+
 	public static final Image DIFFFILE = getImage("icons/obj16/difffile_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFFILE_CODED = new DecorationOverlayIcon(
 			DIFFFILE,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILE_MEMO = new DecorationOverlayIcon(
+			DIFFFILE,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
+	public static final Image DIFFFILE_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFFILE_MEMO,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+
 	public static final Image DIFFFILERECORD = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFFILERECORD_CODED = new DecorationOverlayIcon(
 			DIFFFILERECORD,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILERECORD_MEMO = new DecorationOverlayIcon(
+			DIFFFILERECORD,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
+	public static final Image DIFFFILERECORD_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFFILERECORD_MEMO,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+
 	public static final Image DIFFFILERECORDSEGMENT = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFFILERECORDSEGMENT_CODED = new DecorationOverlayIcon(
 			DIFFFILERECORDSEGMENT,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILERECORDSEGMENT_MEMO = new DecorationOverlayIcon(
+			DIFFFILERECORDSEGMENT,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
+	public static final Image DIFFFILERECORDSEGMENT_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFFILERECORDSEGMENT_MEMO,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 
