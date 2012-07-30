@@ -28,14 +28,16 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
 		@Override
-		public void codeAdded(ICode code) {
+		public void codesAdded(List<ICode> codes) {
 			ViewerUtils.refresh(viewer, false);
-			ViewerUtils.expandAll(viewer, code);
+			for (ICode code : codes)
+				ViewerUtils.expandAll(viewer, code);
 		}
 
 		@Override
-		public void codeAssigned(ICode code, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer, code, true);
+		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+			for (ICode code : codes)
+				ViewerUtils.refresh(viewer, code, true);
 		}
 
 		@Override

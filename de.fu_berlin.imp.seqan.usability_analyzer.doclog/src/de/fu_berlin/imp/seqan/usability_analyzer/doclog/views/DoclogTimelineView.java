@@ -49,7 +49,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionServi
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets.DoclogTimeline;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets.DoclogTimeline;
 
 public class DoclogTimelineView extends ViewPart {
 

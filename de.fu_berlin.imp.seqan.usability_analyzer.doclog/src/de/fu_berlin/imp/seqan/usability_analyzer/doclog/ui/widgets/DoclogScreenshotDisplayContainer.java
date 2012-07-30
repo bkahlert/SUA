@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets;
+package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;

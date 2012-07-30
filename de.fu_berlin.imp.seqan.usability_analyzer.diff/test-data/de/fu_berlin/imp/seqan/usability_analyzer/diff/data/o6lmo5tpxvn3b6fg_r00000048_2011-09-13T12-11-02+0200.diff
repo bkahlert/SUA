@@ -14,7 +14,7 @@ diff -u -r -N -x '*.o' -x Thumbs.db -x .DS_Store -x CMakeCache.txt -x misc/seqan
 -Time Elapsed 00:00:00.35
 +Time Elapsed 00:00:00.28
 diff -u -r -N -x '*.o' -x Thumbs.db -x .DS_Store -x CMakeCache.txt -x misc/seqan_instrumentation/userdata/id.txt -x 'C:/Dokumente und Einstellungen/lindnerm/Desktop/seqan/misc/seqan_instrumentation/userdata/id.txt' -x misc/seqan_instrumentation/userdata/o6lmo5tpxvn3b6fg_stats.txt -x 'C:/Dokumente und Einstellungen/lindnerm/Desktop/seqan/misc/seqan_instrumentation/userdata/o6lmo5tpxvn3b6fg_stats.txt' -x .svn -x build -x util -x misc -x docs -x misc/seqan_instrumentation/bin -x 'C:/Dokumente und Einstellungen/lindnerm/Desktop/seqan/misc/seqan_instrumentation/bin' -x misc/seqan_instrumentation/last_revision_copy -x 'C:/Dokumente und Einstellungen/lindnerm/Desktop/seqan/misc/seqan_instrumentation/last_revision_copy' -x misc/seqan_instrumentation/userdata -x 'C:/Dokumente und Einstellungen/lindnerm/Desktop/seqan/misc/seqan_instrumentation/userdata' ./misc/seqan_instrumentation/last_revision_copy/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log ./bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log
---- ./misc/seqan_instrumentation/last_revision_copy/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log	2011-09-13 12:10:14.584375000 +0200
+--- ./misc/seqan_instrumentation/last_revision_copy/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log	2011-09-13 12:10:14.484375000 +0200
 +++ ./bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log	2011-09-13 12:11:02.140625000 +0200
 @@ -1,4 +1,4 @@
 -﻿Build started 13.09.2011 12:10:14.

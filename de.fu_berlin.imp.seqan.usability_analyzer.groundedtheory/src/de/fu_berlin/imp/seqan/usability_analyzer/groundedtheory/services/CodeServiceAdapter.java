@@ -8,11 +8,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 public class CodeServiceAdapter implements ICodeServiceListener {
 
 	@Override
-	public void codeAdded(ICode code) {
+	public void codesAdded(List<ICode> codes) {
 	}
 
 	@Override
-	public void codeAssigned(ICode code, List<ICodeable> codeables) {
+	public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
 	}
 
 	@Override

@@ -196,8 +196,27 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 		return this.token;
 	}
 
+	/**
+	 * Returns all containing {@link DoclogRecord}s.
+	 * 
+	 * @return
+	 */
 	public DoclogRecordList getDoclogRecords() {
 		return this.doclogRecords;
+	}
+
+	/**
+	 * @see DoclogRecordList#getSuccessor(DoclogRecord)
+	 */
+	public DoclogRecord getNextDoclogRecord(DoclogRecord doclogRecord) {
+		return this.doclogRecords.getSuccessor(doclogRecord);
+	}
+
+	/**
+	 * @see DoclogRecordList#getPredecessor(DoclogRecord)
+	 */
+	public DoclogRecord getPrevDoclogRecord(DoclogRecord doclogRecord) {
+		return this.doclogRecords.getPredecessor(doclogRecord);
 	}
 
 	/**

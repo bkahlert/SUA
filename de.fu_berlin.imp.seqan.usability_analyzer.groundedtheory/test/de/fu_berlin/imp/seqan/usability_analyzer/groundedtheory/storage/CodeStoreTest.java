@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,9 +77,10 @@ public class CodeStoreTest extends CodeStoreHelper {
 		ICodeStore codeStore = getEmptyCodeStore();
 		codeStore.addAndSaveCode(code1);
 		codeStore.addAndSaveCode(code2);
-		codeStore.addAndSaveCodeInstance(codeInstance1);
-		codeStore.addAndSaveCodeInstance(codeInstance2);
-		codeStore.addAndSaveCodeInstance(codeInstance3);
+		codeStore
+				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance1 });
+		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance2,
+				codeInstance3 });
 		codeStore.save();
 		testCodes(getSmallCodeStore(), codes);
 	}
@@ -98,7 +97,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		for (ICode code : codes)
 			newCodeStore.addAndSaveCode(code);
 		for (ICodeInstance instance : codeInstances)
-			newCodeStore.addAndSaveCodeInstance(instance);
+			newCodeStore
+					.addAndSaveCodeInstances(new ICodeInstance[] { instance });
 		testCodes(newCodeStore, codes);
 		testCodeInstances(newCodeStore, codeInstances);
 	}
@@ -117,8 +117,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testNewFileSaveCodeInstances() throws IOException {
 		ICodeStore newCodeStore = getEmptyCodeStore();
 		newCodeStore.addAndSaveCode(code2);
-		newCodeStore.addAndSaveCodeInstance(codeInstance1);
-		newCodeStore.addAndSaveCodeInstance(codeInstance3);
+		newCodeStore.addAndSaveCodeInstances(new ICodeInstance[] {
+				codeInstance1, codeInstance3 });
 
 		Assert.assertEquals(2, newCodeStore.loadInstances().size());
 		testCodeInstances(newCodeStore, new ICodeInstance[] { codeInstance1,
@@ -129,9 +129,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testNewFileSaveCodeInstancesWithoutCodes() throws IOException,
 			SAXException, ParserConfigurationException {
 		ICodeStore newCodeStore = getEmptyCodeStore();
-		newCodeStore.addAndSaveCodeInstance(codeInstance1);
-		newCodeStore.addAndSaveCodeInstance(codeInstance3);
-		newCodeStore.addAndSaveCodeInstance(codeInstance2);
+		newCodeStore.addAndSaveCodeInstances(new ICodeInstance[] {
+				codeInstance1, codeInstance3, codeInstance2 });
 		newCodeStore.save();
 	}
 
@@ -139,8 +138,10 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testNewFileAddAndSaveCodeInstances() throws IOException {
 		ICodeStore newCodeStore = getEmptyCodeStore();
 		newCodeStore.addAndSaveCode(code2);
-		newCodeStore.addAndSaveCodeInstance(codeInstance1);
-		newCodeStore.addAndSaveCodeInstance(codeInstance3);
+		newCodeStore
+				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance1 });
+		newCodeStore
+				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance3 });
 
 		Assert.assertEquals(2, newCodeStore.loadInstances().size());
 		testCodeInstances(newCodeStore, new ICodeInstance[] { codeInstance1,
@@ -206,7 +207,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(1, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1 });
 
-		codeStore.addAndSaveCodeInstance(codeInstance3);
+		codeStore
+				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance3 });
 		Assert.assertEquals(1, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code2 });
 		Assert.assertEquals(2, codeStore.loadInstances().size());
@@ -236,9 +238,10 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
-		codeStore.addAndSaveCodeInstance(codeInstance1);
-		codeStore.addAndSaveCodeInstance(codeInstance2);
-		codeStore.addAndSaveCodeInstance(codeInstance3);
+		codeStore
+				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance1 });
+		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance2,
+				codeInstance3 });
 	}
 
 	@Test
@@ -333,7 +336,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
 		Assert.assertEquals(0, codeStore.loadInstances().size());
 
-		codeStore.createCodeInstance(code, codeable);
+		codeStore.createCodeInstances(new ICode[] { code },
+				new ICodeable[] { codeable });
 	}
 
 	@Test(expected = InvalidParameterException.class)
@@ -355,7 +359,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
 		Assert.assertEquals(0, codeStore.loadInstances().size());
 
-		codeStore.createCodeInstance(code, codeable);
+		codeStore.createCodeInstances(new ICode[] { code },
+				new ICodeable[] { codeable });
 	}
 
 	@Test
@@ -374,9 +379,9 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		final ICodeInstance codeInstance = codeStore.createCodeInstance(code1,
-				codeable);
-		codeStore.addAndSaveCodeInstance(codeInstance);
+		final ICodeInstance codeInstance = codeStore.createCodeInstances(
+				new ICode[] { code1 }, new ICodeable[] { codeable })[0];
+		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance });
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance2, codeInstance3, new ICodeInstance() {
@@ -404,7 +409,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 	@Test
 	public void testLoadInstances() throws IOException {
 		ICodeStore codeStore = getSmallCodeStore();
-		assertEquals(codeStore.loadInstances(), codeInstances);
+		testCodeInstances(codeStore.loadInstances(), codeInstances);
 	}
 
 	@Test(expected = CodeInstanceDoesNotExistException.class)

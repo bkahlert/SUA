@@ -1,7 +1,5 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.doclog.widgets;
+package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets;
 
-import java.awt.Dimension;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,7 +11,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
@@ -60,19 +57,8 @@ public class DoclogTimeline extends Timeline {
 								+ DoclogRecord.class.getSimpleName() + " index");
 					}
 
-					Dimension screenshotSize = null;
-					try {
-						screenshotSize = selectedDoclogRecord.getScreenshot()
-								.getImageSize();
-					} catch (IOException e) {
-						logger.warn("Screenshot for " + selectedDoclogRecord
-								+ " not computable", e);
-					}
-					DoclogDetailDialog doclogDetailDialog = new DoclogDetailDialog(
-							null, new Point(screenshotSize.width,
-									screenshotSize.height),
-							selectedDoclogRecord);
-					doclogDetailDialog.open();
+					new DoclogDetailDialog(null, DoclogTimeline.this,
+							selectedDoclogRecord).open();
 				} else {
 					logger.error("Could not determine the passed "
 							+ DoclogRecord.class.getSimpleName() + " index");
@@ -86,6 +72,8 @@ public class DoclogTimeline extends Timeline {
 	}
 
 	private DoclogFile doclogFile;
+
+	private List<TimeZoneDateRange> highlightedDateRanges;
 
 	public DoclogTimeline(Composite parent, int style) {
 		super(parent, style);
@@ -192,6 +180,7 @@ public class DoclogTimeline extends Timeline {
 	 * @param dateRanges
 	 */
 	public void highlight(final List<TimeZoneDateRange> dateRanges) {
+		this.highlightedDateRanges = dateRanges;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -229,5 +218,13 @@ public class DoclogTimeline extends Timeline {
 			dateRanges.add(doclogRecord.getDateRange());
 		}
 		this.highlight(dateRanges);
+	}
+
+	public DoclogFile getDoclogFile() {
+		return this.doclogFile;
+	}
+
+	public List<TimeZoneDateRange> getHighlightedDateRanges() {
+		return this.highlightedDateRanges;
 	}
 }

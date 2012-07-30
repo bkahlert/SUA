@@ -23,12 +23,12 @@ public class DoclogFileTest {
 
 	private File getIdDoclogFile() throws URISyntaxException {
 		return FileUtils.getFile(DoclogFileTest.class, dataDirectory
-				+ "/0meio6dzt3eo1wj7_doclog.txt");
+				+ "/0meio6dzt3eo1wj7.doclog");
 	}
 
 	private File getFingerprintDoclogFile() throws URISyntaxException {
 		return FileUtils.getFile(DoclogFileTest.class, dataDirectory
-				+ "/fingerprint_2aa2aaccc0b9b73b230bb4667c5971f8_doclog.txt");
+				+ "/!2aa2aaccc0b9b73b230bb4667c5971f8.doclog");
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class DoclogFileTest {
 		File file = getFingerprintDoclogFile();
 		Assert.assertNull(DoclogFile.getId(file));
 		Assert.assertEquals(
-				new Fingerprint("2aa2aaccc0b9b73b230bb4667c5971f8"),
+				new Fingerprint("!2aa2aaccc0b9b73b230bb4667c5971f8"),
 				DoclogFile.getFingerprint(file));
 	}
 

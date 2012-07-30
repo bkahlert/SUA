@@ -20,15 +20,15 @@ public class CodeServiceListenerNotifier {
 		codeServiceListeners.remove(codeServiceListeners);
 	}
 
-	void codeCreated(ICode code) {
+	void codesCreated(List<ICode> codes) {
 		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeAdded(code);
+			codeServiceListener.codesAdded(codes);
 		}
 	}
 
-	void codeAssigned(ICode code, List<ICodeable> codeables) {
+	void codeAssigned(List<ICode> codes, List<ICodeable> codeables) {
 		for (ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			codeServiceListener.codeAssigned(code, codeables);
+			codeServiceListener.codesAssigned(codes, codeables);
 		}
 	}
 

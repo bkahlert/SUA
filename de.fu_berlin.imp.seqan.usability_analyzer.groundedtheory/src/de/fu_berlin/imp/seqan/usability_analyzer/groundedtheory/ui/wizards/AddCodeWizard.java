@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
@@ -44,6 +45,7 @@ public class AddCodeWizard extends Wizard {
 		affectedCodes = new LinkedList<ICode>();
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
+
 		if (this.addCodeWizardPage.getCreateCode()) {
 			String codeCaption = this.addCodeWizardPage.getNewCodeCaption();
 			ICode createdCode = null;
@@ -63,18 +65,21 @@ public class AddCodeWizard extends Wizard {
 				}
 			}
 		} else {
-			for (ICode code : this.addCodeWizardPage.getExistingCodes()) {
-				for (ICodeable codeable : codeables) {
-					try {
-						codeService.addCode(code, codeable);
-						LOGGER.info("Code " + code + " added to " + codeable);
-					} catch (CodeServiceException e) {
-						LOGGER.error("Code " + code + " couldn't be added to "
-								+ codeable, e);
-					}
-				}
-				affectedCodes.add(code);
+			List<ICode> codes = this.addCodeWizardPage.getExistingCodes();
+			try {
+				codeService.addCodes(codes, codeables);
+				LOGGER.info(ICode.class.getSimpleName() + "s \""
+						+ StringUtils.join(codes, "\", \"") + "\" added to \""
+						+ StringUtils.join(codeables, "\", \"") + "\"");
+			} catch (CodeServiceException e) {
+				LOGGER.error(
+						ICode.class.getSimpleName() + "s \""
+								+ StringUtils.join(codes, "\", \"")
+								+ "\" could not be added to \""
+								+ StringUtils.join(codeables, "\", \"") + "\"",
+						e);
 			}
+			affectedCodes.addAll(codes);
 		}
 
 		return true;

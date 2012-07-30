@@ -26,12 +26,12 @@ public class CodeInstanceViewerContentProvider implements
 	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
 		@Override
-		public void codeAdded(ICode code) {
+		public void codesAdded(List<ICode> codes) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
 		@Override
-		public void codeAssigned(ICode code, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 

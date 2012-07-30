@@ -82,12 +82,10 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(code2.getId(), smallCodeService.getCodes(codeable1)
 				.get(0).getId());
 		Assert.assertEquals(0, smallCodeService.getCodes(codeable2).size());
-		ICode addedCode = smallCodeService.addCode(code1, codeable2);
-		Assert.assertEquals(code1, addedCode);
+		smallCodeService.addCode(code1, codeable2);
 		Assert.assertEquals(1, smallCodeService.getCodes(codeable2).size());
 		Assert.assertEquals(code1, smallCodeService.getCodes(codeable2).get(0));
-		addedCode = smallCodeService.addCode(code2, codeable2);
-		Assert.assertEquals(code2, addedCode);
+		smallCodeService.addCode(code2, codeable2);
 		Assert.assertEquals(2, smallCodeService.getCodes(codeable2).size());
 		Assert.assertEquals(code1, smallCodeService.getCodes(codeable2).get(0));
 		Assert.assertEquals(code2, smallCodeService.getCodes(codeable2).get(1));

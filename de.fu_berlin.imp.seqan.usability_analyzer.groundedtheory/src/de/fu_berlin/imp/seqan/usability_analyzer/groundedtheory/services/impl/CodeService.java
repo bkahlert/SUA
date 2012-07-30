@@ -73,7 +73,7 @@ class CodeService implements ICodeService {
 		} catch (CodeStoreFullException e) {
 			throw new CodeServiceException(e);
 		}
-		codeServiceListenerNotifier.codeCreated(code);
+		codeServiceListenerNotifier.codesCreated(Arrays.asList(code));
 		return code;
 	}
 
@@ -100,19 +100,25 @@ class CodeService implements ICodeService {
 		return code;
 	}
 
-	public ICode addCode(ICode code, final ICodeable codeable)
+	public void addCode(ICode code, final ICodeable codeable)
+			throws CodeServiceException {
+		this.addCodes(Arrays.asList(code), Arrays.asList(codeable));
+	}
+
+	@Override
+	public void addCodes(List<ICode> codes, List<ICodeable> codeables)
 			throws CodeServiceException {
 		try {
-			if (!codeStore.codeExists(code)) {
-				codeStore.addAndSaveCode(code);
-				codeServiceListenerNotifier.codeCreated(code);
+			for (ICode code : codes) {
+				if (!codeStore.codeExists(code))
+					codeStore.addAndSaveCode(code);
 			}
-			ICodeInstance codeInstance = codeStore.createCodeInstance(code,
-					codeable);
-			codeStore.addAndSaveCodeInstance(codeInstance);
-			codeServiceListenerNotifier.codeAssigned(code,
-					Arrays.asList(codeable));
-			return code;
+			codeServiceListenerNotifier.codesCreated(codes);
+			ICodeInstance[] codeInstances = codeStore.createCodeInstances(
+					codes.toArray(new ICode[0]),
+					codeables.toArray(new ICodeable[0]));
+			codeStore.addAndSaveCodeInstances(codeInstances);
+			codeServiceListenerNotifier.codeAssigned(codes, codeables);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeStoreReadException e) {
@@ -120,7 +126,6 @@ class CodeService implements ICodeService {
 		} catch (DuplicateCodeInstanceException e) {
 			throw new CodeServiceException(e);
 		}
-
 	}
 
 	@Override

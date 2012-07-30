@@ -63,7 +63,7 @@ public class DiffFileRecordTest {
 						{
 								FileUtils
 										.getFile(root
-												+ "/data/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff"),
+												+ "/data/o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff"),
 								new LinkedList<DiffFileRecordTest.ValidationPatch>() {
 									{
 										add(new ValidationPatch(
@@ -74,7 +74,7 @@ public class DiffFileRecordTest {
 										add(new ValidationPatch(
 												2692l,
 												3396l,
-												"--- ./misc/seqan_instrumentation/last_revision_copy/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log	2011-09-13 12:10:14.584375000 +0200",
+												"--- ./misc/seqan_instrumentation/last_revision_copy/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log	2011-09-13 12:10:14.484375000 +0200",
 												"+Time Elapsed 00:00:00.23"));
 										add(new ValidationPatch(
 												5217l,
@@ -101,7 +101,7 @@ public class DiffFileRecordTest {
 						{
 								FileUtils
 										.getFile(root
-												+ "/data/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"),
+												+ "/data/blcdihoxu16s53yo/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"),
 								new LinkedList<ValidationPatch>() {
 									{
 										add(new ValidationPatch(

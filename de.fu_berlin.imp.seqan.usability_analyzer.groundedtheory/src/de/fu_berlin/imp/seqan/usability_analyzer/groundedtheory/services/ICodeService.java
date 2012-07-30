@@ -70,10 +70,12 @@ public interface ICodeService {
 	 * 
 	 * @param code
 	 * @param codeable
-	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode addCode(ICode code, ICodeable codeable)
+	public void addCode(ICode code, ICodeable codeable)
+			throws CodeServiceException;
+
+	public void addCodes(List<ICode> codes, List<ICodeable> codeables)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();

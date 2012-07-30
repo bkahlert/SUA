@@ -33,24 +33,28 @@ public class DiffFileTest {
 
 	@Test
 	public void testDiffFileStatics() {
-		Assert.assertEquals(new ID("o6lmo5tpxvn3b6fg"), DiffFile
-				.getId(new File(
-						"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+		Assert.assertEquals(
+				new ID("o6lmo5tpxvn3b6fg"),
+				DiffFile.getId(new File(
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
 				DiffFile.getId(new File(
 						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
 
-		Assert.assertEquals("00000048", DiffFile.getRevision(new File(
-				"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+		Assert.assertEquals(
+				"00000048",
+				DiffFile.getRevision(new File(
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
 		Assert.assertEquals(
 				"00000048",
 				DiffFile.getRevision(new File(
 						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
 
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02+02:00"),
+		Assert.assertEquals(
+				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				DiffFile.getDate(new File(
-						"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				DiffFile.getDate(new File(
@@ -60,8 +64,8 @@ public class DiffFileTest {
 	@Test
 	public void testGetContent() throws URISyntaxException {
 		DiffFile smallDiffFile = getDiffFile(
-				"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff", new ID(
-						"o6lmo5tpxvn3b6fg"), "00000048", new TimeZoneDateRange(
+				"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
+				new ID("o6lmo5tpxvn3b6fg"), "00000048", new TimeZoneDateRange(
 						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
 
 		String firstLine = "--- ./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log	2011-09-13 12:10:14.578125000 +0200";
@@ -80,12 +84,12 @@ public class DiffFileTest {
 	public void testDiffFileRecords() throws URISyntaxException {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
-						"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
 						new ID("o6lmo5tpxvn3b6fg"), "00000048",
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T12:11:02+02:00"), null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
-				new Long[] { 47547l, 47556l, 189485l, 47610l, 47921l, 47937l },
+				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
 						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
 						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
@@ -96,12 +100,12 @@ public class DiffFileTest {
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
-						"o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff",
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff",
 						new ID("o6lmo5tpxvn3b6fg"), "00000048",
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T12:11:02+02:00"), null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
-				new Long[] { 47547l, 47556l, 189485l, 47610l, 47921l, 47937l },
+				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
 						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
 						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
@@ -112,7 +116,7 @@ public class DiffFileTest {
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
-						"5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff",
+						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff",
 						new ID("5lpcjqhy0b9yfech"), "00000005",
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T10:17:43+02:00"), null)),
@@ -134,7 +138,7 @@ public class DiffFileTest {
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
-						"5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43-0530.diff",
+						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43-0530.diff",
 						new ID("5lpcjqhy0b9yfech"), "00000005",
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T10:17:43+02:00"), null)),

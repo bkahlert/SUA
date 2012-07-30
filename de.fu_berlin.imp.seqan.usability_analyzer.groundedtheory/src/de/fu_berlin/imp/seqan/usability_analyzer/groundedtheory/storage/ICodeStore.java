@@ -30,14 +30,14 @@ public interface ICodeStore {
 
 	public ICode createCode(String caption) throws CodeStoreFullException;
 
-	public ICodeInstance createCodeInstance(ICode code, ICodeable codeable)
-			throws InvalidParameterException, CodeStoreReadException,
-			DuplicateCodeInstanceException;
+	public ICodeInstance[] createCodeInstances(ICode[] codes,
+			ICodeable[] codeables) throws InvalidParameterException,
+			CodeStoreReadException, DuplicateCodeInstanceException;
 
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException;
 
-	public void addAndSaveCodeInstance(ICodeInstance codeInstance)
+	public void addAndSaveCodeInstances(ICodeInstance[] codeInstance)
 			throws CodeStoreWriteException, CodeStoreReadException;
 
 	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,

@@ -25,12 +25,12 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
-		public void codeAdded(ICode code) {
+		public void codesAdded(List<ICode> code) {
 			ViewerUtils.refresh(viewer);
 		}
 
 		@Override
-		public void codeAssigned(ICode code, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer);
 		}
 

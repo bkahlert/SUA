@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,23 +191,33 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public ICodeInstance createCodeInstance(ICode code, ICodeable codeable)
-			throws InvalidParameterException, CodeStoreReadException,
-			DuplicateCodeInstanceException {
-		for (TreeNode<ICode> codeTree : codeTrees) {
-			if (codeTree.find(code).size() > 0) {
-				ICodeInstance codeInstance = new CodeInstance(code,
-						codeable.getCodeInstanceID(), new TimeZoneDate(
-								new Date(), TimeZone.getDefault()));
-				if (codeInstances.contains(codeInstance)) {
-					throw new DuplicateCodeInstanceException();
-				} else {
-					return codeInstance;
+	public ICodeInstance[] createCodeInstances(ICode[] codes,
+			ICodeable[] codeables) throws InvalidParameterException,
+			CodeStoreReadException, DuplicateCodeInstanceException {
+		List<ICodeInstance> duplicateCodeInstances = new LinkedList<ICodeInstance>();
+		List<ICodeInstance> generatedCodeInstances = new LinkedList<ICodeInstance>();
+		for (ICode code : codes) {
+			if (assertiveFind(code) != null) {
+				for (ICodeable codeable : codeables) {
+					ICodeInstance codeInstance = new CodeInstance(code,
+							codeable.getCodeInstanceID(), new TimeZoneDate(
+									new Date(), TimeZone.getDefault()));
+					if (codeInstances.contains(codeInstance))
+						duplicateCodeInstances.add(codeInstance);
+					else
+						generatedCodeInstances.add(codeInstance);
 				}
+			} else {
+				throw new InvalidParameterException(
+						"Could not find a matching "
+								+ ICode.class.getSimpleName() + " for " + code);
 			}
+
+			if (duplicateCodeInstances.size() > 0)
+				throw new DuplicateCodeInstanceException(duplicateCodeInstances);
 		}
-		throw new InvalidParameterException("Could not find a matching "
-				+ ICode.class.getSimpleName() + " for " + code);
+
+		return generatedCodeInstances.toArray(new ICodeInstance[0]);
 	}
 
 	@Override
@@ -219,13 +228,21 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void addAndSaveCodeInstance(ICodeInstance codeInstance)
+	public void addAndSaveCodeInstances(ICodeInstance[] codeInstances)
 			throws CodeStoreWriteException {
-		if (!this.codeExists(codeInstance.getCode()))
+		List<ICodeInstance> abandondedCodeInstances = new LinkedList<ICodeInstance>();
+		for (ICodeInstance codeInstance : codeInstances) {
+			if (!this.codeExists(codeInstance.getCode()))
+				abandondedCodeInstances.add(codeInstance);
+		}
+		if (abandondedCodeInstances.size() > 0)
 			throw new CodeStoreWriteAbandonedCodeInstancesException(
-					Arrays.asList(codeInstance));
-		;
-		this.codeInstances.add(codeInstance);
+					abandondedCodeInstances);
+
+		for (ICodeInstance codeInstance : codeInstances) {
+			this.codeInstances.add(codeInstance);
+		}
+
 		this.save();
 	}
 
