@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -147,8 +146,7 @@ public class Activator extends AbstractUIPlugin {
 		} catch (DataSourceInvalidException e) {
 			ErrorDialog
 					.openError(
-							PlatformUI.getWorkbench()
-									.getActiveWorkbenchWindow().getShell(),
+							null,
 							"Data source directory",
 							"Cannot find the full set of de.fu_berlin.imp.seqan.usability_analyzer.doclog.data in the provided log directory.",
 							new Status(

@@ -23,6 +23,10 @@
      <extension
          point="org.eclipse.ui.commands">
         <command
+              id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.openCodeStore"
+              name="Open Code Store...">
+        </command>
+        <command
               id="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
               name="Create Code...">
         </command>
@@ -43,6 +47,20 @@
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.OpenCodeStore"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.openCodeStore">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.emptySelection">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                 </reference>
+              </or>
+           </activeWhen>
+        </handler>
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.CreateCodeHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode">
