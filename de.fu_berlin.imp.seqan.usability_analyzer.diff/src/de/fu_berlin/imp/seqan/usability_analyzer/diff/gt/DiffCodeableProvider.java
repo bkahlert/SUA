@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -16,13 +18,14 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
+
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
@@ -31,6 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -123,42 +127,59 @@ public class DiffCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public void showCodedObjectsInWorkspace2(final List<ICodeable> codedObjects) {
-		try {
-			if (codedObjects.size() > 0) {
-				DiffExplorerView diffExplorerView = showDiffExplorer();
-				openFiles(codedObjects, diffExplorerView);
-				openSegments(codedObjects, diffExplorerView);
-			}
-		} catch (PartInitException e) {
-			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
-					+ " " + DiffExplorerView.ID, e);
+	public boolean showCodedObjectsInWorkspace2(
+			final List<ICodeable> codedObjects) {
+		if (codedObjects.size() > 0) {
+			DiffExplorerView diffExplorerView = (DiffExplorerView) WorkbenchUtils
+					.getView(DiffExplorerView.ID);
+			if (diffExplorerView == null)
+				return false;
+			if (!openFiles(codedObjects, diffExplorerView))
+				return false;
+			if (!openSegments(codedObjects, diffExplorerView))
+				return false;
 		}
+
+		if (codedObjects.size() > 0) {
+
+		}
+		return true;
 	}
 
-	public DiffExplorerView showDiffExplorer() throws PartInitException {
-		return (DiffExplorerView) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.showView(DiffExplorerView.ID);
-	}
-
-	public void openFiles(final List<ICodeable> codedObjects,
+	public boolean openFiles(final List<ICodeable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
 		Set<ID> ids = CodeableUtils.getIDs(codedObjects);
 
 		codedObjects.addAll(DiffFileUtils.getRecordsFromSegments(codedObjects));
 
 		// open
-		diffExplorerView.open(ids, new Runnable() {
-			public void run() {
-				// select
-				diffExplorerView.getDiffFileListsViewer().setSelection(
-						new StructuredSelection(codedObjects), true);
-			}
-		});
+		try {
+			Future<Boolean> future = diffExplorerView.open(ids,
+					new Callable<Boolean>() {
+						public Boolean call() {
+							DiffFileListsViewer viewer = diffExplorerView
+									.getDiffFileListsViewer();
+							viewer.setSelection(
+									new StructuredSelection(codedObjects), true);
+							List<ICodeable> selectedCodeables = SelectionUtils
+									.getAdaptableObjects(viewer.getSelection(),
+											ICodeable.class);
+							return selectedCodeables.size() == codedObjects
+									.size();
+						}
+					});
+			Boolean rt = future.get();
+			return rt != null ? rt : false;
+		} catch (InterruptedException e) {
+			LOGGER.error(e);
+			return false;
+		} catch (ExecutionException e) {
+			LOGGER.error(e);
+			return false;
+		}
 	}
 
-	public void openSegments(final List<ICodeable> codedObjects,
+	public boolean openSegments(final List<ICodeable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
 		for (ICodeable codeable : codedObjects) {
 			if (codeable instanceof DiffFileRecordSegment) {
@@ -168,6 +189,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 				// TODO: Highlight segment
 			}
 		}
+		return true; // TODO: make it only return true if at least one of the
+						// existing segements could be opened
 	}
 
 	@Override

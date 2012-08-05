@@ -25,11 +25,11 @@ public class StartWorkSessionHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		List<IWorkSessionEntity> workSessionEntities = SelectionRetrieverFactory
+		final List<IWorkSessionEntity> workSessionEntities = SelectionRetrieverFactory
 				.getSelectionRetriever(IWorkSessionEntity.class).getSelection();
 
 		if (workSessionEntities.size() > 0) {
-			IWorkSessionService workSessionService = (IWorkSessionService) PlatformUI
+			final IWorkSessionService workSessionService = (IWorkSessionService) PlatformUI
 					.getWorkbench().getService(IWorkSessionService.class);
 			if (workSessionService != null) {
 				IWorkbenchPart part = HandlerUtil.getActivePart(event);
@@ -39,7 +39,13 @@ public class StartWorkSessionHandler extends AbstractHandler {
 					IBoldViewer boldViewer = (IBoldViewer) selectionProvider;
 					boldViewer.setBold(workSessionEntities);
 				}
-				workSessionService.startWorkSession(workSessionEntities);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						workSessionService
+								.startWorkSession(workSessionEntities);
+					}
+				}).start();
 			}
 		}
 

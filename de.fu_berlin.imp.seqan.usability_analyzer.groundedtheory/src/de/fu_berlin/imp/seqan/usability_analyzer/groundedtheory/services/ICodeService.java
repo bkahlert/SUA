@@ -173,12 +173,13 @@ public interface ICodeService {
 	/**
 	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
 	 */
-	public void showCodedObjectInWorkspace(URI codeInstanceID);
+	public boolean showCodedObjectInWorkspace(URI codeInstanceID);
 
 	/**
+	 * @return
 	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
 	 */
-	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
 
 	/**
 	 * @see {@link ICodeableProvider#getLabelProvider(String)}

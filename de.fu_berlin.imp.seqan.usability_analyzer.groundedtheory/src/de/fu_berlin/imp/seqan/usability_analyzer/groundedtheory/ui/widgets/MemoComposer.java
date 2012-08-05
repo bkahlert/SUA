@@ -6,13 +6,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -29,7 +27,7 @@ public class MemoComposer extends Composite {
 	private static final Logger LOGGER = Logger.getLogger(MemoComposer.class);
 
 	private SimpleExplanationComposite header;
-	private Text text;
+	private StyledText text;
 	private long autosaveAfterMilliseconds;
 
 	private ICodeService codeService = null;
@@ -47,16 +45,11 @@ public class MemoComposer extends Composite {
 		this.header.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 		this.header.setSpacing(2);
 
-		this.text = new Text(this, style & SWT.BORDER | SWT.MULTI);
+		this.text = new StyledText(this, style & SWT.BORDER | SWT.MULTI);
 		this.text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		this.text.addListener(SWT.KeyUp, new Listener() {
-			public void handleEvent(Event event) {
-				if ((event.stateMask == SWT.CTRL || event.stateMask == SWT.COMMAND)
-						&& event.keyCode == 'a') {
-					((Text) event.widget).selectAll();
-				}
-			}
-		});
+		this.text.addLineStyleListener(new HyperlinkLineStyleListener());
+		StyledTextHyperlinkHandler.addListenerTo(this.text);
+		SelectAllHandler.addListenerTo(this.text);
 
 		this.autosaveAfterMilliseconds = autosaveAfterMilliseconds;
 		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(

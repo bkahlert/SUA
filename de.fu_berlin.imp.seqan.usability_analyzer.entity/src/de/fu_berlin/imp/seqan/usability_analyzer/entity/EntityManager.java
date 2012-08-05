@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -59,7 +59,7 @@ public class EntityManager {
 	public void scan() {
 		final ArrayList<Entity> entities = new ArrayList<Entity>();
 
-		ExecutorService executorService = ExecutorsUtil
+		ExecutorService executorService = ExecutorUtil
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		// force class loading since they are used in the Callable

@@ -8,6 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,7 +32,6 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
@@ -44,6 +50,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
@@ -108,6 +115,9 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	private IWorkSessionService workSessionService;
 
+	private ExecutorService pool = ExecutorUtil
+			.newFixedMultipleOfProcessorsThreadPool(1);
+
 	public DiffExplorerView() {
 
 	}
@@ -138,6 +148,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	}
 
 	@Override
+	@PostConstruct
 	public void createPartControl(Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.create());
@@ -203,10 +214,12 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
 	 * 
+	 * @param <T>
+	 * 
 	 * @param ids
 	 * @param success
 	 */
-	public void open(final Set<ID> ids, final Runnable success) {
+	public <T> Future<T> open(final Set<ID> ids, final Callable<T> success) {
 		final HashMap<ID, DiffFileList> newOpenedDiffFileLists = new HashMap<ID, DiffFileList>();
 
 		// do not load already opened diff file list
@@ -221,63 +234,95 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		// ids only contains not yet loaded ids
 		final int alreadyLoaded = newOpenedDiffFileLists.size();
 
-		if (ids.size() == 0 && success != null)
-			success.run();
-
-		// load not yet loaded diff file lists
-		for (final ID id : ids) {
-			if (diffFileLoaders.containsKey(id))
-				continue;
-
-			Job diffFileLoader = new Job("Loading "
-					+ DiffFile.class.getSimpleName() + "s") {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					DiffFileList diffFileList = Activator.getDefault()
-							.getDiffFileDirectory().getDiffFiles(id, monitor);
-					synchronized (newOpenedDiffFileLists) {
-						newOpenedDiffFileLists.put(id, diffFileList);
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			diffFileLoader.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					boolean jobsFinished;
-					synchronized (newOpenedDiffFileLists) {
-						jobsFinished = newOpenedDiffFileLists.size() == ids
-								.size() + alreadyLoaded;
-					}
-					if (jobsFinished && event.getResult() == Status.OK_STATUS) {
-						Display.getDefault().syncExec(new Runnable() {
-							@Override
-							public void run() {
-								openedDiffFileLists = newOpenedDiffFileLists;
-								setPartName("Diffs - "
-										+ StringUtils.join(
-												newOpenedDiffFileLists.keySet(),
-												", "));
-								if (diffFileListsViewer != null
-										&& !diffFileListsViewer.getTree()
-												.isDisposed()
-										&& newOpenedDiffFileLists.size() > 0) {
-									diffFileListsViewer
-											.setInput(newOpenedDiffFileLists
-													.values());
-									diffFileListsViewer.expandAll();
-									if (success != null)
-										success.run();
-								}
-							}
-						});
-					}
-					diffFileLoaders.remove(id);
-				}
-			});
-			diffFileLoaders.put(id, diffFileLoader);
-			diffFileLoader.schedule();
+		// Case 1: no IDs
+		if (ids.size() == 0) {
+			if (success != null) {
+				return ExecutorUtil.asyncExec(success);
+			} else
+				return null;
 		}
+
+		// Case 2: multiple IDs
+		return pool.submit(new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				final AtomicReference<T> r = new AtomicReference<T>();
+				final Semaphore mutex = new Semaphore(0);
+
+				// load not yet loaded diff file lists
+				for (final ID id : ids) {
+					if (diffFileLoaders.containsKey(id))
+						continue;
+
+					Job diffFileLoader = new Job("Loading "
+							+ DiffFile.class.getSimpleName() + "s") {
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							DiffFileList diffFileList = Activator.getDefault()
+									.getDiffFileDirectory()
+									.getDiffFiles(id, monitor);
+							synchronized (newOpenedDiffFileLists) {
+								newOpenedDiffFileLists.put(id, diffFileList);
+							}
+							return Status.OK_STATUS;
+						}
+					};
+					diffFileLoader.addJobChangeListener(new JobChangeAdapter() {
+						@Override
+						public void done(IJobChangeEvent event) {
+							boolean jobsFinished;
+							synchronized (newOpenedDiffFileLists) {
+								jobsFinished = newOpenedDiffFileLists.size() == ids
+										.size() + alreadyLoaded;
+							}
+							if (jobsFinished
+									&& event.getResult() == Status.OK_STATUS) {
+								try {
+									r.set(ExecutorUtil
+											.syncExec(new Callable<T>() {
+												@Override
+												public T call()
+														throws Exception {
+													openedDiffFileLists = newOpenedDiffFileLists;
+													setPartName("Diffs - "
+															+ StringUtils.join(
+																	newOpenedDiffFileLists
+																			.keySet(),
+																	", "));
+													if (diffFileListsViewer != null
+															&& !diffFileListsViewer
+																	.getTree()
+																	.isDisposed()
+															&& newOpenedDiffFileLists
+																	.size() > 0) {
+														diffFileListsViewer
+																.setInput(newOpenedDiffFileLists
+																		.values());
+														diffFileListsViewer
+																.expandAll();
+														if (success != null) {
+															return success
+																	.call();
+														}
+													}
+													return null;
+												}
+											}));
+								} catch (Exception e) {
+									LOGGER.error(e);
+								}
+								mutex.release();
+							}
+							diffFileLoaders.remove(id);
+						}
+					});
+					diffFileLoaders.put(id, diffFileLoader);
+					diffFileLoader.schedule();
+				}
+				mutex.acquire();
+				return r.get();
+			}
+		});
 	}
 
 	@Override

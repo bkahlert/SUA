@@ -21,7 +21,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 
 public class DoclogDirectory extends File {
@@ -69,7 +69,7 @@ public class DoclogDirectory extends File {
 				this.files.size());
 		this.fileToken = new HashMap<Object, Token>(this.files.size());
 
-		ExecutorService executorService = ExecutorsUtil
+		ExecutorService executorService = ExecutorUtil
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		// force class loading since DoclogRecord is used in the Callable

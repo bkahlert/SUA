@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,8 +15,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.swt.widgets.Display;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 /**
@@ -27,6 +28,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 public abstract class CodeableProvider implements ICodeableProvider {
 
 	private final Logger logger = Logger.getLogger(CodeableProvider.class);
+
+	/**
+	 * Used to call one {@link ICodeableProvider} per {@link Thread}
+	 */
+	private static final ExecutorService pool = ExecutorUtil
+			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	/**
 	 * Returns a list of allowed namespaces.
@@ -115,26 +122,30 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	}
 
 	@Override
-	public final void showCodedObjectsInWorkspace(
+	public final Future<Boolean> showCodedObjectsInWorkspace(
 			final List<URI> codeInstanceIDs) {
-		new Thread(new Runnable() {
+		return pool.submit(new Callable<Boolean>() {
 			@Override
-			public void run() {
+			public Boolean call() throws Exception {
 				final List<Future<ICodeable>> futureCodeables = getCodedObjectFutures(codeInstanceIDs);
 				final List<ICodeable> codedObjects = getCodedObjects(futureCodeables);
-				if (codedObjects.size() > 0)
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							showCodedObjectsInWorkspace2(codedObjects);
-						}
-					});
+				boolean convertedAll = codedObjects.size() == futureCodeables
+						.size();
+				if (codedObjects.size() > 0) {
+					return convertedAll
+							&& showCodedObjectsInWorkspace2(codedObjects);
+				} else {
+					return convertedAll;
+				}
 			}
-		}).start();
+		});
 	}
 
 	/**
 	 * Shows the coded objects in the workspace.
+	 * <p>
+	 * Note: This method is called in a separate thread and is allowed to be
+	 * time consuming.
 	 * 
 	 * @param codedObjects
 	 *            are the objects to be shown. Only objects determined by
@@ -144,8 +155,10 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 *            e.g. given the URIs sua://abc/... and sua://xyz/... and the
 	 *            namespace xyz only the object described by sua://xyz/... would
 	 *            be in the list.
+	 * @return true if all objects could be displayed; false if at least one
+	 *         object could not be displayed.
 	 */
-	public abstract void showCodedObjectsInWorkspace2(
+	public abstract boolean showCodedObjectsInWorkspace2(
 			List<ICodeable> codedObjects);
 
 	public ILabelProvider getLabelProvider(URI codeInstanceID) {

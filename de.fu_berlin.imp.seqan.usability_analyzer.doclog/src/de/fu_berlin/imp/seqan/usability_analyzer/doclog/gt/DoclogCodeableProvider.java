@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -15,17 +17,18 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -103,66 +106,84 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public void showCodedObjectsInWorkspace2(final List<ICodeable> codedObjects) {
-		try {
-			if (codedObjects.size() > 0) {
-				openAndSelectFilesInExplorer(codedObjects, showDoclogExplorer());
-				openAndSelectFilesInTimeline(codedObjects, showDoclogTimeline());
-			}
-		} catch (PartInitException e) {
-			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
-					+ " " + DoclogExplorerView.ID, e);
+	public boolean showCodedObjectsInWorkspace2(
+			final List<ICodeable> codedObjects) {
+		if (codedObjects.size() > 0) {
+			if (!openAndSelectFilesInExplorer(codedObjects,
+					(DoclogExplorerView) WorkbenchUtils
+							.getView(DoclogExplorerView.ID)))
+				return false;
+			if (!openAndSelectFilesInTimeline(codedObjects,
+					(DoclogTimelineView) WorkbenchUtils
+							.getView(DoclogTimelineView.ID)))
+				return false;
 		}
+		return true;
 	}
 
-	public DoclogExplorerView showDoclogExplorer() throws PartInitException {
-		return (DoclogExplorerView) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.showView(DoclogExplorerView.ID);
-	}
-
-	public DoclogTimelineView showDoclogTimeline() throws PartInitException {
-		return (DoclogTimelineView) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.showView(DoclogTimelineView.ID);
-	}
-
-	public void openAndSelectFilesInExplorer(
+	public boolean openAndSelectFilesInExplorer(
 			final List<ICodeable> codedObjects,
 			final DoclogExplorerView doclogExplorerView) {
 		Set<Object> keys = CodeableUtils.getKeys(codedObjects);
 
 		// open
-		doclogExplorerView.open(keys, new Runnable() {
-			public void run() {
-				// select
-				doclogExplorerView.getDoclogFilesViewer().setSelection(
-						new StructuredSelection(codedObjects), true);
-			}
-		});
+		Future<Boolean> rt = doclogExplorerView.open(keys,
+				new Callable<Boolean>() {
+					public Boolean call() {
+						TreeViewer viewer = doclogExplorerView
+								.getDoclogFilesViewer();
+						viewer.setSelection(new StructuredSelection(
+								codedObjects), true);
+						List<ICodeable> selectedCodeables = SelectionUtils
+								.getAdaptableObjects(viewer.getSelection(),
+										ICodeable.class);
+						return selectedCodeables.size() == codedObjects.size();
+					}
+				});
+		try {
+			return rt.get() != null ? rt.get() : false;
+		} catch (InterruptedException e) {
+			LOGGER.error(e);
+			return false;
+		} catch (ExecutionException e) {
+			LOGGER.error(e);
+			return false;
+		}
 	}
 
-	public void openAndSelectFilesInTimeline(
+	public boolean openAndSelectFilesInTimeline(
 			final List<ICodeable> codedObjects,
 			final DoclogTimelineView doclogTimelineView) {
 		final Set<Object> keys = CodeableUtils.getKeys(codedObjects);
 
 		// open
-		doclogTimelineView.open(keys, new Runnable() {
-			public void run() {
-				// select
-				for (Object key : keys) {
-					DoclogTimeline timeline = doclogTimelineView
-							.getTimeline(key);
-					Set<DoclogRecord> doclogRecords = new HashSet<DoclogRecord>(
-							ArrayUtils.getAdaptableObjects(
-									codedObjects.toArray(), DoclogRecord.class));
+		Future<Boolean> rt = doclogTimelineView.open(keys,
+				new Callable<Boolean>() {
+					public Boolean call() {
+						// select
+						for (Object key : keys) {
+							DoclogTimeline timeline = doclogTimelineView
+									.getTimeline(key);
+							Set<DoclogRecord> doclogRecords = new HashSet<DoclogRecord>(
+									ArrayUtils.getAdaptableObjects(
+											codedObjects.toArray(),
+											DoclogRecord.class));
 
-					timeline.center(doclogRecords);
-					timeline.highlight(doclogRecords);
-				}
-			}
-		});
+							timeline.center(doclogRecords);
+							timeline.highlight(doclogRecords);
+						}
+						return true; // TODO: check if successfull
+					}
+				});
+		try {
+			return rt.get() != null ? rt.get() : false;
+		} catch (InterruptedException e) {
+			LOGGER.error(e);
+			return false;
+		} catch (ExecutionException e) {
+			LOGGER.error(e);
+			return false;
+		}
 	}
 
 	@Override

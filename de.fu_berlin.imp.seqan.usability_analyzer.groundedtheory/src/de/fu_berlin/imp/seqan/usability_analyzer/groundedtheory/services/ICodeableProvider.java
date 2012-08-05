@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -22,8 +23,10 @@ public interface ICodeableProvider {
 	 * IDs in the active Eclipse Workbench.
 	 * 
 	 * @param codeInstanceIDs
+	 * @return true if all {@link URI}s could be resolved and displayed in the
+	 *         workbench.
 	 */
-	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+	public Future<Boolean> showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
 
 	/**
 	 * Returns a label provider able to provide a label and image for an

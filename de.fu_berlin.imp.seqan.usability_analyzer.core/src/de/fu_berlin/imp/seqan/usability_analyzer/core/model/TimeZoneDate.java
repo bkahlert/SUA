@@ -100,9 +100,6 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	@Override
 	public int compareTo(TimeZoneDate date) {
-		if (date == null) {
-			System.err.println("k");
-		}
 		assert date != null;
 		long time = this.getTime();
 		long otherTime = date.getTime();

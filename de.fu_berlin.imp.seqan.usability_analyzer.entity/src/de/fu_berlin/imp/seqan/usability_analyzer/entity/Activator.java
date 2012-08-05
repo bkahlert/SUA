@@ -18,7 +18,7 @@ import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -91,7 +91,7 @@ public class Activator extends AbstractUIPlugin {
 			this.cMakeCacheFileManager = new CMakeCacheFileManager(
 					dataDirectory);
 
-			ExecutorService executorService = ExecutorsUtil
+			ExecutorService executorService = ExecutorUtil
 					.newFixedMultipleOfProcessorsThreadPool(2);
 			Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 			callables.add(new Callable<Void>() {

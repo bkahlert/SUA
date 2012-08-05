@@ -168,7 +168,7 @@ public class DiffFileUtils {
 	}
 
 	/**
-	 * Looks for a {@link DiffFileRecordSegment}s and returns a list of the
+	 * Looks for {@link DiffFileRecordSegment}s and returns a list of the
 	 * corresponding {@link DiffFileRecord}s.
 	 * 
 	 * @param codeables

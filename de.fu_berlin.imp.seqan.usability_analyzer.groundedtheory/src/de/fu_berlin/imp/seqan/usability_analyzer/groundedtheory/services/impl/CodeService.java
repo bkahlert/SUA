@@ -10,15 +10,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ILabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -38,6 +42,34 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.Dup
 class CodeService implements ICodeService {
 
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
+
+	private Cache<URI, ICodeable> uriCache = new Cache<URI, ICodeable>(
+			new CacheFetcher<URI, ICodeable>() {
+				@Override
+				public ICodeable fetch(URI codeInstanceID,
+						IProgressMonitor progressMonitor) {
+					List<ICodeableProvider> codeableProviders = getRegisteredCodeableProviders();
+					if (codeableProviders == null)
+						return null;
+					for (ICodeableProvider codeableProvider : codeableProviders) {
+						FutureTask<ICodeable> codedObject = codeableProvider
+								.getCodedObject(codeInstanceID);
+						if (codedObject != null)
+							try {
+								return codedObject.get();
+							} catch (InterruptedException e) {
+								LOGGER.error(
+										"Could not retrieve the coded object",
+										e);
+							} catch (ExecutionException e) {
+								LOGGER.error(
+										"Could not retrieve the coded object",
+										e);
+							}
+					}
+					return null;
+				}
+			}, 200);
 
 	private ICodeStore codeStore;
 	private CodeServiceListenerNotifier codeServiceListenerNotifier;
@@ -289,29 +321,13 @@ class CodeService implements ICodeService {
 
 	@Override
 	public ICodeable getCodedObject(URI codeInstanceID) {
-		List<ICodeableProvider> codeableProviders = this
-				.getRegisteredCodeableProviders();
-		if (codeableProviders == null)
-			return null;
-		for (ICodeableProvider codeableProvider : codeableProviders) {
-			FutureTask<ICodeable> codedObject = codeableProvider
-					.getCodedObject(codeInstanceID);
-			if (codedObject != null)
-				try {
-					return codedObject.get();
-				} catch (InterruptedException e) {
-					LOGGER.error("Could not retrieve the coded object", e);
-				} catch (ExecutionException e) {
-					LOGGER.error("Could not retrieve the coded object", e);
-				}
-		}
-		return null;
+		return uriCache.getPayload(codeInstanceID, null);
 	}
 
 	@SuppressWarnings("serial")
 	@Override
-	public void showCodedObjectInWorkspace(final URI codeInstanceID) {
-		this.showCodedObjectsInWorkspace(new ArrayList<URI>() {
+	public boolean showCodedObjectInWorkspace(final URI codeInstanceID) {
+		return this.showCodedObjectsInWorkspace(new ArrayList<URI>() {
 			{
 				add(codeInstanceID);
 			}
@@ -319,14 +335,37 @@ class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void showCodedObjectsInWorkspace(List<URI> codeInstanceIDs) {
+	/**
+	 * Shows the given {@link URI}s in the workspace.
+	 * <p>
+	 * Since {@link ICodeableProvider#showCodedObjectsInWorkspace(List)} is expected
+	 * to start a separate thread, all {@link ICodeableProvider}s are handled parallel.
+	 */
+	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs) {
 		List<ICodeableProvider> codeableProviders = this
 				.getRegisteredCodeableProviders();
 		if (codeableProviders == null)
-			return;
+			return true;
+
+		List<Future<Boolean>> rs = new ArrayList<Future<Boolean>>();
 		for (ICodeableProvider codeableProvider : codeableProviders) {
-			codeableProvider.showCodedObjectsInWorkspace(codeInstanceIDs);
+			Future<Boolean> future = codeableProvider
+					.showCodedObjectsInWorkspace(codeInstanceIDs);
+			rs.add(future);
 		}
+		for (Future<Boolean> r : rs) {
+			try {
+				if (!r.get())
+					return false;
+			} catch (InterruptedException e) {
+				LOGGER.error("Error while showing coded objects", e);
+				return false;
+			} catch (ExecutionException e) {
+				LOGGER.error("Error while showing coded objects", e);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

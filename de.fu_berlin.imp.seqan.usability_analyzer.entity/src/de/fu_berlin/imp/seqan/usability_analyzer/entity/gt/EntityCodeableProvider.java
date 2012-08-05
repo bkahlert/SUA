@@ -12,13 +12,16 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -55,20 +58,30 @@ public class EntityCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public void showCodedObjectsInWorkspace2(List<ICodeable> codedObjects) {
-		try {
-			if (codedObjects.size() > 0) {
-				EntityView entityView = (EntityView) PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage()
-						.showView(EntityView.ID);
-
-				entityView.getEntityTableViewer().setSelection(
-						new StructuredSelection(codedObjects), true);
+	public boolean showCodedObjectsInWorkspace2(
+			final List<ICodeable> codedObjects) {
+		if (codedObjects.size() > 0) {
+			final EntityView entityView = (EntityView) WorkbenchUtils
+					.getView(EntityView.ID);
+			try {
+				return ExecutorUtil.syncExec(new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						EntityViewer viewer = entityView.getEntityTableViewer();
+						viewer.setSelection(new StructuredSelection(
+								codedObjects), true);
+						List<ICodeable> selectedCodeables = SelectionUtils
+								.getAdaptableObjects(viewer.getSelection(),
+										ICodeable.class);
+						return selectedCodeables.size() == codedObjects.size();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+				return false;
 			}
-		} catch (PartInitException e) {
-			LOGGER.error("Could not open " + ViewPart.class.getSimpleName()
-					+ " " + EntityView.ID, e);
 		}
+		return true;
 	}
 
 	@Override

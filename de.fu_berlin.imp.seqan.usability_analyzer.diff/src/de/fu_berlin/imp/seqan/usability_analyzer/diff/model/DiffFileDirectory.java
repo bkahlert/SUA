@@ -20,7 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorsUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
@@ -117,7 +117,7 @@ public class DiffFileDirectory extends File {
 		this.fileDateRanges = new HashMap<ID, TimeZoneDateRange>(
 				this.fileLists.size());
 
-		ExecutorService executorService = ExecutorsUtil
+		ExecutorService executorService = ExecutorUtil
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		for (final ID id : this.fileLists.keySet()) {

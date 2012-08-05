@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.collections.ListUtils;
@@ -46,6 +49,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -132,21 +136,34 @@ public class DoclogTimelineView extends ViewPart {
 	 * @param keys
 	 * @param success
 	 */
-	public void open(final Set<Object> keys, final Runnable success) {
-		if (keys.size() == 0)
-			return;
+	public <T> Future<T> open(final Set<Object> keys, final Callable<T> success) {
+		if (keys.size() == 0) {
+			if (success != null) {
+				return ExecutorUtil.asyncExec(success);
+			} else
+				return null;
+		}
 
 		if (timelineLoader != null)
 			timelineLoader.cancel();
 
+		final AtomicReference<Future<T>> rs = new AtomicReference<Future<T>>();
+		final Semaphore mutex = new Semaphore(0);
 		timelineLoader = new Job("Preparing " + Timeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				init(keys, monitor, success);
+				rs.set(init(keys, monitor, success));
+				mutex.release();
 				return Status.OK_STATUS;
 			}
 		};
 		timelineLoader.schedule();
+		try {
+			mutex.acquire();
+		} catch (InterruptedException e) {
+			LOGGER.error(e);
+		}
+		return rs.get();
 	}
 
 	@Override
@@ -168,8 +185,8 @@ public class DoclogTimelineView extends ViewPart {
 		super.dispose();
 	}
 
-	public void init(Set<Object> keys, IProgressMonitor progressMonitor,
-			final Runnable success) {
+	public <T> Future<T> init(Set<Object> keys,
+			IProgressMonitor progressMonitor, final Callable<T> success) {
 		progressMonitor.beginTask("Preparing " + Timeline.class.getSimpleName()
 				+ "s", keys.size() * 3 + 2);
 		if (progressMonitor.isCanceled()) {
@@ -240,16 +257,19 @@ public class DoclogTimelineView extends ViewPart {
 			}
 		}
 
-		Display.getDefault().syncExec(new Runnable() {
+		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
 			@Override
-			public void run() {
+			public T call() throws Exception {
 				composite.layout();
 				if (success != null)
-					success.run();
+					return success.call();
+				return null;
 			}
 		});
 
 		progressMonitor.done();
+
+		return rs;
 	}
 
 	private static String getTitle(Object key) {
