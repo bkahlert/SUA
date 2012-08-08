@@ -46,7 +46,7 @@
          </property>
          <property
                name="startupMessageRect"
-               value="32,288,278,10">
+               value="32,288,278,15">
          </property>
          <property
                name="appName"

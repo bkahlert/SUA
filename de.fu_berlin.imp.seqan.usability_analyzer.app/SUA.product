@@ -25,7 +25,7 @@
    <splash
       location="de.fu_berlin.imp.seqan.usability_analyzer"
       startupProgressRect="32,268,278,15"
-      startupMessageRect="32,288,278,10"
+      startupMessageRect="32,288,278,15"
       startupForegroundColor="000000" />
    <launcher name="SeqAn Usability Analyzer">
       <solaris/>
