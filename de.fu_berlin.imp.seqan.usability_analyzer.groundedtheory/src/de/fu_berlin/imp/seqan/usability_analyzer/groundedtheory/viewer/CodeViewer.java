@@ -23,6 +23,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -50,15 +51,22 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				ICodeService codeService = (ICodeService) PlatformUI
-						.getWorkbench().getService(ICodeService.class);
-				List<URI> codeInstanceIDs = getURIs(event.getSelection());
-				if (codeService != null) {
-					codeService.showCodedObjectsInWorkspace(codeInstanceIDs);
-				} else {
-					LOGGER.error("Could not retrieve "
-							+ ICodeService.class.getSimpleName());
-				}
+				final ISelection selection = event.getSelection();
+				ExecutorUtil.asyncRun(new Runnable() {
+					@Override
+					public void run() {
+						ICodeService codeService = (ICodeService) PlatformUI
+								.getWorkbench().getService(ICodeService.class);
+						List<URI> codeInstanceIDs = getURIs(selection);
+						if (codeService != null) {
+							codeService
+									.showCodedObjectsInWorkspace(codeInstanceIDs);
+						} else {
+							LOGGER.error("Could not retrieve "
+									+ ICodeService.class.getSimpleName());
+						}
+					}
+				});
 			}
 		});
 		createColumns();
@@ -74,7 +82,21 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				.getWorkbench().getService(ICodeService.class);
 		CodeViewerUtils.createCodeColumn(treeViewer, codeService);
 
-		treeViewer.createColumn("ID", 150).setLabelProvider(
+		treeViewer.createColumn("# ph", 40).setLabelProvider(
+				new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (ICode.class.isInstance(element)) {
+							ICode code = (ICode) element;
+							int all = codeService.getAllInstances(code).size();
+							int here = codeService.getInstances(code).size();
+							return (all != here) ? all + " (" + here + ")"
+									: all + "";
+						}
+						return "";
+					}
+				});
+		treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -93,7 +115,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						return "ERROR";
 					}
 				});
-		treeViewer.createColumn("Date Created", 170).setLabelProvider(
+		treeViewer.createColumn("Date Created", 0/* 170 */).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {

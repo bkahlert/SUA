@@ -186,7 +186,7 @@ public class DiffFileRecordTest {
 		final SourceCache sourceCache = context.mock(SourceCache.class);
 		context.checking(new Expectations() {
 			{
-				allowing(diffFile).getId();
+				allowing(diffFile).getID();
 				will(returnValue(null));
 
 				allowing(diffFile).getRevision();

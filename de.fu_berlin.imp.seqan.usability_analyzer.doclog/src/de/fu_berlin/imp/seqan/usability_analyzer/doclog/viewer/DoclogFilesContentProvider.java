@@ -13,6 +13,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
@@ -40,7 +41,7 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codeRemoved(ICode code, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -63,6 +64,24 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 		@Override
 		public void memoModified(ICodeable codeable) {
 			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void episodesDeleted(List<IEpisode> episodes) {
+			// TODO Auto-generated method stub
+
 		}
 	};
 

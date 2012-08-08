@@ -7,8 +7,11 @@ import java.util.Set;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 
@@ -134,11 +137,11 @@ public interface ICodeService {
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
-	 * @param code
+	 * @param codes
 	 * @param codeable
 	 * @throws CodeServiceException
 	 */
-	public void removeCode(ICode code, ICodeable codeable)
+	public void removeCodes(List<ICode> codes, ICodeable codeable)
 			throws CodeServiceException;
 
 	/**
@@ -286,4 +289,42 @@ public interface ICodeService {
 	 * @param html
 	 */
 	public boolean isMemo(ICodeable codeable);
+
+	/**
+	 * Returns the {@link ID}s and {@link Fingerprints} that have at least one
+	 * {@link IEpisode}.
+	 * 
+	 * @return
+	 */
+	public List<Object> getEpisodedKeys();
+
+	/**
+	 * Returns the {@link IEpisode}s associated to a given {@link ID}.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public List<IEpisode> getEpisodes(ID id);
+
+	/**
+	 * Returns the {@link IEpisode}s associated to a given {@link Fingerprint}.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public List<IEpisode> getEpisodes(Fingerprint fingerprint);
+
+	/**
+	 * Adds an episode to the {@link ICodeStore}.
+	 * 
+	 * @param episode
+	 * @throws CodeServiceException
+	 */
+	public void addEpisodeAndSave(IEpisode episode) throws CodeServiceException;
+
+	public void replaceEpisodeAndSave(IEpisode oldEpisode, IEpisode newEpisode)
+			throws CodeServiceException;
+
+	public void deleteEpisodeAndSave(List<IEpisode> episodes)
+			throws CodeServiceException;
 }

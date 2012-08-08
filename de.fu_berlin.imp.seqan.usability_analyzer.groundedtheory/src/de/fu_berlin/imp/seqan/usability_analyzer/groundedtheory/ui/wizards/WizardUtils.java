@@ -13,6 +13,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.inf.nebula.wizards.dialogs.CenteredWizardDialog;
@@ -114,10 +117,37 @@ public class WizardUtils {
 	 * 
 	 * @param parentCode
 	 * @return
-	 * @return
 	 */
 	public static CreateCodeWizard openNewCodeWizard(ICode parentCode) {
 		return openWizardSuccessfully(new CreateCodeWizard(parentCode),
 				new Point(500, 300));
+	}
+
+	/**
+	 * Opens a {@link AddEpisodeWizard} in the SWT thread and returns the
+	 * displayed instance in case of success.
+	 * 
+	 * @param id
+	 * @param range
+	 * @return
+	 */
+	public static AddEpisodeWizard openAddEpisodeWizard(ID id,
+			TimeZoneDateRange range) {
+		return openWizardSuccessfully(new AddEpisodeWizard(id, range),
+				new Point(500, 220));
+	}
+
+	/**
+	 * Opens a {@link AddEpisodeWizard} in the SWT thread and returns the
+	 * displayed instance in case of success.
+	 * 
+	 * @param fingerprint
+	 * @param range
+	 * @return
+	 */
+	public static AddEpisodeWizard openAddEpisodeWizard(
+			Fingerprint fingerprint, TimeZoneDateRange range) {
+		return openWizardSuccessfully(new AddEpisodeWizard(fingerprint, range),
+				new Point(500, 220));
 	}
 }

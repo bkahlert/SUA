@@ -14,6 +14,8 @@ import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
@@ -23,7 +25,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvide
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DoclogFile extends File implements HasDateRange, ICodeable {
+public class DoclogFile extends File implements HasDateRange, ICodeable, HasID,
+		HasFingerprint {
 
 	Logger logger = Logger.getLogger(DoclogFile.class);
 
@@ -33,7 +36,7 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 	public static final Pattern FINGERPRINT_PATTERN = Pattern
 			.compile("^(![A-Za-z\\d]+)\\.doclog$");
 
-	public static ID getId(File file) {
+	public static ID getID(File file) {
 		ID id = null;
 		Matcher matcher = ID_PATTERN.matcher(file.getName());
 		if (matcher.find())
@@ -125,7 +128,7 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 			return new URI("sua://"
 					+ DoclogCodeableProvider.DOCLOG_NAMESPACE
 					+ "/"
-					+ ((getId() != null) ? getId().toString()
+					+ ((getID() != null) ? getID().toString()
 							: getFingerprint().toString()));
 		} catch (Exception e) {
 			logger.error(
@@ -179,7 +182,7 @@ public class DoclogFile extends File implements HasDateRange, ICodeable {
 		}
 	}
 
-	public ID getId() {
+	public ID getID() {
 		return this.id;
 	}
 

@@ -44,7 +44,7 @@ public class DiffUtilsTest {
 
 		context.checking(new Expectations() {
 			{
-				oneOf(diffFile).getId();
+				oneOf(diffFile).getID();
 				will(returnValue(new ID("theID")));
 
 				oneOf(diffFile).getRevision();

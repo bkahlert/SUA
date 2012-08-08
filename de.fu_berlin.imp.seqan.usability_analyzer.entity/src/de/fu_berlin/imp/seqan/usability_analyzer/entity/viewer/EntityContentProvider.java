@@ -11,6 +11,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
@@ -38,7 +39,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codeRemoved(ICode code, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -60,6 +61,21 @@ public class EntityContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void memoModified(ICodeable codeable) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void episodesDeleted(List<IEpisode> episodes) {
 			ViewerUtils.refresh(viewer);
 		}
 	};

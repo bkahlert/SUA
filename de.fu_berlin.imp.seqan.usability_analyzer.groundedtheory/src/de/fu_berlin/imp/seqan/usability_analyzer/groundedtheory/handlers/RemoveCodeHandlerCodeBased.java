@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,7 +43,7 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 
 		for (ICode code : codes) {
 			try {
-				codeService.removeCode(code, codeable);
+				codeService.removeCodes(Arrays.asList(code), codeable);
 			} catch (Exception e) {
 				LOGGER.error("Error removing code", e);
 			}

@@ -23,9 +23,9 @@ public class DataSourceFilter extends ViewerFilter {
 		Entity person = (Entity) element;
 		switch (this.dataSource) {
 		case DIFFS:
-			return person.getId() != null; // TODO: diffFiles prüfen
+			return person.getID() != null; // TODO: diffFiles prüfen
 		case DOCLOG:
-			ID id = person.getId();
+			ID id = person.getID();
 			if (doclogDirectory.getFile(id) != null)
 				return true;
 			for (Fingerprint fingerprint : person.getFingerprints()) {

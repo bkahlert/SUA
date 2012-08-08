@@ -197,8 +197,8 @@ public class DoclogCodeableProvider extends CodeableProvider {
 			public String getText(Object element) {
 				if (element instanceof DoclogFile) {
 					DoclogFile doclogFile = (DoclogFile) element;
-					if (doclogFile.getId() != null)
-						return doclogFile.getId().toString();
+					if (doclogFile.getID() != null)
+						return doclogFile.getID().toString();
 					else
 						return doclogFile.getFingerprint().toString();
 				}

@@ -71,9 +71,16 @@ public class ViewerUtils {
 		return new TreePath(segments.toArray());
 	}
 
-	public static void refresh(Viewer viewer) {
-		if (viewer != null)
-			viewer.refresh();
+	public static void refresh(final Viewer viewer) {
+		if (viewer != null) {
+			ExecutorUtil.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					viewer.refresh();
+				}
+			});
+
+		}
 	}
 
 }

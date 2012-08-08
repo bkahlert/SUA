@@ -16,6 +16,10 @@ import org.eclipse.swt.graphics.Point;
 import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
@@ -24,7 +28,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
-		ICodeable {
+		ICodeable, HasID, HasFingerprint {
 
 	private static final long serialVersionUID = -8279575943640177616L;
 
@@ -131,6 +135,16 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 			throw new DataSourceInvalidException(
 					"The doclog line did not match to the expected format.");
 		}
+	}
+
+	@Override
+	public ID getID() {
+		return this.doclogFile.getID();
+	}
+
+	@Override
+	public Fingerprint getFingerprint() {
+		return this.doclogFile.getFingerprint();
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -46,7 +47,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codeRemoved(ICode code, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer, false);
 		}
 
@@ -81,6 +82,19 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		@Override
 		public void memoModified(ICodeable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			ViewerUtils.refresh(viewer, true);
+		}
+
+		@Override
+		public void episodesDeleted(List<IEpisode> episodes) {
 		}
 	};
 
@@ -150,6 +164,9 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	public Object[] getChildren(Object parentElement) {
 		if (ICode.class.isInstance(parentElement)) {
 			ICode code = (ICode) parentElement;
+			if (code.getCaption().equals("Hey2")) {
+				System.err.println("hey2");
+			}
 
 			ArrayList<Object> childNodes = new ArrayList<Object>();
 			childNodes.addAll(this.codeService.getChildren(code));

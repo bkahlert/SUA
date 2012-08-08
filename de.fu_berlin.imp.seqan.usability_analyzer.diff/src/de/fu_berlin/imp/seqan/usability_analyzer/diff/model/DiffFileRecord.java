@@ -10,13 +10,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import difflib.PatchFailedException;
 
-public class DiffFileRecord implements HasDateRange, ICodeable {
+public class DiffFileRecord implements HasDateRange, ICodeable, HasID {
 
 	private static final long serialVersionUID = -1200532570493919910L;
 
@@ -71,6 +73,10 @@ public class DiffFileRecord implements HasDateRange, ICodeable {
 							+ DiffFileRecord.class.getSimpleName(), e);
 		}
 		return null;
+	}
+
+	public ID getID() {
+		return this.diffFile.getID();
 	}
 
 	public DiffFile getDiffFile() {
@@ -186,7 +192,7 @@ public class DiffFileRecord implements HasDateRange, ICodeable {
 				return StringUtils.join(newSource, "\n");
 			} catch (PatchFailedException e) {
 				String filename = getFilename();
-				logger.warn("Could not patch ID: " + diffFile.getId() + ", "
+				logger.warn("Could not patch ID: " + diffFile.getID() + ", "
 						+ filename, e);
 				patchFailed = true;
 				return null;

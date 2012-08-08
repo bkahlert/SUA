@@ -85,7 +85,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 							public StyledString getStyledText(Object element) {
 								Entity entity = (Entity) element;
 
-								ID id = entity.getId();
+								ID id = entity.getID();
 								StyledString styledString = new StyledString(
 										(id != null) ? id.toString() : "",
 										(boldObjects.contains(element) ? boldStyler
@@ -107,8 +107,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 											if (parts.length > 0) {
 												String key = parts[1];
 												if (ID.isValid(key)
-														&& person.getId() != null
-														&& person.getId()
+														&& person.getID() != null
+														&& person.getID()
 																.equals(new ID(
 																		key))) {
 													return codeService

@@ -21,6 +21,6 @@ public class SUAGTPreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(SUAGTPreferenceConstants.CODESTORE_FILE, file);
 
 		store.setDefault(
-				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS, 5000);
+				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS, 1000);
 	}
 }

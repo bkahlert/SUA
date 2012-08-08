@@ -34,14 +34,14 @@ public class DoclogFileTest {
 	@Test
 	public void testGetId() throws URISyntaxException {
 		File file = getIdDoclogFile();
-		Assert.assertEquals(new ID("0meio6dzt3eo1wj7"), DoclogFile.getId(file));
+		Assert.assertEquals(new ID("0meio6dzt3eo1wj7"), DoclogFile.getID(file));
 		Assert.assertNull(DoclogFile.getFingerprint(file));
 	}
 
 	@Test
 	public void testGetFingerprint() throws URISyntaxException {
 		File file = getFingerprintDoclogFile();
-		Assert.assertNull(DoclogFile.getId(file));
+		Assert.assertNull(DoclogFile.getID(file));
 		Assert.assertEquals(
 				new Fingerprint("!2aa2aaccc0b9b73b230bb4667c5971f8"),
 				DoclogFile.getFingerprint(file));

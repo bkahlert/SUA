@@ -7,5 +7,10 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
  * 
  */
 public interface IWorkSessionEntity {
-	public String getName();
+	/**
+	 * Returns the ID that identifies the entity in focus.
+	 * 
+	 * @return
+	 */
+	public String getWorkSessionEntityID();
 }

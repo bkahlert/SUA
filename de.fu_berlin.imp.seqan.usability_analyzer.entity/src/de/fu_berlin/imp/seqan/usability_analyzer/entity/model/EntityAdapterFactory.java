@@ -21,7 +21,7 @@ public class EntityAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof Entity) {
 			Entity entity = (Entity) adaptableObject;
 			if (adapterType == ID.class) {
-				return entity.getId();
+				return entity.getID();
 			}
 			if (adapterType == Fingerprint.class) {
 				List<Fingerprint> fingerprints = entity.getFingerprints();

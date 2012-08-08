@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -26,7 +28,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
-public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
+public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
+		HasID, HasFingerprint {
 
 	private static final Logger LOGGER = Logger.getLogger(Entity.class);
 
@@ -63,12 +66,12 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
 	}
 
 	@Override
-	public String getName() {
+	public String getWorkSessionEntityID() {
 		return getInternalId();
 	}
 
 	public String getInternalId() throws NoInternalIdentifierException {
-		ID id = this.getId();
+		ID id = this.getID();
 		if (id != null)
 			return id.toString();
 
@@ -117,7 +120,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
 		this.id = id;
 	}
 
-	public ID getId() {
+	public ID getID() {
 		return this.id;
 	}
 
@@ -134,13 +137,19 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
 
 	public List<Fingerprint> getFingerprints() {
 		List<Fingerprint> fingerprints = new ArrayList<Fingerprint>();
-		ID id = this.getId();
+		ID id = this.getID();
 		if (id != null) {
 			fingerprints.addAll(this.mapper.getFingerprints(id));
 		} else {
 			fingerprints.add(fingerprint);
 		}
 		return fingerprints;
+	}
+
+	@Override
+	public Fingerprint getFingerprint() {
+		List<Fingerprint> fingerprints = getFingerprints();
+		return fingerprints.size() > 0 ? fingerprints.get(0) : null;
 	}
 
 	public Token getToken() {
@@ -237,7 +246,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity {
 
 	@Override
 	public String toString() {
-		return "Person: " + this.getInternalId();
+		return Entity.class.getSimpleName() + ": " + this.getInternalId();
 	}
 
 }

@@ -8,6 +8,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.CodeStor
 
 @RunWith(Suite.class)
 @SuiteClasses({
+		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.AllTests.class,

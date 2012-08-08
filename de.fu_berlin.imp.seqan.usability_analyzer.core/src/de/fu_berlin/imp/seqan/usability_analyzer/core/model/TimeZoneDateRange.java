@@ -128,6 +128,30 @@ public class TimeZoneDateRange {
 		return !(startAndEndBeforeRange || startAndEndAfterRange);
 	}
 
+	/**
+	 * Returns true if the given {@link TimeZoneDateRange} intersects the
+	 * current {@link TimeZoneDateRange}.
+	 * <p>
+	 * In contrast to {@link #isIntersected(TimeZoneDateRange)} this method does
+	 * not count exact matches as intersected. This means the the case in which
+	 * one {@link TimeZoneDateRange} ends at the very moment the second one
+	 * starts is not considered intersected.
+	 * 
+	 * @param dateRange
+	 * @return
+	 */
+	public boolean isIntersected2(TimeZoneDateRange dateRange) {
+		if (!this.isIntersected(dateRange))
+			return false;
+		boolean areNeighbors1 = this.endDate != null
+				&& dateRange.getStartDate() != null
+				&& this.endDate.equals(dateRange.getStartDate());
+		boolean areNeighbors2 = this.startDate != null
+				&& dateRange.getEndDate() != null
+				&& this.startDate.equals(dateRange.endDate);
+		return !areNeighbors1 && !areNeighbors2;
+	}
+
 	@Override
 	public String toString() {
 		return ((startDate != null) ? startDate.toISO8601() : "-inf") + " - "

@@ -74,4 +74,9 @@ public class Cache<KEY, PAYLOAD> {
 			this.cache.remove(delete);
 		}
 	}
+
+	public synchronized void removeKey(KEY key) {
+		if (this.cache.containsKey(key))
+			this.cache.remove(key);
+	}
 }

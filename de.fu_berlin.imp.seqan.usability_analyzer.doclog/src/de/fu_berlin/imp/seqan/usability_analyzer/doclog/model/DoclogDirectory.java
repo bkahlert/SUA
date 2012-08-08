@@ -37,7 +37,7 @@ public class DoclogDirectory extends File {
 		for (File diffFile : directory
 				.listFiles((FileFilter) new RegexFileFilter(
 						DoclogFile.ID_PATTERN))) {
-			ID id = DoclogFile.getId(diffFile);
+			ID id = DoclogFile.getID(diffFile);
 			rawFiles.put(id, diffFile);
 		}
 		for (File diffFile : directory

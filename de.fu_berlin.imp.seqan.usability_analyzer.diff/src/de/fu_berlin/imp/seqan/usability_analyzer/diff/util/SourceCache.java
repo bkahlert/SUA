@@ -22,7 +22,7 @@ public class SourceCache {
 		long revision = Long.parseLong(diffFile.getRevision());
 
 		String path = this.sourceCacheDirectory.getAbsolutePath() + "/"
-				+ diffFile.getId() + "/" + revision + "/" + filename;
+				+ diffFile.getID() + "/" + revision + "/" + filename;
 		return new File(path.replace("//", "/"));
 	}
 }

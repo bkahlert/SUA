@@ -15,8 +15,25 @@
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
+            icon="icons/view/code_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
             name="Associated Codes"
+            restorable="true">
+      </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
+            icon="icons/view/code_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
+            name="Memo"
+            restorable="true">
+      </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView"
+            icon="icons/view/code_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView"
+            name="Episodes"
             restorable="true">
       </view>
    </extension>
@@ -43,6 +60,10 @@
                optional="false"
                values="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.BooleanValues">
          </commandParameter>
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode"
+            name="Create Episode...">
       </command>
    </extension>
      <extension
@@ -97,6 +118,15 @@
            <activeWhen>
               <reference
                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+              </reference>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.CreateEpisodeHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isKeyedHasRange">
               </reference>
            </activeWhen>
         </handler>
@@ -172,6 +202,8 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.delete"
+               disabledIcon="icons/dtool16/add_code_tsk.png"
+               icon="icons/etool16/remove_code_tsk.png"
                label="Remove Code from Phenomenon..."
                style="push">
             <visibleWhen
@@ -196,6 +228,7 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.delete"
+               icon="icons/etool16/delete_code_tsk.png"
                label="Delete Code..."
                style="push">
             <visibleWhen
@@ -212,6 +245,36 @@
          </command>
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode"
+               disabledIcon="icons/dtool16/create_episode_tsk.png"
+               icon="icons/etool16/create_episode_tsk.png"
+               label="Create Episode..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               disabledIcon="icons/dtool16/delete_episode_tsk.png"
+               icon="icons/etool16/delete_episode_tsk.png"
+               label="Delete Episode..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+               </reference>
+            </visibleWhen>
+         </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator3"
                visible="true">
          </separator>
          <command
@@ -296,6 +359,24 @@
             </and>
          </activeWhen>
       </handler>
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RenameEpisodeHandler"
+            commandId="org.eclipse.ui.edit.rename">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isIEpisode">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.DeleteEpisodeHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+            </reference>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.services">
@@ -337,12 +418,34 @@
          </view>
          <view
                closeable="false"
-               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
                minimized="false"
                moveable="true"
                ratio="0.5"
                relationship="bottom"
                relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView"
+               standalone="false"
+               visible="true">
+         </view>
+         <view
+               closeable="false"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
+               minimized="false"
+               moveable="true"
+               ratio="0.5"
+               relationship="bottom"
+               relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
+               standalone="false"
+               visible="true">
+         </view>
+         <view
+               closeable="false"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView"
+               minimized="false"
+               moveable="true"
+               ratio="0.5"
+               relationship="bottom"
+               relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
                standalone="false"
                visible="true">
          </view>
@@ -514,6 +617,93 @@
             </reference>
          </and>
       </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isIEpisode">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode">
+               </adapt>
+            </iterate>
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isIEpisodes">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isKeyedHasRange">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <or>
+                  <adapt
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID">
+                  </adapt>
+                  <adapt
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
+                  </adapt>
+               </or>
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
+               </adapt>
+            </iterate>
+            <test
+                  property="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.containsSingleKey">
+            </test>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <or>
+                  <adapt
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID">
+                  </adapt>
+                  <adapt
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
+                  </adapt>
+               </or>
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
@@ -544,5 +734,18 @@
             properties="hasInstances"
             type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
       </propertyTester>
+      <propertyTester
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.SelectionPropertyTester"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.SelectionPropertyTester"
+            namespace="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory"
+            properties="containsSingleKey"
+            type="org.eclipse.jface.viewers.ISelection">
+      </propertyTester>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+      <CodeableProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider">
+      </CodeableProvider>
    </extension>
 </plugin>

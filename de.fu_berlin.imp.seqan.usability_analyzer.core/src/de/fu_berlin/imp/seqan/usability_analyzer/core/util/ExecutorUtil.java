@@ -91,6 +91,22 @@ public class ExecutorUtil {
 		Display.getDefault().asyncExec(runnable);
 	}
 
+	public static boolean isUIThread() {
+		return Display.getCurrent() == Display.getDefault();
+	}
+
+	/**
+	 * Runs the runnable in a separate {@link Thread} and returns it.
+	 * 
+	 * @param
+	 * @return
+	 */
+	public static Thread asyncRun(Runnable runnable) {
+		Thread thread = new Thread(runnable);
+		thread.start();
+		return thread;
+	}
+
 	private ExecutorUtil() {
 	}
 }

@@ -1,9 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
 
 public class Activator extends AbstractUIPlugin {
 

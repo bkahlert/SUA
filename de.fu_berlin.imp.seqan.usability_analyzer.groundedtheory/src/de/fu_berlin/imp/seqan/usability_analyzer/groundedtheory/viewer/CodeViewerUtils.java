@@ -23,7 +23,7 @@ public class CodeViewerUtils {
 
 	public static void createCodeColumn(SortableTreeViewer treeViewer,
 			final ICodeService codeService) {
-		TreeViewerColumn codeColumn = treeViewer.createColumn("Code", 150);
+		TreeViewerColumn codeColumn = treeViewer.createColumn("Code", 220);
 
 		codeColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -36,6 +36,7 @@ public class CodeViewerUtils {
 					ICodeInstance codeInstance = (ICodeInstance) element;
 					ICodeable codedObject = codeService
 							.getCodedObject(codeInstance.getId());
+
 					ILabelProvider labelProvider = codeService
 							.getLabelProvider(codeInstance.getId());
 					return (labelProvider != null) ? labelProvider

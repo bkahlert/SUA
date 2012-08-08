@@ -32,11 +32,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffFileListsViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
 
-	public DiffFileListsViewer(Composite parent, int style,
+	public DiffFileListsViewer(final Composite parent, int style,
 			DateFormat dateFormat, String timeDifferenceFormat) {
 		super(parent, style);
 
@@ -87,6 +88,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					}
 				});
 
+		new EpisodeRenderer(this).activateRendering();
+
 		this.sort(0);
 	}
 
@@ -104,7 +107,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 							DiffFileList diffFileList = (DiffFileList) element;
 							ID id = null;
 							if (diffFileList.size() > 0) {
-								id = diffFileList.get(0).getId();
+								id = diffFileList.get(0).getID();
 							}
 							return (id != null) ? id.toString() : "";
 						}

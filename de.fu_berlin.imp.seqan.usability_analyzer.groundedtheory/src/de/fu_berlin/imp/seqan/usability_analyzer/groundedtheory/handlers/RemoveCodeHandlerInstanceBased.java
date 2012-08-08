@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,7 +45,8 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 
 			for (ICodeInstance codeInstance : codeInstances) {
 				try {
-					codeService.removeCode(codeInstance.getCode(),
+					codeService.removeCodes(
+							Arrays.asList(codeInstance.getCode()),
 							codeService.getCodedObject(codeInstance.getId()));
 				} catch (Exception e) {
 					LOGGER.error("Error removing code", e);

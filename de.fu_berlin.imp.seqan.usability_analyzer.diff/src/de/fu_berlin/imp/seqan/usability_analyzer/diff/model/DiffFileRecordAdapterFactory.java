@@ -26,7 +26,7 @@ public class DiffFileRecordAdapterFactory implements IAdapterFactory {
 			if (adapterType == IdDateRange.class) {
 				TimeZoneDateRange dateRange = diffFileRecord.getDiffFile()
 						.getDateRange();
-				return new IdDateRange(diffFileRecord.getDiffFile().getId(),
+				return new IdDateRange(diffFileRecord.getDiffFile().getID(),
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}
 			return null;

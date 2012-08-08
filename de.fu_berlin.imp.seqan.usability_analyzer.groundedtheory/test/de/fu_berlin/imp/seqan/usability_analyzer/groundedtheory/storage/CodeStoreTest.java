@@ -1,16 +1,27 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.Assert;
-
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -61,7 +72,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 	@Test
 	public void testEmptyLoadCodes() throws IOException, SAXParseException {
 		List<ICode> loadedCodes = getEmptyCodeStore().getTopLevelCodes();
-		Assert.assertEquals(0, loadedCodes.size());
+		assertEquals(0, loadedCodes.size());
 	}
 
 	@Test
@@ -69,7 +80,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 			SAXParseException {
 		Set<ICodeInstance> loadedCodeInstances = getEmptyCodeStore()
 				.loadInstances();
-		Assert.assertEquals(0, loadedCodeInstances.size());
+		assertEquals(0, loadedCodeInstances.size());
 	}
 
 	@Test
@@ -120,7 +131,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		newCodeStore.addAndSaveCodeInstances(new ICodeInstance[] {
 				codeInstance1, codeInstance3 });
 
-		Assert.assertEquals(2, newCodeStore.loadInstances().size());
+		assertEquals(2, newCodeStore.loadInstances().size());
 		testCodeInstances(newCodeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 	}
@@ -143,12 +154,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 		newCodeStore
 				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance3 });
 
-		Assert.assertEquals(2, newCodeStore.loadInstances().size());
+		assertEquals(2, newCodeStore.loadInstances().size());
 		testCodeInstances(newCodeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
 		newCodeStore.addAndSaveCode(code2);
-		Assert.assertEquals(2, newCodeStore.loadInstances().size());
+		assertEquals(2, newCodeStore.loadInstances().size());
 		testCodeInstances(newCodeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 	}
@@ -163,9 +174,9 @@ public class CodeStoreTest extends CodeStoreHelper {
 		ICode code3 = new Code(42l, "solution", new TimeZoneDate());
 
 		codeStore.addAndSaveCode(code3);
-		Assert.assertEquals(3, codeStore.getTopLevelCodes().size());
+		assertEquals(3, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code1, code2, code3 });
-		Assert.assertEquals(3, codeStore.loadInstances().size());
+		assertEquals(3, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, codeInstances);
 	}
 
@@ -188,30 +199,30 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodeInstances(codeStore, codeInstances);
 
 		codeStore.removeAndSaveCodeInstance(codeInstance2);
-		Assert.assertEquals(2, codeStore.getTopLevelCodes().size());
+		assertEquals(2, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, codes);
-		Assert.assertEquals(2, codeStore.loadInstances().size());
+		assertEquals(2, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
 		codeStore.removeAndSaveCode(code1);
-		Assert.assertEquals(1, codeStore.getTopLevelCodes().size());
+		assertEquals(1, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code2 });
-		Assert.assertEquals(2, codeStore.loadInstances().size());
+		assertEquals(2, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
 		codeStore.removeAndSaveCodeInstance(codeInstance3);
-		Assert.assertEquals(1, codeStore.getTopLevelCodes().size());
+		assertEquals(1, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code2 });
-		Assert.assertEquals(1, codeStore.loadInstances().size());
+		assertEquals(1, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1 });
 
 		codeStore
 				.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance3 });
-		Assert.assertEquals(1, codeStore.getTopLevelCodes().size());
+		assertEquals(1, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code2 });
-		Assert.assertEquals(2, codeStore.loadInstances().size());
+		assertEquals(2, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 	}
@@ -225,16 +236,16 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodeInstances(codeStore, codeInstances);
 
 		codeStore.removeAndSaveCodeInstance(codeInstance2);
-		Assert.assertEquals(2, codeStore.getTopLevelCodes().size());
+		assertEquals(2, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, codes);
-		Assert.assertEquals(2, codeStore.loadInstances().size());
+		assertEquals(2, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
 		codeStore.removeAndSaveCode(code1);
-		Assert.assertEquals(1, codeStore.getTopLevelCodes().size());
+		assertEquals(1, codeStore.getTopLevelCodes().size());
 		testCodes(codeStore, new ICode[] { code2 });
-		Assert.assertEquals(2, codeStore.loadInstances().size());
+		assertEquals(2, codeStore.loadInstances().size());
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance1,
 				codeInstance3 });
 
@@ -247,27 +258,28 @@ public class CodeStoreTest extends CodeStoreHelper {
 	@Test
 	public void testCreateCode() throws IOException, CodeStoreFullException {
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
 		ICode code = codeStore.createCode("Code #1");
-		Assert.assertEquals(Long.MIN_VALUE, code.getId());
-		Assert.assertEquals("Code #1", code.getCaption());
+		assertEquals(Long.MIN_VALUE, code.getId());
+		assertEquals("Code #1", code.getCaption());
 	}
 
 	@Test
 	public void testNonExistingCreateCode() throws IOException,
 			CodeStoreFullException {
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
-		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1",
-				new TimeZoneDate()), codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2",
-				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		assertEquals(new Code(Long.MIN_VALUE, "Code #1", new TimeZoneDate()),
+				codeStore.createCode("Code #1"));
+		assertEquals(
+				new Code(Long.MIN_VALUE + 1, "Code #2", new TimeZoneDate()),
+				codeStore.createCode("Code #2"));
 		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
-		Assert.assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
+		assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -275,15 +287,16 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testEmptyCreateCode() throws IOException,
 			CodeStoreFullException {
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
-		Assert.assertEquals(new Code(Long.MIN_VALUE, "Code #1",
-				new TimeZoneDate()), codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2",
-				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		assertEquals(new Code(Long.MIN_VALUE, "Code #1", new TimeZoneDate()),
+				codeStore.createCode("Code #1"));
+		assertEquals(
+				new Code(Long.MIN_VALUE + 1, "Code #2", new TimeZoneDate()),
+				codeStore.createCode("Code #2"));
 		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
-		Assert.assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
+		assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -294,14 +307,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		Assert.assertEquals(new Code(234233209l + 1l, "Code #1",
-				new TimeZoneDate()), codeStore.createCode("Code #1"));
-		Assert.assertEquals(new Code(234233209l + 2l, "Code #2",
-				new TimeZoneDate()), codeStore.createCode("Code #2"));
+		assertEquals(new Code(234233209l + 1l, "Code #1", new TimeZoneDate()),
+				codeStore.createCode("Code #1"));
+		assertEquals(new Code(234233209l + 2l, "Code #2", new TimeZoneDate()),
+				codeStore.createCode("Code #2"));
 		codeStore.addAndSaveCode(new Code(300000000l, "Code #3",
 				new TimeZoneDate()));
-		Assert.assertEquals(
-				new Code(300000001l, "Code #4", new TimeZoneDate()),
+		assertEquals(new Code(300000001l, "Code #4", new TimeZoneDate()),
 				codeStore.createCode("Code #4"));
 	}
 
@@ -333,8 +345,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		});
 
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
 				new ICodeable[] { codeable });
@@ -356,8 +368,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		});
 
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
 				new ICodeable[] { codeable });
@@ -466,13 +478,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 		});
 
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.deleteCodeInstances(code);
 
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 	}
 
 	@Test
@@ -521,8 +533,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		});
 
 		ICodeStore codeStore = getEmptyCodeStore();
-		Assert.assertEquals(0, codeStore.getTopLevelCodes().size());
-		Assert.assertEquals(0, codeStore.loadInstances().size());
+		assertEquals(0, codeStore.getTopLevelCodes().size());
+		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.removeAndSaveCode(code);
 	}
@@ -538,5 +550,63 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		testCodes(codeStore, new ICode[] { code1 });
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance2 });
+	}
+
+	@Test
+	public void testSaveMemo() throws Exception {
+		ICodeStore codeStore = getSmallCodeStore();
+		codeStore.setMemo(codeInstance2, "abc");
+		assertEquals("abc", codeStore.getMemo(codeInstance2));
+		codeStore.setMemo(code1, "äöü´ß ^°∞ 和平");
+		assertEquals("äöü´ß ^°∞ 和平", codeStore.getMemo(code1));
+
+		ICodeStore codeStore2 = loadFromCodeStore(codeStore);
+		assertEquals("abc", codeStore2.getMemo(codeInstance2));
+		assertEquals("äöü´ß ^°∞ 和平", codeStore2.getMemo(code1));
+
+		System.err.println(getTextFromStyledTextWidget("äöü´ß ^°∞ 和平"));
+
+		codeStore.removeAndSaveCode(code1, true);
+		assertNull(codeStore.getMemo(code1));
+		assertNull(codeStore.getMemo(codeInstance2));
+	}
+
+	private String getTextFromStyledTextWidget(String text) {
+		Display display = new Display();
+		Shell shell = new Shell(display);
+
+		shell.setLayout(new GridLayout());
+
+		final StyledText styledText = new StyledText(shell, SWT.MULTI
+				| SWT.WRAP | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+
+		styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Font font = new Font(shell.getDisplay(), "Courier New", 12, SWT.NORMAL);
+		styledText.setFont(font);
+
+		styledText.setText(text);
+		final AtomicReference<String> returnedText = new AtomicReference<String>();
+		styledText.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				returnedText.set(styledText.getText());
+			}
+		});
+
+		shell.setSize(300, 120);
+		shell.open();
+
+		// Set up the event loop.
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				// If no more entries in event queue
+				display.sleep();
+			}
+		}
+
+		display.dispose();
+
+		return returnedText.get();
 	}
 }

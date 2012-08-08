@@ -118,13 +118,17 @@ public class CodeStoreHelper {
 	}
 
 	protected void testCodeInstances(ICodeStore actualCodeInstances,
-			ICodeInstance[] expectedCodeInstances) throws CodeStoreReadException {
-		testCodeInstances(actualCodeInstances.loadInstances(), expectedCodeInstances);
+			ICodeInstance[] expectedCodeInstances)
+			throws CodeStoreReadException {
+		testCodeInstances(actualCodeInstances.loadInstances(),
+				expectedCodeInstances);
 	}
 
 	protected void testCodeInstances(Set<ICodeInstance> actualCodeInstances,
-			ICodeInstance[] expectedCodeInstances) throws CodeStoreReadException {
-		Assert.assertEquals(expectedCodeInstances.length, actualCodeInstances.size());
+			ICodeInstance[] expectedCodeInstances)
+			throws CodeStoreReadException {
+		Assert.assertEquals(expectedCodeInstances.length,
+				actualCodeInstances.size());
 
 		HashMap<ICodeInstance, Boolean> inCodeStore = new HashMap<ICodeInstance, Boolean>();
 		for (ICodeInstance loadedInstance : actualCodeInstances)
@@ -166,5 +170,11 @@ public class CodeStoreHelper {
 
 	protected ICodeStore getSmallCodeStore() throws IOException {
 		return CodeStore.load(getSmallFile());
+	}
+
+	protected ICodeStore loadFromCodeStore(ICodeStore codeStore)
+			throws IOException {
+		codeStore.save();
+		return CodeStore.load(((CodeStore) codeStore).getCodeStoreFile());
 	}
 }

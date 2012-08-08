@@ -68,8 +68,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 					public String getText(Object element) {
 						if (element instanceof DoclogFile) {
 							DoclogFile doclogFile = (DoclogFile) element;
-							if (doclogFile.getId() != null)
-								return doclogFile.getId().toString();
+							if (doclogFile.getID() != null)
+								return doclogFile.getID().toString();
 							else
 								return doclogFile.getFingerprint().toString();
 						}
@@ -334,7 +334,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 		for (TreeItem treeItem : ViewerUtils.getItemWithDataType(treeItems,
 				DoclogFile.class)) {
 			DoclogFile doclogFile = (DoclogFile) treeItem.getData();
-			if (id.equals(doclogFile.getId())) {
+			if (id.equals(doclogFile.getID())) {
 				List<TreePath> childTreePaths = DoclogFilesViewer
 						.getItemsOfIntersectingDataRanges(treeItem.getItems(),
 								dataRanges);

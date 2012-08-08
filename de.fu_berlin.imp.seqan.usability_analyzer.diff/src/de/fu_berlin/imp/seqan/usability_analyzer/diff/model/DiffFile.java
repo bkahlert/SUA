@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -26,7 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffFile extends File implements HasDateRange, ICodeable {
+public class DiffFile extends File implements HasDateRange, ICodeable, HasID {
 
 	private static final Logger LOGGER = Logger.getLogger(DiffFile.class);
 
@@ -46,7 +47,7 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 	public URI getCodeInstanceID() {
 		try {
 			return new URI("sua://" + DiffCodeableProvider.DIFF_NAMESPACE + "/"
-					+ getId().toString() + "/"
+					+ getID().toString() + "/"
 					+ Integer.parseInt(getRevision()));
 		} catch (Exception e) {
 			LOGGER.error(
@@ -128,7 +129,7 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 		return prevDiffFile;
 	}
 
-	public ID getId() {
+	public ID getID() {
 		return id;
 	}
 
@@ -184,7 +185,7 @@ public class DiffFile extends File implements HasDateRange, ICodeable {
 	public String toString() {
 		return this.getClass().getSimpleName() + ": "
 				+ Integer.parseInt(this.getRevision()) + "@"
-				+ this.getId().toString();
+				+ this.getID().toString();
 	}
 
 }

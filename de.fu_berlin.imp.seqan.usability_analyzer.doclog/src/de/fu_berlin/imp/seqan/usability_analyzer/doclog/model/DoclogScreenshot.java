@@ -15,13 +15,17 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.inf.nebula.utils.ImageUtils;
 
-public class DoclogScreenshot implements HasDateRange {
+public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogScreenshot.class);
@@ -66,6 +70,16 @@ public class DoclogScreenshot implements HasDateRange {
 		this.doclogRecord = doclogRecord;
 
 		this.filename = this.calculateFilename();
+	}
+
+	@Override
+	public ID getID() {
+		return this.doclogRecord.getID();
+	}
+
+	@Override
+	public Fingerprint getFingerprint() {
+		return this.doclogRecord.getFingerprint();
 	}
 
 	public DoclogRecord getDoclogRecord() {

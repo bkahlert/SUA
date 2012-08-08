@@ -25,7 +25,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 				return doclogRecord.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				ID id = doclogRecord.getDoclogPath().getId();
+				ID id = doclogRecord.getDoclogPath().getID();
 				if (id == null)
 					return null;
 

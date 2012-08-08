@@ -9,6 +9,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
@@ -41,7 +42,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void codeRemoved(ICode code, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
@@ -69,6 +70,21 @@ public class CodeInstanceViewerContentProvider implements
 		@Override
 		public void memoModified(ICodeable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+			ViewerUtils.refresh(viewer, false);
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			ViewerUtils.refresh(viewer, false);
+		}
+
+		@Override
+		public void episodesDeleted(List<IEpisode> episodes) {
+			ViewerUtils.refresh(viewer, false);
 		}
 	};
 

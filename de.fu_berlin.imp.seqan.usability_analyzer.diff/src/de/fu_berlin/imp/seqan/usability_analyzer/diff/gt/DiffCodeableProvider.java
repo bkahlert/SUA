@@ -206,7 +206,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 					DiffFileList diffFileList = (DiffFileList) element;
 					ID id = null;
 					if (diffFileList.size() > 0) {
-						id = diffFileList.get(0).getId();
+						id = diffFileList.get(0).getID();
 					}
 					return (id != null) ? id.toString() : "";
 				}

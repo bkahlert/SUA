@@ -2,8 +2,9 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +28,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -58,6 +60,9 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("memos")
 	private HashMap<Object, String> memos = null;
 
+	@XStreamAlias("episodes")
+	private LinkedList<IEpisode> episodes;
+
 	private static XStream xstream;
 
 	static {
@@ -88,6 +93,8 @@ class CodeStore implements ICodeStore {
 				codeStore.codeInstances = new HashSet<ICodeInstance>();
 			if (codeStore.memos == null)
 				codeStore.memos = new HashMap<Object, String>();
+			if (codeStore.episodes == null)
+				codeStore.episodes = new LinkedList<IEpisode>();
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
@@ -101,6 +108,7 @@ class CodeStore implements ICodeStore {
 		this.createdIds = new TreeSet<Long>();
 		this.codeTrees = new LinkedList<TreeNode<ICode>>();
 		this.codeInstances = new HashSet<ICodeInstance>();
+		this.episodes = new LinkedList<IEpisode>();
 	}
 
 	@Override
@@ -125,6 +133,10 @@ class CodeStore implements ICodeStore {
 
 	private void setCodeStoreFile(File codeStoreFile) {
 		this.codeStoreFile = codeStoreFile;
+	}
+
+	public File getCodeStoreFile() {
+		return this.codeStoreFile;
 	}
 
 	@Override
@@ -263,6 +275,7 @@ class CodeStore implements ICodeStore {
 		if (deleteInstance) {
 			for (ICodeInstance instance : abandoned) {
 				this.codeInstances.remove(instance);
+				this.memos.remove(instance);
 			}
 		} else if (abandoned.size() > 0) {
 			throw new CodeStoreWriteAbandonedCodeInstancesException(abandoned);
@@ -280,6 +293,8 @@ class CodeStore implements ICodeStore {
 			this.codeTrees.remove(codeNodes.get(0));
 		else
 			codeNodes.get(0).removeFromParent();
+
+		this.memos.remove(code);
 
 		this.save();
 	}
@@ -359,15 +374,14 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	// TODO test
 	public List<ICode> getSubCodes(ICode code) {
 		List<ICode> subCodes = new ArrayList<ICode>();
 		for (TreeNode<ICode> codeTree : codeTrees) {
 			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
 			assert foundNodes.size() < 2;
 			if (foundNodes.size() == 1) {
-				for (ICode subCode : foundNodes.get(0)) {
-					subCodes.add(subCode);
+				for (TreeNode<ICode> subCode : foundNodes.get(0).children()) {
+					subCodes.add(subCode.getData());
 				}
 			}
 		}
@@ -377,7 +391,8 @@ class CodeStore implements ICodeStore {
 	@Override
 	public void save() throws CodeStoreWriteException {
 		try {
-			xstream.toXML(this, new FileWriter(codeStoreFile));
+			xstream.toXML(this, new OutputStreamWriter(new FileOutputStream(
+					codeStoreFile), "UTF-8"));
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
@@ -419,20 +434,34 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException {
-		this.memos.put(code, html);
+		if (html == null || html.trim().isEmpty())
+			this.memos.remove(code);
+		else
+			this.memos.put(code, html);
 		this.save();
 	}
 
 	@Override
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException {
-		this.memos.put(codeInstance, html);
+		if (html == null || html.trim().isEmpty())
+			this.memos.remove(codeInstance);
+		else
+			this.memos.put(codeInstance, html);
 		this.save();
 	}
 
 	public void setMemo(ICodeable codeable, String html)
 			throws CodeStoreWriteException {
-		this.memos.put(codeable.getCodeInstanceID(), html);
+		if (html == null || html.trim().isEmpty())
+			this.memos.remove(codeable.getCodeInstanceID());
+		else
+			this.memos.put(codeable.getCodeInstanceID(), html);
 		this.save();
-	};
+	}
+
+	@Override
+	public List<IEpisode> getEpisodes() {
+		return this.episodes;
+	}
 }

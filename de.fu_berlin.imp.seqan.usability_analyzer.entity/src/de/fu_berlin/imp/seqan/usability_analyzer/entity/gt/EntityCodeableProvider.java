@@ -104,9 +104,15 @@ public class EntityCodeableProvider extends CodeableProvider {
 				Entity person = (Entity) element;
 				try {
 					if (codeService.getCodes(person).size() > 0) {
-						return ImageManager.ENTITY_CODED;
+						if (codeService.isMemo(person))
+							return ImageManager.ENTITY_CODED_MEMO;
+						else
+							return ImageManager.ENTITY_CODED;
 					} else {
-						return ImageManager.ENTITY;
+						if (codeService.isMemo(person))
+							return ImageManager.ENTITY_MEMO;
+						else
+							return ImageManager.ENTITY;
 					}
 				} catch (CodeServiceException e) {
 					LOGGER.error("Can't access "

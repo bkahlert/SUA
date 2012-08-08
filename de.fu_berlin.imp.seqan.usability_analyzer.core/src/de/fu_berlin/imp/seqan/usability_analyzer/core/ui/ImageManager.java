@@ -37,7 +37,8 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
-	//	public static final Image DIFFFILELIST = getImage("icons/obj16/difffilelist_obj.png"); //$NON-NLS-1$
+	public static final Image ID = getImage("icons/obj16/id_obj.png"); //$NON-NLS-1$
+	public static final Image FINGERPRINT = getImage("icons/obj16/fingerprint_obj.png"); //$NON-NLS-1$
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

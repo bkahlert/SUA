@@ -9,4 +9,8 @@ public class CodeServiceException extends IOException {
 	public CodeServiceException(Throwable innerThrowable) {
 		super(innerThrowable);
 	}
+
+	public CodeServiceException(String string) {
+		super(string);
+	}
 }

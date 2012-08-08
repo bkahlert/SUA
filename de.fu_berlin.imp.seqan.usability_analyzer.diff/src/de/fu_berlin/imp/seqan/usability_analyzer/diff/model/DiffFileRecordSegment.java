@@ -5,9 +5,13 @@ import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffFileRecordSegment implements ICodeable {
+public class DiffFileRecordSegment implements ICodeable, HasDateRange, HasID {
 
 	private static final long serialVersionUID = 3956746799123197525L;
 
@@ -24,6 +28,16 @@ public class DiffFileRecordSegment implements ICodeable {
 		this.diffFileRecord = diffFileRecord;
 		this.segmentStart = segmentStart;
 		this.segmentEnd = segmentEnd;
+	}
+
+	@Override
+	public ID getID() {
+		return this.diffFileRecord.getID();
+	}
+
+	@Override
+	public TimeZoneDateRange getDateRange() {
+		return this.diffFileRecord.getDateRange();
 	}
 
 	@Override

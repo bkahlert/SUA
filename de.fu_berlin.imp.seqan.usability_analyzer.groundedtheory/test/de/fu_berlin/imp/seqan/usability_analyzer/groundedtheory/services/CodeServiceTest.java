@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -118,7 +119,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		});
 
 		ICodeService codeService = getEmptyCodeService();
-		codeService.removeCode(code1, codeable);
+		codeService.removeCodes(Arrays.asList(code1), codeable);
 	}
 
 	@Test(expected = CodeServiceException.class)
@@ -132,7 +133,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		});
 
 		ICodeService codeService = getSmallCodeService();
-		codeService.removeCode(code1, codeable);
+		codeService.removeCodes(Arrays.asList(code1), codeable);
 	}
 
 	@Test
@@ -165,7 +166,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(1, codeService.getCodes(codeable3).size());
 		Assert.assertEquals(code2, codeService.getCodes(codeable3).get(0));
 
-		codeService.removeCode(code2, codeable1);
+		codeService.removeCodes(Arrays.asList(code2), codeable1);
 
 		Assert.assertEquals(0, codeService.getCodes(codeable1).size());
 		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
