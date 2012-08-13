@@ -5,18 +5,23 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.eclipse.ui.services.AbstractServiceFactory;
 import org.eclipse.ui.services.IServiceLocator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.CodeStoreFactory;
 
-public class ServiceFactory extends AbstractServiceFactory {
+public class CodeServiceFactory extends AbstractServiceFactory implements
+		ServiceFactory<ICodeService> {
 
-	private static final Logger LOGGER = Logger.getLogger(ServiceFactory.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(CodeServiceFactory.class);
 
 	private static ICodeService CODE_SERVICE;
 
-	public ServiceFactory() {
+	public CodeServiceFactory() {
 	}
 
 	@Override
@@ -36,5 +41,19 @@ public class ServiceFactory extends AbstractServiceFactory {
 		}
 
 		return null;
+	}
+
+	@Override
+	public ICodeService getService(Bundle bundle,
+			ServiceRegistration<ICodeService> registration) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void ungetService(Bundle bundle,
+			ServiceRegistration<ICodeService> registration, ICodeService service) {
+		// TODO Auto-generated method stub
+
 	}
 }

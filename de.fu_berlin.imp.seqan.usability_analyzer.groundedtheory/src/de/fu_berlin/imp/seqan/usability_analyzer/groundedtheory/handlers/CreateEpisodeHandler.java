@@ -30,7 +30,8 @@ public class CreateEpisodeHandler extends AbstractHandler {
 		TimeZoneDateRange range = TimeZoneDateRange
 				.calculateOuterDateRange(objects.toArray(new HasDateRange[0]));
 
-		if (objects.get(0) instanceof HasID)
+		if (objects.get(0) instanceof HasID
+				&& ((HasID) objects.get(0)).getID() != null)
 			WizardUtils.openAddEpisodeWizard(((HasID) objects.get(0)).getID(),
 					range);
 		else

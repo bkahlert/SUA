@@ -97,7 +97,7 @@ public class MemoComposer extends Composite {
 									IProgressMonitor progressMonitor) {
 								SubMonitor monitor = SubMonitor.convert(
 										progressMonitor, 1);
-								System.err.println("autosave");
+								LOGGER.info("Auto-saving memo");
 								save(monitor);
 								monitor.done();
 								return Status.OK_STATUS;

@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Item;
@@ -39,16 +40,56 @@ public class EpisodeRenderer {
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeRenderer.class);
 
-	static Color backgroundColor = new Color(Display.getCurrent(), 141, 206,
-			231);
-	static Color borderColor = ColorUtils.addLightness(backgroundColor, -0.15f);
+	public static Color DEFAULT_BACKGROUND_COLOR = new Color(
+			Display.getCurrent(), 141, 206, 231);
+
+	public static class EpisodeRenderingInfo {
+		private Color backgroundColor = null;
+		private Color borderColor = null;
+		private int offset = 0;
+
+		public EpisodeRenderingInfo(RGB backgroundRGB, int offset) {
+			if (backgroundRGB == null)
+				this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
+			else
+				this.backgroundColor = new Color(Display.getCurrent(),
+						backgroundRGB);
+
+			this.borderColor = ColorUtils.addLightness(backgroundColor, -0.15f);
+
+			this.offset = offset;
+		}
+
+		public Color getBackgroundColor() {
+			return backgroundColor;
+		}
+
+		public Color getBorderColor() {
+			return borderColor;
+		}
+
+		public int getOffset() {
+			return offset;
+		}
+
+		public void dispose() {
+			if (DEFAULT_BACKGROUND_COLOR != this.backgroundColor
+					&& this.backgroundColor != null
+					&& !this.backgroundColor.isDisposed())
+				this.backgroundColor.dispose();
+			if (this.borderColor != null && !this.borderColor.isDisposed())
+				this.borderColor.dispose();
+		}
+	}
 
 	private static class Renderer implements PaintListener {
-		private ICodeService codeService;
+
+		private Map<IEpisode, EpisodeRenderingInfo> renderingInfos = new HashMap<IEpisode, EpisodeRenderingInfo>();
+
+		private ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
 
 		public Renderer() {
-			this.codeService = (ICodeService) PlatformUI.getWorkbench()
-					.getService(ICodeService.class);
 		}
 
 		@Override
@@ -65,7 +106,8 @@ public class EpisodeRenderer {
 			for (Item item : items) {
 				if (item.getData() instanceof HasID
 						|| item.getData() instanceof HasFingerprint) {
-					Object currentKey = item.getData() instanceof HasID ? ((HasID) item
+					Object currentKey = item.getData() instanceof HasID
+							&& ((HasID) item.getData()).getID() != null ? ((HasID) item
 							.getData()).getID() : ((HasFingerprint) item
 							.getData()).getFingerprint();
 					if (key == null)
@@ -128,14 +170,22 @@ public class EpisodeRenderer {
 			}
 
 			for (IEpisode episode : renderings.keySet()) {
+				if (!renderingInfos.containsKey(episode)) {
+					int offset = renderingInfos.keySet().size();
+					renderingInfos.put(episode, new EpisodeRenderingInfo(
+							episode.getColor(), offset));
+				}
+
+				EpisodeRenderingInfo renderingInfo = renderingInfos
+						.get(episode);
 				Rectangle bounds = renderings.get(episode);
-				bounds.x = 1;
-				bounds.width = 6;
+				bounds.x = 1 + renderingInfo.getOffset();
+				bounds.width = 4;
 
 				e.gc.setAlpha(128);
-
-				PaintUtils.drawRoundedRectangle(e.gc, bounds, backgroundColor,
-						borderColor);
+				PaintUtils.drawRoundedRectangle(e.gc, bounds,
+						renderingInfo.getBackgroundColor(),
+						renderingInfo.getBorderColor());
 			}
 		}
 
@@ -179,12 +229,11 @@ public class EpisodeRenderer {
 
 	private Renderer renderer = new Renderer();
 	private Viewer viewer;
-	private ICodeService codeService;
+	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+			.getService(ICodeService.class);
 
 	private EpisodeRenderer(Viewer viewer) {
 		this.viewer = viewer;
-		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(
-				ICodeService.class);
 	}
 
 	public EpisodeRenderer(AbstractTableViewer viewer) {

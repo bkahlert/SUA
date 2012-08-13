@@ -2,6 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -19,8 +21,10 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		ITreeContentProvider {
 
 	private Viewer viewer;
+
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
+
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
@@ -81,6 +85,10 @@ public class EntityContentProvider implements IStructuredContentProvider,
 	};
 
 	public EntityContentProvider() {
+	}
+
+	@PostConstruct
+	private void init() {
 		codeService.addCodeServiceListener(codeServiceListener);
 	}
 

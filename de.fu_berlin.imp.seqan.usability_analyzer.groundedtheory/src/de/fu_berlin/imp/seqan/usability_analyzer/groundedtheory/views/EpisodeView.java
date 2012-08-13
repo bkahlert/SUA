@@ -49,7 +49,8 @@ public class EpisodeView extends ViewPart {
 					continue;
 				List<IEpisode> currentEpisodes;
 				if (!episodes.containsKey(range)) {
-					if (range instanceof HasID)
+					if (range instanceof HasID
+							&& ((HasID) range).getID() != null)
 						currentEpisodes = codeService
 								.getEpisodes(((HasID) range).getID());
 					else

@@ -159,8 +159,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 						public Boolean call() {
 							DiffFileListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();
-							viewer.setSelection(
-									new StructuredSelection(codedObjects), true);
+							viewer.setSelection(new StructuredSelection(
+									codedObjects), true);
 							List<ICodeable> selectedCodeables = SelectionUtils
 									.getAdaptableObjects(viewer.getSelection(),
 											ICodeable.class);

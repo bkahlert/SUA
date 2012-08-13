@@ -23,6 +23,9 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public File getDataDirectory() {
+		if (true)
+			return new File(
+					"/Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925");
 		String dataDirectory = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATA_DIRECTORY);
 		return (dataDirectory != null && !dataDirectory.isEmpty()) ? new File(

@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -22,11 +21,10 @@ public class CodeStoreFactory {
 
 	private static ICodeStore CODE_STORE;
 
-	private static Shell getShell() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-	}
+	private static Shell shell = null; // TODO use injection; tried but not in
+										// container, yet
 
-	public static File getCodeStoreFile() {
+	public File getCodeStoreFile() {
 		File codeServiceFile = preferenceUtil.getCodeStoreFile();
 		String errorMessage = null;
 		if (codeServiceFile == null)
@@ -35,7 +33,7 @@ public class CodeStoreFactory {
 			errorMessage = "The grounded theory file \""
 					+ codeServiceFile.getPath() + "\" can not be read.";
 		if (errorMessage != null) {
-			MessageDialog messageDialog = new MessageDialog(getShell(),
+			MessageDialog messageDialog = new MessageDialog(shell,
 					"Grounded Theory File", null, errorMessage
 							+ "\nWould you like to create one at "
 							+ preferenceUtil.getDefaultCodeStoreFile() + "?",
@@ -47,7 +45,7 @@ public class CodeStoreFactory {
 					codeServiceFile.createNewFile();
 				} catch (IOException e) {
 					MessageDialog.openError(
-							getShell(),
+							shell,
 							"Grounded Theory File",
 							"The creation of "
 									+ codeServiceFile.getAbsolutePath()
@@ -77,7 +75,7 @@ public class CodeStoreFactory {
 			try {
 				CODE_STORE = CodeStore.load(codeServiceFile);
 			} catch (CodeStoreReadException e) {
-				MessageDialog messageDialog = new MessageDialog(getShell(),
+				MessageDialog messageDialog = new MessageDialog(shell,
 						"Grounded Theory File", null,
 						"The grounded theory file \n" + codeServiceFile
 								+ "\nis invalid."
@@ -95,7 +93,7 @@ public class CodeStoreFactory {
 					} catch (IOException e1) {
 						MessageDialog
 								.openError(
-										getShell(),
+										shell,
 										"Grounded Theory File",
 										"The file\n"
 												+ filename

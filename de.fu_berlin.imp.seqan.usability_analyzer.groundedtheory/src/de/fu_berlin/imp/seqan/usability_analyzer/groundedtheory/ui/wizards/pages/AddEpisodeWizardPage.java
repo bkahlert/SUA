@@ -5,13 +5,17 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.widgets.ColorPicker;
+
 public class AddEpisodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Choose an name for the new episode.";
 	private Text episodeCaption;
+	private ColorPicker colorPicker;
 
 	public AddEpisodeWizardPage() {
 		super(AddEpisodeWizardPage.class.getName());
@@ -23,8 +27,8 @@ public class AddEpisodeWizardPage extends WizardPage {
 		Composite composite = new Composite(parent, SWT.NONE);
 		setControl(composite);
 
-		composite.setLayout(GridLayoutFactory.fillDefaults().margins(10, 0)
-				.create());
+		composite.setLayout(GridLayoutFactory.fillDefaults().numColumns(2)
+				.margins(10, 0).create());
 
 		episodeCaption = new Text(composite, SWT.BORDER);
 		episodeCaption.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -36,6 +40,10 @@ public class AddEpisodeWizardPage extends WizardPage {
 				updateCompletion();
 			}
 		});
+
+		colorPicker = new ColorPicker(composite, null);
+		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
+				false));
 	}
 
 	private void updateCompletion() {
@@ -51,5 +59,9 @@ public class AddEpisodeWizardPage extends WizardPage {
 
 	public String getEpisodeCaption() {
 		return this.episodeCaption.getText();
+	}
+
+	public RGB getEpisodeRGB() {
+		return this.colorPicker.getRGB();
 	}
 }

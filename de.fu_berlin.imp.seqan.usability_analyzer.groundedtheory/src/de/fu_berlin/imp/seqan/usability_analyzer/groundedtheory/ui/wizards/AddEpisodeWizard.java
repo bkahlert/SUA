@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
@@ -18,6 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.pages.AddEpisodeWizardPage;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView;
 
@@ -27,7 +29,7 @@ public class AddEpisodeWizard extends Wizard {
 			.getLogger(AddEpisodeWizard.class);
 
 	public static final String TITLE = "Define Episode";
-	public static final ImageDescriptor IMAGE = null;
+	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_CREATE_EPISODE;
 
 	protected final AddEpisodeWizardPage addCodeWizardPage = new AddEpisodeWizardPage();
 
@@ -61,14 +63,15 @@ public class AddEpisodeWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		String name = addCodeWizardPage.getEpisodeCaption();
+		RGB rgb = addCodeWizardPage.getEpisodeRGB();
 		IEpisode episode;
 
 		// plugin.xml makes sure the objects only contain a single ID or
 		// Fingerprint
 		if (id != null)
-			episode = new Episode(id, range, name);
+			episode = new Episode(id, range, name, rgb);
 		else
-			episode = new Episode(fingerprint, range, name);
+			episode = new Episode(fingerprint, range, name, rgb);
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);

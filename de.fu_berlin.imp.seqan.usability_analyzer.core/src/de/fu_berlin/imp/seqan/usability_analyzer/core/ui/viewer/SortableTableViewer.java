@@ -8,15 +8,15 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 public class SortableTableViewer extends TableViewer {
 
 	private GenericColumnViewerComparator genericColumnViewerComparator = new GenericColumnViewerComparator();
 
-	public SortableTableViewer(Composite parent, int style) {
-		super(parent, style);
+	public SortableTableViewer(Table table) {
+		super(table);
 		super.setComparator(this.genericColumnViewerComparator);
 	}
 

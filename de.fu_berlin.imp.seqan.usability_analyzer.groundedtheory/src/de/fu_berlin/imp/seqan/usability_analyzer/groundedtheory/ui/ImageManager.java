@@ -27,6 +27,7 @@ public class ImageManager {
 	public static final ImageDescriptor WIZBAN_CREATE_CODE = getImageDescriptor("icons/wizban/create_code_wiz.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor WIZBAN_ADD_CODE = getImageDescriptor("icons/wizban/add_code_wiz.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor WIZBAN_EDIT_CODE = getImageDescriptor("icons/wizban/edit_code_wiz.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor WIZBAN_CREATE_EPISODE = getImageDescriptor("icons/wizban/create_episode_wiz.gif"); //$NON-NLS-1$
 
 	/*
 	 * tool bar

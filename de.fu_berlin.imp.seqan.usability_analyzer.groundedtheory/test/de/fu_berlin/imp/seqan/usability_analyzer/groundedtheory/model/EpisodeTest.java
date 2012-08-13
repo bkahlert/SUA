@@ -32,27 +32,29 @@ public class EpisodeTest {
 		Assert.assertEquals(
 				new URI(
 						"sua://episode/IAmAnID/2000-05-20T15:30:15+02:00/2000-05-21T17:35:25+03:00"),
-				new Episode(id, start, end, null).getCodeInstanceID());
+				new Episode(id, start, end, null, null).getCodeInstanceID());
 		Assert.assertEquals(new URI(
 				"sua://episode/!IAmAFingerprint//2000-05-21T17:35:25+03:00"),
-				new Episode(fingerprint, null, end, null).getCodeInstanceID());
+				new Episode(fingerprint, null, end, null, null)
+						.getCodeInstanceID());
 		Assert.assertEquals(new URI(
 				"sua://episode/IAmAnID/2000-05-20T15:30:15+02:00/"),
-				new Episode(id, start, null, null).getCodeInstanceID());
+				new Episode(id, start, null, null, null).getCodeInstanceID());
 		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint//"),
-				new Episode(fingerprint, null, null).getCodeInstanceID());
+				new Episode(fingerprint, null, null, null).getCodeInstanceID());
 
 		Assert.assertEquals(
 				new URI(
 						"sua://episode/!IAmAFingerprint/2000-05-20T15:30:15+02:00/2000-05-21T17:35:25+03:00"),
-				new Episode(fingerprint, range, null).getCodeInstanceID());
+				new Episode(fingerprint, range, null, null).getCodeInstanceID());
 		Assert.assertEquals(new URI(
 				"sua://episode/IAmAnID//2000-05-21T17:35:25+03:00"),
-				new Episode(id, rangeNoStart, null).getCodeInstanceID());
+				new Episode(id, rangeNoStart, null, null).getCodeInstanceID());
 		Assert.assertEquals(new URI(
 				"sua://episode/!IAmAFingerprint/2000-05-20T15:30:15+02:00/"),
-				new Episode(fingerprint, rangeNoEnd, null).getCodeInstanceID());
+				new Episode(fingerprint, rangeNoEnd, null, null)
+						.getCodeInstanceID());
 		Assert.assertEquals(new URI("sua://episode/IAmAnID//"), new Episode(id,
-				rangeNoStartEnd, null).getCodeInstanceID());
+				rangeNoStartEnd, null, null).getCodeInstanceID());
 	}
 }

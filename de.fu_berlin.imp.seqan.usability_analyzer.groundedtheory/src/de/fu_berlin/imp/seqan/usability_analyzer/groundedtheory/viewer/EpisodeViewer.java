@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
@@ -12,12 +14,20 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -26,6 +36,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeView
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer.EpisodeRenderingInfo;
+import de.fu_berlin.inf.nebula.utils.PaintUtils;
 
 public class EpisodeViewer extends Composite implements ISelectionProvider {
 
@@ -42,6 +54,67 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
+		tree.addListener(SWT.PaintItem, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (!(event.item instanceof TreeItem)
+						|| !(event.item.getData() instanceof IEpisode))
+					return;
+				TreeItem item = (TreeItem) event.item;
+				Rectangle bounds = item.getImageBounds(0);
+				bounds.x -= bounds.width + 2;
+
+				IEpisode episode = (IEpisode) item.getData();
+				EpisodeRenderingInfo info = new EpisodeRenderingInfo(episode
+						.getColor(), 0);
+				event.gc.setAlpha(128);
+				PaintUtils.drawRoundedRectangle(event.gc, bounds,
+						info.getBackgroundColor(), info.getBorderColor());
+			}
+		});
+		tree.addListener(SWT.MouseMove, new Listener() {
+			private Cursor hand = new Cursor(Display.getCurrent(),
+					SWT.CURSOR_HAND);
+
+			@Override
+			public void handleEvent(Event event) {
+				if (!(event.widget instanceof Tree))
+					return;
+				Tree tree = ((Tree) event.widget);
+				TreeItem item = tree.getItem(new Point(event.getBounds().x,
+						event.getBounds().y));
+				if (item != null) {
+					Rectangle bounds = item.getImageBounds(0);
+					bounds.x -= bounds.width + 2;
+
+					if (event.getBounds().x >= bounds.x
+							&& event.getBounds().x <= bounds.x + bounds.width) {
+						tree.setCursor(hand);
+					} else {
+						tree.setCursor(null);
+					}
+				}
+			}
+		});
+		tree.addListener(SWT.MouseUp, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (!(event.widget instanceof Tree))
+					return;
+				Tree tree = ((Tree) event.widget);
+				if (tree.getCursor() != null) {
+					ICommandService cmdService = (ICommandService) PlatformUI
+							.getWorkbench().getService(ICommandService.class);
+					Command cmd = cmdService
+							.getCommand("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode");
+					try {
+						cmd.executeWithChecks(new ExecutionEvent());
+					} catch (Exception e) {
+						LOGGER.error("Error recoloring " + event.item.getData());
+					}
+				}
+			}
+		});
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		createColumns();

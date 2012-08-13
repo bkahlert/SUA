@@ -70,7 +70,8 @@ public class SelectionPropertyTester extends PropertyTester {
 					return false;
 				if (ids.size() == 1) {
 					OuterLoop: for (HasFingerprint hasFingerprint : hasFingerprints) {
-						if (!(hasFingerprint instanceof HasID)) {
+						if (!(hasFingerprint instanceof HasID && ((HasID) hasFingerprint)
+								.getID() != null)) {
 							for (HasID hasID : hasIDs) {
 								if (hasID instanceof HasFingerprint) {
 									Fingerprint idsFingerprint = ((HasFingerprint) hasID)

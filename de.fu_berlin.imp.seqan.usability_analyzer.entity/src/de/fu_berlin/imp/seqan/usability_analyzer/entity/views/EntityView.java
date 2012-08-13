@@ -9,19 +9,13 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.ISelectionListener;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
-import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
@@ -35,21 +29,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.preferences.SUAEntityPre
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
-
-/**
- * This sample class demonstrates how to plug-in a new workbench view. The view
- * shows de.fu_berlin.imp.seqan.usability_analyzer.doclog.data obtained from the
- * model. The sample creates a dummy model on the fly, but a real implementation
- * would connect to the model available either in this or another plug-in (e.g.
- * the workspace). The view is connected to the model using a content provider.
- * <p>
- * The view uses a label provider to define how model objects should be
- * presented in the view. Each view can present the same model objects using
- * different labels and icons, if needed. Alternatively, a single label provider
- * can be shared between views in order to ensure that objects of the same type
- * are presented in the same way everywhere.
- * <p>
- */
 
 public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		IDateRangeListener {
@@ -74,13 +53,6 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	private EntityViewer entityViewer;
 	private Label status;
 
-	private ISelectionListener postSelectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-
-		}
-	};
-
 	private Map<DataSource, DataSourceFilter> dataSourceFilters;
 	private DateRangeFilter dateRangeFilter = null;
 
@@ -94,21 +66,6 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
 	}
 
-	@Override
-	public void init(IViewSite site) throws PartInitException {
-		super.init(site);
-		SelectionUtils.getSelectionService().addPostSelectionListener(
-				postSelectionListener);
-
-	}
-
-	@Override
-	public void dispose() {
-		SelectionUtils.getSelectionService().removePostSelectionListener(
-				postSelectionListener);
-		super.dispose();
-	}
-
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize
 	 * it.
@@ -116,13 +73,18 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void createPartControl(Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().create());
 
-		this.entityViewer = new EntityViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		// IEclipseContext context = parentContext.createChild();
+		// context.set(Table.class, new Table(parent, SWT.MULTI | SWT.H_SCROLL
+		// | SWT.V_SCROLL | SWT.BORDER));
 
-		this.entityViewer
-				.setContentProvider(new EntityContentProvider());
-		this.entityViewer.setInput(Activator.getDefault()
-				.getPersonManager());
+		// this.entityViewer = ContextInjectionFactory.make(EntityViewer.class,
+		// context);
+		// this.entityViewer.setContentProvider(ContextInjectionFactory.make(
+		// EntityContentProvider.class, context));
+		this.entityViewer = new EntityViewer(new Table(parent, SWT.MULTI
+				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER));
+		this.entityViewer.setContentProvider(new EntityContentProvider());
+		this.entityViewer.setInput(Activator.getDefault().getPersonManager());
 
 		this.status = new Label(parent, SWT.BORDER);
 		this.status.setLayoutData(GridDataFactory.fillDefaults().create());

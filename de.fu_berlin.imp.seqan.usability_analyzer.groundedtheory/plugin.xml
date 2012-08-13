@@ -65,6 +65,10 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode"
             name="Create Episode...">
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode"
+            name="Change Color...">
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -127,6 +131,15 @@
            <activeWhen>
               <reference
                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isKeyedHasRange">
+              </reference>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RecolorEpisodeHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isIEpisode">
               </reference>
            </activeWhen>
         </handler>
@@ -261,6 +274,19 @@
             </visibleWhen>
          </command>
          <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode"
+               disabledIcon="icons/dtool16/edit_episode_tsk.png"
+               icon="icons/etool16/edit_episode_tsk.png"
+               label="Change Color..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
                commandId="org.eclipse.ui.edit.delete"
                disabledIcon="icons/dtool16/delete_episode_tsk.png"
                icon="icons/etool16/delete_episode_tsk.png"
@@ -381,7 +407,7 @@
    <extension
          point="org.eclipse.ui.services">
       <serviceFactory
-            factoryClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.ServiceFactory">
+            factoryClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServiceFactory">
          <service
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService">
          </service>

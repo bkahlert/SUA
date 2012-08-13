@@ -23,6 +23,7 @@ public class DiffFileListsContentProvider implements
 		IStructuredContentProvider, ITreeContentProvider {
 
 	private Viewer viewer;
+
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {

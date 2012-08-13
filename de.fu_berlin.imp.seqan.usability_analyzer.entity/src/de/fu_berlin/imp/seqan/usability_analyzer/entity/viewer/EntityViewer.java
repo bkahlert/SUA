@@ -19,7 +19,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 
@@ -45,13 +44,15 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
+	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+			.getService(ICodeService.class);
+
 	private Styler boldStyler = null;
 	private Collection<?> boldObjects = new LinkedList<Object>();
 
-	public EntityViewer(Composite parent, int style) {
-		super(parent, style);
+	public EntityViewer(Table table) {
+		super(table);
 
-		final Table table = getTable();
 		table.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.create());
 		table.setHeaderVisible(true);
@@ -71,13 +72,10 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 		};
 
 		createColumns();
-
 		sort(0);
 	}
 
 	private void createColumns() {
-		final ICodeService codeService = (ICodeService) PlatformUI
-				.getWorkbench().getService(ICodeService.class);
 		this.createColumn("ID", 150).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new StyledColumnLabelProvider() {

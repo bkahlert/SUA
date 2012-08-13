@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.osgi.service.component.ComponentContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -41,9 +42,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.CodeStoreFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.DuplicateCodeInstanceException;
 
-class CodeService implements ICodeService {
+public class CodeService implements ICodeService {
 
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
 
@@ -75,8 +77,14 @@ class CodeService implements ICodeService {
 				}
 			}, 200);
 
+	@SuppressWarnings("unused")
+	private ComponentContext context;
 	private ICodeStore codeStore;
 	private CodeServiceListenerNotifier codeServiceListenerNotifier;
+
+	public CodeService() throws IOException {
+		this(new CodeStoreFactory().getCodeStore());
+	}
 
 	public CodeService(ICodeStore codeStore) throws IOException {
 		Assert.isNotNull(codeStore);
