@@ -6,7 +6,9 @@ import org.eclipse.swt.graphics.RGB;
 import com.imagingbook.color.ColorSpaceConversion;
 
 public class ColorUtils {
-	
+
+	public static double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
+
 	private ColorUtils() {
 		// no instantiation allowed
 	}
@@ -24,30 +26,27 @@ public class ColorUtils {
 	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HSL and HSV</a>
 	 */
 	public static RGB addLightness(RGB rgb, float lightness) {
-	    if(lightness < -1 || lightness > 1) throw new IndexOutOfBoundsException();
-	    
+		if (lightness < -1 || lightness > 1)
+			throw new IndexOutOfBoundsException();
+
 		/*
 		 * Convert to HLS; HLS and HSL are synonym
 		 */
-		float[] hls = ColorSpaceConversion.RGBtoHLS((float) rgb.red / 255,
-				(float) rgb.green / 255, (float) rgb.blue / 255);
+		Float[] hls = ColorSpaceConversion.RGBtoHLS(rgb);
 
 		/*
 		 * Scale the lightness
 		 */
 		hls[1] += lightness;
 		if (hls[1] < 0)
-			hls[1] = 0;
+			hls[1] = 0f;
 		if (hls[1] > 1)
-			hls[1] = 1;
+			hls[1] = 1f;
 
 		/*
 		 * Convert back from HLS to RGB
 		 */
-		float[] newRGB = ColorSpaceConversion.HLStoRGB(hls[0], hls[1], hls[2]);
-
-		return new RGB(Math.round(newRGB[0] * 255),
-				Math.round(newRGB[1] * 255), Math.round(newRGB[2] * 255));
+		return ColorSpaceConversion.HLStoRGB(hls);
 	}
 
 	/**
@@ -83,13 +82,13 @@ public class ColorUtils {
 	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HSL and HSV</a>
 	 */
 	public static RGB scaleColorBy(RGB rgb, float scale) {
-	    if(scale < 0) throw new IllegalArgumentException();
-		
+		if (scale < 0)
+			throw new IllegalArgumentException();
+
 		/*
 		 * Convert to HLS; HLS and HSL are synonym
 		 */
-		float[] hls = ColorSpaceConversion.RGBtoHLS((float) rgb.red / 255,
-				(float) rgb.green / 255, (float) rgb.blue / 255);
+		Float[] hls = ColorSpaceConversion.RGBtoHLS(rgb);
 
 		/*
 		 * Scale the lightness
@@ -99,11 +98,7 @@ public class ColorUtils {
 		/*
 		 * Convert back from HLS to RGB
 		 */
-		float[] scaledRGB = ColorSpaceConversion.HLStoRGB(hls[0], hls[1],
-				hls[2]);
-
-		return new RGB(Math.round(scaledRGB[0] * 255),
-				Math.round(scaledRGB[1] * 255), Math.round(scaledRGB[2] * 255));
+		return ColorSpaceConversion.HLStoRGB(hls);
 	}
 
 	/**
@@ -126,5 +121,4 @@ public class ColorUtils {
 		Color newColor = new Color(color.getDevice(), scaledRGB);
 		return newColor;
 	}
-
 }

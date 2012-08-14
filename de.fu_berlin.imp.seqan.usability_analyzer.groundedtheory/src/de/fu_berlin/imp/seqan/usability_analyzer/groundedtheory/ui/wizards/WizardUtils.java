@@ -10,6 +10,7 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -132,9 +133,9 @@ public class WizardUtils {
 	 * @return
 	 */
 	public static AddEpisodeWizard openAddEpisodeWizard(ID id,
-			TimeZoneDateRange range) {
-		return openWizardSuccessfully(new AddEpisodeWizard(id, range),
-				new Point(500, 220));
+			TimeZoneDateRange range, RGB initialRgb) {
+		return openWizardSuccessfully(new AddEpisodeWizard(id, range,
+				initialRgb), new Point(500, 220));
 	}
 
 	/**
@@ -146,8 +147,8 @@ public class WizardUtils {
 	 * @return
 	 */
 	public static AddEpisodeWizard openAddEpisodeWizard(
-			Fingerprint fingerprint, TimeZoneDateRange range) {
-		return openWizardSuccessfully(new AddEpisodeWizard(fingerprint, range),
-				new Point(500, 220));
+			Fingerprint fingerprint, TimeZoneDateRange range, RGB initialRgb) {
+		return openWizardSuccessfully(new AddEpisodeWizard(fingerprint, range,
+				initialRgb), new Point(500, 220));
 	}
 }

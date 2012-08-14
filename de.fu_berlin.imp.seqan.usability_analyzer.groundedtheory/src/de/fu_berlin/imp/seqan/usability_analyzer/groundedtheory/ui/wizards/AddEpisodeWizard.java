@@ -31,28 +31,31 @@ public class AddEpisodeWizard extends Wizard {
 	public static final String TITLE = "Define Episode";
 	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_CREATE_EPISODE;
 
-	protected final AddEpisodeWizardPage addCodeWizardPage = new AddEpisodeWizardPage();
+	protected AddEpisodeWizardPage addCodeWizardPage;
 
 	private ID id;
 	private Fingerprint fingerprint;
 	private TimeZoneDateRange range;
 
-	public AddEpisodeWizard(ID id, TimeZoneDateRange range) {
+	public AddEpisodeWizard(ID id, TimeZoneDateRange range, RGB initialRrgb) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.id = id;
 		this.fingerprint = null;
 		this.range = range;
+		this.addCodeWizardPage = new AddEpisodeWizardPage(initialRrgb);
 	}
 
-	public AddEpisodeWizard(Fingerprint fingerprint, TimeZoneDateRange range) {
+	public AddEpisodeWizard(Fingerprint fingerprint, TimeZoneDateRange range,
+			RGB rgb) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.id = null;
 		this.fingerprint = fingerprint;
 		this.range = range;
+		this.addCodeWizardPage = new AddEpisodeWizardPage(rgb);
 	}
 
 	@Override

@@ -16,11 +16,13 @@ public class AddEpisodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Choose an name for the new episode.";
 	private Text episodeCaption;
 	private ColorPicker colorPicker;
+	private final RGB initialRGB;
 
-	public AddEpisodeWizardPage() {
+	public AddEpisodeWizardPage(RGB rgb) {
 		super(AddEpisodeWizardPage.class.getName());
 		setTitle("Define Episode");
 		setDescription(DESCRIPTION);
+		this.initialRGB = rgb;
 	}
 
 	public void createControl(Composite parent) {
@@ -41,7 +43,7 @@ public class AddEpisodeWizardPage extends WizardPage {
 			}
 		});
 
-		colorPicker = new ColorPicker(composite, null);
+		colorPicker = new ColorPicker(composite, this.initialRGB);
 		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
 				false));
 	}
