@@ -14,9 +14,10 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.bkahlert.devel.nebula.utils.ImageUtils;
+import com.bkahlert.devel.nebula.widgets.RoundedComposite;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot;
-import de.fu_berlin.inf.nebula.utils.ImageUtils;
-import de.fu_berlin.inf.nebula.widgets.RoundedComposite;
 
 public class DoclogScreenshotDisplay extends RoundedComposite {
 

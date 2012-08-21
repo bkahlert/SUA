@@ -10,8 +10,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.bkahlert.devel.nebula.utils.LayoutUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.inf.nebula.utils.LayoutUtils;
 
 /**
  * Allows the user to create a new {@link ICode}

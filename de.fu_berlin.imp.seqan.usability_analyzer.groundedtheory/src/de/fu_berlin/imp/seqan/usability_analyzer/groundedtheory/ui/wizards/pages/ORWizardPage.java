@@ -7,7 +7,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import de.fu_berlin.inf.nebula.utils.FontUtils;
+import com.bkahlert.devel.nebula.utils.FontUtils;
+
 
 public abstract class ORWizardPage extends WizardPage {
 

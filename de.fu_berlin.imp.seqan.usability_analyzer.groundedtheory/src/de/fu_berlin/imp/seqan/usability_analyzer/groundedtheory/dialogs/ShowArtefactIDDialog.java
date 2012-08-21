@@ -16,11 +16,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.FontUtils;
+import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
+import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.inf.nebula.utils.FontUtils;
-import de.fu_berlin.inf.nebula.widgets.SimpleIllustratedComposite;
-import de.fu_berlin.inf.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 public class ShowArtefactIDDialog extends TitleAreaDialog {
 

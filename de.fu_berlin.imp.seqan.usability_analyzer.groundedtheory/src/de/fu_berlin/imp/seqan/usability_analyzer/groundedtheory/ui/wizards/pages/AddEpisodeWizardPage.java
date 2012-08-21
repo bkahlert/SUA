@@ -10,7 +10,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.widgets.ColorPicker;
+import com.bkahlert.devel.nebula.widgets.ColorPicker;
+
 
 public class AddEpisodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Choose an name for the new episode.";

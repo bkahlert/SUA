@@ -34,9 +34,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 
+import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
+import com.bkahlert.devel.nebula.utils.PaintUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
@@ -53,8 +55,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.inf.nebula.utils.ColorUtils;
-import de.fu_berlin.inf.nebula.utils.PaintUtils;
 
 public class EpisodeRenderer implements IDisposable {
 
@@ -87,7 +87,11 @@ public class EpisodeRenderer implements IDisposable {
 				this.backgroundColor = new Color(Display.getCurrent(),
 						backgroundRGB);
 
-			this.borderColor = ColorUtils.addLightness(backgroundColor, -0.15f);
+			this.borderColor = new Color(Display.getDefault(), ColorUtils
+					.scaleLightnessBy(
+							new com.bkahlert.devel.nebula.colors.RGB(
+									backgroundColor.getRGB()), 0.85f)
+					.toClassicRGB());
 		}
 
 		public Color getBackgroundColor() {

@@ -6,7 +6,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import de.fu_berlin.inf.nebula.widgets.RoundedComposite;
+import com.bkahlert.devel.nebula.widgets.RoundedComposite;
+
 
 public class DoclogScreenshotDisplayContainer extends RoundedComposite {
 
