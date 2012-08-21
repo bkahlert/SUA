@@ -9,7 +9,6 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.dnd.DND;
@@ -22,6 +21,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
@@ -30,11 +30,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffFileListsViewer extends SortableTreeViewer {
@@ -101,8 +104,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
 
-		final ILabelProvider imageProvider = new DiffCodeableProvider()
-				.getLabelProvider();
+		final ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
 
 		this.createColumn("Date", 350).setLabelProvider(
 				new ColumnLabelProvider() {
@@ -133,7 +136,49 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						return imageProvider.getImage(element);
+						if (element instanceof DiffFileList) {
+							return ImageManager.DIFFFILELIST;
+						}
+						if (element instanceof DiffFile) {
+							DiffFile diffFile = (DiffFile) element;
+							try {
+								return (codeService.getCodes(diffFile).size() > 0) ? (codeService
+										.isMemo(diffFile) ? ImageManager.DIFFFILE_CODED_MEMO
+										: ImageManager.DIFFFILE_CODED)
+										: (codeService.isMemo(diffFile) ? ImageManager.DIFFFILE_MEMO
+												: ImageManager.DIFFFILE);
+							} catch (CodeServiceException e) {
+								return ImageManager.DIFFFILE;
+							}
+						}
+						if (element instanceof DiffFileRecord) {
+							DiffFileRecord diffFileRecord = (DiffFileRecord) element;
+							try {
+								return (codeService.getCodes(diffFileRecord)
+										.size() > 0) ? (codeService
+										.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_CODED_MEMO
+										: ImageManager.DIFFFILERECORD_CODED)
+										: (codeService.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_MEMO
+												: ImageManager.DIFFFILERECORD);
+							} catch (CodeServiceException e) {
+								return ImageManager.DIFFFILERECORD;
+							}
+						}
+						if (element instanceof DiffFileRecordSegment) {
+							DiffFileRecordSegment diffFileRecordSegment = (DiffFileRecordSegment) element;
+							try {
+								return (codeService.getCodes(
+										diffFileRecordSegment).size() > 0) ? (codeService
+										.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_CODED_MEMO
+										: ImageManager.DIFFFILERECORDSEGMENT_CODED)
+										: (codeService
+												.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_MEMO
+												: ImageManager.DIFFFILERECORDSEGMENT);
+							} catch (CodeServiceException e) {
+								return ImageManager.DIFFFILERECORDSEGMENT;
+							}
+						}
+						return super.getImage(element);
 					}
 				});
 

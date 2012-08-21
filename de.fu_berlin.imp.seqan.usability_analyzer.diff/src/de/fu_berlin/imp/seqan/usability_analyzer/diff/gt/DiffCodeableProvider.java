@@ -18,7 +18,6 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
@@ -39,7 +38,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class DiffCodeableProvider extends CodeableProvider {
 
@@ -196,8 +194,9 @@ public class DiffCodeableProvider extends CodeableProvider {
 	public ILabelProvider getLabelProvider() {
 		return new LabelProvider() {
 
-			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-					.getService(ICodeService.class);
+			// ICodeService codeService = (ICodeService)
+			// PlatformUI.getWorkbench()
+			// .getService(ICodeService.class);
 
 			@Override
 			public String getText(Object element) {
