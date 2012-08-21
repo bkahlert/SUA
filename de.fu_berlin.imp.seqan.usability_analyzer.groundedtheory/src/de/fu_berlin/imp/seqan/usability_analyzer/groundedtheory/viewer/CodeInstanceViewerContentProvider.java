@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -83,7 +84,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void episodesDeleted(List<IEpisode> episodes) {
+		public void episodesDeleted(Set<IEpisode> episodes) {
 			ViewerUtils.refresh(viewer, false);
 		}
 	};

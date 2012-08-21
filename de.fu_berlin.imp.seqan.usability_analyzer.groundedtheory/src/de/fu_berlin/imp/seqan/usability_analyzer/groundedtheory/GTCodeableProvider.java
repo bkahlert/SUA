@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,7 +56,7 @@ public class GTCodeableProvider extends CodeableProvider {
 						.split("/");
 
 				// 0: Key
-				List<IEpisode> episodes;
+				Set<IEpisode> episodes;
 				if (ID.isValid(path[0]))
 					episodes = codeService.getEpisodes(new ID(path[0]));
 				else

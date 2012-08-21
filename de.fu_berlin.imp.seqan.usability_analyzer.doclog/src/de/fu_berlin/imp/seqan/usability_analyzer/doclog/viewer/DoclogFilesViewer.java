@@ -17,6 +17,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
@@ -300,9 +301,9 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
 			TreeItem[] treeItems, List<TimeZoneDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (TreeItem treeItem : ViewerUtils.getItemWithDataType(treeItems,
+		for (Item item : ViewerUtils.getItemWithDataType(treeItems,
 				DoclogRecord.class)) {
-			DoclogRecord doclogRecord = (DoclogRecord) treeItem.getData();
+			DoclogRecord doclogRecord = (DoclogRecord) item.getData();
 			for (TimeZoneDateRange dateRange : dataRanges) {
 				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
 					treePaths.add(new TreePath(new Object[] { doclogRecord }));
@@ -331,13 +332,13 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, ID id, List<TimeZoneDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (TreeItem treeItem : ViewerUtils.getItemWithDataType(treeItems,
+		for (Item item : ViewerUtils.getItemWithDataType(treeItems,
 				DoclogFile.class)) {
-			DoclogFile doclogFile = (DoclogFile) treeItem.getData();
+			DoclogFile doclogFile = (DoclogFile) item.getData();
 			if (id.equals(doclogFile.getID())) {
 				List<TreePath> childTreePaths = DoclogFilesViewer
-						.getItemsOfIntersectingDataRanges(treeItem.getItems(),
-								dataRanges);
+						.getItemsOfIntersectingDataRanges(
+								((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {
 					TreePath treePath = ViewerUtils.merge(new TreePath(
 							new Object[] { doclogFile }), childTreePath);

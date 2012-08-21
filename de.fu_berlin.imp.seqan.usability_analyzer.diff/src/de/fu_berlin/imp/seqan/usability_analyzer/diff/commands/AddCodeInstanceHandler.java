@@ -29,7 +29,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
-@SuppressWarnings("restriction")
 public class AddCodeInstanceHandler extends AbstractHandler {
 
 	private final Logger log = Logger.getLogger(AddCodeInstanceHandler.class);

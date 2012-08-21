@@ -31,13 +31,16 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 			return null;
 
 		boolean delete = MessageDialog
-				.openQuestion(PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getShell(), "Remove Code"
-						+ ((codeInstances.size() != 1) ? "s" : ""),
+				.openQuestion(
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+								.getShell(),
+						"Remove Code"
+								+ ((codeInstances.size() != 1) ? "s" : ""),
 						"Do you really want to remove code \""
 								+ codeInstances.get(0).getCode()
 								+ "\" from the following objects:\n"
-								+ StringUtils.join(codeInstances.toArray()));
+								+ StringUtils.join(codeInstances.toArray(),
+										"\n"));
 
 		if (delete) {
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()

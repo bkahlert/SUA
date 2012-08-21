@@ -304,7 +304,7 @@ public interface ICodeService {
 	 * @param id
 	 * @return
 	 */
-	public List<IEpisode> getEpisodes(ID id);
+	public Set<IEpisode> getEpisodes(ID id);
 
 	/**
 	 * Returns the {@link IEpisode}s associated to a given {@link Fingerprint}.
@@ -312,7 +312,7 @@ public interface ICodeService {
 	 * @param id
 	 * @return
 	 */
-	public List<IEpisode> getEpisodes(Fingerprint fingerprint);
+	public Set<IEpisode> getEpisodes(Fingerprint fingerprint);
 
 	/**
 	 * Adds an episode to the {@link ICodeStore}.

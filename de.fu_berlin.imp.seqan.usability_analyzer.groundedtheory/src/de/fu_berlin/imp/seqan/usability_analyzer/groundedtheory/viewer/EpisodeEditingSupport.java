@@ -10,6 +10,9 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.DateTimeCellEditor;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.inf.nebula.utils.ViewerUtils;
@@ -19,8 +22,15 @@ public class EpisodeEditingSupport extends EditingSupport {
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeEditingSupport.class);
 
-	public EpisodeEditingSupport(ColumnViewer viewer) {
+	public static enum Field {
+		NAME, STARTDATE, ENDDATE
+	}
+
+	private Field field;
+
+	public EpisodeEditingSupport(ColumnViewer viewer, Field field) {
 		super(viewer);
+		this.field = field;
 	}
 
 	@Override
@@ -38,8 +48,12 @@ public class EpisodeEditingSupport extends EditingSupport {
 		if (composite == null)
 			return null;
 
-		if (element instanceof IEpisode)
-			return new TextCellEditor(composite);
+		if (element instanceof IEpisode) {
+			if (field == Field.NAME)
+				return new TextCellEditor(composite);
+			else
+				return new DateTimeCellEditor(composite);
+		}
 
 		return null;
 	}
@@ -48,20 +62,41 @@ public class EpisodeEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		if (element instanceof IEpisode) {
 			IEpisode episode = (IEpisode) element;
-			return episode.getCaption();
+			if (field == Field.NAME)
+				return episode.getCaption();
+			else if (field == Field.STARTDATE)
+				return episode.getRange().getStartDate();
+			else if (field == Field.STARTDATE)
+				return episode.getRange().getEndDate();
+
 		}
 		return "ERROR";
 	}
 
 	@Override
 	protected void setValue(Object element, Object value) {
-		if (element instanceof IEpisode && value instanceof String) {
-			IEpisode oldEpisode = (IEpisode) element;
-			String newCaption = (String) value;
+		if (element instanceof IEpisode) {
 			try {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
-				IEpisode newEpisode = oldEpisode.changeCaption(newCaption);
+				IEpisode oldEpisode = (IEpisode) element;
+				IEpisode newEpisode = null;
+				if (field == Field.NAME) {
+					String newCaption = (String) value;
+					newEpisode = oldEpisode.changeCaption(newCaption);
+				} else if (field == Field.STARTDATE) {
+					TimeZoneDate newStartDate = (TimeZoneDate) value;
+					TimeZoneDateRange range = new TimeZoneDateRange(
+							newStartDate, oldEpisode.getRange().getEndDate());
+					newEpisode = oldEpisode.changeRange(range);
+				} else if (field == Field.ENDDATE) {
+					TimeZoneDate newEndDate = (TimeZoneDate) value;
+					TimeZoneDateRange range = new TimeZoneDateRange(oldEpisode
+							.getRange().getStartDate(), newEndDate);
+					newEpisode = oldEpisode.changeRange(range);
+				}
+				if (newEpisode == null)
+					throw new NullPointerException("Invalid field");
 				codeService.replaceEpisodeAndSave(oldEpisode, newEpisode);
 				ViewerUtils.refresh(getViewer(), true);
 			} catch (Exception e) {

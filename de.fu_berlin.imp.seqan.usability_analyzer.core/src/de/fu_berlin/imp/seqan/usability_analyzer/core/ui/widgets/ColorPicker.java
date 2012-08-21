@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.util.ColorUtils;
+import com.bkahlert.devel.nebula.colors.ColorUtils;
 
 /**
  * @author Björn Kahlert
@@ -65,7 +65,7 @@ public class ColorPicker extends CLabel {
 			this.color.dispose();
 
 		if (rgb == null)
-			rgb = ColorUtils.getRandomRGB();
+			rgb = ColorUtils.getRandomRGB().toClassicRGB();
 		this.color = new Color(Display.getDefault(), rgb);
 		this.rgb = rgb;
 		this.setBackground(this.color);

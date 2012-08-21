@@ -7,8 +7,11 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
@@ -61,7 +64,11 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 		this.addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
 					public void dragStart(DragSourceEvent event) {
-						if (codeableRetriever.getSelection().size() > 0) {
+						boolean episodeRendererActive = DiffFileListsViewer.this
+								.getControl().getData(
+										EpisodeRenderer.CONTROL_DATA_STRING) != null;
+						if (!episodeRendererActive
+								&& codeableRetriever.getSelection().size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
 									DiffFileListsViewer.this.getSelection());
 							LocalSelectionTransfer.getTransfer()
@@ -74,8 +81,12 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					};
 
 					public void dragSetData(DragSourceEvent event) {
-						if (LocalSelectionTransfer.getTransfer()
-								.isSupportedType(event.dataType)) {
+						boolean episodeRendererActive = DiffFileListsViewer.this
+								.getControl().getData(
+										EpisodeRenderer.CONTROL_DATA_STRING) != null;
+						if (!episodeRendererActive
+								&& LocalSelectionTransfer.getTransfer()
+										.isSupportedType(event.dataType)) {
 							event.data = LocalSelectionTransfer.getTransfer()
 									.getSelection();
 						}
@@ -87,8 +98,6 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 								.setSelectionSetTime(0);
 					}
 				});
-
-		new EpisodeRenderer(this).activateRendering();
 
 		this.sort(0);
 	}
@@ -114,7 +123,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						if (element instanceof DiffFile) {
 							DiffFile diffFile = (DiffFile) element;
 							TimeZoneDate date = diffFile.getDateRange()
-									.getStartDate();
+									.getEndDate();
 							return (date != null) ? date.format(dateFormat)
 									: "";
 						}
@@ -132,53 +141,13 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					}
 				});
 
-		this.createColumn("", 10, false, new Comparator<Object>() {
+		TreeViewerColumn episodeColumn = this.createColumn("", 12);
+		episodeColumn.setLabelProvider(new CellLabelProvider() {
 			@Override
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof DiffFile && o2 instanceof DiffFile) {
-					DiffFile diffFile1 = (DiffFile) o1;
-					DiffFile diffFile2 = (DiffFile) o2;
-					String revision1 = diffFile1.getRevision();
-					String revision2 = diffFile2.getRevision();
-					return revision1.compareTo(revision2);
-				} else if (o1 instanceof DiffFileRecord
-						&& o2 instanceof DiffFileRecord) {
-					DiffFileRecord diffFileRecord1 = (DiffFileRecord) o1;
-					DiffFileRecord diffFileRecord2 = (DiffFileRecord) o2;
-					Boolean sourceExists1 = diffFileRecord1.sourceExists();
-					Boolean sourceExists2 = diffFileRecord2.sourceExists();
-					return sourceExists1.compareTo(sourceExists2);
-				}
-				return 0;
+			public void update(ViewerCell cell) {
 			}
-		}, new Class<?>[] { DiffFile.class, DiffFileRecord.class })
-				.setLabelProvider(new ColumnLabelProvider() {
-					SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
-
-					@Override
-					public String getText(Object element) {
-						return "";
-					}
-
-					@Override
-					public Color getBackground(Object element) {
-						if (element instanceof DiffFile) {
-							DiffFile diffFile = (DiffFile) element;
-							RGB backgroundRgb = diffFile.sourcesExist() ? preferenceUtil
-									.getColorOk() : preferenceUtil
-									.getColorMissing();
-							return resources.createColor(backgroundRgb);
-						}
-						if (element instanceof DiffFileRecord) {
-							DiffFileRecord diffFileRecord = (DiffFileRecord) element;
-							RGB backgroundRgb = diffFileRecord.sourceExists() ? preferenceUtil
-									.getColorOk() : preferenceUtil
-									.getColorMissing();
-							return resources.createColor(backgroundRgb);
-						}
-						return null;
-					}
-				});
+		});
+		new EpisodeRenderer(this, episodeColumn, 1).activateRendering();
 
 		this.createColumn("Passed", 90, true, new Comparator<Object>() {
 			@Override
@@ -235,6 +204,54 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 							return (revision != null) ? revision : "";
 						}
 						return "";
+					}
+				});
+
+		this.createColumn("", 10, false, new Comparator<Object>() {
+			@Override
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof DiffFile && o2 instanceof DiffFile) {
+					DiffFile diffFile1 = (DiffFile) o1;
+					DiffFile diffFile2 = (DiffFile) o2;
+					String revision1 = diffFile1.getRevision();
+					String revision2 = diffFile2.getRevision();
+					return revision1.compareTo(revision2);
+				} else if (o1 instanceof DiffFileRecord
+						&& o2 instanceof DiffFileRecord) {
+					DiffFileRecord diffFileRecord1 = (DiffFileRecord) o1;
+					DiffFileRecord diffFileRecord2 = (DiffFileRecord) o2;
+					Boolean sourceExists1 = diffFileRecord1.sourceExists();
+					Boolean sourceExists2 = diffFileRecord2.sourceExists();
+					return sourceExists1.compareTo(sourceExists2);
+				}
+				return 0;
+			}
+		}, new Class<?>[] { DiffFile.class, DiffFileRecord.class })
+				.setLabelProvider(new ColumnLabelProvider() {
+					SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+
+					@Override
+					public String getText(Object element) {
+						return "";
+					}
+
+					@Override
+					public Color getBackground(Object element) {
+						if (element instanceof DiffFile) {
+							DiffFile diffFile = (DiffFile) element;
+							RGB backgroundRgb = diffFile.sourcesExist() ? preferenceUtil
+									.getColorOk() : preferenceUtil
+									.getColorMissing();
+							return resources.createColor(backgroundRgb);
+						}
+						if (element instanceof DiffFileRecord) {
+							DiffFileRecord diffFileRecord = (DiffFileRecord) element;
+							RGB backgroundRgb = diffFileRecord.sourceExists() ? preferenceUtil
+									.getColorOk() : preferenceUtil
+									.getColorMissing();
+							return resources.createColor(backgroundRgb);
+						}
+						return null;
 					}
 				});
 	}

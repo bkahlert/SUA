@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -79,7 +80,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void episodesDeleted(List<IEpisode> episodes) {
+		public void episodesDeleted(Set<IEpisode> episodes) {
 			ViewerUtils.refresh(viewer);
 		}
 	};

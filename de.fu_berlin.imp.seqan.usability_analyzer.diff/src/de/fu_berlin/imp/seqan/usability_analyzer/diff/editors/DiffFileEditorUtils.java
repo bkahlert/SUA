@@ -8,7 +8,6 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
 
-@SuppressWarnings("restriction")
 public class DiffFileEditorUtils {
 	/**
 	 * Opens a new {@link CompareEditor} which displays the difference between

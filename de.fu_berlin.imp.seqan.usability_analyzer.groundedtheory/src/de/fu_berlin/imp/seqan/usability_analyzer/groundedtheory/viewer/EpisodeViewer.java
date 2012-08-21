@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
@@ -11,9 +12,14 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -36,12 +42,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeView
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer.EpisodeRenderingInfo;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer.EpisodeColors;
 import de.fu_berlin.inf.nebula.utils.PaintUtils;
 
 public class EpisodeViewer extends Composite implements ISelectionProvider {
 
-	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(EpisodeViewer.class);
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
@@ -65,8 +70,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				bounds.x -= bounds.width + 2;
 
 				IEpisode episode = (IEpisode) item.getData();
-				EpisodeRenderingInfo info = new EpisodeRenderingInfo(episode
-						.getColor(), 0);
+				EpisodeColors info = new EpisodeColors(episode.getColor());
 				event.gc.setAlpha(128);
 				PaintUtils.drawRoundedRectangle(event.gc, bounds,
 						info.getBackgroundColor(), info.getBorderColor());
@@ -118,10 +122,52 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		createColumns();
+		this.treeViewer.sort(0);
 		this.treeViewer.setAutoExpandLevel(2);
 		this.treeViewer.setContentProvider(new EpisodeViewerContentProvider());
 		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
 				ICodeService.class));
+		TreeViewerEditor.create(this.treeViewer,
+				new ColumnViewerEditorActivationStrategy(this.treeViewer) {
+					protected boolean isEditorActivationEvent(
+							ColumnViewerEditorActivationEvent event) {
+						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC
+								|| event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION;
+					}
+				}, TreeViewerEditor.DEFAULT);
+
+		int operations = DND.DROP_LINK;
+		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
+				.getTransfer() };
+		this.treeViewer.addDragSupport(operations, transferTypes,
+				new DragSourceListener() {
+					public void dragStart(DragSourceEvent event) {
+						if (((TreeSelection) treeViewer.getSelection()).size() > 0) {
+							LocalSelectionTransfer.getTransfer().setSelection(
+									treeViewer.getSelection());
+							LocalSelectionTransfer.getTransfer()
+									.setSelectionSetTime(
+											event.time & 0xFFFFFFFFL);
+							event.doit = true;
+						} else {
+							event.doit = false;
+						}
+					};
+
+					public void dragSetData(DragSourceEvent event) {
+						if (LocalSelectionTransfer.getTransfer()
+								.isSupportedType(event.dataType)) {
+							event.data = LocalSelectionTransfer.getTransfer()
+									.getSelection();
+						}
+					}
+
+					public void dragFinished(DragSourceEvent event) {
+						LocalSelectionTransfer.getTransfer().setSelection(null);
+						LocalSelectionTransfer.getTransfer()
+								.setSelectionSetTime(0);
+					}
+				});
 	}
 
 	private void createColumns() {
@@ -162,41 +208,41 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				return null;
 			}
 		});
-		episodeColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer));
-		TreeViewerEditor.create(treeViewer,
-				new ColumnViewerEditorActivationStrategy(treeViewer) {
-					protected boolean isEditorActivationEvent(
-							ColumnViewerEditorActivationEvent event) {
-						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
-					}
-				}, TreeViewerEditor.DEFAULT);
-		treeViewer.createColumn("Start", 170).setLabelProvider(
-				new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (IEpisode.class.isInstance(element)) {
-							IEpisode episode = (IEpisode) element;
-							return episode.getStart() != null ? preferenceUtil
-									.getDateFormat().format(
-											episode.getStart().getDate())
-									: "-∞";
-						}
-						return "";
-					}
-				});
-		treeViewer.createColumn("End", 170).setLabelProvider(
-				new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (IEpisode.class.isInstance(element)) {
-							IEpisode episode = (IEpisode) element;
-							return episode.getEnd() != null ? preferenceUtil
-									.getDateFormat().format(
-											episode.getEnd().getDate()) : "+∞";
-						}
-						return "";
-					}
-				});
+		episodeColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
+				EpisodeEditingSupport.Field.NAME));
+
+		TreeViewerColumn startColumn = treeViewer.createColumn("Start", 170);
+		startColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (IEpisode.class.isInstance(element)) {
+					IEpisode episode = (IEpisode) element;
+					return episode.getStart() != null ? preferenceUtil
+							.getDateFormat().format(
+									episode.getStart().getDate()) : "-∞";
+				}
+				return "";
+			}
+		});
+		startColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
+				EpisodeEditingSupport.Field.STARTDATE));
+
+		TreeViewerColumn endColumn = treeViewer.createColumn("End", 170);
+		endColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (IEpisode.class.isInstance(element)) {
+					IEpisode episode = (IEpisode) element;
+					return episode.getEnd() != null ? preferenceUtil
+							.getDateFormat().format(episode.getEnd().getDate())
+							: "+∞";
+				}
+				return "";
+			}
+		});
+		endColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
+				EpisodeEditingSupport.Field.ENDDATE));
+
 		treeViewer.createColumn("Date Created", 170).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override

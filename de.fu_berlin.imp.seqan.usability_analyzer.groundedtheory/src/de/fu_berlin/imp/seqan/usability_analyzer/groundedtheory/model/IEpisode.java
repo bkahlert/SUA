@@ -7,7 +7,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 
-public interface IEpisode extends ICodeable {
+public interface IEpisode extends ICodeable, Comparable<IEpisode> {
 
 	/**
 	 * Returns the {@link ID} this {@link IEpisode} belongs to.
@@ -52,6 +52,15 @@ public interface IEpisode extends ICodeable {
 	 * @return
 	 */
 	public TimeZoneDateRange getRange();
+
+	/**
+	 * Returns a copy of the {@link IEpisode} with the new range. This instance
+	 * (not the returned one) stays untouched.
+	 * 
+	 * @param episode
+	 * @return
+	 */
+	public IEpisode changeRange(TimeZoneDateRange range);
 
 	/**
 	 * Return the {@link IEpisode}'s caption.

@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -167,7 +168,7 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	public void episodesDeleted(final List<IEpisode> deletedEpisodes) {
+	public void episodesDeleted(final Set<IEpisode> deletedEpisodes) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override

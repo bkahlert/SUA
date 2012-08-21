@@ -25,6 +25,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -61,7 +62,7 @@ class CodeStore implements ICodeStore {
 	private HashMap<Object, String> memos = null;
 
 	@XStreamAlias("episodes")
-	private LinkedList<IEpisode> episodes;
+	private Set<IEpisode> episodes;
 
 	private static XStream xstream;
 
@@ -94,7 +95,7 @@ class CodeStore implements ICodeStore {
 			if (codeStore.memos == null)
 				codeStore.memos = new HashMap<Object, String>();
 			if (codeStore.episodes == null)
-				codeStore.episodes = new LinkedList<IEpisode>();
+				codeStore.episodes = new NoNullSet<IEpisode>();
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
@@ -108,7 +109,7 @@ class CodeStore implements ICodeStore {
 		this.createdIds = new TreeSet<Long>();
 		this.codeTrees = new LinkedList<TreeNode<ICode>>();
 		this.codeInstances = new HashSet<ICodeInstance>();
-		this.episodes = new LinkedList<IEpisode>();
+		this.episodes = new NoNullSet<IEpisode>();
 	}
 
 	@Override
@@ -461,7 +462,7 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public List<IEpisode> getEpisodes() {
+	public Set<IEpisode> getEpisodes() {
 		return this.episodes;
 	}
 }

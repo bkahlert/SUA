@@ -9,10 +9,13 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 
 /**
  * Generic {@link ViewerComparator} for use in conjunction with
@@ -128,9 +131,9 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 			Object e) {
 		if (columnViewer.getControl() instanceof Tree) {
 			Tree tree = (Tree) columnViewer.getControl();
-			for (TreeItem item : tree.getItems()) {
+			for (Item item : ViewerUtils.getAllItems(tree.getItems())) {
 				if (item.getData() != null && item.getData().equals(e))
-					return item;
+					return (TreeItem) item;
 			}
 		}
 		return null;

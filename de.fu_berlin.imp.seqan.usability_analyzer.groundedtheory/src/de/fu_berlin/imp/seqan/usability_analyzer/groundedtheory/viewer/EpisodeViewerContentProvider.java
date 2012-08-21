@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -73,7 +74,7 @@ public class EpisodeViewerContentProvider implements
 			ViewerUtils.refresh(viewer, true);
 		};
 
-		public void episodesDeleted(List<IEpisode> episodes) {
+		public void episodesDeleted(Set<IEpisode> episodes) {
 			ViewerUtils.refresh(viewer, true);
 		}
 	};
@@ -129,12 +130,12 @@ public class EpisodeViewerContentProvider implements
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (ID.class.isInstance(parentElement)) {
-			List<IEpisode> episodes = codeService
+			Set<IEpisode> episodes = codeService
 					.getEpisodes((ID) parentElement);
 			return episodes.size() > 0 ? episodes.toArray() : null;
 		}
 		if (Fingerprint.class.isInstance(parentElement)) {
-			List<IEpisode> episodes = codeService
+			Set<IEpisode> episodes = codeService
 					.getEpisodes((Fingerprint) parentElement);
 			return episodes.size() > 0 ? episodes.toArray() : null;
 		}

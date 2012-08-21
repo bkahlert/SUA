@@ -1,16 +1,23 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
+import org.eclipse.swt.graphics.RGB;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
@@ -234,5 +241,31 @@ public class CodeServiceTest extends CodeServicesHelper {
 		Assert.assertEquals(0, codeService.getCodes(codeable3).size());
 
 		Assert.assertNull(codeService.getCode(code2.getId()));
+	}
+
+	public void testSaveEpisode() throws IOException {
+		ICodeService codeService = getSmallCodeService();
+		assertEquals(0, codeService.getEpisodedKeys().size());
+		assertEquals(0, codeService.getEpisodes(new ID("id")).size());
+
+		Episode episode = new Episode(new ID("id"), new TimeZoneDateRange(
+				new TimeZoneDate("2000-01-02T14:00:00.000+02:00"),
+				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")), "Test",
+				new RGB(120, 130, 140));
+		codeService.addEpisodeAndSave(episode);
+		assertEquals(1, codeService.getEpisodedKeys().size());
+		assertEquals(new ID("id"), (ID) codeService.getEpisodedKeys().get(0));
+		assertEquals(1, codeService.getEpisodes(new ID("id")).size());
+		assertEquals(episode, codeService.getEpisodes(new ID("id")).iterator()
+				.next());
+
+		codeService.getEpisodes(new ID("id")).remove(0);
+		assertEquals(0, codeService.getEpisodedKeys().size());
+		assertEquals(0, codeService.getEpisodes(new ID("id")).size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSaveEpisodeIllegalArgumentException() throws IOException {
+		getSmallCodeService().getEpisodes(new ID("id")).add(null);
 	}
 }

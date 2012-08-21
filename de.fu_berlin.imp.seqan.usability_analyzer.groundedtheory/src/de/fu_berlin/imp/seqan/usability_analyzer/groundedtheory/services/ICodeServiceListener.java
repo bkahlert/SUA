@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.util.List;
+import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -27,5 +28,5 @@ public interface ICodeServiceListener {
 
 	public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode);
 
-	public void episodesDeleted(List<IEpisode> deletedEpisodes);
+	public void episodesDeleted(Set<IEpisode> deletedEpisodes);
 }

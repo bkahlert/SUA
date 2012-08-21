@@ -84,5 +84,5 @@ public interface ICodeStore {
 	public void setMemo(ICodeable codeable, String html)
 			throws CodeStoreWriteException;
 
-	public List<IEpisode> getEpisodes();
+	public Set<IEpisode> getEpisodes();
 }

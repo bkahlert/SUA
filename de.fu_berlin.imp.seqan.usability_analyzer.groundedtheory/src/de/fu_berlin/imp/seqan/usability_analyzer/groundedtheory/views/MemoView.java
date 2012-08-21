@@ -50,6 +50,8 @@ public class MemoView extends ViewPart {
 			memoLoader = new Job("Loading Memo") {
 				@Override
 				protected IStatus run(IProgressMonitor progressMonitor) {
+					if (progressMonitor.isCanceled())
+						return Status.CANCEL_STATUS;
 					SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
 					if (codes.size() > 0)
 						MemoView.this.memoComposer.load(codes.get(0), monitor);

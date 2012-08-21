@@ -27,6 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -195,9 +196,6 @@ public class CodeService implements ICodeService {
 
 	@Override
 	public Collection<? extends ICodeInstance> getAllInstances(ICode code) {
-		if (code.getCaption().contains("alpha")) {
-			System.err.println(".");
-		}
 		List<ICodeInstance> instances = getInstances(code);
 		for (ICode subCode : getSubCodes(code)) {
 			instances.addAll(getAllInstances(subCode));
@@ -505,8 +503,8 @@ public class CodeService implements ICodeService {
 		return keys;
 	}
 
-	private List<IEpisode> getEpisodes(Object key) {
-		List<IEpisode> episodes = new LinkedList<IEpisode>();
+	private Set<IEpisode> getEpisodes(Object key) {
+		Set<IEpisode> episodes = new NoNullSet<IEpisode>();
 		for (IEpisode episode : this.codeStore.getEpisodes())
 			if (episode.getKey().equals(key))
 				episodes.add(episode);
@@ -514,18 +512,18 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public List<IEpisode> getEpisodes(ID id) {
+	public Set<IEpisode> getEpisodes(ID id) {
 		return getEpisodes((Object) id);
 	}
 
 	@Override
-	public List<IEpisode> getEpisodes(Fingerprint fingerprint) {
+	public Set<IEpisode> getEpisodes(Fingerprint fingerprint) {
 		return getEpisodes((Object) fingerprint);
 	}
 
 	@Override
 	public void addEpisodeAndSave(IEpisode episode) throws CodeServiceException {
-		List<IEpisode> episodes = this.codeStore.getEpisodes();
+		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (!episodes.contains(episode)) {
 			episodes.add(episode);
 			try {
@@ -542,7 +540,10 @@ public class CodeService implements ICodeService {
 	@Override
 	public void replaceEpisodeAndSave(IEpisode oldEpisode, IEpisode newEpisode)
 			throws CodeServiceException {
-		List<IEpisode> episodes = this.codeStore.getEpisodes();
+		if (oldEpisode == null || newEpisode == null)
+			throw new CodeServiceException(new IllegalArgumentException(
+					"Arguments must not be null"));
+		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
 			this.uriCache.removeKey(oldEpisode.getCodeInstanceID());
 			episodes.remove(oldEpisode);
@@ -571,8 +572,8 @@ public class CodeService implements ICodeService {
 	@Override
 	public void deleteEpisodeAndSave(List<IEpisode> episodesToDelete)
 			throws CodeServiceException {
-		List<IEpisode> episodes = this.codeStore.getEpisodes();
-		List<IEpisode> deletedEpisodes = new LinkedList<IEpisode>();
+		Set<IEpisode> episodes = this.codeStore.getEpisodes();
+		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
 				this.uriCache.removeKey(episodeToDelete.getCodeInstanceID());

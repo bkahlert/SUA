@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -79,7 +80,7 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void episodesDeleted(List<IEpisode> episodes) {
+		public void episodesDeleted(Set<IEpisode> episodes) {
 			// TODO Auto-generated method stub
 
 		}

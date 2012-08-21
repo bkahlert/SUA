@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
 import java.util.List;
+import java.util.Set;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -49,7 +50,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void episodesDeleted(List<IEpisode> episodes) {
+	public void episodesDeleted(Set<IEpisode> episodes) {
 	}
 
 }

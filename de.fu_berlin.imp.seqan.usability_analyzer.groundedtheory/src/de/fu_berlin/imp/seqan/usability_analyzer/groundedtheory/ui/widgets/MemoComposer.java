@@ -70,6 +70,8 @@ public class MemoComposer extends Composite {
 	private ICodeInstance codeInstance = null;
 	private ICodeable codeable = null;
 
+	private String oldHtml = "";
+
 	public MemoComposer(Composite parent, int style,
 			final long autosaveAfterMilliseconds, IPartDelegate partDelegate) {
 		super(parent, style & ~SWT.BORDER);
@@ -97,8 +99,9 @@ public class MemoComposer extends Composite {
 									IProgressMonitor progressMonitor) {
 								SubMonitor monitor = SubMonitor.convert(
 										progressMonitor, 1);
-								LOGGER.info("Auto-saving memo");
-								save(monitor);
+								if (save(monitor)) {
+									LOGGER.info("Memo auto-saved");
+								}
 								monitor.done();
 								return Status.OK_STATUS;
 							}
@@ -272,11 +275,11 @@ public class MemoComposer extends Composite {
 		monitor.worked(1);
 
 		final boolean finalEnabled = enabled;
-		final String finalHtml = html;
+		oldHtml = html != null ? html : "";
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				text.setText(finalHtml != null ? finalHtml : "");
+				text.setText(oldHtml);
 				text.setEnabled(finalEnabled);
 				text.setEditable(finalEnabled);
 				layout();
@@ -285,20 +288,21 @@ public class MemoComposer extends Composite {
 		});
 	}
 
-	synchronized private void save(IProgressMonitor progressMonitor) {
+	synchronized private boolean save(IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor, "Saving Memo",
 				3);
 		if (code == null && codeInstance == null && codeable == null)
-			return;
+			return false;
 		try {
 			String html = ExecutorUtil.syncExec(new Callable<String>() {
 				@Override
 				public String call() throws Exception {
 					String s = text.getText();
-					// System.out.println(s);
 					return s;
 				}
 			});
+			if (oldHtml.equals(html))
+				return false;
 			monitor.worked(1);
 
 			if (code != null) {
@@ -307,7 +311,7 @@ public class MemoComposer extends Composite {
 				} catch (CodeServiceException e) {
 					LOGGER.error("Can't save memo for " + code, e);
 				}
-				return;
+				return true;
 			}
 			if (codeInstance != null) {
 				try {
@@ -315,7 +319,7 @@ public class MemoComposer extends Composite {
 				} catch (CodeServiceException e) {
 					LOGGER.error("Can't save memo for " + codeInstance, e);
 				}
-				return;
+				return true;
 			}
 			if (codeable != null) {
 				try {
@@ -323,13 +327,14 @@ public class MemoComposer extends Composite {
 				} catch (CodeServiceException e) {
 					LOGGER.error("Can't save memo for " + codeable, e);
 				}
-				return;
+				return true;
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error saving memo", e);
 		} finally {
 			monitor.done();
 		}
+		return false;
 	}
 
 	private synchronized Object getMemoOwner() {

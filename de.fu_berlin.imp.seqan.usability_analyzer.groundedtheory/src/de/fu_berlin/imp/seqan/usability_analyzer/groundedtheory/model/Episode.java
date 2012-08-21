@@ -60,22 +60,28 @@ public class Episode implements IEpisode {
 		this.creation = new TimeZoneDate();
 	}
 
-	private Episode(IEpisode episode, String caption) {
+	private Episode(IEpisode episode) {
 		this.id = episode.getId();
 		this.fingerprint = episode.getFingerprint();
 		this.range = episode.getRange();
+		this.caption = episode.getCaption();
 		this.creation = episode.getCreation();
 		this.rgb = episode.getColor();
+	}
+
+	private Episode(IEpisode episode, String caption) {
+		this(episode);
 		this.caption = caption;
 	}
 
 	private Episode(IEpisode episode, RGB color) {
-		this.id = episode.getId();
-		this.fingerprint = episode.getFingerprint();
-		this.range = episode.getRange();
-		this.creation = episode.getCreation();
-		this.caption = episode.getCaption();
+		this(episode);
 		this.rgb = color;
+	}
+
+	private Episode(IEpisode episode, TimeZoneDateRange range) {
+		this(episode);
+		this.range = range;
 	}
 
 	@Override
@@ -84,12 +90,8 @@ public class Episode implements IEpisode {
 				+ ((id != null) ? id : fingerprint));
 
 		sb.append("/");
-		if (this.getStart() != null)
-			sb.append(this.getStart().toISO8601());
 
-		sb.append("/");
-		if (this.getEnd() != null)
-			sb.append(this.getEnd());
+		sb.append(this.getCreation().toISO8601());
 
 		try {
 			return new URI(sb.toString());
@@ -129,6 +131,11 @@ public class Episode implements IEpisode {
 	@Override
 	public TimeZoneDateRange getRange() {
 		return this.range;
+	}
+
+	@Override
+	public IEpisode changeRange(TimeZoneDateRange range) {
+		return new Episode(this, range);
 	}
 
 	@Override
@@ -174,4 +181,15 @@ public class Episode implements IEpisode {
 		return sb.toString();
 	}
 
+	@Override
+	public int compareTo(IEpisode episode) {
+		if (this.getRange().isBeforeRange(episode.getRange().getStartDate()))
+			return 1;
+		else if (episode.getRange().isBeforeRange(
+				this.getRange().getStartDate()))
+			return -1;
+		else
+			return this.getKey().toString()
+					.compareTo(episode.getKey().toString());
+	}
 }

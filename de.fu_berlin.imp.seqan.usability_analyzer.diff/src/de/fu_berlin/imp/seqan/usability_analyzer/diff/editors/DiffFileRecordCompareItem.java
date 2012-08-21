@@ -22,7 +22,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
  * @author bkahlert
  * 
  */
-@SuppressWarnings("restriction")
 public class DiffFileRecordCompareItem implements ITypedElement,
 		IModificationDate, IStreamContentAccessor {
 	private DiffFileRecord diffFileRecord;

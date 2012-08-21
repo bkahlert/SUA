@@ -39,48 +39,30 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 		DiffFileList diffFiles = new DiffFileList();
 
 		DiffFile prevDiffFile = null;
-		File file = null;
-		TimeZoneDate date = null;
 
 		progressMonitor.beginTask(
 				"Processing " + DiffFile.class.getSimpleName() + "s",
 				files.size());
 
-		for (File nextFile : files) { // look ahead = 1
-			TimeZoneDate nextDate = DiffFile.getDate(nextFile);
-
-			if (file != null) {
-				ID id = DiffFile.getId(file);
-				String revision = DiffFile.getRevision(file);
-				TimeZoneDateRange dateRange = new TimeZoneDateRange(date,
-						nextDate);
-				DiffFile diffFile = new DiffFile(file, prevDiffFile, id,
-						revision, dateRange, sourceOrigin, sourceCache,
-						new SubProgressMonitor(progressMonitor, 1));
-				diffFiles.add(diffFile);
-
-				prevDiffFile = diffFile;
-			}
-
-			file = nextFile;
-			date = DiffFile.getDate(nextFile);
-		}
-
-		// create last file that was ignored due to look ahead
-		if (file != null) {
-			TimeZoneDate nextDate = null;
-
+		for (File file : files) { // look ahead = 1
 			ID id = DiffFile.getId(file);
 			String revision = DiffFile.getRevision(file);
-			TimeZoneDateRange dateRange = new TimeZoneDateRange(date, nextDate);
+			TimeZoneDate prevDate = prevDiffFile != null ? prevDiffFile
+					.getDateRange().getEndDate() : null;
+			TimeZoneDateRange dateRange = new TimeZoneDateRange(prevDate,
+					DiffFile.getDate(file));
+
 			DiffFile diffFile = new DiffFile(file, prevDiffFile, id, revision,
 					dateRange, sourceOrigin, sourceCache,
 					new SubProgressMonitor(progressMonitor, 1));
 			diffFiles.add(diffFile);
 
-			// clean up since an DiffFile can temporally consume much heap
-			Runtime.getRuntime().gc();
+			prevDiffFile = diffFile;
 		}
+
+		// clean up since a DiffFileList creation can temporally consume much
+		// heap
+		Runtime.getRuntime().gc();
 
 		progressMonitor.done();
 
