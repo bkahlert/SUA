@@ -1,5 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.security.InvalidParameterException;
 
 import org.junit.Assert;
@@ -561,6 +564,74 @@ public class TimeZoneDateRangeTest {
 						null));
 		Assert.assertNull(outerRange.getStartDate());
 		Assert.assertNull(outerRange.getEndDate());
+	}
+
+	@Test
+	public void testIsIntersected() {
+		TimeZoneDateRange r1 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T14:32:03+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:23+02:00"));
+		TimeZoneDateRange r2 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T14:32:03+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:24+02:00"));
+		TimeZoneDateRange r3 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T15:27:23+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:37+02:00"));
+		TimeZoneDateRange r4 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-14T15:27:23+02:00"), new TimeZoneDate(
+				"2011-09-14T15:27:37+02:00"));
+
+		assertTrue(r1.isIntersected(r2));
+		assertTrue(r2.isIntersected(r1));
+
+		assertTrue(r1.isIntersected(r3));
+		assertTrue(r3.isIntersected(r1));
+
+		assertFalse(r1.isIntersected(r4));
+		assertFalse(r4.isIntersected(r1));
+
+		assertTrue(r2.isIntersected(r3));
+		assertTrue(r3.isIntersected(r2));
+
+		assertFalse(r2.isIntersected(r4));
+		assertFalse(r4.isIntersected(r2));
+
+		assertFalse(r3.isIntersected(r4));
+		assertFalse(r4.isIntersected(r3));
+	}
+
+	@Test
+	public void testIsIntersected2() {
+		TimeZoneDateRange r1 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T14:32:03+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:23+02:00"));
+		TimeZoneDateRange r2 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T14:32:03+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:24+02:00"));
+		TimeZoneDateRange r3 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-13T15:27:23+02:00"), new TimeZoneDate(
+				"2011-09-13T15:27:37+02:00"));
+		TimeZoneDateRange r4 = new TimeZoneDateRange(new TimeZoneDate(
+				"2011-09-14T15:27:23+02:00"), new TimeZoneDate(
+				"2011-09-14T15:27:37+02:00"));
+
+		assertTrue(r1.isIntersected2(r2));
+		assertTrue(r2.isIntersected2(r1));
+
+		assertFalse(r1.isIntersected2(r3));
+		assertFalse(r3.isIntersected2(r1));
+
+		assertFalse(r1.isIntersected2(r4));
+		assertFalse(r4.isIntersected2(r1));
+
+		assertTrue(r2.isIntersected2(r3));
+		assertTrue(r3.isIntersected2(r2));
+
+		assertFalse(r2.isIntersected2(r4));
+		assertFalse(r4.isIntersected2(r2));
+
+		assertFalse(r3.isIntersected2(r4));
+		assertFalse(r4.isIntersected2(r3));
 	}
 
 }

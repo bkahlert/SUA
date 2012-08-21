@@ -81,12 +81,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					};
 
 					public void dragSetData(DragSourceEvent event) {
-						boolean episodeRendererActive = DiffFileListsViewer.this
-								.getControl().getData(
-										EpisodeRenderer.CONTROL_DATA_STRING) != null;
-						if (!episodeRendererActive
-								&& LocalSelectionTransfer.getTransfer()
-										.isSupportedType(event.dataType)) {
+						if (LocalSelectionTransfer.getTransfer()
+								.isSupportedType(event.dataType)) {
 							event.data = LocalSelectionTransfer.getTransfer()
 									.getSelection();
 						}

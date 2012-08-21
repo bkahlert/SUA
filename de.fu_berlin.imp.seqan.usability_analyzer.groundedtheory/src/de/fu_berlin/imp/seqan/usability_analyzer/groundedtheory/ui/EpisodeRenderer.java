@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
@@ -40,6 +42,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
@@ -138,12 +141,14 @@ public class EpisodeRenderer implements IDisposable {
 		private int direction;
 		private IEpisode episode;
 		private IEpisode newEpisode;
+		private HasDateRange hoveredItem;
 
 		public ResizeInfo(int direction, IEpisode episode) {
 			super();
 			this.direction = direction;
 			this.episode = episode;
 			this.newEpisode = null;
+			this.hoveredItem = null;
 		}
 
 		/**
@@ -164,8 +169,32 @@ public class EpisodeRenderer implements IDisposable {
 			return this.newEpisode;
 		}
 
-		public void setNewRange(TimeZoneDateRange newRange) {
+		public HasDateRange getHoveredItem() {
+			return hoveredItem;
+		}
+
+		public void setHoveredItem(HasDateRange hoveredItem) {
+			TimeZoneDateRange newRange;
+			try {
+				TimeZoneDate start;
+				TimeZoneDate end;
+				if (this.direction < 0) {
+					start = hoveredItem.getDateRange().getStartDate();
+					end = episode.getEnd();
+				} else {
+					start = episode.getStart();
+					end = hoveredItem.getDateRange().getEndDate();
+				}
+				newRange = new TimeZoneDateRange(start, end);
+			} catch (InvalidParameterException e) {
+				return;
+			}
+			if (episode.getRange().equals(newRange))
+				return;
+
 			this.newEpisode = episode.changeRange(newRange);
+
+			this.hoveredItem = hoveredItem;
 		}
 	}
 
@@ -190,9 +219,14 @@ public class EpisodeRenderer implements IDisposable {
 				.getWorkbench().getService(ICodeService.class);
 
 		/**
+		 * Used to display information to the currently hovered item.
+		 */
+		private ToolTip hoveredItemTooltip;
+
+		/**
 		 * Area in which all {@link IEpisode}s must be painted.
 		 */
-		private ViewerColumn column;
+		private final ViewerColumn column;
 
 		/**
 		 * Contains the column for the recently painted {@link IEpisode}s.
@@ -202,21 +236,26 @@ public class EpisodeRenderer implements IDisposable {
 		/**
 		 * Space between two {@link IEpisode}s.
 		 */
-		private int trackSpace;
+		private final int trackSpace;
 
+		/**
+		 * Information concerning the active resize action.
+		 */
 		private ResizeInfo resizeInfo = null;
 
-		private Cursor resizeTopCursor = new Cursor(Display.getCurrent(),
+		private final Cursor resizeTopCursor = new Cursor(Display.getCurrent(),
 				SWT.CURSOR_SIZES);
-		private Cursor resizeBottomCursor = new Cursor(Display.getCurrent(),
-				SWT.CURSOR_SIZEN);
-		private Cursor handCursor = new Cursor(Display.getCurrent(),
+		private final Cursor resizeBottomCursor = new Cursor(
+				Display.getCurrent(), SWT.CURSOR_SIZEN);
+		private final Cursor handCursor = new Cursor(Display.getCurrent(),
 				SWT.CURSOR_HAND);
 
 		@SuppressWarnings("unused")
 		private int hShift = 100;
 
 		public Renderer(ViewerColumn column, int trackSpace) {
+			this.hoveredItemTooltip = new ToolTip(column.getViewer()
+					.getControl().getShell(), SWT.ICON_INFORMATION);
 			this.column = column;
 			this.trackSpace = trackSpace;
 		}
@@ -249,27 +288,31 @@ public class EpisodeRenderer implements IDisposable {
 				} else {
 					final IEpisode oldEpisode = this.resizeInfo.getEpisode();
 					final IEpisode newEpisode = this.resizeInfo.getNewEpisode();
-					ExecutorUtil.asyncRun(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								codeService.replaceEpisodeAndSave(oldEpisode,
-										newEpisode);
-							} catch (CodeServiceException e) {
-								LOGGER.error(
-										"Error resizing "
-												+ IEpisode.class
-														.getSimpleName(), e);
+					if (oldEpisode != null && newEpisode != null) {
+						ExecutorUtil.asyncRun(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									codeService.replaceEpisodeAndSave(
+											oldEpisode, newEpisode);
+								} catch (CodeServiceException e) {
+									LOGGER.error("Error resizing "
+											+ IEpisode.class.getSimpleName(), e);
+								}
 							}
-						}
-					});
+						});
+					}
 					this.resizeInfo = null;
 					event.widget.setData(CONTROL_DATA_STRING, null);
+					hoveredItemTooltip.setVisible(false);
+					((Control) event.widget).redraw();
 					((Control) event.widget).setCursor(null);
 				}
 				break;
 			case SWT.MouseMove:
 				if (this.resizeInfo == null) {
+					hoveredItemTooltip.setVisible(false);
+
 					Control control = (Control) event.widget;
 					if (info != null) {
 						if (info.direction > 0) {
@@ -293,28 +336,26 @@ public class EpisodeRenderer implements IDisposable {
 								event.y));
 
 					if (item != null && item.getData() instanceof HasDateRange) {
-						TimeZoneDateRange range = ((HasDateRange) item
-								.getData()).getDateRange();
+						this.resizeInfo.setHoveredItem((HasDateRange) item
+								.getData());
 
-						TimeZoneDateRange newRange;
-						IEpisode oldEpisode = this.resizeInfo.getEpisode();
-						try {
-							if (this.resizeInfo.getDirection() < 0) {
-								newRange = new TimeZoneDateRange(
-										range.getEndDate(), oldEpisode.getEnd());
-							} else {
-								newRange = new TimeZoneDateRange(
-										oldEpisode.getStart(),
-										range.getStartDate());
-							}
-						} catch (InvalidParameterException e) {
-							break;
-						}
-						if (oldEpisode.getRange().equals(newRange))
-							break;
+						Point pt = ((Tree) event.widget).toDisplay(
+								event.x + 10, event.y);
+						hoveredItemTooltip
+								.setText("New episode "
+										+ (this.resizeInfo.getDirection() < 0 ? "starts at "
+												+ this.resizeInfo
+														.getNewEpisode()
+														.getStart().toISO8601()
+												: "ends at "
+														+ this.resizeInfo
+																.getNewEpisode()
+																.getEnd()
+																.toISO8601()));
+						hoveredItemTooltip.setLocation(pt);
+						hoveredItemTooltip.setVisible(true);
 
-						this.resizeInfo.setNewRange(newRange);
-						((Tree) event.widget).redraw();
+						((Control) event.widget).redraw();
 					}
 				}
 				break;
@@ -323,9 +364,8 @@ public class EpisodeRenderer implements IDisposable {
 
 		@Override
 		public void paintControl(PaintEvent e) {
-			Item[] items = (e.widget instanceof Tree) ? ((Tree) e.widget)
-					.getItems() : ((Table) e.widget).getItems();
-			if (items.length == 0)
+			List<Item> items = ViewerUtils.getAllItems((Control) e.widget);
+			if (items.size() == 0)
 				return;
 
 			Object key = getKey(items);
@@ -339,8 +379,23 @@ public class EpisodeRenderer implements IDisposable {
 				return;
 			}
 
-			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
+			// Highlight hovered item
+			if (this.resizeInfo != null
+					&& this.resizeInfo.getHoveredItem() != null) {
+				for (Item item : items) {
+					if (item.getData() == this.resizeInfo.getHoveredItem()) {
+						PaintUtils.drawRoundedBorder(
+								e.gc,
+								getBounds(item),
+								Display.getCurrent().getSystemColor(
+										SWT.COLOR_BLACK));
+						break;
+					}
+				}
+			}
 
+			// Draw episodes
+			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
 			for (IEpisode episode : renderingBounds.keySet()) {
 				if (!renderingColors.containsKey(episode)) {
 					renderingColors.put(episode,
@@ -362,7 +417,7 @@ public class EpisodeRenderer implements IDisposable {
 		 * @param items
 		 * @return null if no or more than one keys are contained
 		 */
-		public static Object getKey(Item[] items) {
+		public static Object getKey(List<Item> items) {
 			Object key = null;
 			for (Item item : items) {
 				if (item.getData() instanceof HasID
@@ -399,7 +454,7 @@ public class EpisodeRenderer implements IDisposable {
 		 * @return
 		 */
 		private Map<IEpisode, Rectangle> getEpisodeBounds(Set<IEpisode> set,
-				Item[] items) {
+				List<Item> items) {
 			if (this.resizeInfo != null) {
 				set.remove(this.resizeInfo.getEpisode());
 				if (this.resizeInfo.getNewEpisode() != null)
@@ -416,7 +471,17 @@ public class EpisodeRenderer implements IDisposable {
 			Rectangle columnBounds = ViewerUtils.getBounds(column);
 
 			Map<IEpisode, Rectangle> episodeBounds = new HashMap<IEpisode, Rectangle>();
-			for (Item item : ViewerUtils.getAllItems(items)) {
+			for (Item item : items) {
+				// we are only interested in top level items
+				// FIXME: DiffFileRecords end (= file save moments) before their
+				// corresponding DiffFileRecord end (= build moment).
+				// When calculating the intersections DiffFileRecords always
+				// intersect the previous DiffFile making the Episode look one
+				// DiffFile longer.
+				if (item instanceof TreeItem
+						&& ((TreeItem) item).getParentItem() != null)
+					continue;
+
 				if (item.getData() instanceof HasDateRange) {
 					TimeZoneDateRange range = ((HasDateRange) item.getData())
 							.getDateRange();

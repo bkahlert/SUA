@@ -48,6 +48,19 @@ public class ViewerUtils {
 	 * @param items
 	 * @return
 	 */
+	public static List<Item> getAllItems(Control control) {
+		Item[] items = (control instanceof Tree) ? ((Tree) control).getItems()
+				: ((Table) control).getItems();
+		return getAllItems(items);
+	}
+
+	/**
+	 * Returns a list that does not only contain the {@link Item}s themselves
+	 * but also their child, children's children, etc.
+	 * 
+	 * @param items
+	 * @return
+	 */
 	public static List<Item> getAllItems(Item[] items) {
 		List<Item> allItems = new ArrayList<Item>();
 		for (Item item : items) {
