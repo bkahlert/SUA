@@ -122,15 +122,28 @@ public class GTCodeableProvider extends CodeableProvider {
 			public Image getImage(Object element) {
 				if (element instanceof IEpisode) {
 					IEpisode episode = (IEpisode) element;
+					Image overlay;
 					try {
-						return (codeService.getCodes(episode).size() > 0) ? (codeService
+						overlay = (codeService.getCodes(episode).size() > 0) ? (codeService
 								.isMemo(episode) ? ImageManager.EPISODE_CODED_MEMO
 								: ImageManager.EPISODE_CODED)
 								: (codeService.isMemo(episode) ? ImageManager.EPISODE_MEMO
 										: ImageManager.EPISODE);
 					} catch (CodeServiceException e) {
-						return ImageManager.EPISODE;
+						overlay = ImageManager.EPISODE;
 					}
+					return overlay;
+					// Image image = new Image(Display.getCurrent(),
+					// new Rectangle(0, 0, 16, 16));
+					// GC gc = new GC(image);
+					// PaintUtils
+					// .drawRoundedRectangle(
+					// gc,
+					// overlay.getBounds(),
+					// new Color(Display.getDefault(), episode
+					// .getColor()));
+					// gc.copyArea(overlay, 0, 0);
+					// return image;
 				}
 				return super.getImage(element);
 			}
