@@ -54,8 +54,9 @@ public class SurveyRecordManager extends DataSourceManager {
 							SurveyRecord surveyRecord = new SurveyRecord(
 									headings, values);
 							if (surveyRecord.getToken() == null) {
-								logger.warn("Survey record without token discovered. The record will be ignored.\n"
-										+ surveyRecord);
+								logger.warn("Survey record without token discovered. The record will be ignored. ("
+										+ surveyRecord.toString().substring(0,
+												100) + "...)");
 							} else {
 								this.surveyRecords.add(surveyRecord);
 							}
