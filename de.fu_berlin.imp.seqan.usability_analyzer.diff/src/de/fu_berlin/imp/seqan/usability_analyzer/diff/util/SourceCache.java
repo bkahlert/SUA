@@ -5,10 +5,10 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.Assert;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 
-public class SourceCache {
+public class SourceCache implements ISourceStore {
 	private IBaseDataContainer baseDataContainer;
 	private String scope;
 
@@ -23,22 +23,44 @@ public class SourceCache {
 		this.scope = scope;
 	}
 
-	public File getCachedSourceFile(DiffDataResource diffDataResource,
-			String filename) throws IOException {
-		long revision = Long.parseLong(diffDataResource.getRevision());
-
-		return this.baseDataContainer.getFile(this.scope,
-				diffDataResource.getID() + "/" + revision + "/" + filename);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore#
+	 * getCachedSourceFile
+	 * (de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID, long,
+	 * java.lang.String)
+	 */
+	@Override
+	public File getSourceFile(ID id, long revision, String filename)
+			throws IOException {
+		return this.baseDataContainer.getFile(this.scope, id + "/" + revision
+				+ "/" + filename);
 	}
 
-	public void setCachedSourceFile(DiffDataResource diffDataResource,
-			String filename, File file) throws IOException {
-		long revision = Long.parseLong(diffDataResource.getRevision());
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore#
+	 * setCachedSourceFile
+	 * (de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData,
+	 * java.lang.String, java.io.File)
+	 */
+	@Override
+	public void setSourceFile(ID id, long revision, String filename, File file)
+			throws IOException {
 
-		this.baseDataContainer.putFile(this.scope, diffDataResource.getID()
-				+ "/" + revision + "/" + filename, file);
+		this.baseDataContainer.putFile(this.scope, id + "/" + revision + "/"
+				+ filename, file);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore#clear()
+	 */
+	@Override
 	public void clear() {
 		this.baseDataContainer.deleteScope("scources");
 	}

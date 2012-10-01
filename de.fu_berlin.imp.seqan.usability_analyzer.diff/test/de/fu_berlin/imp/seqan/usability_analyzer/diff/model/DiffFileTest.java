@@ -16,8 +16,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBas
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
 public class DiffFileTest {
 
@@ -25,8 +28,8 @@ public class DiffFileTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static DiffDataResource getDiffFile(String diffFileName, ID id,
-			String revision, TimeZoneDateRange dateRange)
+	private static IDiffData getDiffFile(String diffFileName, ID id,
+			long revision, TimeZoneDateRange dateRange)
 			throws URISyntaxException {
 
 		FileBaseDataContainer baseDataContainer = new FileBaseDataContainer(
@@ -35,51 +38,51 @@ public class DiffFileTest {
 		File diffFile = FileUtils.getFile(root + "/diff/" + diffFileName);
 		FileData diffData = new FileData(baseDataContainer, diffFile);
 
-		SourceOrigin sourceOrigin = new SourceOrigin(new FileDataContainer(
-				baseDataContainer, FileUtils.getFile(root)));
-		SourceCache sourceCache = new SourceCache(baseDataContainer, "sources");
+		ITrunk trunk = new Trunk(new FileDataContainer(baseDataContainer,
+				FileUtils.getFile(root)));
+		ISourceStore sourceCache = new SourceCache(baseDataContainer, "sources");
 
-		return new DiffDataResource(diffData, null, id, revision, dateRange,
-				sourceOrigin, sourceCache, new NullProgressMonitor());
+		return new DiffData(diffData, null, id, revision, dateRange, trunk,
+				sourceCache, new NullProgressMonitor());
 	}
 
 	@Test
 	public void testDiffFileStatics() throws URISyntaxException {
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffDataResource.getId(new FileData(
+				DiffDataUtils.getId(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffDataResource.getId(new FileData(
+				DiffDataUtils.getId(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
-				"00000048",
-				DiffDataResource.getRevision(new FileData(
+				new Long(48),
+				DiffDataUtils.getRevision(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
-				"00000048",
-				DiffDataResource.getRevision(new FileData(
+				new Long(48),
+				DiffDataUtils.getRevision(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffDataResource.getDate(new FileData(
+				DiffDataUtils.getDate(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffDataResource.getDate(new FileData(
+				DiffDataUtils.getDate(new FileData(
 						new FileBaseDataContainer(FileUtils.getFile(root)),
 						new File(
 								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
@@ -87,9 +90,9 @@ public class DiffFileTest {
 
 	@Test
 	public void testGetContent() throws URISyntaxException {
-		DiffDataResource smallDiffFile = getDiffFile(
+		IDiffData smallDiffFile = getDiffFile(
 				"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
-				new ID("o6lmo5tpxvn3b6fg"), "00000048", new TimeZoneDateRange(
+				new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
 						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
 
 		String firstLine = "--- ./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log	2011-09-13 12:10:14.578125000 +0200";
@@ -110,9 +113,9 @@ public class DiffFileTest {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
-						new ID("o6lmo5tpxvn3b6fg"), "00000048",
-						new TimeZoneDateRange(new TimeZoneDate(
-								"2011-09-13T12:11:02+02:00"), null)),
+						new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
+								new TimeZoneDate("2011-09-13T12:11:02+02:00"),
+								null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
@@ -126,9 +129,9 @@ public class DiffFileTest {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff",
-						new ID("o6lmo5tpxvn3b6fg"), "00000048",
-						new TimeZoneDateRange(new TimeZoneDate(
-								"2011-09-13T12:11:02+02:00"), null)),
+						new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
+								new TimeZoneDate("2011-09-13T12:11:02+02:00"),
+								null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
@@ -142,9 +145,9 @@ public class DiffFileTest {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
 						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff",
-						new ID("5lpcjqhy0b9yfech"), "00000005",
-						new TimeZoneDateRange(new TimeZoneDate(
-								"2011-09-13T10:17:43+02:00"), null)),
+						new ID("5lpcjqhy0b9yfech"), 5l, new TimeZoneDateRange(
+								new TimeZoneDate("2011-09-13T10:17:43+02:00"),
+								null)),
 				new int[] { 9, 8, 14, 24, 8, 24, 66, 131, 14, 9, 9 },
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
@@ -164,9 +167,9 @@ public class DiffFileTest {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
 						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43-0530.diff",
-						new ID("5lpcjqhy0b9yfech"), "00000005",
-						new TimeZoneDateRange(new TimeZoneDate(
-								"2011-09-13T10:17:43+02:00"), null)),
+						new ID("5lpcjqhy0b9yfech"), 5l, new TimeZoneDateRange(
+								new TimeZoneDate("2011-09-13T10:17:43+02:00"),
+								null)),
 				new int[] { 9, 8, 14, 24, 8, 24, 66, 131, 14, 9, 9 },
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
@@ -184,11 +187,10 @@ public class DiffFileTest {
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 	}
 
-	private void testDiffFileRecordsCountRun(DiffDataResource diffDataResource,
+	private void testDiffFileRecordsCountRun(IDiffData diffData,
 			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles)
 			throws IOException {
-		DiffFileRecordList diffFileRecords = diffDataResource
-				.getDiffFileRecords();
+		DiffFileRecordList diffFileRecords = diffData.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
 			DiffRecord diffRecord = diffFileRecords.get(i);

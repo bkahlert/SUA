@@ -17,7 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import difflib.PatchFailedException;
 
@@ -27,22 +27,22 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 
 	private static Logger LOGGER = Logger.getLogger(DiffRecord.class);
 
-	private DiffDataResource diffDataResource;
+	private DiffData diffData;
 	private IData originalSource;
-	private SourceCache sourceCache;
+	private ISourceStore sourceCache;
 
 	private String commandLine;
 	private DiffFileRecordMeta meta;
 
 	/**
-	 * Contains the byte position within the parent {@link DiffDataResource}
-	 * where the patch starts
+	 * Contains the byte position within the parent {@link DiffData} where the
+	 * patch starts
 	 */
 	private long patchStart;
 
 	/**
-	 * Contains the byte position within the parent {@link DiffDataResource}
-	 * where the patch end
+	 * Contains the byte position within the parent {@link DiffData} where the
+	 * patch end
 	 */
 	private long patchEnd;
 
@@ -50,10 +50,10 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 
 	private boolean patchFailed = false;
 
-	public DiffRecord(DiffDataResource diffDataResource, IData originalSource,
-			SourceCache sourceCache, String commandLine,
+	public DiffRecord(DiffData diffData, IData originalSource,
+			ISourceStore sourceCache, String commandLine,
 			DiffFileRecordMeta meta, long contentStart, long contentEnd) {
-		this.diffDataResource = diffDataResource;
+		this.diffData = diffData;
 		this.originalSource = originalSource;
 		this.sourceCache = sourceCache;
 
@@ -65,7 +65,7 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 		getSource(); // implicitly patches
 		if (this.patchFailed) {
 			LOGGER.warn("Failed to patch " + originalSource + " of "
-					+ diffDataResource.getID());
+					+ diffData.getID());
 		}
 	}
 
@@ -83,11 +83,11 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	}
 
 	public ID getID() {
-		return this.diffDataResource.getID();
+		return this.diffData.getID();
 	}
 
-	public DiffDataResource getDiffFile() {
-		return diffDataResource;
+	public DiffData getDiffFile() {
+		return diffData;
 	}
 
 	public String getCommandLine() {
@@ -143,8 +143,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	}
 
 	public File getSourceFile() throws IOException {
-		return this.sourceCache.getCachedSourceFile(diffDataResource,
-				this.meta.getToFileName());
+		return this.sourceCache.getSourceFile(diffData.getID(),
+				diffData.getRevision(), this.meta.getToFileName());
 	}
 
 	public boolean sourceExists() {
@@ -211,8 +211,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 				return StringUtils.join(newSource, "\n");
 			} catch (PatchFailedException e) {
 				String filename = getFilename();
-				LOGGER.warn("Could not patch ID: " + diffDataResource.getID()
-						+ ", " + filename, e);
+				LOGGER.warn("Could not patch ID: " + diffData.getID() + ", "
+						+ filename, e);
 				patchFailed = true;
 				return null;
 			}
@@ -230,8 +230,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 		try {
 			File tmp = File.createTempFile("source", ".tmp");
 			FileUtils.write(tmp, sourceString);
-			this.sourceCache.setCachedSourceFile(diffDataResource,
-					this.meta.getToFileName(), tmp);
+			this.sourceCache.setSourceFile(diffData.getID(),
+					diffData.getRevision(), this.meta.getToFileName(), tmp);
 		} catch (IOException e) {
 			LOGGER.error(
 					"Could not write source file for "
@@ -242,8 +242,7 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	public DiffRecord getPredecessor() {
 		if (this.predecessor == null) {
 			String filename = getFilename();
-			DiffDataResource prevDiffFile = this.getDiffFile()
-					.getPrevDiffFile();
+			IDiffData prevDiffFile = this.getDiffFile().getPrevDiffFile();
 			outer: while (prevDiffFile != null) {
 				for (DiffRecord diffRecord : prevDiffFile.getDiffFileRecords()) {
 					if (diffRecord.getFilename().equals(filename)) {

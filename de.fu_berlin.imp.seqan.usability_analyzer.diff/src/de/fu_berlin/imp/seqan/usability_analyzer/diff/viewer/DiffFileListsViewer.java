@@ -30,10 +30,11 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -119,9 +120,9 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 							}
 							return (id != null) ? id.toString() : "";
 						}
-						if (element instanceof DiffDataResource) {
-							DiffDataResource diffDataResource = (DiffDataResource) element;
-							TimeZoneDate date = diffDataResource.getDateRange()
+						if (element instanceof IDiffData) {
+							DiffData diffData = (DiffData) element;
+							TimeZoneDate date = diffData.getDateRange()
 									.getEndDate();
 							return (date != null) ? date.format(dateFormat)
 									: "";
@@ -139,13 +140,13 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						if (element instanceof DiffFileList) {
 							return ImageManager.DIFFFILELIST;
 						}
-						if (element instanceof DiffDataResource) {
-							DiffDataResource diffDataResource = (DiffDataResource) element;
+						if (element instanceof IDiffData) {
+							DiffData diffData = (DiffData) element;
 							try {
-								return (codeService.getCodes(diffDataResource).size() > 0) ? (codeService
-										.isMemo(diffDataResource) ? ImageManager.DIFFFILE_CODED_MEMO
+								return (codeService.getCodes(diffData).size() > 0) ? (codeService
+										.isMemo(diffData) ? ImageManager.DIFFFILE_CODED_MEMO
 										: ImageManager.DIFFFILE_CODED)
-										: (codeService.isMemo(diffDataResource) ? ImageManager.DIFFFILE_MEMO
+										: (codeService.isMemo(diffData) ? ImageManager.DIFFFILE_MEMO
 												: ImageManager.DIFFFILE);
 							} catch (CodeServiceException e) {
 								return ImageManager.DIFFFILE;
@@ -154,8 +155,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						if (element instanceof DiffRecord) {
 							DiffRecord diffRecord = (DiffRecord) element;
 							try {
-								return (codeService.getCodes(diffRecord)
-										.size() > 0) ? (codeService
+								return (codeService.getCodes(diffRecord).size() > 0) ? (codeService
 										.isMemo(diffRecord) ? ImageManager.DIFFFILERECORD_CODED_MEMO
 										: ImageManager.DIFFFILERECORD_CODED)
 										: (codeService.isMemo(diffRecord) ? ImageManager.DIFFFILERECORD_MEMO
@@ -203,9 +203,9 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof DiffDataResource) {
-							DiffDataResource diffDataResource = (DiffDataResource) element;
-							Long milliSecondsPassed = diffDataResource.getDateRange()
+						if (element instanceof IDiffData) {
+							DiffData diffData = (DiffData) element;
+							Long milliSecondsPassed = diffData.getDateRange()
 									.getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
@@ -214,8 +214,8 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						}
 						if (element instanceof DiffRecord) {
 							DiffRecord diffRecord = (DiffRecord) element;
-							Long milliSecondsPassed = diffRecord
-									.getDateRange().getDifference();
+							Long milliSecondsPassed = diffRecord.getDateRange()
+									.getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
 									.formatDuration(milliSecondsPassed,
 											timeDifferenceFormat, true)
@@ -233,16 +233,18 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 							DiffFileList diffFileList = (DiffFileList) element;
 							return "# " + diffFileList.size();
 						}
-						if (element instanceof DiffDataResource) {
-							DiffDataResource diffDataResource = (DiffDataResource) element;
-							String revision = diffDataResource.getRevision();
-							return (revision != null) ? revision : "";
+						if (element instanceof IDiffData) {
+							IDiffData diffData = (IDiffData) element;
+							Long revision = diffData.getRevision();
+							return (revision != null) ? revision.toString()
+									: "";
 						}
 						if (element instanceof DiffRecord) {
 							DiffRecord diffRecord = (DiffRecord) element;
-							String revision = diffRecord.getDiffFile()
+							Long revision = diffRecord.getDiffFile()
 									.getRevision();
-							return (revision != null) ? revision : "";
+							return (revision != null) ? revision.toString()
+									: "";
 						}
 						return "";
 					}
@@ -251,14 +253,13 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 		this.createColumn("", 10, false, new Comparator<Object>() {
 			@Override
 			public int compare(Object o1, Object o2) {
-				if (o1 instanceof DiffDataResource && o2 instanceof DiffDataResource) {
-					DiffDataResource diffFile1 = (DiffDataResource) o1;
-					DiffDataResource diffFile2 = (DiffDataResource) o2;
-					String revision1 = diffFile1.getRevision();
-					String revision2 = diffFile2.getRevision();
+				if (o1 instanceof IDiffData && o2 instanceof IDiffData) {
+					IDiffData diffFile1 = (IDiffData) o1;
+					IDiffData diffFile2 = (IDiffData) o2;
+					Long revision1 = diffFile1.getRevision();
+					Long revision2 = diffFile2.getRevision();
 					return revision1.compareTo(revision2);
-				} else if (o1 instanceof DiffRecord
-						&& o2 instanceof DiffRecord) {
+				} else if (o1 instanceof DiffRecord && o2 instanceof DiffRecord) {
 					DiffRecord diffFileRecord1 = (DiffRecord) o1;
 					DiffRecord diffFileRecord2 = (DiffRecord) o2;
 					Boolean sourceExists1 = diffFileRecord1.sourceExists();
@@ -267,7 +268,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 				}
 				return 0;
 			}
-		}, new Class<?>[] { DiffDataResource.class, DiffRecord.class })
+		}, new Class<?>[] { DiffData.class, DiffRecord.class })
 				.setLabelProvider(new ColumnLabelProvider() {
 					SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
@@ -278,9 +279,9 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Color getBackground(Object element) {
-						if (element instanceof DiffDataResource) {
-							DiffDataResource diffDataResource = (DiffDataResource) element;
-							RGB backgroundRgb = diffDataResource.sourcesExist() ? preferenceUtil
+						if (element instanceof IDiffData) {
+							IDiffData diffData = (IDiffData) element;
+							RGB backgroundRgb = diffData.sourcesExist() ? preferenceUtil
 									.getColorOk() : preferenceUtil
 									.getColorMissing();
 							return resources.createColor(backgroundRgb);

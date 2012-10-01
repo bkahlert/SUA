@@ -54,7 +54,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
@@ -255,7 +255,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						continue;
 
 					Job diffFileLoader = new Job("Loading "
-							+ DiffDataResource.class.getSimpleName() + "s") {
+							+ DiffData.class.getSimpleName() + "s") {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							DiffFileList diffFileList = Activator.getDefault()

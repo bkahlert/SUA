@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntit
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
@@ -60,7 +60,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "
-							+ DiffDataResource.class.getSimpleName(), e);
+							+ DiffData.class.getSimpleName(), e);
 		}
 		return null;
 	}

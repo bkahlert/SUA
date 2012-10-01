@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
-import static org.hamcrest.Matchers.greaterThan;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -10,34 +8,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
 @RunWith(Parameterized.class)
 public class DiffFileRecordTest {
-
-	@Rule
-	public JUnitRuleMockery context = new JUnitRuleMockery() {
-		{
-			setImposteriser(ClassImposteriser.INSTANCE);
-			setThreadingPolicy(new Synchroniser());
-		}
-	};
 
 	private static class ValidationPatch {
 		private long start;
@@ -186,64 +173,57 @@ public class DiffFileRecordTest {
 	public void testGetPatch() throws URISyntaxException, IOException {
 		final IData data = new FileData(null, underlayingDiffFile);
 
-		final DiffDataResource diffDataResource = context
-				.mock(DiffDataResource.class);
-		final SourceOrigin sourceOrigin = context.mock(SourceOrigin.class);
-		final SourceCache sourceCache = context.mock(SourceCache.class);
-		context.checking(new Expectations() {
-			{
-				allowing(diffDataResource).getID();
-				will(returnValue(null));
-
-				allowing(diffDataResource).getRevision();
-				will(returnValue(null));
-
-				allowing(diffDataResource).getPrevDiffFile();
-				will(returnValue(null));
-
-				allowing(diffDataResource).getName();
-				will(returnValue(underlayingDiffFile.getName()));
-
-				allowing(diffDataResource).getLength();
-				will(returnValue(underlayingDiffFile.length()));
-
-				allowing(diffDataResource).iterator();
-				will(returnValue(data.iterator()));
-
-				// TODO
-				// allowing(diffDataResource).getPath();
-				// will(returnValue(underlayingDiffFile.getPath()));
-
-				allowing(sourceOrigin).getOriginSourceFile(
-						with(any(String.class)));
-				will(returnValue(null));
-
-				allowing(sourceCache).getCachedSourceFile(
-						with(any(DiffDataResource.class)),
-						with(any(String.class)));
-				will(returnValue(null));
-
-				// TEST
-				// expectations are defined in patches
-				for (ValidationPatch patch : validationPatches) {
-					oneOf(diffDataResource).read(patch.start - 2, patch.start);
-					will(returnValue(2));
-					oneOf(diffDataResource).getContent(patch.start, patch.end);
-					will(returnValue(null));
-				}
-
-				System.err.println(with(greaterThan(validationPatches
-						.get(validationPatches.size() - 1).start)));
-
-				// STOP checking
-				// just accept all further getContent calls
-				allowing(diffDataResource).getContent(with(any(Long.class)),
-						with(any(Long.class)));
-				will(returnValue(null));
+		final ITrunk trunk = new ITrunk() {
+			@Override
+			public IData getSourceFile(String filename) {
+				return null;
 			}
-		});
+		};
+		final ISourceStore sourceCache = new ISourceStore() {
+			@Override
+			public void setSourceFile(ID id, long revision, String filename,
+					File file) throws IOException {
+				return;
+			}
 
-		DiffDataResourceUtils.readRecords(diffDataResource, sourceOrigin,
-				sourceCache, new NullProgressMonitor());
+			@Override
+			public File getSourceFile(ID id, long revision, String filename)
+					throws IOException {
+				return null;
+			}
+
+			@Override
+			public void clear() {
+				return;
+			}
+		};
+		final DiffData diffData = new DiffData(data, null,
+				DiffDataUtils.getId(data), DiffDataUtils.getRevision(data),
+				null, trunk, sourceCache, new NullProgressMonitor()) {
+			private static final long serialVersionUID = 6214770578221566054L;
+			private int i = 0;
+
+			@Override
+			public String read(long from, long to) {
+				System.out.println("READ " + from + "  - " + to);
+				return super.read(from, to);
+			}
+
+			@Override
+			public List<String> getContent(long contentStart, long contentEnd) {
+				if (i < validationPatches.size()) {
+					ValidationPatch patch = validationPatches.get(i);
+					Assert.assertEquals(patch.start, contentStart);
+					Assert.assertEquals(patch.end, contentEnd);
+					i++;
+				} else {
+					// we only want to check the first patches
+				}
+				return super.getContent(contentStart, contentEnd);
+			}
+		};
+
+		DiffDataResourceUtils.readRecords(diffData, trunk, sourceCache,
+				new NullProgressMonitor());
 	}
 }

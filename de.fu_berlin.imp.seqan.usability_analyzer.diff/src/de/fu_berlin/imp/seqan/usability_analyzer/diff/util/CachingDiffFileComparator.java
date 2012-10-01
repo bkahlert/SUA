@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 
 public class CachingDiffFileComparator implements Comparator<IData> {
 	private HashMap<IData, TimeZoneDate> map = new HashMap<IData, TimeZoneDate>();
@@ -14,12 +13,12 @@ public class CachingDiffFileComparator implements Comparator<IData> {
 	public int compare(IData dataResource1, IData dataResource2) {
 		TimeZoneDate date1 = map.get(dataResource1);
 		if (date1 == null) {
-			date1 = DiffDataResource.getDate(dataResource1);
+			date1 = DiffDataUtils.getDate(dataResource1);
 			map.put(dataResource1, date1);
 		}
 		TimeZoneDate date2 = map.get(dataResource2);
 		if (date2 == null) {
-			date2 = DiffDataResource.getDate(dataResource2);
+			date2 = DiffDataUtils.getDate(dataResource2);
 			map.put(dataResource2, date2);
 		}
 		return date1.compareTo(date2);

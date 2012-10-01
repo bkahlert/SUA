@@ -13,7 +13,7 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 public class DiffUtilsTest {
@@ -36,34 +36,34 @@ public class DiffUtilsTest {
 
 	@Test
 	public void testGetSourceFile() throws IOException {
-		final DiffDataResource diffDataResource = context
-				.mock(DiffDataResource.class);
+		final DiffData diffData = context.mock(DiffData.class);
 		final DiffRecord diffRecord = context.mock(DiffRecord.class);
 
 		context.checking(new Expectations() {
 			{
-				allowing(diffDataResource).getID();
+				allowing(diffData).getID();
 				will(returnValue(new ID("theID")));
 
-				allowing(diffDataResource).getRevision();
-				will(returnValue("0000027837"));
+				allowing(diffData).getRevision();
+				will(returnValue(27837l));
 
 				allowing(diffRecord).getDiffFile();
-				will(returnValue(diffDataResource));
+				will(returnValue(diffData));
 
 				allowing(diffRecord).getFilename();
 				will(returnValue("this/is/the/path/to/the/file.cpp"));
 			}
 		});
 
-		SourceCache diffUtils = new SourceCache(cachedSourcesDirectory);
+		ISourceStore diffUtils = new SourceCache(cachedSourcesDirectory);
 
 		// make sure a file really exists
-		File tmp = diffUtils.getCachedSourceFile(diffRecord.getDiffFile(),
+		File tmp = diffUtils.getSourceFile(diffRecord.getDiffFile().getID(),
+				diffRecord.getDiffFile().getRevision(),
 				diffRecord.getFilename());
 		tmp.createNewFile();
-		diffUtils.setCachedSourceFile(diffDataResource,
-				diffRecord.getFilename(), tmp);
+		diffUtils.setSourceFile(diffRecord.getDiffFile().getID(), diffRecord
+				.getDiffFile().getRevision(), diffRecord.getFilename(), tmp);
 
 		// TODO testen; geht nicht, weil man nur eine temporäre Kopie der Datei
 		// erhält und nicht den tatsächlichen Ort; so wird verhindert, das der

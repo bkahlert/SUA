@@ -3,15 +3,19 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 
-public class SourceOrigin {
+public class Trunk implements ITrunk {
 	private IDataContainer sourcesDirectory;
 
-	public SourceOrigin(IDataContainer dataContainer) {
+	public Trunk(IDataContainer dataContainer) {
 		super();
 		this.sourcesDirectory = dataContainer;
 	}
 
-	public IData getOriginSourceFile(String filename) {
+	/* (non-Javadoc)
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk#getOriginSourceFile(java.lang.String)
+	 */
+	@Override
+	public IData getSourceFile(String filename) {
 		return sourcesDirectory.getResource(filename);
 	}
 }

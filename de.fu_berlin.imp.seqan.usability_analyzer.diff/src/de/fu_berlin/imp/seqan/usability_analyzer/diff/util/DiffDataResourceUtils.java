@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
@@ -35,8 +35,8 @@ public class DiffDataResourceUtils {
 	}
 
 	public static DiffFileRecordList readRecords(
-			DiffDataResource diffDataResource, SourceOrigin sourceOrigin,
-			SourceCache sourceCache, IProgressMonitor progressMonitor) {
+			DiffData diffData, ITrunk trunk,
+			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 
 		String commandLine = null;
 		String metaOldLine = null;
@@ -45,26 +45,26 @@ public class DiffDataResourceUtils {
 		long contentEnd = 0l;
 
 		progressMonitor
-				.beginTask("Processing " + diffDataResource.getName(), 3);
+				.beginTask("Processing " + diffData.getName(), 3);
 		final long start = System.currentTimeMillis();
 
 		SubProgressMonitor detectionMonitor = new SubProgressMonitor(
 				progressMonitor, 1);
 		detectionMonitor.beginTask(
 				"Detecting " + DiffRecord.class.getSimpleName() + "s",
-				(int) (diffDataResource.getLength() / 1000));
+				(int) (diffData.getLength() / 1000));
 
 		LinkedList<DiffFileRecordDescriptor> descriptors = new LinkedList<DiffFileRecordDescriptor>();
 		Integer newLineLength = null;
 		try {
-			for (String line : diffDataResource) {
+			for (String line : diffData) {
 				if (line.equals("RESET"))
 					break;
 
 				long lineLength = line.getBytes().length;
 				if (newLineLength == null)
 					newLineLength = de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils
-							.getNewlineLengthAt(diffDataResource, contentEnd
+							.getNewlineLengthAt(diffData, contentEnd
 									+ lineLength);
 
 				// On empty lines Windows only uses \r instead of \r\n
@@ -105,10 +105,10 @@ public class DiffDataResourceUtils {
 			}
 		} catch (Exception e) {
 			detectionMonitor.beginTask(
-					"Aborting " + DiffDataResource.class.getSimpleName()
+					"Aborting " + DiffData.class.getSimpleName()
 							+ " parsing", 1);
 			LOGGER.error(
-					"Could not open " + DiffDataResource.class.getSimpleName(),
+					"Could not open " + DiffData.class.getSimpleName(),
 					e);
 			detectionMonitor.done();
 			return null;
@@ -130,7 +130,7 @@ public class DiffDataResourceUtils {
 				descriptors.size());
 
 		DiffFileRecordList diffFileRecords = new DiffFileRecordList(
-				diffDataResource, sourceOrigin, sourceCache);
+				diffData, trunk, sourceCache);
 
 		for (DiffFileRecordDescriptor descriptor : descriptors) {
 			diffFileRecords.createAndAddRecord(descriptor.commandLine,
@@ -145,7 +145,7 @@ public class DiffDataResourceUtils {
 
 		LOGGER.info(diffFileRecords.size() + " "
 				+ DiffRecord.class.getSimpleName() + "s parsed in "
-				+ diffDataResource.getName() + " within "
+				+ diffData.getName() + " within "
 				+ (System.currentTimeMillis() - start) + "ms.");
 		progressMonitor.done();
 

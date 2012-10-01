@@ -9,10 +9,10 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -104,7 +104,7 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object getParent(Object element) {
-		if (element instanceof DiffDataResource) {
+		if (element instanceof IDiffData) {
 			return null;
 		}
 		if (element instanceof DiffRecord) {
@@ -118,8 +118,8 @@ public class DiffFileListsContentProvider implements
 		if (element instanceof DiffFileList) {
 			return ((DiffFileList) element).size() > 0;
 		}
-		if (element instanceof DiffDataResource) {
-			DiffFileRecordList diffFileRecords = ((DiffDataResource) element)
+		if (element instanceof IDiffData) {
+			DiffFileRecordList diffFileRecords = ((IDiffData) element)
 					.getDiffFileRecords();
 			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
@@ -131,8 +131,8 @@ public class DiffFileListsContentProvider implements
 		if (parentElement instanceof DiffFileList) {
 			return ((DiffFileList) parentElement).toArray();
 		}
-		if (parentElement instanceof DiffDataResource) {
-			DiffFileRecordList diffFileRecords = ((DiffDataResource) parentElement)
+		if (parentElement instanceof IDiffData) {
+			DiffFileRecordList diffFileRecords = ((IDiffData) parentElement)
 					.getDiffFileRecords();
 			return diffFileRecords != null ? diffFileRecords.toArray()
 					: new Object[0];

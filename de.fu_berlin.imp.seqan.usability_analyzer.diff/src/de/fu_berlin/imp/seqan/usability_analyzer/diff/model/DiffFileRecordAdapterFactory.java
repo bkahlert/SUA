@@ -19,7 +19,7 @@ public class DiffFileRecordAdapterFactory implements IAdapterFactory {
 			DiffRecord diffRecord = (DiffRecord) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
 				// although a DiffRecord itself has a DateRange
-				// it is preferable to use its DiffDataResource's DateRange to have a
+				// it is preferable to use its DiffData's DateRange to have a
 				// slighter wider range
 				return diffRecord.getDiffFile().getDateRange();
 			}

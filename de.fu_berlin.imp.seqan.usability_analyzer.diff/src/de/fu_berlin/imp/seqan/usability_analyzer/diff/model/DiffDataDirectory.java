@@ -27,8 +27,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil.ParametrizedCallable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffCache;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
 public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
@@ -61,10 +64,10 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 			}
 
 			for (IData diffFile : diffFileDir.getResources()) {
-				if (!DiffDataResource.PATTERN.matcher(diffFile.getName())
+				if (!DiffData.PATTERN.matcher(diffFile.getName())
 						.matches())
 					continue;
-				ID id = DiffDataResource.getId(diffFile);
+				ID id = DiffDataUtils.getId(diffFile);
 				if (!rawFiles.containsKey(id))
 					rawFiles.put(id, new DataResourceList());
 				rawFiles.get(id).add(diffFile);
@@ -83,16 +86,16 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 		TimeZoneDate start = null;
 		TimeZoneDate end = null;
 		if (dataResourceList.size() > 0) {
-			start = DiffDataResource.getDate(dataResourceList.get(0));
-			end = DiffDataResource.getDate(dataResourceList
+			start = DiffDataUtils.getDate(dataResourceList.get(0));
+			end = DiffDataUtils.getDate(dataResourceList
 					.get(dataResourceList.size() - 1));
 		}
 		return new TimeZoneDateRange(start, end);
 	}
 
 	private IDataContainer diffFileDirectory;
-	private SourceOrigin sourceOrigin;
-	private SourceCache sourceCache;
+	private ITrunk trunk;
+	private ISourceStore sourceCache;
 	private Map<ID, DataResourceList> dataResourceLists;
 	private Map<ID, TimeZoneDateRange> fileDateRanges;
 
@@ -100,20 +103,20 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
 	/**
 	 * Returns a {@link DiffDataDirectory} instance that can handle contained
-	 * {@link DiffDataResource}s
+	 * {@link DiffData}s
 	 * 
 	 * @param dataResourceContainers
-	 *            containing {@link DiffDataResource}s
+	 *            containing {@link DiffData}s
 	 * @param originalSourcesDirectory
 	 *            containing the original source files
 	 * @param cachedSourcesDirectory
-	 *            that can be used to cache patched {@link DiffDataResource}s
+	 *            that can be used to cache patched {@link DiffData}s
 	 */
 	public DiffDataDirectory(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
 		super(dataResourceContainers);
 		this.diffFileDirectory = this.getSubContainer("diff");
-		this.sourceOrigin = new SourceOrigin(this.getSubContainer("trunk"));
+		this.trunk = new Trunk(this.getSubContainer("trunk"));
 		this.sourceCache = new SourceCache(this);
 
 		this.diffCache = new DiffCache(this, DIFF_CACHE_SIZE);
@@ -175,7 +178,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
 	/**
 	 * Returns a list of all {@link ID}s occurring in the managed
-	 * {@link DiffDataResource}s.
+	 * {@link DiffData}s.
 	 * 
 	 * @return
 	 */
@@ -186,7 +189,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
 	/**
 	 * Return the {@link TimeZoneDateRange} determined by the earliest and
-	 * latest {@link DiffDataResource}
+	 * latest {@link DiffData}
 	 * 
 	 * @param id
 	 * @return
@@ -201,7 +204,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns all {@link DiffDataResource}s associated with a given {@link ID}.
+	 * Returns all {@link DiffData}s associated with a given {@link ID}.
 	 * <p>
 	 * If the {@link DiffFileList} is already in the cached the cached version
 	 * is returned. Otherwise a new {@link DiffFileList} is constructed and
@@ -218,7 +221,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns all {@link DiffDataResource}s associated with a given {@link ID}.
+	 * Returns all {@link DiffData}s associated with a given {@link ID}.
 	 * <p>
 	 * In contrast to {@link #getDiffFiles(ID, IProgressMonitor)} this method
 	 * always creates the objects anew and does not use any caching
@@ -231,7 +234,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	public DiffFileList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
 		DiffFileList diffFiles = DiffFileRecordList.create(
-				this.dataResourceLists.get(id), this.sourceOrigin,
+				this.dataResourceLists.get(id), this.trunk,
 				this.sourceCache, progressMonitor);
 		return diffFiles;
 	}

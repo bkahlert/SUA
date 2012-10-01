@@ -15,14 +15,14 @@ public class DiffFileAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
-		if (adaptableObject instanceof DiffDataResource) {
-			DiffDataResource diffDataResource = (DiffDataResource) adaptableObject;
+		if (adaptableObject instanceof IDiffData) {
+			DiffData diffData = (DiffData) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
-				return diffDataResource.getDateRange();
+				return diffData.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				TimeZoneDateRange dateRange = diffDataResource.getDateRange();
-				return new IdDateRange(diffDataResource.getID(),
+				TimeZoneDateRange dateRange = diffData.getDateRange();
+				return new IdDateRange(diffData.getID(),
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}
 			return null;

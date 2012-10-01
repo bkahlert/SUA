@@ -38,19 +38,17 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 
 	@Override
 	public String getTitle() {
-		return diffRecord != null ? diffRecord.getDiffFile().getID()
-				+ ": " + diffRecord.getFilename() : "EMPTY";
+		return diffRecord != null ? diffRecord.getDiffFile().getID() + ": "
+				+ diffRecord.getFilename() : "EMPTY";
 	}
 
 	@Override
 	public String getToolTipText() {
 		if (diffRecord == null)
 			return "";
-		int predRevision = diffRecord.getPredecessor() != null ? Integer
-				.parseInt(diffRecord.getPredecessor().getDiffFile()
-						.getRevision()) : -1;
-		int revision = Integer.parseInt(diffRecord.getDiffFile()
-				.getRevision());
+		long predRevision = diffRecord.getPredecessor() != null ? diffRecord
+				.getPredecessor().getDiffFile().getRevision() : -1;
+		long revision = diffRecord.getDiffFile().getRevision();
 		return "ID: " + diffRecord.getDiffFile().getID() + "\nFile:"
 				+ diffRecord.getFilename() + "\nRevisions: " + predRevision
 				+ " and " + revision;
@@ -60,8 +58,7 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 	public Image getTitleImage() {
 		if (titleImage == null) {
 			titleImage = PlatformUI.getWorkbench().getEditorRegistry()
-					.getImageDescriptor(diffRecord.getFilename())
-					.createImage();
+					.getImageDescriptor(diffRecord.getFilename()).createImage();
 			CompareUI.disposeOnShutdown(titleImage);
 		}
 		return titleImage;

@@ -15,6 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 
 public class DiffFileDirectoryTest {
@@ -40,7 +41,7 @@ public class DiffFileDirectoryTest {
 
 	@Before
 	public void clearCache() throws URISyntaxException, IOException {
-		SourceCache sourcesDirectory = new SourceCache(
+		ISourceStore sourcesDirectory = new SourceCache(
 				new FileBaseDataContainer(FileUtils.getFile(root)));
 		sourcesDirectory.clear();
 	}
@@ -86,9 +87,8 @@ public class DiffFileDirectoryTest {
 				new NullProgressMonitor());
 
 		for (int i = 0; i < diffFiles.size(); i++) {
-			DiffDataResource diffDataResource = diffFiles.get(i);
-			Assert.assertEquals(i,
-					Integer.parseInt(diffDataResource.getRevision()));
+			IDiffData diffData = diffFiles.get(i);
+			Assert.assertEquals(i, diffData.getRevision());
 		}
 	}
 
