@@ -1,63 +1,63 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FileList;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataResourceList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 
-public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
+public class DiffFileRecordList extends ArrayList<DiffRecord> {
 
 	/**
 	 * Creates a new {@link DiffFileRecordList} instance.
 	 * 
-	 * @param files
-	 *            that can be treated as {@link DiffFile}s<br>
+	 * @param dataResources
+	 *            that can be treated as {@link DiffDataResource}s<br>
 	 *            e.g. [ "/some/dir/data/file.v1.diff",
 	 *            "/some/dir/data/file.v2.diff" ]
 	 * @param sourceOrigin
 	 *            directory that contains the original source files<br>
 	 *            e.g. /some/dir/trunk
 	 * @param sourceCache
-	 *            directory that contains already patched {@link DiffFileRecord}
+	 *            directory that contains already patched {@link DiffRecord}
 	 *            files<br>
 	 *            e.g. /some/dir/patches_files
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static DiffFileList create(FileList files,
+	public static DiffFileList create(DataResourceList dataResources,
 			SourceOrigin sourceOrigin, SourceCache sourceCache,
 			IProgressMonitor progressMonitor) {
 		DiffFileList diffFiles = new DiffFileList();
 
-		DiffFile prevDiffFile = null;
+		DiffDataResource prevDiffFile = null;
 
 		progressMonitor.beginTask(
-				"Processing " + DiffFile.class.getSimpleName() + "s",
-				files.size());
+				"Processing " + DiffDataResource.class.getSimpleName() + "s",
+				dataResources.size());
 
-		for (File file : files) { // look ahead = 1
-			ID id = DiffFile.getId(file);
-			String revision = DiffFile.getRevision(file);
+		for (IData data : dataResources) { // look ahead = 1
+			ID id = DiffDataResource.getId(data);
+			String revision = DiffDataResource.getRevision(data);
 			TimeZoneDate prevDate = prevDiffFile != null ? prevDiffFile
 					.getDateRange().getEndDate() : null;
 			TimeZoneDateRange dateRange = new TimeZoneDateRange(prevDate,
-					DiffFile.getDate(file));
+					DiffDataResource.getDate(data));
 
-			DiffFile diffFile = new DiffFile(file, prevDiffFile, id, revision,
-					dateRange, sourceOrigin, sourceCache,
-					new SubProgressMonitor(progressMonitor, 1));
-			diffFiles.add(diffFile);
+			DiffDataResource diffDataResource = new DiffDataResource(data,
+					prevDiffFile, id, revision, dateRange, sourceOrigin,
+					sourceCache, new SubProgressMonitor(progressMonitor, 1));
+			diffFiles.add(diffDataResource);
 
-			prevDiffFile = diffFile;
+			prevDiffFile = diffDataResource;
 		}
 
 		// clean up since a DiffFileList creation can temporally consume much
@@ -70,22 +70,22 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 	}
 
 	private static final long serialVersionUID = 1327362495545624312L;
-	private DiffFile diffFile;
+	private DiffDataResource diffDataResource;
 	private SourceOrigin sourceOrigin;
 	private SourceCache sourceCache;
 
-	public DiffFileRecordList(DiffFile diffFile, SourceOrigin sourceOrigin,
-			SourceCache sourceCache) {
-		Assert.isNotNull(diffFile);
+	public DiffFileRecordList(DiffDataResource diffDataResource,
+			SourceOrigin sourceOrigin, SourceCache sourceCache) {
+		Assert.isNotNull(diffDataResource);
 		Assert.isNotNull(sourceOrigin);
 		Assert.isNotNull(sourceCache);
-		this.diffFile = diffFile;
+		this.diffDataResource = diffDataResource;
 		this.sourceOrigin = sourceOrigin;
 		this.sourceCache = sourceCache;
 	}
 
 	/**
-	 * Creates a {@link DiffFileRecord} and add it to this
+	 * Creates a {@link DiffRecord} and add it to this
 	 * {@link DiffFileRecordList}
 	 * 
 	 * @param commandLine
@@ -94,22 +94,20 @@ public class DiffFileRecordList extends ArrayList<DiffFileRecord> {
 	 * @param contentStart
 	 * @param contentEnd
 	 */
-	public DiffFileRecord createAndAddRecord(String commandLine,
+	public DiffRecord createAndAddRecord(String commandLine,
 			String metaOldLine, String metaNewLine, long contentStart,
 			long contentEnd) {
 		DiffFileRecordMeta meta = new DiffFileRecordMeta(metaOldLine,
 				metaNewLine);
 
-		File originalSourceFile = sourceOrigin.getOriginSourceFile(meta
+		IData originalSourceFile = sourceOrigin.getOriginSourceFile(meta
 				.getToFileName());
-		File cachedSourceFile = sourceCache.getCachedSourceFile(this.diffFile,
-				meta.getToFileName());
-		DiffFileRecord diffFileRecord = new DiffFileRecord(this.diffFile,
-				originalSourceFile, cachedSourceFile, commandLine, meta,
+		DiffRecord diffRecord = new DiffRecord(this.diffDataResource,
+				originalSourceFile, sourceCache, commandLine, meta,
 				contentStart, contentEnd);
-		if (!diffFileRecord.isTemporary()) {
-			this.add(diffFileRecord);
-			return diffFileRecord;
+		if (!diffRecord.isTemporary()) {
+			this.add(diffRecord);
+			return diffRecord;
 		} else {
 			return null;
 		}

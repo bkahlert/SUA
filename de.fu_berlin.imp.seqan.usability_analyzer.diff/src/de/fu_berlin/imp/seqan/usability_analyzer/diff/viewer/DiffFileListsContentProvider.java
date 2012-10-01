@@ -9,10 +9,9 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -31,43 +30,43 @@ public class DiffFileListsContentProvider implements
 
 		@Override
 		public void codesAdded(List<ICode> code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> code, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void memoModified(ICode code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void memoModified(ICodeable codeable) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
@@ -105,11 +104,11 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object getParent(Object element) {
-		if (element instanceof DiffFile) {
+		if (element instanceof DiffDataResource) {
 			return null;
 		}
-		if (element instanceof DiffFileRecord) {
-			return ((DiffFileRecord) element).getDiffFile();
+		if (element instanceof DiffRecord) {
+			return ((DiffRecord) element).getDiffFile();
 		}
 		return null;
 	}
@@ -119,8 +118,8 @@ public class DiffFileListsContentProvider implements
 		if (element instanceof DiffFileList) {
 			return ((DiffFileList) element).size() > 0;
 		}
-		if (element instanceof DiffFile) {
-			DiffFileRecordList diffFileRecords = ((DiffFile) element)
+		if (element instanceof DiffDataResource) {
+			DiffFileRecordList diffFileRecords = ((DiffDataResource) element)
 					.getDiffFileRecords();
 			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
@@ -132,8 +131,8 @@ public class DiffFileListsContentProvider implements
 		if (parentElement instanceof DiffFileList) {
 			return ((DiffFileList) parentElement).toArray();
 		}
-		if (parentElement instanceof DiffFile) {
-			DiffFileRecordList diffFileRecords = ((DiffFile) parentElement)
+		if (parentElement instanceof DiffDataResource) {
+			DiffFileRecordList diffFileRecords = ((DiffDataResource) parentElement)
 					.getDiffFileRecords();
 			return diffFileRecords != null ? diffFileRecords.toArray()
 					: new Object[0];

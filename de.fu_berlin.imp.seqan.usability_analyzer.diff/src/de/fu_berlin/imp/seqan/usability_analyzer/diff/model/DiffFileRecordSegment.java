@@ -18,32 +18,32 @@ public class DiffFileRecordSegment implements ICodeable, HasDateRange, HasID {
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffFileRecordSegment.class);
 
-	private DiffFileRecord diffFileRecord;
+	private DiffRecord diffRecord;
 	private long segmentStart;
 	private long segmentEnd;
 
-	public DiffFileRecordSegment(DiffFileRecord diffFileRecord,
+	public DiffFileRecordSegment(DiffRecord diffRecord,
 			long segmentStart, long segmentEnd) {
-		assert diffFileRecord != null;
-		this.diffFileRecord = diffFileRecord;
+		assert diffRecord != null;
+		this.diffRecord = diffRecord;
 		this.segmentStart = segmentStart;
 		this.segmentEnd = segmentEnd;
 	}
 
 	@Override
 	public ID getID() {
-		return this.diffFileRecord.getID();
+		return this.diffRecord.getID();
 	}
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
-		return this.diffFileRecord.getDateRange();
+		return this.diffRecord.getDateRange();
 	}
 
 	@Override
 	public URI getCodeInstanceID() {
 		try {
-			return new URI(diffFileRecord.getCodeInstanceID().toString() + "#"
+			return new URI(diffRecord.getCodeInstanceID().toString() + "#"
 					+ segmentStart + "+" + segmentEnd);
 		} catch (URISyntaxException e) {
 			LOGGER.fatal("Could not create ID for a "
@@ -52,8 +52,8 @@ public class DiffFileRecordSegment implements ICodeable, HasDateRange, HasID {
 		}
 	}
 
-	public DiffFileRecord getDiffFileRecord() {
-		return diffFileRecord;
+	public DiffRecord getDiffFileRecord() {
+		return diffRecord;
 	}
 
 	public long getSegmentStart() {

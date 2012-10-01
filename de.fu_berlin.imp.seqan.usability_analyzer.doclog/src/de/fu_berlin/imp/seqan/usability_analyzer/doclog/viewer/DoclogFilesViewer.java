@@ -21,13 +21,13 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
@@ -67,12 +67,12 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof DoclogFile) {
-							DoclogFile doclogFile = (DoclogFile) element;
-							if (doclogFile.getID() != null)
-								return doclogFile.getID().toString();
+						if (element instanceof Doclog) {
+							Doclog doclog = (Doclog) element;
+							if (doclog.getID() != null)
+								return doclog.getID().toString();
 							else
-								return doclogFile.getFingerprint().toString();
+								return doclog.getFingerprint().toString();
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
@@ -86,13 +86,13 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						if (element instanceof DoclogFile) {
-							DoclogFile doclogFile = (DoclogFile) element;
+						if (element instanceof Doclog) {
+							Doclog doclog = (Doclog) element;
 							try {
-								return (codeService.getCodes(doclogFile).size() > 0) ? (codeService
-										.isMemo(doclogFile) ? ImageManager.DOCLOGFILE_CODED_MEMO
+								return (codeService.getCodes(doclog).size() > 0) ? (codeService
+										.isMemo(doclog) ? ImageManager.DOCLOGFILE_CODED_MEMO
 										: ImageManager.DOCLOGFILE_CODED)
-										: (codeService.isMemo(doclogFile) ? ImageManager.DOCLOGFILE_MEMO
+										: (codeService.isMemo(doclog) ? ImageManager.DOCLOGFILE_MEMO
 												: ImageManager.DOCLOGFILE);
 							} catch (CodeServiceException e) {
 								return ImageManager.DOCLOGRECORD;
@@ -143,9 +143,9 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 		this.createColumn("", 10, false, new Comparator<Object>() {
 			@Override
 			public int compare(Object o1, Object o2) {
-				if (o1 instanceof DoclogFile && o2 instanceof DoclogFile) {
-					DoclogFile doclogFile1 = (DoclogFile) o1;
-					DoclogFile doclogFile2 = (DoclogFile) o2;
+				if (o1 instanceof Doclog && o2 instanceof Doclog) {
+					Doclog doclogFile1 = (Doclog) o1;
+					Doclog doclogFile2 = (Doclog) o2;
 					Status status1 = doclogFile1.getScreenshotStatus();
 					Status status2 = doclogFile2.getScreenshotStatus();
 					return Integer.valueOf(status1.ordinal()).compareTo(
@@ -161,7 +161,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 				}
 				return 0;
 			}
-		}, new Class<?>[] { DoclogFile.class, DoclogRecord.class })
+		}, new Class<?>[] { Doclog.class, DoclogRecord.class })
 				.setLabelProvider(new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -170,8 +170,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 
 					@Override
 					public Color getBackground(Object element) {
-						if (element instanceof DoclogFile) {
-							Status worstStatus = ((DoclogFile) element)
+						if (element instanceof Doclog) {
+							Status worstStatus = ((Doclog) element)
 									.getScreenshotStatus();
 							RGB backgroundRgb = worstStatus.getRGB();
 							return resources.createColor(backgroundRgb);
@@ -301,8 +301,8 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
 			TreeItem[] treeItems, List<TimeZoneDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : ViewerUtils.getItemWithDataType(treeItems,
-				DoclogRecord.class)) {
+		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+				.getItemWithDataType(treeItems, DoclogRecord.class)) {
 			DoclogRecord doclogRecord = (DoclogRecord) item.getData();
 			for (TimeZoneDateRange dateRange : dataRanges) {
 				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
@@ -318,7 +318,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * Returns the {@link TreePath}s that describe {@link DoclogRecord}
 	 * fulfilling the following criteria:
 	 * <ol>
-	 * <li>{@link DoclogRecord} belongs to a {@link DoclogFile} with the given
+	 * <li>{@link DoclogRecord} belongs to a {@link Doclog} with the given
 	 * {@link ID}
 	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
@@ -332,16 +332,17 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, ID id, List<TimeZoneDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : ViewerUtils.getItemWithDataType(treeItems,
-				DoclogFile.class)) {
-			DoclogFile doclogFile = (DoclogFile) item.getData();
-			if (id.equals(doclogFile.getID())) {
+		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+				.getItemWithDataType(treeItems, Doclog.class)) {
+			Doclog doclog = (Doclog) item.getData();
+			if (id.equals(doclog.getID())) {
 				List<TreePath> childTreePaths = DoclogFilesViewer
 						.getItemsOfIntersectingDataRanges(
 								((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {
-					TreePath treePath = ViewerUtils.merge(new TreePath(
-							new Object[] { doclogFile }), childTreePath);
+					TreePath treePath = com.bkahlert.devel.nebula.utils.ViewerUtils
+							.merge(new TreePath(new Object[] { doclog }),
+									childTreePath);
 					treePaths.add(treePath);
 				}
 			}

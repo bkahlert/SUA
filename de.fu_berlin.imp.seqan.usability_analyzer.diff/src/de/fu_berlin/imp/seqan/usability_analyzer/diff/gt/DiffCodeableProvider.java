@@ -27,12 +27,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
@@ -64,7 +64,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 				// 0: ID
 				ID id = new ID(path[0]);
 				DiffFileList diffFiles = Activator.getDefault()
-						.getDiffFileDirectory().getDiffFiles(id, monitor.get());
+						.getDiffDataDirectories().getDiffFiles(id, monitor.get());
 
 				// 1: Revision
 				Integer revision = (path.length >= 1) ? Integer
@@ -76,27 +76,27 @@ public class DiffCodeableProvider extends CodeableProvider {
 				}
 				if (diffFiles.size() <= revision) {
 					LOGGER.error("There is no revision " + revision
-							+ " of the " + DiffFile.class.getSimpleName()
+							+ " of the " + DiffDataResource.class.getSimpleName()
 							+ "s with " + ID.class.getSimpleName() + " " + id);
 					return null;
 				}
 
 				// 2: Record
-				DiffFile diffFile = diffFiles.get(revision);
+				DiffDataResource diffDataResource = diffFiles.get(revision);
 				if (path.length <= 2)
-					return diffFile;
+					return diffDataResource;
 				String diffFileRecordName;
 				try {
 
 					diffFileRecordName = URLDecoder.decode(path[2], "UTF-8");
 				} catch (UnsupportedEncodingException e) {
 					LOGGER.error("Could no decode name of "
-							+ DiffFileRecord.class.getSimpleName());
+							+ DiffRecord.class.getSimpleName());
 					return null;
 				}
-				for (DiffFileRecord diffFileRecord : diffFile
+				for (DiffRecord diffRecord : diffDataResource
 						.getDiffFileRecords()) {
-					if (diffFileRecord.getFilename().equals(diffFileRecordName)) {
+					if (diffRecord.getFilename().equals(diffFileRecordName)) {
 						if (codeInstanceID.getFragment() != null) {
 							try {
 								String[] segment = codeInstanceID.getFragment()
@@ -104,7 +104,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 								int segmentStart = Integer.valueOf(segment[0]);
 								int segmentLength = Integer.valueOf(segment[1]);
 								return new DiffFileRecordSegment(
-										diffFileRecord, segmentStart,
+										diffRecord, segmentStart,
 										segmentLength);
 							} catch (Exception e) {
 								LOGGER.error(
@@ -112,10 +112,10 @@ public class DiffCodeableProvider extends CodeableProvider {
 												+ DiffFileRecordSegment.class
 														.getSimpleName()
 												+ " from " + codeInstanceID, e);
-								return diffFileRecord;
+								return diffRecord;
 							}
 						}
-						return diffFileRecord;
+						return diffRecord;
 					}
 				}
 				return null;
@@ -147,7 +147,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 			final DiffExplorerView diffExplorerView) {
 		Set<ID> ids = CodeableUtils.getIDs(codedObjects);
 
-		codedObjects.addAll(DiffFileUtils.getRecordsFromSegments(codedObjects));
+		codedObjects.addAll(DiffDataResourceUtils.getRecordsFromSegments(codedObjects));
 
 		// open
 		try {
@@ -208,19 +208,19 @@ public class DiffCodeableProvider extends CodeableProvider {
 					}
 					return (id != null) ? id.toString() : "";
 				}
-				if (element instanceof DiffFile) {
-					DiffFile diffFile = (DiffFile) element;
-					TimeZoneDate date = diffFile.getDateRange().getStartDate();
+				if (element instanceof DiffDataResource) {
+					DiffDataResource diffDataResource = (DiffDataResource) element;
+					TimeZoneDate date = diffDataResource.getDateRange().getStartDate();
 					return (date != null) ? date
 							.format(new SUACorePreferenceUtil().getDateFormat())
 							: "";
 				}
-				if (element instanceof DiffFileRecord) {
-					DiffFileRecord diffFileRecord = (DiffFileRecord) element;
-					String name = diffFileRecord.getFilename();
+				if (element instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) element;
+					String name = diffRecord.getFilename();
 					return (name != null) ? new File(name).getName()
 							+ "@"
-							+ Integer.parseInt(diffFileRecord.getDiffFile()
+							+ Integer.parseInt(diffRecord.getDiffFile()
 									.getRevision()) : "";
 				}
 				if (element instanceof DiffFileRecordSegment) {
@@ -239,8 +239,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 				if (element instanceof DiffFileList) {
 					return ImageManager.DIFFFILELIST;
 				}
-				if (element instanceof DiffFile) {
-					// DiffFile diffFile = (DiffFile) element;
+				if (element instanceof DiffDataResource) {
+					// DiffDataResource diffFile = (DiffDataResource) element;
 					// try {
 					// return (codeService.getCodes(diffFile).size() > 0) ?
 					// (codeService
@@ -254,8 +254,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 					// }
 					return ImageManager.DIFFFILE;
 				}
-				if (element instanceof DiffFileRecord) {
-					// DiffFileRecord diffFileRecord = (DiffFileRecord) element;
+				if (element instanceof DiffRecord) {
+					// DiffRecord diffFileRecord = (DiffRecord) element;
 					// try {
 					// return (codeService.getCodes(diffFileRecord).size() > 0)
 					// ? (codeService

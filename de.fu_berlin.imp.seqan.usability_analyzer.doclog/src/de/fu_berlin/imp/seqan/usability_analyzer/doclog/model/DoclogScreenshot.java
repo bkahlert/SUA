@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -22,12 +21,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
 public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogScreenshot.class);
 
@@ -56,7 +57,6 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	}
 
 	public static final String FORMAT = "png";
-	public static final String RELPATH = "/../screenshots/";
 	public static final String RELFILE = "%s-%d,%d-%d,%d";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
@@ -70,7 +70,18 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 			throws UnsupportedEncodingException {
 		this.doclogRecord = doclogRecord;
 
-		this.filename = this.calculateFilename();
+		String url = URLEncoder.encode(this.doclogRecord.getUrl(), "UTF-8");
+		int windowWidth = this.doclogRecord.getWindowDimensions().x;
+		int windowHeight = this.doclogRecord.getWindowDimensions().y;
+		int scrollX = this.doclogRecord.getScrollPosition().x;
+		int scrollY = this.doclogRecord.getScrollPosition().y;
+		String relFile = String.format(RELFILE, url, windowWidth, windowHeight,
+				scrollX, scrollY);
+
+		// Use md5 if filename to long
+		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length())
+			relFile = DigestUtils.md5Hex(relFile);
+		this.filename = relFile + "." + FORMAT;
 	}
 
 	@Override
@@ -87,32 +98,16 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 		return this.doclogRecord;
 	}
 
-	public String calculateFilename() {
-		String url;
-		try {
-			url = URLEncoder.encode(this.doclogRecord.getUrl(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("Error calculating the screenshots filename", e);
-			return null;
-		}
-		int windowWidth = this.doclogRecord.getWindowDimensions().x;
-		int windowHeight = this.doclogRecord.getWindowDimensions().y;
-		int scrollX = this.doclogRecord.getScrollPosition().x;
-		int scrollY = this.doclogRecord.getScrollPosition().y;
-		String relFile = String.format(RELFILE, url, windowWidth, windowHeight,
-				scrollX, scrollY);
-
-		// Use md5 if filename to long
-		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length())
-			relFile = DigestUtils.md5Hex(relFile);
-
-		return this.doclogRecord.getDoclogPath().getAbsoluteFile().getParent()
-				+ RELPATH + relFile + "." + FORMAT;
+	public File getFile() throws IOException {
+		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
+				.getBaseDataContainer();
+		return baseDataContainer.getFile("screenshots", filename);
 	}
 
 	public ImageData calculateImageData() {
 		try {
-			Image image = new Image(Display.getDefault(), this.filename);
+			Image image = new Image(Display.getDefault(), this.getFile()
+					.getAbsolutePath());
 			ImageData imageData = image.getImageData();
 			image.dispose();
 			return imageData;
@@ -170,20 +165,17 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 		}
 	}
 
-	public String getFilename() {
-		return this.filename;
-	}
-
-	public File getFile() throws IOException {
-		return new File(this.filename);
+	public String getFilename() throws IOException {
+		return this.getFile().getAbsolutePath();
 	}
 
 	public void setFile(File tempScreenshotFile) throws IOException {
 		if (tempScreenshotFile == null)
 			return;
 
-		File screenshotFile = this.getFile();
-		FileUtils.copyFile(tempScreenshotFile, screenshotFile);
+		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
+				.getBaseDataContainer();
+		baseDataContainer.putFile("screenshots", filename, tempScreenshotFile);
 		if (this.imageData != null) {
 			this.imageData = this.calculateImageData();
 		}

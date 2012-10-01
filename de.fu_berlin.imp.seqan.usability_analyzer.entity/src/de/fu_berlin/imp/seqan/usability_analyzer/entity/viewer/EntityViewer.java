@@ -22,13 +22,14 @@ import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTableViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.StyledColumnLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FontUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;

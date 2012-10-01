@@ -89,8 +89,9 @@ public class JsonUtils {
 				 * This is the only form where we can be sure it is compatible
 				 * with the outer world (e.g. a browser).
 				 */
-				String filename = Normalizer.normalize(doclogRecord
-						.getScreenshot().calculateFilename(), Form.NFC);
+				String filename = Normalizer
+						.normalize(doclogRecord.getScreenshot().getFile()
+								.getCanonicalPath(), Form.NFC);
 				generator.writeFieldName("icon");
 				generator.writeString("file://" + filename.replace("%", "%25"));
 

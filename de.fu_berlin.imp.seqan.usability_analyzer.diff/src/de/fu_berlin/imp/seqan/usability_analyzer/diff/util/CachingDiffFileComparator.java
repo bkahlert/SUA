@@ -1,26 +1,26 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
-import java.io.File;
 import java.util.Comparator;
 import java.util.HashMap;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 
-public class CachingDiffFileComparator implements Comparator<File> {
-	private HashMap<File, TimeZoneDate> map = new HashMap<File, TimeZoneDate>();
+public class CachingDiffFileComparator implements Comparator<IData> {
+	private HashMap<IData, TimeZoneDate> map = new HashMap<IData, TimeZoneDate>();
 
 	@Override
-	public int compare(File file1, File file2) {
-		TimeZoneDate date1 = map.get(file1);
+	public int compare(IData dataResource1, IData dataResource2) {
+		TimeZoneDate date1 = map.get(dataResource1);
 		if (date1 == null) {
-			date1 = DiffFile.getDate(file1);
-			map.put(file1, date1);
+			date1 = DiffDataResource.getDate(dataResource1);
+			map.put(dataResource1, date1);
 		}
-		TimeZoneDate date2 = map.get(file2);
+		TimeZoneDate date2 = map.get(dataResource2);
 		if (date2 == null) {
-			date2 = DiffFile.getDate(file2);
-			map.put(file2, date2);
+			date2 = DiffDataResource.getDate(dataResource2);
+			map.put(dataResource2, date2);
 		}
 		return date1.compareTo(date2);
 	}

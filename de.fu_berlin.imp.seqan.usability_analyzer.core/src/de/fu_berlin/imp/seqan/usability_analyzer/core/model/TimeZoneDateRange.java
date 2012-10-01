@@ -36,6 +36,15 @@ public class TimeZoneDateRange {
 	}
 
 	public static TimeZoneDateRange calculateOuterDateRange(
+			List<? extends HasDateRange> hasDateRanges) {
+		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
+		for (HasDateRange hasDateRange : hasDateRanges)
+			dateRanges.add(hasDateRange.getDateRange());
+		return calculateOuterDateRange(dateRanges
+				.toArray(new TimeZoneDateRange[0]));
+	}
+
+	public static TimeZoneDateRange calculateOuterDateRange(
 			HasDateRange... hasDateRanges) {
 		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
 		for (HasDateRange hasDateRange : hasDateRanges)

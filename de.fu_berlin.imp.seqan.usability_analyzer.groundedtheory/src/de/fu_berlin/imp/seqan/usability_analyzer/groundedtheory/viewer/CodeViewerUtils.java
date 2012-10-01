@@ -12,7 +12,8 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.graphics.Image;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
+import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;

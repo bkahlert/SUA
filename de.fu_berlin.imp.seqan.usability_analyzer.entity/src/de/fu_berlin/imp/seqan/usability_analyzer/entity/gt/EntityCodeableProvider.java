@@ -46,8 +46,8 @@ public class EntityCodeableProvider extends CodeableProvider {
 		return new Callable<ICodeable>() {
 			@Override
 			public ICodeable call() throws Exception {
-				for (Entity entity : Activator.getDefault().getPersonManager()
-						.getPersons()) {
+				for (Entity entity : Activator.getDefault().getLoadedData()
+						.getEntityManager().getPersons()) {
 					if (entity.getCodeInstanceID().equals(codeInstanceID))
 						return entity;
 				}

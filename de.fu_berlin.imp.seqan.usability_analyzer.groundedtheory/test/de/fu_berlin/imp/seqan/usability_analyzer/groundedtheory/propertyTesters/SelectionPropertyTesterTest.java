@@ -38,7 +38,7 @@ public class SelectionPropertyTesterTest {
 	private static boolean testSelection(Object... elements) {
 		SelectionPropertyTester tester = new SelectionPropertyTester();
 		ISelection selection = new StructuredSelection(elements);
-		return tester.test(selection, "hasSingleKey", null, null);
+		return tester.test(selection, "containsSingleKey", null, null);
 	}
 
 	private static HasID hasID1 = new HasID() {

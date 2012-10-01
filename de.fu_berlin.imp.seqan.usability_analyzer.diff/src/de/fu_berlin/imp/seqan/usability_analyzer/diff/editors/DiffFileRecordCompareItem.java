@@ -11,7 +11,7 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 /**
  * One of the items a {@link CompareEditor} is made of. Typically the editor
@@ -24,18 +24,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
  */
 public class DiffFileRecordCompareItem implements ITypedElement,
 		IModificationDate, IStreamContentAccessor {
-	private DiffFileRecord diffFileRecord;
+	private DiffRecord diffRecord;
 	private Image image;
 
-	public DiffFileRecordCompareItem(DiffFileRecord diffFileRecord, Image image) {
-		this.diffFileRecord = diffFileRecord;
+	public DiffFileRecordCompareItem(DiffRecord diffRecord, Image image) {
+		this.diffRecord = diffRecord;
 		this.image = image;
 	}
 
 	public String getName() {
-		if (diffFileRecord == null)
+		if (diffRecord == null)
 			return "";
-		return diffFileRecord.getFilename();
+		return diffRecord.getFilename();
 	}
 
 	public Image getImage() {
@@ -43,14 +43,14 @@ public class DiffFileRecordCompareItem implements ITypedElement,
 	}
 
 	public String getType() {
-		if (diffFileRecord == null)
+		if (diffRecord == null)
 			return ITypedElement.UNKNOWN_TYPE;
-		return FilenameUtils.getExtension(diffFileRecord.getFilename());
+		return FilenameUtils.getExtension(diffRecord.getFilename());
 	}
 
 	public long getModificationDate() {
 		try {
-			return this.diffFileRecord.getDiffFile().getDateRange()
+			return this.diffRecord.getDiffFile().getDateRange()
 					.getStartDate().getTime();
 		} catch (NullPointerException e) {
 			return 0;
@@ -58,10 +58,10 @@ public class DiffFileRecordCompareItem implements ITypedElement,
 	}
 
 	public InputStream getContents() throws CoreException {
-		if (this.diffFileRecord == null
-				|| this.diffFileRecord.getSource() == null)
+		if (this.diffRecord == null
+				|| this.diffRecord.getSource() == null)
 			return null;
-		return new ByteArrayInputStream(this.diffFileRecord.getSource()
+		return new ByteArrayInputStream(this.diffRecord.getSource()
 				.getBytes());
 	}
 }

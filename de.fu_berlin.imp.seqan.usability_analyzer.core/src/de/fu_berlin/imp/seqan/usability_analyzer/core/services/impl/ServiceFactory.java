@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.ui.services.AbstractServiceFactory;
 import org.eclipse.ui.services.IServiceLocator;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -13,6 +14,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static final Logger LOGGER = Logger.getLogger(ServiceFactory.class);
 
 	private static IWorkSessionService WORKSESSION_SERVICE;
+	private static IDataDirectoriesService DATA_DIRECTORIES_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -30,6 +32,12 @@ public class ServiceFactory extends AbstractServiceFactory {
 				}
 			}
 			return WORKSESSION_SERVICE;
+		}
+		if (serviceInterface == IDataDirectoriesService.class) {
+			if (DATA_DIRECTORIES_SERVICE == null) {
+				DATA_DIRECTORIES_SERVICE = new DataResourceService();
+			}
+			return DATA_DIRECTORIES_SERVICE;
 		}
 
 		return null;

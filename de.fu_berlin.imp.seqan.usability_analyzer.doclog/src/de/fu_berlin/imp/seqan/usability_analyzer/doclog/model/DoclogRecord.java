@@ -84,7 +84,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	private static int MAX_SHORT_URL_LENGTH = 30;
 	private static String SHORT_URL_SHORTENER = "...";
 
-	private DoclogFile doclogFile;
+	private Doclog doclog;
 	private String rawContent;
 
 	private String url;
@@ -99,9 +99,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	private DoclogScreenshot screenshot;
 	private Long millisecondsPassed;
 
-	public DoclogRecord(DoclogFile doclogFile, String line)
+	public DoclogRecord(Doclog doclog, String line)
 			throws DataSourceInvalidException {
-		this.doclogFile = doclogFile;
+		this.doclog = doclog;
 		this.rawContent = line;
 
 		Matcher matcher = PATTERN.matcher(line);
@@ -124,7 +124,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 					.group(19)), Integer.parseInt(matcher.group(20)));
 
 			try {
-				if (doclogFile != null)
+				if (doclog != null)
 					this.screenshot = new DoclogScreenshot(this);
 			} catch (UnsupportedEncodingException e) {
 				throw new DataSourceInvalidException(
@@ -139,18 +139,18 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	@Override
 	public ID getID() {
-		return this.doclogFile.getID();
+		return this.doclog.getID();
 	}
 
 	@Override
 	public Fingerprint getFingerprint() {
-		return this.doclogFile.getFingerprint();
+		return this.doclog.getFingerprint();
 	}
 
 	@Override
 	public URI getCodeInstanceID() {
 		try {
-			return new URI(this.getDoclogPath().getCodeInstanceID().toString()
+			return new URI(this.getDoclog().getCodeInstanceID().toString()
 					+ "/" + URLEncoder.encode(this.getRawContent(), "UTF-8"));
 		} catch (Exception e) {
 			logger.error(
@@ -180,8 +180,8 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		return null;
 	}
 
-	public DoclogFile getDoclogPath() {
-		return this.doclogFile;
+	public Doclog getDoclog() {
+		return this.doclog;
 	}
 
 	public String getUrl() {

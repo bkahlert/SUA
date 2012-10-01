@@ -18,8 +18,8 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
-import org.j4me.collections.TreeNode;
 
+import com.bkahlert.devel.nebula.data.TreeNode;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;

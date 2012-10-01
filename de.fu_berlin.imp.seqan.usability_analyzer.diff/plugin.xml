@@ -52,7 +52,7 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile"
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
@@ -62,7 +62,7 @@
          </adapter>
       </factory>
       <factory
-            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord"
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
@@ -77,6 +77,13 @@
       <DateRangeListenerFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
       </DateRangeListenerFactory>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload">
+      <DataLoadProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataLoader"
+            source="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffLoadDependency">
+      </DataLoadProvider>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter">

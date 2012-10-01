@@ -54,8 +54,8 @@ public class TakeScreenshotsJob extends Job {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 
-				String filename = doclogRecord.getScreenshot()
-						.calculateFilename();
+				String filename = doclogRecord.getScreenshot().getFile()
+						.getCanonicalPath();
 				if (!handledScreenshots.contains(filename)) {
 					if (doclogRecord.getWindowDimensions().x > 0
 							|| doclogRecord.getWindowDimensions().y > 0) {
@@ -91,6 +91,9 @@ public class TakeScreenshotsJob extends Job {
 		} catch (CancellationException e) {
 			monitor.setCanceled(true);
 			return Status.CANCEL_STATUS;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return Status.OK_STATUS;
 	}

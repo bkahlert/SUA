@@ -18,7 +18,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.SortableTreeViewer;
+import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;

@@ -10,49 +10,49 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 
 	private ICompareInput compareInput;
-	private DiffFileRecord diffFileRecord;
+	private DiffRecord diffRecord;
 	private Image titleImage;
 
-	public DiffFileRecordCompareEditorInput(DiffFileRecord diffFileRecord) {
+	public DiffFileRecordCompareEditorInput(DiffRecord diffRecord) {
 		super(new CompareConfiguration());
-		this.diffFileRecord = diffFileRecord;
+		this.diffRecord = diffRecord;
 	}
 
 	public ICompareInput getCompareInput() {
 		return this.compareInput;
 	}
 
-	public DiffFileRecord getDiffFileRecord() {
-		return this.diffFileRecord;
+	public DiffRecord getDiffFileRecord() {
+		return this.diffRecord;
 	}
 
 	@Override
 	public String getName() {
-		return diffFileRecord != null ? diffFileRecord.getFilename() : "EMPTY";
+		return diffRecord != null ? diffRecord.getFilename() : "EMPTY";
 	}
 
 	@Override
 	public String getTitle() {
-		return diffFileRecord != null ? diffFileRecord.getDiffFile().getID()
-				+ ": " + diffFileRecord.getFilename() : "EMPTY";
+		return diffRecord != null ? diffRecord.getDiffFile().getID()
+				+ ": " + diffRecord.getFilename() : "EMPTY";
 	}
 
 	@Override
 	public String getToolTipText() {
-		if (diffFileRecord == null)
+		if (diffRecord == null)
 			return "";
-		int predRevision = diffFileRecord.getPredecessor() != null ? Integer
-				.parseInt(diffFileRecord.getPredecessor().getDiffFile()
+		int predRevision = diffRecord.getPredecessor() != null ? Integer
+				.parseInt(diffRecord.getPredecessor().getDiffFile()
 						.getRevision()) : -1;
-		int revision = Integer.parseInt(diffFileRecord.getDiffFile()
+		int revision = Integer.parseInt(diffRecord.getDiffFile()
 				.getRevision());
-		return "ID: " + diffFileRecord.getDiffFile().getID() + "\nFile:"
-				+ diffFileRecord.getFilename() + "\nRevisions: " + predRevision
+		return "ID: " + diffRecord.getDiffFile().getID() + "\nFile:"
+				+ diffRecord.getFilename() + "\nRevisions: " + predRevision
 				+ " and " + revision;
 	}
 
@@ -60,7 +60,7 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 	public Image getTitleImage() {
 		if (titleImage == null) {
 			titleImage = PlatformUI.getWorkbench().getEditorRegistry()
-					.getImageDescriptor(diffFileRecord.getFilename())
+					.getImageDescriptor(diffRecord.getFilename())
 					.createImage();
 			CompareUI.disposeOnShutdown(titleImage);
 		}
@@ -69,9 +69,9 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 
 	protected Object prepareInput(IProgressMonitor pm) {
 		DiffFileRecordCompareItem left = new DiffFileRecordCompareItem(
-				diffFileRecord.getPredecessor(), getTitleImage());
+				diffRecord.getPredecessor(), getTitleImage());
 		DiffFileRecordCompareItem right = new DiffFileRecordCompareItem(
-				diffFileRecord, getTitleImage());
+				diffRecord, getTitleImage());
 
 		this.compareInput = new DiffNode(null, Differencer.ADDITION
 				| Differencer.CHANGE | Differencer.DELETION, null, left, right);
@@ -83,7 +83,7 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((diffFileRecord == null) ? 0 : diffFileRecord.hashCode());
+				+ ((diffRecord == null) ? 0 : diffRecord.hashCode());
 		return result;
 	}
 
@@ -96,10 +96,10 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 		if (getClass() != obj.getClass())
 			return false;
 		DiffFileRecordCompareEditorInput other = (DiffFileRecordCompareEditorInput) obj;
-		if (diffFileRecord == null) {
-			if (other.diffFileRecord != null)
+		if (diffRecord == null) {
+			if (other.diffRecord != null)
 				return false;
-		} else if (!diffFileRecord.equals(other.diffFileRecord))
+		} else if (!diffRecord.equals(other.diffRecord))
 			return false;
 		return true;
 	}

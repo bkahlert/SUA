@@ -116,6 +116,13 @@
       </DateRangeListenerFactory>
    </extension>
    <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload">
+      <DataLoadProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataLoader"
+            source="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.IDoclogLoadDependency">
+      </DataLoadProvider>
+   </extension>
+   <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord"

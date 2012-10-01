@@ -30,7 +30,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets.DoclogTimeline;
@@ -66,15 +66,16 @@ public class DoclogCodeableProvider extends CodeableProvider {
 
 				// 0: ID / Fingerprint
 				Object key = new ID(path[0]);
-				DoclogFile doclogFile = Activator.getDefault()
-						.getDoclogDirectory()
+				Doclog doclog = Activator.getDefault()
+						.getDoclogDataDirectory()
 						.getDoclogFile(key, monitorReference.get());
-				if (doclogFile == null) {
+				if (doclog == null) {
 					key = new Fingerprint(path[0]);
-					doclogFile = Activator.getDefault().getDoclogDirectory()
+					doclog = Activator.getDefault()
+							.getDoclogDataDirectory()
 							.getDoclogFile(key, monitorReference.get());
 				}
-				if (doclogFile == null) {
+				if (doclog == null) {
 					LOGGER.error(ID.class.getSimpleName() + " or "
 							+ Fingerprint.class
 							+ " not specified for coded object retrieval for "
@@ -84,17 +85,17 @@ public class DoclogCodeableProvider extends CodeableProvider {
 
 				// 1: Record
 				if (path.length <= 1)
-					return doclogFile;
+					return doclog;
 				String doclogRecordRawContent;
 				try {
 					doclogRecordRawContent = URLDecoder
 							.decode(path[1], "UTF-8");
 				} catch (UnsupportedEncodingException e) {
 					LOGGER.error("Could no decode name of "
-							+ DoclogFile.class.getSimpleName());
+							+ Doclog.class.getSimpleName());
 					return null;
 				}
-				for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
+				for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
 					if (doclogRecord.getRawContent().equals(
 							doclogRecordRawContent)) {
 						return doclogRecord;
@@ -195,12 +196,12 @@ public class DoclogCodeableProvider extends CodeableProvider {
 
 			@Override
 			public String getText(Object element) {
-				if (element instanceof DoclogFile) {
-					DoclogFile doclogFile = (DoclogFile) element;
-					if (doclogFile.getID() != null)
-						return doclogFile.getID().toString();
+				if (element instanceof Doclog) {
+					Doclog doclog = (Doclog) element;
+					if (doclog.getID() != null)
+						return doclog.getID().toString();
 					else
-						return doclogFile.getFingerprint().toString();
+						return doclog.getFingerprint().toString();
 				}
 				if (element instanceof DoclogRecord) {
 					DoclogRecord doclogRecord = (DoclogRecord) element;

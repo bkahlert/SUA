@@ -22,25 +22,26 @@ import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.JAXBUtils;
 
 @XmlRootElement(namespace = "de.fu_berlin.imp.seqan.usability_analyzer.srv")
 public class DoclogKeyMap {
 
 	private static final Logger LOGGER = Logger.getLogger(DoclogKeyMap.class);
-	private static ConcurrentMap<File, ReentrantReadWriteLock> LOCKS = new ConcurrentHashMap<File, ReentrantReadWriteLock>();
+	private static ConcurrentMap<IData, ReentrantReadWriteLock> LOCKS = new ConcurrentHashMap<IData, ReentrantReadWriteLock>();
 
-	private static ReentrantReadWriteLock getLock(File file) {
-		LOCKS.putIfAbsent(file, new ReentrantReadWriteLock());
-		return LOCKS.get(file);
+	private static ReentrantReadWriteLock getLock(IData data) {
+		LOCKS.putIfAbsent(data, new ReentrantReadWriteLock());
+		return LOCKS.get(data);
 	}
 
-	private static ReadLock getReadLock(File file) {
-		return getLock(file).readLock();
+	private static ReadLock getReadLock(IData data) {
+		return getLock(data).readLock();
 	}
 
-	private static WriteLock getWriteLock(File file) {
-		return getLock(file).writeLock();
+	private static WriteLock getWriteLock(IData data) {
+		return getLock(data).writeLock();
 	}
 
 	public static class DoclogKeyMapWrapper {
@@ -78,27 +79,30 @@ public class DoclogKeyMap {
 		}
 	}
 
-	public static DoclogKeyMap load(File file) throws FileNotFoundException {
+	public static DoclogKeyMap load(IData data)
+			throws FileNotFoundException {
 		try {
-			getReadLock(file).lock();
-			return JAXBUtils.unmarshall(DoclogKeyMap.class, file);
+			getReadLock(data).lock();
+			return JAXBUtils
+					.unmarshall(DoclogKeyMap.class, data.read());
 		} catch (JAXBException e) {
 			LOGGER.error(e);
 			return null;
 		} finally {
-			getReadLock(file).unlock();
+			getReadLock(data).unlock();
 		}
 	}
 
+	@Deprecated
 	public void save(File file) throws IOException {
-		try {
-			getWriteLock(file).lock();
-			JAXBUtils.marshall(this, file);
-		} catch (JAXBException e) {
-			LOGGER.error(e);
-		} finally {
-			getWriteLock(file).unlock();
-		}
+		// try {
+		// getWriteLock(file).lock();
+		// JAXBUtils.marshall(this, file);
+		// } catch (JAXBException e) {
+		// LOGGER.error(e);
+		// } finally {
+		// getWriteLock(file).unlock();
+		// }
 	}
 
 	private ConcurrentHashMap<Fingerprint, ID> map = new ConcurrentHashMap<Fingerprint, ID>();

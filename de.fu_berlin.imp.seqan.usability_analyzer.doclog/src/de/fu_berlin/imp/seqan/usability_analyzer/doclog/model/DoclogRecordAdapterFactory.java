@@ -25,7 +25,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 				return doclogRecord.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				ID id = doclogRecord.getDoclogPath().getID();
+				ID id = doclogRecord.getDoclog().getID();
 				if (id == null)
 					return null;
 
@@ -34,7 +34,7 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 						dateRange.getEndDate());
 			}
 			if (adapterType == FingerprintDateRange.class) {
-				Fingerprint fingerprint = doclogRecord.getDoclogPath()
+				Fingerprint fingerprint = doclogRecord.getDoclog()
 						.getFingerprint();
 				if (fingerprint == null)
 					return null;

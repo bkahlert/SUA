@@ -49,7 +49,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -115,7 +114,8 @@ public class EpisodeRenderer implements IDisposable {
 	private static class ResizeInfo {
 		public static ResizeInfo getInfoIfApplicable(Event event,
 				ViewerColumn column, Map<IEpisode, Rectangle> episodeBounds) {
-			Rectangle bounds = ViewerUtils.getBounds(column);
+			Rectangle bounds = com.bkahlert.devel.nebula.utils.ViewerUtils
+					.getBounds(column);
 			if (event.x >= bounds.x && event.x <= bounds.x + bounds.width) {
 				ResizeInfo info = null;
 				double distance = MAX_DISTANCE_TO_RESIZE;
@@ -368,7 +368,8 @@ public class EpisodeRenderer implements IDisposable {
 
 		@Override
 		public void paintControl(PaintEvent e) {
-			List<Item> items = ViewerUtils.getAllItems((Control) e.widget);
+			List<Item> items = com.bkahlert.devel.nebula.utils.ViewerUtils
+					.getAllItems((Control) e.widget);
 			if (items.size() == 0)
 				return;
 
@@ -472,7 +473,8 @@ public class EpisodeRenderer implements IDisposable {
 			ITrackCalculation<IEpisode> tracks = TrackCalculator
 					.calculateTracks(new LinkedList<IEpisode>(set), CONVERTER);
 
-			Rectangle columnBounds = ViewerUtils.getBounds(column);
+			Rectangle columnBounds = com.bkahlert.devel.nebula.utils.ViewerUtils
+					.getBounds(column);
 
 			Map<IEpisode, Rectangle> episodeBounds = new HashMap<IEpisode, Rectangle>();
 			for (Item item : items) {

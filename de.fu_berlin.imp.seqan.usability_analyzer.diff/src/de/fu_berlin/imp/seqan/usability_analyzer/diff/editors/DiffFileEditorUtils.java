@@ -6,27 +6,27 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 public class DiffFileEditorUtils {
 	/**
 	 * Opens a new {@link CompareEditor} which displays the difference between
-	 * the given and its predecessor {@link DiffFileRecord}.
+	 * the given and its predecessor {@link DiffRecord}.
 	 * 
-	 * @param diffFileRecord
+	 * @param diffRecord
 	 */
-	public static void openCompareEditor(DiffFileRecord diffFileRecord) {
+	public static void openCompareEditor(DiffRecord diffRecord) {
 		CompareUI.openCompareEditor(new DiffFileRecordCompareEditorInput(
-				diffFileRecord));
+				diffRecord));
 	}
 
 	/**
 	 * Closes all {@link CompareEditor}s responsible for the given
-	 * {@link DiffFileRecord}.
+	 * {@link DiffRecord}.
 	 * 
-	 * @param diffFileRecord
+	 * @param diffRecord
 	 */
-	public static void closeCompareEditors(DiffFileRecord diffFileRecord) {
+	public static void closeCompareEditors(DiffRecord diffRecord) {
 		IEditorReference[] editorReferences = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getActivePage()
 				.getEditorReferences();
@@ -37,7 +37,7 @@ public class DiffFileEditorUtils {
 							.getEditorInput();
 					String currentFilename = currentCompareInput
 							.getDiffFileRecord().getFilename();
-					if (currentFilename.equals(diffFileRecord.getFilename())) {
+					if (currentFilename.equals(diffRecord.getFilename())) {
 						editorReference.getPage().closeEditor(
 								editorReference.getEditor(true), false);
 					}

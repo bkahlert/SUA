@@ -1,18 +1,18 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -22,12 +22,11 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.core"; //$NON-NLS-1$
 
-	private final Logger logger = Logger.getLogger(Activator.class);
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 
 	// The shared instance
 	private static Activator plugin;
-
-	private DataSetInfo dataSetInfo;
 
 	private SUACorePreferenceUtil corePreferenceUtil;
 
@@ -72,9 +71,6 @@ public class Activator extends AbstractUIPlugin {
 		}
 	};
 
-	/**
-	 * The constructor
-	 */
 	public Activator() {
 
 	}
@@ -91,21 +87,31 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 		corePreferenceUtil = new SUACorePreferenceUtil();
 
-		File dataDirectory = corePreferenceUtil.getDataDirectory();
-		if (dataDirectory != null && dataDirectory.isDirectory()
-				&& dataDirectory.canRead()) {
-			dataSetInfo = new DataSetInfo(corePreferenceUtil.getDataDirectory()
-					+ "/" + DataSetInfo.FILENAME);
-		} else {
-			logger.warn("No valid log directory specified");
-		}
-
 		corePreferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
 		oldDateRangeStart = corePreferenceUtil.getDateRangeStart();
 		oldDateRangeEnd = corePreferenceUtil.getDateRangeEnd();
 		oldDateRangeStartEnabled = corePreferenceUtil
 				.getDateRangeStartEnabled();
 		oldDateRangeEndEnabled = corePreferenceUtil.getDateRangeEndEnabled();
+
+		ExecutorUtil.nonUIAsyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				IDataDirectoriesService dataDirectoriesService = (IDataDirectoriesService) PlatformUI
+						.getWorkbench().getService(
+								IDataDirectoriesService.class);
+				dataDirectoriesService
+						.setActiveDataDirectories(dataDirectoriesService
+								.getActiveDataDirectories());
+			}
+		});
 	}
 
 	/*
@@ -129,9 +135,5 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
-	}
-
-	public DataSetInfo getDataSetInfo() {
-		return dataSetInfo;
 	}
 }

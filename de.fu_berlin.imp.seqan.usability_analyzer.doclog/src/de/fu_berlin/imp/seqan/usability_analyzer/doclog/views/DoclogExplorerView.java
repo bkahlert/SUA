@@ -56,9 +56,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListe
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogFilesViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -71,18 +70,28 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
 		public Object create() throws CoreException {
-			IViewReference[] allviews = PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage()
-					.getViewReferences();
-			for (IViewReference viewReference : allviews) {
-				if (viewReference.getId().equals(ID))
-					return viewReference.getView(true);
+			try {
+				IViewReference[] allviews = ExecutorUtil
+						.syncExec(new Callable<IViewReference[]>() {
+							@Override
+							public IViewReference[] call() throws Exception {
+								return PlatformUI.getWorkbench()
+										.getActiveWorkbenchWindow()
+										.getActivePage().getViewReferences();
+							}
+						});
+				for (IViewReference viewReference : allviews) {
+					if (viewReference.getId().equals(ID))
+						return viewReference.getView(true);
+				}
+			} catch (Exception e) {
+				LOGGER.error(e);
 			}
 			return null;
 		}
 	}
 
-	private Map<Object, DoclogFile> openedDoclogFiles = new HashMap<Object, DoclogFile>();
+	private Map<Object, Doclog> openedDoclogFiles = new HashMap<Object, Doclog>();
 	private Map<Object, Job> doclogLoaders = new HashMap<Object, Job>();
 
 	private IWorkSessionService workSessionService;
@@ -119,8 +128,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				TreeItem[] treeItems = treeViewer.getTree().getItems();
 
 				List<TreePath> idIntersectingDoclogRecords;
-				if (ViewerUtils
-						.getItemWithDataType(treeItems, DoclogFile.class)
+				if (com.bkahlert.devel.nebula.utils.ViewerUtils
+						.getItemWithDataType(treeItems, Doclog.class)
 						.size() == 0) {
 					idIntersectingDoclogRecords = DoclogFilesViewer
 							.getItemsOfIntersectingDataRanges(treeItems,
@@ -213,16 +222,21 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 	@Override
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
-			TimeZoneDateRange newDateRange) {
-		if (this.dateRangeFilter != null)
-			this.treeViewer.removeFilter(this.dateRangeFilter);
-		this.dateRangeFilter = new DateRangeFilter(newDateRange);
-		this.treeViewer.addFilter(this.dateRangeFilter);
+			final TimeZoneDateRange newDateRange) {
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (dateRangeFilter != null)
+					treeViewer.removeFilter(dateRangeFilter);
+				dateRangeFilter = new DateRangeFilter(newDateRange);
+				treeViewer.addFilter(dateRangeFilter);
+			}
+		});
 	}
 
 	/**
 	 * Opens the given {@link ID}s and {@link Fingerprint}s in the
-	 * {@link DoclogFilesViewer}. If the corresponding {@link DoclogFile}s could
+	 * {@link DoclogFilesViewer}. If the corresponding {@link Doclog}s could
 	 * be successfully opened a caller defined {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
@@ -234,7 +248,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		for (Object key : keys)
 			assert key instanceof ID || key instanceof Fingerprint;
 
-		final HashMap<Object, DoclogFile> newOpenedDoclogFiles = new HashMap<Object, DoclogFile>();
+		final HashMap<Object, Doclog> newOpenedDoclogFiles = new HashMap<Object, Doclog>();
 
 		// do not load already opened doclog files
 		for (Object openedKey : openedDoclogFiles.keySet()) {
@@ -269,17 +283,17 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 						continue;
 
 					Job doclogFileLoader = new Job("Loading "
-							+ DoclogFile.class.getSimpleName() + "s") {
+							+ Doclog.class.getSimpleName() + "s") {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
-							DoclogFile doclogFile = Activator
+							Doclog doclog = Activator
 									.getDefault()
-									.getDoclogDirectory()
+									.getDoclogDataDirectory()
 									.getDoclogFile(key,
 											new SubProgressMonitor(monitor, 1));
 							synchronized (newOpenedDoclogFiles) {
-								if (doclogFile != null)
-									newOpenedDoclogFiles.put(key, doclogFile);
+								if (doclog != null)
+									newOpenedDoclogFiles.put(key, doclog);
 								else
 									keys.remove(key);
 							}

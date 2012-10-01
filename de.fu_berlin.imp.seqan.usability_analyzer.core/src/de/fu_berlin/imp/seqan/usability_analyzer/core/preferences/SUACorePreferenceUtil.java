@@ -1,12 +1,16 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
@@ -22,16 +26,41 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 		super(Activator.getDefault());
 	}
 
-	public File getDataDirectory() {
+	public String getDataDirectory() {
 		String dataDirectory = getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATA_DIRECTORY);
-		return (dataDirectory != null && !dataDirectory.isEmpty()) ? new File(
-				Normalizer.normalize(dataDirectory, Form.NFC)) : null;
+		return (dataDirectory != null && !dataDirectory.isEmpty()) ? Normalizer
+				.normalize(dataDirectory, Form.NFC) : null;
+	}
+
+	public void setDataDirectory(String dataDirectory) {
+		getPreferenceStore().setValue(
+				SUACorePreferenceConstants.DATA_DIRECTORY, dataDirectory);
 	}
 
 	public boolean dataDirectoryChanged(PropertyChangeEvent event) {
 		return event.getProperty().equals(
 				SUACorePreferenceConstants.DATA_DIRECTORY);
+	}
+
+	public List<String> getDataDirectories() {
+		String[] dataDirectories = StringUtils.split(getPreferenceStore()
+				.getString(SUACorePreferenceConstants.DATA_DIRECTORIES), ";");
+		if (dataDirectories == null)
+			return new ArrayList<String>();
+		return new ArrayList<String>(Arrays.asList(dataDirectories));
+	}
+
+	public void setDataDirectories(List<String> dataDirectories) {
+		Assert.isNotNull(dataDirectories);
+		getPreferenceStore().setValue(
+				SUACorePreferenceConstants.DATA_DIRECTORIES,
+				StringUtils.join(dataDirectories, ";"));
+	}
+
+	public boolean dataDirectoriesChanged(PropertyChangeEvent event) {
+		return event.getProperty().equals(
+				SUACorePreferenceConstants.DATA_DIRECTORIES);
 	}
 
 	public TimeZone getDefaultTimeZone() {

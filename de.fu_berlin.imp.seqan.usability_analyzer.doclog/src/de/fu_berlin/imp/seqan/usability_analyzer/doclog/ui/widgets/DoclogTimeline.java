@@ -13,14 +13,15 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.JsonUtils;
 
@@ -46,7 +47,7 @@ public class DoclogTimeline extends Timeline {
 					int doclogRecordIndex = Integer.parseInt(matcher.group(1));
 
 					DoclogRecord selectedDoclogRecord = null;
-					for (DoclogRecord doclogRecord : doclogFile
+					for (DoclogRecord doclogRecord : doclog
 							.getDoclogRecords()) {
 						if (System.identityHashCode(doclogRecord) == doclogRecordIndex) {
 							selectedDoclogRecord = doclogRecord;
@@ -71,7 +72,7 @@ public class DoclogTimeline extends Timeline {
 		}
 	}
 
-	private DoclogFile doclogFile;
+	private Doclog doclog;
 
 	private List<TimeZoneDateRange> highlightedDateRanges;
 
@@ -81,17 +82,18 @@ public class DoclogTimeline extends Timeline {
 	}
 
 	/**
-	 * Displays a {@link DoclogFile}'s content.
+	 * Displays a {@link Doclog}'s content.
 	 * <p>
 	 * Hint: This method may be called from a non-UI thread. The relatively
 	 * time-consuming JSON conversion is done asynchronously making this method
 	 * return immediately.
 	 * 
-	 * @param doclogFile
+	 * @param doclog
 	 * @param title
 	 */
-	public void show(final DoclogFile doclogFile, final String title) {
-		this.doclogFile = doclogFile;
+	public void show(final Doclog doclog,
+			final String title) {
+		this.doclog = doclog;
 
 		new Thread(new Runnable() {
 			@Override
@@ -100,7 +102,7 @@ public class DoclogTimeline extends Timeline {
 				if (title != null)
 					options.put("title", title);
 
-				TimeZoneDateRange dateRange = doclogFile.getDateRange();
+				TimeZoneDateRange dateRange = doclog.getDateRange();
 				if (dateRange.getStartDate() != null)
 					options.put("centerStart", dateRange.getStartDate().clone()
 							.addMilliseconds(-10000l).toISO8601());
@@ -114,15 +116,20 @@ public class DoclogTimeline extends Timeline {
 				// if (dateRange.getEndDate() != null)
 				// options.put("timeline_end",
 				// JsonUtils.formatDate(dateRange.getEndDate()));
-				DataSetInfo dataSetInfo = Activator.getDefault()
-						.getDataSetInfo();
+				IDataSetInfo dataSetInfo = ((IDataDirectoriesService) PlatformUI
+						.getWorkbench().getService(
+								IDataDirectoriesService.class))
+						.getActiveDataDirectories().get(0).getInfo(); // TODO
+																		// support
+																		// multiple
+																		// directories
 
 				options.put("show_bubble", DOCLOG_CLICK_HANDLER_NAME);
 				options.put("show_bubble_field",
 						DOCLOG_CLICK_HANDLER_PARAM_FIELD);
 				options.put("zones", new Timeline.Zone[] { new Timeline.Zone(
-						dataSetInfo.getStartDate().toISO8601(), dataSetInfo
-								.getEndDate().toISO8601()) });
+						dataSetInfo.getDateRange().getStartDate().toISO8601(),
+						dataSetInfo.getDateRange().getEndDate().toISO8601()) });
 				options.put("decorators",
 						new Timeline.Decorator[] { new Timeline.Decorator(
 								dateRange.getStartDate().toISO8601(),
@@ -130,7 +137,8 @@ public class DoclogTimeline extends Timeline {
 										.toISO8601(), dataSetInfo.getName()) });
 
 				LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
-				for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
+				for (DoclogRecord doclogRecord : doclog
+						.getDoclogRecords()) {
 					if (doclogRecord.getAction() == DoclogAction.UNLOAD)
 						continue;
 					if (doclogRecord.getUrl().contains(
@@ -170,7 +178,7 @@ public class DoclogTimeline extends Timeline {
 	}
 
 	/**
-	 * Highlights the {@link DoclogFile}'s parts that fall in the given
+	 * Highlights the {@link Doclog}'s parts that fall in the given
 	 * {@link TimeZoneDateRange}s.
 	 * <p>
 	 * Hint: This method may be called from a non-UI thread. The relatively
@@ -206,7 +214,7 @@ public class DoclogTimeline extends Timeline {
 	}
 
 /**
-	 * Highlights the provided {@link DoclogFile}.
+	 * Highlights the provided {@link Doclog}.
 	 * <p>
 	 * This method internally uses {@link #highlight(List)
 	 * 
@@ -220,8 +228,8 @@ public class DoclogTimeline extends Timeline {
 		this.highlight(dateRanges);
 	}
 
-	public DoclogFile getDoclogFile() {
-		return this.doclogFile;
+	public Doclog getDoclogFile() {
+		return this.doclog;
 	}
 
 	public List<TimeZoneDateRange> getHighlightedDateRanges() {

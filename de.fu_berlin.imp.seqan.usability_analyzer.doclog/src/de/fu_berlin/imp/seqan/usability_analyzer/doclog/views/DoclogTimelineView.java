@@ -51,7 +51,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListe
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets.DoclogTimeline;
 
@@ -64,7 +64,8 @@ public class DoclogTimelineView extends ViewPart {
 	private static Set<Object> filterValidKeys(List<?> keys) {
 		HashSet<Object> validKeys = new HashSet<Object>();
 		for (Object key : keys) {
-			if (Activator.getDefault().getDoclogDirectory().getDateRange(key) != null)
+			if (Activator.getDefault().getDoclogDataDirectory()
+					.getDateRange(key) != null)
 				validKeys.add(key);
 		}
 		return validKeys;
@@ -204,16 +205,16 @@ public class DoclogTimelineView extends ViewPart {
 				throw new OperationCanceledException();
 			}
 
-			DoclogFile doclogFile = Activator
+			Doclog doclog = Activator
 					.getDefault()
-					.getDoclogDirectory()
+					.getDoclogDataDirectory()
 					.getDoclogFile(key,
 							new SubProgressMonitor(progressMonitor, 1));
 
-			if (doclogFile == null) {
-				LOGGER.error(DoclogFile.class.getSimpleName() + " for " + key
+			if (doclog == null) {
+				LOGGER.error(Doclog.class.getSimpleName() + " for " + key
 						+ " was null. Only valid (= "
-						+ DoclogFile.class.getSimpleName()
+						+ Doclog.class.getSimpleName()
 						+ " exists) are allowed.");
 				continue;
 			}
@@ -246,7 +247,7 @@ public class DoclogTimelineView extends ViewPart {
 			if (key.equals(doclogTimelineKey)) {
 				progressMonitor.worked(1);
 			} else {
-				doclogTimeline.get().show(doclogFile, getTitle(key));
+				doclogTimeline.get().show(doclog, getTitle(key));
 				progressMonitor.worked(1);
 			}
 			progressMonitor.done();
@@ -302,7 +303,7 @@ public class DoclogTimelineView extends ViewPart {
 			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
 					.get(key);
 			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
-					Activator.getDefault().getDoclogDirectory()
+					Activator.getDefault().getDoclogDataDirectory()
 							.getDoclogFile(key, progressMonitor), dateRanges);
 			final DoclogTimeline timeline_ = timeline;
 			if (progressMonitor.isCanceled())
@@ -332,18 +333,18 @@ public class DoclogTimelineView extends ViewPart {
 
 	/**
 	 * Given a {@link List} of {@link TimeZoneDateRange}s and a
-	 * {@link DoclogFile} this method returns the earliest and latest dates that
+	 * {@link Doclog} this method returns the earliest and latest dates that
 	 * in which {@link DoclogRecord} events occurred.
 	 * 
-	 * @param doclogFile
+	 * @param doclog
 	 * @param dateRanges
 	 * @return
 	 */
 	private TimeZoneDateRange calculateIntersectedDateRange(
-			DoclogFile doclogFile, List<TimeZoneDateRange> dateRanges) {
+			Doclog doclog, List<TimeZoneDateRange> dateRanges) {
 		TimeZoneDate earliestDate = null;
 		TimeZoneDate latestDate = null;
-		for (DoclogRecord doclogRecord : doclogFile.getDoclogRecords()) {
+		for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
 			boolean intersects = false;
 			for (TimeZoneDateRange dateRange : dateRanges) {
 				if (dateRange.isIntersected(doclogRecord.getDateRange())) {

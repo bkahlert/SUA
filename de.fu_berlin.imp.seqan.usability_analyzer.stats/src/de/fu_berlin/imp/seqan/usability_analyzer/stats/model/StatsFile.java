@@ -1,19 +1,18 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.stats.model;
 
-import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 
-public class StatsFile extends File {
+public class StatsFile {
 
-	private static final long serialVersionUID = 5159431028889474742L;
-	public static final String PATTERN = "([A-Za-z\\d]+)_stats.txt";
+	public static final Pattern PATTERN = Pattern
+			.compile("([A-Za-z\\d]+)_stats.txt");
 
 	private ID id;
 	private String node; // e.g. wensicia.local
@@ -23,17 +22,15 @@ public class StatsFile extends File {
 	private String version; // e.g. 6.1.7600
 	private String platformLong; // e.g. Windows-7-6.1.7600
 
-	public StatsFile(String filename) throws DataSourceInvalidException {
-		super(filename);
-
-		Matcher matcher = Pattern.compile(PATTERN).matcher(filename);
+	public StatsFile(IData resource) {
+		Matcher matcher = PATTERN.matcher(resource.getName());
 		if (matcher.find()) {
 			this.id = new ID(matcher.group(1));
 		}
 
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			JsonNode root = mapper.readValue(this, JsonNode.class);
+			JsonNode root = mapper.readValue(resource.read(), JsonNode.class);
 
 			JsonNode os = root.get("os");
 
@@ -44,7 +41,7 @@ public class StatsFile extends File {
 			this.version = os.get("version").getTextValue();
 			this.platformLong = os.get("platform").getTextValue();
 		} catch (Exception e) {
-			throw new DataSourceInvalidException("Could no read stats file", e);
+			throw new RuntimeException("Could no read stats file", e);
 		}
 	}
 

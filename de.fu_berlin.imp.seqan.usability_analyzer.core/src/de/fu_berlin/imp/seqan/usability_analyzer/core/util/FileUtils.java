@@ -7,7 +7,8 @@ import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.InvalidParameterException;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 
 public class FileUtils {
 	/**
@@ -35,12 +36,16 @@ public class FileUtils {
 	 * @return
 	 * @throws URISyntaxException
 	 */
-	public static File getFile(String filename) throws URISyntaxException {
+	public static File getFile(String filename) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0, num = FileUtils.class.getPackage().getName()
 				.split("\\.").length; i < num; i++)
 			sb.append("../");
-		return getFile(FileUtils.class, sb.toString() + filename);
+		try {
+			return getFile(FileUtils.class, sb.toString() + filename);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static String readFirstLine(File file) {
@@ -113,27 +118,17 @@ public class FileUtils {
 		}
 	}
 
-	public static byte getNewlineLengthAt(File file, long position) {
-		RandomAccessFile raf;
-		try {
-			raf = new RandomAccessFile(file, "r");
-			raf.seek(position);
-			byte[] separator = new byte[2];
-			raf.read(separator, 0, 2);
-			raf.close();
-			if (separator[0] == 0x0A) { // LF / \n
+	public static int getNewlineLengthAt(IData data, long position) {
+		byte[] separator = data.read(position, position + 2).getBytes();
+		if (separator[0] == 0x0A) { // LF / \n
+			return 1;
+		} else if (separator[0] == 0x0D) { // CR / \r
+			if (separator[1] == 0x0A)
+				return 2; // CR+LF
+			else
 				return 1;
-			} else if (separator[0] == 0x0D) { // CR / \r
-				if (separator[1] == 0x0A)
-					return 2; // CR+LF
-				else
-					return 1;
-			} else {
-				return 0;
-			}
-		} catch (Exception e) {
-			throw new InvalidParameterException(file.getName()
-					+ " cannot be read");
+		} else {
+			return 0;
 		}
 	}
 }

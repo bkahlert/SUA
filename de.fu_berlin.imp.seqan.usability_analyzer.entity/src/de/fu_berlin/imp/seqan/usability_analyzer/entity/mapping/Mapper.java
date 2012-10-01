@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
@@ -8,19 +7,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping.DoclogKeyMap;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 
 public class Mapper {
-	private DoclogDirectory doclogDirectory;
+	private DoclogDataDirectory doclogDataDirectory;
 	private DoclogKeyMap doclogMapper;
 
-	public Mapper(DoclogDirectory doclogDirectory, File dataDirectory)
+	public Mapper(DoclogDataDirectory doclogDataDirectory)
 			throws FileNotFoundException {
-		super();
-		this.doclogDirectory = doclogDirectory;
-		this.doclogMapper = DoclogKeyMap.load(new File(doclogDirectory
-				.getParentFile(), "mapping.xml"));
+		this.doclogDataDirectory = doclogDataDirectory;
+		this.doclogMapper = DoclogKeyMap.load(doclogDataDirectory
+				.getMappingFile());
 	}
 
 	public ID getID(Fingerprint fingerprint) {
@@ -33,24 +31,24 @@ public class Mapper {
 
 	/**
 	 * Returns the {@link Fingerprint}s of all <b>{@link Fingerprint} based</b>
-	 * {@link DoclogFile}s belonging to the given {@link Token}.
+	 * {@link Doclog}s belonging to the given {@link Token}.
 	 * <p>
-	 * If you are interested in <b>all</b> {@link DoclogFile}s you also need to
+	 * If you are interested in <b>all</b> {@link Doclog}s you also need to
 	 * check {@link #getID(Token)} as this method only returns an {@link ID} if
-	 * an <b>{@link ID} based</b> {@link DoclogFile} exists.
+	 * an <b>{@link ID} based</b> {@link Doclog} exists.
 	 * 
 	 * @param token
 	 * @return
 	 */
 	public List<Fingerprint> getFingerprints(Token token) {
-		return this.doclogDirectory.getFingerprints(token);
+		return this.doclogDataDirectory.getFingerprints(token);
 	}
 
 	public ID getID(Token token) {
-		return this.doclogDirectory.getID(token);
+		return this.doclogDataDirectory.getID(token);
 	}
 
 	public Token getToken(Fingerprint fingerprint) {
-		return this.doclogDirectory.getToken(fingerprint);
+		return this.doclogDataDirectory.getToken(fingerprint);
 	}
 }

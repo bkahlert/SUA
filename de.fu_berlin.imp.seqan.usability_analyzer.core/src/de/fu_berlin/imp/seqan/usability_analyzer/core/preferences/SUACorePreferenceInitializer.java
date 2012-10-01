@@ -13,6 +13,8 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
+		store.setDefault(SUACorePreferenceConstants.DATA_DIRECTORIES, "");
+
 		store.setDefault(SUACorePreferenceConstants.DEFAULT_TIME_ZONE,
 				"Europe/Berlin");
 

@@ -17,15 +17,17 @@
       <menuContribution
             allPopups="false"
             locationURI="menu:de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView">
-         <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
-               label="xxxxxxxxx"
-               style="push">
-         </command>
       </menuContribution>
+      
       <menuContribution
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
+               icon="IMG_OBJ_FOLDER"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
+               style="pulldown">
+         </command>
          <control
                class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.controls.DiffOnlyPersonsButton">
          </control>
@@ -35,6 +37,23 @@
          <control
                class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.controls.SurveyOnlyPersonsButton">
          </control>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories">
+         <dynamic
+               class="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.DataDirectoriesContributionItem"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.entity.dynamic1">
+         </dynamic>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.entity.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
+               label="Add/Remove Data Directories..."
+               style="push">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -58,6 +77,19 @@
       <DateRangeListenerFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView$Factory">
       </DateRangeListenerFactory>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload">
+      <DataLoadProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityDataLoader"
+            source="de.fu_berlin.imp.seqan.usability_analyzer.entity.model.IEntityLoadDependency">
+         <Dependency
+               source="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffLoadDependency">
+         </Dependency>
+         <Dependency
+               source="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.IDoclogLoadDependency">
+         </Dependency>
+      </DataLoadProvider>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.entity.datasource">

@@ -54,9 +54,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsContentProvider;
@@ -169,14 +169,14 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 				.addDoubleClickListener(new IDoubleClickListener() {
 					@Override
 					public void doubleClick(DoubleClickEvent event) {
-						List<DiffFileRecord> diffFileRecords = SelectionUtils
+						List<DiffRecord> diffRecords = SelectionUtils
 								.getAdaptableObjects(event.getSelection(),
-										DiffFileRecord.class);
-						for (DiffFileRecord diffFileRecord : diffFileRecords) {
+										DiffRecord.class);
+						for (DiffRecord diffRecord : diffRecords) {
 							DiffFileEditorUtils
-									.closeCompareEditors(diffFileRecord);
+									.closeCompareEditors(diffRecord);
 							DiffFileEditorUtils
-									.openCompareEditor(diffFileRecord);
+									.openCompareEditor(diffRecord);
 						}
 					}
 				});
@@ -255,11 +255,11 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						continue;
 
 					Job diffFileLoader = new Job("Loading "
-							+ DiffFile.class.getSimpleName() + "s") {
+							+ DiffDataResource.class.getSimpleName() + "s") {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							DiffFileList diffFileList = Activator.getDefault()
-									.getDiffFileDirectory()
+									.getDiffDataDirectories()
 									.getDiffFiles(id, monitor);
 							synchronized (newOpenedDiffFileLists) {
 								newOpenedDiffFileLists.put(id, diffFileList);

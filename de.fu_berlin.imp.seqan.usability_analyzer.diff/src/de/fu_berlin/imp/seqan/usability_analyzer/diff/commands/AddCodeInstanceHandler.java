@@ -25,7 +25,7 @@ import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
@@ -65,20 +65,20 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 			IEditorInput editorInput = editor.getEditorInput();
 			if (editorInput instanceof DiffFileRecordCompareEditorInput) {
 				DiffFileRecordCompareEditorInput diffFileRecordCompareEditorInput = (DiffFileRecordCompareEditorInput) editorInput;
-				DiffFileRecord diffFileRecord = diffFileRecordCompareEditorInput
+				DiffRecord diffRecord = diffFileRecordCompareEditorInput
 						.getDiffFileRecord();
 
 				Control focusControl = Display.getCurrent().getFocusControl();
-				DiffFileRecord focusDiffFileRecord = null;
+				DiffRecord focusDiffFileRecord = null;
 
 				if (focusControl instanceof StyledText) {
 					String text = ((StyledText) focusControl).getText();
-					String left = diffFileRecord.getPredecessor().getSource();
-					String right = diffFileRecord.getSource();
+					String left = diffRecord.getPredecessor().getSource();
+					String right = diffRecord.getSource();
 					if (text.equals(left))
-						focusDiffFileRecord = diffFileRecord.getPredecessor();
+						focusDiffFileRecord = diffRecord.getPredecessor();
 					else if (text.equals(right))
-						focusDiffFileRecord = diffFileRecord;
+						focusDiffFileRecord = diffRecord;
 				} else {
 					log.error("The control in focus was not of type "
 							+ StyledText.class.getSimpleName()

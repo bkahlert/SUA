@@ -10,7 +10,8 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
+import com.bkahlert.devel.nebula.utils.ViewerUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -86,11 +87,13 @@ public class EntityContentProvider implements IStructuredContentProvider,
 	};
 
 	public EntityContentProvider() {
+		codeService.addCodeServiceListener(codeServiceListener);
 	}
 
+	@SuppressWarnings("unused")
 	@PostConstruct
 	private void init() {
-		codeService.addCodeServiceListener(codeServiceListener);
+
 	}
 
 	@Override

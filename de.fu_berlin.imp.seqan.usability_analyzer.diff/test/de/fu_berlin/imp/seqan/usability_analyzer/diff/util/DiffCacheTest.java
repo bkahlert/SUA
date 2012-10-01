@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 
@@ -8,8 +10,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectoryTest;
 
 public class DiffCacheTest {
@@ -17,16 +20,13 @@ public class DiffCacheTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static final String data = root + "/data";
-	private static final String trunk = root + "/trunk";
-	private static final String sources = root + "/sources";
-
 	@SuppressWarnings("serial")
 	@Test
-	public void testDataCache() throws URISyntaxException {
-		DiffFileDirectory diffFileDirectory = new DiffFileDirectory(
-				FileUtils.getFile(data), FileUtils.getFile(trunk),
-				FileUtils.getFile(sources));
+	public void testDataCache() throws URISyntaxException, IOException {
+		new File(FileUtils.getFile(root), "__dataset.txt").createNewFile();
+		DiffDataDirectory diffFileDirectory = new DiffDataDirectory(
+				new FileBaseDataContainer(FileUtils.getFile(root)));
+		diffFileDirectory.scan(null);
 
 		DiffCache diffCache = new DiffCache(diffFileDirectory, 2);
 		Assert.assertEquals(0, diffCache.getCachedKeys().size());

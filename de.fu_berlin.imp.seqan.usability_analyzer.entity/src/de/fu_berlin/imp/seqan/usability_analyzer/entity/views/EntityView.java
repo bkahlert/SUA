@@ -1,7 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.views;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
@@ -20,8 +22,13 @@ import org.eclipse.ui.part.ViewPart;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataDirectoriesServiceAdapter;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IDataSourceFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.filters.DataSourceFilter;
@@ -38,10 +45,23 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
 		public Object create() throws CoreException {
-			IViewReference[] allviews = PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage()
-					.getViewReferences();
-			for (IViewReference viewReference : allviews) {
+			IViewReference[] allViews;
+			try {
+				allViews = ExecutorUtil
+						.syncExec(new Callable<IViewReference[]>() {
+							@Override
+							public IViewReference[] call() throws Exception {
+								return PlatformUI.getWorkbench()
+										.getActiveWorkbenchWindow()
+										.getActivePage().getViewReferences();
+							}
+						});
+			} catch (Exception e) {
+				LOGGER.error("Error enumerating present views");
+				return null;
+			}
+
+			for (IViewReference viewReference : allViews) {
 				if (viewReference.getId().equals(ID))
 					return viewReference.getView(true);
 			}
@@ -49,12 +69,29 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		}
 	}
 
+	private IDataDirectoriesServiceListener dataDirectoriesServiceListener = new DataDirectoriesServiceAdapter() {
+		@Override
+		public void activeDataDirectoriesChanged(
+				List<? extends IBaseDataContainer> dataContainers) {
+			LOGGER.info("Refreshing " + EntityViewer.class.getSimpleName());
+			ExecutorUtil.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					entityViewer.setInput(Activator.getDefault()
+							.getLoadedData());
+				}
+			});
+		}
+	};
+
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private EntityViewer entityViewer;
 	private Label status;
 
 	private Map<DataSource, DataSourceFilter> dataSourceFilters;
 	private DateRangeFilter dateRangeFilter = null;
+	private IDataDirectoriesService dataDirectoriesService = (IDataDirectoriesService) PlatformUI
+			.getWorkbench().getService(IDataDirectoriesService.class);
 
 	public EntityView() {
 		this.dataSourceFilters = new HashMap<DataSource, DataSourceFilter>();
@@ -64,6 +101,16 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 				DataSource.DOCLOG));
 		this.dataSourceFilters.put(DataSource.SURVEYRECORD,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
+
+		dataDirectoriesService
+				.addDataDirectoryServiceListener(dataDirectoriesServiceListener);
+	}
+
+	@Override
+	public void dispose() {
+		dataDirectoriesService
+				.removeDataDirectoryServiceListener(dataDirectoriesServiceListener);
+		super.dispose();
 	}
 
 	/**
@@ -84,7 +131,6 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.entityViewer = new EntityViewer(new Table(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER));
 		this.entityViewer.setContentProvider(new EntityContentProvider());
-		this.entityViewer.setInput(Activator.getDefault().getPersonManager());
 
 		this.status = new Label(parent, SWT.BORDER);
 		this.status.setLayoutData(GridDataFactory.fillDefaults().create());
@@ -134,13 +180,18 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 
 	@Override
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
-			TimeZoneDateRange newDateRange) {
-		if (this.dateRangeFilter != null)
-			this.entityViewer.removeFilter(this.dateRangeFilter);
-		this.dateRangeFilter = new DateRangeFilter(newDateRange);
-		this.entityViewer.addFilter(this.dateRangeFilter);
-
-		updateStatus();
+			final TimeZoneDateRange newDateRange) {
+		if (this.dateRangeFilter != null) {
+			ExecutorUtil.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					entityViewer.removeFilter(dateRangeFilter);
+					dateRangeFilter = new DateRangeFilter(newDateRange);
+					entityViewer.addFilter(dateRangeFilter);
+					updateStatus();
+				}
+			});
+		}
 	}
 
 	private void updateStatus() {

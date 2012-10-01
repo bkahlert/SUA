@@ -17,9 +17,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -60,7 +60,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "
-							+ DiffFile.class.getSimpleName(), e);
+							+ DiffDataResource.class.getSimpleName(), e);
 		}
 		return null;
 	}
@@ -99,8 +99,8 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		if (this.id != null && this.id.equals(id))
 			return;
 
-		DiffFileDirectory diffFileDirectory = Activator.getDefault()
-				.getDiffFileDirectory();
+		DiffDataDirectory diffFileDirectory = Activator.getDefault()
+				.getDiffDataDirectories();
 		TimeZoneDateRange diffFilesDateRange = diffFileDirectory
 				.getDateRange(id);
 		if (diffFilesDateRange != null) {
@@ -108,8 +108,8 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 			updateLatestEntryDate(diffFilesDateRange.getEndDate());
 		}
 
-		DoclogDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
-				.getDefault().getDoclogDirectory();
+		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
+				.getDefault().getDoclogDataDirectory();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(id);
 		if (doclogFileDateRange != null) {
@@ -127,8 +127,8 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	public void setFingerprint(Fingerprint fingerprint) {
 		this.fingerprint = fingerprint;
 
-		DoclogDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
-				.getDefault().getDoclogDirectory();
+		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
+				.getDefault().getDoclogDataDirectory();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(fingerprint);
 		updateEarliestEntryDate(doclogFileDateRange.getStartDate());

@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import junit.framework.Assert;
@@ -11,6 +12,9 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
@@ -20,50 +24,70 @@ public class DiffFileTest {
 	private static final String root = "/"
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
-	private static final String sourcesRoot = "/fake/sources";
 
-	private static DiffFile getDiffFile(String diffFileName, ID id,
+	private static DiffDataResource getDiffFile(String diffFileName, ID id,
 			String revision, TimeZoneDateRange dateRange)
 			throws URISyntaxException {
-		File file = FileUtils.getFile(root + "/data/" + diffFileName);
-		return new DiffFile(file, null, id, revision, dateRange,
-				new SourceOrigin(new File(root)), new SourceCache(new File(
-						sourcesRoot)), new NullProgressMonitor());
+
+		FileBaseDataContainer baseDataContainer = new FileBaseDataContainer(
+				FileUtils.getFile(root));
+
+		File diffFile = FileUtils.getFile(root + "/diff/" + diffFileName);
+		FileData diffData = new FileData(baseDataContainer, diffFile);
+
+		SourceOrigin sourceOrigin = new SourceOrigin(new FileDataContainer(
+				baseDataContainer, FileUtils.getFile(root)));
+		SourceCache sourceCache = new SourceCache(baseDataContainer, "sources");
+
+		return new DiffDataResource(diffData, null, id, revision, dateRange,
+				sourceOrigin, sourceCache, new NullProgressMonitor());
 	}
 
 	@Test
-	public void testDiffFileStatics() {
+	public void testDiffFileStatics() throws URISyntaxException {
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffFile.getId(new File(
-						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getId(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffFile.getId(new File(
-						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getId(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
 				"00000048",
-				DiffFile.getRevision(new File(
-						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getRevision(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				"00000048",
-				DiffFile.getRevision(new File(
-						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getRevision(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffFile.getDate(new File(
-						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getDate(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffFile.getDate(new File(
-						"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")));
+				DiffDataResource.getDate(new FileData(
+						new FileBaseDataContainer(FileUtils.getFile(root)),
+						new File(
+								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 	}
 
 	@Test
 	public void testGetContent() throws URISyntaxException {
-		DiffFile smallDiffFile = getDiffFile(
+		DiffDataResource smallDiffFile = getDiffFile(
 				"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
 				new ID("o6lmo5tpxvn3b6fg"), "00000048", new TimeZoneDateRange(
 						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
@@ -81,7 +105,8 @@ public class DiffFileTest {
 	}
 
 	@Test
-	public void testDiffFileRecords() throws URISyntaxException {
+	public void testDiffFileRecords() throws URISyntaxException,
+			IllegalArgumentException, IOException {
 		testDiffFileRecordsCountRun(
 				getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
@@ -91,12 +116,12 @@ public class DiffFileTest {
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/apps/my_app/my_app.dir/Debug/my_app.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/Win32/Debug/SeqAnSandboxMy_sandbox/SeqAnSandboxMy_sandbox.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
+						"o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
+						"o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
+						"o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/apps/my_app/my_app.dir/Debug/my_app.log",
+						"o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/Win32/Debug/SeqAnSandboxMy_sandbox/SeqAnSandboxMy_sandbox.log",
+						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
+						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
@@ -107,12 +132,12 @@ public class DiffFileTest {
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/apps/my_app/my_app.dir/Debug/my_app.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/Win32/Debug/SeqAnSandboxMy_sandbox/SeqAnSandboxMy_sandbox.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
-						"/fake/sources/o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
+						"o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
+						"o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",
+						"o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/apps/my_app/my_app.dir/Debug/my_app.log",
+						"o6lmo5tpxvn3b6fg/48/bin/sandbox/my_sandbox/Win32/Debug/SeqAnSandboxMy_sandbox/SeqAnSandboxMy_sandbox.log",
+						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
+						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
@@ -124,17 +149,17 @@ public class DiffFileTest {
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
 				new String[] {
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/first_app.cpp",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/INFO",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/INFO",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.cpp",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.h",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/demos/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/first_app.cpp",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/INFO",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/INFO",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.cpp",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.h",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/demos/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 
 		testDiffFileRecordsCountRun(
 				getDiffFile(
@@ -146,39 +171,44 @@ public class DiffFileTest {
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
 				new String[] {
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/first_app.cpp",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/INFO",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/INFO",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.cpp",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.h",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/demos/CMakeLists.txt",
-						"/fake/sources/5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/first_app.cpp",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/first_app/INFO",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/INFO",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.cpp",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/apps/my_app/my_app.h",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/demos/CMakeLists.txt",
+						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 	}
 
-	private void testDiffFileRecordsCountRun(DiffFile diffFile,
-			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles) {
-		DiffFileRecordList diffFileRecords = diffFile.getDiffFileRecords();
+	private void testDiffFileRecordsCountRun(DiffDataResource diffDataResource,
+			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles)
+			throws IOException {
+		DiffFileRecordList diffFileRecords = diffDataResource
+				.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
-			DiffFileRecord diffFileRecord = diffFileRecords.get(i);
+			DiffRecord diffRecord = diffFileRecords.get(i);
 
 			// patch size
-			Assert.assertEquals(diffFileRecord.getFilename(),
-					numContentLines[i], diffFileRecord.getPatchLines().size());
+			Assert.assertEquals(numContentLines[i], diffRecord.getPatchLines()
+					.size());
 
 			// time difference
-			Assert.assertEquals(diffFileRecord.getFilename(),
-					timeDifferences[i], diffFileRecord.getDateRange()
-							.getDifference());
+			Assert.assertEquals(timeDifferences[i], diffRecord.getDateRange()
+					.getDifference());
 
 			// cached source file location
-			Assert.assertEquals(diffFileRecord.getFilename(), new File(
-					sourceFiles[i]), diffFileRecord.getSourceFile());
+			Assert.assertEquals(
+					sourceFiles[i],
+					diffRecord.getID()
+							+ "/"
+							+ new Long(diffRecord.getDiffFile().getRevision())
+									.toString() + "/"
+							+ diffRecord.getFilename());
 		}
 	}
-
 }

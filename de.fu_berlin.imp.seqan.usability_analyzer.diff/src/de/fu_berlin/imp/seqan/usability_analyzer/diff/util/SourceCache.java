@@ -1,28 +1,45 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.Assert;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataResource;
 
 public class SourceCache {
-	private File sourceCacheDirectory;
+	private IBaseDataContainer baseDataContainer;
+	private String scope;
 
-	public SourceCache(File sourceCacheDirectory) {
-		Assert.isNotNull(sourceCacheDirectory);
-		this.sourceCacheDirectory = sourceCacheDirectory;
+	public SourceCache(IBaseDataContainer baseDataDirectory) {
+		Assert.isNotNull(baseDataDirectory);
+		this.baseDataContainer = baseDataDirectory;
+		this.scope = "sources";
 	}
 
-	public File getSourceCacheDirectory() {
-		return sourceCacheDirectory;
+	public SourceCache(IBaseDataContainer baseDataContainer, String scope) {
+		this.baseDataContainer = baseDataContainer;
+		this.scope = scope;
 	}
 
-	public File getCachedSourceFile(DiffFile diffFile, String filename) {
-		long revision = Long.parseLong(diffFile.getRevision());
+	public File getCachedSourceFile(DiffDataResource diffDataResource,
+			String filename) throws IOException {
+		long revision = Long.parseLong(diffDataResource.getRevision());
 
-		String path = this.sourceCacheDirectory.getAbsolutePath() + "/"
-				+ diffFile.getID() + "/" + revision + "/" + filename;
-		return new File(path.replace("//", "/"));
+		return this.baseDataContainer.getFile(this.scope,
+				diffDataResource.getID() + "/" + revision + "/" + filename);
+	}
+
+	public void setCachedSourceFile(DiffDataResource diffDataResource,
+			String filename, File file) throws IOException {
+		long revision = Long.parseLong(diffDataResource.getRevision());
+
+		this.baseDataContainer.putFile(this.scope, diffDataResource.getID()
+				+ "/" + revision + "/" + filename, file);
+	}
+
+	public void clear() {
+		this.baseDataContainer.deleteScope("scources");
 	}
 }

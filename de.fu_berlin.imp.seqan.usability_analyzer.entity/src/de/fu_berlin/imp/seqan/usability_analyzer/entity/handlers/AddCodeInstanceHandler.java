@@ -15,7 +15,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 
 public class AddCodeInstanceHandler extends AbstractHandler {
@@ -29,7 +29,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
 			IEditorInput editorInput = editor.getEditorInput();
 			if (editorInput instanceof DiffFileRecordCompareEditorInput) {
-				DiffFileRecord diffFileRecord = ((DiffFileRecordCompareEditorInput) editorInput)
+				DiffRecord diffRecord = ((DiffFileRecordCompareEditorInput) editorInput)
 						.getDiffFileRecord();
 
 				TextSelection textSeDocument = (TextSelection) selection;
@@ -37,7 +37,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				int offset = textSeDocument.getOffset();
 				int length = textSeDocument.getLength();
 				System.out.println("Selected " + length + " chars in "
-						+ diffFileRecord.getFilename());
+						+ diffRecord.getFilename());
 			}
 		}
 

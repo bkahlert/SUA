@@ -29,32 +29,26 @@ public class EpisodeTest {
 
 	@Test
 	public void testId() throws URISyntaxException {
-		Assert.assertEquals(
-				new URI(
-						"sua://episode/IAmAnID/2000-05-20T15:30:15+02:00/2000-05-21T17:35:25+03:00"),
+		String now = new TimeZoneDate().toISO8601();
+		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
 				new Episode(id, start, end, null, null).getCodeInstanceID());
-		Assert.assertEquals(new URI(
-				"sua://episode/!IAmAFingerprint//2000-05-21T17:35:25+03:00"),
+		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
 				new Episode(fingerprint, null, end, null, null)
 						.getCodeInstanceID());
-		Assert.assertEquals(new URI(
-				"sua://episode/IAmAnID/2000-05-20T15:30:15+02:00/"),
+		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
 				new Episode(id, start, null, null, null).getCodeInstanceID());
-		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint//"),
+		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
 				new Episode(fingerprint, null, null, null).getCodeInstanceID());
 
-		Assert.assertEquals(
-				new URI(
-						"sua://episode/!IAmAFingerprint/2000-05-20T15:30:15+02:00/2000-05-21T17:35:25+03:00"),
+		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
 				new Episode(fingerprint, range, null, null).getCodeInstanceID());
-		Assert.assertEquals(new URI(
-				"sua://episode/IAmAnID//2000-05-21T17:35:25+03:00"),
+		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
 				new Episode(id, rangeNoStart, null, null).getCodeInstanceID());
-		Assert.assertEquals(new URI(
-				"sua://episode/!IAmAFingerprint/2000-05-20T15:30:15+02:00/"),
+		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
 				new Episode(fingerprint, rangeNoEnd, null, null)
 						.getCodeInstanceID());
-		Assert.assertEquals(new URI("sua://episode/IAmAnID//"), new Episode(id,
-				rangeNoStartEnd, null, null).getCodeInstanceID());
+		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
+				new Episode(id, rangeNoStartEnd, null, null)
+						.getCodeInstanceID());
 	}
 }

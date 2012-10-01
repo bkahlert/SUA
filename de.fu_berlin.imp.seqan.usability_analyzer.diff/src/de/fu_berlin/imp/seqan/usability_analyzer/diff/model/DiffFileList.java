@@ -6,30 +6,30 @@ import java.util.List;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
-public class DiffFileList extends ArrayList<DiffFile> implements HasDateRange {
+public class DiffFileList extends ArrayList<DiffDataResource> implements HasDateRange {
 
 	private static final long serialVersionUID = 1327362495545624012L;
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		List<TimeZoneDateRange> dateRanges = new ArrayList<TimeZoneDateRange>();
-		for (DiffFile diffFile : this) {
-			dateRanges.add(diffFile.getDateRange());
+		for (DiffDataResource diffDataResource : this) {
+			dateRanges.add(diffDataResource.getDateRange());
 		}
 		return TimeZoneDateRange.calculateOuterDateRange(dateRanges
 				.toArray(new TimeZoneDateRange[0]));
 	}
 
-	private int getIndex(DiffFile diffFile) {
+	private int getIndex(DiffDataResource diffDataResource) {
 		int i = -1;
 		for (i = 0; i < this.size(); i++)
-			if (this.get(i).equals(diffFile))
+			if (this.get(i).equals(diffDataResource))
 				break;
 		return i;
 	}
 
-	public DiffFile getSuccessor(DiffFile diffFile) {
-		int i = getIndex(diffFile);
+	public DiffDataResource getSuccessor(DiffDataResource diffDataResource) {
+		int i = getIndex(diffDataResource);
 
 		if (i >= this.size() - 1)
 			return null;
@@ -41,19 +41,19 @@ public class DiffFileList extends ArrayList<DiffFile> implements HasDateRange {
 	}
 
 	/**
-	 * Returns all {@link DiffFileRecord}'s describing the same file.
+	 * Returns all {@link DiffRecord}'s describing the same file.
 	 * 
 	 * @param filename
 	 * @return
 	 */
 	public DiffFileRecordHistory getHistory(String filename) {
 		DiffFileRecordHistory history = new DiffFileRecordHistory();
-		for (DiffFile diffFile : this) {
-			DiffFileRecordList diffFileRecords = diffFile.getDiffFileRecords();
+		for (DiffDataResource diffDataResource : this) {
+			DiffFileRecordList diffFileRecords = diffDataResource.getDiffFileRecords();
 			if (diffFileRecords != null)
-				for (DiffFileRecord diffFileRecord : diffFileRecords) {
-					if (diffFileRecord.getFilename().equals(filename))
-						history.add(diffFileRecord);
+				for (DiffRecord diffRecord : diffFileRecords) {
+					if (diffRecord.getFilename().equals(filename))
+						history.add(diffRecord);
 				}
 		}
 		return history;

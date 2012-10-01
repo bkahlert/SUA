@@ -1,43 +1,36 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey;
 
-import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import au.com.bytecode.opencsv.CSVReader;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecordList;
 
-public class SurveyRecordManager extends DataSourceManager {
+public class SurveyRecordManager {
 
 	private Logger logger = Logger.getLogger(SurveyRecordManager.class);
 
 	public static final int HEADING_LINE = 0;
 
-	private File surveyCSV;
+	private IData data;
 	private SurveyRecordList surveyRecords;
 
-	public SurveyRecordManager(File surveyCSV)
-			throws DataSourceInvalidException {
-		super(surveyCSV);
-
-		this.surveyCSV = surveyCSV;
+	public SurveyRecordManager(IData data) {
+		this.data = data;
 	}
 
 	public void scanRecords() {
 		this.surveyRecords = new SurveyRecordList();
 		try {
-			CSVReader reader = new CSVReader(new FileReader(surveyCSV));
 			String[] headings = null;
 			String[] values;
 			int line = 0;
-			while ((values = reader.readNext()) != null) {
+			for (String strline : this.data) {
+				values = strline.split(",");
 				if (line == HEADING_LINE) {
 					headings = values;
 				} else {
@@ -65,7 +58,6 @@ public class SurveyRecordManager extends DataSourceManager {
 				}
 				line++;
 			}
-			reader.close();
 		} catch (Exception e) {// Catch exception if any
 			logger.error("Could not open survey file");
 		}

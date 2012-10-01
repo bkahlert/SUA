@@ -10,13 +10,11 @@ public class TrunkUtils {
 		this.data = data;
 	}
 
-	public static File getTrunkFile(File trunkDirectory, String relativeFile) {
-		return new File(trunkDirectory.getPath() + File.separator
-				+ relativeFile);
+	public File getTrunkFile(String relativeFile) {
+		return new File(data, relativeFile);
 	}
 
-	public File getTrunkFile(String relativeFile) {
-		return new File(data + File.separator + "trunk" + File.separator,
-				relativeFile);
+	public static File getTrunkFile(File trunkDir, String relativeFile) {
+		return new File(trunkDir, relativeFile);
 	}
 }

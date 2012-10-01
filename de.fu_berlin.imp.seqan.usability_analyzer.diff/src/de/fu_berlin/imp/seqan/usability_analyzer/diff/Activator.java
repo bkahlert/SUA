@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff;
 
-import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
 import java.util.List;
@@ -15,7 +14,7 @@ import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.FileFilterUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 
 /**
@@ -26,15 +25,13 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff"; //$NON-NLS-1$
 
-	private final Logger logger = Logger.getLogger(Activator.class);
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 
 	// The shared instance
 	private static Activator plugin;
 
-	private SUACorePreferenceUtil corePreferenceUtil;
 	private SUADiffPreferenceUtil diffPreferenceUtil;
-
-	private DiffFileDirectory diffFileDirectory;
 
 	private List<FileFilter> oldFileFilters;
 	private IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
@@ -61,6 +58,8 @@ public class Activator extends AbstractUIPlugin {
 		}
 	};
 
+	private DiffDataDirectory diffDataDirectory = null;
+
 	/**
 	 * The constructor
 	 */
@@ -82,24 +81,10 @@ public class Activator extends AbstractUIPlugin {
 		PropertyConfigurator
 				.configure(FileLocator.toFileURL(confURL).getFile());
 
-		corePreferenceUtil = new SUACorePreferenceUtil();
+		new SUACorePreferenceUtil();
 		diffPreferenceUtil = new SUADiffPreferenceUtil();
 		oldFileFilters = diffPreferenceUtil.getFileFilters();
 		diffPreferenceUtil.addPropertyChangeListener(propertyChangeListener);
-
-		File dataDirectory = corePreferenceUtil.getDataDirectory();
-		if (dataDirectory != null && dataDirectory.isDirectory()
-				&& dataDirectory.canRead()) {
-			File diffFileDir = new File(dataDirectory, "diff");
-			File trunkDir = new File(dataDirectory, "trunk");
-			File srcDir = new File(dataDirectory, "sources");
-			diffFileDirectory = new DiffFileDirectory(diffFileDir, trunkDir,
-					srcDir);
-			diffFileDirectory.scan();
-		} else {
-			logger.warn("No valid log directory specified");
-		}
-
 	}
 
 	/*
@@ -124,8 +109,12 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public DiffFileDirectory getDiffFileDirectory() {
-		return diffFileDirectory;
+	public DiffDataDirectory getDiffDataDirectories() {
+		return this.diffDataDirectory;
+	}
+
+	public void setDiffDataDirectory(DiffDataDirectory diffDataDirectory) {
+		this.diffDataDirectory = diffDataDirectory;
 	}
 
 }

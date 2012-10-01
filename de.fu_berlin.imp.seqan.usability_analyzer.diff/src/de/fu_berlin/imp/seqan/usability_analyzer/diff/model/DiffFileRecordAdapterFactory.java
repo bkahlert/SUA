@@ -15,18 +15,18 @@ public class DiffFileRecordAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
-		if (adaptableObject instanceof DiffFileRecord) {
-			DiffFileRecord diffFileRecord = (DiffFileRecord) adaptableObject;
+		if (adaptableObject instanceof DiffRecord) {
+			DiffRecord diffRecord = (DiffRecord) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
-				// although a DiffFileRecord itself has a DateRange
-				// it is preferable to use its DiffFile's DateRange to have a
+				// although a DiffRecord itself has a DateRange
+				// it is preferable to use its DiffDataResource's DateRange to have a
 				// slighter wider range
-				return diffFileRecord.getDiffFile().getDateRange();
+				return diffRecord.getDiffFile().getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				TimeZoneDateRange dateRange = diffFileRecord.getDiffFile()
+				TimeZoneDateRange dateRange = diffRecord.getDiffFile()
 						.getDateRange();
-				return new IdDateRange(diffFileRecord.getDiffFile().getID(),
+				return new IdDateRange(diffRecord.getDiffFile().getID(),
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}
 			return null;

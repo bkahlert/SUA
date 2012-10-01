@@ -24,7 +24,7 @@ public class TrunkUtilsTest {
 
 		File trunkDir = FileUtils.getFile(root + "/trunk");
 		Assert.assertTrue(trunkDir.exists());
-
+		System.err.println(trunkDir);
 		File trunkFile = TrunkUtils.getTrunkFile(trunkDir,
 				"sandbox/mordor/apps/exastellar/exastellar.cpp");
 		Assert.assertTrue(trunkFile.exists());

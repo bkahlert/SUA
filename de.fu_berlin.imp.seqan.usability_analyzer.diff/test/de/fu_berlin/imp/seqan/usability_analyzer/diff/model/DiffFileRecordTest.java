@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 import static org.hamcrest.Matchers.greaterThan;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -20,8 +21,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffFileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceOrigin;
 
@@ -63,7 +66,7 @@ public class DiffFileRecordTest {
 						{
 								FileUtils
 										.getFile(root
-												+ "/data/o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff"),
+												+ "/diff/o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff"),
 								new LinkedList<DiffFileRecordTest.ValidationPatch>() {
 									{
 										add(new ValidationPatch(
@@ -101,7 +104,7 @@ public class DiffFileRecordTest {
 						{
 								FileUtils
 										.getFile(root
-												+ "/data/blcdihoxu16s53yo/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"),
+												+ "/diff/blcdihoxu16s53yo/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"),
 								new LinkedList<ValidationPatch>() {
 									{
 										add(new ValidationPatch(
@@ -180,42 +183,52 @@ public class DiffFileRecordTest {
 	}
 
 	@Test
-	public void testGetPatch() throws URISyntaxException {
-		final DiffFile diffFile = context.mock(DiffFile.class);
+	public void testGetPatch() throws URISyntaxException, IOException {
+		final IData data = new FileData(null, underlayingDiffFile);
+
+		final DiffDataResource diffDataResource = context
+				.mock(DiffDataResource.class);
 		final SourceOrigin sourceOrigin = context.mock(SourceOrigin.class);
 		final SourceCache sourceCache = context.mock(SourceCache.class);
 		context.checking(new Expectations() {
 			{
-				allowing(diffFile).getID();
+				allowing(diffDataResource).getID();
 				will(returnValue(null));
 
-				allowing(diffFile).getRevision();
+				allowing(diffDataResource).getRevision();
 				will(returnValue(null));
 
-				allowing(diffFile).getPrevDiffFile();
+				allowing(diffDataResource).getPrevDiffFile();
 				will(returnValue(null));
 
-				allowing(diffFile).getName();
+				allowing(diffDataResource).getName();
 				will(returnValue(underlayingDiffFile.getName()));
 
-				allowing(diffFile).length();
+				allowing(diffDataResource).getLength();
 				will(returnValue(underlayingDiffFile.length()));
 
-				allowing(diffFile).getPath();
-				will(returnValue(underlayingDiffFile.getPath()));
+				allowing(diffDataResource).iterator();
+				will(returnValue(data.iterator()));
+
+				// TODO
+				// allowing(diffDataResource).getPath();
+				// will(returnValue(underlayingDiffFile.getPath()));
 
 				allowing(sourceOrigin).getOriginSourceFile(
 						with(any(String.class)));
 				will(returnValue(null));
 
 				allowing(sourceCache).getCachedSourceFile(
-						with(any(DiffFile.class)), with(any(String.class)));
+						with(any(DiffDataResource.class)),
+						with(any(String.class)));
 				will(returnValue(null));
 
 				// TEST
 				// expectations are defined in patches
 				for (ValidationPatch patch : validationPatches) {
-					oneOf(diffFile).getContent(patch.start, patch.end);
+					oneOf(diffDataResource).read(patch.start - 2, patch.start);
+					will(returnValue(2));
+					oneOf(diffDataResource).getContent(patch.start, patch.end);
 					will(returnValue(null));
 				}
 
@@ -224,13 +237,13 @@ public class DiffFileRecordTest {
 
 				// STOP checking
 				// just accept all further getContent calls
-				allowing(diffFile).getContent(with(any(Long.class)),
+				allowing(diffDataResource).getContent(with(any(Long.class)),
 						with(any(Long.class)));
 				will(returnValue(null));
 			}
 		});
 
-		DiffFileUtils.readRecords(diffFile, sourceOrigin, sourceCache,
-				new NullProgressMonitor());
+		DiffDataResourceUtils.readRecords(diffDataResource, sourceOrigin,
+				sourceCache, new NullProgressMonitor());
 	}
 }

@@ -9,8 +9,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ViewerUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -28,43 +27,43 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codesAdded(List<ICode> code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void memoModified(ICode code) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void memoModified(ICodeable codeable) {
-			ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
@@ -103,23 +102,23 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 	@Override
 	public Object getParent(Object element) {
 		if (element instanceof DoclogRecord) {
-			return ((DoclogRecord) element).getDoclogPath();
+			return ((DoclogRecord) element).getDoclog();
 		}
 		return null;
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof DoclogFile) {
-			return ((DoclogFile) element).getDoclogRecords().size() > 0;
+		if (element instanceof Doclog) {
+			return ((Doclog) element).getDoclogRecords().size() > 0;
 		}
 		return false;
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof DoclogFile) {
-			return ((DoclogFile) parentElement).getDoclogRecords().toArray();
+		if (parentElement instanceof Doclog) {
+			return ((Doclog) parentElement).getDoclogRecords().toArray();
 		}
 		return new Object[0];
 	}
@@ -133,8 +132,8 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 			 * return the mentioned child list. This way we save one hierarchy
 			 * level (= ID level).
 			 */
-			if (objects.length == 1 && objects[0] instanceof DoclogFile) {
-				return ((DoclogFile) objects[0]).getDoclogRecords().toArray();
+			if (objects.length == 1 && objects[0] instanceof Doclog) {
+				return ((Doclog) objects[0]).getDoclogRecords().toArray();
 			}
 			return objects;
 		}

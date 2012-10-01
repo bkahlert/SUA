@@ -18,8 +18,8 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDirectory;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogFile;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
 public class TakeAllScreenshotHandler extends AbstractHandler {
@@ -34,20 +34,20 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 				.setMessage("Do you really want to take all screenshots?\nThis can take some time and will overwrite dirty existing screenshots.");
 		if (messageBox.open() == SWT.YES) {
 			final DoclogRecordList doclogRecords = new DoclogRecordList();
-			Job job = new Job("Parsing " + DoclogFile.class.getSimpleName()
+			Job job = new Job("Parsing " + Doclog.class.getSimpleName()
 					+ "s") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					DoclogDirectory doclogDirectory = Activator.getDefault()
-							.getDoclogDirectory();
-					Set<Object> keys = doclogDirectory.getKeys();
+					DoclogDataDirectory doclogDataDirectory = Activator
+							.getDefault().getDoclogDataDirectory();
+					Set<Object> keys = doclogDataDirectory.getKeys();
 					monitor.beginTask(
-							"Parsing " + DoclogFile.class.getSimpleName() + "s",
+							"Parsing " + Doclog.class.getSimpleName() + "s",
 							keys.size());
 
 					for (Object key : keys) {
-						doclogRecords.addAll(doclogDirectory.getDoclogFile(key,
-								new SubProgressMonitor(monitor, 1))
+						doclogRecords.addAll(doclogDataDirectory.getDoclogFile(
+								key, new SubProgressMonitor(monitor, 1))
 								.getDoclogRecords());
 					}
 					monitor.done();

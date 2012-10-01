@@ -13,12 +13,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.nebula.widgets.cdatetime;bundle-version="0.14.0",
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1",
  org.eclipse.core.expressions;bundle-version="3.4.300",
- com.bkahlert.devel.nebula;bundle-version="1.0.0"
+ com.bkahlert.devel.nebula;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.4.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model,
+ de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource,
  de.fu_berlin.imp.seqan.usability_analyzer.core.preferences,
  de.fu_berlin.imp.seqan.usability_analyzer.core.services,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui,

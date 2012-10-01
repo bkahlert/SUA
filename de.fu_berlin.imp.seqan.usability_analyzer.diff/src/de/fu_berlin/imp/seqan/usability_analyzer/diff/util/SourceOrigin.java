@@ -1,16 +1,17 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
-import java.io.File;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 
 public class SourceOrigin {
-	private File sourcesDirectory;
+	private IDataContainer sourcesDirectory;
 
-	public SourceOrigin(File sourcesDirectory) {
+	public SourceOrigin(IDataContainer dataContainer) {
 		super();
-		this.sourcesDirectory = sourcesDirectory;
+		this.sourcesDirectory = dataContainer;
 	}
 
-	public File getOriginSourceFile(String filename) {
-		return TrunkUtils.getTrunkFile(sourcesDirectory, filename);
+	public IData getOriginSourceFile(String filename) {
+		return sourcesDirectory.getResource(filename);
 	}
 }

@@ -21,22 +21,21 @@ public class SurveyRecord {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 
-	private Map<String, String> surveyRecords;
+	private Map<String, String> entries;
 	private TimeZoneDate date;
 
 	public SurveyRecord(String[] keys, String[] values) throws IOException {
-		this.surveyRecords = new HashMap<String, String>();
+		this.entries = new HashMap<String, String>();
 		for (int i = 0; i < keys.length; i++) {
-			this.surveyRecords.put(keys[i], (i < values.length) ? values[i]
-					: null);
+			this.entries.put(keys[i], (i < values.length) ? values[i] : null);
 		}
 		scanRecord();
 	}
 
 	private void scanRecord() {
-		if (this.surveyRecords.containsKey(KEY_DATE)) {
+		if (this.entries.containsKey(KEY_DATE)) {
 			try {
-				Date date = DATE_FORMAT.parse(this.surveyRecords.get(KEY_DATE));
+				Date date = DATE_FORMAT.parse(this.entries.get(KEY_DATE));
 				TimeZone timeZone;
 				try {
 					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
@@ -57,8 +56,8 @@ public class SurveyRecord {
 	}
 
 	public Token getToken() {
-		if (this.surveyRecords.containsKey("Token")) {
-			return new Token(this.surveyRecords.get("Token"));
+		if (this.entries.containsKey("Token")) {
+			return new Token(this.entries.get("Token"));
 		}
 		return null;
 	}
@@ -67,8 +66,7 @@ public class SurveyRecord {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((surveyRecords == null) ? 0 : surveyRecords.hashCode());
+		result = prime * result + ((entries == null) ? 0 : entries.hashCode());
 		return result;
 	}
 
@@ -87,6 +85,18 @@ public class SurveyRecord {
 		} else if (!getToken().equals(other.getToken()))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		String separator = "; ";
+		StringBuilder sb = new StringBuilder();
+		for (String key : this.entries.keySet()) {
+			sb.append(key + "=" + this.entries.get(key));
+			sb.append(separator);
+		}
+		sb.setLength(sb.length() - separator.length());
+		return sb.toString();
 	}
 
 }

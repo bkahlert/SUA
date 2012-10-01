@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange" name="Date Range" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.core.daterange.exsd"/>
+   <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload" name="Data Load" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.core.dataload.exsd"/>
    <extension point="org.eclipse.ui.views">
       <category id="de.fu_berlin.imp.seqan.usability_analyzer.category" name="Usability Analysis">
       </category>
@@ -37,6 +38,9 @@
             factoryClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.ServiceFactory">
          <service
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService"></service>
+         <service
+               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService">
+         </service>
       </serviceFactory>
    </extension>
 <extension
@@ -48,6 +52,11 @@
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.rename"
             name="Rename...">
+      </command>
+      <command
+            description="Change the data directories that are available."
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
+            name="Add/Remove Data Directories">
       </command>
    </extension>
      <extension
@@ -67,6 +76,10 @@
                  </iterate>
               </with>
            </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.ChangeDataDirectories"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories">
         </handler>
      </extension>
    <extension

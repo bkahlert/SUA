@@ -62,11 +62,11 @@ public class DoclogDetailDialog extends Dialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_RIGHT) {
-					currentDoclogRecord = doclogTimeline.getDoclogFile()
-							.getNextDoclogRecord(currentDoclogRecord);
+					currentDoclogRecord.getDoclog().getNextDoclogRecord(
+							currentDoclogRecord);
 					loadDoclogRecord(currentDoclogRecord);
 				} else if (e.keyCode == SWT.ARROW_LEFT) {
-					currentDoclogRecord = doclogTimeline.getDoclogFile()
+					currentDoclogRecord = currentDoclogRecord.getDoclog()
 							.getPrevDoclogRecord(currentDoclogRecord);
 					loadDoclogRecord(currentDoclogRecord);
 				} else if (e.keyCode == SWT.ESC || e.keyCode == SWT.CR) {

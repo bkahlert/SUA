@@ -1,48 +1,52 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.stats;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 
-public class CMakeCacheFileManager extends DataSourceManager {
+public class CMakeCacheFileManager {
 	private static final Logger LOGGER = Logger
 			.getLogger(CMakeCacheFileManager.class);
-	private List<CMakeCacheFile> cMakeCacheFiles;
+	private Map<IBaseDataContainer, List<CMakeCacheFile>> cMakeCacheFiles;
 
-	public CMakeCacheFileManager(File dataDirectory)
-			throws DataSourceInvalidException {
-		super(new File(dataDirectory, "diff"));
+	public CMakeCacheFileManager(
+			List<? extends IBaseDataContainer> baseDataContainers) {
+		cMakeCacheFiles = new HashMap<IBaseDataContainer, List<CMakeCacheFile>>();
+		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
+			this.cMakeCacheFiles.put(baseDataContainer, null);
+		}
 	}
 
 	public void scanFiles() {
-		List<CMakeCacheFile> cMakeCacheFiles = new ArrayList<CMakeCacheFile>();
-		for (File diffFileDir : this.getFile().listFiles()) {
-			if (!diffFileDir.isDirectory())
-				continue;
-			if (!ID.isValid(diffFileDir.getName())) {
-				LOGGER.warn("Directory with invalid "
-						+ ID.class.getSimpleName() + " name detected: "
-						+ diffFileDir.toString());
-				continue;
-			}
+		for (IBaseDataContainer baseDataContainer : cMakeCacheFiles.keySet()) {
+			List<CMakeCacheFile> cMakeCacheFiles = new ArrayList<CMakeCacheFile>();
+			for (IDataContainer diffFileDir : baseDataContainer
+					.getSubContainers()) {
+				if (!ID.isValid(diffFileDir.getName())) {
+					LOGGER.warn("Directory with invalid "
+							+ ID.class.getSimpleName() + " name detected: "
+							+ diffFileDir.toString());
+					continue;
+				}
 
-			for (File cMakeCacheFile : diffFileDir
-					.listFiles((FileFilter) new RegexFileFilter(
-							CMakeCacheFile.PATTERN))) {
-				cMakeCacheFiles.add(new CMakeCacheFile(cMakeCacheFile
-						.getAbsolutePath()));
+				for (IData cMakeCacheFile : diffFileDir.getResources()) {
+					if (!CMakeCacheFile.PATTERN.matcher(
+							cMakeCacheFile.getName()).matches())
+						continue;
+					cMakeCacheFiles.add(new CMakeCacheFile(cMakeCacheFile));
+				}
 			}
+			this.cMakeCacheFiles.put(baseDataContainer, cMakeCacheFiles);
 		}
-		this.cMakeCacheFiles = cMakeCacheFiles;
 	}
 
 	/**
@@ -51,6 +55,9 @@ public class CMakeCacheFileManager extends DataSourceManager {
 	 * @return
 	 */
 	public List<CMakeCacheFile> getCMakeCacheFiles() {
+		List<CMakeCacheFile> cMakeCacheFiles = new ArrayList<CMakeCacheFile>();
+		for (List<CMakeCacheFile> sf : this.cMakeCacheFiles.values())
+			cMakeCacheFiles.addAll(sf);
 		return cMakeCacheFiles;
 	}
 
@@ -62,9 +69,12 @@ public class CMakeCacheFileManager extends DataSourceManager {
 	 */
 	public List<ID> getIDs() {
 		List<ID> cMakeCacheIDs = new ArrayList<ID>();
-		for (CMakeCacheFile cMakeCacheFile : this.cMakeCacheFiles) {
-			if (!cMakeCacheIDs.contains(cMakeCacheFile.getId())) {
-				cMakeCacheIDs.add(cMakeCacheFile.getId());
+		for (List<CMakeCacheFile> cMakeCacheFiles : this.cMakeCacheFiles
+				.values()) {
+			for (CMakeCacheFile cMakeCacheFile : cMakeCacheFiles) {
+				if (!cMakeCacheIDs.contains(cMakeCacheFile.getId())) {
+					cMakeCacheIDs.add(cMakeCacheFile.getId());
+				}
 			}
 		}
 		return cMakeCacheIDs;
@@ -77,9 +87,12 @@ public class CMakeCacheFileManager extends DataSourceManager {
 	 * @return
 	 */
 	public CMakeCacheFile getCMakeCacheFile(ID id) {
-		for (CMakeCacheFile cMakeCacheFile : this.cMakeCacheFiles) {
-			if (cMakeCacheFile.getId().equals(id)) {
-				return cMakeCacheFile;
+		for (List<CMakeCacheFile> cMakeCacheFiles : this.cMakeCacheFiles
+				.values()) {
+			for (CMakeCacheFile cMakeCacheFile : cMakeCacheFiles) {
+				if (cMakeCacheFile.getId().equals(id)) {
+					return cMakeCacheFile;
+				}
 			}
 		}
 		return null;

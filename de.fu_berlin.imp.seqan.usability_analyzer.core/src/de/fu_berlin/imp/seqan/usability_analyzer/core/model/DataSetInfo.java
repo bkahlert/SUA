@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-public class DataSetInfo extends File {
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
+
+public class DataSetInfo extends File implements IDataSetInfo {
 
 	private static final long serialVersionUID = 2526847064745924065L;
 
@@ -17,19 +19,20 @@ public class DataSetInfo extends File {
 	private TimeZoneDate startDate;
 	private TimeZoneDate endDate;
 
-	public DataSetInfo(String pathname) {
-		super(pathname);
+	public DataSetInfo(File file) {
+		super(file.toString());
 
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(pathname));
+			properties.load(new FileInputStream(file));
 			Set<Object> keys = properties.keySet();
 			for (Object key_ : keys) {
 				String key = (String) key_;
 				if (key.equals("name")) {
 					this.name = properties.getProperty(key);
 				} else if (key.equals("start")) {
-					this.startDate = new TimeZoneDate(properties.getProperty(key));
+					this.startDate = new TimeZoneDate(
+							properties.getProperty(key));
 				} else if (key.equals("end")) {
 					this.endDate = new TimeZoneDate(properties.getProperty(key));
 				}
@@ -41,15 +44,13 @@ public class DataSetInfo extends File {
 		}
 	}
 
+	@Override
 	public String getName() {
 		return this.name;
 	}
 
-	public TimeZoneDate getStartDate() {
-		return this.startDate;
-	}
-
-	public TimeZoneDate getEndDate() {
-		return this.endDate;
+	@Override
+	public TimeZoneDateRange getDateRange() {
+		return new TimeZoneDateRange(startDate, endDate);
 	}
 }

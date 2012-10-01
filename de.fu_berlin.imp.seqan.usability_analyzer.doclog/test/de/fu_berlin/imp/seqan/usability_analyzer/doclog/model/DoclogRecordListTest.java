@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DoclogRecordListTest {
@@ -44,7 +45,7 @@ public class DoclogRecordListTest {
 		this.doclogNumDoclogRecords = doclogFileContent.split("\n").length;
 	}
 
-	public DoclogFile getDoclogFile() throws IOException {
+	public Doclog getDoclogFile() throws IOException {
 		File file = File.createTempFile("test", "_doclog.txt");
 		file.deleteOnExit();
 		BufferedWriter out = null;
@@ -56,22 +57,24 @@ public class DoclogRecordListTest {
 			if (out != null)
 				out.close();
 		}
-		return new DoclogFile(file, new ID("fakeID"),
-				DoclogFile.getDateRange(file), DoclogFile.getToken(file));
+		FileData dataResource = new FileData(null, file);
+		return new Doclog(dataResource, new ID("fakeID"),
+				Doclog.getDateRange(dataResource),
+				Doclog.getToken(dataResource));
 	}
 
 	@Test
 	public void sizeTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		Assert.assertEquals(doclogNumDoclogRecords, doclogFile
-				.getDoclogRecords().size());
+		Doclog doclog = this.getDoclogFile();
+		Assert.assertEquals(doclogNumDoclogRecords, doclog.getDoclogRecords()
+				.size());
 	}
 
 	@Test
 	public void earliestLatestDateTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecord oldestRecord = doclogFile.getDoclogRecords().get(0);
-		DoclogRecord youngestRecord = doclogFile.getDoclogRecords().get(
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecord oldestRecord = doclog.getDoclogRecords().get(0);
+		DoclogRecord youngestRecord = doclog.getDoclogRecords().get(
 				doclogNumDoclogRecords - 1);
 		Assert.assertEquals(
 				new TimeZoneDate(DateUtil.getDate(2011, 8, 10, 8, 20, 59),
@@ -85,8 +88,8 @@ public class DoclogRecordListTest {
 	 */
 	@Test
 	public void predecessorTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecordList doclogRecords = doclog.getDoclogRecords();
 
 		Assert.assertNull(doclogRecords.getPredecessor(doclogRecords.get(0)));
 
@@ -132,8 +135,8 @@ public class DoclogRecordListTest {
 
 	@Test
 	public void predecessorIsAlwaysInPastTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecordList doclogRecords = doclog.getDoclogRecords();
 
 		boolean skip = true;
 		for (DoclogRecord doclogRecord : doclogRecords) {
@@ -154,8 +157,8 @@ public class DoclogRecordListTest {
 	 */
 	@Test
 	public void successorTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecordList doclogRecords = doclog.getDoclogRecords();
 
 		Assert.assertNull(doclogRecords.getSuccessor(doclogRecords
 				.get(doclogRecords.size() - 1)));
@@ -205,8 +208,8 @@ public class DoclogRecordListTest {
 
 	@Test
 	public void successorIsAlwaysInFutureTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecordList doclogRecords = doclog.getDoclogRecords();
 
 		for (int i = 0; i < doclogRecords.size(); i++) {
 			DoclogRecord doclogRecord = doclogRecords.get(i);
@@ -225,8 +228,8 @@ public class DoclogRecordListTest {
 	 */
 	@Test
 	public void predecessorSuccessorTest() throws Exception {
-		DoclogFile doclogFile = this.getDoclogFile();
-		DoclogRecordList doclogRecords = doclogFile.getDoclogRecords();
+		Doclog doclog = this.getDoclogFile();
+		DoclogRecordList doclogRecords = doclog.getDoclogRecords();
 
 		for (int i = 0; i < doclogRecords.size(); i++) {
 			DoclogRecord doclogRecord = doclogRecords.get(i);

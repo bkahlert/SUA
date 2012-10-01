@@ -7,6 +7,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+
 public class FileUtilsTest {
 	@Test
 	public void testReadFirstLine() throws URISyntaxException {
@@ -45,8 +47,10 @@ public class FileUtilsTest {
 
 	@Test
 	public void testGetNewlineLengthAt() throws URISyntaxException {
-		File file = FileUtils
-				.getFile("data/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff");
+		FileData file = new FileData(
+				null,
+				FileUtils
+						.getFile("data/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"));
 		Assert.assertEquals(0, FileUtils.getNewlineLengthAt(file, 0x3AB4)); // nothing
 		Assert.assertEquals(1, FileUtils.getNewlineLengthAt(file, 0x3AB5)); // CR
 		Assert.assertEquals(2, FileUtils.getNewlineLengthAt(file, 0x3AB6)); // CR+LF
