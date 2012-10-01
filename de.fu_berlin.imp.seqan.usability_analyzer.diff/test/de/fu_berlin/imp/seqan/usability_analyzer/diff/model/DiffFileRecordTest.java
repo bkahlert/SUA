@@ -19,7 +19,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDat
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -197,9 +196,8 @@ public class DiffFileRecordTest {
 				return;
 			}
 		};
-		final DiffData diffData = new DiffData(data, null,
-				DiffDataUtils.getId(data), DiffDataUtils.getRevision(data),
-				null, trunk, sourceCache, new NullProgressMonitor()) {
+		final DiffData diffData = new DiffData(data, null, trunk, sourceCache,
+				new NullProgressMonitor()) {
 			private static final long serialVersionUID = 6214770578221566054L;
 			private int i = 0;
 

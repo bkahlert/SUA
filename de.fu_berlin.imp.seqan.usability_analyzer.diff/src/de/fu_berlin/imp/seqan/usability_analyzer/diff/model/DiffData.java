@@ -11,11 +11,13 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -54,17 +56,20 @@ public class DiffData implements IDiffData {
 
 	private DiffFileRecordList diffFileRecords = null;
 
-	public DiffData(IData data, IDiffData prevDiffFile, ID id, long revision,
-			TimeZoneDateRange dateRange, ITrunk trunk,
+	public DiffData(IData data, IDiffData prevDiffFile, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 		this.data = data;
 		this.prevDiffFile = prevDiffFile;
 
 		Assert.isNotNull(sourceCache);
 
-		this.id = id;
-		this.revision = revision;
-		this.dateRange = dateRange;
+		this.id = DiffDataUtils.getId(data);
+		this.revision = DiffDataUtils.getRevision(data);
+		TimeZoneDate prevDate = prevDiffFile != null
+				&& prevDiffFile.getDateRange() != null ? prevDiffFile
+				.getDateRange().getEndDate() : null;
+		this.dateRange = new TimeZoneDateRange(prevDate,
+				DiffDataUtils.getDate(data));
 
 		this.diffFileRecords = DiffDataResourceUtils.readRecords(this, trunk,
 				sourceCache, progressMonitor);

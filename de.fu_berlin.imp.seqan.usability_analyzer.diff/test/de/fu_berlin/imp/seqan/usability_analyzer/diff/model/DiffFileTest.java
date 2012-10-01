@@ -42,8 +42,8 @@ public class DiffFileTest {
 				FileUtils.getFile(root)));
 		ISourceStore sourceCache = new SourceCache(baseDataContainer, "sources");
 
-		return new DiffData(diffData, null, id, revision, dateRange, trunk,
-				sourceCache, new NullProgressMonitor());
+		return new DiffData(diffData, null, trunk, sourceCache,
+				new NullProgressMonitor());
 	}
 
 	@Test

@@ -7,11 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataResourceList;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -46,16 +42,8 @@ public class DiffFileRecordList extends ArrayList<DiffRecord> {
 				dataResources.size());
 
 		for (IData data : dataResources) { // look ahead = 1
-			ID id = DiffDataUtils.getId(data);
-			long revision = DiffDataUtils.getRevision(data);
-			TimeZoneDate prevDate = prevDiffFile != null ? prevDiffFile
-					.getDateRange().getEndDate() : null;
-			TimeZoneDateRange dateRange = new TimeZoneDateRange(prevDate,
-					DiffDataUtils.getDate(data));
-
-			DiffData diffData = new DiffData(data, prevDiffFile, id, revision,
-					dateRange, trunk, sourceCache, new SubProgressMonitor(
-							progressMonitor, 1));
+			DiffData diffData = new DiffData(data, prevDiffFile, trunk,
+					sourceCache, new SubProgressMonitor(progressMonitor, 1));
 			diffFiles.add(diffData);
 
 			prevDiffFile = diffData;
