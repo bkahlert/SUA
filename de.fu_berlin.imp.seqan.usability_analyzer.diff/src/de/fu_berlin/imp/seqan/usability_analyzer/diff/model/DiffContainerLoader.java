@@ -11,7 +11,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDa
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 
-public class DiffDataLoader implements IDataLoadProvider {
+public class DiffContainerLoader implements IDataLoadProvider {
 
 	@Override
 	public String getJobName(
@@ -25,12 +25,12 @@ public class DiffDataLoader implements IDataLoadProvider {
 			List<? extends IBaseDataContainer> dataResourceContainers,
 			IProgressMonitor progressMonitor) {
 		SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
-		DiffDataDirectory diffDataDirectory = new DiffDataDirectory(
+		DiffContainer diffContainer = new DiffContainer(
 				dataResourceContainers);
-		diffDataDirectory.scan(subMonitor);
+		diffContainer.scan(subMonitor);
 		subMonitor.done();
-		Activator.getDefault().setDiffDataDirectory(diffDataDirectory);
-		return diffDataDirectory;
+		Activator.getDefault().setDiffDataDirectory(diffContainer);
+		return diffContainer;
 	}
 
 }

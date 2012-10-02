@@ -9,13 +9,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 
 public class DiffDataUtils {
 
 	public static ID getId(IData diffFile) {
 		ID id = null;
-		Matcher matcher = DiffData.PATTERN.matcher(diffFile.getName());
+		Matcher matcher = Diff.PATTERN.matcher(diffFile.getName());
 		if (matcher.find())
 			id = new ID(matcher.group(1));
 		return id;
@@ -23,7 +23,7 @@ public class DiffDataUtils {
 
 	public static Long getRevision(IData data) {
 		String revision = null;
-		Matcher matcher = DiffData.PATTERN.matcher(data.getName());
+		Matcher matcher = Diff.PATTERN.matcher(data.getName());
 		if (matcher.find())
 			revision = matcher.group(2);
 		try {
@@ -35,7 +35,7 @@ public class DiffDataUtils {
 
 	public static TimeZoneDate getDate(IData data) {
 		TimeZoneDate date = null;
-		Matcher matcher = DiffData.PATTERN.matcher(data.getName());
+		Matcher matcher = Diff.PATTERN.matcher(data.getName());
 		if (matcher.find()) {
 			if (matcher.group(9) != null) {
 				// Date contains time zone

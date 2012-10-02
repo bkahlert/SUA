@@ -54,8 +54,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
@@ -102,7 +102,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 			open(new HashSet<ID>(ids), null);
 		}
 	};
-	private HashMap<ID, DiffFileList> openedDiffFileLists = new HashMap<ID, DiffFileList>();
+	private HashMap<ID, DiffList> openedDiffFileLists = new HashMap<ID, DiffList>();
 
 	private DateRangeFilter dateRangeFilter = null;
 	private HashMap<FileFilter, DiffFileListsViewerFileFilter> diffFileListsViewerFileFilters = new HashMap<FileFilter, DiffFileListsViewerFileFilter>();
@@ -209,7 +209,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	/**
 	 * Opens the given {@link ID}s in the {@link DiffFileListsViewer}. If the
-	 * corresponding {@link DiffFileList}s could be successfully opened a caller
+	 * corresponding {@link DiffList}s could be successfully opened a caller
 	 * defined {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
@@ -220,7 +220,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	 * @param success
 	 */
 	public <T> Future<T> open(final Set<ID> ids, final Callable<T> success) {
-		final HashMap<ID, DiffFileList> newOpenedDiffFileLists = new HashMap<ID, DiffFileList>();
+		final HashMap<ID, DiffList> newOpenedDiffFileLists = new HashMap<ID, DiffList>();
 
 		// do not load already opened diff file list
 		for (ID openedID : openedDiffFileLists.keySet()) {
@@ -255,14 +255,14 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						continue;
 
 					Job diffFileLoader = new Job("Loading "
-							+ DiffData.class.getSimpleName() + "s") {
+							+ Diff.class.getSimpleName() + "s") {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
-							DiffFileList diffFileList = Activator.getDefault()
+							DiffList diffList = Activator.getDefault()
 									.getDiffDataDirectories()
 									.getDiffFiles(id, monitor);
 							synchronized (newOpenedDiffFileLists) {
-								newOpenedDiffFileLists.put(id, diffFileList);
+								newOpenedDiffFileLists.put(id, diffList);
 							}
 							return Status.OK_STATUS;
 						}

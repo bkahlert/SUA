@@ -27,11 +27,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
@@ -64,7 +64,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 
 				// 0: ID
 				ID id = new ID(path[0]);
-				DiffFileList diffFiles = Activator.getDefault()
+				DiffList diffFiles = Activator.getDefault()
 						.getDiffDataDirectories()
 						.getDiffFiles(id, monitor.get());
 
@@ -78,15 +78,15 @@ public class DiffCodeableProvider extends CodeableProvider {
 				}
 				if (diffFiles.size() <= revision) {
 					LOGGER.error("There is no revision " + revision
-							+ " of the " + DiffData.class.getSimpleName()
+							+ " of the " + Diff.class.getSimpleName()
 							+ "s with " + ID.class.getSimpleName() + " " + id);
 					return null;
 				}
 
 				// 2: Record
-				DiffData diffData = diffFiles.get(revision);
+				Diff diff = diffFiles.get(revision);
 				if (path.length <= 2)
-					return diffData;
+					return diff;
 				String diffFileRecordName;
 				try {
 
@@ -96,7 +96,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 							+ DiffRecord.class.getSimpleName());
 					return null;
 				}
-				for (DiffRecord diffRecord : diffData.getDiffFileRecords()) {
+				for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
 					if (diffRecord.getFilename().equals(diffFileRecordName)) {
 						if (codeInstanceID.getFragment() != null) {
 							try {
@@ -104,12 +104,12 @@ public class DiffCodeableProvider extends CodeableProvider {
 										.split("\\+");
 								int segmentStart = Integer.valueOf(segment[0]);
 								int segmentLength = Integer.valueOf(segment[1]);
-								return new DiffFileRecordSegment(diffRecord,
+								return new DiffRecordSegment(diffRecord,
 										segmentStart, segmentLength);
 							} catch (Exception e) {
 								LOGGER.error(
 										"Could not calculate the "
-												+ DiffFileRecordSegment.class
+												+ DiffRecordSegment.class
 														.getSimpleName()
 												+ " from " + codeInstanceID, e);
 								return diffRecord;
@@ -180,8 +180,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 	public boolean openSegments(final List<ICodeable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
 		for (ICodeable codeable : codedObjects) {
-			if (codeable instanceof DiffFileRecordSegment) {
-				DiffFileRecordSegment segment = (DiffFileRecordSegment) codeable;
+			if (codeable instanceof DiffRecordSegment) {
+				DiffRecordSegment segment = (DiffRecordSegment) codeable;
 				DiffFileEditorUtils.openCompareEditor(segment
 						.getDiffFileRecord());
 				// TODO: Highlight segment
@@ -201,17 +201,17 @@ public class DiffCodeableProvider extends CodeableProvider {
 
 			@Override
 			public String getText(Object element) {
-				if (element instanceof DiffFileList) {
-					DiffFileList diffFileList = (DiffFileList) element;
+				if (element instanceof DiffList) {
+					DiffList diffList = (DiffList) element;
 					ID id = null;
-					if (diffFileList.size() > 0) {
-						id = diffFileList.get(0).getID();
+					if (diffList.size() > 0) {
+						id = diffList.get(0).getID();
 					}
 					return (id != null) ? id.toString() : "";
 				}
-				if (element instanceof IDiffData) {
-					DiffData diffData = (DiffData) element;
-					TimeZoneDate date = diffData.getDateRange().getStartDate();
+				if (element instanceof IDiff) {
+					Diff diff = (Diff) element;
+					TimeZoneDate date = diff.getDateRange().getStartDate();
 					return (date != null) ? date
 							.format(new SUACorePreferenceUtil().getDateFormat())
 							: "";
@@ -222,24 +222,24 @@ public class DiffCodeableProvider extends CodeableProvider {
 					return (name != null) ? new File(name).getName() + "@"
 							+ diffRecord.getDiffFile().getRevision() : "";
 				}
-				if (element instanceof DiffFileRecordSegment) {
-					DiffFileRecordSegment diffFileRecordSegment = (DiffFileRecordSegment) element;
-					String name = diffFileRecordSegment.getDiffFileRecord()
+				if (element instanceof DiffRecordSegment) {
+					DiffRecordSegment diffRecordSegment = (DiffRecordSegment) element;
+					String name = diffRecordSegment.getDiffFileRecord()
 							.getFilename();
 					return (name != null) ? new File(name).getName() + ": "
-							+ diffFileRecordSegment.getSegmentStart() + "+"
-							+ diffFileRecordSegment.getSegmentLength() : "";
+							+ diffRecordSegment.getSegmentStart() + "+"
+							+ diffRecordSegment.getSegmentLength() : "";
 				}
 				return "";
 			}
 
 			@Override
 			public Image getImage(Object element) {
-				if (element instanceof DiffFileList) {
+				if (element instanceof DiffList) {
 					return ImageManager.DIFFFILELIST;
 				}
-				if (element instanceof IDiffData) {
-					// DiffData diffFile = (DiffData) element;
+				if (element instanceof IDiff) {
+					// Diff diffFile = (Diff) element;
 					// try {
 					// return (codeService.getCodes(diffFile).size() > 0) ?
 					// (codeService
@@ -269,9 +269,9 @@ public class DiffCodeableProvider extends CodeableProvider {
 					// }
 					return ImageManager.DIFFFILERECORD;
 				}
-				if (element instanceof DiffFileRecordSegment) {
-					// DiffFileRecordSegment diffFileRecordSegment =
-					// (DiffFileRecordSegment) element;
+				if (element instanceof DiffRecordSegment) {
+					// DiffRecordSegment diffFileRecordSegment =
+					// (DiffRecordSegment) element;
 					// try {
 					// return (codeService.getCodes(diffFileRecordSegment)
 					// .size() > 0) ? (codeService

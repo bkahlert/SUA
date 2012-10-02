@@ -17,7 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
@@ -29,7 +29,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 public class EntityManager {
 	private Logger logger = Logger.getLogger(EntityManager.class);
 
-	private DiffDataDirectory diffFileDirectory;
+	private DiffContainer diffFileDirectory;
 	private DoclogDataDirectory doclogDataDirectory;
 	private SurveyRecordManager surveyRecordManager;
 
@@ -40,7 +40,7 @@ public class EntityManager {
 
 	private List<Entity> persons = new ArrayList<Entity>();
 
-	public EntityManager(DiffDataDirectory diffFileManager,
+	public EntityManager(DiffContainer diffFileManager,
 			DoclogDataDirectory doclogDataDirectory,
 			SurveyRecordManager surveyRecordManager,
 			StatsFileManager statsFileManager,

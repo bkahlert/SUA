@@ -26,13 +26,13 @@ public class DiffFileDirectoryTest {
 
 	private static ID id = new ID("amudto8y1mzxaebv");
 
-	private static DiffDataDirectory getDiffFileManager()
+	private static DiffContainer getDiffFileManager()
 			throws URISyntaxException {
-		return new DiffDataDirectory(new FileBaseDataContainer(
+		return new DiffContainer(new FileBaseDataContainer(
 				FileUtils.getFile(root)));
 	}
 
-	private DiffFileRecordHistory getDiffFileRecordHistory()
+	private DiffRecordHistory getDiffFileRecordHistory()
 			throws URISyntaxException {
 		return getDiffFileManager().createDiffFiles(id,
 				new NullProgressMonitor()).getHistory(
@@ -48,7 +48,7 @@ public class DiffFileDirectoryTest {
 
 	@Test
 	public void testGetDateRange() throws Exception {
-		DiffDataDirectory diffFileManager = getDiffFileManager();
+		DiffContainer diffFileManager = getDiffFileManager();
 		TimeZoneDateRange dateRange;
 
 		dateRange = diffFileManager.getDateRange(new ID("5lpcjqhy0b9yfech"));
@@ -72,34 +72,34 @@ public class DiffFileDirectoryTest {
 
 	@Test
 	public void testGetDiffFiles() throws Exception {
-		DiffDataDirectory diffFileManager = getDiffFileManager();
+		DiffContainer diffFileManager = getDiffFileManager();
 
-		DiffFileList diffFiles = diffFileManager.createDiffFiles(id,
+		DiffList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 		Assert.assertEquals(6, diffFiles.size());
 	}
 
 	@Test
 	public void testGetRevision() throws Exception {
-		DiffDataDirectory diffFileManager = getDiffFileManager();
+		DiffContainer diffFileManager = getDiffFileManager();
 
-		DiffFileList diffFiles = diffFileManager.createDiffFiles(id,
+		DiffList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 
 		for (int i = 0; i < diffFiles.size(); i++) {
-			IDiffData diffData = diffFiles.get(i);
-			Assert.assertEquals(i, diffData.getRevision());
+			IDiff diff = diffFiles.get(i);
+			Assert.assertEquals(i, diff.getRevision());
 		}
 	}
 
 	@Test
 	public void testPredecessorSuccessor() throws Exception {
-		DiffFileRecordHistory diffFileRecordHistory = getDiffFileRecordHistory();
-		Assert.assertEquals(3, diffFileRecordHistory.size());
+		DiffRecordHistory diffRecordHistory = getDiffFileRecordHistory();
+		Assert.assertEquals(3, diffRecordHistory.size());
 
-		DiffRecord r0 = diffFileRecordHistory.get(0);
-		DiffRecord r1 = diffFileRecordHistory.get(1);
-		DiffRecord r2 = diffFileRecordHistory.get(2);
+		DiffRecord r0 = diffRecordHistory.get(0);
+		DiffRecord r1 = diffRecordHistory.get(1);
+		DiffRecord r2 = diffRecordHistory.get(2);
 
 		// Assert.assertEquals(r1, r0.getSuccessor());
 		// Assert.assertEquals(r2, r1.getSuccessor());
@@ -112,11 +112,11 @@ public class DiffFileDirectoryTest {
 
 	@Test
 	public void testSources() throws Exception {
-		DiffFileRecordHistory diffFileRecordHistory = getDiffFileRecordHistory();
-		Assert.assertEquals(3, diffFileRecordHistory.size());
+		DiffRecordHistory diffRecordHistory = getDiffFileRecordHistory();
+		Assert.assertEquals(3, diffRecordHistory.size());
 
-		for (int i = 0, j = diffFileRecordHistory.size(); i < j; i++) {
-			DiffRecord diffRecord = diffFileRecordHistory.get(i);
+		for (int i = 0, j = diffRecordHistory.size(); i < j; i++) {
+			DiffRecord diffRecord = diffRecordHistory.get(i);
 			File expectedFile = FileUtils.getFile(root
 					+ "/trunk/sandbox/mordor/apps/exastellar/exastellar.r" + i
 					+ ".cpp");

@@ -43,7 +43,7 @@ public class SourceCache implements ISourceStore {
 	 * 
 	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore#
 	 * setCachedSourceFile
-	 * (de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData,
+	 * (de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff,
 	 * java.lang.String, java.io.File)
 	 */
 	@Override

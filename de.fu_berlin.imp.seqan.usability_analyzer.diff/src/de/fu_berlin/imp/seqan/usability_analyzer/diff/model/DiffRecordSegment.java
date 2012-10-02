@@ -11,18 +11,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffFileRecordSegment implements ICodeable, HasDateRange, HasID {
+public class DiffRecordSegment implements ICodeable, HasDateRange, HasID {
 
 	private static final long serialVersionUID = 3956746799123197525L;
 
 	private static final Logger LOGGER = Logger
-			.getLogger(DiffFileRecordSegment.class);
+			.getLogger(DiffRecordSegment.class);
 
 	private DiffRecord diffRecord;
 	private long segmentStart;
 	private long segmentEnd;
 
-	public DiffFileRecordSegment(DiffRecord diffRecord,
+	public DiffRecordSegment(DiffRecord diffRecord,
 			long segmentStart, long segmentEnd) {
 		assert diffRecord != null;
 		this.diffRecord = diffRecord;
@@ -47,7 +47,7 @@ public class DiffFileRecordSegment implements ICodeable, HasDateRange, HasID {
 					+ segmentStart + "+" + segmentEnd);
 		} catch (URISyntaxException e) {
 			LOGGER.fatal("Could not create ID for a "
-					+ DiffFileRecordSegment.class.getSimpleName(), e);
+					+ DiffRecordSegment.class.getSimpleName(), e);
 			return null;
 		}
 	}

@@ -29,9 +29,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
  * {@link DiffRecord}s. Classically the underlying resource is a file with the
  * <code>.diff</code> extension in unified diff format.
  */
-public class DiffData implements IDiffData {
+public class Diff implements IDiff {
 
-	private static final Logger LOGGER = Logger.getLogger(DiffData.class);
+	private static final Logger LOGGER = Logger.getLogger(Diff.class);
 
 	private static final long serialVersionUID = 5159431028889474742L;
 	public static final Pattern PATTERN = Pattern
@@ -45,13 +45,13 @@ public class DiffData implements IDiffData {
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "
-							+ DiffData.class.getSimpleName(), e);
+							+ Diff.class.getSimpleName(), e);
 		}
 		return null;
 	}
 
 	private IData data;
-	private IDiffData prevDiffFile;
+	private IDiff prevDiffFile;
 
 	private ID id;
 	private long revision;
@@ -59,7 +59,7 @@ public class DiffData implements IDiffData {
 
 	private DiffRecordList diffFileRecords = null;
 
-	public DiffData(IData data, IDiffData prevDiffFile, ITrunk trunk,
+	public Diff(IData data, IDiff prevDiffFile, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 		this.data = data;
 		this.prevDiffFile = prevDiffFile;
@@ -131,11 +131,11 @@ public class DiffData implements IDiffData {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData#
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#
 	 * getPrevDiffFile()
 	 */
 	@Override
-	public IDiffData getPrevDiffFile() {
+	public IDiff getPrevDiffFile() {
 		return prevDiffFile;
 	}
 
@@ -147,7 +147,7 @@ public class DiffData implements IDiffData {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData#getRevision
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#getRevision
 	 * ()
 	 */
 	@Override
@@ -163,7 +163,7 @@ public class DiffData implements IDiffData {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData#
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#
 	 * getDiffFileRecords()
 	 */
 	@Override
@@ -171,21 +171,21 @@ public class DiffData implements IDiffData {
 		return diffFileRecords;
 	}
 
-	public int compareTo(DiffData diffData) {
+	public int compareTo(Diff diff) {
 		if (this.getDateRange() == null
 				|| this.getDateRange().getStartDate() == null) {
-			if (diffData.getDateRange() == null
-					|| diffData.getDateRange().getStartDate() == null) {
+			if (diff.getDateRange() == null
+					|| diff.getDateRange().getStartDate() == null) {
 				return 0;
 			} else {
 				return -1;
 			}
-		} else if (diffData.getDateRange() == null
-				|| diffData.getDateRange().getStartDate() == null) {
+		} else if (diff.getDateRange() == null
+				|| diff.getDateRange().getStartDate() == null) {
 			return 1;
 		} else {
 			return this.getDateRange().getStartDate()
-					.compareTo(diffData.getDateRange().getStartDate());
+					.compareTo(diff.getDateRange().getStartDate());
 		}
 	}
 
@@ -193,7 +193,7 @@ public class DiffData implements IDiffData {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData#sourcesExist
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#sourcesExist
 	 * ()
 	 */
 	@Override
@@ -212,7 +212,7 @@ public class DiffData implements IDiffData {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData#getContent
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#getContent
 	 * (long, long)
 	 */
 	@Override

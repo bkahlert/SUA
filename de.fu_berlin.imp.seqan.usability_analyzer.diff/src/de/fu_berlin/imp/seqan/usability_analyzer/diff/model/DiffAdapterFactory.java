@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 
-public class DiffFileRecordAdapterFactory implements IAdapterFactory {
+public class DiffAdapterFactory implements IAdapterFactory {
 
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
@@ -15,18 +15,14 @@ public class DiffFileRecordAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
-		if (adaptableObject instanceof DiffRecord) {
-			DiffRecord diffRecord = (DiffRecord) adaptableObject;
+		if (adaptableObject instanceof IDiff) {
+			Diff diff = (Diff) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
-				// although a DiffRecord itself has a DateRange
-				// it is preferable to use its DiffData's DateRange to have a
-				// slighter wider range
-				return diffRecord.getDiffFile().getDateRange();
+				return diff.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				TimeZoneDateRange dateRange = diffRecord.getDiffFile()
-						.getDateRange();
-				return new IdDateRange(diffRecord.getDiffFile().getID(),
+				TimeZoneDateRange dateRange = diff.getDateRange();
+				return new IdDateRange(diff.getID(),
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}
 			return null;

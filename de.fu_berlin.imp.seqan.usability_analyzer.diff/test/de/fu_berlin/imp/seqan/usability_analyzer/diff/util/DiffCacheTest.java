@@ -12,7 +12,7 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectoryTest;
 
 public class DiffCacheTest {
@@ -24,7 +24,7 @@ public class DiffCacheTest {
 	@Test
 	public void testDataCache() throws URISyntaxException, IOException {
 		new File(FileUtils.getFile(root), "__dataset.txt").createNewFile();
-		DiffDataDirectory diffFileDirectory = new DiffDataDirectory(
+		DiffContainer diffFileDirectory = new DiffContainer(
 				new FileBaseDataContainer(FileUtils.getFile(root)));
 		diffFileDirectory.scan(null);
 

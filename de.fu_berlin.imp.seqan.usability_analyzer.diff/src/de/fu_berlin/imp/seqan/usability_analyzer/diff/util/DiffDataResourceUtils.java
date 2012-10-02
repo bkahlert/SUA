@@ -8,8 +8,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -34,7 +34,7 @@ public class DiffDataResourceUtils {
 		}
 	}
 
-	public static DiffRecordList readRecords(DiffData diffData, ITrunk trunk,
+	public static DiffRecordList readRecords(Diff diff, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 
 		String commandLine = null;
@@ -43,19 +43,19 @@ public class DiffDataResourceUtils {
 		long contentStart = 0l;
 		long contentEnd = 0l;
 
-		progressMonitor.beginTask("Processing " + diffData.getName(), 3);
+		progressMonitor.beginTask("Processing " + diff.getName(), 3);
 		final long start = System.currentTimeMillis();
 
 		SubProgressMonitor detectionMonitor = new SubProgressMonitor(
 				progressMonitor, 1);
 		detectionMonitor.beginTask(
 				"Detecting " + DiffRecord.class.getSimpleName() + "s",
-				(int) (diffData.getLength() / 1000));
+				(int) (diff.getLength() / 1000));
 
 		LinkedList<DiffFileRecordDescriptor> descriptors = new LinkedList<DiffFileRecordDescriptor>();
 		Integer newLineLength = null;
 		try {
-			for (String line : diffData) {
+			for (String line : diff) {
 				if (line.equals("RESET"))
 					break;
 
@@ -63,7 +63,7 @@ public class DiffDataResourceUtils {
 				if (newLineLength == null) {
 					try {
 						newLineLength = de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils
-								.getNewlineLengthAt(diffData, contentEnd
+								.getNewlineLengthAt(diff, contentEnd
 										+ lineLength);
 					} catch (Exception e) {
 						continue;
@@ -108,9 +108,9 @@ public class DiffDataResourceUtils {
 			}
 		} catch (Exception e) {
 			detectionMonitor.beginTask(
-					"Aborting " + DiffData.class.getSimpleName() + " parsing",
+					"Aborting " + Diff.class.getSimpleName() + " parsing",
 					1);
-			LOGGER.error("Could not open " + DiffData.class.getSimpleName(), e);
+			LOGGER.error("Could not open " + Diff.class.getSimpleName(), e);
 			detectionMonitor.done();
 			return null;
 		}
@@ -130,7 +130,7 @@ public class DiffDataResourceUtils {
 				"Creating " + DiffRecord.class.getSimpleName() + "s",
 				descriptors.size());
 
-		DiffRecordList diffRecords = new DiffRecordList(diffData, trunk,
+		DiffRecordList diffRecords = new DiffRecordList(diff, trunk,
 				sourceCache);
 
 		for (DiffFileRecordDescriptor descriptor : descriptors) {
@@ -144,8 +144,8 @@ public class DiffDataResourceUtils {
 
 		creationMonitor.done();
 
-		LOGGER.info("Parsed " + DiffData.class.getSimpleName() + " \""
-				+ diffData.getName() + "\": " + diffRecords.size() + " "
+		LOGGER.info("Parsed " + Diff.class.getSimpleName() + " \""
+				+ diff.getName() + "\": " + diffRecords.size() + " "
 				+ DiffRecord.class.getSimpleName() + "s found within "
 				+ (System.currentTimeMillis() - start) + "ms.");
 		progressMonitor.done();
@@ -154,7 +154,7 @@ public class DiffDataResourceUtils {
 	}
 
 	/**
-	 * Looks for {@link DiffFileRecordSegment}s and returns a list of the
+	 * Looks for {@link DiffRecordSegment}s and returns a list of the
 	 * corresponding {@link DiffRecord}s.
 	 * 
 	 * @param codeables
@@ -164,8 +164,8 @@ public class DiffDataResourceUtils {
 			List<ICodeable> codeables) {
 		List<DiffRecord> diffRecords = new LinkedList<DiffRecord>();
 		for (ICodeable codeable : codeables) {
-			if (codeable instanceof DiffFileRecordSegment) {
-				DiffFileRecordSegment segment = (DiffFileRecordSegment) codeable;
+			if (codeable instanceof DiffRecordSegment) {
+				DiffRecordSegment segment = (DiffRecordSegment) codeable;
 				diffRecords.add(segment.getDiffFileRecord());
 			}
 		}

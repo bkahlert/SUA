@@ -14,7 +14,7 @@ import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.FileFilterUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 
 /**
@@ -58,7 +58,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 	};
 
-	private DiffDataDirectory diffDataDirectory = null;
+	private DiffContainer diffContainer = null;
 
 	/**
 	 * The constructor
@@ -109,12 +109,12 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public DiffDataDirectory getDiffDataDirectories() {
-		return this.diffDataDirectory;
+	public DiffContainer getDiffDataDirectories() {
+		return this.diffContainer;
 	}
 
-	public void setDiffDataDirectory(DiffDataDirectory diffDataDirectory) {
-		this.diffDataDirectory = diffDataDirectory;
+	public void setDiffDataDirectory(DiffContainer diffContainer) {
+		this.diffContainer = diffContainer;
 	}
 
 }

@@ -26,7 +26,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 public class AddCodeInstanceHandler extends AbstractHandler {
@@ -89,7 +89,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				final int offset = textSeDocument.getOffset();
 				final int length = textSeDocument.getLength();
 				if (focusDiffFileRecord != null) {
-					DiffFileRecordSegment segment = new DiffFileRecordSegment(
+					DiffRecordSegment segment = new DiffRecordSegment(
 							focusDiffFileRecord, offset, length);
 					WizardUtils.openAddCodeWizard(segment);
 				} else {

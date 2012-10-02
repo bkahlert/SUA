@@ -33,10 +33,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
-public class DiffDataDirectory extends AggregatedBaseDataContainer {
+public class DiffContainer extends AggregatedBaseDataContainer {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(DiffDataDirectory.class);
+			.getLogger(DiffContainer.class);
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
@@ -48,13 +48,13 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 * names (see {@link ID#isValid(String)}) and maps all containing files its
 	 * corresponding {@link ID}.
 	 * 
-	 * @param diffDataDirectory
+	 * @param diffContainer
 	 * @return
 	 */
 	private static Map<ID, DataResourceList> readDiffFilesMapping(
-			DiffDataDirectory diffDataDirectory) {
+			DiffContainer diffContainer) {
 		Map<ID, DataResourceList> rawFiles = new HashMap<ID, DataResourceList>();
-		for (IDataContainer diffFileDir : diffDataDirectory
+		for (IDataContainer diffFileDir : diffContainer
 				.getDiffFileDirectory().getSubContainers()) {
 			if (!ID.isValid(diffFileDir.getName())) {
 				LOGGER.warn("Directory with invalid "
@@ -64,7 +64,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 			}
 
 			for (IData diffFile : diffFileDir.getResources()) {
-				if (!DiffData.PATTERN.matcher(diffFile.getName())
+				if (!Diff.PATTERN.matcher(diffFile.getName())
 						.matches())
 					continue;
 				ID id = DiffDataUtils.getId(diffFile);
@@ -102,17 +102,17 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	private DiffCache diffCache;
 
 	/**
-	 * Returns a {@link DiffDataDirectory} instance that can handle contained
-	 * {@link DiffData}s
+	 * Returns a {@link DiffContainer} instance that can handle contained
+	 * {@link Diff}s
 	 * 
 	 * @param baseDataContainers
-	 *            containing {@link DiffData}s
+	 *            containing {@link Diff}s
 	 * @param originalSourcesDirectory
 	 *            containing the original source files
 	 * @param cachedSourcesDirectory
-	 *            that can be used to cache patched {@link DiffData}s
+	 *            that can be used to cache patched {@link Diff}s
 	 */
-	public DiffDataDirectory(
+	public DiffContainer(
 			List<? extends IBaseDataContainer> baseDataContainers) {
 		super(baseDataContainers);
 		this.diffFileDirectory = this.getSubContainer("diff");
@@ -122,7 +122,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 		this.diffCache = new DiffCache(this, DIFF_CACHE_SIZE);
 	}
 
-	public DiffDataDirectory(IBaseDataContainer dataResourceContainer) {
+	public DiffContainer(IBaseDataContainer dataResourceContainer) {
 		this(Arrays.asList(dataResourceContainer));
 	}
 
@@ -178,7 +178,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
 	/**
 	 * Returns a list of all {@link ID}s occurring in the managed
-	 * {@link DiffData}s.
+	 * {@link Diff}s.
 	 * 
 	 * @return
 	 */
@@ -189,7 +189,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 
 	/**
 	 * Return the {@link TimeZoneDateRange} determined by the earliest and
-	 * latest {@link DiffData}
+	 * latest {@link Diff}
 	 * 
 	 * @param id
 	 * @return
@@ -204,10 +204,10 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns all {@link DiffData}s associated with a given {@link ID}.
+	 * Returns all {@link Diff}s associated with a given {@link ID}.
 	 * <p>
-	 * If the {@link DiffFileList} is already in the cached the cached version
-	 * is returned. Otherwise a new {@link DiffFileList} is constructed and
+	 * If the {@link DiffList} is already in the cached the cached version
+	 * is returned. Otherwise a new {@link DiffList} is constructed and
 	 * added to the cache.
 	 * 
 	 * @param id
@@ -216,12 +216,12 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 * 
 	 * @see DiffCache
 	 */
-	public DiffFileList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
+	public DiffList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		return diffCache.getPayload(id, progressMonitor);
 	}
 
 	/**
-	 * Returns all {@link DiffData}s associated with a given {@link ID}.
+	 * Returns all {@link Diff}s associated with a given {@link ID}.
 	 * <p>
 	 * In contrast to {@link #getDiffFiles(ID, IProgressMonitor)} this method
 	 * always creates the objects anew and does not use any caching
@@ -231,9 +231,9 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public DiffFileList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
+	public DiffList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		DiffFileList diffFiles = DiffRecordList.create(
+		DiffList diffFiles = DiffRecordList.create(
 				this.dataResourceLists.get(id), this.trunk,
 				this.sourceCache, progressMonitor);
 		return diffFiles;
@@ -245,11 +245,11 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 		} else if (this.dataResourceLists == null
 				&& this.fileDateRanges != null) {
 			LOGGER.fatal("State error in "
-					+ DiffDataDirectory.class.getSimpleName() + "");
+					+ DiffContainer.class.getSimpleName() + "");
 		} else if (this.dataResourceLists != null
 				&& this.fileDateRanges == null) {
 			LOGGER.fatal("State error in "
-					+ DiffDataDirectory.class.getSimpleName() + "");
+					+ DiffContainer.class.getSimpleName() + "");
 		} else {
 			// nothing to do
 		}

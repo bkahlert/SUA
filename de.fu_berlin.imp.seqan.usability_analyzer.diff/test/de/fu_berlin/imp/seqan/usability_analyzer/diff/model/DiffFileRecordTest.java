@@ -196,7 +196,7 @@ public class DiffFileRecordTest {
 				return;
 			}
 		};
-		final DiffData diffData = new DiffData(data, null, trunk, sourceCache,
+		final Diff diff = new Diff(data, null, trunk, sourceCache,
 				new NullProgressMonitor()) {
 			private static final long serialVersionUID = 6214770578221566054L;
 			private int i = 0;
@@ -221,7 +221,7 @@ public class DiffFileRecordTest {
 			}
 		};
 
-		DiffDataResourceUtils.readRecords(diffData, trunk, sourceCache,
+		DiffDataResourceUtils.readRecords(diff, trunk, sourceCache,
 				new NullProgressMonitor());
 	}
 }

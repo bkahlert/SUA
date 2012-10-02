@@ -7,7 +7,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
-public class DiffFileRecordMeta implements HasDateRange {
+public class DiffRecordMeta implements HasDateRange {
 	private static String getNameFromLine(String line) {
 		String name = line.substring(4).split("\t")[0];
 		if (name.substring(0, "./".length()).equals("./")) {
@@ -42,7 +42,7 @@ public class DiffFileRecordMeta implements HasDateRange {
 
 	private TimeZoneDateRange dateRange;
 
-	public DiffFileRecordMeta(String fromFileLine, String toFileLine) {
+	public DiffRecordMeta(String fromFileLine, String toFileLine) {
 		this.fromFileName = getNameFromLine(fromFileLine);
 		this.fromFileDate = getDateFromLine(fromFileLine);
 		this.toFileName = getNameFromLine(toFileLine);

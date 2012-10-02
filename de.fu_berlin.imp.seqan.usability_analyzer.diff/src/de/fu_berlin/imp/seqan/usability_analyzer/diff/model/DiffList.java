@@ -6,30 +6,30 @@ import java.util.List;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
-public class DiffFileList extends ArrayList<DiffData> implements HasDateRange {
+public class DiffList extends ArrayList<Diff> implements HasDateRange {
 
 	private static final long serialVersionUID = 1327362495545624012L;
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		List<TimeZoneDateRange> dateRanges = new ArrayList<TimeZoneDateRange>();
-		for (DiffData diffData : this) {
-			dateRanges.add(diffData.getDateRange());
+		for (Diff diff : this) {
+			dateRanges.add(diff.getDateRange());
 		}
 		return TimeZoneDateRange.calculateOuterDateRange(dateRanges
 				.toArray(new TimeZoneDateRange[0]));
 	}
 
-	private int getIndex(IDiffData diffData) {
+	private int getIndex(IDiff diff) {
 		int i = -1;
 		for (i = 0; i < this.size(); i++)
-			if (this.get(i).equals(diffData))
+			if (this.get(i).equals(diff))
 				break;
 		return i;
 	}
 
-	public IDiffData getSuccessor(IDiffData diffData) {
-		int i = getIndex(diffData);
+	public IDiff getSuccessor(IDiff diff) {
+		int i = getIndex(diff);
 
 		if (i >= this.size() - 1)
 			return null;
@@ -46,10 +46,10 @@ public class DiffFileList extends ArrayList<DiffData> implements HasDateRange {
 	 * @param filename
 	 * @return
 	 */
-	public DiffFileRecordHistory getHistory(String filename) {
-		DiffFileRecordHistory history = new DiffFileRecordHistory();
-		for (IDiffData diffData : this) {
-			DiffRecordList diffFileRecords = diffData.getDiffFileRecords();
+	public DiffRecordHistory getHistory(String filename) {
+		DiffRecordHistory history = new DiffRecordHistory();
+		for (IDiff diff : this) {
+			DiffRecordList diffFileRecords = diff.getDiffFileRecords();
 			if (diffFileRecords != null)
 				for (DiffRecord diffRecord : diffFileRecords) {
 					if (diffRecord.getFilename().equals(filename))

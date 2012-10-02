@@ -7,9 +7,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public interface IDiffData extends IData, HasID, HasDateRange, ICodeable {
+public interface IDiff extends IData, HasID, HasDateRange, ICodeable {
 
-	public IDiffData getPrevDiffFile();
+	public IDiff getPrevDiffFile();
 
 	public long getRevision();
 

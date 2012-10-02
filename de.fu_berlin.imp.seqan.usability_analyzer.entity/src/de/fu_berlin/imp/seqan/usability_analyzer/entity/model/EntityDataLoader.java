@@ -12,7 +12,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 
@@ -32,11 +32,11 @@ public class EntityDataLoader implements IDataLoadProvider {
 			IProgressMonitor progressMonitor) {
 		SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
 
-		DiffDataDirectory diffDataDirectory = de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+		DiffContainer diffContainer = de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
 				.getDefault().getDiffDataDirectories();
-		if (diffDataDirectory == null) {
+		if (diffContainer == null) {
 			LOGGER.error("Could not match entities since no "
-					+ DiffDataDirectory.class.getSimpleName()
+					+ DiffContainer.class.getSimpleName()
 					+ " could be found.");
 			return null;
 		}
@@ -53,7 +53,7 @@ public class EntityDataLoader implements IDataLoadProvider {
 		// if (!diffDataDirectory.getBaseDataContainer().equals(
 		// doclogDataDirectory.getBaseDataContainer())) {
 		// LOGGER.error("Could not match entities since the "
-		// + DiffDataDirectory.class.getSimpleName() + " and the "
+		// + DiffContainer.class.getSimpleName() + " and the "
 		// + DoclogDataDirectory.class.getSimpleName()
 		// + " don't handle the same resource.");
 		// return null;
@@ -61,7 +61,7 @@ public class EntityDataLoader implements IDataLoadProvider {
 
 		try {
 			EntityDataContainer entityDataContainer = new EntityDataContainer(
-					baseDataContainers, diffDataDirectory, doclogDataDirectory);
+					baseDataContainers, diffContainer, doclogDataDirectory);
 			entityDataContainer.scan(subMonitor);
 			Activator.getDefault().setLoadedData(entityDataContainer);
 			return entityDataContainer;

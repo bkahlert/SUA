@@ -13,7 +13,7 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 public class DiffUtilsTest {
@@ -36,19 +36,19 @@ public class DiffUtilsTest {
 
 	@Test
 	public void testGetSourceFile() throws IOException {
-		final DiffData diffData = context.mock(DiffData.class);
+		final Diff diff = context.mock(Diff.class);
 		final DiffRecord diffRecord = context.mock(DiffRecord.class);
 
 		context.checking(new Expectations() {
 			{
-				allowing(diffData).getID();
+				allowing(diff).getID();
 				will(returnValue(new ID("theID")));
 
-				allowing(diffData).getRevision();
+				allowing(diff).getRevision();
 				will(returnValue(27837l));
 
 				allowing(diffRecord).getDiffFile();
-				will(returnValue(diffData));
+				will(returnValue(diff));
 
 				allowing(diffRecord).getFilename();
 				will(returnValue("this/is/the/path/to/the/file.cpp"));

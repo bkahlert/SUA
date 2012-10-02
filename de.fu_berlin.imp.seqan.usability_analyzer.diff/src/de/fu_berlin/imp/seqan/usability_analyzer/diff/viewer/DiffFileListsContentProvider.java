@@ -9,10 +9,10 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -104,7 +104,7 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object getParent(Object element) {
-		if (element instanceof IDiffData) {
+		if (element instanceof IDiff) {
 			return null;
 		}
 		if (element instanceof DiffRecord) {
@@ -115,11 +115,11 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof DiffFileList) {
-			return ((DiffFileList) element).size() > 0;
+		if (element instanceof DiffList) {
+			return ((DiffList) element).size() > 0;
 		}
-		if (element instanceof IDiffData) {
-			DiffRecordList diffFileRecords = ((IDiffData) element)
+		if (element instanceof IDiff) {
+			DiffRecordList diffFileRecords = ((IDiff) element)
 					.getDiffFileRecords();
 			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
@@ -128,11 +128,11 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof DiffFileList) {
-			return ((DiffFileList) parentElement).toArray();
+		if (parentElement instanceof DiffList) {
+			return ((DiffList) parentElement).toArray();
 		}
-		if (parentElement instanceof IDiffData) {
-			DiffRecordList diffFileRecords = ((IDiffData) parentElement)
+		if (parentElement instanceof IDiff) {
+			DiffRecordList diffFileRecords = ((IDiff) parentElement)
 					.getDiffFileRecords();
 			return diffFileRecords != null ? diffFileRecords.toArray()
 					: new Object[0];
@@ -149,8 +149,8 @@ public class DiffFileListsContentProvider implements
 			 * return the mentioned child list. This way we save one hierarchy
 			 * level (= ID level).
 			 */
-			if (objects.length == 1 && objects[0] instanceof DiffFileList) {
-				return ((DiffFileList) objects[0]).toArray();
+			if (objects.length == 1 && objects[0] instanceof DiffList) {
+				return ((DiffList) objects[0]).toArray();
 			}
 			return objects;
 		}

@@ -17,7 +17,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	 * Creates a new {@link DiffRecordList} instance.
 	 * 
 	 * @param dataResources
-	 *            that can be treated as {@link DiffData}s<br>
+	 *            that can be treated as {@link Diff}s<br>
 	 *            e.g. [ "/some/dir/data/file.v1.diff",
 	 *            "/some/dir/data/file.v2.diff" ]
 	 * @param trunk
@@ -30,26 +30,26 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static DiffFileList create(DataResourceList dataResources,
+	public static DiffList create(DataResourceList dataResources,
 			ITrunk trunk, ISourceStore sourceCache,
 			IProgressMonitor progressMonitor) {
-		DiffFileList diffFiles = new DiffFileList();
+		DiffList diffFiles = new DiffList();
 
-		DiffData prevDiffFile = null;
+		Diff prevDiffFile = null;
 
 		progressMonitor.beginTask(
-				"Processing " + DiffData.class.getSimpleName() + "s",
+				"Processing " + Diff.class.getSimpleName() + "s",
 				dataResources.size());
 
 		for (IData data : dataResources) { // look ahead = 1
-			DiffData diffData = new DiffData(data, prevDiffFile, trunk,
+			Diff diff = new Diff(data, prevDiffFile, trunk,
 					sourceCache, new SubProgressMonitor(progressMonitor, 1));
-			diffFiles.add(diffData);
+			diffFiles.add(diff);
 
-			prevDiffFile = diffData;
+			prevDiffFile = diff;
 		}
 
-		// clean up since a DiffFileList creation can temporally consume much
+		// clean up since a DiffList creation can temporally consume much
 		// heap
 		Runtime.getRuntime().gc();
 
@@ -59,16 +59,16 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	}
 
 	private static final long serialVersionUID = 1327362495545624312L;
-	private DiffData diffData;
+	private Diff diff;
 	private ITrunk trunk;
 	private ISourceStore sourceCache;
 
-	public DiffRecordList(DiffData diffData, ITrunk trunk,
+	public DiffRecordList(Diff diff, ITrunk trunk,
 			ISourceStore sourceCache) {
-		Assert.isNotNull(diffData);
+		Assert.isNotNull(diff);
 		Assert.isNotNull(trunk);
 		Assert.isNotNull(sourceCache);
-		this.diffData = diffData;
+		this.diff = diff;
 		this.trunk = trunk;
 		this.sourceCache = sourceCache;
 	}
@@ -86,11 +86,11 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	public DiffRecord createAndAddRecord(String commandLine,
 			String metaOldLine, String metaNewLine, long contentStart,
 			long contentEnd) {
-		DiffFileRecordMeta meta = new DiffFileRecordMeta(metaOldLine,
+		DiffRecordMeta meta = new DiffRecordMeta(metaOldLine,
 				metaNewLine);
 
 		IData originalSourceFile = trunk.getSourceFile(meta.getToFileName());
-		DiffRecord diffRecord = new DiffRecord(this.diffData,
+		DiffRecord diffRecord = new DiffRecord(this.diff,
 				originalSourceFile, sourceCache, commandLine, meta,
 				contentStart, contentEnd);
 		if (!diffRecord.isTemporary()) {

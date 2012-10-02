@@ -28,7 +28,7 @@ public class DiffFileTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static IDiffData getDiffFile(String diffFileName, ID id,
+	private static IDiff getDiffFile(String diffFileName, ID id,
 			long revision, TimeZoneDateRange dateRange)
 			throws URISyntaxException {
 
@@ -43,7 +43,7 @@ public class DiffFileTest {
 				baseDataContainer, FileUtils.getFile(root)));
 		ISourceStore sourceCache = new SourceCache(baseDataContainer, "sources");
 
-		return new DiffData(diffData, null, trunk, sourceCache,
+		return new Diff(diffData, null, trunk, sourceCache,
 				new NullProgressMonitor());
 	}
 
@@ -105,7 +105,7 @@ public class DiffFileTest {
 
 	@Test
 	public void testGetContent() throws URISyntaxException {
-		IDiffData smallDiffFile = getDiffFile(
+		IDiff smallDiffFile = getDiffFile(
 				"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
 				new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
 						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
@@ -202,10 +202,10 @@ public class DiffFileTest {
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 	}
 
-	private void testDiffFileRecordsCountRun(IDiffData diffData,
+	private void testDiffFileRecordsCountRun(IDiff diff,
 			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles)
 			throws IOException {
-		DiffRecordList diffFileRecords = diffData.getDiffFileRecords();
+		DiffRecordList diffFileRecords = diff.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
 			DiffRecord diffRecord = diffFileRecords.get(i);

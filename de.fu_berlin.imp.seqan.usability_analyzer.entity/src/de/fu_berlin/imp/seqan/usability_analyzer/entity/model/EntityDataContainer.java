@@ -14,7 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.Aggrega
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -35,19 +35,19 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	private EntityManager entityManager;
 
-	private DiffDataDirectory diffDataDirectory;
+	private DiffContainer diffContainer;
 
 	private DoclogDataDirectory doclogDataDirectory;
 
 	public EntityDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers,
-			DiffDataDirectory diffDataDirectory,
+			DiffContainer diffContainer,
 			DoclogDataDirectory doclogDataDirectory) throws EntityDataException {
 		super(baseDataContainers);
-		this.diffDataDirectory = diffDataDirectory;
+		this.diffContainer = diffContainer;
 		this.doclogDataDirectory = doclogDataDirectory;
 
-		IData surveyRecordPath = diffDataDirectory
+		IData surveyRecordPath = diffContainer
 				.getResource("_survey.csv");
 
 		try {
@@ -121,7 +121,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		}
 		monitor.worked(10);
 
-		entityManager = new EntityManager(diffDataDirectory,
+		entityManager = new EntityManager(diffContainer,
 				doclogDataDirectory, surveyRecordManager, statsFileManager,
 				cMakeCacheFileManager, mapper);
 		entityManager.scan(monitor.newChild(60));
