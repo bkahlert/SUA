@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.Normalizer;
@@ -89,11 +90,14 @@ public class JsonUtils {
 				 * This is the only form where we can be sure it is compatible
 				 * with the outer world (e.g. a browser).
 				 */
-				String filename = Normalizer
-						.normalize(doclogRecord.getScreenshot().getFile()
-								.getCanonicalPath(), Form.NFC);
-				generator.writeFieldName("icon");
-				generator.writeString("file://" + filename.replace("%", "%25"));
+				File screenshotFile = doclogRecord.getScreenshot().getFile();
+				if (screenshotFile != null) {
+					String filename = Normalizer.normalize(
+							screenshotFile.getCanonicalPath(), Form.NFC);
+					generator.writeFieldName("icon");
+					generator.writeString("file://"
+							+ filename.replace("%", "%25"));
+				}
 
 				if (doclogRecord.getScreenshot().getStatus() == Status.OK
 						|| doclogRecord.getScreenshot().getStatus() == Status.DIRTY) {

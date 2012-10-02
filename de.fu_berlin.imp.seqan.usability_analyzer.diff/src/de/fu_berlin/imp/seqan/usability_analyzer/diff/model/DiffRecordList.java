@@ -11,10 +11,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
-public class DiffFileRecordList extends ArrayList<DiffRecord> {
+public class DiffRecordList extends ArrayList<DiffRecord> {
 
 	/**
-	 * Creates a new {@link DiffFileRecordList} instance.
+	 * Creates a new {@link DiffRecordList} instance.
 	 * 
 	 * @param dataResources
 	 *            that can be treated as {@link DiffData}s<br>
@@ -63,7 +63,7 @@ public class DiffFileRecordList extends ArrayList<DiffRecord> {
 	private ITrunk trunk;
 	private ISourceStore sourceCache;
 
-	public DiffFileRecordList(DiffData diffData, ITrunk trunk,
+	public DiffRecordList(DiffData diffData, ITrunk trunk,
 			ISourceStore sourceCache) {
 		Assert.isNotNull(diffData);
 		Assert.isNotNull(trunk);
@@ -75,7 +75,7 @@ public class DiffFileRecordList extends ArrayList<DiffRecord> {
 
 	/**
 	 * Creates a {@link DiffRecord} and add it to this
-	 * {@link DiffFileRecordList}
+	 * {@link DiffRecordList}
 	 * 
 	 * @param commandLine
 	 * @param metaOldLine

@@ -7,13 +7,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public interface IDiffData extends IData, HasDateRange, ICodeable, HasID {
+public interface IDiffData extends IData, HasID, HasDateRange, ICodeable {
 
 	public IDiffData getPrevDiffFile();
 
 	public long getRevision();
 
-	public DiffFileRecordList getDiffFileRecords();
+	public DiffRecordList getDiffFileRecords();
 
 	public boolean sourcesExist();
 

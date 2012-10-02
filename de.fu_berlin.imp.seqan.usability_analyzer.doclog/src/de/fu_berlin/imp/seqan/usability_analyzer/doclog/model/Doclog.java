@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,6 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
@@ -96,7 +99,7 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 	 */
 	public Doclog(IData data, Object key, TimeZoneDateRange dateRange,
 			Token token) {
-
+		org.eclipse.core.runtime.Assert.isNotNull(data.getBaseDataContainer());
 		this.data = data;
 
 		if (key instanceof ID) {
@@ -119,6 +122,11 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 	@Override
 	public IBaseDataContainer getBaseDataContainer() {
 		return this.data.getBaseDataContainer();
+	}
+
+	@Override
+	public IDataContainer getParentDataContainer() {
+		return this.data.getParentDataContainer();
 	}
 
 	@Override
@@ -154,6 +162,11 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 	@Override
 	public long getLength() {
 		return this.data.getLength();
+	}
+
+	@Override
+	public File getStaticFile() throws IOException {
+		return this.data.getStaticFile();
 	}
 
 	@Override

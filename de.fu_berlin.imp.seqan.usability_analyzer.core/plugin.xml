@@ -39,7 +39,7 @@
          <service
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService"></service>
          <service
-               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService">
+               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService">
          </service>
       </serviceFactory>
    </extension>
@@ -57,6 +57,10 @@
             description="Change the data directories that are available."
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
             name="Add/Remove Data Directories">
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS"
+            name="Show In Finder">
       </command>
    </extension>
      <extension
@@ -80,6 +84,15 @@
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.ChangeDataDirectories"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.RevealInOSHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.isIDatas">
+              </reference>
+           </activeWhen>
         </handler>
      </extension>
    <extension
@@ -117,6 +130,19 @@
                         value="1">
                   </count>
                </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS"
+               disabledIcon="icons/dtool16/worksession_start_tsk.png"
+               icon="icons/etool16/worksession_start_tsk.png"
+               style="push"
+               tooltip="Open the selected file in Finder">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.hasIDatas">
+               </reference>
             </visibleWhen>
          </command>
          
@@ -164,6 +190,32 @@
                   operator="or">
                <adapt
                      type="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.isIDatas">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.hasIDatas">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData">
                </adapt>
             </iterate>
          </with>

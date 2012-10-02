@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -15,6 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
@@ -54,7 +57,7 @@ public class DiffData implements IDiffData {
 	private long revision;
 	private TimeZoneDateRange dateRange;
 
-	private DiffFileRecordList diffFileRecords = null;
+	private DiffRecordList diffFileRecords = null;
 
 	public DiffData(IData data, IDiffData prevDiffFile, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
@@ -78,6 +81,11 @@ public class DiffData implements IDiffData {
 	@Override
 	public IBaseDataContainer getBaseDataContainer() {
 		return this.data.getBaseDataContainer();
+	}
+
+	@Override
+	public IDataContainer getParentDataContainer() {
+		return this.data.getParentDataContainer();
 	}
 
 	@Override
@@ -113,6 +121,11 @@ public class DiffData implements IDiffData {
 	@Override
 	public long getLength() {
 		return this.data.getLength();
+	}
+
+	@Override
+	public File getStaticFile() throws IOException {
+		return this.data.getStaticFile();
 	}
 
 	/*
@@ -154,7 +167,7 @@ public class DiffData implements IDiffData {
 	 * getDiffFileRecords()
 	 */
 	@Override
-	public DiffFileRecordList getDiffFileRecords() {
+	public DiffRecordList getDiffFileRecords() {
 		return diffFileRecords;
 	}
 
@@ -185,7 +198,7 @@ public class DiffData implements IDiffData {
 	 */
 	@Override
 	public boolean sourcesExist() {
-		DiffFileRecordList diffFileRecords = this.getDiffFileRecords();
+		DiffRecordList diffFileRecords = this.getDiffFileRecords();
 		if (diffFileRecords != null) {
 			for (DiffRecord diffRecord : diffFileRecords) {
 				if (!diffRecord.sourceExists())

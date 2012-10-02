@@ -6,6 +6,8 @@ public interface IDataContainer {
 
 	public IBaseDataContainer getBaseDataContainer();
 
+	public IDataContainer getParentDataContainer();
+
 	public String getName();
 
 	public IData getResource(String name);

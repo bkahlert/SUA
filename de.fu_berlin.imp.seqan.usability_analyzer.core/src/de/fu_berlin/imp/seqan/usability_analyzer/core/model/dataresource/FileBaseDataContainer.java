@@ -2,8 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSetInfo;
@@ -14,10 +17,12 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	public static final Logger LOGGER = Logger
 			.getLogger(FileBaseDataContainer.class);
 
+	private List<File> returnedFiles;
 	private IDataSetInfo info;
 
 	public FileBaseDataContainer(File file) {
-		super(null, file);
+		super(file);
+		this.returnedFiles = new ArrayList<File>();
 		this.info = new DataSetInfo(new File(file, DataSetInfo.FILENAME));
 	}
 
@@ -27,8 +32,25 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	}
 
 	@Override
+	public IDataContainer getParentDataContainer() {
+		return null;
+	}
+
+	@Override
 	public IDataSetInfo getInfo() {
 		return this.info;
+	}
+
+	@Override
+	public IDataContainer getSubContainer(String name) {
+		return new FileDataContainer(this, this, new File(this.getFile(), name));
+	}
+
+	protected File getTempDirectory() {
+		File tmp = new File(this.getFile(), "tmp");
+		if (!tmp.exists())
+			tmp.mkdirs();
+		return tmp;
 	}
 
 	protected File getScope(String scope) {
@@ -43,15 +65,36 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	}
 
 	@Override
-	public File getFile(String scope, String name) throws IOException {
-		File scopeDir = new File(this.getFile(), scope);
-		scopeDir.mkdirs();
-		File file = new File(scopeDir, name);
+	public File getStaticFile(String scope, String name) throws IOException {
+		File file = getLocation(scope, name);
+		if (!file.exists())
+			return null;
 
-		File tmpFile = File.createTempFile("sua", ".tmp");
+		File staticFile = new File(new File(new File(getTempDirectory(),
+				"static-files"), scope), name);
+		if (!staticFile.exists())
+			FileUtils.copyFile(file, staticFile);
+
+		return staticFile;
+	}
+
+	@Override
+	public void resetStaticFile(String scope, String name) throws IOException {
+		File staticFile = getStaticFile(scope, name);
+		if (staticFile.exists())
+			staticFile.delete();
+	}
+
+	@Override
+	public File getFile(String scope, String name) throws IOException {
+		File file = getLocation(scope, name);
+
+		File tmpFile = File.createTempFile("sua-tmp-",
+				FilenameUtils.getName(name));
 		tmpFile.delete();
 		if (file.exists())
 			FileUtils.copyFile(file, tmpFile);
+		returnedFiles.add(tmpFile);
 		return tmpFile;
 	}
 
@@ -64,6 +107,7 @@ public class FileBaseDataContainer extends FileDataContainer implements
 			if (file.exists())
 				FileUtils.copyFile(file, getLocation(scope, name));
 		}
+		resetStaticFile(scope, name);
 	}
 
 	@Override
@@ -72,6 +116,19 @@ public class FileBaseDataContainer extends FileDataContainer implements
 			FileUtils.deleteDirectory(getScope(scope));
 		} catch (IOException e) {
 			LOGGER.error("Error deleting scope \"" + scope + "\"");
+		}
+	}
+
+	@Override
+	public String toString() {
+		return this.getFile().getAbsolutePath();
+	}
+
+	@Override
+	public void dispose() {
+		for (File returnedFile : this.returnedFiles) {
+			if (returnedFile != null && returnedFile.exists())
+				returnedFile.delete();
 		}
 	}
 

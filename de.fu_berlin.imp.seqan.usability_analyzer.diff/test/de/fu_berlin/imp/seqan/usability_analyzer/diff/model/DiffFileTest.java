@@ -36,10 +36,11 @@ public class DiffFileTest {
 				FileUtils.getFile(root));
 
 		File diffFile = FileUtils.getFile(root + "/diff/" + diffFileName);
-		FileData diffData = new FileData(baseDataContainer, diffFile);
+		FileData diffData = new FileData(baseDataContainer, baseDataContainer,
+				diffFile);
 
 		ITrunk trunk = new Trunk(new FileDataContainer(baseDataContainer,
-				FileUtils.getFile(root)));
+				baseDataContainer, FileUtils.getFile(root)));
 		ISourceStore sourceCache = new SourceCache(baseDataContainer, "sources");
 
 		return new DiffData(diffData, null, trunk, sourceCache,
@@ -48,44 +49,58 @@ public class DiffFileTest {
 
 	@Test
 	public void testDiffFileStatics() throws URISyntaxException {
+		FileBaseDataContainer baseContainer = new FileBaseDataContainer(
+				FileUtils.getFile(root));
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffDataUtils.getId(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getId(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new ID("o6lmo5tpxvn3b6fg"),
-				DiffDataUtils.getId(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getId(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
 				new Long(48),
-				DiffDataUtils.getRevision(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getRevision(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new Long(48),
-				DiffDataUtils.getRevision(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getRevision(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffDataUtils.getDate(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getDate(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-				DiffDataUtils.getDate(new FileData(
-						new FileBaseDataContainer(FileUtils.getFile(root)),
-						new File(
-								"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+				DiffDataUtils
+						.getDate(new FileData(
+								baseContainer,
+								baseContainer,
+								new File(
+										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 	}
 
 	@Test
@@ -190,7 +205,7 @@ public class DiffFileTest {
 	private void testDiffFileRecordsCountRun(IDiffData diffData,
 			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles)
 			throws IOException {
-		DiffFileRecordList diffFileRecords = diffData.getDiffFileRecords();
+		DiffRecordList diffFileRecords = diffData.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
 			DiffRecord diffRecord = diffFileRecords.get(i);

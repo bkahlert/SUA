@@ -13,6 +13,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 
@@ -21,16 +22,18 @@ public class DoclogFileTest {
 	private static final String root = "/"
 			+ DoclogFileTest.class.getPackage().getName().replace('.', '/')
 			+ "/..";
+	private static final IBaseDataContainer baseDataContainer = new FileBaseDataContainer(
+			FileUtils.getFile(root));
 	private static final String dataDirectory = root + "/data";
 
 	private IData getIdDoclogFile() throws URISyntaxException {
-		return new FileData(new FileBaseDataContainer(FileUtils.getFile(root)),
+		return new FileData(baseDataContainer, baseDataContainer,
 				FileUtils.getFile(DoclogFileTest.class, dataDirectory
 						+ "/0meio6dzt3eo1wj7.doclog"));
 	}
 
 	private IData getFingerprintDoclogFile() throws URISyntaxException {
-		return new FileData(new FileBaseDataContainer(FileUtils.getFile(root)),
+		return new FileData(baseDataContainer, baseDataContainer,
 				FileUtils.getFile(DoclogFileTest.class, dataDirectory
 						+ "/!2aa2aaccc0b9b73b230bb4667c5971f8.doclog"));
 	}

@@ -19,7 +19,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -116,9 +116,9 @@ public class DoclogTimeline extends Timeline {
 				// if (dateRange.getEndDate() != null)
 				// options.put("timeline_end",
 				// JsonUtils.formatDate(dateRange.getEndDate()));
-				IDataSetInfo dataSetInfo = ((IDataDirectoriesService) PlatformUI
+				IDataSetInfo dataSetInfo = ((IDataService) PlatformUI
 						.getWorkbench().getService(
-								IDataDirectoriesService.class))
+								IDataService.class))
 						.getActiveDataDirectories().get(0).getInfo(); // TODO
 																		// support
 																		// multiple

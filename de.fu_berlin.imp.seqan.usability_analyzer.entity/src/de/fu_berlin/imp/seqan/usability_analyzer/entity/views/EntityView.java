@@ -24,9 +24,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataDirectoriesServiceAdapter;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
@@ -69,7 +69,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		}
 	}
 
-	private IDataDirectoriesServiceListener dataDirectoriesServiceListener = new DataDirectoriesServiceAdapter() {
+	private IDataServiceListener dataServiceListener = new DataServiceAdapter() {
 		@Override
 		public void activeDataDirectoriesChanged(
 				List<? extends IBaseDataContainer> dataContainers) {
@@ -90,8 +90,8 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 
 	private Map<DataSource, DataSourceFilter> dataSourceFilters;
 	private DateRangeFilter dateRangeFilter = null;
-	private IDataDirectoriesService dataDirectoriesService = (IDataDirectoriesService) PlatformUI
-			.getWorkbench().getService(IDataDirectoriesService.class);
+	private IDataService dataService = (IDataService) PlatformUI.getWorkbench()
+			.getService(IDataService.class);
 
 	public EntityView() {
 		this.dataSourceFilters = new HashMap<DataSource, DataSourceFilter>();
@@ -102,14 +102,12 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.dataSourceFilters.put(DataSource.SURVEYRECORD,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
 
-		dataDirectoriesService
-				.addDataDirectoryServiceListener(dataDirectoriesServiceListener);
+		dataService.addDataDirectoryServiceListener(dataServiceListener);
 	}
 
 	@Override
 	public void dispose() {
-		dataDirectoriesService
-				.removeDataDirectoryServiceListener(dataDirectoriesServiceListener);
+		dataService.removeDataDirectoryServiceListener(dataServiceListener);
 		super.dispose();
 	}
 

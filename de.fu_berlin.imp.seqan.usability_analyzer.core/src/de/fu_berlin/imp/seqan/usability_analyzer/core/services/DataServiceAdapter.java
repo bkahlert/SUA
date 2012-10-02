@@ -4,8 +4,8 @@ import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 
-public class DataDirectoriesServiceAdapter implements
-		IDataDirectoriesServiceListener {
+public class DataServiceAdapter implements
+		IDataServiceListener {
 
 	@Override
 	public void dataDirectoriesAdded(

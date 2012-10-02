@@ -105,7 +105,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 * Returns a {@link DiffDataDirectory} instance that can handle contained
 	 * {@link DiffData}s
 	 * 
-	 * @param dataResourceContainers
+	 * @param baseDataContainers
 	 *            containing {@link DiffData}s
 	 * @param originalSourcesDirectory
 	 *            containing the original source files
@@ -113,8 +113,8 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 *            that can be used to cache patched {@link DiffData}s
 	 */
 	public DiffDataDirectory(
-			List<? extends IBaseDataContainer> dataResourceContainers) {
-		super(dataResourceContainers);
+			List<? extends IBaseDataContainer> baseDataContainers) {
+		super(baseDataContainers);
 		this.diffFileDirectory = this.getSubContainer("diff");
 		this.trunk = new Trunk(this.getSubContainer("trunk"));
 		this.sourceCache = new SourceCache(this);
@@ -233,7 +233,7 @@ public class DiffDataDirectory extends AggregatedBaseDataContainer {
 	 */
 	public DiffFileList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		DiffFileList diffFiles = DiffFileRecordList.create(
+		DiffFileList diffFiles = DiffRecordList.create(
 				this.dataResourceLists.get(id), this.trunk,
 				this.sourceCache, progressMonitor);
 		return diffFiles;

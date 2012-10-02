@@ -101,7 +101,7 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	public File getFile() throws IOException {
 		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
 				.getBaseDataContainer();
-		return baseDataContainer.getFile("screenshots", filename);
+		return baseDataContainer.getStaticFile("screenshots", filename);
 	}
 
 	public ImageData calculateImageData() {
@@ -122,7 +122,7 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 			imageSize = new Dimension(this.imageData.width,
 					this.imageData.height);
 		} else {
-			imageSize = ImageUtils.getImageDimensions(this.getFilename());
+			imageSize = ImageUtils.getImageDimensions(this.getFile());
 		}
 		return imageSize;
 	}
@@ -163,10 +163,6 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 		} catch (Exception e) {
 			return Status.ERROR;
 		}
-	}
-
-	public String getFilename() throws IOException {
-		return this.getFile().getAbsolutePath();
 	}
 
 	public void setFile(File tempScreenshotFile) throws IOException {

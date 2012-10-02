@@ -36,7 +36,8 @@ public class EntityDataLoader implements IDataLoadProvider {
 				.getDefault().getDiffDataDirectories();
 		if (diffDataDirectory == null) {
 			LOGGER.error("Could not match entities since no "
-					+ DiffDataDirectory.class + " could be found.");
+					+ DiffDataDirectory.class.getSimpleName()
+					+ " could be found.");
 			return null;
 		}
 
@@ -44,18 +45,19 @@ public class EntityDataLoader implements IDataLoadProvider {
 				.getDefault().getDoclogDataDirectory();
 		if (doclogDataDirectory == null) {
 			LOGGER.error("Could not match entities since no "
-					+ DoclogDataDirectory.class + " could be found.");
+					+ DoclogDataDirectory.class.getSimpleName()
+					+ " could be found.");
 			return null;
 		}
 
-		if (!diffDataDirectory.getBaseDataContainer().equals(
-				doclogDataDirectory.getBaseDataContainer())) {
-			LOGGER.error("Could not match entities since no the "
-					+ DiffDataDirectory.class + " and the "
-					+ DoclogDataDirectory.class
-					+ " don't handle the same resource.");
-			return null;
-		}
+		// if (!diffDataDirectory.getBaseDataContainer().equals(
+		// doclogDataDirectory.getBaseDataContainer())) {
+		// LOGGER.error("Could not match entities since the "
+		// + DiffDataDirectory.class.getSimpleName() + " and the "
+		// + DoclogDataDirectory.class.getSimpleName()
+		// + " don't handle the same resource.");
+		// return null;
+		// }
 
 		try {
 			EntityDataContainer entityDataContainer = new EntityDataContainer(

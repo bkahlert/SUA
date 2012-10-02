@@ -13,6 +13,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -123,11 +124,13 @@ public class EntityContentProvider implements IStructuredContentProvider,
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof EntityManager) {
-			return ((EntityManager) inputElement).getPersons().toArray();
+		if (inputElement instanceof EntityDataContainer) {
+			return ((EntityDataContainer) inputElement).getEntityManager()
+					.getPersons().toArray();
 		}
 
-		return new Object[0];
+		throw new RuntimeException("Invalid Input. Expected "
+				+ EntityManager.class);
 	}
 
 }

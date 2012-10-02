@@ -10,13 +10,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDa
  * @author bkahlert
  * 
  */
-public interface IDataDirectoriesService {
+public interface IDataService {
 
 	public void addDataDirectoryServiceListener(
-			IDataDirectoriesServiceListener dataDirectoriesServiceListener);
+			IDataServiceListener dataServiceListener);
 
 	public void removeDataDirectoryServiceListener(
-			IDataDirectoriesServiceListener dataDirectoriesServiceListener);
+			IDataServiceListener dataServiceListener);
 
 	public List<? extends IBaseDataContainer> getActiveDataDirectories();
 
@@ -29,5 +29,7 @@ public interface IDataDirectoriesService {
 
 	public void removeDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers);
+
+	public void dispose();
 
 }

@@ -152,7 +152,7 @@ public class DiffFileRecordTest {
 	}
 
 	@Test
-	public void checkPatches() {
+	public void checkPatches() throws IOException {
 		for (ValidationPatch patch : validationPatches) {
 			Assert.assertEquals(
 					"The validation patch's start is not up-to-date!",
@@ -170,7 +170,7 @@ public class DiffFileRecordTest {
 
 	@Test
 	public void testGetPatch() throws URISyntaxException, IOException {
-		final IData data = new FileData(null, underlayingDiffFile);
+		final IData data = new FileData(null, null, underlayingDiffFile);
 
 		final ITrunk trunk = new ITrunk() {
 			@Override

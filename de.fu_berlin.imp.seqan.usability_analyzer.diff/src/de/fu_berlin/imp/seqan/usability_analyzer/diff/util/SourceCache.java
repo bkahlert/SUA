@@ -34,8 +34,8 @@ public class SourceCache implements ISourceStore {
 	@Override
 	public File getSourceFile(ID id, long revision, String filename)
 			throws IOException {
-		return this.baseDataContainer.getFile(this.scope, id + "/" + revision
-				+ "/" + filename);
+		return this.baseDataContainer.getStaticFile(this.scope, id + "/"
+				+ revision + "/" + filename);
 	}
 
 	/*

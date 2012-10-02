@@ -17,7 +17,7 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 
 	public AggregatedBaseDataContainer(
 			List<? extends IBaseDataContainer> containers) {
-		super(null, containers);
+		super(containers);
 
 		this.baseContainers = containers;
 
@@ -60,8 +60,30 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	}
 
 	@Override
-	public File getFile(String scope, String filename) throws IOException {
-		return this.baseContainers.get(0).getFile(scope, filename);
+	public File getStaticFile(String scope, String name) throws IOException {
+		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
+			File staticFile = baseDataContainer.getStaticFile(scope, name);
+			if (staticFile != null && staticFile.exists())
+				return staticFile;
+		}
+		return this.baseContainers.get(0).getStaticFile(scope, name);
+	}
+
+	@Override
+	public void resetStaticFile(String scope, String name) throws IOException {
+		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
+			baseDataContainer.resetStaticFile(scope, name);
+		}
+	}
+
+	@Override
+	public File getFile(String scope, String name) throws IOException {
+		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
+			File file = baseDataContainer.getFile(scope, name);
+			if (file.exists())
+				return file;
+		}
+		return this.baseContainers.get(0).getFile(scope, name);
 	}
 
 	@Override
@@ -76,6 +98,13 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	public void deleteScope(String scope) {
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			baseDataContainer.deleteScope(scope);
+		}
+	}
+
+	@Override
+	public void dispose() {
+		for (IBaseDataContainer baseContainer : this.baseContainers) {
+			baseContainer.dispose();
 		}
 	}
 }

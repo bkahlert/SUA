@@ -11,7 +11,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileRecordList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffData;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -119,7 +119,7 @@ public class DiffFileListsContentProvider implements
 			return ((DiffFileList) element).size() > 0;
 		}
 		if (element instanceof IDiffData) {
-			DiffFileRecordList diffFileRecords = ((IDiffData) element)
+			DiffRecordList diffFileRecords = ((IDiffData) element)
 					.getDiffFileRecords();
 			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
@@ -132,7 +132,7 @@ public class DiffFileListsContentProvider implements
 			return ((DiffFileList) parentElement).toArray();
 		}
 		if (parentElement instanceof IDiffData) {
-			DiffFileRecordList diffFileRecords = ((IDiffData) parentElement)
+			DiffRecordList diffFileRecords = ((IDiffData) parentElement)
 					.getDiffFileRecords();
 			return diffFileRecords != null ? diffFileRecords.toArray()
 					: new Object[0];

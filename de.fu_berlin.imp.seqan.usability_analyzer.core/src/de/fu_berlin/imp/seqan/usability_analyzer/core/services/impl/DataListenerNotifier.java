@@ -5,25 +5,25 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil.ParametrizedCallable;
 
-public class DataResourceListenerNotifier {
-	private List<IDataDirectoriesServiceListener> dataDirectoriesServiceListeners = new ArrayList<IDataDirectoriesServiceListener>();
+public class DataListenerNotifier {
+	private List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
 	private static final ExecutorService POOL = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	public void addDataDirectoryServiceListener(
-			IDataDirectoriesServiceListener dataDirectoriesServiceListener) {
-		this.dataDirectoriesServiceListeners
-				.add(dataDirectoriesServiceListener);
+			IDataServiceListener dataServiceListener) {
+		this.dataServiceListeners
+				.add(dataServiceListener);
 	}
 
 	public void removeDataDirectoryServiceListener(
-			IDataDirectoriesServiceListener dataDirectoriesServiceListener) {
-		this.dataDirectoriesServiceListeners
-				.remove(dataDirectoriesServiceListener);
+			IDataServiceListener dataServiceListener) {
+		this.dataServiceListeners
+				.remove(dataServiceListener);
 	}
 
 	public void dataDirectoriesAdded(
@@ -31,13 +31,13 @@ public class DataResourceListenerNotifier {
 		ExecutorUtil
 				.nonUIAsyncExec(
 						POOL,
-						dataDirectoriesServiceListeners,
-						new ParametrizedCallable<IDataDirectoriesServiceListener, Void>() {
+						dataServiceListeners,
+						new ParametrizedCallable<IDataServiceListener, Void>() {
 							@Override
 							public Void call(
-									IDataDirectoriesServiceListener dataDirectoriesServiceListener)
+									IDataServiceListener dataServiceListener)
 									throws Exception {
-								dataDirectoriesServiceListener
+								dataServiceListener
 										.dataDirectoriesAdded(dataContainers);
 								return null;
 							}
@@ -49,13 +49,13 @@ public class DataResourceListenerNotifier {
 		ExecutorUtil
 				.nonUIAsyncExec(
 						POOL,
-						dataDirectoriesServiceListeners,
-						new ParametrizedCallable<IDataDirectoriesServiceListener, Void>() {
+						dataServiceListeners,
+						new ParametrizedCallable<IDataServiceListener, Void>() {
 							@Override
 							public Void call(
-									IDataDirectoriesServiceListener dataDirectoriesServiceListener)
+									IDataServiceListener dataServiceListener)
 									throws Exception {
-								dataDirectoriesServiceListener
+								dataServiceListener
 										.dataDirectoriesRemoved(dataContainers);
 								return null;
 							}
@@ -67,13 +67,13 @@ public class DataResourceListenerNotifier {
 		ExecutorUtil
 				.nonUIAsyncExec(
 						POOL,
-						dataDirectoriesServiceListeners,
-						new ParametrizedCallable<IDataDirectoriesServiceListener, Void>() {
+						dataServiceListeners,
+						new ParametrizedCallable<IDataServiceListener, Void>() {
 							@Override
 							public Void call(
-									IDataDirectoriesServiceListener dataDirectoriesServiceListener)
+									IDataServiceListener dataServiceListener)
 									throws Exception {
-								dataDirectoriesServiceListener
+								dataServiceListener
 										.activeDataDirectoriesChanged(dataContainers);
 								return null;
 							}

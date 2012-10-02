@@ -5,8 +5,11 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.eclipse.ui.services.AbstractServiceFactory;
 import org.eclipse.ui.services.IServiceLocator;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -14,7 +17,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static final Logger LOGGER = Logger.getLogger(ServiceFactory.class);
 
 	private static IWorkSessionService WORKSESSION_SERVICE;
-	private static IDataDirectoriesService DATA_DIRECTORIES_SERVICE;
+	private static IDataService DATA_DIRECTORIES_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -33,9 +36,23 @@ public class ServiceFactory extends AbstractServiceFactory {
 			}
 			return WORKSESSION_SERVICE;
 		}
-		if (serviceInterface == IDataDirectoriesService.class) {
+		if (serviceInterface == IDataService.class) {
 			if (DATA_DIRECTORIES_SERVICE == null) {
-				DATA_DIRECTORIES_SERVICE = new DataResourceService();
+				DATA_DIRECTORIES_SERVICE = new DataService();
+				Activator.getDefault().getBundle().getBundleContext()
+						.addBundleListener(new BundleListener() {
+							private boolean disposed = false;
+
+							@Override
+							synchronized public void bundleChanged(
+									BundleEvent event) {
+								if (!disposed
+										&& event.getType() == BundleEvent.STOPPED) {
+									DATA_DIRECTORIES_SERVICE.dispose();
+									disposed = true;
+								}
+							}
+						});
 			}
 			return DATA_DIRECTORIES_SERVICE;
 		}

@@ -11,12 +11,12 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 public class DataDirectoriesContributionItem extends ContributionItem {
 
-	private IDataDirectoriesService dataDirectoriesService;
+	private IDataService dataService;
 
 	public DataDirectoriesContributionItem() {
 		init();
@@ -28,13 +28,13 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 	}
 
 	private void init() {
-		this.dataDirectoriesService = (IDataDirectoriesService) PlatformUI
-				.getWorkbench().getService(IDataDirectoriesService.class);
+		this.dataService = (IDataService) PlatformUI
+				.getWorkbench().getService(IDataService.class);
 	}
 
 	@Override
 	public void fill(Menu menu, int index) {
-		for (final IBaseDataContainer dataResourceContainer : this.dataDirectoriesService
+		for (final IBaseDataContainer dataResourceContainer : this.dataService
 				.getDataDirectories()) {
 			MenuItem menuItem = new MenuItem(menu, SWT.CHECK, index);
 			menuItem.setText(dataResourceContainer.toString());
@@ -43,7 +43,7 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 					ExecutorUtil.nonUIAsyncExec(new Runnable() {
 						@Override
 						public void run() {
-							dataDirectoriesService
+							dataService
 									.setActiveDataDirectories(Arrays
 											.asList(dataResourceContainer));
 						}

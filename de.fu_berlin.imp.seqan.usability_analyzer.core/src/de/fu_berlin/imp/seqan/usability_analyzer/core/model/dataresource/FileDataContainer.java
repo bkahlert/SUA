@@ -9,12 +9,28 @@ import org.eclipse.core.runtime.Assert;
 public class FileDataContainer implements IDataContainer {
 
 	private IBaseDataContainer baseDataContainer;
+	private IDataContainer parentDataContainer;
 	private File file;
 
-	public FileDataContainer(IBaseDataContainer baseDataContainer, File file) {
+	public FileDataContainer(IBaseDataContainer baseDataContainer,
+			IDataContainer parentDataContainer, File file) {
+		this(file);
+
+		Assert.isNotNull(baseDataContainer);
+		Assert.isNotNull(parentDataContainer);
+
+		IDataContainer tmp = parentDataContainer;
+		while (tmp.getParentDataContainer() != null)
+			tmp = tmp.getParentDataContainer();
+		Assert.isTrue(tmp == baseDataContainer);
+
+		this.baseDataContainer = baseDataContainer;
+		this.parentDataContainer = parentDataContainer;
+	}
+
+	protected FileDataContainer(File file) {
 		Assert.isNotNull(file);
 		Assert.isTrue(file.isDirectory());
-		this.baseDataContainer = baseDataContainer;
 		this.file = file;
 	}
 
@@ -32,6 +48,11 @@ public class FileDataContainer implements IDataContainer {
 	}
 
 	@Override
+	public IDataContainer getParentDataContainer() {
+		return this.parentDataContainer;
+	}
+
+	@Override
 	public String getName() {
 		return this.file.getName();
 	}
@@ -42,7 +63,8 @@ public class FileDataContainer implements IDataContainer {
 
 	@Override
 	public IData getResource(String name) {
-		return new FileData(this.baseDataContainer, new File(this.file, name));
+		return new FileData(getBaseDataContainer(), this, new File(this.file,
+				name));
 	}
 
 	@Override
@@ -50,14 +72,14 @@ public class FileDataContainer implements IDataContainer {
 		List<IData> datas = new ArrayList<IData>();
 		for (File file : this.file.listFiles()) {
 			if (file.isFile())
-				datas.add(new FileData(this.baseDataContainer, file));
+				datas.add(new FileData(getBaseDataContainer(), this, file));
 		}
 		return datas;
 	}
 
 	@Override
 	public IDataContainer getSubContainer(String name) {
-		return new FileDataContainer(this.baseDataContainer, new File(
+		return new FileDataContainer(getBaseDataContainer(), this, new File(
 				this.file, name));
 	}
 
@@ -67,7 +89,7 @@ public class FileDataContainer implements IDataContainer {
 		for (File file : this.file.listFiles()) {
 			if (file.isDirectory())
 				dataContainers.add(new FileDataContainer(
-						this.baseDataContainer, file));
+						getBaseDataContainer(), this, file));
 		}
 		return dataContainers;
 	}

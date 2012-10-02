@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 import java.text.DateFormat;
 import java.util.Comparator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -99,7 +100,7 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 					}
 				});
 
-		this.sort(0);
+		this.sort(3);
 	}
 
 	private void initColumns(final DateFormat dateFormat,
@@ -236,15 +237,15 @@ public class DiffFileListsViewer extends SortableTreeViewer {
 						if (element instanceof IDiffData) {
 							IDiffData diffData = (IDiffData) element;
 							Long revision = diffData.getRevision();
-							return (revision != null) ? revision.toString()
-									: "";
+							return (revision != null) ? StringUtils.leftPad(
+									revision.toString(), 8, '0') : "";
 						}
 						if (element instanceof DiffRecord) {
 							DiffRecord diffRecord = (DiffRecord) element;
 							Long revision = diffRecord.getDiffFile()
 									.getRevision();
-							return (revision != null) ? revision.toString()
-									: "";
+							return (revision != null) ? StringUtils.leftPad(
+									revision.toString(), 8, '0') : "";
 						}
 						return "";
 					}

@@ -9,25 +9,50 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.commons.collections.iterators.ReverseListIterator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 
 public class FileData implements IData {
 
 	private static Logger LOGGER = Logger.getLogger(FileData.class);
 
 	private IBaseDataContainer baseDataContainer;
+	private IDataContainer dataContainer;
 	private File file;
 
-	public FileData(IBaseDataContainer baseDataContainer, File file) {
-		// Assert.assertTrue(file.isFile());
+	public FileData(IBaseDataContainer baseDataContainer,
+			IDataContainer parentDataContainer, File file) {
+		this(file);
+
+		Assert.isNotNull(baseDataContainer);
+		Assert.isNotNull(parentDataContainer);
+
+		IDataContainer tmp = parentDataContainer;
+		while (tmp.getParentDataContainer() != null)
+			tmp = tmp.getParentDataContainer();
+		Assert.isTrue(tmp == baseDataContainer);
+
 		this.baseDataContainer = baseDataContainer;
+		this.dataContainer = parentDataContainer;
+	}
+
+	protected FileData(File file) {
 		this.file = file;
 	}
 
 	@Override
 	public IBaseDataContainer getBaseDataContainer() {
 		return this.baseDataContainer;
+	}
+
+	@Override
+	public IDataContainer getParentDataContainer() {
+		return this.dataContainer;
 	}
 
 	@Override
@@ -46,9 +71,13 @@ public class FileData implements IData {
 
 	@Override
 	public String read(long from, long to) {
-		return new String(
-				de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils
-						.readBytesFromTo(this.file, from, to));
+		try {
+			return new String(
+					de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils
+							.readBytesFromTo(this.file, from, to));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -160,6 +189,24 @@ public class FileData implements IData {
 	@Override
 	public long getLength() {
 		return this.file.length();
+	}
+
+	@Override
+	public File getStaticFile() throws IOException {
+		List<String> path = new LinkedList<String>();
+		path.add(getName());
+		IDataContainer container = this.getParentDataContainer();
+		while (container != null) {
+			path.add(container.getName());
+			container = container.getParentDataContainer();
+		}
+		// remove base
+		path.remove(path.size() - 1);
+
+		String scope = path.remove(path.size() - 1);
+		String name = StringUtils.join(new ReverseListIterator(path),
+				File.separator);
+		return this.getBaseDataContainer().getStaticFile(scope, name);
 	}
 
 	@Override

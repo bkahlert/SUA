@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBas
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.DataDirectoryDialog;
 
 public class ChangeDataDirectories extends AbstractHandler {
@@ -27,10 +27,10 @@ public class ChangeDataDirectories extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		IDataDirectoriesService dataDirectoriesService = (IDataDirectoriesService) PlatformUI
-				.getWorkbench().getService(IDataDirectoriesService.class);
+		IDataService dataService = (IDataService) PlatformUI
+				.getWorkbench().getService(IDataService.class);
 
-		List<? extends IBaseDataContainer> dataResourceContainers = dataDirectoriesService
+		List<? extends IBaseDataContainer> dataResourceContainers = dataService
 				.getDataDirectories();
 
 		List<FileDataContainer> fileDataContainers = ArrayUtils
@@ -48,11 +48,11 @@ public class ChangeDataDirectories extends AbstractHandler {
 			for (File directory : dataDirectoryDialog.getDirectories()) {
 				newDataDirectories.add(new FileBaseDataContainer(directory));
 			}
-			dataDirectoriesService.removeDataDirectories(ListUtils.subtract(
+			dataService.removeDataDirectories(ListUtils.subtract(
 					fileDataContainers, newDataDirectories));
-			dataDirectoriesService.addDataDirectories(ListUtils.subtract(
+			dataService.addDataDirectories(ListUtils.subtract(
 					newDataDirectories, fileDataContainers));
-			dataDirectoriesService.setActiveDataDirectories(dataDirectoryDialog
+			dataService.setActiveDataDirectories(dataDirectoryDialog
 					.getSelectedDataDirectories());
 
 			/**

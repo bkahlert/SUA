@@ -19,7 +19,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import difflib.PatchFailedException;
 
 public class DiffRecord implements HasDateRange, ICodeable, HasID {
 
@@ -208,8 +207,10 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 						newSource.get(newSource.size() - 1).replace("\n$", "");
 				}
 				this.setAndPersistSource(newSource);
+				LOGGER.info("Successfully patched " + diffData.getID() + ", "
+						+ getFilename());
 				return StringUtils.join(newSource, "\n");
-			} catch (PatchFailedException e) {
+			} catch (Exception e) {
 				String filename = getFilename();
 				LOGGER.warn("Could not patch ID: " + diffData.getID() + ", "
 						+ filename, e);

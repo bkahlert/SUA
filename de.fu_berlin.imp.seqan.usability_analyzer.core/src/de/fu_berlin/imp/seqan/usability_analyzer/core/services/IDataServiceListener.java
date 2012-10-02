@@ -4,7 +4,7 @@ import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 
-public interface IDataDirectoriesServiceListener {
+public interface IDataServiceListener {
 	/**
 	 * This method is called when new {@link IBaseDataContainer}s have been
 	 * added from the available ones.

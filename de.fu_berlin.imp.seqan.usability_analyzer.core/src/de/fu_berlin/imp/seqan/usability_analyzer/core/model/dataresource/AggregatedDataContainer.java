@@ -5,12 +5,9 @@ import java.util.List;
 
 public class AggregatedDataContainer implements IDataContainer {
 
-	private IBaseDataContainer baseDataContainer;
 	private List<? extends IDataContainer> containers;
 
-	public AggregatedDataContainer(IBaseDataContainer baseDataContainer,
-			List<? extends IDataContainer> containers) {
-		this.baseDataContainer = baseDataContainer;
+	public AggregatedDataContainer(List<? extends IDataContainer> containers) {
 		this.containers = containers;
 	}
 
@@ -27,7 +24,26 @@ public class AggregatedDataContainer implements IDataContainer {
 
 	@Override
 	public IBaseDataContainer getBaseDataContainer() {
-		return this.baseDataContainer;
+		List<IBaseDataContainer> baseDataContainers = new ArrayList<IBaseDataContainer>();
+		for (IDataContainer dataContainer : this.containers) {
+			IBaseDataContainer baseDataContainer = dataContainer
+					.getBaseDataContainer();
+			if (baseDataContainer != null)
+				baseDataContainers.add(baseDataContainer);
+		}
+		return new AggregatedBaseDataContainer(baseDataContainers);
+	}
+
+	@Override
+	public IDataContainer getParentDataContainer() {
+		List<IDataContainer> parentDataContainers = new ArrayList<IDataContainer>();
+		for (IDataContainer dataContainer : this.containers) {
+			IDataContainer parentDataContainer = dataContainer
+					.getParentDataContainer();
+			if (parentDataContainer != null)
+				parentDataContainers.add(parentDataContainer);
+		}
+		return new AggregatedDataContainer(parentDataContainers);
 	}
 
 	@Override
@@ -60,7 +76,7 @@ public class AggregatedDataContainer implements IDataContainer {
 		for (IDataContainer container : this.containers) {
 			containers.add(container.getSubContainer(name));
 		}
-		return new AggregatedDataContainer(this.baseDataContainer, containers);
+		return new AggregatedDataContainer(containers);
 	}
 
 	@Override

@@ -43,8 +43,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 		Map<Object, IData> rawDataResource = new HashMap<Object, IData>();
 		for (IData doclogDataResource : directory.getDoclogDirectory()
 				.getResources()) {
-			if (!Doclog.ID_PATTERN.matcher(
-					doclogDataResource.getName()).matches())
+			if (!Doclog.ID_PATTERN.matcher(doclogDataResource.getName())
+					.matches())
 				continue;
 			ID id = Doclog.getID(doclogDataResource);
 			rawDataResource.put(id, doclogDataResource);
@@ -54,8 +54,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 			if (!Doclog.FINGERPRINT_PATTERN.matcher(
 					doclogDataResource.getName()).matches())
 				continue;
-			Fingerprint fingerprint = Doclog
-					.getFingerprint(doclogDataResource);
+			Fingerprint fingerprint = Doclog.getFingerprint(doclogDataResource);
 			rawDataResource.put(fingerprint, doclogDataResource);
 		}
 		return rawDataResource;
@@ -70,8 +69,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	private DoclogCache doclogCache;
 
 	public DoclogDataDirectory(
-			List<? extends IBaseDataContainer> dataResourceContainers) {
-		super(dataResourceContainers);
+			List<? extends IBaseDataContainer> baseDataContainers) {
+		super(baseDataContainers);
 		this.doclogDirectory = this.getSubContainer("doclog");
 		this.mappingFile = this.getResource("mapping.xml");
 		this.doclogCache = new DoclogCache(this, DOCLOG_CACHE_SIZE);
@@ -138,8 +137,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns a list of all {@link ID}s occurring in the managed
-	 * {@link Doclog}s
+	 * Returns a list of all {@link ID}s occurring in the managed {@link Doclog}
+	 * s
 	 * 
 	 * @return
 	 */
@@ -153,8 +152,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns the {@link ID} that is associated to a {@link Doclog}
-	 * containing the specified {@link Token}.
+	 * Returns the {@link ID} that is associated to a {@link Doclog} containing
+	 * the specified {@link Token}.
 	 * 
 	 * @param token
 	 * @return
@@ -254,14 +253,12 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog getDoclogFile(ID id,
-			IProgressMonitor progressMonitor) {
+	public Doclog getDoclogFile(ID id, IProgressMonitor progressMonitor) {
 		return this.getDoclogFile((Object) id, progressMonitor);
 	}
 
 	/**
-	 * Returns the {@link Doclog} associated with a given
-	 * {@link Fingerprint}
+	 * Returns the {@link Doclog} associated with a given {@link Fingerprint}
 	 * 
 	 * @param fingerprint
 	 * @param progressMonitor
@@ -273,15 +270,14 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns the {@link Doclog} associated with a given key using
-	 * an internal {@link DoclogCache}.
+	 * Returns the {@link Doclog} associated with a given key using an internal
+	 * {@link DoclogCache}.
 	 * 
 	 * @param key
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog getDoclogFile(Object key,
-			IProgressMonitor progressMonitor) {
+	public Doclog getDoclogFile(Object key, IProgressMonitor progressMonitor) {
 		return this.doclogCache.getPayload(key, progressMonitor);
 	}
 
@@ -295,10 +291,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog createDoclogFile(Object key,
-			IProgressMonitor progressMonitor) {
-		progressMonitor.beginTask(
-				"Parsing " + Doclog.class.getSimpleName(), 2);
+	public Doclog createDoclogFile(Object key, IProgressMonitor progressMonitor) {
+		progressMonitor.beginTask("Parsing " + Doclog.class.getSimpleName(), 2);
 		IData data = this.datas.get(key);
 		if (data == null)
 			return null;
@@ -306,8 +300,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 		TimeZoneDateRange dateRange = this.fileDateRanges.get(key);
 		Token token = this.fileToken.get(key);
 		progressMonitor.worked(1);
-		Doclog doclog = new Doclog(data,
-				key, dateRange, token);
+		Doclog doclog = new Doclog(data, key, dateRange, token);
 		progressMonitor.worked(1);
 		progressMonitor.done();
 		return doclog;

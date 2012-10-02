@@ -11,7 +11,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeU
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataDirectoriesService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 /**
@@ -104,11 +104,11 @@ public class Activator extends AbstractUIPlugin {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				IDataDirectoriesService dataDirectoriesService = (IDataDirectoriesService) PlatformUI
+				IDataService dataService = (IDataService) PlatformUI
 						.getWorkbench().getService(
-								IDataDirectoriesService.class);
-				dataDirectoriesService
-						.setActiveDataDirectories(dataDirectoriesService
+								IDataService.class);
+				dataService
+						.setActiveDataDirectories(dataService
 								.getActiveDataDirectories());
 			}
 		});

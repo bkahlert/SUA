@@ -57,7 +57,7 @@ public class DoclogRecordListTest {
 			if (out != null)
 				out.close();
 		}
-		FileData dataResource = new FileData(null, file);
+		FileData dataResource = new FileData(null, null, file);
 		return new Doclog(dataResource, new ID("fakeID"),
 				Doclog.getDateRange(dataResource),
 				Doclog.getToken(dataResource));

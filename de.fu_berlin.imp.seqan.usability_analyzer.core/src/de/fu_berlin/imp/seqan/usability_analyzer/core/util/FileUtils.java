@@ -48,6 +48,17 @@ public class FileUtils {
 		}
 	}
 
+	public static File getRootFile(Class<?> someClass, String filename) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0, num = someClass.getPackage().getName().split("\\.").length; i < num; i++)
+			sb.append("../");
+		try {
+			return getFile(someClass, sb.toString() + filename);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static String readFirstLine(File file) {
 		String lineData = "";
 		try {
@@ -97,25 +108,18 @@ public class FileUtils {
 		}
 	}
 
-	public static byte[] readBytesFromTo(File file, long from, long to) {
+	public static byte[] readBytesFromTo(File file, long from, long to)
+			throws IOException {
 		long fileLength = file.length();
 		assert from <= fileLength;
 		assert to <= fileLength;
 		assert from <= to;
 		byte[] bytes = new byte[(int) (to - from)];
-		try {
-			RandomAccessFile fileHandler = new RandomAccessFile(file, "r");
-			fileHandler.seek(from);
-			fileHandler.readFully(bytes);
-			fileHandler.close();
-			return bytes;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		RandomAccessFile fileHandler = new RandomAccessFile(file, "r");
+		fileHandler.seek(from);
+		fileHandler.readFully(bytes);
+		fileHandler.close();
+		return bytes;
 	}
 
 	public static int getNewlineLengthAt(IData data, long position) {

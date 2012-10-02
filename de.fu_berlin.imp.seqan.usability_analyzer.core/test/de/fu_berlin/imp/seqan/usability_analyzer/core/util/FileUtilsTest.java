@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import junit.framework.Assert;
@@ -27,7 +28,7 @@ public class FileUtilsTest {
 	}
 
 	@Test
-	public void testReadFromTo() throws URISyntaxException {
+	public void testReadFromTo() throws URISyntaxException, IOException {
 		File file = FileUtils.getFile("data/0meio6dzt3eo1wj7_doclog.txt");
 		Assert.assertEquals("2011",
 				new String(FileUtils.readBytesFromTo(file, 0, 4)));
@@ -48,6 +49,7 @@ public class FileUtilsTest {
 	@Test
 	public void testGetNewlineLengthAt() throws URISyntaxException {
 		FileData file = new FileData(
+				null,
 				null,
 				FileUtils
 						.getFile("data/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"));

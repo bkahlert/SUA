@@ -49,7 +49,7 @@ public class DiffFileList extends ArrayList<DiffData> implements HasDateRange {
 	public DiffFileRecordHistory getHistory(String filename) {
 		DiffFileRecordHistory history = new DiffFileRecordHistory();
 		for (IDiffData diffData : this) {
-			DiffFileRecordList diffFileRecords = diffData.getDiffFileRecords();
+			DiffRecordList diffFileRecords = diffData.getDiffFileRecords();
 			if (diffFileRecords != null)
 				for (DiffRecord diffRecord : diffFileRecords) {
 					if (diffRecord.getFilename().equals(filename))
