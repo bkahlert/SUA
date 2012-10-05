@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -64,8 +64,7 @@ public class DoclogTimelineView extends ViewPart {
 	private static Set<Object> filterValidKeys(List<?> keys) {
 		HashSet<Object> validKeys = new HashSet<Object>();
 		for (Object key : keys) {
-			if (Activator.getDefault().getDoclogDataDirectory()
-					.getDateRange(key) != null)
+			if (Activator.getDefault().getDoclogContainer().getDateRange(key) != null)
 				validKeys.add(key);
 		}
 		return validKeys;
@@ -188,28 +187,26 @@ public class DoclogTimelineView extends ViewPart {
 
 	public <T> Future<T> init(Set<Object> keys,
 			IProgressMonitor progressMonitor, final Callable<T> success) {
-		progressMonitor.beginTask("Preparing " + Timeline.class.getSimpleName()
-				+ "s", keys.size() * 3 + 2);
-		if (progressMonitor.isCanceled()) {
+		SubMonitor monitor = SubMonitor.convert(progressMonitor);
+		monitor.beginTask("Preparing " + Timeline.class.getSimpleName() + "s",
+				keys.size() * 3 + 2);
+		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		Object[] unpreparedKeys = prepareExistingTimelines(keys);
-		if (progressMonitor.isCanceled()) {
+		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 
-		progressMonitor.worked(2);
+		monitor.worked(2);
 
 		for (final Object key : unpreparedKeys) {
-			if (progressMonitor.isCanceled()) {
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 
-			Doclog doclog = Activator
-					.getDefault()
-					.getDoclogDataDirectory()
-					.getDoclogFile(key,
-							new SubProgressMonitor(progressMonitor, 1));
+			final Doclog doclog = Activator.getDefault().getDoclogContainer()
+					.getDoclogFile(key, monitor.newChild(1));
 
 			if (doclog == null) {
 				LOGGER.error(Doclog.class.getSimpleName() + " for " + key
@@ -219,43 +216,53 @@ public class DoclogTimelineView extends ViewPart {
 				continue;
 			}
 
-			progressMonitor.worked(1);
-
-			final AtomicReference<DoclogTimeline> doclogTimeline = new AtomicReference<DoclogTimeline>(
-					getTimeline(key));
-			final AtomicReference<Object> doclogTimelineKey = new AtomicReference<Object>();
-			if (doclogTimeline.get() != null) {
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						doclogTimelineKey.set(doclogTimeline.get().getData());
-					}
-				});
-				progressMonitor.worked(1);
-			} else {
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						doclogTimeline.set(new DoclogTimeline(composite,
-								SWT.NONE));
-						doclogTimeline.get().setData(key);
-						doclogTimelineKey.set(key);
-					}
-				});
-				progressMonitor.worked(1);
+			DoclogTimeline doclogTimeline;
+			try {
+				doclogTimeline = ExecutorUtil.asyncExec(
+						new Callable<DoclogTimeline>() {
+							@Override
+							public DoclogTimeline call() throws Exception {
+								return getTimeline(key);
+							}
+						}).get();
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving "
+						+ DoclogTimeline.class.getSimpleName() + " for " + key);
+				continue;
 			}
-			if (key.equals(doclogTimelineKey)) {
-				progressMonitor.worked(1);
-			} else {
-				doclogTimeline.get().show(doclog, getTitle(key));
-				progressMonitor.worked(1);
-			}
-			progressMonitor.done();
 
-			if (progressMonitor.isCanceled()) {
+			if (doclogTimeline == null) {
+				// timeline was not prepared -> create a new one
+				try {
+					doclogTimeline = ExecutorUtil
+							.syncExec(new Callable<DoclogTimeline>() {
+								@Override
+								public DoclogTimeline call() throws Exception {
+									DoclogTimeline doclogTimeline = new DoclogTimeline(
+											composite, SWT.NONE);
+									doclogTimeline.setData(key);
+									return doclogTimeline;
+								}
+							});
+				} catch (Exception e) {
+					LOGGER.error("Error creating " + DoclogTimeline.class
+							+ " for " + key);
+				}
+			}
+
+			monitor.worked(1);
+
+			if (doclogTimeline != null)
+				doclogTimeline.show(doclog, getTitle(key), monitor.newChild(1));
+			else
+				monitor.worked(1);
+
+			if (monitor.isCanceled()) {
 				disposeTimelines(key);
 				throw new OperationCanceledException();
 			}
+
+			monitor.done();
 		}
 
 		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
@@ -268,7 +275,7 @@ public class DoclogTimelineView extends ViewPart {
 			}
 		});
 
-		progressMonitor.done();
+		monitor.done();
 
 		return rs;
 	}
@@ -290,10 +297,24 @@ public class DoclogTimelineView extends ViewPart {
 			IProgressMonitor progressMonitor) {
 		progressMonitor.beginTask("Updading " + Timeline.class.getSimpleName()
 				+ "s", groupedDateRanges.keySet().size());
-		for (Object key : groupedDateRanges.keySet()) {
+		for (final Object key : groupedDateRanges.keySet()) {
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
-			DoclogTimeline timeline = getTimeline(key);
+
+			final DoclogTimeline timeline;
+			try {
+				timeline = ExecutorUtil.asyncExec(
+						new Callable<DoclogTimeline>() {
+							@Override
+							public DoclogTimeline call() throws Exception {
+								return getTimeline(key);
+							}
+						}).get();
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving "
+						+ DoclogTimeline.class.getSimpleName() + " for " + key);
+				continue;
+			}
 			if (timeline == null) {
 				LOGGER.warn(DoclogTimeline.class.getSimpleName()
 						+ " does not exist anymore for " + key);
@@ -303,18 +324,20 @@ public class DoclogTimelineView extends ViewPart {
 			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
 					.get(key);
 			final TimeZoneDateRange minMaxDateRange = calculateIntersectedDateRange(
-					Activator.getDefault().getDoclogDataDirectory()
+					Activator.getDefault().getDoclogContainer()
 							.getDoclogFile(key, progressMonitor), dateRanges);
-			final DoclogTimeline timeline_ = timeline;
+
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
-			Display.getDefault().syncExec(new Runnable() {
+
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					timeline_.center(minMaxDateRange);
-					timeline_.highlight(dateRanges);
+					timeline.center(minMaxDateRange);
+					timeline.highlight(dateRanges);
 				}
 			});
+
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
 		}
@@ -332,16 +355,16 @@ public class DoclogTimelineView extends ViewPart {
 	}
 
 	/**
-	 * Given a {@link List} of {@link TimeZoneDateRange}s and a
-	 * {@link Doclog} this method returns the earliest and latest dates that
-	 * in which {@link DoclogRecord} events occurred.
+	 * Given a {@link List} of {@link TimeZoneDateRange}s and a {@link Doclog}
+	 * this method returns the earliest and latest dates that in which
+	 * {@link DoclogRecord} events occurred.
 	 * 
 	 * @param doclog
 	 * @param dateRanges
 	 * @return
 	 */
-	private TimeZoneDateRange calculateIntersectedDateRange(
-			Doclog doclog, List<TimeZoneDateRange> dateRanges) {
+	private TimeZoneDateRange calculateIntersectedDateRange(Doclog doclog,
+			List<TimeZoneDateRange> dateRanges) {
 		TimeZoneDate earliestDate = null;
 		TimeZoneDate latestDate = null;
 		for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
@@ -385,25 +408,24 @@ public class DoclogTimelineView extends ViewPart {
 		return keys;
 	}
 
+	/**
+	 * Returns the {@link DoclogTimeline} that is associated with the given key.
+	 * 
+	 * @UI must be called from the UI thread
+	 * @param key
+	 * @return
+	 */
 	public DoclogTimeline getTimeline(final Object key) {
 		Assert.isNotNull(key);
-		final AtomicReference<DoclogTimeline> timelineReference = new AtomicReference<DoclogTimeline>();
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				for (Control control : composite.getChildren()) {
-					if (!control.isDisposed()
-							&& control instanceof DoclogTimeline) {
-						DoclogTimeline timeline = (DoclogTimeline) control;
-						if (key.equals(timeline.getData())) {
-							timelineReference.set(timeline);
-							return;
-						}
-					}
+		for (Control control : composite.getChildren()) {
+			if (!control.isDisposed() && control instanceof DoclogTimeline) {
+				DoclogTimeline timeline = (DoclogTimeline) control;
+				if (key.equals(timeline.getData())) {
+					return timeline;
 				}
 			}
-		});
-		return timelineReference.get();
+		}
+		return null;
 	}
 
 	/**
@@ -440,9 +462,15 @@ public class DoclogTimelineView extends ViewPart {
 				int i = 0;
 				while (freeTimelines.size() > 0
 						&& unpreparedTimelines.size() > i) {
-					DoclogTimeline timeline = getTimeline(freeTimelines
-							.remove(0));
-					timeline.setData(unpreparedTimelines.get(i));
+					try {
+						DoclogTimeline timeline = getTimeline(freeTimelines
+								.remove(0));
+						timeline.setData(unpreparedTimelines.get(i));
+					} catch (Exception e) {
+						LOGGER.error("Error assigning new key "
+								+ unpreparedTimelines.get(i) + " to "
+								+ DoclogTimeline.class);
+					}
 				}
 			}
 		});
@@ -451,16 +479,20 @@ public class DoclogTimelineView extends ViewPart {
 	}
 
 	private void disposeTimelines(final Object... timelineKeys) {
-		for (final Object key : timelineKeys) {
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					Timeline doclogTimeline = getTimeline(key);
-					if (doclogTimeline != null && !doclogTimeline.isDisposed())
-						doclogTimeline.dispose();
+		ExecutorUtil.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (Object timelineKey : timelineKeys) {
+					try {
+						Timeline timeline = getTimeline(timelineKey);
+						if (timeline != null && !timeline.isDisposed())
+							timeline.dispose();
+					} catch (Exception e) {
+						LOGGER.error("Error disposing " + DoclogTimeline.class);
+					}
 				}
-			});
-		}
+			}
+		});
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {

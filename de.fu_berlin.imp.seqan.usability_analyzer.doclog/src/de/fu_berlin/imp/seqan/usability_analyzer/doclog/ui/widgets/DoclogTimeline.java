@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
@@ -20,8 +21,9 @@ import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.JsonUtils;
 
@@ -47,8 +49,7 @@ public class DoclogTimeline extends Timeline {
 					int doclogRecordIndex = Integer.parseInt(matcher.group(1));
 
 					DoclogRecord selectedDoclogRecord = null;
-					for (DoclogRecord doclogRecord : doclog
-							.getDoclogRecords()) {
+					for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
 						if (System.identityHashCode(doclogRecord) == doclogRecordIndex) {
 							selectedDoclogRecord = doclogRecord;
 						}
@@ -90,14 +91,17 @@ public class DoclogTimeline extends Timeline {
 	 * 
 	 * @param doclog
 	 * @param title
+	 * @param monitor
 	 */
-	public void show(final Doclog doclog,
-			final String title) {
+	public void show(final Doclog doclog, final String title,
+			final SubMonitor monitor) {
 		this.doclog = doclog;
 
-		new Thread(new Runnable() {
+		ExecutorUtil.nonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
+				monitor.beginTask("Updating " + DoclogTimeline.class + "...",
+						5 + doclog.getDoclogRecords().size());
 				HashMap<String, Object> options = new HashMap<String, Object>();
 				if (title != null)
 					options.put("title", title);
@@ -117,8 +121,7 @@ public class DoclogTimeline extends Timeline {
 				// options.put("timeline_end",
 				// JsonUtils.formatDate(dateRange.getEndDate()));
 				IDataSetInfo dataSetInfo = ((IDataService) PlatformUI
-						.getWorkbench().getService(
-								IDataService.class))
+						.getWorkbench().getService(IDataService.class))
 						.getActiveDataDirectories().get(0).getInfo(); // TODO
 																		// support
 																		// multiple
@@ -136,9 +139,10 @@ public class DoclogTimeline extends Timeline {
 								dataSetInfo.getName(), dateRange.getEndDate()
 										.toISO8601(), dataSetInfo.getName()) });
 
+				monitor.worked(1);
+
 				LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
-				for (DoclogRecord doclogRecord : doclog
-						.getDoclogRecords()) {
+				for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
 					if (doclogRecord.getAction() == DoclogAction.UNLOAD)
 						continue;
 					if (doclogRecord.getUrl().contains(
@@ -146,16 +150,23 @@ public class DoclogTimeline extends Timeline {
 						continue;
 					filteredDoclogRecords.add(doclogRecord);
 				}
+
+				monitor.worked(1);
+
 				final String json = JsonUtils.generateJSON(
-						filteredDoclogRecords, options, false);
+						filteredDoclogRecords, options, false,
+						monitor.newChild(doclog.getDoclogRecords().size()));
+
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						DoclogTimeline.super.show(json);
+						monitor.worked(3);
+						monitor.done();
 					}
 				});
 			}
-		}).start();
+		});
 	}
 
 	/**
@@ -234,5 +245,11 @@ public class DoclogTimeline extends Timeline {
 
 	public List<TimeZoneDateRange> getHighlightedDateRanges() {
 		return this.highlightedDateRanges;
+	}
+
+	@Override
+	public String toString() {
+		return DoclogTimeline.class.getSimpleName() + "(" + this.getData()
+				+ ")";
 	}
 }

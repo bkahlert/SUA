@@ -15,10 +15,12 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -170,7 +172,10 @@ public class DiffFileRecordTest {
 
 	@Test
 	public void testGetPatch() throws URISyntaxException, IOException {
-		final IData data = new FileData(null, null, underlayingDiffFile);
+		IBaseDataContainer baseDataContainer = new FileBaseDataContainer(
+				FileUtils.getFile(root));
+		final IData data = new FileData(baseDataContainer, baseDataContainer,
+				underlayingDiffFile);
 
 		final ITrunk trunk = new ITrunk() {
 			@Override
@@ -221,7 +226,7 @@ public class DiffFileRecordTest {
 			}
 		};
 
-		DiffDataResourceUtils.readRecords(diff, trunk, sourceCache,
+		DiffRecordUtils.readRecords(diff, trunk, sourceCache,
 				new NullProgressMonitor());
 	}
 }

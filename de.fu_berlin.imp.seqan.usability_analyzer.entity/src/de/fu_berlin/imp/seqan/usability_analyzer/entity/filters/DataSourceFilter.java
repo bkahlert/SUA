@@ -17,7 +17,7 @@ public class DataSourceFilter extends ViewerFilter {
 	public DataSourceFilter(DataSource dataSource) {
 		this.dataSource = dataSource;
 		this.doclogDataDirectory = Activator.getDefault()
-				.getDoclogDataDirectory();
+				.getDoclogContainer();
 	}
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {

@@ -13,6 +13,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
+import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline.Decorator;
 
@@ -26,7 +27,9 @@ public class JsonUtils {
 	public static Logger logger = Logger.getLogger(JsonUtils.class);
 
 	public static String generateJSON(List<DoclogRecord> doclogRecords,
-			Map<String, Object> options, boolean pretty) {
+			Map<String, Object> options, boolean pretty, SubMonitor monitor) {
+		monitor.beginTask("Genering JSON", doclogRecords.size() + 5);
+
 		JsonFactory factory = new JsonFactory();
 		StringWriter writer = new StringWriter();
 		JsonGenerator generator;
@@ -107,12 +110,15 @@ public class JsonUtils {
 				}
 
 				generator.writeEndObject();
+				monitor.worked(1);
 			}
 			generator.writeEndArray();
 			generator.writeEndObject();
 			generator.close();
 			String generated = writer.toString();
 			writer.close();
+			monitor.worked(5);
+			monitor.done();
 			// System.err.println(generated);
 			return generated;
 		} catch (IOException e) {

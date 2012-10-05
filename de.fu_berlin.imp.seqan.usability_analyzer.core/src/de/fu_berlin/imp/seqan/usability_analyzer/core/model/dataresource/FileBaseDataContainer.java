@@ -81,7 +81,7 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	@Override
 	public void resetStaticFile(String scope, String name) throws IOException {
 		File staticFile = getStaticFile(scope, name);
-		if (staticFile.exists())
+		if (staticFile != null && staticFile.exists())
 			staticFile.delete();
 	}
 

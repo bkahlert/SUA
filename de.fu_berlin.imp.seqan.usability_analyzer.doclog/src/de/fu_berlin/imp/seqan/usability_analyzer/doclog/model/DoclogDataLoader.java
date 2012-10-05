@@ -14,9 +14,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 public class DoclogDataLoader implements IDataLoadProvider {
 
 	@Override
-	public String getJobName(
+	public String getLoaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
 		return "Loading doclogs from "
+				+ StringUtils.join(dataResourceContainers, ", ") + "...";
+	}
+
+	@Override
+	public String getUnloaderJobName(
+			List<? extends IBaseDataContainer> dataResourceContainers) {
+		return "Unloading doclogs from "
 				+ StringUtils.join(dataResourceContainers, ", ") + "...";
 	}
 
@@ -31,6 +38,11 @@ public class DoclogDataLoader implements IDataLoadProvider {
 		subMonitor.done();
 		Activator.getDefault().setDoclogDataDirectory(doclogDataDirectory);
 		return doclogDataDirectory;
+	}
+
+	@Override
+	public void unload(
+			IProgressMonitor progressMonitor) {
 	}
 
 }

@@ -9,11 +9,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataCo
 
 public interface IDataLoadProvider {
 
-	public String getJobName(
-			List<? extends IBaseDataContainer> dataResourceContainers);
+	public String getLoaderJobName(
+			List<? extends IBaseDataContainer> baseDataProviders);
+
+	public String getUnloaderJobName(
+			List<? extends IBaseDataContainer> baseDataProviders);
 
 	public IDataContainer load(
-			List<? extends IBaseDataContainer> dataResourceContainers,
+			List<? extends IBaseDataContainer> baseDataProviders,
 			IProgressMonitor progressMonitor);
+
+	public void unload(IProgressMonitor progressMonitor);
 
 }

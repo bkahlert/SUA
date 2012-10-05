@@ -1,10 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -15,11 +12,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.WrappingData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
@@ -29,7 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
  * {@link DiffRecord}s. Classically the underlying resource is a file with the
  * <code>.diff</code> extension in unified diff format.
  */
-public class Diff implements IDiff {
+public class Diff extends WrappingData implements IDiff {
 
 	private static final Logger LOGGER = Logger.getLogger(Diff.class);
 
@@ -44,13 +40,12 @@ public class Diff implements IDiff {
 					+ getID().toString() + "/" + getRevision());
 		} catch (Exception e) {
 			LOGGER.error(
-					"Could not create ID for a "
-							+ Diff.class.getSimpleName(), e);
+					"Could not create ID for a " + Diff.class.getSimpleName(),
+					e);
 		}
 		return null;
 	}
 
-	private IData data;
 	private IDiff prevDiffFile;
 
 	private ID id;
@@ -61,7 +56,7 @@ public class Diff implements IDiff {
 
 	public Diff(IData data, IDiff prevDiffFile, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
-		this.data = data;
+		super(data);
 		this.prevDiffFile = prevDiffFile;
 
 		Assert.isNotNull(sourceCache);
@@ -74,58 +69,8 @@ public class Diff implements IDiff {
 		this.dateRange = new TimeZoneDateRange(prevDate,
 				DiffDataUtils.getDate(data));
 
-		this.diffFileRecords = DiffDataResourceUtils.readRecords(this, trunk,
+		this.diffFileRecords = DiffRecordUtils.readRecords(this, trunk,
 				sourceCache, progressMonitor);
-	}
-
-	@Override
-	public IBaseDataContainer getBaseDataContainer() {
-		return this.data.getBaseDataContainer();
-	}
-
-	@Override
-	public IDataContainer getParentDataContainer() {
-		return this.data.getParentDataContainer();
-	}
-
-	@Override
-	public String getName() {
-		return this.data.getName();
-	}
-
-	@Override
-	public String read() {
-		return this.data.read();
-	}
-
-	@Override
-	public String read(long from, long to) {
-		return this.data.read(from, to);
-	}
-
-	@Override
-	public String readFirstLine() {
-		return this.data.readFirstLine();
-	}
-
-	@Override
-	public String readLastLines(int numLines) {
-		return this.data.readLastLines(numLines);
-	}
-
-	@Override
-	public Iterator<String> iterator() {
-		return this.data.iterator();
-	}
-
-	@Override
-	public long getLength() {
-		return this.data.getLength();
-	}
-
-	@Override
-	public File getStaticFile() throws IOException {
-		return this.data.getStaticFile();
 	}
 
 	/*
@@ -147,8 +92,7 @@ public class Diff implements IDiff {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#getRevision
-	 * ()
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#getRevision ()
 	 */
 	@Override
 	public long getRevision() {

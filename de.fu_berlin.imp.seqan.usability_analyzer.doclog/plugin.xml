@@ -71,7 +71,7 @@
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.areScreenshots">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.singleSelection">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.singleSelection">
                   </reference>
                </and>
             </visibleWhen>
@@ -87,7 +87,7 @@
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.areScreenshots">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.doclog.definitions.multipleSelections">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.multipleSelections">
                   </reference>
                </and>
             </visibleWhen>
@@ -135,6 +135,9 @@
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
          </adapter>
       </factory>
    </extension>

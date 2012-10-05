@@ -67,12 +67,12 @@ public class DoclogCodeableProvider extends CodeableProvider {
 				// 0: ID / Fingerprint
 				Object key = new ID(path[0]);
 				Doclog doclog = Activator.getDefault()
-						.getDoclogDataDirectory()
+						.getDoclogContainer()
 						.getDoclogFile(key, monitorReference.get());
 				if (doclog == null) {
 					key = new Fingerprint(path[0]);
 					doclog = Activator.getDefault()
-							.getDoclogDataDirectory()
+							.getDoclogContainer()
 							.getDoclogFile(key, monitorReference.get());
 				}
 				if (doclog == null) {

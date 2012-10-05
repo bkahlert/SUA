@@ -81,7 +81,7 @@ public class Activator extends AbstractUIPlugin {
 		return maxCaptureArea;
 	}
 
-	public DoclogDataDirectory getDoclogDataDirectory() {
+	public DoclogDataDirectory getDoclogContainer() {
 		return doclogDataDirectory;
 	}
 

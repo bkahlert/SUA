@@ -2,29 +2,23 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.InvalidRegistryObjectException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.bkahlert.devel.nebula.data.DependencyGraph;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.DataLoaderManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
@@ -86,6 +80,7 @@ public class DataService implements IDataService {
 	}
 
 	private DataListenerNotifier notifier = new DataListenerNotifier();
+	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
 	private List<? extends IBaseDataContainer> activeBaseDataDirectories = loadActiveFromPreferences();
 
 	public DataService() {
@@ -111,53 +106,28 @@ public class DataService implements IDataService {
 	@Override
 	public void setActiveDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		dispose();
+		unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
 
-		this.activeBaseDataDirectories = baseDataContainers;
 		saveActiveToPreferences(baseDataContainers);
-		loadData(baseDataContainers);
+		loadData(this.dataLoaderManager, baseDataContainers);
+		this.activeBaseDataDirectories = baseDataContainers;
 
-		notifier.activeDataDirectoriesChanged(baseDataContainers);
+		notifier.activeDataDirectoriesChanged(this.activeBaseDataDirectories);
 	}
 
-	private static void loadData(
-			final List<? extends IBaseDataContainer> dataResourceContainers) {
-		final DependencyGraph<String> loaderDependencies = new DependencyGraph<String>();
-		final Map<String, IDataLoadProvider> dataLoadProviders = new HashMap<String, IDataLoadProvider>();
-		IConfigurationElement[] config = Platform
-				.getExtensionRegistry()
-				.getConfigurationElementsFor(
-						"de.fu_berlin.imp.seqan.usability_analyzer.core.dataload");
-		for (IConfigurationElement e : config) {
-			try {
-				String source = e.getAttribute("source");
-				List<String> dependencies = new ArrayList<String>();
-				for (IConfigurationElement element : e.getChildren()) {
-					if ("Dependency".equals(element.getName())) {
-						dependencies.add(element.getAttribute("source"));
-					}
-				}
-				loaderDependencies.addNode(source, dependencies);
-				dataLoadProviders.put(source, (IDataLoadProvider) e
-						.createExecutableExtension("class"));
-			} catch (CoreException e1) {
-				LOGGER.fatal(e1);
-			} catch (InvalidRegistryObjectException e1) {
-				LOGGER.fatal("source does not exist in the defined dependency",
-						e1);
-			}
-		}
-
-		LOGGER.info("Loading " + StringUtils.join(dataResourceContainers, ", ")
+	private static void loadData(final DataLoaderManager dataLoaderManager,
+			final List<? extends IBaseDataContainer> baseDataContainers) {
+		LOGGER.info("Loading " + StringUtils.join(baseDataContainers, ", ")
 				+ "...");
 		final Job loader = new Job("Loading "
-				+ StringUtils.join(dataResourceContainers, ", ") + "...") {
+				+ StringUtils.join(baseDataContainers, ", ") + "...") {
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
 				long loadStart = System.currentTimeMillis();
-				monitor.beginTask(getName(), dataLoadProviders.size());
-				for (List<String> sources : loaderDependencies
-						.getOrderedValues()) {
+				monitor.beginTask(getName(),
+						dataLoaderManager.getNumDataLoaderProviders());
+				for (List<String> sources : dataLoaderManager
+						.getLoadDependencies()) {
 					LOGGER.info("-- set: " + sources);
 					List<Future<Job>> futures = ExecutorUtil
 							.nonUIAsyncExec(
@@ -167,11 +137,11 @@ public class DataService implements IDataService {
 										@Override
 										public Job call(final String source)
 												throws Exception {
-											final IDataLoadProvider dataLoadProvider = dataLoadProviders
-													.get(source);
+											final IDataLoadProvider dataLoadProvider = dataLoaderManager
+													.getDataLoadProvider(source);
 											Job loader = new Job(
 													dataLoadProvider
-															.getJobName(dataResourceContainers)) {
+															.getUnloaderJobName(baseDataContainers)) {
 												@Override
 												protected IStatus run(
 														IProgressMonitor monitor) {
@@ -180,9 +150,9 @@ public class DataService implements IDataService {
 
 													long start = System
 															.currentTimeMillis();
-													dataLoadProvider
-															.load(dataResourceContainers,
-																	subMonitor);
+													dataLoadProvider.load(
+															baseDataContainers,
+															subMonitor);
 													LOGGER.info("---- loaded "
 															+ source
 															+ " within "
@@ -220,7 +190,85 @@ public class DataService implements IDataService {
 		try {
 			loader.join();
 		} catch (InterruptedException e) {
-			LOGGER.error("Error loading " + dataResourceContainers, e);
+			LOGGER.error("Error loading " + baseDataContainers, e);
+		}
+	}
+
+	public static void unloadData(final DataLoaderManager dataLoaderManager,
+			final List<? extends IBaseDataContainer> baseDataContainers) {
+		LOGGER.info("Unloading " + StringUtils.join(baseDataContainers, ", ")
+				+ "...");
+		final Job unloader = new Job("Unloading "
+				+ StringUtils.join(baseDataContainers, ", ") + "...") {
+			@Override
+			protected IStatus run(final IProgressMonitor monitor) {
+				long unloadStart = System.currentTimeMillis();
+				monitor.beginTask(getName(),
+						dataLoaderManager.getNumDataLoaderProviders());
+				for (List<String> sources : dataLoaderManager
+						.getUnloadDependencies()) {
+					LOGGER.info("-- set: " + sources);
+					List<Future<Job>> futures = ExecutorUtil
+							.nonUIAsyncExec(
+									LOADER_POOL,
+									sources,
+									new ExecutorUtil.ParametrizedCallable<String, Job>() {
+										@Override
+										public Job call(final String source)
+												throws Exception {
+											final IDataLoadProvider dataLoadProvider = dataLoaderManager
+													.getDataLoadProvider(source);
+											Job loader = new Job(
+													dataLoadProvider
+															.getLoaderJobName(baseDataContainers)) {
+												@Override
+												protected IStatus run(
+														IProgressMonitor monitor) {
+													final SubMonitor subMonitor = SubMonitor
+															.convert(monitor);
+
+													long start = System
+															.currentTimeMillis();
+													dataLoadProvider
+															.unload(subMonitor);
+													LOGGER.info("---- unloaded "
+															+ source
+															+ " within "
+															+ (System
+																	.currentTimeMillis() - start)
+															+ "ms");
+
+													subMonitor.done();
+													return Status.OK_STATUS;
+												}
+											};
+											loader.setProgressGroup(monitor, 1);
+											loader.setSystem(true);
+											loader.schedule();
+											return loader;
+										}
+									});
+					for (Future<Job> future : futures) {
+						try {
+							future.get().join();
+							monitor.worked(1);
+						} catch (InterruptedException e) {
+							LOGGER.error(e);
+						} catch (ExecutionException e) {
+							LOGGER.error(e);
+						}
+					}
+				}
+				LOGGER.info("Finished unloading within "
+						+ (System.currentTimeMillis() - unloadStart) + "ms");
+				return Status.OK_STATUS;
+			}
+		};
+		unloader.schedule();
+		try {
+			unloader.join();
+		} catch (InterruptedException e) {
+			LOGGER.error("Error unloading " + baseDataContainers, e);
 		}
 	}
 
@@ -255,13 +303,8 @@ public class DataService implements IDataService {
 		notifier.dataDirectoriesRemoved(dataContainers);
 	}
 
-	public void dispose() {
-		LOGGER.info("Disposing "
-				+ StringUtils.join(this.activeBaseDataDirectories, ", "));
-		for (IBaseDataContainer activeBaseDataContainer : this.activeBaseDataDirectories) {
-			activeBaseDataContainer.dispose();
-		}
-		LOGGER.info("Disposed "
-				+ StringUtils.join(this.activeBaseDataDirectories, ", "));
+	@Override
+	public void unloadData() {
+		this.dataLoaderManager.unload();
 	}
 }

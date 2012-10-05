@@ -70,6 +70,9 @@
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
          </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+         </adapter>
       </factory>
    </extension>
    <extension
@@ -81,7 +84,7 @@
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload">
       <DataLoadProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainerLoader"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffLoader"
             source="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffLoadDependency">
       </DataLoadProvider>
    </extension>

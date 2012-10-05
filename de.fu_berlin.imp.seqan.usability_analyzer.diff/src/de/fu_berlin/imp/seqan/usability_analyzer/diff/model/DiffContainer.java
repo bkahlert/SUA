@@ -93,7 +93,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		return new TimeZoneDateRange(start, end);
 	}
 
-	private IDataContainer diffFileDirectory;
+	private IDataContainer diffContainer;
 	private ITrunk trunk;
 	private ISourceStore sourceCache;
 	private Map<ID, DataResourceList> dataResourceLists;
@@ -115,7 +115,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	public DiffContainer(
 			List<? extends IBaseDataContainer> baseDataContainers) {
 		super(baseDataContainers);
-		this.diffFileDirectory = this.getSubContainer("diff");
+		this.diffContainer = this.getSubContainer("diff");
 		this.trunk = new Trunk(this.getSubContainer("trunk"));
 		this.sourceCache = new SourceCache(this);
 
@@ -200,7 +200,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	}
 
 	public IDataContainer getDiffFileDirectory() {
-		return this.diffFileDirectory;
+		return this.diffContainer;
 	}
 
 	/**

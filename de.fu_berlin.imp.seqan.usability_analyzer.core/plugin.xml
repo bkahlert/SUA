@@ -90,7 +90,7 @@
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS">
            <activeWhen>
               <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.isIDatas">
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
               </reference>
            </activeWhen>
         </handler>
@@ -134,14 +134,14 @@
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS"
-               disabledIcon="icons/dtool16/worksession_start_tsk.png"
-               icon="icons/etool16/worksession_start_tsk.png"
+               disabledIcon="icons/dtool16/reveal_in_os_tsk.png"
+               icon="icons/etool16/reveal_in_os_tsk.png"
                style="push"
                tooltip="Open the selected file in Finder">
             <visibleWhen
                   checkEnabled="false">
                <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.hasIDatas">
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIRevealableInOS">
                </reference>
             </visibleWhen>
          </command>
@@ -195,27 +195,27 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.core.isIDatas">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="and">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
                </adapt>
             </iterate>
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.core.hasIDatas">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIRevealableInOS">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="or">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
                </adapt>
             </iterate>
          </with>
@@ -239,5 +239,15 @@
             schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
             sequence="Delete">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.DataAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+         </adapter>
+      </factory>
    </extension>
 </plugin>

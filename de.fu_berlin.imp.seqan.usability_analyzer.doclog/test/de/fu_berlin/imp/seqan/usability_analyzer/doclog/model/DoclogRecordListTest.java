@@ -13,6 +13,8 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.TempBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DoclogRecordListTest {
@@ -57,7 +59,9 @@ public class DoclogRecordListTest {
 			if (out != null)
 				out.close();
 		}
-		FileData dataResource = new FileData(null, null, file);
+		IBaseDataContainer baseDataContainer = new TempBaseDataContainer();
+		FileData dataResource = new FileData(baseDataContainer,
+				baseDataContainer, file);
 		return new Doclog(dataResource, new ID("fakeID"),
 				Doclog.getDateRange(dataResource),
 				Doclog.getToken(dataResource));

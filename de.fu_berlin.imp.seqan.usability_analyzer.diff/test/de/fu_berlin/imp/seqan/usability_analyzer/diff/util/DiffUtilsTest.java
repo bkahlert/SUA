@@ -58,12 +58,13 @@ public class DiffUtilsTest {
 		ISourceStore diffUtils = new SourceCache(cachedSourcesDirectory);
 
 		// make sure a file really exists
+		@SuppressWarnings("unused")
 		File tmp = diffUtils.getSourceFile(diffRecord.getDiffFile().getID(),
 				diffRecord.getDiffFile().getRevision(),
 				diffRecord.getFilename());
-		tmp.createNewFile();
-		diffUtils.setSourceFile(diffRecord.getDiffFile().getID(), diffRecord
-				.getDiffFile().getRevision(), diffRecord.getFilename(), tmp);
+		// tmp.createNewFile();
+		// diffUtils.setSourceFile(diffRecord.getDiffFile().getID(), diffRecord
+		// .getDiffFile().getRevision(), diffRecord.getFilename(), tmp);
 
 		// TODO testen; geht nicht, weil man nur eine temporäre Kopie der Datei
 		// erhält und nicht den tatsächlichen Ort; so wird verhindert, das der

@@ -109,7 +109,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		}
 
 		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
-				.getDefault().getDoclogDataDirectory();
+				.getDefault().getDoclogContainer();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(id);
 		if (doclogFileDateRange != null) {
@@ -128,7 +128,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		this.fingerprint = fingerprint;
 
 		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
-				.getDefault().getDoclogDataDirectory();
+				.getDefault().getDoclogContainer();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(fingerprint);
 		updateEarliestEntryDate(doclogFileDateRange.getStartDate());

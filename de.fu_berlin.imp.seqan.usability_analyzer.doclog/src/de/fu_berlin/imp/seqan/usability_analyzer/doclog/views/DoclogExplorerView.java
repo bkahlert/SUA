@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -20,10 +19,8 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -92,7 +89,6 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	}
 
 	private Map<Object, Doclog> openedDoclogFiles = new HashMap<Object, Doclog>();
-	private Map<Object, Job> doclogLoaders = new HashMap<Object, Job>();
 
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
@@ -129,8 +125,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 				List<TreePath> idIntersectingDoclogRecords;
 				if (com.bkahlert.devel.nebula.utils.ViewerUtils
-						.getItemWithDataType(treeItems, Doclog.class)
-						.size() == 0) {
+						.getItemWithDataType(treeItems, Doclog.class).size() == 0) {
 					idIntersectingDoclogRecords = DoclogFilesViewer
 							.getItemsOfIntersectingDataRanges(treeItems,
 									dataRanges);
@@ -158,7 +153,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private ExecutorService pool = ExecutorUtil
+	private ExecutorService LOADER_POOL = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	public DoclogExplorerView() {
@@ -236,8 +231,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 	/**
 	 * Opens the given {@link ID}s and {@link Fingerprint}s in the
-	 * {@link DoclogFilesViewer}. If the corresponding {@link Doclog}s could
-	 * be successfully opened a caller defined {@link Runnable} gets executed.
+	 * {@link DoclogFilesViewer}. If the corresponding {@link Doclog}s could be
+	 * successfully opened a caller defined {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
 	 * 
@@ -259,9 +254,6 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			}
 		}
 
-		// keys only contains not yet loaded keys
-		final int alreadyLoaded = newOpenedDoclogFiles.size();
-
 		// Case 1: no IDs
 		if (keys.size() == 0) {
 			if (success != null) {
@@ -271,91 +263,76 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		}
 
 		// Case 2: multiple IDs
-		return pool.submit(new Callable<T>() {
+		final List<Future<Job>> loaders = ExecutorUtil.nonUIAsyncExec(
+				LOADER_POOL, keys,
+				new ExecutorUtil.ParametrizedCallable<Object, Job>() {
+					public Job call(final Object key) throws Exception {
+						Job doclogFileLoader = new Job("Loading "
+								+ Doclog.class.getSimpleName() + "s") {
+							@Override
+							protected IStatus run(
+									IProgressMonitor progressMonitor) {
+								SubMonitor monitor = SubMonitor
+										.convert(progressMonitor);
+								monitor.beginTask("Fetching " + Doclog.class
+										+ "s", 1);
+								Doclog doclog = Activator
+										.getDefault()
+										.getDoclogContainer()
+										.getDoclogFile(key, monitor.newChild(1));
+								synchronized (newOpenedDoclogFiles) {
+									if (doclog != null)
+										newOpenedDoclogFiles.put(key, doclog);
+									else
+										keys.remove(key);
+								}
+								monitor.done();
+								return Status.OK_STATUS;
+							};
+						};
+						doclogFileLoader.schedule();
+						return doclogFileLoader;
+					};
+				});
+
+		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				final AtomicReference<T> r = new AtomicReference<T>();
-				final Semaphore mutex = new Semaphore(0);
-
-				// load not yet loaded doclog files
-				for (final Object key : keys) {
-					if (doclogLoaders.containsKey(key))
-						continue;
-
-					Job doclogFileLoader = new Job("Loading "
-							+ Doclog.class.getSimpleName() + "s") {
-						@Override
-						protected IStatus run(IProgressMonitor monitor) {
-							Doclog doclog = Activator
-									.getDefault()
-									.getDoclogDataDirectory()
-									.getDoclogFile(key,
-											new SubProgressMonitor(monitor, 1));
-							synchronized (newOpenedDoclogFiles) {
-								if (doclog != null)
-									newOpenedDoclogFiles.put(key, doclog);
-								else
-									keys.remove(key);
-							}
-							return Status.OK_STATUS;
-						};
-					};
-					doclogFileLoader
-							.addJobChangeListener(new JobChangeAdapter() {
-								@Override
-								public void done(IJobChangeEvent event) {
-									boolean jobsFinished;
-									synchronized (newOpenedDoclogFiles) {
-										jobsFinished = newOpenedDoclogFiles
-												.size() == keys.size()
-												+ alreadyLoaded;
-									}
-									if (jobsFinished
-											&& event.getResult() == Status.OK_STATUS) {
-										try {
-											ExecutorUtil
-													.syncExec(new Callable<T>() {
-														@Override
-														public T call()
-																throws Exception {
-															openedDoclogFiles = newOpenedDoclogFiles;
-															setPartName("Doclogs - "
-																	+ StringUtils
-																			.join(newOpenedDoclogFiles
-																					.keySet(),
-																					", "));
-															if (treeViewer != null
-																	&& !treeViewer
-																			.getTree()
-																			.isDisposed()
-																	&& newOpenedDoclogFiles
-																			.size() > 0) {
-																treeViewer
-																		.setInput(newOpenedDoclogFiles
-																				.values());
-																treeViewer
-																		.expandAll();
-																if (success != null)
-																	return success
-																			.call();
-															}
-															return null;
-														}
-													});
-										} catch (Exception e) {
-											LOGGER.error(e);
-										}
-										mutex.release();
-									}
-									doclogLoaders.remove(key);
-								}
-							});
-					doclogLoaders.put(key, doclogFileLoader);
-					doclogFileLoader.schedule();
+				for (Future<Job> loader : loaders) {
+					try {
+						loader.get().join();
+					} catch (InterruptedException e) {
+						LOGGER.error("Error loading "
+								+ Doclog.class.getSimpleName());
+					} catch (ExecutionException e) {
+						LOGGER.error("Error loading "
+								+ Doclog.class.getSimpleName());
+					}
 				}
 
-				mutex.acquire();
-				return r.get();
+				ExecutorUtil.syncExec(new Callable<T>() {
+					@Override
+					public T call() throws Exception {
+						openedDoclogFiles = newOpenedDoclogFiles;
+						setPartName("Doclogs - "
+								+ StringUtils.join(
+										newOpenedDoclogFiles.keySet(), ", "));
+						if (treeViewer != null
+								&& !treeViewer.getTree().isDisposed()
+								&& newOpenedDoclogFiles.size() > 0) {
+							treeViewer.setInput(newOpenedDoclogFiles.values());
+							treeViewer.expandAll();
+							if (success != null)
+								return success.call();
+						}
+						return null;
+					}
+				});
+
+				if (success != null)
+					return success.call();
+				else
+					return null;
 			}
 		});
 	}

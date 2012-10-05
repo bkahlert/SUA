@@ -48,7 +48,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 									BundleEvent event) {
 								if (!disposed
 										&& event.getType() == BundleEvent.STOPPED) {
-									DATA_DIRECTORIES_SERVICE.dispose();
+									DATA_DIRECTORIES_SERVICE.unloadData();
 									disposed = true;
 								}
 							}

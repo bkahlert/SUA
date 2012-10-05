@@ -12,9 +12,9 @@ public class SourceCache implements ISourceStore {
 	private IBaseDataContainer baseDataContainer;
 	private String scope;
 
-	public SourceCache(IBaseDataContainer baseDataDirectory) {
-		Assert.isNotNull(baseDataDirectory);
-		this.baseDataContainer = baseDataDirectory;
+	public SourceCache(IBaseDataContainer baseDataContainer) {
+		Assert.isNotNull(baseDataContainer);
+		this.baseDataContainer = baseDataContainer;
 		this.scope = "sources";
 	}
 

@@ -39,7 +39,7 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					DoclogDataDirectory doclogDataDirectory = Activator
-							.getDefault().getDoclogDataDirectory();
+							.getDefault().getDoclogContainer();
 					Set<Object> keys = doclogDataDirectory.getKeys();
 					monitor.beginTask(
 							"Parsing " + Doclog.class.getSimpleName() + "s",

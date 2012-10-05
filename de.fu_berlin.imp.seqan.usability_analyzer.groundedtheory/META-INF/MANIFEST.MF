@@ -26,8 +26,5 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory,
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards
 Bundle-ClassPath: .,
  lib/xstream-1.4.2.jar,
- lib/kxml2-2.3.0.jar,
- lib/org.eclipsian.composer_1.2.7.v20090820.jar,
- lib/org.eclipsian.composer.ui_1.1.3.v20090820.jar,
- lib/org.eclipsian.swt.composer_1.2.7.v20090513.jar
+ lib/kxml2-2.3.0.jar
 Service-Component: OSGI-INF/CodeService.xml

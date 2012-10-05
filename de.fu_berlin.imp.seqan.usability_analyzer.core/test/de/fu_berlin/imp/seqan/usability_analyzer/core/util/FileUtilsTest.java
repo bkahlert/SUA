@@ -8,7 +8,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 
 public class FileUtilsTest {
 	@Test
@@ -48,9 +50,11 @@ public class FileUtilsTest {
 
 	@Test
 	public void testGetNewlineLengthAt() throws URISyntaxException {
+		IBaseDataContainer baseDataContainer = new FileBaseDataContainer(
+				FileUtils.getFile("data"));
 		FileData file = new FileData(
-				null,
-				null,
+				baseDataContainer,
+				baseDataContainer,
 				FileUtils
 						.getFile("data/blcdihoxu16s53yo_r00000003_2011-09-13T10-28-07.diff"));
 		Assert.assertEquals(0, FileUtils.getNewlineLengthAt(file, 0x3AB4)); // nothing

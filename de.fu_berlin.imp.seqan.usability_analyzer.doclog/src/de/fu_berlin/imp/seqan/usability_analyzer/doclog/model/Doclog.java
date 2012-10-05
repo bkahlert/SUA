@@ -1,10 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,16 +14,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.WrappingData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class Doclog implements IData, HasDateRange, ICodeable, HasID,
-		HasFingerprint {
+public class Doclog extends WrappingData implements IData, HasDateRange,
+		ICodeable, HasID, HasFingerprint {
 
 	Logger logger = Logger.getLogger(Doclog.class);
 
@@ -82,8 +78,6 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 		return null;
 	}
 
-	private IData data;
-
 	private ID id;
 	private Fingerprint fingerprint;
 	private TimeZoneDateRange dateRange;
@@ -99,8 +93,8 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 	 */
 	public Doclog(IData data, Object key, TimeZoneDateRange dateRange,
 			Token token) {
+		super(data);
 		org.eclipse.core.runtime.Assert.isNotNull(data.getBaseDataContainer());
-		this.data = data;
 
 		if (key instanceof ID) {
 			this.id = (ID) key;
@@ -117,56 +111,6 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 
 		scanRecords();
 		calculateRecordMillisecondsPassed();
-	}
-
-	@Override
-	public IBaseDataContainer getBaseDataContainer() {
-		return this.data.getBaseDataContainer();
-	}
-
-	@Override
-	public IDataContainer getParentDataContainer() {
-		return this.data.getParentDataContainer();
-	}
-
-	@Override
-	public String getName() {
-		return this.data.getName();
-	}
-
-	@Override
-	public String read() {
-		return this.data.read();
-	}
-
-	@Override
-	public String read(long from, long to) {
-		return this.data.read(from, to);
-	}
-
-	@Override
-	public String readFirstLine() {
-		return this.data.readFirstLine();
-	}
-
-	@Override
-	public String readLastLines(int numLines) {
-		return this.data.readLastLines(numLines);
-	}
-
-	@Override
-	public Iterator<String> iterator() {
-		return this.data.iterator();
-	}
-
-	@Override
-	public long getLength() {
-		return this.data.getLength();
-	}
-
-	@Override
-	public File getStaticFile() throws IOException {
-		return this.data.getStaticFile();
 	}
 
 	@Override
@@ -188,7 +132,7 @@ public class Doclog implements IData, HasDateRange, ICodeable, HasID,
 	public void scanRecords() {
 		this.doclogRecords = new DoclogRecordList();
 		try {
-			for (String line : this.data) {
+			for (String line : this) {
 				try {
 					this.doclogRecords.add(new DoclogRecord(this, line));
 				} catch (DataSourceInvalidException e) {

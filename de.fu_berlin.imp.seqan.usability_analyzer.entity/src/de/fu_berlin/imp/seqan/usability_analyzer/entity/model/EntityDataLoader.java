@@ -21,9 +21,15 @@ public class EntityDataLoader implements IDataLoadProvider {
 	private static Logger LOGGER = Logger.getLogger(EntityDataLoader.class);
 
 	@Override
-	public String getJobName(
+	public String getLoaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
 		return "Extracting entities from diffs and doclogs...";
+	}
+
+	@Override
+	public String getUnloaderJobName(
+			List<? extends IBaseDataContainer> dataResourceContainers) {
+		return "Unloading entities...";
 	}
 
 	@Override
@@ -36,13 +42,12 @@ public class EntityDataLoader implements IDataLoadProvider {
 				.getDefault().getDiffDataDirectories();
 		if (diffContainer == null) {
 			LOGGER.error("Could not match entities since no "
-					+ DiffContainer.class.getSimpleName()
-					+ " could be found.");
+					+ DiffContainer.class.getSimpleName() + " could be found.");
 			return null;
 		}
 
 		DoclogDataDirectory doclogDataDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
-				.getDefault().getDoclogDataDirectory();
+				.getDefault().getDoclogContainer();
 		if (doclogDataDirectory == null) {
 			LOGGER.error("Could not match entities since no "
 					+ DoclogDataDirectory.class.getSimpleName()
@@ -80,5 +85,10 @@ public class EntityDataLoader implements IDataLoadProvider {
 
 		}
 		return null;
+	}
+
+	@Override
+	public void unload(
+			IProgressMonitor progressMonitor) {
 	}
 }

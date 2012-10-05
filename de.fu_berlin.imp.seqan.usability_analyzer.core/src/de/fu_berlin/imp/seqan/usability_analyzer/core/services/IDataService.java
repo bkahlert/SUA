@@ -30,6 +30,6 @@ public interface IDataService {
 	public void removeDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers);
 
-	public void dispose();
+	public void unloadData();
 
 }

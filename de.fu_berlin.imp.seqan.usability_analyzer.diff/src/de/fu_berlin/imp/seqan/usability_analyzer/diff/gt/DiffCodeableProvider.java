@@ -33,8 +33,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataResourceUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -147,7 +147,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 			final DiffExplorerView diffExplorerView) {
 		Set<ID> ids = CodeableUtils.getIDs(codedObjects);
 
-		codedObjects.addAll(DiffDataResourceUtils
+		codedObjects.addAll(DiffRecordUtils
 				.getRecordsFromSegments(codedObjects));
 
 		// open
@@ -155,7 +155,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 			Future<Boolean> future = diffExplorerView.open(ids,
 					new Callable<Boolean>() {
 						public Boolean call() {
-							DiffFileListsViewer viewer = diffExplorerView
+							DiffListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();
 							viewer.setSelection(new StructuredSelection(
 									codedObjects), true);

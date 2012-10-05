@@ -40,6 +40,7 @@ public class DoclogKeyMap {
 		return getLock(data).readLock();
 	}
 
+	@SuppressWarnings("unused")
 	private static WriteLock getWriteLock(IData data) {
 		return getLock(data).writeLock();
 	}
@@ -79,12 +80,10 @@ public class DoclogKeyMap {
 		}
 	}
 
-	public static DoclogKeyMap load(IData data)
-			throws FileNotFoundException {
+	public static DoclogKeyMap load(IData data) throws FileNotFoundException {
 		try {
 			getReadLock(data).lock();
-			return JAXBUtils
-					.unmarshall(DoclogKeyMap.class, data.read());
+			return JAXBUtils.unmarshall(DoclogKeyMap.class, data.read());
 		} catch (JAXBException e) {
 			LOGGER.error(e);
 			return null;

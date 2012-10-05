@@ -59,6 +59,9 @@ public class ExecutorUtil {
 	 * @throws Exception
 	 */
 	public static <V> V syncExec(final Callable<V> callable) throws Exception {
+		if (isUIThread())
+			return callable.call();
+
 		final AtomicReference<V> r = new AtomicReference<V>();
 		final AtomicReference<Exception> exception = new AtomicReference<Exception>();
 		final Semaphore mutex = new Semaphore(0);
@@ -89,6 +92,9 @@ public class ExecutorUtil {
 	 * @param runnable
 	 */
 	public static void syncExec(Runnable runnable) {
+		if (isUIThread())
+			runnable.run();
+
 		Display.getDefault().syncExec(runnable);
 	}
 
@@ -132,6 +138,9 @@ public class ExecutorUtil {
 	 * @param runnable
 	 */
 	public static void asyncExec(Runnable runnable) {
+		if (isUIThread())
+			runnable.run();
+
 		Display.getDefault().asyncExec(runnable);
 	}
 
