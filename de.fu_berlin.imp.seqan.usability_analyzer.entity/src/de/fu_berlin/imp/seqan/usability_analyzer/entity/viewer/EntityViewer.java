@@ -94,10 +94,10 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 							@Override
 							public Image getImage(Object element) {
-								Entity person = (Entity) element;
+								Entity entity = (Entity) element;
 								try {
-									if (codeService.getCodes(person).size() > 0) {
-										return codeService.isMemo(person) ? ImageManager.ENTITY_CODED_MEMO
+									if (codeService.getCodes(entity).size() > 0) {
+										return codeService.isMemo(entity) ? ImageManager.ENTITY_CODED_MEMO
 												: ImageManager.ENTITY_CODED;
 									} else {
 										for (URI id : codeService.getCodedIDs()) {
@@ -106,28 +106,28 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 											if (parts.length > 0) {
 												String key = parts[1];
 												if (ID.isValid(key)
-														&& person.getID() != null
-														&& person.getID()
+														&& entity.getID() != null
+														&& entity.getID()
 																.equals(new ID(
 																		key))) {
 													return codeService
-															.isMemo(person) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
 												if (Fingerprint.isValid(key)
-														&& person
+														&& entity
 																.getFingerprints()
 																.contains(
 																		new Fingerprint(
 																				key))) {
 													return codeService
-															.isMemo(person) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
 											}
 										}
 
-										return codeService.isMemo(person) ? ImageManager.ENTITY_MEMO
+										return codeService.isMemo(entity) ? ImageManager.ENTITY_MEMO
 												: ImageManager.ENTITY;
 									}
 								} catch (CodeServiceException e) {
@@ -144,8 +144,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								List<Fingerprint> secondaryFingerprints = person
+								Entity entity = (Entity) element;
+								List<Fingerprint> secondaryFingerprints = entity
 										.getFingerprints();
 								StyledString styledString = new StyledString(
 										(secondaryFingerprints != null) ? StringUtils
@@ -162,8 +162,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								Token token = person.getToken();
+								Entity entity = (Entity) element;
+								Token token = entity.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
 										(boldObjects.contains(element) ? boldStyler
@@ -177,8 +177,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								StatsFile statsFile = person.getStatsFile();
+								Entity entity = (Entity) element;
+								StatsFile statsFile = entity.getStatsFile();
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
@@ -193,8 +193,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								CMakeCacheFile cMakeCacheFile = person
+								Entity entity = (Entity) element;
+								CMakeCacheFile cMakeCacheFile = entity
 										.getCMakeCacheFile();
 								StyledString styledString = new StyledString(
 										(cMakeCacheFile != null) ? cMakeCacheFile
@@ -210,8 +210,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								TimeZoneDate earliestDate = person
+								Entity entity = (Entity) element;
+								TimeZoneDate earliestDate = entity
 										.getEarliestEntryDate();
 								StyledString styledString = new StyledString(
 										(earliestDate != null) ? earliestDate
@@ -228,8 +228,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 						new StyledColumnLabelProvider() {
 							@Override
 							public StyledString getStyledText(Object element) {
-								Entity person = (Entity) element;
-								TimeZoneDate lastestDate = person
+								Entity entity = (Entity) element;
+								TimeZoneDate lastestDate = entity
 										.getLatestEntryDate();
 								StyledString styledString = new StyledString(
 										(lastestDate != null) ? lastestDate
