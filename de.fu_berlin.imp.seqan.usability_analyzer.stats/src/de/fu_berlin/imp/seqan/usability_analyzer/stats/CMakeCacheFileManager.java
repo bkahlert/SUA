@@ -20,7 +20,7 @@ public class CMakeCacheFileManager {
 
 	public CMakeCacheFileManager(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		cMakeCacheFiles = new HashMap<IBaseDataContainer, List<CMakeCacheFile>>();
+		this.cMakeCacheFiles = new HashMap<IBaseDataContainer, List<CMakeCacheFile>>();
 		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
 			this.cMakeCacheFiles.put(baseDataContainer, null);
 		}
@@ -28,23 +28,30 @@ public class CMakeCacheFileManager {
 
 	public void scanFiles() {
 		for (IBaseDataContainer baseDataContainer : cMakeCacheFiles.keySet()) {
+			IDataContainer diffFileContainer = baseDataContainer
+					.getSubContainer("diff");
+
 			List<CMakeCacheFile> cMakeCacheFiles = new ArrayList<CMakeCacheFile>();
-			for (IDataContainer diffFileDir : baseDataContainer
+			user: for (IDataContainer userContainer : diffFileContainer
 					.getSubContainers()) {
-				if (!ID.isValid(diffFileDir.getName())) {
+				if (!ID.isValid(userContainer.getName())) {
 					LOGGER.warn("Directory with invalid "
 							+ ID.class.getSimpleName() + " name detected: "
-							+ diffFileDir.toString());
+							+ userContainer.toString());
 					continue;
 				}
 
-				for (IData cMakeCacheFile : diffFileDir.getResources()) {
-					if (!CMakeCacheFile.PATTERN.matcher(
-							cMakeCacheFile.getName()).matches())
+				for (IData cMakeCache : userContainer.getResources()) {
+					if (!CMakeCacheFile.PATTERN.matcher(cMakeCache.getName())
+							.matches())
 						continue;
-					cMakeCacheFiles.add(new CMakeCacheFile(cMakeCacheFile));
+					cMakeCacheFiles.add(new CMakeCacheFile(cMakeCache));
+					continue user;
 				}
+				LOGGER.warn("No CMakeCache file found for "
+						+ userContainer.getName());
 			}
+
 			this.cMakeCacheFiles.put(baseDataContainer, cMakeCacheFiles);
 		}
 	}
