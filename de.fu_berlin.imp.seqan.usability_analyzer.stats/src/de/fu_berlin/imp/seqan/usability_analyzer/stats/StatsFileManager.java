@@ -22,7 +22,7 @@ public class StatsFileManager {
 
 	public StatsFileManager(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		statsFiles = new HashMap<IBaseDataContainer, List<StatsFile>>();
+		this.statsFiles = new HashMap<IBaseDataContainer, List<StatsFile>>();
 		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
 			this.statsFiles.put(baseDataContainer, null);
 		}
@@ -32,22 +32,29 @@ public class StatsFileManager {
 		for (IBaseDataContainer baseDataContainer : this.statsFiles.keySet()) {
 			IDataContainer diffFileContainer = baseDataContainer
 					.getSubContainer("diff");
-			if (!ID.isValid(diffFileContainer.getName())) {
-				LOGGER.warn("Directory with invalid "
-						+ ID.class.getSimpleName() + " name detected: "
-						+ diffFileContainer.toString());
-				continue;
-			}
 
 			List<StatsFile> statsFiles = new ArrayList<StatsFile>();
-			for (IData resource : diffFileContainer.getResources()) {
-				if (!StatsFile.PATTERN.matcher(resource.getName()).matches())
+			user: for (IDataContainer userContainer : diffFileContainer
+					.getSubContainers()) {
+				if (!ID.isValid(userContainer.getName())) {
+					LOGGER.warn("Directory with invalid "
+							+ ID.class.getSimpleName() + " name detected: "
+							+ diffFileContainer.toString());
 					continue;
-				try {
-					statsFiles.add(new StatsFile(resource));
-				} catch (Exception e) {
-					LOGGER.warn("Could not process stats file", e);
 				}
+
+				for (IData stats : userContainer.getResources()) {
+					if (!StatsFile.PATTERN.matcher(stats.getName()).matches())
+						continue;
+					try {
+						statsFiles.add(new StatsFile(stats));
+						continue user;
+					} catch (Exception e) {
+						LOGGER.warn("Could not process stats file", e);
+					}
+				}
+				LOGGER.warn("No stats file found for "
+						+ userContainer.getName());
 			}
 
 			this.statsFiles.put(baseDataContainer, statsFiles);
