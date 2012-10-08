@@ -122,8 +122,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		this.diffCache = new DiffCache(this, DIFF_CACHE_SIZE);
 	}
 
-	public DiffContainer(IBaseDataContainer dataResourceContainer) {
-		this(Arrays.asList(dataResourceContainer));
+	public DiffContainer(IBaseDataContainer baseDataContainer) {
+		this(Arrays.asList(baseDataContainer));
 	}
 
 	public void scan(SubMonitor monitor) {
