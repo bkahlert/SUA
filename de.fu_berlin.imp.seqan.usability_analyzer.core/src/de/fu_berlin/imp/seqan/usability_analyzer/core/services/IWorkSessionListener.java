@@ -6,5 +6,5 @@ public interface IWorkSessionListener {
 	 * 
 	 * @param workSession
 	 */
-	public void IWorkSessionStarted(IWorkSession workSession);
+	public void workSessionStarted(IWorkSession workSession);
 }

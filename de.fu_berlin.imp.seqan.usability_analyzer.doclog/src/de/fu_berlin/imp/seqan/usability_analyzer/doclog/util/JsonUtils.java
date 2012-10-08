@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline.Decorator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 
@@ -56,14 +55,21 @@ public class JsonUtils {
 			generator.writeFieldName("events");
 			generator.writeStartArray();
 			for (DoclogRecord doclogRecord : doclogRecords) {
-
 				generator.writeStartObject();
 				generator.writeFieldName("title");
-				generator
-						.writeString(doclogRecord.getShortUrl()
-								+ ((doclogRecord.getAction() == DoclogAction.LINK) ? "<br/>→ "
-										+ doclogRecord.getActionParameter()
-										: ""));
+				StringBuffer title = new StringBuffer();
+				title.append(doclogRecord.getAction().toString() + " - ");
+				title.append(doclogRecord.getShortUrl());
+				switch (doclogRecord.getAction()) {
+				case LINK:
+					title.append("<br/>→ " + doclogRecord.getActionParameter());
+					break;
+				case TYPING:
+					title.append("<br/>typing &quot;"
+							+ doclogRecord.getActionParameter() + "&quot;");
+					break;
+				}
+				generator.writeString(title.toString());
 
 				generator.writeFieldName("classname");
 				generator.writeString(doclogRecord.getAction().toString());

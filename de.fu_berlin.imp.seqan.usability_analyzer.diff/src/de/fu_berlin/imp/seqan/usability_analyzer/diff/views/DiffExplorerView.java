@@ -4,7 +4,6 @@ import java.io.FileFilter;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,10 +95,10 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 			.synchronizedMap(new HashMap<ID, Job>(2));
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
-		public void IWorkSessionStarted(IWorkSession workSession) {
+		public void workSessionStarted(IWorkSession workSession) {
 			final List<ID> ids = ArrayUtils.getAdaptableObjects(workSession
 					.getEntities().toArray(), ID.class);
-			open(new HashSet<ID>(ids), null);
+			// open(new HashSet<ID>(ids), null);
 		}
 	};
 	private HashMap<ID, DiffList> openedDiffFileLists = new HashMap<ID, DiffList>();
@@ -156,8 +155,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		FileFilterComposite filters = new FileFilterComposite(parent, SWT.NONE);
 		filters.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		diffListsViewer = new DiffListsViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
+		diffListsViewer = new DiffListsViewer(parent, SWT.MULTI | SWT.H_SCROLL
+				| SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
 		final Tree tree = diffListsViewer.getTree();
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.setHeaderVisible(true);
@@ -165,21 +164,18 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 		this.diffListsViewer
 				.setContentProvider(new DiffFileListsContentProvider());
-		this.diffListsViewer
-				.addDoubleClickListener(new IDoubleClickListener() {
-					@Override
-					public void doubleClick(DoubleClickEvent event) {
-						List<DiffRecord> diffRecords = SelectionUtils
-								.getAdaptableObjects(event.getSelection(),
-										DiffRecord.class);
-						for (DiffRecord diffRecord : diffRecords) {
-							DiffFileEditorUtils
-									.closeCompareEditors(diffRecord);
-							DiffFileEditorUtils
-									.openCompareEditor(diffRecord);
-						}
-					}
-				});
+		this.diffListsViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				List<DiffRecord> diffRecords = SelectionUtils
+						.getAdaptableObjects(event.getSelection(),
+								DiffRecord.class);
+				for (DiffRecord diffRecord : diffRecords) {
+					DiffFileEditorUtils.closeCompareEditors(diffRecord);
+					DiffFileEditorUtils.openCompareEditor(diffRecord);
+				}
+			}
+		});
 
 		this.dateRangeChanged(null, preferenceUtil.getDateRange());
 		for (FileFilter fileFilter : diffPreferenceUtil.getFileFilters()) {

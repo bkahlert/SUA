@@ -19,7 +19,7 @@ public class WorkSessionListenerNotifier {
 
 	void workSessionStarted(IWorkSession workSession) {
 		for (IWorkSessionListener codeServiceListener : workSessionListeners) {
-			codeServiceListener.IWorkSessionStarted(workSession);
+			codeServiceListener.workSessionStarted(workSession);
 		}
 	}
 }

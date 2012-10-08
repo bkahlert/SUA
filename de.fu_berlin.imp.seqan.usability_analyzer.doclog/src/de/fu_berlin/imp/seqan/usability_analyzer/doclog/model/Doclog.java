@@ -234,4 +234,10 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 	public TimeZoneDateRange getDateRange() {
 		return this.dateRange;
 	}
+
+	@Override
+	public String toString() {
+		return Doclog.class.getSimpleName() + "(" + this.doclogRecords.size()
+				+ ")";
+	}
 }

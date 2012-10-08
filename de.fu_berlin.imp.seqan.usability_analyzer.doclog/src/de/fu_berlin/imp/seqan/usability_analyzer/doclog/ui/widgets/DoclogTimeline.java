@@ -5,11 +5,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
@@ -92,79 +98,92 @@ public class DoclogTimeline extends Timeline {
 	 * @param doclog
 	 * @param title
 	 * @param monitor
+	 * @return
 	 */
-	public void show(final Doclog doclog, final String title,
-			final SubMonitor monitor) {
+	public Future<Job> show(final Doclog doclog, final String title) {
 		this.doclog = doclog;
-
-		ExecutorUtil.nonUIAsyncExec(new Runnable() {
+		return ExecutorUtil.nonUIAsyncExec(new Callable<Job>() {
 			@Override
-			public void run() {
-				monitor.beginTask("Updating " + DoclogTimeline.class + "...",
-						5 + doclog.getDoclogRecords().size());
-				HashMap<String, Object> options = new HashMap<String, Object>();
-				if (title != null)
-					options.put("title", title);
-
-				TimeZoneDateRange dateRange = doclog.getDateRange();
-				if (dateRange.getStartDate() != null)
-					options.put("centerStart", dateRange.getStartDate().clone()
-							.addMilliseconds(-10000l).toISO8601());
-				/*
-				 * TODO fix timeline javascript to support timeline_start and
-				 * timeline_end
-				 */
-				// if (dateRange.getStartDate() != null)
-				// options.put("timeline_start",
-				// JsonUtils.formatDate(dateRange.getStartDate()));
-				// if (dateRange.getEndDate() != null)
-				// options.put("timeline_end",
-				// JsonUtils.formatDate(dateRange.getEndDate()));
-				IDataSetInfo dataSetInfo = ((IDataService) PlatformUI
-						.getWorkbench().getService(IDataService.class))
-						.getActiveDataDirectories().get(0).getInfo(); // TODO
-																		// support
-																		// multiple
-																		// directories
-
-				options.put("show_bubble", DOCLOG_CLICK_HANDLER_NAME);
-				options.put("show_bubble_field",
-						DOCLOG_CLICK_HANDLER_PARAM_FIELD);
-				options.put("zones", new Timeline.Zone[] { new Timeline.Zone(
-						dataSetInfo.getDateRange().getStartDate().toISO8601(),
-						dataSetInfo.getDateRange().getEndDate().toISO8601()) });
-				options.put("decorators",
-						new Timeline.Decorator[] { new Timeline.Decorator(
-								dateRange.getStartDate().toISO8601(),
-								dataSetInfo.getName(), dateRange.getEndDate()
-										.toISO8601(), dataSetInfo.getName()) });
-
-				monitor.worked(1);
-
-				LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
-				for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
-					if (doclogRecord.getAction() == DoclogAction.UNLOAD)
-						continue;
-					if (doclogRecord.getUrl().contains(
-							"dddoc/html_devel/INDEX_"))
-						continue;
-					filteredDoclogRecords.add(doclogRecord);
-				}
-
-				monitor.worked(1);
-
-				final String json = JsonUtils.generateJSON(
-						filteredDoclogRecords, options, false,
-						monitor.newChild(doclog.getDoclogRecords().size()));
-
-				Display.getDefault().asyncExec(new Runnable() {
+			public Job call() {
+				Job loader = new Job("Showing timeline...") {
 					@Override
-					public void run() {
+					protected IStatus run(IProgressMonitor progressMonitor) {
+						final SubMonitor monitor = SubMonitor
+								.convert(progressMonitor);
+						monitor.beginTask(title + "...", 2 + 2 * doclog
+								.getDoclogRecords().size());
+						HashMap<String, Object> options = new HashMap<String, Object>();
+						if (title != null)
+							options.put("title", title);
+
+						TimeZoneDateRange dateRange = doclog.getDateRange();
+						if (dateRange.getStartDate() != null)
+							options.put("centerStart", dateRange.getStartDate()
+									.clone().addMilliseconds(-10000l)
+									.toISO8601());
+						/*
+						 * TODO fix timeline javascript to support
+						 * timeline_start and timeline_end
+						 */
+						// if (dateRange.getStartDate() != null)
+						// options.put("timeline_start",
+						// JsonUtils.formatDate(dateRange.getStartDate()));
+						// if (dateRange.getEndDate() != null)
+						// options.put("timeline_end",
+						// JsonUtils.formatDate(dateRange.getEndDate()));
+						IDataSetInfo dataSetInfo = ((IDataService) PlatformUI
+								.getWorkbench().getService(IDataService.class))
+								.getActiveDataDirectories().get(0).getInfo(); // TODO
+																				// support
+																				// multiple
+																				// directories
+
+						options.put("show_bubble", DOCLOG_CLICK_HANDLER_NAME);
+						options.put("show_bubble_field",
+								DOCLOG_CLICK_HANDLER_PARAM_FIELD);
+						options.put("zones",
+								new Timeline.Zone[] { new Timeline.Zone(
+										dataSetInfo.getDateRange()
+												.getStartDate().toISO8601(),
+										dataSetInfo.getDateRange().getEndDate()
+												.toISO8601()) });
+						options.put(
+								"decorators",
+								new Timeline.Decorator[] { new Timeline.Decorator(
+										dateRange.getStartDate().toISO8601(),
+										dataSetInfo.getName(), dateRange
+												.getEndDate().toISO8601(),
+										dataSetInfo.getName()) });
+
+						monitor.worked(1);
+
+						LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();
+						for (DoclogRecord doclogRecord : doclog
+								.getDoclogRecords()) {
+							if (doclogRecord.getAction() == DoclogAction.UNLOAD)
+								continue;
+							if (doclogRecord.getUrl().contains(
+									"dddoc/html_devel/INDEX_"))
+								continue;
+							filteredDoclogRecords.add(doclogRecord);
+						}
+
+						monitor.worked(1);
+
+						final String json = JsonUtils.generateJSON(
+								filteredDoclogRecords, options, false, monitor
+										.newChild(doclog.getDoclogRecords()
+												.size()));
+
 						DoclogTimeline.super.show(json);
-						monitor.worked(3);
+						monitor.worked(doclog.getDoclogRecords().size());
 						monitor.done();
+
+						return Status.OK_STATUS;
 					}
-				});
+				};
+				loader.schedule();
+				return loader;
 			}
 		});
 	}

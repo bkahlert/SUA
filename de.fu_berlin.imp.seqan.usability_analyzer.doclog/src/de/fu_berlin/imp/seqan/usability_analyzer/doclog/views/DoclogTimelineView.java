@@ -106,7 +106,7 @@ public class DoclogTimelineView extends ViewPart {
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
-		public void IWorkSessionStarted(IWorkSession workSession) {
+		public void workSessionStarted(IWorkSession workSession) {
 			final Set<Object> keys = new HashSet<Object>();
 			keys.addAll(filterValidKeys(ArrayUtils.getAdaptableObjects(
 					workSession.getEntities().toArray(), ID.class)));
@@ -153,6 +153,7 @@ public class DoclogTimelineView extends ViewPart {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				rs.set(init(keys, monitor, success));
+				monitor.done();
 				mutex.release();
 				return Status.OK_STATUS;
 			}
@@ -189,7 +190,7 @@ public class DoclogTimelineView extends ViewPart {
 			IProgressMonitor progressMonitor, final Callable<T> success) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor);
 		monitor.beginTask("Preparing " + Timeline.class.getSimpleName() + "s",
-				keys.size() * 3 + 2);
+				2 + keys.size() * 2 + 1);
 		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
@@ -253,16 +254,12 @@ public class DoclogTimelineView extends ViewPart {
 			monitor.worked(1);
 
 			if (doclogTimeline != null)
-				doclogTimeline.show(doclog, getTitle(key), monitor.newChild(1));
-			else
-				monitor.worked(1);
+				doclogTimeline.show(doclog, getTitle(key));
 
 			if (monitor.isCanceled()) {
 				disposeTimelines(key);
 				throw new OperationCanceledException();
 			}
-
-			monitor.done();
 		}
 
 		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
@@ -275,6 +272,7 @@ public class DoclogTimelineView extends ViewPart {
 			}
 		});
 
+		monitor.worked(1);
 		monitor.done();
 
 		return rs;

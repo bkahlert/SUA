@@ -27,8 +27,8 @@ public class ChangeDataDirectories extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		IDataService dataService = (IDataService) PlatformUI
-				.getWorkbench().getService(IDataService.class);
+		IDataService dataService = (IDataService) PlatformUI.getWorkbench()
+				.getService(IDataService.class);
 
 		List<? extends IBaseDataContainer> dataResourceContainers = dataService
 				.getDataDirectories();

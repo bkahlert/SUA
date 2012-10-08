@@ -93,7 +93,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
-		public void IWorkSessionStarted(IWorkSession workSession) {
+		public void workSessionStarted(IWorkSession workSession) {
 			final Set<Object> keys = new HashSet<Object>();
 			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
 					.getEntities().toArray(), ID.class));
@@ -274,8 +274,10 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 									IProgressMonitor progressMonitor) {
 								SubMonitor monitor = SubMonitor
 										.convert(progressMonitor);
-								monitor.beginTask("Fetching " + Doclog.class
-										+ "s", 1);
+								monitor.beginTask(
+										"Fetching "
+												+ Doclog.class.getSimpleName()
+												+ "s", 1);
 								Doclog doclog = Activator
 										.getDefault()
 										.getDoclogContainer()
@@ -310,24 +312,22 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					}
 				}
 
-				ExecutorUtil.syncExec(new Callable<T>() {
-					@Override
-					public T call() throws Exception {
-						openedDoclogFiles = newOpenedDoclogFiles;
-						setPartName("Doclogs - "
-								+ StringUtils.join(
-										newOpenedDoclogFiles.keySet(), ", "));
-						if (treeViewer != null
-								&& !treeViewer.getTree().isDisposed()
-								&& newOpenedDoclogFiles.size() > 0) {
+				if (treeViewer != null && treeViewer.getTree() != null
+						&& !treeViewer.getTree().isDisposed()
+						&& newOpenedDoclogFiles.size() > 0) {
+					openedDoclogFiles = newOpenedDoclogFiles;
+					final String partName = "Doclogs - "
+							+ StringUtils.join(newOpenedDoclogFiles.keySet(),
+									", ");
+					ExecutorUtil.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							setPartName(partName);
 							treeViewer.setInput(newOpenedDoclogFiles.values());
 							treeViewer.expandAll();
-							if (success != null)
-								return success.call();
 						}
-						return null;
-					}
-				});
+					});
+				}
 
 				if (success != null)
 					return success.call();
