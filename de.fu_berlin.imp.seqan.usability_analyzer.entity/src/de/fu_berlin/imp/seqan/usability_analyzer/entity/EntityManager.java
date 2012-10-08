@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
@@ -30,7 +30,7 @@ public class EntityManager {
 	private Logger logger = Logger.getLogger(EntityManager.class);
 
 	private DiffContainer diffFileDirectory;
-	private DoclogDataDirectory doclogDataDirectory;
+	private DoclogDataContainer doclogDataContainer;
 	private SurveyRecordManager surveyRecordManager;
 
 	private StatsFileManager statsFileManager;
@@ -41,13 +41,13 @@ public class EntityManager {
 	private List<Entity> persons = new ArrayList<Entity>();
 
 	public EntityManager(DiffContainer diffFileManager,
-			DoclogDataDirectory doclogDataDirectory,
+			DoclogDataContainer doclogDataContainer,
 			SurveyRecordManager surveyRecordManager,
 			StatsFileManager statsFileManager,
 			CMakeCacheFileManager cMakeCacheFileManager, Mapper mapper) {
 		super();
 		this.diffFileDirectory = diffFileManager;
-		this.doclogDataDirectory = doclogDataDirectory;
+		this.doclogDataContainer = doclogDataContainer;
 		this.surveyRecordManager = surveyRecordManager;
 
 		this.statsFileManager = statsFileManager;
@@ -162,13 +162,13 @@ public class EntityManager {
 					.getCMakeCacheFile(id));
 
 			for (Fingerprint fingerprint : this.mapper.getFingerprints(id)) {
-				if (this.doclogDataDirectory.getFile(fingerprint) != null) {
+				if (this.doclogDataContainer.getFile(fingerprint) != null) {
 					this.logDoclogRewriteError(id,
-							this.doclogDataDirectory.getFile(fingerprint));
+							this.doclogDataContainer.getFile(fingerprint));
 				}
 			}
 
-			Token token = doclogDataDirectory.getToken(id);
+			Token token = doclogDataContainer.getToken(id);
 			if (token != null) {
 				SurveyRecord surveyRecord = this.surveyRecordManager
 						.getSurveyRecord(token);
@@ -192,7 +192,7 @@ public class EntityManager {
 	}
 
 	private void checkPersonsDoclogIdBased() {
-		List<ID> doclogIDs = this.doclogDataDirectory.getIDs();
+		List<ID> doclogIDs = this.doclogDataContainer.getIDs();
 		Set<ID> diffIDs = this.diffFileDirectory.getIDs();
 		for (ID doclogId : doclogIDs) {
 			if (!diffIDs.contains(doclogId))
@@ -203,7 +203,7 @@ public class EntityManager {
 	private List<Entity> buildEntitiesDoclogFingerprintBased() {
 		List<Entity> persons = new ArrayList<Entity>();
 
-		List<Fingerprint> fingerprints = this.doclogDataDirectory
+		List<Fingerprint> fingerprints = this.doclogDataContainer
 				.getFingerprints();
 		for (Fingerprint fingerprint : fingerprints) {
 			Entity person = new Entity(this.mapper);
@@ -214,7 +214,7 @@ public class EntityManager {
 
 			person.setFingerprint(fingerprint);
 
-			Token token = this.doclogDataDirectory.getToken(fingerprint);
+			Token token = this.doclogDataContainer.getToken(fingerprint);
 			if (token != null) {
 				person.setSurveyRecord(this.surveyRecordManager
 						.getSurveyRecord(token));

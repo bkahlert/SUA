@@ -18,7 +18,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
@@ -38,15 +38,15 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 					+ "s") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					DoclogDataDirectory doclogDataDirectory = Activator
+					DoclogDataContainer doclogDataContainer = Activator
 							.getDefault().getDoclogContainer();
-					Set<Object> keys = doclogDataDirectory.getKeys();
+					Set<Object> keys = doclogDataContainer.getKeys();
 					monitor.beginTask(
 							"Parsing " + Doclog.class.getSimpleName() + "s",
 							keys.size());
 
 					for (Object key : keys) {
-						doclogRecords.addAll(doclogDataDirectory.getDoclogFile(
+						doclogRecords.addAll(doclogDataContainer.getDoclogFile(
 								key, new SubProgressMonitor(monitor, 1))
 								.getDoclogRecords());
 					}

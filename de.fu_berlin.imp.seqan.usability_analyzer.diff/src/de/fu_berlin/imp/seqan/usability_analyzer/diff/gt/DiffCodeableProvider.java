@@ -65,7 +65,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 				// 0: ID
 				ID id = new ID(path[0]);
 				DiffList diffFiles = Activator.getDefault()
-						.getDiffDataDirectories()
+						.getDiffDataContainer()
 						.getDiffFiles(id, monitor.get());
 
 				// 1: Revision

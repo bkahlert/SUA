@@ -19,7 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -100,7 +100,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 			return;
 
 		DiffContainer diffFileDirectory = Activator.getDefault()
-				.getDiffDataDirectories();
+				.getDiffDataContainer();
 		TimeZoneDateRange diffFilesDateRange = diffFileDirectory
 				.getDateRange(id);
 		if (diffFilesDateRange != null) {
@@ -108,7 +108,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 			updateLatestEntryDate(diffFilesDateRange.getEndDate());
 		}
 
-		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
+		DoclogDataContainer doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
 				.getDefault().getDoclogContainer();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(id);
@@ -127,7 +127,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	public void setFingerprint(Fingerprint fingerprint) {
 		this.fingerprint = fingerprint;
 
-		DoclogDataDirectory doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
+		DoclogDataContainer doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
 				.getDefault().getDoclogContainer();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(fingerprint);

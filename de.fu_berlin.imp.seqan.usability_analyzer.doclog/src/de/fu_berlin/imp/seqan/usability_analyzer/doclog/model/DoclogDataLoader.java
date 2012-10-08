@@ -32,12 +32,12 @@ public class DoclogDataLoader implements IDataLoadProvider {
 			List<? extends IBaseDataContainer> dataResourceContainers,
 			IProgressMonitor progressMonitor) {
 		SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
-		DoclogDataDirectory doclogDataDirectory = new DoclogDataDirectory(
+		DoclogDataContainer doclogDataContainer = new DoclogDataContainer(
 				dataResourceContainers);
-		doclogDataDirectory.scan(subMonitor);
+		doclogDataContainer.scan(subMonitor);
 		subMonitor.done();
-		Activator.getDefault().setDoclogDataDirectory(doclogDataDirectory);
-		return doclogDataDirectory;
+		Activator.getDefault().setDoclogDataDirectory(doclogDataContainer);
+		return doclogDataContainer;
 	}
 
 	@Override

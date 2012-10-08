@@ -13,7 +13,7 @@ import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -27,7 +27,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private Rectangle maxCaptureArea;
 
-	private DoclogDataDirectory doclogDataDirectory = null;
+	private DoclogDataContainer doclogDataContainer = null;
 
 	public Activator() {
 	}
@@ -81,12 +81,12 @@ public class Activator extends AbstractUIPlugin {
 		return maxCaptureArea;
 	}
 
-	public DoclogDataDirectory getDoclogContainer() {
-		return doclogDataDirectory;
+	public DoclogDataContainer getDoclogContainer() {
+		return doclogDataContainer;
 	}
 
-	public void setDoclogDataDirectory(DoclogDataDirectory doclogDataDirectory) {
-		this.doclogDataDirectory = doclogDataDirectory;
+	public void setDoclogDataDirectory(DoclogDataContainer doclogDataContainer) {
+		this.doclogDataContainer = doclogDataContainer;
 	}
 
 }

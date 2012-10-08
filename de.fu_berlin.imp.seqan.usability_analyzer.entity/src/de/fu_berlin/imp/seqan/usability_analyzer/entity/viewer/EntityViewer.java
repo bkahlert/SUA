@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -243,12 +244,19 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 	}
 
 	public void setBold(Object boldObject) {
-		this.boldObjects = Arrays.asList(boldObject);
+		this.setBold(Arrays.asList(boldObject));
 	}
 
 	public void setBold(Collection<?> boldObjects) {
 		if (this.boldObjects != boldObjects) {
+			List<Object> update = new ArrayList<Object>();
+			if (this.boldObjects != null)
+				update.addAll(this.boldObjects);
+			if (boldObjects != null)
+				update.addAll(boldObjects);
+
 			this.boldObjects = boldObjects;
+			this.update(update.toArray(), null);
 		}
 	}
 }

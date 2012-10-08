@@ -39,13 +39,12 @@ class WorkSessionService implements IWorkSessionService {
 	}
 
 	@Override
-	synchronized public void startWorkSession(final IWorkSessionEntity entity) {
+	public void startWorkSession(final IWorkSessionEntity entity) {
 		this.startWorkSession(Arrays.asList(entity));
 	}
 
 	@Override
-	synchronized public void startWorkSession(
-			final List<IWorkSessionEntity> entities) {
+	public void startWorkSession(final List<IWorkSessionEntity> entities) {
 		this.currentWorkSession = new WorkSession(entities);
 		LOGGER.info(IWorkSession.class.getSimpleName() + " started: "
 				+ this.currentWorkSession);

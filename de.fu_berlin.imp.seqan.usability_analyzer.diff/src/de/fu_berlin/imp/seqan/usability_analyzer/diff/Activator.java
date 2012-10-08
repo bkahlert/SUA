@@ -109,7 +109,7 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public DiffContainer getDiffDataDirectories() {
+	public DiffContainer getDiffDataContainer() {
 		return this.diffContainer;
 	}
 

@@ -50,15 +50,17 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		if (matcher.find()) {
 			if (matcher.group(8) != null) {
 				// Date contains time zone
-				// Ignores milliseconds group(7)
 				date = new TimeZoneDate(matcher.group(1) + "-"
 						+ matcher.group(2) + "-" + matcher.group(3) + "T"
 						+ matcher.group(4) + ":" + matcher.group(5) + ":"
 						+ matcher.group(6) + matcher.group(9) + ":"
 						+ matcher.group(10));
+				// Add milliseconds
+				if (matcher.group(7) != null)
+					date.setTime(date.getTime()
+							+ Integer.parseInt(matcher.group(7).substring(1)));
 			} else {
 				// Date does not contain a time zone
-				// Ignores milliseconds group(7)
 				Date rawDate = DateUtil.getDate(
 						Integer.valueOf(matcher.group(1)),
 						Integer.valueOf(matcher.group(2)) - 1,
@@ -66,6 +68,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 						Integer.valueOf(matcher.group(4)),
 						Integer.valueOf(matcher.group(5)),
 						Integer.valueOf(matcher.group(6)));
+				// Add milliseconds
+				if (matcher.group(7) != null)
+					rawDate.setTime(rawDate.getTime()
+							+ Integer.parseInt(matcher.group(7).substring(1)));
 
 				TimeZone timeZone;
 				try {
@@ -223,6 +229,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	public String getActionParameter() {
 		return actionParameter;
+	}
+
+	void setActionParameter(String actionParameter) {
+		this.actionParameter = actionParameter;
 	}
 
 	TimeZoneDate getDate() {

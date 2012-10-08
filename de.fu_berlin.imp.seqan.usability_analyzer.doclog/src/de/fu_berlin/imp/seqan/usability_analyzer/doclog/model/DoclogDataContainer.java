@@ -28,10 +28,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil.ParametrizedCallable;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 
-public class DoclogDataDirectory extends AggregatedBaseDataContainer {
+public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(DoclogDataDirectory.class);
+			.getLogger(DoclogDataContainer.class);
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
 
@@ -39,7 +39,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	private static Map<Object, IData> readDoclogFileMappings(
-			DoclogDataDirectory directory) {
+			DoclogDataContainer directory) {
 		Map<Object, IData> rawDataResource = new HashMap<Object, IData>();
 		for (IData doclogDataResource : directory.getDoclogDirectory()
 				.getResources()) {
@@ -68,7 +68,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	private final IData mappingFile;
 	private DoclogCache doclogCache;
 
-	public DoclogDataDirectory(
+	public DoclogDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers) {
 		super(baseDataContainers);
 		this.doclogDirectory = this.getSubContainer("doclog");
@@ -76,7 +76,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 		this.doclogCache = new DoclogCache(this, DOCLOG_CACHE_SIZE);
 	}
 
-	public DoclogDataDirectory(IBaseDataContainer dataResourceContainer) {
+	public DoclogDataContainer(IBaseDataContainer dataResourceContainer) {
 		this(Arrays.asList(dataResourceContainer));
 	}
 
@@ -291,7 +291,8 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog createDoclogFile(Object key, IProgressMonitor progressMonitor) {
+	public Doclog readDoclogFromSource(Object key,
+			IProgressMonitor progressMonitor) {
 		progressMonitor.beginTask("Parsing " + Doclog.class.getSimpleName(), 2);
 		IData data = this.datas.get(key);
 		if (data == null)
@@ -300,7 +301,7 @@ public class DoclogDataDirectory extends AggregatedBaseDataContainer {
 		TimeZoneDateRange dateRange = this.fileDateRanges.get(key);
 		Token token = this.fileToken.get(key);
 		progressMonitor.worked(1);
-		Doclog doclog = new Doclog(data, key, dateRange, token);
+		Doclog doclog = new Doclog(data, key, dateRange, token, 2000);
 		progressMonitor.worked(1);
 		progressMonitor.done();
 		return doclog;

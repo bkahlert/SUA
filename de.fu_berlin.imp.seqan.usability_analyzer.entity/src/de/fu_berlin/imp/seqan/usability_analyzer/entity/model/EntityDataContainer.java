@@ -15,7 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDa
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
@@ -37,15 +37,15 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	private DiffContainer diffContainer;
 
-	private DoclogDataDirectory doclogDataDirectory;
+	private DoclogDataContainer doclogDataContainer;
 
 	public EntityDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers,
 			DiffContainer diffContainer,
-			DoclogDataDirectory doclogDataDirectory) throws EntityDataException {
+			DoclogDataContainer doclogDataContainer) throws EntityDataException {
 		super(baseDataContainers);
 		this.diffContainer = diffContainer;
-		this.doclogDataDirectory = doclogDataDirectory;
+		this.doclogDataContainer = doclogDataContainer;
 
 		IData surveyRecordPath = diffContainer
 				.getResource("_survey.csv");
@@ -108,7 +108,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		}
 
 		try {
-			mapper = new Mapper(doclogDataDirectory);
+			mapper = new Mapper(doclogDataContainer);
 		} catch (FileNotFoundException e) {
 			// TODO
 			try {
@@ -122,7 +122,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		monitor.worked(10);
 
 		entityManager = new EntityManager(diffContainer,
-				doclogDataDirectory, surveyRecordManager, statsFileManager,
+				doclogDataContainer, surveyRecordManager, statsFileManager,
 				cMakeCacheFileManager, mapper);
 		entityManager.scan(monitor.newChild(60));
 	}

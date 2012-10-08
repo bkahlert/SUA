@@ -186,7 +186,7 @@ public class DoclogTimelineView extends ViewPart {
 		super.dispose();
 	}
 
-	public <T> Future<T> init(Set<Object> keys,
+	public <T> Future<T> init(final Set<Object> keys,
 			IProgressMonitor progressMonitor, final Callable<T> success) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor);
 		monitor.beginTask("Preparing " + Timeline.class.getSimpleName() + "s",
@@ -265,6 +265,7 @@ public class DoclogTimelineView extends ViewPart {
 		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
+				setPartName("Doclogs - " + StringUtils.join(keys, ", "));
 				composite.layout();
 				if (success != null)
 					return success.call();

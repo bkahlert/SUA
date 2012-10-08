@@ -90,11 +90,11 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 	 * XOR {@link Fingerprint} based depending on the file's name.
 	 * 
 	 * @param data
+	 * @param i
 	 */
 	public Doclog(IData data, Object key, TimeZoneDateRange dateRange,
-			Token token) {
+			Token token, Integer consolideTypingIfLessThanMillies) {
 		super(data);
-		org.eclipse.core.runtime.Assert.isNotNull(data.getBaseDataContainer());
 
 		if (key instanceof ID) {
 			this.id = (ID) key;
@@ -111,6 +111,8 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 
 		scanRecords();
 		calculateRecordMillisecondsPassed();
+		if (consolideTypingIfLessThanMillies != null)
+			consolidateTypings(consolideTypingIfLessThanMillies);
 	}
 
 	@Override
@@ -134,7 +136,8 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 		try {
 			for (String line : this) {
 				try {
-					this.doclogRecords.add(new DoclogRecord(this, line));
+					DoclogRecord record = new DoclogRecord(this, line);
+					this.doclogRecords.add(record);
 				} catch (DataSourceInvalidException e) {
 					logger.warn(
 							"Skipped " + DoclogRecord.class.getSimpleName(), e);
@@ -147,22 +150,53 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 
 	private void calculateRecordMillisecondsPassed() {
 		Collections.sort(this.doclogRecords);
-		for (DoclogRecord doclogRecord : this.doclogRecords) {
-			DoclogRecord successor = this.doclogRecords
-					.getSuccessor(doclogRecord);
-			if (successor != null) {
-				Long millisecondsPassed = successor.getDate().getTime()
-						- doclogRecord.getDate().getTime();
-				if (millisecondsPassed < 0) {
-					logger.error(DoclogRecord.class.getSimpleName()
-							+ "'s successor occured in the past");
-				} else if (millisecondsPassed > 0) {
-					millisecondsPassed--; // the previous action ends one
-											// minimal
-											// moment before the next action
-											// starts
+		for (int i = 0; i < this.doclogRecords.size(); i++) {
+			calculateRecordMillisecondsPassed(i);
+		}
+	}
+
+	public void calculateRecordMillisecondsPassed(int i) {
+		DoclogRecord doclogRecord = this.doclogRecords.get(i);
+		DoclogRecord successor = (this.doclogRecords.size() > i + 1) ? this.doclogRecords
+				.get(i + 1) : null;
+		if (successor != null) {
+			Long millisecondsPassed = successor.getDate().getTime()
+					- doclogRecord.getDate().getTime();
+			if (millisecondsPassed < 0) {
+				logger.error(DoclogRecord.class.getSimpleName()
+						+ "'s successor occured in the past");
+			} else if (millisecondsPassed > 0) {
+				millisecondsPassed--; // the previous action ends one
+										// minimal
+										// moment before the next action
+										// starts
+			}
+			doclogRecord.setMillisecondsPassed(millisecondsPassed);
+		}
+	}
+
+	private void consolidateTypings(int consolideTypingIfLessThanMillies) {
+		Long lastTime = null;
+		for (int i = 0; i < this.doclogRecords.size(); i++) {
+			DoclogRecord currentRecord = doclogRecords.get(i);
+			if (currentRecord.getAction() != DoclogAction.TYPING)
+				continue;
+			while (this.doclogRecords.size() > i + 1) {
+				DoclogRecord nextRecord = doclogRecords.get(i + 1);
+				if (nextRecord.getAction() != DoclogAction.TYPING)
+					break;
+				if (lastTime == null) {
+					lastTime = currentRecord.getDate().getTime();
 				}
-				doclogRecord.setMillisecondsPassed(millisecondsPassed);
+				if (nextRecord.getDate().getTime() - lastTime >= consolideTypingIfLessThanMillies) {
+					lastTime = null;
+					break;
+				}
+				currentRecord.setActionParameter(nextRecord
+						.getActionParameter());
+				doclogRecords.remove(i + 1);
+				calculateRecordMillisecondsPassed(i);
+				lastTime = nextRecord.getDate().getTime();
 			}
 		}
 	}

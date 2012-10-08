@@ -39,13 +39,7 @@ public class StartWorkSessionHandler extends AbstractHandler {
 					IBoldViewer boldViewer = (IBoldViewer) selectionProvider;
 					boldViewer.setBold(workSessionEntities);
 				}
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						workSessionService
-								.startWorkSession(workSessionEntities);
-					}
-				}).start();
+				workSessionService.startWorkSession(workSessionEntities);
 			}
 		}
 

@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ DoclogFileTest.class, DoclogRecordTest.class,
+@SuiteClasses({ DoclogTest.class, DoclogRecordTest.class,
 		DoclogRecordListTest.class })
 public class AllTests {
 

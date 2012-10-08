@@ -26,8 +26,8 @@ import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
@@ -220,8 +220,14 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
 							String actionParameter = doclogRecord
 									.getActionParameter();
-							return (actionParameter != null) ? actionParameter
-									: "";
+							if (actionParameter != null) {
+								if (actionParameter.length() > 50) {
+									return actionParameter.subSequence(0, 50)
+											+ "...";
+								}
+								return actionParameter;
+							}
+							return null;
 						}
 						return "";
 					}
@@ -272,7 +278,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 			}
 		});
 
-		this.createColumn("X", 40).setLabelProvider(new ColumnLabelProvider() {
+		this.createColumn("Y", 40).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				if (element instanceof DoclogRecord) {

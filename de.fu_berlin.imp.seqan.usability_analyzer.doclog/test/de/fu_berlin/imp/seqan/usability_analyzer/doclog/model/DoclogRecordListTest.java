@@ -64,7 +64,7 @@ public class DoclogRecordListTest {
 				baseDataContainer, file);
 		return new Doclog(dataResource, new ID("fakeID"),
 				Doclog.getDateRange(dataResource),
-				Doclog.getToken(dataResource));
+				Doclog.getToken(dataResource), null);
 	}
 
 	@Test

@@ -7,16 +7,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 
 public class DataSourceFilter extends ViewerFilter {
 	private DataSource dataSource;
-	private DoclogDataDirectory doclogDataDirectory;
+	private DoclogDataContainer doclogDataContainer;
 
 	public DataSourceFilter(DataSource dataSource) {
 		this.dataSource = dataSource;
-		this.doclogDataDirectory = Activator.getDefault()
+		this.doclogDataContainer = Activator.getDefault()
 				.getDoclogContainer();
 	}
 
@@ -27,10 +27,10 @@ public class DataSourceFilter extends ViewerFilter {
 			return entity.getID() != null; // TODO: diffFiles prüfen
 		case DOCLOG:
 			ID id = entity.getID();
-			if (doclogDataDirectory.getFile(id) != null)
+			if (doclogDataContainer.getFile(id) != null)
 				return true;
 			for (Fingerprint fingerprint : entity.getFingerprints()) {
-				if (doclogDataDirectory.getFile(fingerprint) != null)
+				if (doclogDataContainer.getFile(fingerprint) != null)
 					return true;
 			}
 			return false;

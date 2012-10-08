@@ -98,6 +98,10 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		return this.calendar.getTimeInMillis();
 	}
 
+	public void setTime(long millis) {
+		this.calendar.setTimeInMillis(millis);
+	}
+
 	@Override
 	public int compareTo(TimeZoneDate date) {
 		assert date != null;

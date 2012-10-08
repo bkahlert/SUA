@@ -268,16 +268,13 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				new ExecutorUtil.ParametrizedCallable<Object, Job>() {
 					public Job call(final Object key) throws Exception {
 						Job doclogFileLoader = new Job("Loading "
-								+ Doclog.class.getSimpleName() + "s") {
+								+ Doclog.class.getSimpleName() + "s ...") {
 							@Override
 							protected IStatus run(
 									IProgressMonitor progressMonitor) {
 								SubMonitor monitor = SubMonitor
 										.convert(progressMonitor);
-								monitor.beginTask(
-										"Fetching "
-												+ Doclog.class.getSimpleName()
-												+ "s", 1);
+								monitor.beginTask("... for" + key, 1);
 								Doclog doclog = Activator
 										.getDefault()
 										.getDoclogContainer()

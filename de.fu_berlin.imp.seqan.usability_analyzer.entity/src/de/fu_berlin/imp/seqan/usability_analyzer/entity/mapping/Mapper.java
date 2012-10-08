@@ -7,17 +7,17 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping.DoclogKeyMap;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataDirectory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 
 public class Mapper {
-	private DoclogDataDirectory doclogDataDirectory;
+	private DoclogDataContainer doclogDataContainer;
 	private DoclogKeyMap doclogMapper;
 
-	public Mapper(DoclogDataDirectory doclogDataDirectory)
+	public Mapper(DoclogDataContainer doclogDataContainer)
 			throws FileNotFoundException {
-		this.doclogDataDirectory = doclogDataDirectory;
-		this.doclogMapper = DoclogKeyMap.load(doclogDataDirectory
+		this.doclogDataContainer = doclogDataContainer;
+		this.doclogMapper = DoclogKeyMap.load(doclogDataContainer
 				.getMappingFile());
 	}
 
@@ -41,14 +41,14 @@ public class Mapper {
 	 * @return
 	 */
 	public List<Fingerprint> getFingerprints(Token token) {
-		return this.doclogDataDirectory.getFingerprints(token);
+		return this.doclogDataContainer.getFingerprints(token);
 	}
 
 	public ID getID(Token token) {
-		return this.doclogDataDirectory.getID(token);
+		return this.doclogDataContainer.getID(token);
 	}
 
 	public Token getToken(Fingerprint fingerprint) {
-		return this.doclogDataDirectory.getToken(fingerprint);
+		return this.doclogDataContainer.getToken(fingerprint);
 	}
 }

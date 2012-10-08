@@ -37,7 +37,7 @@ public class DoclogRecordTest {
 						{ "2011-09-13T11-15-18	scroll	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/Seed-and-Extend	141.14.249.204	-	50	114	1353	680" },
 						{ "2011-09-13T11-24-48	link-http://www.seqan.de/dddoc/html_devel/DEMO_Local+_Alignments.html	http://www.seqan.de/dddoc/html_devel/FUNCTION.local_Alignment.html	141.14.249.204	-	0	366	1353	680" },
 						{ "2011-09-13T11-24-49	unload	http://www.seqan.de/dddoc/html_devel/INDEX_Function_Alignments.html#localAlignment	141.14.249.204	-	0	0	181	814" },
-						{ "2011-09-13T11-41-20	ready	http://www.seqan.de/dddoc2011-09-13T15-12-56	ready	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/FileIO2	141.14.249.204	-	0	0	1353	680" } });
+						{ "2011-09-13T11-41-20	ready	http://www.seqan.de/dddoc2011-09-13T15-12-56	ready	http://trac.mi.fu-berlin.de/seqan/wiki/Tutorial/FileIO2	141.14.249.204	-	0	0	1353	680" }, });
 	}
 
 	@Test

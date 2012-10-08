@@ -54,8 +54,10 @@ public class TakeScreenshotsJob extends Job {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 
-				String filename = doclogRecord.getScreenshot().getFile()
-						.getCanonicalPath();
+				File file = doclogRecord.getScreenshot().getFile();
+				if (file == null)
+					file = File.createTempFile("sua", "screenshot.png");
+				String filename = file.getCanonicalPath();
 				if (!handledScreenshots.contains(filename)) {
 					if (doclogRecord.getWindowDimensions().x > 0
 							|| doclogRecord.getWindowDimensions().y > 0) {
