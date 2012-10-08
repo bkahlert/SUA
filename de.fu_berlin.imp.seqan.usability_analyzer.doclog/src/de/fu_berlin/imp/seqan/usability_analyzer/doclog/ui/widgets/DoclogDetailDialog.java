@@ -1,5 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -8,6 +12,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -21,6 +26,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 
 public class DoclogDetailDialog extends Dialog {
@@ -62,8 +68,8 @@ public class DoclogDetailDialog extends Dialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_RIGHT) {
-					currentDoclogRecord.getDoclog().getNextDoclogRecord(
-							currentDoclogRecord);
+					currentDoclogRecord = currentDoclogRecord.getDoclog()
+							.getNextDoclogRecord(currentDoclogRecord);
 					loadDoclogRecord(currentDoclogRecord);
 				} else if (e.keyCode == SWT.ARROW_LEFT) {
 					currentDoclogRecord = currentDoclogRecord.getDoclog()
@@ -107,10 +113,29 @@ public class DoclogDetailDialog extends Dialog {
 					break;
 				}
 			}
-		imageLabel.setImage(new Image(Display.getCurrent(), doclogRecord
-				.getScreenshot().getImageData()));
-		imageLabel.getParent().setBackground(
-				isIntersected ? COLOR_HIGHLIGHT : COLOR_STANDARD);
+
+		Color background = isIntersected ? COLOR_HIGHLIGHT : COLOR_STANDARD;
+		Image image = new Image(Display.getCurrent(), doclogRecord
+				.getScreenshot().getImageData());
+		if (doclogRecord.getAction() == DoclogAction.BLUR) {
+			GC gc = new GC(image);
+			gc.setBackground(background);
+			gc.setAlpha(70);
+			gc.fillRectangle(image.getBounds());
+			gc.dispose();
+		}
+
+		GC gc = new GC(image);
+		gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+		List<String> description = new ArrayList<String>();
+		description.add(doclogRecord.getUrl());
+		description.add(doclogRecord.getAction().toString());
+		description.add(doclogRecord.getActionParameter());
+		gc.drawText(StringUtils.join(description, "\n"), 10, 10, false);
+		gc.dispose();
+
+		imageLabel.setImage(image);
+		imageLabel.getParent().setBackground(background);
 
 		this.doclogTimeline.center(currentDoclogRecord.getDateRange());
 
