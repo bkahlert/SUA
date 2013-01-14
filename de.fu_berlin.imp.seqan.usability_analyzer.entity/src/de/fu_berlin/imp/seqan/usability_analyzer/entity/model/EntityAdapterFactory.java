@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class EntityAdapterFactory implements IAdapterFactory {
@@ -26,6 +27,9 @@ public class EntityAdapterFactory implements IAdapterFactory {
 			if (adapterType == Fingerprint.class) {
 				List<Fingerprint> fingerprints = entity.getFingerprints();
 				return (fingerprints.size() > 0) ? fingerprints.get(0) : null;
+			}
+			if (adapterType == Token.class) {
+				return entity.getToken();
 			}
 			if (adapterType == SurveyRecord.class) {
 				return entity.getSurveyRecord();

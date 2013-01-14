@@ -68,6 +68,9 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint">
          </adapter>
          <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token">
+         </adapter>
+         <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord">
          </adapter>
       </factory>
@@ -88,6 +91,9 @@
          </Dependency>
          <Dependency
                source="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.IDoclogLoadDependency">
+         </Dependency>
+         <Dependency
+               source="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.ISurveyLoadDependency">
          </Dependency>
       </DataLoadProvider>
    </extension>

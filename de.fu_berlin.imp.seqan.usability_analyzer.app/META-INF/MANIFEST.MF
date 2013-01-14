@@ -11,9 +11,9 @@ Require-Bundle: org.eclipse.ui,
  de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.diff;bundle-version="1.0.0",
- de.fu_berlin.imp.seqan.usability_analyzer.doclog;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.entity;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.stats;bundle-version="1.0.0",
+ de.fu_berlin.imp.seqan.usability_analyzer.doclog;bundle-version="1.0.0",
  de.fu_berlin.imp.seqan.usability_analyzer.survey;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 
 public class CachingDiffFileComparator implements Comparator<IData> {
 	private HashMap<IData, TimeZoneDate> map = new HashMap<IData, TimeZoneDate>();

@@ -8,9 +8,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 
 public class FileUtilsTest {
 	@Test

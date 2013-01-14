@@ -1,30 +1,32 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
+import org.apache.log4j.Logger;
 
-public class DataSetInfo extends File implements IDataSetInfo {
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataSetInfo;
 
-	private static final long serialVersionUID = 2526847064745924065L;
+public class DataSetInfo implements IDataSetInfo {
 
-	public static final String FILENAME = "__dataset.txt";
+	@SuppressWarnings("unused")
+	private static Logger LOGGER = Logger.getLogger(DataSetInfo.class);
 
 	private String name;
 	private TimeZoneDate startDate;
 	private TimeZoneDate endDate;
+	private Map<String, String> unknownProperties = new HashMap<String, String>();
 
-	public DataSetInfo(File file) {
-		super(file.toString());
-
+	public DataSetInfo(IData data) {
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(file));
+			properties.load(new StringReader(data.read()));
 			Set<Object> keys = properties.keySet();
 			for (Object key_ : keys) {
 				String key = (String) key_;
@@ -35,6 +37,8 @@ public class DataSetInfo extends File implements IDataSetInfo {
 							properties.getProperty(key));
 				} else if (key.equals("end")) {
 					this.endDate = new TimeZoneDate(properties.getProperty(key));
+				} else {
+					unknownProperties.put(key, properties.getProperty(key));
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -52,5 +56,10 @@ public class DataSetInfo extends File implements IDataSetInfo {
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		return new TimeZoneDateRange(startDate, endDate);
+	}
+
+	@Override
+	public Map<String, String> getUnknownProperties() {
+		return unknownProperties;
 	}
 }

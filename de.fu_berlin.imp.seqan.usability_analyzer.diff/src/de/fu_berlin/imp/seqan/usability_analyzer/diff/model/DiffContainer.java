@@ -15,14 +15,14 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataResourceList;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.AggregatedBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil.ParametrizedCallable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
@@ -51,9 +51,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * @param diffContainer
 	 * @return
 	 */
-	private static Map<ID, DataResourceList> readDiffFilesMapping(
+	private static Map<ID, DataList> readDiffFilesMapping(
 			DiffContainer diffContainer) {
-		Map<ID, DataResourceList> rawFiles = new HashMap<ID, DataResourceList>();
+		Map<ID, DataList> rawFiles = new HashMap<ID, DataList>();
 		for (IDataContainer diffFileDir : diffContainer
 				.getDiffFileDirectory().getSubContainers()) {
 			if (!ID.isValid(diffFileDir.getName())) {
@@ -69,26 +69,26 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 					continue;
 				ID id = DiffDataUtils.getId(diffFile);
 				if (!rawFiles.containsKey(id))
-					rawFiles.put(id, new DataResourceList());
+					rawFiles.put(id, new DataList());
 				rawFiles.get(id).add(diffFile);
 			}
 		}
 		return rawFiles;
 	}
 
-	private static void sortDiffFiles(DataResourceList diffFiles,
+	private static void sortDiffFiles(DataList diffFiles,
 			Comparator<IData> fileComparator) {
 		Collections.sort(diffFiles, fileComparator);
 	}
 
 	private static TimeZoneDateRange calculateDateRange(
-			DataResourceList dataResourceList) {
+			DataList dataList) {
 		TimeZoneDate start = null;
 		TimeZoneDate end = null;
-		if (dataResourceList.size() > 0) {
-			start = DiffDataUtils.getDate(dataResourceList.get(0));
-			end = DiffDataUtils.getDate(dataResourceList
-					.get(dataResourceList.size() - 1));
+		if (dataList.size() > 0) {
+			start = DiffDataUtils.getDate(dataList.get(0));
+			end = DiffDataUtils.getDate(dataList
+					.get(dataList.size() - 1));
 		}
 		return new TimeZoneDateRange(start, end);
 	}
@@ -96,7 +96,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	private IDataContainer diffContainer;
 	private ITrunk trunk;
 	private ISourceStore sourceCache;
-	private Map<ID, DataResourceList> dataResourceLists;
+	private Map<ID, DataList> dataLists;
 	private Map<ID, TimeZoneDateRange> fileDateRanges;
 
 	private DiffCache diffCache;
@@ -128,15 +128,15 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public void scan(SubMonitor monitor) {
 		monitor = SubMonitor.convert(monitor);
-		this.dataResourceLists = readDiffFilesMapping(this);
+		this.dataLists = readDiffFilesMapping(this);
 		this.fileDateRanges = new HashMap<ID, TimeZoneDateRange>(
-				this.dataResourceLists.size());
+				this.dataLists.size());
 
 		long size = 0;
 		final HashMap<ID, Long> sizes = new HashMap<ID, Long>();
-		for (ID id : this.dataResourceLists.keySet()) {
+		for (ID id : this.dataLists.keySet()) {
 			long fileListSize = 0;
-			for (IData file : this.dataResourceLists.get(id))
+			for (IData file : this.dataLists.get(id))
 				fileListSize += file.getLength();
 			sizes.put(id, fileListSize);
 			size += fileListSize;
@@ -144,18 +144,18 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
 		List<Future<Integer>> futures = ExecutorUtil.nonUIAsyncExec(
-				LOADER_POOL, this.dataResourceLists.keySet(),
+				LOADER_POOL, this.dataLists.keySet(),
 				new ParametrizedCallable<ID, Integer>() {
 					@Override
 					public Integer call(ID id) throws Exception {
-						final DataResourceList dataResourceList = dataResourceLists
+						final DataList dataList = dataLists
 								.get(id);
 
 						final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
 
-						sortDiffFiles(dataResourceList,
+						sortDiffFiles(dataList,
 								cachingDiffFileComparator);
-						TimeZoneDateRange dateRange = calculateDateRange(dataResourceList);
+						TimeZoneDateRange dateRange = calculateDateRange(dataList);
 						synchronized (fileDateRanges) {
 							fileDateRanges.put(id, dateRange);
 						}
@@ -184,7 +184,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public Set<ID> getIDs() {
 		scanIfNecessary(null);
-		return this.dataResourceLists.keySet();
+		return this.dataLists.keySet();
 	}
 
 	/**
@@ -234,19 +234,19 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	public DiffList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
 		DiffList diffFiles = DiffRecordList.create(
-				this.dataResourceLists.get(id), this.trunk,
+				this.dataLists.get(id), this.trunk,
 				this.sourceCache, progressMonitor);
 		return diffFiles;
 	}
 
 	public void scanIfNecessary(SubMonitor monitor) {
-		if (this.dataResourceLists == null && this.fileDateRanges == null) {
+		if (this.dataLists == null && this.fileDateRanges == null) {
 			scan(monitor);
-		} else if (this.dataResourceLists == null
+		} else if (this.dataLists == null
 				&& this.fileDateRanges != null) {
 			LOGGER.fatal("State error in "
 					+ DiffContainer.class.getSimpleName() + "");
-		} else if (this.dataResourceLists != null
+		} else if (this.dataLists != null
 				&& this.fileDateRanges == null) {
 			LOGGER.fatal("State error in "
 					+ DiffContainer.class.getSimpleName() + "");

@@ -14,11 +14,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.StringData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.StringData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 
 public class DoclogTest {

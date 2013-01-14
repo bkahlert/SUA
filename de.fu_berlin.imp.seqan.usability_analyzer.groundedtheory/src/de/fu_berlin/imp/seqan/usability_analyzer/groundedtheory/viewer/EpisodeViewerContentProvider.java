@@ -68,7 +68,9 @@ public class EpisodeViewerContentProvider implements
 		};
 
 		public void episodeAdded(IEpisode episode) {
-			ViewerUtils.add(viewer, episode.getKey(), episode);
+			// ViewerUtils.add(viewer, episode.getKey(), episode);
+			// TODO: wenn key node fehlt, passiert nichts
+			ViewerUtils.refresh(viewer);
 		};
 
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
@@ -77,9 +79,11 @@ public class EpisodeViewerContentProvider implements
 		};
 
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			for (IEpisode episode : episodes) {
-				ViewerUtils.remove(viewer, episode);
-			}
+			// TODO: wenn letzte episode bleibt key node
+			// for (IEpisode episode : episodes) {
+			// ViewerUtils.remove(viewer, episode);
+			// }
+			ViewerUtils.refresh(viewer);
 		}
 	};
 

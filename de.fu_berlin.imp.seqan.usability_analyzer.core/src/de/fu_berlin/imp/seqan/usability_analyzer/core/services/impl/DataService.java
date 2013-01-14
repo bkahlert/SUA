@@ -18,10 +18,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.DataLoaderManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.DataLoaderManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
@@ -57,11 +57,14 @@ public class DataService implements IDataService {
 
 	public static List<IBaseDataContainer> loadActiveFromPreferences() {
 		List<IBaseDataContainer> containers = new ArrayList<IBaseDataContainer>();
-		for (String file : StringUtils.split(
-				new SUACorePreferenceUtil().getDataDirectory(), "|")) {
-			FileBaseDataContainer container = new FileBaseDataContainer(
-					new File(file));
-			containers.add(container);
+		String internalDataDirectory = new SUACorePreferenceUtil()
+				.getDataDirectory();
+		if (internalDataDirectory != null) {
+			for (String file : StringUtils.split(internalDataDirectory, "|")) {
+				FileBaseDataContainer container = new FileBaseDataContainer(
+						new File(file));
+				containers.add(container);
+			}
 		}
 		return containers;
 	}
@@ -280,6 +283,8 @@ public class DataService implements IDataService {
 	@Override
 	public void addDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers) {
+		if (dataContainers.size() == 0)
+			return;
 		List<IBaseDataContainer> currentDataDirectories = loadFromPreferences();
 		for (IBaseDataContainer fileDataContainer : dataContainers) {
 			if (!currentDataDirectories.contains(fileDataContainer))
@@ -292,12 +297,11 @@ public class DataService implements IDataService {
 	@Override
 	public void removeDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers) {
+		if (dataContainers.size() == 0)
+			return;
 		List<IBaseDataContainer> currentDataDirectories = loadFromPreferences();
-		for (FileDataContainer fileDataContainer : ArrayUtils
-				.getAdaptableObjects(dataContainers.toArray(),
-						FileDataContainer.class)) {
-			currentDataDirectories.remove(fileDataContainer.getFile()
-					.toString());
+		for (IBaseDataContainer baseDataContainer : dataContainers) {
+			currentDataDirectories.remove(baseDataContainer);
 		}
 		saveToPreferences(currentDataDirectories);
 		notifier.dataDirectoriesRemoved(dataContainers);

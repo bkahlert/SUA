@@ -10,9 +10,8 @@ import java.util.concurrent.ExecutorService;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.AggregatedBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
@@ -20,14 +19,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.StatsFileManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyRecordManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 
 public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(EntityDataContainer.class);
 
-	private SurveyRecordManager surveyRecordManager;
+	private SurveyContainer surveyContainer;
 	private StatsFileManager statsFileManager;
 	private CMakeCacheFileManager cMakeCacheFileManager;
 
@@ -42,16 +41,14 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 	public EntityDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers,
 			DiffContainer diffContainer,
-			DoclogDataContainer doclogDataContainer) throws EntityDataException {
+			DoclogDataContainer doclogDataContainer,
+			SurveyContainer surveyContainer) throws EntityDataException {
 		super(baseDataContainers);
 		this.diffContainer = diffContainer;
 		this.doclogDataContainer = doclogDataContainer;
-
-		IData surveyRecordPath = diffContainer
-				.getResource("_survey.csv");
+		this.surveyContainer = surveyContainer;
 
 		try {
-			surveyRecordManager = new SurveyRecordManager(surveyRecordPath);
 			statsFileManager = new StatsFileManager(baseDataContainers);
 			cMakeCacheFileManager = new CMakeCacheFileManager(
 					baseDataContainers);
@@ -65,18 +62,6 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		ExecutorService executorService = ExecutorUtil
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
-		callables.add(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				try {
-					surveyRecordManager.scanRecords();
-				} catch (Exception e) {
-					LOGGER.fatal(e);
-				}
-				monitor.worked(10);
-				return null;
-			}
-		});
 		callables.add(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
@@ -121,9 +106,9 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		}
 		monitor.worked(10);
 
-		entityManager = new EntityManager(diffContainer,
-				doclogDataContainer, surveyRecordManager, statsFileManager,
-				cMakeCacheFileManager, mapper);
+		entityManager = new EntityManager(diffContainer, doclogDataContainer,
+				surveyContainer, statsFileManager, cMakeCacheFileManager,
+				mapper);
 		entityManager.scan(monitor.newChild(60));
 	}
 
@@ -137,10 +122,6 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	public StatsFileManager getStatsFileManager() {
 		return statsFileManager;
-	}
-
-	public SurveyRecordManager getSurveyRecordManager() {
-		return surveyRecordManager;
 	}
 
 	public CMakeCacheFileManager getCMakeCacheFileManager() {

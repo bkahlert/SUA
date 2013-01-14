@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -35,6 +34,7 @@ import org.xml.sax.SAXParseException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -557,7 +557,6 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodeInstances(codeStore, new ICodeInstance[] { codeInstance2 });
 	}
 
-	@Ignore
 	@Test
 	public void testSaveMemo() throws Exception {
 		ICodeStore codeStore = getSmallCodeStore();
@@ -565,16 +564,23 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals("abc", codeStore.getMemo(codeInstance2));
 		codeStore.setMemo(code1, "äöü´ß ^°∞ 和平");
 		assertEquals("äöü´ß ^°∞ 和平", codeStore.getMemo(code1));
+		codeStore.setMemo(codeable2, "line1\nline2\nline3");
+		assertEquals("line1\nline2\nline3", codeStore.getMemo(codeable2));
 
 		ICodeStore codeStore2 = loadFromCodeStore(codeStore);
 		assertEquals("abc", codeStore2.getMemo(codeInstance2));
 		assertEquals("äöü´ß ^°∞ 和平", codeStore2.getMemo(code1));
+		assertEquals("line1\nline2\nline3", codeStore2.getMemo(codeable2));
 
 		System.err.println(getTextFromStyledTextWidget("äöü´ß ^°∞ 和平"));
 
 		codeStore.removeAndSaveCode(code1, true);
 		assertNull(codeStore.getMemo(code1));
 		assertNull(codeStore.getMemo(codeInstance2));
+		assertEquals("line1\nline2\nline3", codeStore2.getMemo(codeable2));
+
+		codeStore.setMemo(codeable2, null);
+		assertNull(codeStore2.getMemo(codeable2));
 	}
 
 	public void testSaveEpisode() throws IOException {
@@ -604,7 +610,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	private String getTextFromStyledTextWidget(String text) {
 		Display display = new Display();
-		Shell shell = new Shell(display);
+		final Shell shell = new Shell(display);
 
 		shell.setLayout(new GridLayout());
 
@@ -628,6 +634,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 		shell.setSize(300, 120);
 		shell.open();
 
+		ExecutorUtil.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				shell.close();
+			}
+		}, 500);
+
 		// Set up the event loop.
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -636,7 +649,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 			}
 		}
 
-		display.dispose();
+		// waiting for other thread to close the shell and make the code
+		// continue here
 
 		return returnedText.get();
 	}

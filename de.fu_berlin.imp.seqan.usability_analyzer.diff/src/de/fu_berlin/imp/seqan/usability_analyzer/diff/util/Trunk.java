@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.util;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 
 public class Trunk implements ITrunk {
 	private IDataContainer sourcesDirectory;

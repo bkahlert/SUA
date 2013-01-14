@@ -94,8 +94,8 @@ public class ExecutorUtil {
 	public static void syncExec(Runnable runnable) {
 		if (isUIThread())
 			runnable.run();
-
-		Display.getDefault().syncExec(runnable);
+		else
+			Display.getDefault().syncExec(runnable);
 	}
 
 	/**
@@ -140,8 +140,30 @@ public class ExecutorUtil {
 	public static void asyncExec(Runnable runnable) {
 		if (isUIThread())
 			runnable.run();
+		else
+			Display.getDefault().asyncExec(runnable);
+	}
 
-		Display.getDefault().asyncExec(runnable);
+	/**
+	 * Executes the given {@link Runnable} delayedly and asynchronously in the
+	 * UI thread.
+	 * 
+	 * @param runnable
+	 * @param delay
+	 */
+	public static void asyncExec(final Runnable runnable, final long delay) {
+		ExecutorUtil.asyncRun(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(delay);
+				} catch (InterruptedException e) {
+					LOGGER.error("Could not delayedly execute runnable "
+							+ runnable);
+				}
+
+				Display.getDefault().asyncExec(runnable);
+			}
+		});
 	}
 
 	/**
@@ -209,6 +231,29 @@ public class ExecutorUtil {
 		Thread thread = new Thread(runnable);
 		thread.start();
 		return thread;
+	}
+
+	/**
+	 * Runs the runnable delayedly in a separate {@link Thread} and returns it.
+	 * 
+	 * @param
+	 * @return the thread that is delayedly executed
+	 */
+	public static Thread asyncRun(final Runnable runnable, final long delay) {
+		final Thread innerThread = new Thread(runnable);
+		ExecutorUtil.asyncRun(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(delay);
+				} catch (InterruptedException e) {
+					LOGGER.error("Could not delayedly execute runnable "
+							+ runnable);
+				}
+
+				innerThread.start();
+			}
+		});
+		return innerThread;
 	}
 
 	private ExecutorUtil() {

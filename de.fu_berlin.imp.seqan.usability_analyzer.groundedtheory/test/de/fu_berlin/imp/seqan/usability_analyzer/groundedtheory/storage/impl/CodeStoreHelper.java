@@ -2,8 +2,10 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceTest;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -22,9 +25,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 
 public class CodeStoreHelper {
 	private static File getTempFile() throws IOException {
-		File temp = File.createTempFile(CodeServiceTest.class.getSimpleName(),
-				".xml");
-		temp.deleteOnExit();
+		File dir = new File(FileUtils.getTempDirectory(), new BigInteger(130,
+				new SecureRandom()).toString(32));
+		File temp = new File(dir, CodeServiceTest.class.getSimpleName()
+				+ ".xml");
+		dir.deleteOnExit();
 		return temp;
 	}
 
@@ -39,12 +44,16 @@ public class CodeStoreHelper {
 
 	protected File getSmallFile() throws IOException {
 		File file = getTempFile();
+		System.err.println(file);
 		FileUtils.copyFile(small, file);
 		return file;
 	}
 
 	protected ICode code1;
 	protected ICode code2;
+	protected ICodeable codeable1;
+	protected ICodeable codeable2;
+	protected ICodeable codeable3;
 	protected ICodeInstance codeInstance1;
 	protected ICodeInstance codeInstance2;
 	protected ICodeInstance codeInstance3;
@@ -70,11 +79,48 @@ public class CodeStoreHelper {
 
 		codes = new ICode[] { code1, code2 };
 
-		codeInstance1 = new CodeInstance(code2, new URI("sua://codeInstance1"),
+		codeable1 = new ICodeable() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public URI getCodeInstanceID() {
+				try {
+					return new URI("sua://codeInstance1");
+				} catch (URISyntaxException e) {
+					return null;
+				}
+			}
+		};
+		codeable2 = new ICodeable() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public URI getCodeInstanceID() {
+				try {
+					return new URI("sua://codeInstance2");
+				} catch (URISyntaxException e) {
+					return null;
+				}
+			}
+		};
+		codeable3 = new ICodeable() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public URI getCodeInstanceID() {
+				try {
+					return new URI("sua://codeInstance3");
+				} catch (URISyntaxException e) {
+					return null;
+				}
+			}
+		};
+
+		codeInstance1 = new CodeInstance(code2, codeable1.getCodeInstanceID(),
 				new TimeZoneDate("1984-05-15T14:30:00+02:00"));
-		codeInstance2 = new CodeInstance(code1, new URI("sua://codeInstance2"),
+		codeInstance2 = new CodeInstance(code1, codeable2.getCodeInstanceID(),
 				new TimeZoneDate("2011-11-11T11:11:11+11:00"));
-		codeInstance3 = new CodeInstance(code2, new URI("sua://codeInstance3"),
+		codeInstance3 = new CodeInstance(code2, codeable3.getCodeInstanceID(),
 				new TimeZoneDate("2002-09-23T23:08:01-04:30"));
 
 		codeInstances = new ICodeInstance[] { codeInstance1, codeInstance2,

@@ -8,8 +8,8 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.bkahlert.devel.nebula.dialogs.DirectoryListDialog;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.FileBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 
 public class DataDirectoryDialog extends DirectoryListDialog {
 

@@ -3,13 +3,16 @@ package de.fu_berlin.imp.seqan.usability_analyzer.survey.model;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
@@ -21,21 +24,24 @@ public class SurveyRecord {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 
-	private Map<String, String> entries;
+	private ArrayList<String> keys;
+	private ArrayList<String> values;
 	private TimeZoneDate date;
 
 	public SurveyRecord(String[] keys, String[] values) throws IOException {
-		this.entries = new HashMap<String, String>();
-		for (int i = 0; i < keys.length; i++) {
-			this.entries.put(keys[i], (i < values.length) ? values[i] : null);
-		}
+		assert keys != null;
+		assert values != null;
+		assert keys.length == values.length;
+		this.keys = new ArrayList<String>(Arrays.asList(keys));
+		this.values = new ArrayList<String>(Arrays.asList(values));
 		scanRecord();
 	}
 
 	private void scanRecord() {
-		if (this.entries.containsKey(KEY_DATE)) {
+		if (this.keys.contains(KEY_DATE)) {
 			try {
-				Date date = DATE_FORMAT.parse(this.entries.get(KEY_DATE));
+				Date date = DATE_FORMAT.parse(this.values.get(this.keys
+						.indexOf(KEY_DATE)));
 				TimeZone timeZone;
 				try {
 					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
@@ -51,38 +57,89 @@ public class SurveyRecord {
 		}
 	}
 
+	/**
+	 * Returns a list of all keys of this {@link SurveyRecord}.
+	 * 
+	 * @return
+	 */
+	public List<String> getKeys() {
+		return Collections.unmodifiableList(this.keys);
+	}
+
+	/**
+	 * Returns a named field.
+	 * 
+	 * @param key
+	 * @return null if key is not present
+	 */
+	public String getField(String key) {
+		int idx = this.keys.indexOf(key);
+		if (idx >= 0)
+			return this.values.get(idx);
+		else
+			return null;
+	}
+
 	public TimeZoneDate getDate() {
 		return this.date;
 	}
 
-	public Token getToken() {
-		if (this.entries.containsKey("Token")) {
-			return new Token(this.entries.get("Token"));
+	public ID getID() {
+		if (this.keys.contains("id")) {
+			String id = this.values.get(this.keys.indexOf("id"));
+			try {
+				return new ID(id);
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		return null;
 	}
 
+	public Token getToken() {
+		if (this.keys.contains("Token")) {
+			return new Token(this.values.get(this.keys.indexOf("Token")));
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((entries == null) ? 0 : entries.hashCode());
+		result = prime * result + ((keys == null) ? 0 : keys.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof SurveyRecord))
 			return false;
 		SurveyRecord other = (SurveyRecord) obj;
-		if (getToken() == null) {
-			if (other.getToken() != null)
+		if (keys == null) {
+			if (other.keys != null)
 				return false;
-		} else if (!getToken().equals(other.getToken()))
+		} else if (!keys.equals(other.keys))
+			return false;
+		if (values == null) {
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
 			return false;
 		return true;
 	}
@@ -91,8 +148,8 @@ public class SurveyRecord {
 	public String toString() {
 		String separator = "; ";
 		StringBuilder sb = new StringBuilder();
-		for (String key : this.entries.keySet()) {
-			sb.append(key + "=" + this.entries.get(key));
+		for (int i = 0; i < this.keys.size(); i++) {
+			sb.append(this.keys.get(i) + "=" + this.values.get(i));
 			sb.append(separator);
 		}
 		sb.setLength(sb.length() - separator.length());

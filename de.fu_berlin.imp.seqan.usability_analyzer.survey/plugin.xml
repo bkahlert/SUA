@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView"
+            name="Survey">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               closeable="false"
+               id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView"
+               minimized="false"
+               moveable="true"
+               ratio="0.5"
+               relationship="bottom"
+               relative="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
+               standalone="false"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload">
+      <DataLoadProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyLoader"
+            source="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.ISurveyLoadDependency">
+      </DataLoadProvider>
+   </extension>
+
+</plugin>

@@ -66,11 +66,11 @@ Lesser General Public License for more details.
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer"/>
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.core"/>
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.diff"/>
-      <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.doclog"/>
+      <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.survey.data"/>
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.entity"/>
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory"/>
       <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.stats"/>
-      <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.survey"/>
+      <plugin id="de.fu_berlin.imp.seqan.usability_analyzer.survey.data"/>
       <plugin id="de.fu_berlin.inf.dpp.nebula"/>
       <plugin id="javax.activation"/>
       <plugin id="javax.mail"/>

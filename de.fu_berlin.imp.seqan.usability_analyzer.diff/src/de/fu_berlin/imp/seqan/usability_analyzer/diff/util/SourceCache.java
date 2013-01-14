@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.Assert;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 
 public class SourceCache implements ISourceStore {
 	private IBaseDataContainer baseDataContainer;

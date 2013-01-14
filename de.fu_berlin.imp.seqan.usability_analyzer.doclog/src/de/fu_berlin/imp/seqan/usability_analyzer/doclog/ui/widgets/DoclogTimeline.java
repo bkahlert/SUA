@@ -25,7 +25,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataSetInfo;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataSetInfo;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;

@@ -11,6 +11,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
@@ -37,11 +39,14 @@ public class CodeViewerUtils {
 					ICodeInstance codeInstance = (ICodeInstance) element;
 					ICodeable codedObject = codeService
 							.getCodedObject(codeInstance.getId());
-
-					ILabelProvider labelProvider = codeService
-							.getLabelProvider(codeInstance.getId());
-					return (labelProvider != null) ? labelProvider
-							.getText(codedObject) : "[UNKNOWN ORIGIN]";
+					if (codedObject != null) {
+						ILabelProvider labelProvider = codeService
+								.getLabelProvider(codeInstance.getId());
+						return (labelProvider != null) ? labelProvider
+								.getText(codedObject) : "[UNKNOWN ORIGIN]";
+					} else {
+						return codeInstance.getId().toString();
+					}
 				}
 				if (NoCodesNode.class.isInstance(element)) {
 					return "no code";
@@ -59,11 +64,17 @@ public class CodeViewerUtils {
 					ICodeInstance codeInstance = (ICodeInstance) element;
 					ICodeable codedObject = codeService
 							.getCodedObject(codeInstance.getId());
-					ILabelProvider labelProvider = codeService
-							.getLabelProvider(codeInstance.getId());
-					Image image = (labelProvider != null) ? labelProvider
-							.getImage(codedObject) : null;
 
+					Image image;
+					if (codedObject != null) {
+						ILabelProvider labelProvider = codeService
+								.getLabelProvider(codeInstance.getId());
+						image = (labelProvider != null) ? labelProvider
+								.getImage(codedObject) : null;
+					} else {
+						image = PlatformUI.getWorkbench().getSharedImages()
+								.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+					}
 					return (codeService.isMemo(codeInstance)) ? getMemoAnnotatedImage(image)
 							: image;
 				}

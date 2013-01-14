@@ -6,8 +6,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataResourceList;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -16,7 +16,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	/**
 	 * Creates a new {@link DiffRecordList} instance.
 	 * 
-	 * @param dataResources
+	 * @param dataList
 	 *            that can be treated as {@link Diff}s<br>
 	 *            e.g. [ "/some/dir/data/file.v1.diff",
 	 *            "/some/dir/data/file.v2.diff" ]
@@ -30,7 +30,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static DiffList create(DataResourceList dataResources,
+	public static DiffList create(DataList dataList,
 			ITrunk trunk, ISourceStore sourceCache,
 			IProgressMonitor progressMonitor) {
 		DiffList diffFiles = new DiffList();
@@ -39,9 +39,9 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 
 		progressMonitor.beginTask(
 				"Processing " + Diff.class.getSimpleName() + "s",
-				dataResources.size());
+				dataList.size());
 
-		for (IData data : dataResources) { // look ahead = 1
+		for (IData data : dataList) { // look ahead = 1
 			Diff diff = new Diff(data, prevDiffFile, trunk,
 					sourceCache, new SubProgressMonitor(progressMonitor, 1));
 			diffFiles.add(diff);

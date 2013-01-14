@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
@@ -23,15 +23,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.StatsFileManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyRecordManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class EntityManager {
 	private Logger logger = Logger.getLogger(EntityManager.class);
 
-	private DiffContainer diffFileDirectory;
+	private DiffContainer diffContainer;
 	private DoclogDataContainer doclogDataContainer;
-	private SurveyRecordManager surveyRecordManager;
+	private SurveyContainer surveyContainer;
 
 	private StatsFileManager statsFileManager;
 	private CMakeCacheFileManager cMakeCacheFileManager;
@@ -40,15 +40,14 @@ public class EntityManager {
 
 	private List<Entity> persons = new ArrayList<Entity>();
 
-	public EntityManager(DiffContainer diffFileManager,
+	public EntityManager(DiffContainer diffContainer,
 			DoclogDataContainer doclogDataContainer,
-			SurveyRecordManager surveyRecordManager,
-			StatsFileManager statsFileManager,
+			SurveyContainer surveyContainer, StatsFileManager statsFileManager,
 			CMakeCacheFileManager cMakeCacheFileManager, Mapper mapper) {
 		super();
-		this.diffFileDirectory = diffFileManager;
+		this.diffContainer = diffContainer;
 		this.doclogDataContainer = doclogDataContainer;
-		this.surveyRecordManager = surveyRecordManager;
+		this.surveyContainer = surveyContainer;
 
 		this.statsFileManager = statsFileManager;
 		this.cMakeCacheFileManager = cMakeCacheFileManager;
@@ -151,14 +150,14 @@ public class EntityManager {
 	}
 
 	private List<Entity> getEntitiesDiffBased() {
-		List<Entity> persons = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<Entity>();
 
-		Set<ID> ids = this.diffFileDirectory.getIDs();
+		Set<ID> ids = this.diffContainer.getIDs();
 		for (ID id : ids) {
-			Entity person = new Entity(this.mapper);
-			person.setId(id);
-			person.setStatsFile(this.statsFileManager.getStatsFile(id));
-			person.setCMakeCacheFile(this.cMakeCacheFileManager
+			Entity entity = new Entity(this.mapper);
+			entity.setId(id);
+			entity.setStatsFile(this.statsFileManager.getStatsFile(id));
+			entity.setCMakeCacheFile(this.cMakeCacheFileManager
 					.getCMakeCacheFile(id));
 
 			for (Fingerprint fingerprint : this.mapper.getFingerprints(id)) {
@@ -170,9 +169,9 @@ public class EntityManager {
 
 			Token token = doclogDataContainer.getToken(id);
 			if (token != null) {
-				SurveyRecord surveyRecord = this.surveyRecordManager
+				SurveyRecord surveyRecord = this.surveyContainer
 						.getSurveyRecord(token);
-				person.setSurveyRecord(surveyRecord);
+				entity.setSurveyRecord(surveyRecord);
 
 				if (this.mapper.getFingerprints(token).size() > 0)
 					this.logIdBasedSurveyHasFingerprints();
@@ -181,19 +180,25 @@ public class EntityManager {
 							this.mapper.getID(token));
 			}
 
-			if (person.isValid()) {
-				persons.add(person);
+			if (entity.getID() != null && entity.getSurveyRecord() == null) {
+				SurveyRecord surveyRecord = this.surveyContainer
+						.getSurveyRecord(entity.getID());
+				entity.setSurveyRecord(surveyRecord);
+			}
+
+			if (entity.isValid()) {
+				entities.add(entity);
 			} else {
 				throw new AutomatonDesignError();
 			}
 		}
 
-		return persons;
+		return entities;
 	}
 
 	private void checkPersonsDoclogIdBased() {
 		List<ID> doclogIDs = this.doclogDataContainer.getIDs();
-		Set<ID> diffIDs = this.diffFileDirectory.getIDs();
+		Set<ID> diffIDs = this.diffContainer.getIDs();
 		for (ID doclogId : doclogIDs) {
 			if (!diffIDs.contains(doclogId))
 				logNoDiffFilesButDoclog(doclogId);
@@ -201,22 +206,22 @@ public class EntityManager {
 	}
 
 	private List<Entity> buildEntitiesDoclogFingerprintBased() {
-		List<Entity> persons = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<Entity>();
 
 		List<Fingerprint> fingerprints = this.doclogDataContainer
 				.getFingerprints();
 		for (Fingerprint fingerprint : fingerprints) {
-			Entity person = new Entity(this.mapper);
+			Entity entity = new Entity(this.mapper);
 
 			if (this.mapper.getID(fingerprint) != null) {
 				this.logDoclogRewriteError(this.mapper.getID(fingerprint), null);
 			}
 
-			person.setFingerprint(fingerprint);
+			entity.setFingerprint(fingerprint);
 
 			Token token = this.doclogDataContainer.getToken(fingerprint);
 			if (token != null) {
-				person.setSurveyRecord(this.surveyRecordManager
+				entity.setSurveyRecord(this.surveyContainer
 						.getSurveyRecord(token));
 
 				List<Fingerprint> revFingerprints = this.mapper
@@ -233,25 +238,31 @@ public class EntityManager {
 							revFingerprints.get(0));
 			}
 
-			if (person.isValid()) {
-				persons.add(person);
+			if (entity.getID() != null && entity.getSurveyRecord() == null) {
+				SurveyRecord surveyRecord = this.surveyContainer
+						.getSurveyRecord(entity.getID());
+				entity.setSurveyRecord(surveyRecord);
+			}
+
+			if (entity.isValid()) {
+				entities.add(entity);
 			} else {
 				throw new AutomatonDesignError();
 			}
 		}
 
-		return persons;
+		return entities;
 	}
 
 	private List<Entity> getEntitiesTokenBased() {
-		List<Entity> persons = new ArrayList<Entity>();
+		List<Entity> entities = new ArrayList<Entity>();
 
-		List<Token> tokens = this.surveyRecordManager.getTokens();
+		List<Token> tokens = this.surveyContainer.getTokens();
 		for (Token token : tokens) {
-			Entity person = new Entity(this.mapper);
-			SurveyRecord surveyRecord = this.surveyRecordManager
+			Entity entity = new Entity(this.mapper);
+			SurveyRecord surveyRecord = this.surveyContainer
 					.getSurveyRecord(token);
-			person.setSurveyRecord(surveyRecord);
+			entity.setSurveyRecord(surveyRecord);
 
 			List<Fingerprint> fingerprints = this.mapper.getFingerprints(token);
 			if (fingerprints.size() > 1)
@@ -272,14 +283,14 @@ public class EntityManager {
 			}
 		}
 
-		return persons;
+		return entities;
 	}
+
+	// TODO: survey nach IDs durchsuchen und damit beginnen
 
 	private void logDoclogRewriteError(ID id, IData data) {
 		logger.error("Although the ID is known a fingerprint based doclog was found:\nID: "
-				+ id
-				+ ((data != null) ? "\n:Fingerprint: " + data
-						: ""));
+				+ id + ((data != null) ? "\n:Fingerprint: " + data : ""));
 	}
 
 	private void logIdBasedSurveyHasFingerprints() {

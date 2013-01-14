@@ -23,6 +23,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
@@ -222,11 +223,17 @@ public class MemoComposer extends Composite {
 		} else if (this.codeInstance != null) {
 			ICodeable coded = this.codeService.getCodedObject(this.codeInstance
 					.getId());
-			ILabelProvider lp = this.codeService.getLabelProvider(coded
-					.getCodeInstanceID());
-			icon = lp.getImage(coded);
-			caption = lp.getText(coded) + " (coded with "
-					+ this.codeInstance.getCode().getCaption() + ")";
+			if (coded != null) {
+				ILabelProvider lp = this.codeService.getLabelProvider(coded
+						.getCodeInstanceID());
+				icon = lp.getImage(coded);
+				caption = lp.getText(coded) + " (coded with "
+						+ this.codeInstance.getCode().getCaption() + ")";
+			} else {
+				icon = PlatformUI.getWorkbench().getSharedImages()
+						.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+				caption = this.codeInstance.getId().toString();
+			}
 		} else if (this.codeable != null) {
 			ILabelProvider lp = this.codeService.getLabelProvider(this.codeable
 					.getCodeInstanceID());

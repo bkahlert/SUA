@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -11,8 +10,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeU
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -93,25 +90,6 @@ public class Activator extends AbstractUIPlugin {
 		oldDateRangeStartEnabled = corePreferenceUtil
 				.getDateRangeStartEnabled();
 		oldDateRangeEndEnabled = corePreferenceUtil.getDateRangeEndEnabled();
-
-		ExecutorUtil.nonUIAsyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				IDataService dataService = (IDataService) PlatformUI
-						.getWorkbench().getService(
-								IDataService.class);
-				dataService
-						.setActiveDataDirectories(dataService
-								.getActiveDataDirectories());
-			}
-		});
 	}
 
 	/*

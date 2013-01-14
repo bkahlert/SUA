@@ -10,11 +10,12 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.dataresource.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 
 public class EntityDataLoader implements IDataLoadProvider {
 
@@ -55,18 +56,16 @@ public class EntityDataLoader implements IDataLoadProvider {
 			return null;
 		}
 
-		// if (!diffDataDirectory.getBaseDataContainer().equals(
-		// doclogDataDirectory.getBaseDataContainer())) {
-		// LOGGER.error("Could not match entities since the "
-		// + DiffContainer.class.getSimpleName() + " and the "
-		// + DoclogDataContainer.class.getSimpleName()
-		// + " don't handle the same resource.");
-		// return null;
-		// }
+		SurveyContainer surveyContainer = de.fu_berlin.imp.seqan.usability_analyzer.survey.Activator
+				.getDefault().getSurveyContainer();
+		if (surveyContainer == null) {
+			LOGGER.error("No survey found.");
+		}
 
 		try {
 			EntityDataContainer entityDataContainer = new EntityDataContainer(
-					baseDataContainers, diffContainer, doclogDataContainer);
+					baseDataContainers, diffContainer, doclogDataContainer,
+					surveyContainer);
 			entityDataContainer.scan(subMonitor);
 			Activator.getDefault().setLoadedData(entityDataContainer);
 			return entityDataContainer;
@@ -88,7 +87,6 @@ public class EntityDataLoader implements IDataLoadProvider {
 	}
 
 	@Override
-	public void unload(
-			IProgressMonitor progressMonitor) {
+	public void unload(IProgressMonitor progressMonitor) {
 	}
 }

@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +19,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.data.TreeNode;
@@ -43,7 +46,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 @XStreamAlias("codeStore")
 class CodeStore implements ICodeStore {
 
-	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(CodeStore.class);
 
 	@XStreamOmitField
@@ -276,7 +278,7 @@ class CodeStore implements ICodeStore {
 		if (deleteInstance) {
 			for (ICodeInstance instance : abandoned) {
 				this.codeInstances.remove(instance);
-				this.memos.remove(instance);
+				this.setMemo(instance, null);
 			}
 		} else if (abandoned.size() > 0) {
 			throw new CodeStoreWriteAbandonedCodeInstancesException(abandoned);
@@ -295,7 +297,7 @@ class CodeStore implements ICodeStore {
 		else
 			codeNodes.get(0).removeFromParent();
 
-		this.memos.remove(code);
+		this.setMemo(code, null);
 
 		this.save();
 	}
@@ -419,45 +421,173 @@ class CodeStore implements ICodeStore {
 		this.save();
 	}
 
+	/**
+	 * Returns the location of a memo {@link File} for a given basename.
+	 * 
+	 * @param basename
+	 * @return
+	 */
+	protected File getMemoLocation(String basename) {
+		return new File(this.codeStoreFile.getParentFile(), basename
+				+ ".memo.txt");
+	}
+
+	/**
+	 * Returns the basename for the given {@link ICode} for use in conjunction
+	 * {@link #getMemoLocation(String)}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	protected static String getMemoBasename(ICode code) {
+		if (code == null)
+			throw new InvalidParameterException();
+		return "code_" + new Long(code.getId()).toString();
+	}
+
+	/**
+	 * Returns the basename for the given {@link ICodeInstance} for use in
+	 * conjunction {@link #getMemoLocation(String)}.
+	 * 
+	 * @param codeInstance
+	 * @return
+	 */
+	protected static String getMemoBasename(ICodeInstance codeInstance) {
+		if (codeInstance == null)
+			throw new InvalidParameterException();
+		try {
+			return "codeInstance_"
+					+ new Long(codeInstance.getCode().getId()).toString()
+					+ "_"
+					+ URLEncoder.encode(codeInstance.getId().toString(),
+							"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the basename for the given {@link ICodeable} for use in
+	 * conjunction {@link #getMemoLocation(String)}.
+	 * 
+	 * @param codeable
+	 * @return
+	 */
+	protected static String getMemoBasename(ICodeable codeable) {
+		if (codeable == null)
+			throw new InvalidParameterException();
+		try {
+			return "codeInstance_"
+					+ URLEncoder.encode(
+							codeable.getCodeInstanceID().toString(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Loads the memo saved for the given basename.
+	 * 
+	 * @param basename
+	 * @return
+	 * @throws IOException
+	 */
+	protected String loadMemo(String basename) throws IOException {
+		File memoFile = getMemoLocation(basename);
+		if (memoFile.exists())
+			return FileUtils.readFileToString(memoFile, "UTF-8");
+		else
+			return null;
+	}
+
+	/**
+	 * Saves the memo to a given basename.
+	 * 
+	 * @param basename
+	 * @param memo
+	 * @throws IOException
+	 */
+	protected void saveMemo(String basename, String memo) throws IOException {
+		File memoFile = getMemoLocation(basename);
+		if ((memo == null || memo.trim().equals("")) && memoFile.exists()) {
+			memoFile.delete();
+		} else {
+			FileUtils.writeStringToFile(memoFile, memo, "UTF-8");
+		}
+	}
+
 	@Override
 	public String getMemo(ICode code) {
-		return this.memos.get(code);
+		String memo = null;
+		try {
+			memo = loadMemo(getMemoBasename(code));
+		} catch (IOException e) {
+			logger.error("Error reading memo for " + code);
+		}
+		if (memo == null)
+			return this.memos.get(code);
+		else
+			return memo;
 	}
 
 	@Override
 	public String getMemo(ICodeInstance codeInstance) {
-		return this.memos.get(codeInstance);
+		String memo = null;
+		try {
+			memo = loadMemo(getMemoBasename(codeInstance));
+		} catch (IOException e) {
+			logger.error("Error reading memo for " + codeInstance);
+		}
+		if (memo == null)
+			return this.memos.get(codeInstance);
+		else
+			return memo;
 	}
 
 	public String getMemo(ICodeable codeable) {
-		return this.memos.get(codeable.getCodeInstanceID());
+		String memo = null;
+		try {
+			memo = loadMemo(getMemoBasename(codeable));
+		} catch (IOException e) {
+			logger.error("Error reading memo for " + codeable);
+		}
+		if (memo == null)
+			return this.memos.get(codeable.getCodeInstanceID());
+		else
+			return memo;
 	};
 
 	@Override
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException {
-		if (html == null || html.trim().isEmpty())
-			this.memos.remove(code);
-		else
-			this.memos.put(code, html);
+		try {
+			saveMemo(getMemoBasename(code), html);
+		} catch (IOException e) {
+			throw new CodeStoreWriteException(e);
+		}
+		this.memos.remove(code);
 		this.save();
 	}
 
 	@Override
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException {
-		if (html == null || html.trim().isEmpty())
-			this.memos.remove(codeInstance);
-		else
-			this.memos.put(codeInstance, html);
+		try {
+			saveMemo(getMemoBasename(codeInstance), html);
+		} catch (IOException e) {
+			throw new CodeStoreWriteException(e);
+		}
+		this.memos.remove(codeInstance);
 		this.save();
 	}
 
 	public void setMemo(ICodeable codeable, String html)
 			throws CodeStoreWriteException {
-		if (html == null || html.trim().isEmpty())
-			this.memos.remove(codeable.getCodeInstanceID());
-		else
-			this.memos.put(codeable.getCodeInstanceID(), html);
+		try {
+			saveMemo(getMemoBasename(codeable), html);
+		} catch (IOException e) {
+			throw new CodeStoreWriteException(e);
+		}
+		this.memos.remove(codeable.getCodeInstanceID());
 		this.save();
 	}
 
