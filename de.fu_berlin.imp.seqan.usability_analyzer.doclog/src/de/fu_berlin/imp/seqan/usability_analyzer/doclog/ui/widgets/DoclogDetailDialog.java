@@ -6,11 +6,14 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -53,6 +56,12 @@ public class DoclogDetailDialog extends Dialog {
 		this.currentDoclogRecord = currentDoclogRecord;
 	}
 
+	@Override
+	public void create() {
+		super.create();
+		loadDoclogRecord(currentDoclogRecord);
+	}
+
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(new FillLayout());
@@ -64,17 +73,14 @@ public class DoclogDetailDialog extends Dialog {
 				close();
 			}
 		});
+
 		composite.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_RIGHT) {
-					currentDoclogRecord = currentDoclogRecord.getDoclog()
-							.getNextDoclogRecord(currentDoclogRecord);
-					loadDoclogRecord(currentDoclogRecord);
+					nextScreenshot();
 				} else if (e.keyCode == SWT.ARROW_LEFT) {
-					currentDoclogRecord = currentDoclogRecord.getDoclog()
-							.getPrevDoclogRecord(currentDoclogRecord);
-					loadDoclogRecord(currentDoclogRecord);
+					prevScreenshot();
 				} else if (e.keyCode == SWT.ESC || e.keyCode == SWT.CR) {
 					close();
 				}
@@ -87,8 +93,6 @@ public class DoclogDetailDialog extends Dialog {
 				disposeImage();
 			}
 		});
-
-		loadDoclogRecord(currentDoclogRecord);
 
 		return composite;
 	}
@@ -154,7 +158,56 @@ public class DoclogDetailDialog extends Dialog {
 	}
 
 	@Override
-	protected Control createButtonBar(Composite parent) {
-		return parent;
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.BACK_ID,
+				IDialogConstants.BACK_LABEL, false).addSelectionListener(
+				new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						prevScreenshot();
+					}
+				});
+		createButton(parent, IDialogConstants.NEXT_ID,
+				IDialogConstants.NEXT_LABEL, false).addSelectionListener(
+				new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						nextScreenshot();
+					}
+				});
+		createButton(parent, IDialogConstants.OPEN_ID, "Open URL", false)
+				.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						openURL();
+					}
+				});
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+	}
+
+	public void nextScreenshot() {
+		DoclogRecord doclogRecord = currentDoclogRecord.getDoclog()
+				.getNextDoclogRecord(currentDoclogRecord);
+		if (doclogRecord != null) {
+			currentDoclogRecord = doclogRecord;
+			loadDoclogRecord(currentDoclogRecord);
+		}
+	}
+
+	public void prevScreenshot() {
+		DoclogRecord doclogRecord = currentDoclogRecord.getDoclog()
+				.getPrevDoclogRecord(currentDoclogRecord);
+		if (doclogRecord != null) {
+			currentDoclogRecord = doclogRecord;
+			loadDoclogRecord(currentDoclogRecord);
+		}
+	}
+
+	public void openURL() {
+		if (currentDoclogRecord != null) {
+			org.eclipse.swt.program.Program
+					.launch(currentDoclogRecord.getUrl());
+		}
 	}
 }

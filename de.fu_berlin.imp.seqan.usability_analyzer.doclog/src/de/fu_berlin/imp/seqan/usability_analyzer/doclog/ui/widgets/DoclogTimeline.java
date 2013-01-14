@@ -65,8 +65,9 @@ public class DoclogTimeline extends Timeline {
 								+ DoclogRecord.class.getSimpleName() + " index");
 					}
 
-					new DoclogDetailDialog(null, DoclogTimeline.this,
-							selectedDoclogRecord).open();
+					DoclogDetailDialog doclogDetailDialog = new DoclogDetailDialog(
+							null, DoclogTimeline.this, selectedDoclogRecord);
+					doclogDetailDialog.open();
 				} else {
 					logger.error("Could not determine the passed "
 							+ DoclogRecord.class.getSimpleName() + " index");
