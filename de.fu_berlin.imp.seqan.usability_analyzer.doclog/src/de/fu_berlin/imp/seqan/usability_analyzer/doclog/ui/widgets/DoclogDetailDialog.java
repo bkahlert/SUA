@@ -131,6 +131,8 @@ public class DoclogDetailDialog extends Dialog {
 
 		GC gc = new GC(image);
 		gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+		gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		gc.setAlpha(200);
 		List<String> description = new ArrayList<String>();
 		description.add(doclogRecord.getUrl());
 		description.add(doclogRecord.getAction().toString());

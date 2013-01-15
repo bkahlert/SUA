@@ -55,6 +55,15 @@ public class ImageManager {
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 
+	public static final Image DIFFFILE_PARTIALLY_CODED = new DecorationOverlayIcon(
+			DIFFFILE,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILE_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFFILE_MEMO,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+
 	public static final Image DIFFFILERECORD = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFFILERECORD_CODED = new DecorationOverlayIcon(
 			DIFFFILERECORD,
@@ -67,6 +76,15 @@ public class ImageManager {
 	public static final Image DIFFFILERECORD_CODED_MEMO = new DecorationOverlayIcon(
 			DIFFFILERECORD_MEMO,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+
+	public static final Image DIFFFILERECORD_PARTIALLY_CODED = new DecorationOverlayIcon(
+			DIFFFILERECORD,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFFILERECORD_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFFILERECORD_MEMO,
+			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 
 	public static final Image DIFFFILERECORDSEGMENT = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$

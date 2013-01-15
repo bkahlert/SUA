@@ -144,15 +144,27 @@ public class DiffListsViewer extends SortableTreeViewer {
 						if (element instanceof IDiff) {
 							Diff diff = (Diff) element;
 							try {
-								return (codeService.getCodes(diff).size() > 0) ? (codeService
-										.isMemo(diff) ? ImageManager.DIFFFILE_CODED_MEMO
-										: ImageManager.DIFFFILE_CODED)
-										: (codeService.isMemo(diff) ? ImageManager.DIFFFILE_MEMO
-												: ImageManager.DIFFFILE);
+								if (codeService.getCodes(diff).size() > 0) {
+									return codeService.isMemo(diff) ? ImageManager.DIFFFILE_CODED_MEMO
+											: ImageManager.DIFFFILE_CODED;
+								} else {
+									for (DiffRecord diffRecord : diff
+											.getDiffFileRecords()) {
+										if (codeService.getCodes(diffRecord)
+												.size() > 0) {
+											return codeService.isMemo(diff) ? ImageManager.DIFFFILE_PARTIALLY_CODED_MEMO
+													: ImageManager.DIFFFILE_PARTIALLY_CODED;
+										}
+									}
+									return (codeService.isMemo(diff) ? ImageManager.DIFFFILE_MEMO
+											: ImageManager.DIFFFILE);
+								}
 							} catch (CodeServiceException e) {
 								return ImageManager.DIFFFILE;
 							}
 						}
+						// TODO: partially coded icon wenn diffrecordsegment
+						// existiert
 						if (element instanceof DiffRecord) {
 							DiffRecord diffRecord = (DiffRecord) element;
 							try {

@@ -19,6 +19,15 @@ public interface ICodeService {
 
 	public ICodeStore getCodeStore();
 
+	/**
+	 * Returns all {@ICode}s associated with the given {@link ICodeable}
+	 * .
+	 * 
+	 * @param codeable
+	 * @return an empty list if no {@link ICode}s were found; thus never returns
+	 *         null
+	 * @throws CodeServiceException
+	 */
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException;
 
 	/**
