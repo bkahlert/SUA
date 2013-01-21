@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
@@ -203,40 +204,40 @@ public class DiffListsViewer extends SortableTreeViewer {
 		});
 		new EpisodeRenderer(this, episodeColumn, 1).activateRendering();
 
-		this.createColumn("Passed", 90, true, new Comparator<Object>() {
-			@Override
-			public int compare(Object arg0, Object arg1) {
-				Long l1 = (Long) arg0;
-				Long l2 = (Long) arg1;
-				if (l1 != null)
-					return l1.compareTo(l2);
-				return 0;
-			}
-		}, new Class<?>[] { Long.class }).setLabelProvider(
-				new ColumnLabelProvider() {
+		TreeViewerColumn passedColumn = this.createColumn("Passed", 90, true,
+				new Comparator<Object>() {
 					@Override
-					public String getText(Object element) {
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
-							Long milliSecondsPassed = diff.getDateRange()
-									.getDifference();
-							return (milliSecondsPassed != null) ? DurationFormatUtils
-									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true)
-									: "unknown";
-						}
-						if (element instanceof DiffRecord) {
-							DiffRecord diffRecord = (DiffRecord) element;
-							Long milliSecondsPassed = diffRecord.getDateRange()
-									.getDifference();
-							return (milliSecondsPassed != null) ? DurationFormatUtils
-									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true)
-									: "unknown";
-						}
-						return "";
+					public int compare(Object arg0, Object arg1) {
+						Long l1 = (Long) arg0;
+						Long l2 = (Long) arg1;
+						if (l1 != null)
+							return l1.compareTo(l2);
+						return 0;
 					}
-				});
+				}, new Class<?>[] { Long.class });
+		passedColumn.getColumn().setAlignment(SWT.RIGHT);
+		passedColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof IDiff) {
+					Diff diff = (Diff) element;
+					Long milliSecondsPassed = diff.getDateRange()
+							.getDifference();
+					return (milliSecondsPassed != null) ? DurationFormatUtils
+							.formatDuration(milliSecondsPassed,
+									timeDifferenceFormat, true) : "unknown";
+				}
+				if (element instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) element;
+					Long milliSecondsPassed = diffRecord.getDateRange()
+							.getDifference();
+					return (milliSecondsPassed != null) ? DurationFormatUtils
+							.formatDuration(milliSecondsPassed,
+									timeDifferenceFormat, true) : "unknown";
+				}
+				return "";
+			}
+		});
 
 		this.createColumn("Revision", 65).setLabelProvider(
 				new ColumnLabelProvider() {

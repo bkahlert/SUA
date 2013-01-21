@@ -99,13 +99,14 @@ public class StatsFileManager {
 	 * @return
 	 */
 	public StatsFile getStatsFile(ID id) {
+		List<StatsFile> found = new ArrayList<StatsFile>();
 		for (List<StatsFile> statsFiles : this.statsFiles.values()) {
 			for (StatsFile statsFile : statsFiles) {
 				if (statsFile.getId().equals(id)) {
-					return statsFile;
+					found.add(statsFile);
 				}
 			}
 		}
-		return null;
+		return found.size() > 0 ? found.get(0) : null;
 	}
 }

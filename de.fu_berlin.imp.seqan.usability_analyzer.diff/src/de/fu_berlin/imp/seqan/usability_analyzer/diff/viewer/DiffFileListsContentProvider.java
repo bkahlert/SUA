@@ -71,20 +71,14 @@ public class DiffFileListsContentProvider implements
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			// TODO Auto-generated method stub
-
 		}
 	};
 

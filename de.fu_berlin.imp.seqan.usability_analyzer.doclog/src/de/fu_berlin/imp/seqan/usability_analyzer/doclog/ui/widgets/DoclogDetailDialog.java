@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -32,6 +33,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 
@@ -59,6 +61,9 @@ public class DoclogDetailDialog extends Dialog {
 	private Label lblBoundsvalue;
 	private Label lblDatevalue;
 	private Label lblTimepassedvalue;
+
+	private static final String timeDifferenceFormat = new SUACorePreferenceUtil()
+			.getTimeDifferenceFormat();
 
 	public DoclogDetailDialog(Shell parentShell, DoclogTimeline doclogTimeline,
 			DoclogRecord currentDoclogRecord) {
@@ -104,6 +109,7 @@ public class DoclogDetailDialog extends Dialog {
 		lblUrlvalue.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(MouseEvent e) {
+				// TODO: Click funktioniert nicht
 				openURL(currentDoclogRecord.getUrl());
 			}
 		});
@@ -219,11 +225,13 @@ public class DoclogDetailDialog extends Dialog {
 				.setText((doclogRecord.getDateRange() != null && doclogRecord
 						.getDateRange().getStartDate() != null) ? doclogRecord
 						.getDateRange().getStartDate().toISO8601() : "-");
-		;
+
+		Long milliSecondsPassed = doclogRecord.getDateRange() != null ? doclogRecord
+				.getDateRange().getDifference() : null;
 		this.lblTimepassedvalue
-				.setText((doclogRecord.getDateRange() != null && doclogRecord
-						.getDateRange().getDifference() != null) ? doclogRecord
-						.getDateRange().getDifference().toString() : "-");
+				.setText((milliSecondsPassed != null) ? DurationFormatUtils
+						.formatDuration(milliSecondsPassed,
+								timeDifferenceFormat, true) : "unknown");
 
 		disposeImage();
 

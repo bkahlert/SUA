@@ -9,7 +9,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.adapters.Fingerprint
 
 @XmlJavaTypeAdapter(FingerprintAdapter.class)
 public class Fingerprint implements Comparable<Fingerprint> {
-	// TODO: Daten vom Retreat 2011 zu umschreiben, dass pattern passt
 	public static final Pattern PATTERN = Pattern.compile("^![A-Za-z\\d]+$");
 
 	public static final boolean isValid(String id) {

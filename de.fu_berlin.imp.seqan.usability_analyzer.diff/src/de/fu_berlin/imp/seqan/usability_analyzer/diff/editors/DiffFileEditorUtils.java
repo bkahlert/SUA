@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.editors;
 
+import org.apache.log4j.Logger;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.ui.IEditorReference;
@@ -9,6 +10,10 @@ import org.eclipse.ui.PlatformUI;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 
 public class DiffFileEditorUtils {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DiffFileEditorUtils.class);
+
 	/**
 	 * Opens a new {@link CompareEditor} which displays the difference between
 	 * the given and its predecessor {@link DiffRecord}.
@@ -43,7 +48,7 @@ public class DiffFileEditorUtils {
 					}
 				}
 			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
+				LOGGER.error("Could not close compare editor", e);
 				e.printStackTrace();
 			}
 		}

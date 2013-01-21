@@ -18,6 +18,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -412,6 +413,44 @@ public class EpisodeRenderer implements IDisposable {
 				EpisodeColors episodeColors = renderingColors.get(episode);
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
 						episodeColors.getBackgroundColor());
+
+				// draw overlay icons
+				try {
+					if (codeService.getCodes(episode).size() > 0) {
+						Image overlay = ImageManager.OVERLAY_CODED_IMG;
+						e.gc.setAlpha(255);
+						e.gc.drawImage(
+								overlay,
+								bounds.x
+										+ bounds.width
+										- overlay.getBounds().width
+										- ((bounds.width >= overlay.getBounds().width + 6) ? 3
+												: 0),
+								bounds.y
+										+ bounds.height
+										- overlay.getBounds().height
+										+ ((bounds.height >= overlay
+												.getBounds().height + 6) ? -3
+												: 0));
+					}
+					if (codeService.isMemo(episode)) {
+						Image overlay = ImageManager.OVERLAY_MEMO_IMG;
+						e.gc.setAlpha(255);
+						e.gc.drawImage(
+								overlay,
+								bounds.x
+										+ bounds.width
+										- overlay.getBounds().width
+										- ((bounds.width >= overlay.getBounds().width + 6) ? 3
+												: 0),
+								bounds.y
+										+ ((bounds.height >= overlay
+												.getBounds().height + 6) ? 3
+												: -0));
+					}
+				} catch (CodeServiceException e1) {
+					LOGGER.warn("Error drawing overlays for " + episode, e1);
+				}
 			}
 		}
 
@@ -562,6 +601,11 @@ public class EpisodeRenderer implements IDisposable {
 				}
 			});
 		}
+
+		public void memoModified(
+				de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable codeable) {
+			redraw();
+		};
 
 		public void episodeAdded(IEpisode episode) {
 			redraw();

@@ -18,8 +18,12 @@ public class ImageManager {
 	 * overlays
 	 */
 	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
+	public static final Image OVERLAY_CODED_IMG = OVERLAY_CODED.createImage(); //$NON-NLS-1$
 	public static final ImageDescriptor OVERLAY_PARTIALLY_CODED = getImageDescriptor("icons/ovr16/partially_coded.png"); //$NON-NLS-1$
+	public static final Image OVERLAY_PARTIALLY_CODED_IMG = OVERLAY_PARTIALLY_CODED
+			.createImage(); //$NON-NLS-1$
 	public static final ImageDescriptor OVERLAY_MEMO = getImageDescriptor("icons/ovr16/memo.png"); //$NON-NLS-1$
+	public static final Image OVERLAY_MEMO_IMG = OVERLAY_MEMO.createImage(); //$NON-NLS-1$
 
 	/*
 	 * wizard banners
