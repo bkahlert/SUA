@@ -28,9 +28,8 @@ public class DiffFileTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static IDiff getDiffFile(String diffFileName, ID id,
-			long revision, TimeZoneDateRange dateRange)
-			throws URISyntaxException {
+	private static IDiff getDiffFile(String diffFileName, ID id, long revision,
+			TimeZoneDateRange dateRange) throws URISyntaxException {
 
 		FileBaseDataContainer baseDataContainer = new FileBaseDataContainer(
 				FileUtils.getFile(root));
@@ -88,19 +87,23 @@ public class DiffFileTest {
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				DiffDataUtils
-						.getDate(new FileData(
-								baseContainer,
-								baseContainer,
-								new File(
-										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+						.getDate(
+								new FileData(
+										baseContainer,
+										baseContainer,
+										new File(
+												"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")),
+								null));
 		Assert.assertEquals(
 				new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				DiffDataUtils
-						.getDate(new FileData(
-								baseContainer,
-								baseContainer,
-								new File(
-										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
+						.getDate(
+								new FileData(
+										baseContainer,
+										baseContainer,
+										new File(
+												"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff")),
+								null));
 	}
 
 	@Test
@@ -202,9 +205,8 @@ public class DiffFileTest {
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 	}
 
-	private void testDiffFileRecordsCountRun(IDiff diff,
-			int[] numContentLines, Long[] timeDifferences, String[] sourceFiles)
-			throws IOException {
+	private void testDiffFileRecordsCountRun(IDiff diff, int[] numContentLines,
+			Long[] timeDifferences, String[] sourceFiles) throws IOException {
 		DiffRecordList diffFileRecords = diff.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {

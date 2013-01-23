@@ -35,8 +35,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
 public class DiffContainer extends AggregatedBaseDataContainer {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(DiffContainer.class);
+	private static final Logger LOGGER = Logger.getLogger(DiffContainer.class);
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
@@ -54,8 +53,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	private static Map<ID, DataList> readDiffFilesMapping(
 			DiffContainer diffContainer) {
 		Map<ID, DataList> rawFiles = new HashMap<ID, DataList>();
-		for (IDataContainer diffFileDir : diffContainer
-				.getDiffFileDirectory().getSubContainers()) {
+		for (IDataContainer diffFileDir : diffContainer.getDiffFileDirectory()
+				.getSubContainers()) {
 			if (!ID.isValid(diffFileDir.getName())) {
 				LOGGER.warn("Directory with invalid "
 						+ ID.class.getSimpleName() + " name detected: "
@@ -64,8 +63,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 			}
 
 			for (IData diffFile : diffFileDir.getResources()) {
-				if (!Diff.PATTERN.matcher(diffFile.getName())
-						.matches())
+				if (!Diff.PATTERN.matcher(diffFile.getName()).matches())
 					continue;
 				ID id = DiffDataUtils.getId(diffFile);
 				if (!rawFiles.containsKey(id))
@@ -81,14 +79,13 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		Collections.sort(diffFiles, fileComparator);
 	}
 
-	private static TimeZoneDateRange calculateDateRange(
-			DataList dataList) {
+	private static TimeZoneDateRange calculateDateRange(DataList dataList) {
 		TimeZoneDate start = null;
 		TimeZoneDate end = null;
 		if (dataList.size() > 0) {
-			start = DiffDataUtils.getDate(dataList.get(0));
-			end = DiffDataUtils.getDate(dataList
-					.get(dataList.size() - 1));
+			start = DiffDataUtils.getDate(dataList.get(0), null);
+			end = DiffDataUtils
+					.getDate(dataList.get(dataList.size() - 1), null);
 		}
 		return new TimeZoneDateRange(start, end);
 	}
@@ -112,8 +109,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * @param cachedSourcesDirectory
 	 *            that can be used to cache patched {@link Diff}s
 	 */
-	public DiffContainer(
-			List<? extends IBaseDataContainer> baseDataContainers) {
+	public DiffContainer(List<? extends IBaseDataContainer> baseDataContainers) {
 		super(baseDataContainers);
 		this.diffContainer = this.getSubContainer("diff");
 		this.trunk = new Trunk(this.getSubContainer("trunk"));
@@ -148,13 +144,11 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 				new ParametrizedCallable<ID, Integer>() {
 					@Override
 					public Integer call(ID id) throws Exception {
-						final DataList dataList = dataLists
-								.get(id);
+						final DataList dataList = dataLists.get(id);
 
 						final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
 
-						sortDiffFiles(dataList,
-								cachingDiffFileComparator);
+						sortDiffFiles(dataList, cachingDiffFileComparator);
 						TimeZoneDateRange dateRange = calculateDateRange(dataList);
 						synchronized (fileDateRanges) {
 							fileDateRanges.put(id, dateRange);
@@ -177,8 +171,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns a list of all {@link ID}s occurring in the managed
-	 * {@link Diff}s.
+	 * Returns a list of all {@link ID}s occurring in the managed {@link Diff}s.
 	 * 
 	 * @return
 	 */
@@ -206,9 +199,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns all {@link Diff}s associated with a given {@link ID}.
 	 * <p>
-	 * If the {@link DiffList} is already in the cached the cached version
-	 * is returned. Otherwise a new {@link DiffList} is constructed and
-	 * added to the cache.
+	 * If the {@link DiffList} is already in the cached the cached version is
+	 * returned. Otherwise a new {@link DiffList} is constructed and added to
+	 * the cache.
 	 * 
 	 * @param id
 	 * @param progressMonitor
@@ -233,21 +226,18 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public DiffList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		DiffList diffFiles = DiffRecordList.create(
-				this.dataLists.get(id), this.trunk,
-				this.sourceCache, progressMonitor);
+		DiffList diffFiles = DiffRecordList.create(this.dataLists.get(id),
+				this.trunk, this.sourceCache, progressMonitor);
 		return diffFiles;
 	}
 
 	public void scanIfNecessary(SubMonitor monitor) {
 		if (this.dataLists == null && this.fileDateRanges == null) {
 			scan(monitor);
-		} else if (this.dataLists == null
-				&& this.fileDateRanges != null) {
+		} else if (this.dataLists == null && this.fileDateRanges != null) {
 			LOGGER.fatal("State error in "
 					+ DiffContainer.class.getSimpleName() + "");
-		} else if (this.dataLists != null
-				&& this.fileDateRanges == null) {
+		} else if (this.dataLists != null && this.fileDateRanges == null) {
 			LOGGER.fatal("State error in "
 					+ DiffContainer.class.getSimpleName() + "");
 		} else {

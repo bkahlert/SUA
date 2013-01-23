@@ -59,9 +59,10 @@ public class TimeZoneDateRange {
 	public TimeZoneDateRange(TimeZoneDate startDate, TimeZoneDate endDate) {
 		super();
 		if (startDate != null && endDate != null
-				&& startDate.compareTo(endDate) > 0)
+				&& startDate.compareTo(endDate) > 0) {
 			throw new InvalidParameterException(
 					"start date must be before or on the end date");
+		}
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}

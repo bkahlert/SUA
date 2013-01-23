@@ -33,7 +33,19 @@ public class DiffDataUtils {
 		}
 	}
 
-	public static TimeZoneDate getDate(IData data) {
+	/**
+	 * Constructs a new date with an attached {@link TimeZone} based on a
+	 * {@link IData}'s name. If the data's name does not contain any time zone
+	 * information, the defaultTimeZone will be used.
+	 * 
+	 * @param data
+	 * @param defaultTimeZone
+	 *            if null, the preferred time zone (stored in preferences) is
+	 *            used. If both information are not available the system's
+	 *            default time zone is used.
+	 * @return
+	 */
+	public static TimeZoneDate getDate(IData data, TimeZone defaultTimeZone) {
 		TimeZoneDate date = null;
 		Matcher matcher = Diff.PATTERN.matcher(data.getName());
 		if (matcher.find()) {
@@ -55,10 +67,15 @@ public class DiffDataUtils {
 						Integer.valueOf(matcher.group(8)));
 
 				TimeZone timeZone;
-				try {
-					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
-				} catch (Exception e) {
-					timeZone = TimeZone.getDefault();
+				if (defaultTimeZone != null) {
+					timeZone = defaultTimeZone;
+				} else {
+					try {
+						timeZone = new SUACorePreferenceUtil()
+								.getDefaultTimeZone();
+					} catch (Exception e) {
+						timeZone = TimeZone.getDefault();
+					}
 				}
 				rawDate.setTime(rawDate.getTime()
 						- timeZone.getOffset(rawDate.getTime()));

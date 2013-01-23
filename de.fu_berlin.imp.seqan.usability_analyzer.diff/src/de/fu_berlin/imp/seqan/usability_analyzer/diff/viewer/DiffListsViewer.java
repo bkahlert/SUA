@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 import java.text.DateFormat;
 import java.util.Comparator;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -31,6 +30,7 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
@@ -45,6 +45,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRender
 
 public class DiffListsViewer extends SortableTreeViewer {
 	private LocalResourceManager resources;
+
+	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
 	public DiffListsViewer(final Composite parent, int style,
 			DateFormat dateFormat, String timeDifferenceFormat) {
@@ -239,26 +241,26 @@ public class DiffListsViewer extends SortableTreeViewer {
 			}
 		});
 
-		this.createColumn("Revision", 65).setLabelProvider(
-				new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof DiffList) {
-							DiffList diffList = (DiffList) element;
-							return "# " + diffList.size();
-						}
-						if (element instanceof IDiff) {
-							IDiff diff = (IDiff) element;
-							Long revision = diff.getRevision();
-							return (revision != null) ? StringUtils.leftPad(
-									revision.toString(), 8, '0') : "";
-						}
-						if (element instanceof DiffRecord) {
-							return "";
-						}
-						return "";
-					}
-				});
+		TreeViewerColumn revisionColumn = this.createColumn("Revision", 65);
+		revisionColumn.getColumn().setAlignment(SWT.RIGHT);
+		revisionColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof DiffList) {
+					DiffList diffList = (DiffList) element;
+					return "# " + diffList.size();
+				}
+				if (element instanceof IDiff) {
+					IDiff diff = (IDiff) element;
+					Long revision = diff.getRevision();
+					return (revision != null) ? revision.toString() : "";
+				}
+				if (element instanceof DiffRecord) {
+					return "";
+				}
+				return "";
+			}
+		});
 
 		this.createColumn("", 10, false, new Comparator<Object>() {
 			@Override
@@ -304,6 +306,53 @@ public class DiffListsViewer extends SortableTreeViewer {
 							return resources.createColor(backgroundRgb);
 						}
 						return null;
+					}
+				});
+
+		this.createColumn("Start", 175).setLabelProvider(
+				new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						TimeZoneDateRange range = null;
+						if (element instanceof DiffList) {
+							DiffList diffList = (DiffList) element;
+							range = diffList.getDateRange();
+						}
+						if (element instanceof IDiff) {
+							Diff diff = (Diff) element;
+							range = diff.getDateRange();
+						}
+						if (element instanceof DiffRecord) {
+							DiffRecord diffRecord = (DiffRecord) element;
+							range = diffRecord.getDateRange();
+						}
+						TimeZoneDate date = range != null ? range
+								.getStartDate() : null;
+						return date != null ? date.format(preferenceUtil
+								.getDateFormat()) : "";
+					}
+				});
+		this.createColumn("End", 175).setLabelProvider(
+				new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						TimeZoneDateRange range = null;
+						if (element instanceof DiffList) {
+							DiffList diffList = (DiffList) element;
+							range = diffList.getDateRange();
+						}
+						if (element instanceof IDiff) {
+							Diff diff = (Diff) element;
+							range = diff.getDateRange();
+						}
+						if (element instanceof DiffRecord) {
+							DiffRecord diffRecord = (DiffRecord) element;
+							range = diffRecord.getDateRange();
+						}
+						TimeZoneDate date = range != null ? range.getEndDate()
+								: null;
+						return date != null ? date.format(preferenceUtil
+								.getDateFormat()) : "";
 					}
 				});
 	}

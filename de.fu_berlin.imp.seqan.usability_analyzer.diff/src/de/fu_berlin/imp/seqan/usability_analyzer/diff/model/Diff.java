@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -15,8 +16,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 
@@ -66,11 +67,19 @@ public class Diff extends WrappingData implements IDiff {
 		TimeZoneDate prevDate = prevDiffFile != null
 				&& prevDiffFile.getDateRange() != null ? prevDiffFile
 				.getDateRange().getEndDate() : null;
-		this.dateRange = new TimeZoneDateRange(prevDate,
-				DiffDataUtils.getDate(data));
-
 		this.diffFileRecords = DiffRecordUtils.readRecords(this, trunk,
 				sourceCache, progressMonitor);
+
+		TimeZone diffsFirstRecordTimeZone = this.diffFileRecords.size() > 0 ? this.diffFileRecords
+				.get(0).getDateRange().getEndDate().getTimeZone()
+				: null;
+		TimeZone prevDiffsTimeZone = prevDate != null ? prevDate.getTimeZone()
+				: null;
+		TimeZone defaultTimeZone = diffsFirstRecordTimeZone != null ? diffsFirstRecordTimeZone
+				: prevDiffsTimeZone;
+
+		this.dateRange = new TimeZoneDateRange(prevDate, DiffDataUtils.getDate(
+				data, defaultTimeZone));
 	}
 
 	/*

@@ -156,6 +156,18 @@ public class DoclogTimeline extends Timeline {
 												.getEndDate().toISO8601(),
 										dataSetInfo.getName()) });
 
+						if (doclog.getDateRange().getStartDate() != null) {
+							options.put("timeZone",
+									(doclog.getDateRange().getStartDate()
+											.getLocalTime() - doclog
+											.getDateRange().getStartDate()
+											.getTime()) / 3600000l);
+						} else {
+							logger.warn("Could not determine the "
+									+ Doclog.class.getSimpleName()
+									+ "'s simple name");
+						}
+
 						monitor.worked(1);
 
 						LinkedList<DoclogRecord> filteredDoclogRecords = new LinkedList<DoclogRecord>();

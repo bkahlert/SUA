@@ -43,7 +43,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	}
 
 	/**
-	 * Constructs a new instance based on a {@link Date}�and a {@link TimeZone}.
+	 * Constructs a new instance based on a {@link Date} and a {@link TimeZone}.
 	 * 
 	 * @param date
 	 *            milliseconds passed since 1.1.1970 00:00:00.000 GMT
@@ -118,6 +118,15 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	public long getLocalTime() {
 		return calendar.getTimeInMillis()
 				+ calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
+	}
+
+	/**
+	 * Returns the {@link TimeZone} of the associated date.
+	 * 
+	 * @return
+	 */
+	public TimeZone getTimeZone() {
+		return this.calendar.getTimeZone();
 	}
 
 	public TimeZoneDate addMilliseconds(Long amount) {

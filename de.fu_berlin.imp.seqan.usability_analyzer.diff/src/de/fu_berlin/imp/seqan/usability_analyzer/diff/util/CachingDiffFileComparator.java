@@ -13,12 +13,12 @@ public class CachingDiffFileComparator implements Comparator<IData> {
 	public int compare(IData dataResource1, IData dataResource2) {
 		TimeZoneDate date1 = map.get(dataResource1);
 		if (date1 == null) {
-			date1 = DiffDataUtils.getDate(dataResource1);
+			date1 = DiffDataUtils.getDate(dataResource1, null);
 			map.put(dataResource1, date1);
 		}
 		TimeZoneDate date2 = map.get(dataResource2);
 		if (date2 == null) {
-			date2 = DiffDataUtils.getDate(dataResource2);
+			date2 = DiffDataUtils.getDate(dataResource2, null);
 			map.put(dataResource2, date2);
 		}
 		return date1.compareTo(date2);

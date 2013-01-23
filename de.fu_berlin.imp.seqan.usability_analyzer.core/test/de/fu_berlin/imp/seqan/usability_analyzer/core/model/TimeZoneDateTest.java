@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +30,16 @@ public class TimeZoneDateTest {
 				"2011-11-18T15:38:28+09:00").getTime());
 		Assert.assertEquals(1321643308000l, new TimeZoneDate(
 				"2011-11-18T15:38:28-03:30").getTime());
+	}
+
+	@Test
+	public void testGetTimeZone() {
+		Assert.assertEquals(TimeZone.getTimeZone("GMT+09:00"),
+				new TimeZoneDate("2011-11-18T15:38:28+09:00").getTimeZone());
+		Assert.assertEquals(TimeZone.getTimeZone("GMT-05:00"),
+				new TimeZoneDate("2011-11-18T15:38:28-05:00").getTimeZone());
+		Assert.assertEquals(TimeZone.getDefault(), new TimeZoneDate(
+				"2011-11-18T15:38:28").getTimeZone());
 	}
 
 	@Test
