@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding.observable,
  org.eclipse.core.databinding.property,
  org.eclipse.jface.databinding,
- com.ibm.icu
+ com.ibm.icu,
+ de.fu_berlin.imp.seqan.usability_analyzer.timeline;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
@@ -38,4 +39,5 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.doclog;
    org.osgi.framework",
  de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping;uses:="de.fu_berlin.imp.seqan.usability_analyzer.core.model",
  de.fu_berlin.imp.seqan.usability_analyzer.doclog.model,
+ de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui,
  de.fu_berlin.imp.seqan.usability_analyzer.doclog.views

@@ -2,8 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 
 public class DiffAdapterFactory implements IAdapterFactory {
 
@@ -22,8 +22,8 @@ public class DiffAdapterFactory implements IAdapterFactory {
 			}
 			if (adapterType == IdDateRange.class) {
 				TimeZoneDateRange dateRange = diff.getDateRange();
-				return new IdDateRange(diff.getID(),
-						dateRange.getStartDate(), dateRange.getEndDate());
+				return new IdDateRange(diff.getID(), dateRange.getStartDate(),
+						dateRange.getEndDate());
 			}
 			return null;
 		}

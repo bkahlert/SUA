@@ -3,6 +3,9 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -67,6 +70,12 @@ public class Activator extends AbstractUIPlugin {
 			oldDateRangeEndEnabled = newDateRangeEndEnabled;
 		}
 	};
+
+	public static final Color COLOR_STANDARD = new Color(Display.getDefault(),
+	new RGB(75, 131, 179));
+
+	public static final Color COLOR_HIGHLIGHT = new Color(Display.getDefault(),
+	new RGB(216, 255, 38));
 
 	public Activator() {
 

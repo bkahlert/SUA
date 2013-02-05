@@ -1,12 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -21,6 +23,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -113,7 +116,21 @@ public class GTCodeableProvider extends CodeableProvider {
 			public String getText(Object element) {
 				if (element instanceof IEpisode) {
 					IEpisode episode = (IEpisode) element;
-					return (episode != null) ? episode.getCaption() : "";
+					String name = (episode != null) ? episode.getCaption() : "";
+					if (name.isEmpty()) {
+						List<ICode> codes;
+						try {
+							codes = codeService.getCodes(episode);
+							List<String> codeNames = new ArrayList<String>();
+							for (ICode code : codes)
+								codeNames.add(code.getCaption());
+							name = "[" + StringUtils.join(codeNames, ", ")
+									+ "]";
+						} catch (CodeServiceException e) {
+							LOGGER.warn("Could not find the episode's codes", e);
+						}
+					}
+					return name;
 				}
 				return "";
 			}

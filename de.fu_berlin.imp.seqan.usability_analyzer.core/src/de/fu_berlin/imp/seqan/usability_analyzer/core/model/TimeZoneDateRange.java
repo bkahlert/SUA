@@ -12,7 +12,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
  * 
  * @author bkahlert
  */
-public class TimeZoneDateRange {
+public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 
 	public static TimeZoneDateRange calculateOuterDateRange(
 			TimeZoneDateRange... dateRanges) {
@@ -160,6 +160,25 @@ public class TimeZoneDateRange {
 				&& dateRange.getEndDate() != null
 				&& this.startDate.equals(dateRange.endDate);
 		return !areNeighbors1 && !areNeighbors2;
+	}
+
+	@Override
+	public int compareTo(TimeZoneDateRange o) {
+		TimeZoneDate t1 = this.getStartDate();
+		if (t1 == null)
+			t1 = this.getEndDate();
+
+		TimeZoneDate t2 = o.getStartDate();
+		if (t2 == null)
+			t2 = o.getEndDate();
+
+		if (t1 == null && t2 == null)
+			return 0;
+		if (t1 != null && t2 == null)
+			return +1;
+		if (t1 == null && t2 != null)
+			return -1;
+		return t1.compareTo(t2);
 	}
 
 	@Override

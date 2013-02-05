@@ -15,26 +15,19 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 public class ImageManager {
 
 	/*
-	 * overlays
+	 * images
 	 */
-	//	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
+	public static final Image ARROW_TOP_DETAIL_OVERLAY = getImage("images/detail-overlays/arrow-top.png"); //$NON-NLS-1$
+	public static final Image ARROW_TOP_DOWN_DETAIL_OVERLAY = getImage("images/detail-overlays/arrow-top-down.png"); //$NON-NLS-1$
+	public static final Image CREATE_DETAIL_OVERLAY = getImage("images/detail-overlays/create.png"); //$NON-NLS-1$
+	public static final Image CLOSE_DETAIL_OVERLAY = getImage("images/detail-overlays/close.png"); //$NON-NLS-1$
 
-	/*
-	 * wizard banners
-	 */
-	//	public static final ImageDescriptor WIZBAN_ADD_CODE = getImageDescriptor("icons/wizban/add_code_wiz.gif"); //$NON-NLS-1$
+	public static final Image SCROLL_UP = getImage("images/scroll-up.png"); //$NON-NLS-1$
+	public static final Image SCROLL_DOWN = getImage("images/scroll-down.png"); //$NON-NLS-1$
+	public static final Image SCROLL = getImage("images/scroll.png"); //$NON-NLS-1$
 
-	/*
-	 * tool bar
-	 */
-	//	public static final Image ETOOL_STATISTIC = getImage("icons/etool16/statistic_misc.png"); //$NON-NLS-1$
-	//	public static final Image DTOOL_STATISTIC = getImage("icons/dtool16/statistic_misc.png"); //$NON-NLS-1$
-
-	/*
-	 * local tool bar
-	 */
-	//	public static final Image ELCL_SPACER = getImage("icons/elcl16/spacer.png"); //$NON-NLS-1$
-	//	public static final Image DLCL_CREATE_CODE = getImage("icons/dlcl16/spacer.png"); //$NON-NLS-1$
+	public static final Image CREATED = getImage("images/created-big.png"); //$NON-NLS-1$
+	public static final Image CLOSE = getImage("images/close.png"); //$NON-NLS-1$
 
 	/*
 	 * objects

@@ -16,6 +16,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
  * portion
  * </ol>
  * 
+ * TODO extends Calendar
+ * 
  * @author bkahlert
  * 
  */
@@ -57,6 +59,18 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	}
 
 	/**
+	 * Constructs a new instance based on a {@link Calendar}.
+	 * 
+	 * @param calendar
+	 * @param timeZone
+	 */
+	public TimeZoneDate(Calendar calendar) {
+		if (calendar == null)
+			throw new IllegalArgumentException("calendar must not be null");
+		this.calendar = calendar;
+	}
+
+	/**
 	 * Formats this {@link TimeZoneDate} while considering the time zone
 	 * information.
 	 * 
@@ -77,6 +91,16 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	public String format(DateFormat dateFormat) {
 		dateFormat.setTimeZone(calendar.getTimeZone());
 		return dateFormat.format(this.calendar.getTime());
+	}
+
+	/**
+	 * Returns an equivalent {@link Calendar} describing the same moment in
+	 * time.
+	 * 
+	 * @return
+	 */
+	public Calendar getCalendar() {
+		return (Calendar) this.calendar.clone();
 	}
 
 	/**

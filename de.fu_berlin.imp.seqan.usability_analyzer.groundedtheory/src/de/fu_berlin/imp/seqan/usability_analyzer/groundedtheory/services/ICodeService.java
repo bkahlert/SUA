@@ -20,15 +20,22 @@ public interface ICodeService {
 	public ICodeStore getCodeStore();
 
 	/**
-	 * Returns all {@ICode}s associated with the given {@link ICodeable}
-	 * .
+	 * Returns all {@link ICode}s associated with the given {@link ICodeable} .
 	 * 
 	 * @param codeable
-	 * @return an empty list if no {@link ICode}s were found; thus never returns
-	 *         null
+	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 * @throws CodeServiceException
 	 */
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException;
+
+	/**
+	 * Returns all {@link ICode}s associated with the given {@link URI}.
+	 * 
+	 * @param codeableId
+	 * @return an empty list if no {@link ICode}s were found; never returns null
+	 * @throws CodeServiceException
+	 */
+	public List<ICode> getCodes(URI codeableId) throws CodeServiceException;
 
 	/**
 	 * Registers a {@link ICodeServiceListener}
@@ -91,6 +98,24 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
+
+	/**
+	 * Returns all existing {@link ICodeInstance}.
+	 * 
+	 * @return
+	 */
+	List<ICodeInstance> getInstances();
+
+	/**
+	 * Returns all {@link ICodeInstance}s belonging to {@link ICodeable}s of the
+	 * given key.
+	 * <p>
+	 * E.g. {@link ICodeable} belonging to ID 20x13b2.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	List<ICodeInstance> getInstances(Object key);
 
 	/**
 	 * Returns all direct {@link ICodeInstance}s of the given {@link ICode}.

@@ -431,7 +431,9 @@ public class EpisodeRenderer implements IDisposable {
 										- overlay.getBounds().height
 										+ ((bounds.height >= overlay
 												.getBounds().height + 6) ? -3
-												: 0));
+												: 0)
+										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
+												: -3));
 					}
 					if (codeService.isMemo(episode)) {
 						Image overlay = ImageManager.OVERLAY_MEMO_IMG;
@@ -446,7 +448,9 @@ public class EpisodeRenderer implements IDisposable {
 								bounds.y
 										+ ((bounds.height >= overlay
 												.getBounds().height + 6) ? 3
-												: -0));
+												: 0)
+										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
+												: 3));
 					}
 				} catch (CodeServiceException e1) {
 					LOGGER.warn("Error drawing overlays for " + episode, e1);

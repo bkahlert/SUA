@@ -740,6 +740,19 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
          </adapter>
       </factory>
+      <factory
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.EpisodeAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="org.eclipse.ui.services">
@@ -773,5 +786,11 @@
       <CodeableProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider">
       </CodeableProvider>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.timeline">
+      <TimelineBandProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.AnalysisTimelineBandProvider">
+      </TimelineBandProvider>
    </extension>
 </plugin>

@@ -23,14 +23,13 @@ public class DiffRecordAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof DiffRecord) {
 			final DiffRecord diffRecord = (DiffRecord) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
-				return new TimeZoneDateRange(diffRecord.getDiffFile()
-						.getDateRange().getStartDate(), diffRecord
-						.getDateRange().getEndDate());
+				return new TimeZoneDateRange(diffRecord.getDateRange()
+						.getStartDate(), diffRecord.getDateRange().getEndDate());
 			}
 			if (adapterType == IdDateRange.class) {
 				return new IdDateRange(diffRecord.getDiffFile().getID(),
-						diffRecord.getDiffFile().getDateRange().getStartDate(),
-						diffRecord.getDateRange().getEndDate());
+						diffRecord.getDateRange().getStartDate(), diffRecord
+								.getDateRange().getEndDate());
 			}
 			if (adapterType == IRevealableInOS.class) {
 				return new IRevealableInOS() {

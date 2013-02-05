@@ -41,6 +41,7 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters;uses:="de.fu_berlin.imp.seqan.usability_analyzer.core.model,org.eclipse.jface.viewers",
  de.fu_berlin.imp.seqan.usability_analyzer.core.util,
  de.fu_berlin.imp.seqan.usability_analyzer.core.views;uses:="org.eclipse.ui.part,org.eclipse.swt.widgets",
- de.ralfebert.rcputils.menus;uses:="org.eclipse.ui,org.eclipse.jface.viewers"
+ de.ralfebert.rcputils.menus;uses:="org.eclipse.ui,org.eclipse.jface.viewers",
+ org.eclipse.wb.swt
 Bundle-ClassPath: .,
  lib/junit-dep-4.10.jar

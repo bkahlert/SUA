@@ -11,14 +11,6 @@
             name="Doclog Explorer"
             restorable="true">
       </view>
-      <view
-            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
-            icon="icons/view16/doclog_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
-            name="Doclog Timeline"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -140,6 +132,16 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
          </adapter>
       </factory>
+      <factory
+            adaptableType="com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline.TimelineEventAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
@@ -181,5 +183,14 @@
             </iterate>
          </with>
       </definition>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.timeline">
+      <TimelineBandProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline.DoclogTimelineBandProvider">
+      </TimelineBandProvider>
+      <TimelineEventDetailProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline.DoclogRecordTimelineEventDetailProvider">
+      </TimelineEventDetailProvider>
    </extension>
 </plugin>

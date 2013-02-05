@@ -15,15 +15,16 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.Timeline.Decorator;
+import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 
-public class JsonUtils {
+public class DoclogTimlineJsonUtils {
 
-	public static Logger logger = Logger.getLogger(JsonUtils.class);
+	public static Logger logger = Logger
+			.getLogger(DoclogTimlineJsonUtils.class);
 
 	public static String generateJSON(List<DoclogRecord> doclogRecords,
 			Map<String, Object> options, boolean pretty, SubMonitor monitor) {
@@ -133,7 +134,7 @@ public class JsonUtils {
 		return null;
 	}
 
-	public static String jsonDecoratorList(List<Decorator> decorators,
+	public static String jsonDecoratorList(List<IDecorator> decorators,
 			boolean pretty) {
 		JsonFactory factory = new JsonFactory();
 		StringWriter writer = new StringWriter();

@@ -129,9 +129,13 @@ public class CodeService implements ICodeService {
 
 	@Override
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException {
+		return getCodes(codeable.getCodeInstanceID());
+	}
+
+	public List<ICode> getCodes(URI codeableId) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
 		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
-			if (codeInstance.getId().equals(codeable.getCodeInstanceID())) {
+			if (codeInstance.getId().equals(codeableId)) {
 				codes.add(codeInstance.getCode());
 			}
 		}
@@ -182,6 +186,36 @@ public class CodeService implements ICodeService {
 				codedIDs.add(id);
 		}
 		return codedIDs;
+	}
+
+	@Override
+	public List<ICodeInstance> getInstances() {
+		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+		for (ICodeInstance codeInstance : codeStore.loadInstances()) {
+			codeInstances.add(codeInstance);
+		}
+		return codeInstances;
+	}
+
+	@Override
+	public List<ICodeInstance> getInstances(Object key) {
+		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+		for (ICodeInstance codeInstance : codeStore.loadInstances()) {
+			String[] uriParts = codeInstance.getId().toString().split("/");
+			boolean matchesKey = false;
+			try {
+				if (key instanceof ID) {
+					matchesKey = key.equals(new ID(uriParts[3]));
+				} else if (key instanceof Fingerprint) {
+					matchesKey = key.equals(new Fingerprint(uriParts[3]));
+				}
+			} catch (Exception e) {
+			}
+			if (matchesKey) {
+				codeInstances.add(codeInstance);
+			}
+		}
+		return codeInstances;
 	}
 
 	@Override

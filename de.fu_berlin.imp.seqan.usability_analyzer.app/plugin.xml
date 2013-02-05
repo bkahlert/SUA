@@ -17,6 +17,16 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.app.perspective"
             name="SeqAn Usability Analyzer">
       </perspective>
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.OpenCodingPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.OpenCodingPerspective"
+            name="Open Coding">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective"
+            name="Timeline">
+      </perspective>
    </extension>
    <extension
          id="de.fu_berlin.imp.seqan.usability_analyzer.application"

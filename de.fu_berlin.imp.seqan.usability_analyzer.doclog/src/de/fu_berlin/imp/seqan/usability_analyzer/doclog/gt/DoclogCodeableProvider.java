@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -15,32 +14,22 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.widgets.DoclogTimeline;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class DoclogCodeableProvider extends CodeableProvider {
 
@@ -66,13 +55,11 @@ public class DoclogCodeableProvider extends CodeableProvider {
 
 				// 0: ID / Fingerprint
 				Object key = new ID(path[0]);
-				Doclog doclog = Activator.getDefault()
-						.getDoclogContainer()
+				Doclog doclog = Activator.getDefault().getDoclogContainer()
 						.getDoclogFile(key, monitorReference.get());
 				if (doclog == null) {
 					key = new Fingerprint(path[0]);
-					doclog = Activator.getDefault()
-							.getDoclogContainer()
+					doclog = Activator.getDefault().getDoclogContainer()
 							.getDoclogFile(key, monitorReference.get());
 				}
 				if (doclog == null) {
@@ -114,10 +101,6 @@ public class DoclogCodeableProvider extends CodeableProvider {
 					(DoclogExplorerView) WorkbenchUtils
 							.getView(DoclogExplorerView.ID)))
 				return false;
-			if (!openAndSelectFilesInTimeline(codedObjects,
-					(DoclogTimelineView) WorkbenchUtils
-							.getView(DoclogTimelineView.ID)))
-				return false;
 		}
 		return true;
 	}
@@ -152,82 +135,9 @@ public class DoclogCodeableProvider extends CodeableProvider {
 		}
 	}
 
-	public boolean openAndSelectFilesInTimeline(
-			final List<ICodeable> codedObjects,
-			final DoclogTimelineView doclogTimelineView) {
-		final Set<Object> keys = CodeableUtils.getKeys(codedObjects);
-
-		// open
-		Future<Boolean> rt = doclogTimelineView.open(keys,
-				new Callable<Boolean>() {
-					public Boolean call() {
-						// select
-						for (Object key : keys) {
-							DoclogTimeline timeline = doclogTimelineView
-									.getTimeline(key);
-							Set<DoclogRecord> doclogRecords = new HashSet<DoclogRecord>(
-									ArrayUtils.getAdaptableObjects(
-											codedObjects.toArray(),
-											DoclogRecord.class));
-
-							timeline.center(doclogRecords);
-							timeline.highlight(doclogRecords);
-						}
-						return true; // TODO: check if successfull
-					}
-				});
-		try {
-			return rt.get() != null ? rt.get() : false;
-		} catch (InterruptedException e) {
-			LOGGER.error(e);
-			return false;
-		} catch (ExecutionException e) {
-			LOGGER.error(e);
-			return false;
-		}
-	}
-
 	@Override
 	public ILabelProvider getLabelProvider() {
-		return new LabelProvider() {
-
-			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-					.getService(ICodeService.class);
-
-			@Override
-			public String getText(Object element) {
-				if (element instanceof Doclog) {
-					Doclog doclog = (Doclog) element;
-					if (doclog.getID() != null)
-						return doclog.getID().toString();
-					else
-						return doclog.getFingerprint().toString();
-				}
-				if (element instanceof DoclogRecord) {
-					DoclogRecord doclogRecord = (DoclogRecord) element;
-					TimeZoneDate date = doclogRecord.getDateRange()
-							.getStartDate();
-					return (date != null) ? date
-							.format(new SUACorePreferenceUtil().getDateFormat())
-							: "";
-				}
-				return "";
-			}
-
-			@Override
-			public Image getImage(Object element) {
-				if (element instanceof DoclogRecord) {
-					DoclogRecord doclogRecord = (DoclogRecord) element;
-					try {
-						return (codeService.getCodes(doclogRecord).size() > 0) ? ImageManager.DOCLOGRECORD_CODED
-								: ImageManager.DOCLOGRECORD;
-					} catch (CodeServiceException e) {
-						return ImageManager.DOCLOGRECORD;
-					}
-				}
-				return super.getImage(element);
-			}
-		};
+		return new DoclogLabelProvider();
 	}
 
 }
