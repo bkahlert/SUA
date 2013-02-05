@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.timeline" name="SeqAn Usability Analyzer Timeline" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.timeline.exsd"/>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView"
+            icon=""
+            id="de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView"
+            name="Timeline"
+            restorable="true">
+      </view>
+   </extension>
+
+</plugin>
