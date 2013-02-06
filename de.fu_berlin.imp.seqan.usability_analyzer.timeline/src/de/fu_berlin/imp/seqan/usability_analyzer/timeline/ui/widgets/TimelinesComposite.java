@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,20 +27,23 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.SelectionProviderDelegator;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.MultiSourceTimelineViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.TimelineLabelProvider;
 
 /**
  * This widget display one or more {@link Timeline}s.
  * 
  * @author bkahlert
+ * 
+ *         TODO TimelineCompositeViewer implementieren und
+ *         {@link ISelectionChangedListener} implementieren lassen
  * 
  */
 public class TimelinesComposite extends Composite implements ISelectionProvider {
@@ -49,17 +51,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	private static final Logger LOGGER = Logger
 			.getLogger(TimelinesComposite.class);
 
-	private static String getTitle(Object key) {
-		String title;
-		if (key instanceof ID) {
-			title = "ID: " + key.toString();
-		} else if (key instanceof Fingerprint) {
-			title = "Fingerprint: " + key.toString();
-		} else {
-			title = "INVALID TYPE";
-		}
-		return title;
-	}
+	private static final String VIEWER_DATA = "VIEWER";
 
 	private List<ITimelineBandProvider> timelineBandProviders;
 	private SelectionProviderDelegator selectionProviderDelegator = new SelectionProviderDelegator();
@@ -86,7 +78,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				while (control != null) {
 					if (control instanceof Timeline) {
 						selectionProviderDelegator
-								.setSelectionProvider((Timeline) control);
+								.setSelectionProvider(getTimelineViewer((Timeline) control));
 						return;
 					}
 					control = control.getParent();
@@ -98,9 +90,9 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	/**
 	 * Displays the contents associated with the given keys.
 	 * <p>
-	 * For this every key gets one {@link SelectionTimeline}. Each {@link SelectionTimeline} will
-	 * be filled with the contents provided by the {@link ITimelineBandProvider}
-	 * s passed in the constructor.
+	 * For this every key gets one {@link SelectionTimeline}. Each
+	 * {@link SelectionTimeline} will be filled with the contents provided by
+	 * the {@link ITimelineBandProvider} s passed in the constructor.
 	 * 
 	 * @param keys
 	 * @param progressMonitor
@@ -110,9 +102,9 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	public <T> Future<T> load(Set<Object> keys,
 			IProgressMonitor progressMonitor, final Callable<T> success) {
 
-		SubMonitor monitor = SubMonitor.convert(progressMonitor);
-		monitor.beginTask("Preparing " + SelectionTimeline.class.getSimpleName() + "s",
-				2 + keys.size() * (timelineBandProviders.size() + 1) * +2);
+		final SubMonitor monitor = SubMonitor.convert(progressMonitor,
+				2 + (keys.size() * timelineBandProviders.size()) + 1);
+
 		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
@@ -129,68 +121,56 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				throw new OperationCanceledException();
 			}
 
-			List<ITimelineBand> timelineBands = new ArrayList<ITimelineBand>();
-			for (ITimelineBandProvider timelineBandProvider : timelineBandProviders) {
-				timelineBands.addAll(timelineBandProvider.getTimelineBands(key,
-						monitor.newChild(1)));
-			}
-
-			Timeline Timeline;
+			Timeline timeline;
 			try {
-				Timeline = ExecutorUtil.asyncExec(
-						new Callable<Timeline>() {
-							@Override
-							public Timeline call() throws Exception {
-								return getTimeline(key);
-							}
-						}).get();
+				timeline = ExecutorUtil.asyncExec(new Callable<Timeline>() {
+					@Override
+					public Timeline call() throws Exception {
+						return getTimeline(key);
+					}
+				}).get();
 			} catch (Exception e) {
 				LOGGER.error("Error retrieving "
-						+ Timeline.class.getSimpleName() + " for "
-						+ key);
+						+ Timeline.class.getSimpleName() + " for " + key);
 				continue;
 			}
 
-			if (Timeline == null) {
+			if (timeline == null) {
 				// timeline was not prepared -> create a new one
 				try {
-					Timeline = ExecutorUtil
-							.syncExec(new Callable<Timeline>() {
-								@Override
-								public Timeline call()
-										throws Exception {
-
-									final Timeline timeline = new Timeline(
-											TimelinesComposite.this, SWT.NONE);
-									timeline.setData(key);
-									return timeline;
-								}
-							});
+					timeline = ExecutorUtil.syncExec(new Callable<Timeline>() {
+						@Override
+						public Timeline call() throws Exception {
+							Timeline timeline = new Timeline(
+									TimelinesComposite.this, SWT.NONE);
+							timeline.setData(key);
+							return timeline;
+						}
+					});
 				} catch (Exception e) {
-					LOGGER.error("Error creating " + Timeline.class
-							+ " for " + key);
+					LOGGER.error("Error creating " + Timeline.class + " for "
+							+ key);
+					continue;
 				}
+			} else {
+				// a no more needed timeline was associated with an unprepared
+				// key
 			}
 
-			monitor.worked(1);
-
-			List<TimeZoneDateRange> ranges = new ArrayList<TimeZoneDateRange>();
-			for (ITimelineBand timelineBand : timelineBands) {
-				TimeZoneDate start = timelineBand.getStart() != null ? new TimeZoneDate(
-						timelineBand.getStart()) : null;
-				TimeZoneDate end = timelineBand.getEnd() != null ? new TimeZoneDate(
-						timelineBand.getEnd()) : null;
-				ranges.add(new TimeZoneDateRange(start, end));
-			}
-			TimeZoneDateRange range = TimeZoneDateRange
-					.calculateOuterDateRange(ranges
-							.toArray(new TimeZoneDateRange[0]));
-
-			monitor.worked(1);
-
-			if (Timeline != null)
-				Timeline.show(timelineBands, getTitle(key),
-						range.getStartDate(), range);
+			// init timeline viewer
+			final MultiSourceTimelineViewer timelineViewer = new MultiSourceTimelineViewer(
+					timeline);
+			ExecutorUtil.syncExec(new Runnable() {
+				public void run() {
+					setTimelineViewer(key, timelineViewer);
+				}
+			});
+			timelineViewer.setTimelineLabelProvider(new TimelineLabelProvider(
+					key));
+			timelineViewer.setProviders(this.timelineBandProviders);
+			timelineViewer.setInput(key);
+			timelineViewer.refresh(monitor.newChild(this.timelineBandProviders
+					.size()));
 
 			if (monitor.isCanceled()) {
 				disposeTimelines(key);
@@ -224,7 +204,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	public void refresh(
 			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges,
 			IProgressMonitor progressMonitor) {
-		progressMonitor.beginTask("Updading " + SelectionTimeline.class.getSimpleName()
+		progressMonitor.beginTask("Updading " + ITimeline.class.getSimpleName()
 				+ "s", groupedDateRanges.keySet().size());
 		for (final Object key : groupedDateRanges.keySet()) {
 			if (progressMonitor.isCanceled())
@@ -232,17 +212,15 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 
 			final Timeline timeline;
 			try {
-				timeline = ExecutorUtil.asyncExec(
-						new Callable<Timeline>() {
-							@Override
-							public Timeline call() throws Exception {
-								return getTimeline(key);
-							}
-						}).get();
+				timeline = ExecutorUtil.asyncExec(new Callable<Timeline>() {
+					@Override
+					public Timeline call() throws Exception {
+						return getTimeline(key);
+					}
+				}).get();
 			} catch (Exception e) {
 				LOGGER.error("Error retrieving "
-						+ Timeline.class.getSimpleName() + " for "
-						+ key);
+						+ Timeline.class.getSimpleName() + " for " + key);
 				continue;
 			}
 			if (timeline == null) {
@@ -260,7 +238,11 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					timeline.center(dateRanges.get(0));
+					TimeZoneDate center = dateRanges.get(0).getStartDate() != null ? dateRanges
+							.get(0).getStartDate() : dateRanges.get(0)
+							.getEndDate();
+					if (center != null && center.getCalendar() != null)
+						timeline.setCenterVisibleDate(center.getCalendar());
 					timeline.highlight(dateRanges);
 				}
 			});
@@ -278,8 +260,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			@Override
 			public void run() {
 				for (Control control : TimelinesComposite.this.getChildren()) {
-					if (!control.isDisposed()
-							&& control instanceof Timeline) {
+					if (!control.isDisposed() && control instanceof Timeline) {
 						keys.add(control.getData());
 					}
 				}
@@ -289,8 +270,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	}
 
 	/**
-	 * Returns the {@link Timeline} that is associated with the given
-	 * key.
+	 * Returns the {@link Timeline} that is associated with the given key.
 	 * 
 	 * @UI must be called from the UI thread
 	 * @param key
@@ -310,23 +290,64 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	}
 
 	/**
-	 * Prepares already instantiated {@link Timeline}s in the following
-	 * way:
+	 * Returns the {@link ITimelineViewer} that belongs to the {@link Timeline}
+	 * associated with the given key.
+	 * 
+	 * @UI must be called from the UI thread
+	 * @param key
+	 * @return
+	 */
+	public ITimelineViewer getTimelineViewer(final Object key) {
+		Assert.isNotNull(key);
+		Timeline timeline = getTimeline(key);
+		return (ITimelineViewer) timeline.getData(VIEWER_DATA);
+	}
+
+	/**
+	 * Returns the {@link ITimelineViewer} that belongs to the {@link Timeline}
+	 * associated with the given key.
+	 * 
+	 * @UI must be called from the UI thread
+	 * @param key
+	 * @return
+	 */
+	public ITimelineViewer getTimelineViewer(final Timeline timeline) {
+		Assert.isNotNull(timeline);
+		return (ITimelineViewer) timeline.getData(VIEWER_DATA);
+	}
+
+	/**
+	 * Sets the {@link ITimelineViewer} that is used with the {@link Timeline}
+	 * associated with the given key.
+	 * 
+	 * @param key
+	 * @param timelineViewer
+	 */
+	public void setTimelineViewer(final Object key,
+			ITimelineViewer timelineViewer) {
+		Assert.isNotNull(key);
+		Timeline timeline = getTimeline(key);
+		timeline.setData(VIEWER_DATA, timelineViewer);
+	}
+
+	/**
+	 * Prepares already instantiated {@link Timeline}s in the following way:
 	 * <ol>
-	 * <li>{@link SelectionTimeline}s already identified with a given key stay untouched
-	 * since they are already working
-	 * <li>the other {@link SelectionTimeline}s are associated with a new key since the
-	 * key they are still identified with if no longer requested
-	 * <li>{@link SelectionTimeline}s that are not needed anymore become disposed (since
-	 * all requested keys are treated already)
+	 * <li>{@link SelectionTimeline}s already identified with a given key stay
+	 * untouched since they are already working
+	 * <li>the other {@link SelectionTimeline}s are associated with a new key
+	 * since the key they are still identified with if no longer requested
+	 * <li>{@link SelectionTimeline}s that are not needed anymore become
+	 * disposed (since all requested keys are treated already)
 	 * <li>all newly assigned keys and unassigned keys are returned (so the
 	 * caller can load the actual contents)
 	 * </ol>
 	 * 
 	 * @param usedTimelineKeys
-	 * @return keys that were not associated to an existing {@link SelectionTimeline} or
-	 *         were associated with a {@link SelectionTimeline} that before was
-	 *         responsible for another key
+	 * @return keys that were not associated to an existing
+	 *         {@link SelectionTimeline} or were associated with a
+	 *         {@link SelectionTimeline} that before was responsible for another
+	 *         key
 	 */
 	private Object[] prepareTimelines(Set<Object> keys) {
 		List<Object> neededTimelines = new LinkedList<Object>(keys);
@@ -345,8 +366,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				while (freeTimelines.size() > 0
 						&& unpreparedTimelines.size() > i) {
 					try {
-						Timeline timeline = getTimeline(freeTimelines
-								.remove(0));
+						Timeline timeline = getTimeline(freeTimelines.remove(0));
 						timeline.setData(unpreparedTimelines.get(i));
 					} catch (Exception e) {
 						LOGGER.error("Error assigning new key "
@@ -361,8 +381,8 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	}
 
 	/**
-	 * Disposes all {@link SelectionTimeline}s that are identified by at least one of the
-	 * provided keys.
+	 * Disposes all {@link SelectionTimeline}s that are identified by at least
+	 * one of the provided keys.
 	 * 
 	 * @param timelineKeys
 	 */
@@ -372,12 +392,12 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			public void run() {
 				for (Object timelineKey : timelineKeys) {
 					try {
-						SelectionTimeline selectionTimeline = getTimeline(timelineKey);
-						if (selectionTimeline != null && !selectionTimeline.isDisposed())
+						Timeline selectionTimeline = getTimeline(timelineKey);
+						if (selectionTimeline != null
+								&& !selectionTimeline.isDisposed())
 							selectionTimeline.dispose();
 					} catch (Exception e) {
-						LOGGER.error("Error disposing "
-								+ Timeline.class);
+						LOGGER.error("Error disposing " + Timeline.class);
 					}
 				}
 			}

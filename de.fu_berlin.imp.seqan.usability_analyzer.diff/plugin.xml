@@ -74,19 +74,6 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
          </adapter>
       </factory>
-      <factory
-            adaptableType="com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline.TimelineEventAdapterFactory">
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord">
-         </adapter>
-      </factory>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">

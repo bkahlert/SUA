@@ -34,7 +34,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
@@ -63,6 +63,9 @@ public class TimelineView extends ViewPart {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (part == TimelineView.this)
+				return;
+
 			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
 			groupedDateRanges.putAll(IdDateRange
 					.group(SelectionRetrieverFactory.getSelectionRetriever(
@@ -78,7 +81,7 @@ public class TimelineView extends ViewPart {
 				timelineLoader.cancel();
 
 			timelineLoader = new Job("Preparing "
-					+ SelectionTimeline.class.getSimpleName()) {
+					+ ITimeline.class.getSimpleName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					if (groupedDateRanges.size() > 0) {
@@ -117,6 +120,8 @@ public class TimelineView extends ViewPart {
 	private TimelinesComposite timelinesComposite;
 
 	public TimelineView() {
+		this.timelineBandProviders = Activator
+				.getRegisteredTimelineBandProviders();
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
 		if (this.workSessionService == null)
@@ -125,11 +130,12 @@ public class TimelineView extends ViewPart {
 	}
 
 	/**
-	 * Initializes and opens {@link Timeline}s.
+	 * Initializes and opens {@link ITimeline}s using an
+	 * {@link TimelinesComposite}.
 	 * <p>
-	 * Existing {@link Timeline}s are recycled. New
-	 * {@link Timeline} s will be created if necessary. If free
-	 * {@link Timeline}s stay unused they will be disposed.
+	 * Existing {@link Timeline}s are recycled. New {@link Timeline} s will be
+	 * created if necessary. If free {@link Timeline}s stay unused they will be
+	 * disposed.
 	 * 
 	 * @param keys
 	 * @param success
@@ -147,8 +153,7 @@ public class TimelineView extends ViewPart {
 
 		final AtomicReference<Future<T>> rs = new AtomicReference<Future<T>>();
 		final Semaphore mutex = new Semaphore(0);
-		timelineLoader = new Job("Preparing "
-				+ SelectionTimeline.class.getSimpleName()) {
+		timelineLoader = new Job("Loading " + ITimeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				rs.set(timelinesComposite.load(keys, monitor, success));
@@ -170,7 +175,7 @@ public class TimelineView extends ViewPart {
 		Set<Object> filteredKeys = new HashSet<Object>();
 		keyLoop: for (Object key : keys) {
 			for (ITimelineBandProvider timelineBandProvider : timelineBandProviders) {
-				if (!timelineBandProvider.isValid(key))
+				if (!timelineBandProvider.getContentProvider().isValid(key))
 					continue keyLoop;
 			}
 			filteredKeys.add(key);
@@ -200,8 +205,7 @@ public class TimelineView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
-		this.timelineBandProviders = Activator
-				.getRegisteredTimelineBandProviders();
+
 		this.timelinesComposite = new TimelinesComposite(parent, SWT.NONE,
 				this.timelineBandProviders);
 

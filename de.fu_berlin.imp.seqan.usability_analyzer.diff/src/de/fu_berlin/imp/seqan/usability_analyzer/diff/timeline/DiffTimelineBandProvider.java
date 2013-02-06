@@ -1,19 +1,19 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline;
 
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.swt.graphics.Image;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEventImageBased;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineBandLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineContentProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -21,112 +21,195 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
 public class DiffTimelineBandProvider implements ITimelineBandProvider {
 
-	@Override
-	public boolean isValid(Object key) {
-		if (key instanceof ID) {
-			return Activator.getDefault().getDiffDataContainer().getIDs()
-					.contains(key);
-		}
-		return false;
+	private enum BANDS {
+		DIFF_BAND, DIFFRECORD_BAND
 	}
 
 	@Override
-	public List<ITimelineBand> getTimelineBands(Object key,
-			IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
-		final DiffList diffList = (key instanceof ID) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
-				.getDefault().getDiffDataContainer()
-				.getDiffFiles((ID) key, subMonitor.newChild(1))
-				: null;
+	public ITimelineContentProvider getContentProvider() {
+		return new ITimelineContentProvider() {
 
-		if (diffList == null)
-			return null;
+			private ITimelineViewer timelineViewer = null;
+			private Object input = null;
 
-		List<ITimelineBand> timelineBands = new ArrayList<ITimelineBand>();
-
-		ITimelineBand diffBand = createDiffTimelineBand(diffList);
-		timelineBands.add(diffBand);
-		monitor.worked(1);
-
-		ITimelineBand diffRecordBand = createDiffRecordTimelineBand(diffList);
-		timelineBands.add(diffRecordBand);
-		monitor.worked(1);
-
-		return timelineBands;
-	}
-
-	private ITimelineBand createDiffTimelineBand(final DiffList diffList) {
-		IOptions diffBandOptions = new Options();
-		diffBandOptions.setTitle("Development");
-		diffBandOptions.setShowInOverviewBands(true);
-		diffBandOptions.setRatio(0.15f);
-		List<ITimelineEvent> diffEvents = new ArrayList<ITimelineEvent>();
-		for (Diff diff : diffList) {
-			ITimelineEvent diffEvent = createDiffEvent(diff);
-			diffEvents.add(diffEvent);
-		}
-		ITimelineBand diffBand = new TimelineBand(diffBandOptions, diffEvents);
-		return diffBand;
-	}
-
-	private ITimelineBand createDiffRecordTimelineBand(final DiffList diffList) {
-		IOptions diffRecordBandOptions = new Options();
-		diffRecordBandOptions.setTitle("Sources");
-		diffRecordBandOptions.setShowInOverviewBands(true);
-		List<ITimelineEvent> diffRecordEvents = new ArrayList<ITimelineEvent>();
-		for (Diff diff : diffList) {
-			for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
-				ITimelineEvent diffRecordEvent = createDiffRecordEvent(diffRecord);
-				diffRecordEvents.add(diffRecordEvent);
+			@Override
+			public void inputChanged(ITimelineViewer timelineViewer,
+					Object oldInput, Object newInput) {
+				this.timelineViewer = timelineViewer;
+				this.input = newInput;
 			}
-		}
-		ITimelineBand diffRecordBand = new TimelineBand(diffRecordBandOptions,
-				diffRecordEvents);
-		return diffRecordBand;
+
+			@Override
+			public boolean isValid(Object key) {
+				if (key instanceof ID) {
+					return Activator.getDefault().getDiffDataContainer()
+							.getIDs().contains(key);
+				}
+				return false;
+			}
+
+			@Override
+			public Object[] getBands(IProgressMonitor monitor) {
+				return new Object[] { BANDS.DIFF_BAND, BANDS.DIFFRECORD_BAND };
+			}
+
+			@Override
+			public Object[] getEvents(Object band, IProgressMonitor monitor) {
+				SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+				if (!(band instanceof BANDS)) {
+					subMonitor.done();
+					return new Object[0];
+				}
+
+				final DiffList diffList = (this.input instanceof ID) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+						.getDefault().getDiffDataContainer()
+						.getDiffFiles((ID) this.input, subMonitor.newChild(1))
+						: null;
+
+				switch ((BANDS) band) {
+				case DIFF_BAND:
+					IDiff[] diffs = diffList.toArray(new IDiff[0]);
+					monitor.worked(1);
+					return diffs;
+				case DIFFRECORD_BAND:
+					List<DiffRecord> diffRecords = new ArrayList<DiffRecord>();
+					for (Diff diff : diffList) {
+						for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
+							diffRecords.add(diffRecord);
+						}
+					}
+					monitor.worked(1);
+					return diffRecords.toArray();
+				}
+
+				return new Object[0];
+			}
+		};
 	}
 
-	private ITimelineEvent createDiffEvent(Diff diff) {
-		DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
+	@Override
+	public ITimelineBandLabelProvider getBandLabelProvider() {
+		return new ITimelineBandLabelProvider() {
 
-		StringBuffer title = new StringBuffer();
-		title.append("Compilation #" + diff.getRevision());
+			@Override
+			public String getTitle(Object band) {
+				if (band instanceof BANDS) {
+					switch ((BANDS) band) {
+					case DIFF_BAND:
+						return "Development";
+					case DIFFRECORD_BAND:
+						return "Sources";
+					}
+				}
+				return null;
+			}
 
-		TimeZoneDateRange dateRange = diff.getDateRange();
-		Calendar startDate = dateRange.getStartDate() != null ? dateRange
-				.getStartDate().getCalendar() : null;
-		Calendar endDate = dateRange.getEndDate() != null ? dateRange
-				.getEndDate().getCalendar() : null;
+			@Override
+			public Boolean isShowInOverviewBands(Object band) {
+				if (band instanceof BANDS) {
+					switch ((BANDS) band) {
+					case DIFF_BAND:
+						return true;
+					case DIFFRECORD_BAND:
+						return true;
+					}
+				}
+				return null;
+			}
 
-		List<String> classNames = Arrays.asList(Diff.class.getSimpleName());
-
-		return new TimelineEventImageBased(title.toString(),
-				diffLabelProvider.getImage(diff), null, startDate, endDate,
-				classNames, diff);
+			@Override
+			public Float getRatio(Object band) {
+				if (band instanceof BANDS) {
+					switch ((BANDS) band) {
+					case DIFF_BAND:
+						return 0.15f;
+					case DIFFRECORD_BAND:
+						return null;
+					}
+				}
+				return null;
+			}
+		};
 	}
 
-	private ITimelineEvent createDiffRecordEvent(DiffRecord diffRecord) {
-		DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
+	@Override
+	public ITimelineEventLabelProvider getEventLabelProvider() {
+		return new ITimelineEventLabelProvider() {
 
-		StringBuffer title = new StringBuffer();
-		title.append(diffRecord.getFilename());
+			private DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
 
-		TimeZoneDateRange dateRange = diffRecord.getDateRange();
-		Calendar startDate = dateRange.getStartDate() != null ? dateRange
-				.getStartDate().getCalendar() : null;
-		Calendar endDate = dateRange.getEndDate() != null ? dateRange
-				.getEndDate().getCalendar() : null;
+			@Override
+			public String getTitle(Object event) {
+				if (event instanceof IDiff) {
+					IDiff diff = (IDiff) event;
+					return "Compilation #" + diff.getRevision();
+				} else if (event instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) event;
+					return diffRecord.getFilename();
+				}
+				return "";
+			}
 
-		List<String> classNames = Arrays.asList(DiffRecord.class
-				.getSimpleName());
+			@Override
+			public URI getIcon(Object event) {
+				Image image = diffLabelProvider.getImage(event);
+				if (image != null)
+					return TimelineHelper.createUriFromImage(image);
+				return null;
+			}
 
-		ITimelineEvent event = new TimelineEventImageBased(title.toString(),
-				diffLabelProvider.getImage(diffRecord), null, startDate,
-				endDate, classNames, diffRecord);
-		return event;
+			@Override
+			public URI getImage(Object event) {
+				return null;
+			}
+
+			@Override
+			public Calendar getStart(Object event) {
+				if (event instanceof IDiff) {
+					IDiff diff = (IDiff) event;
+					TimeZoneDateRange dateRange = diff.getDateRange();
+					return dateRange.getStartDate() != null ? dateRange
+							.getStartDate().getCalendar() : null;
+				} else if (event instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) event;
+					TimeZoneDateRange dateRange = diffRecord.getDateRange();
+					return dateRange.getStartDate() != null ? dateRange
+							.getStartDate().getCalendar() : null;
+				}
+				return null;
+			}
+
+			@Override
+			public Calendar getEnd(Object event) {
+				if (event instanceof IDiff) {
+					IDiff diff = (IDiff) event;
+					TimeZoneDateRange dateRange = diff.getDateRange();
+					return dateRange.getEndDate() != null ? dateRange
+							.getEndDate().getCalendar() : null;
+				} else if (event instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) event;
+					TimeZoneDateRange dateRange = diffRecord.getDateRange();
+					return dateRange.getEndDate() != null ? dateRange
+							.getEndDate().getCalendar() : null;
+				}
+				return null;
+			}
+
+			@Override
+			public String[] getClassNames(Object event) {
+				if (event instanceof IDiff) {
+					return new String[] { Diff.class.getSimpleName() };
+				} else if (event instanceof DiffRecord) {
+					return new String[] { DiffRecord.class.getSimpleName() };
+				}
+				return new String[0];
+			}
+		};
 	}
 }

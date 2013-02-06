@@ -589,7 +589,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		Episode episode = new Episode(new ID("id"), new TimeZoneDateRange(
 				new TimeZoneDate("2000-01-02T14:00:00.000+02:00"),
-				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")), "Test",
+				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")), "TimelineViewer",
 				new RGB(120, 130, 140));
 		codeStore.getEpisodes().add(episode);
 		assertEquals(1, codeStore.getEpisodes().size());

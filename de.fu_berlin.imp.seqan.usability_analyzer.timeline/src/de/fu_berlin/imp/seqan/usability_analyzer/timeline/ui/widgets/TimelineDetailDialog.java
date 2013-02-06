@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -31,7 +30,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -63,8 +62,8 @@ public class TimelineDetailDialog extends Dialog {
 	}
 
 	private ITimelineEventDetailProvider<Object> defaultTimelineEventDetailProvider = new UnknownTimelineEventDetailProvider();
-	private Timeline timeline;
-	private ITimelineEvent timelineEvent;
+	private ITimeline timeline;
+	private Object event;
 
 	private Composite composite;
 
@@ -72,8 +71,7 @@ public class TimelineDetailDialog extends Dialog {
 	private Composite detailComposite;
 	private Composite customComposite;
 
-	public TimelineDetailDialog(Shell parentShell,
-			Timeline timeline) {
+	public TimelineDetailDialog(Shell parentShell, ITimeline timeline) {
 		super(parentShell);
 		this.timeline = timeline;
 	}
@@ -134,41 +132,35 @@ public class TimelineDetailDialog extends Dialog {
 		return composite;
 	}
 
-	public void load(ITimelineEvent timelineEvent) {
-		if (timelineEvent == null) {
+	public void load(Object event) {
+		if (event == null) {
 			return;
 		}
 
-		this.timelineEvent = timelineEvent;
+		this.event = event;
 
-		Object adapter = null;
 		ITimelineEventDetailProvider<Object> responsibleTimelineEventDetailProvider = null;
 		for (ITimelineEventDetailProvider<Object> timelineEventDetailProvider : Activator
 				.getRegisteredTimelineEventDetailProviders()) {
-			Class<?> adapterType = timelineEventDetailProvider.getType();
-			adapter = Platform.getAdapterManager().getAdapter(
-					this.timelineEvent, adapterType);
-			if (adapter != null) {
+			if (timelineEventDetailProvider.getType().isInstance(this.event)) {
 				responsibleTimelineEventDetailProvider = timelineEventDetailProvider;
 				break;
 			}
 		}
 
-		if (adapter == null || !(adapter instanceof HasDateRange)) {
+		if (responsibleTimelineEventDetailProvider == null) {
 			LOGGER.warn("Could not find any compatible "
 					+ ITimelineEventDetailProvider.class.getSimpleName()
-					+ " for " + this.timelineEvent);
-			adapter = timelineEvent.getPayload() != null ? timelineEvent
-					.getPayload() : timelineEvent;
+					+ " for " + this.event);
 			responsibleTimelineEventDetailProvider = defaultTimelineEventDetailProvider;
 		}
 
 		List<IllustratedText> metaInformation = responsibleTimelineEventDetailProvider
-				.getMetaInformation(adapter);
+				.getMetaInformation(event);
 		List<Entry<String, String>> detailInformation = responsibleTimelineEventDetailProvider
-				.getDetailInformation(adapter);
+				.getDetailInformation(event);
 		Color backgroundColor = responsibleTimelineEventDetailProvider
-				.getBackground(adapter, timeline);
+				.getBackground(event, this.timeline);
 
 		composite.setBackground(backgroundColor);
 		loadMetaInformation(metaInformation);
@@ -176,14 +168,17 @@ public class TimelineDetailDialog extends Dialog {
 
 		SWTUtil.clearControl(customComposite);
 		responsibleTimelineEventDetailProvider.fillCustomComposite(
-				customComposite, adapter, this.timeline);
+				customComposite, event, this.timeline);
 		customComposite.layout();
 
-		this.timeline.center(new TimeZoneDateRange(
-				timelineEvent.getStart() != null ? new TimeZoneDate(
-						timelineEvent.getStart()) : null, timelineEvent
-						.getEnd() != null ? new TimeZoneDate(timelineEvent
-						.getEnd()) : null));
+		if (event instanceof HasDateRange) {
+			TimeZoneDateRange dateRange = ((HasDateRange) event).getDateRange();
+			TimeZoneDate center = dateRange != null ? dateRange.getStartDate() != null ? dateRange
+					.getStartDate() : dateRange.getEndDate()
+					: null;
+			if (center != null)
+				this.timeline.setCenterVisibleDate(center.getCalendar());
+		}
 
 		((Composite) this.getContents()).layout();
 		Shell shell = this.getShell();
@@ -249,14 +244,12 @@ public class TimelineDetailDialog extends Dialog {
 	}
 
 	public void nextScreenshot() {
-		ITimelineEvent successor = timeline
-				.getSuccessor(this.timelineEvent);
+		Object successor = timeline.getSuccessor(this.event);
 		this.load(successor);
 	}
 
 	public void prevScreenshot() {
-		ITimelineEvent predecessor = timeline
-				.getPredecessor(this.timelineEvent);
+		Object predecessor = timeline.getPredecessor(this.event);
 		this.load(predecessor);
 	}
 

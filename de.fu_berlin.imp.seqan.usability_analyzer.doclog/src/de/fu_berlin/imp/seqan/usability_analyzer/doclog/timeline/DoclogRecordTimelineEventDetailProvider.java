@@ -11,6 +11,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
@@ -162,8 +163,11 @@ public class DoclogRecordTimelineEventDetailProvider extends
 		disposeImage();
 
 		Color background = getBackground(doclogRecord, timeline);
-		Image image = new Image(Display.getCurrent(), doclogRecord
-				.getScreenshot().getImageData());
+		ImageData imageData = doclogRecord.getScreenshot().getImageData();
+		if (imageData == null)
+			return;
+
+		Image image = new Image(Display.getCurrent(), imageData);
 		switch (doclogRecord.getAction()) {
 		case READY:
 			DoclogRecordTimelineEventDetailProvider.drawOverlay(doclogRecord,
