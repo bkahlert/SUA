@@ -12,27 +12,29 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Listener;
 
-import com.bkahlert.devel.nebula.utils.SelectionProviderDelegator;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.impl.MultiSourceTimelineViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -49,17 +51,66 @@ import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITi
  * 
  */
 public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
-		implements ISelectionProvider {
+		implements ITimelineGroup<TIMELINE> {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(TimelineGroup.class);
+	private static final Logger LOGGER = Logger.getLogger(TimelineGroup.class);
 
 	private static final String VIEWER_DATA = "VIEWER";
 
-	private SelectionProviderDelegator selectionProviderDelegator = new SelectionProviderDelegator();
-
 	private ITimelineFactory<TIMELINE> timelineFactory;
 	private ITimelineProviderFactory<TIMELINE> timelineProviderFactory;
+
+	private ListenerList timelineListeners = new ListenerList();
+
+	private ITimelineListener timelineListenerDelegate = new ITimelineListener() {
+		@Override
+		public void clicked(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).clicked(event);
+			}
+		}
+
+		@Override
+		public void middleClicked(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).middleClicked(event);
+			}
+		}
+
+		@Override
+		public void rightClicked(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).rightClicked(event);
+			}
+		}
+
+		@Override
+		public void doubleClicked(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).doubleClicked(event);
+			}
+		}
+
+		@Override
+		public void hoveredIn(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).hoveredIn(event);
+			}
+		}
+
+		@Override
+		public void hoveredOut(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).hoveredOut(event);
+			}
+		}
+	};
 
 	/**
 	 * TODO Find a more elegant solution to notice when one of the timelines got
@@ -79,23 +130,6 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		Assert.isNotNull(timelineProviderFactory);
 		this.timelineFactory = timelineFactory;
 		this.timelineProviderFactory = timelineProviderFactory;
-
-		parent.getDisplay().addFilter(SWT.FocusIn, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Control))
-					return;
-				Control control = (Control) event.widget;
-				while (control != null) {
-					if (control instanceof IBaseTimeline) {
-						selectionProviderDelegator
-								.setSelectionProvider(getTimelineViewer((IBaseTimeline) control));
-						return;
-					}
-					control = control.getParent();
-				}
-			}
-		});
 	}
 
 	/**
@@ -152,10 +186,17 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 					timeline = ExecutorUtil.syncExec(new Callable<TIMELINE>() {
 						@Override
 						public TIMELINE call() throws Exception {
-							TIMELINE timeline = TimelineGroup.this.timelineFactory
+							final TIMELINE timeline = TimelineGroup.this.timelineFactory
 									.createTimeline(TimelineGroup.this,
 											SWT.NONE);
 							timeline.setData(key);
+							timeline.addTimelineListener(timelineListenerDelegate);
+							timeline.addDisposeListener(new DisposeListener() {
+								@Override
+								public void widgetDisposed(DisposeEvent e) {
+									timeline.addTimelineListener(timelineListenerDelegate);
+								}
+							});
 							return timeline;
 						}
 					});
@@ -436,25 +477,20 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	}
 
 	@Override
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		this.selectionProviderDelegator.addSelectionChangedListener(listener);
+	public void addTimelineListener(ITimelineListener timelineListener) {
+		this.timelineListeners.add(timelineListener);
 	}
 
 	@Override
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		this.selectionProviderDelegator
-				.removeSelectionChangedListener(listener);
+	public void removeTimelineListener(ITimelineListener timelineListener) {
+		this.timelineListeners.remove(timelineListener);
 	}
 
 	@Override
-	public ISelection getSelection() {
-		return this.selectionProviderDelegator.getSelection();
-	}
-
-	@Override
-	public void setSelection(ISelection selection) {
-		this.selectionProviderDelegator.setSelection(selection);
+	public <T> Future<T> show(Set<ITimelineInput> inputs,
+			IProgressMonitor monitor, Callable<T> success) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -41,6 +41,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvi
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroupProviders;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
+import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
@@ -58,9 +59,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionServi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.XTimelineGroupViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.Timeline;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineGroup;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
 
 public class TimelineView extends ViewPart {
 
@@ -150,8 +152,7 @@ public class TimelineView extends ViewPart {
 	}
 
 	/**
-	 * Initializes and opens {@link ITimeline}s using an
-	 * {@link TimelineGroup}.
+	 * Initializes and opens {@link ITimeline}s using an {@link TimelineGroup}.
 	 * <p>
 	 * Existing {@link Timeline}s are recycled. New {@link Timeline} s will be
 	 * created if necessary. If free {@link Timeline}s stay unused they will be
@@ -239,8 +240,8 @@ public class TimelineView extends ViewPart {
 				return timelineProvider;
 			}
 		};
-		this.timelineGroup = new TimelineGroup<Timeline>(parent,
-				SWT.NONE, timelineFactory, timelineProviderFactory);
+		this.timelineGroup = new TimelineGroup<Timeline>(parent, SWT.NONE,
+				timelineFactory, timelineProviderFactory);
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
@@ -252,9 +253,11 @@ public class TimelineView extends ViewPart {
 		});
 		Menu menu = menuManager.createContextMenu(this.timelineGroup);
 		this.timelineGroup.setMenu(menu);
-		getSite().registerContextMenu(menuManager, this.timelineGroup);
 
-		getSite().setSelectionProvider(this.timelineGroup);
+		ITimelineGroupViewer timelineGroupViewer = new XTimelineGroupViewer<TimelineGroup<Timeline>>(
+				timelineGroup);
+		getSite().registerContextMenu(menuManager, timelineGroupViewer);
+		getSite().setSelectionProvider(timelineGroupViewer);
 	}
 
 	@Override
