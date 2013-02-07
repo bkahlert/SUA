@@ -132,6 +132,13 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		this.timelineProviderFactory = timelineProviderFactory;
 	}
 
+	@Override
+	public <T> Future<T> show(Set<ITimelineInput> inputs,
+			IProgressMonitor monitor, Callable<T> success) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Displays the contents associated with the given keys.
 	 * <p>
@@ -484,13 +491,6 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	@Override
 	public void removeTimelineListener(ITimelineListener timelineListener) {
 		this.timelineListeners.remove(timelineListener);
-	}
-
-	@Override
-	public <T> Future<T> show(Set<ITimelineInput> inputs,
-			IProgressMonitor monitor, Callable<T> success) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -59,7 +59,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionServi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.XTimelineGroupViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.IncompleteTimelineGroupViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.Timeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineGroup;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
@@ -254,7 +254,7 @@ public class TimelineView extends ViewPart {
 		Menu menu = menuManager.createContextMenu(this.timelineGroup);
 		this.timelineGroup.setMenu(menu);
 
-		ITimelineGroupViewer timelineGroupViewer = new XTimelineGroupViewer<TimelineGroup<Timeline>>(
+		ITimelineGroupViewer timelineGroupViewer = new IncompleteTimelineGroupViewer<TimelineGroup<Timeline>>(
 				timelineGroup);
 		getSite().registerContextMenu(menuManager, timelineGroupViewer);
 		getSite().setSelectionProvider(timelineGroupViewer);

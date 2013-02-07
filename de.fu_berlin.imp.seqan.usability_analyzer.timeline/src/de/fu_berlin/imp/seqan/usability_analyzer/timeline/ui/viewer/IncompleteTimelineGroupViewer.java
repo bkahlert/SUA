@@ -2,13 +2,14 @@ package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.viewer.timelineGroup.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
-public class XTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<? extends ITimeline>>
+public class IncompleteTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<? extends ITimeline>>
 		extends TimelineGroupViewer<TIMELINEGROUP> {
 
-	public XTimelineGroupViewer(TIMELINEGROUP timelineGroup) {
+	public IncompleteTimelineGroupViewer(TIMELINEGROUP timelineGroup) {
 		super(timelineGroup);
 	}
 
