@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,14 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProviders;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroupProviders;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
@@ -51,7 +59,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.Timeline;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelinesComposite;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineGroup;
 
 public class TimelineView extends ViewPart {
 
@@ -85,10 +94,10 @@ public class TimelineView extends ViewPart {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					if (groupedDateRanges.size() > 0) {
-						timelinesComposite.refresh(groupedDateRanges, monitor);
+						timelineGroup.refresh(groupedDateRanges, monitor);
 					}
 					setPartName(StringUtils.join(
-							timelinesComposite.getTimelineKeys(), ", "));
+							timelineGroup.getTimelineKeys(), ", "));
 					return Status.OK_STATUS;
 				}
 			};
@@ -98,6 +107,20 @@ public class TimelineView extends ViewPart {
 
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+
+		private Set<Object> filterValidKeys(Set<Object> keys) {
+			Set<Object> filteredKeys = new HashSet<Object>();
+			keyLoop: for (Object key : keys) {
+				for (ITimelineBandProvider timelineBandProvider : Activator
+						.getRegisteredTimelineBandProviders()) {
+					if (!timelineBandProvider.getContentProvider().isValid(key))
+						continue keyLoop;
+				}
+				filteredKeys.add(key);
+			}
+			return filteredKeys;
+		}
+
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
 			final Set<Object> keys = new HashSet<Object>();
@@ -116,12 +139,9 @@ public class TimelineView extends ViewPart {
 		}
 	};
 
-	private List<ITimelineBandProvider> timelineBandProviders;
-	private TimelinesComposite timelinesComposite;
+	private TimelineGroup<Timeline> timelineGroup;
 
 	public TimelineView() {
-		this.timelineBandProviders = Activator
-				.getRegisteredTimelineBandProviders();
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
 		if (this.workSessionService == null)
@@ -131,7 +151,7 @@ public class TimelineView extends ViewPart {
 
 	/**
 	 * Initializes and opens {@link ITimeline}s using an
-	 * {@link TimelinesComposite}.
+	 * {@link TimelineGroup}.
 	 * <p>
 	 * Existing {@link Timeline}s are recycled. New {@link Timeline} s will be
 	 * created if necessary. If free {@link Timeline}s stay unused they will be
@@ -156,7 +176,7 @@ public class TimelineView extends ViewPart {
 		timelineLoader = new Job("Loading " + ITimeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				rs.set(timelinesComposite.load(keys, monitor, success));
+				rs.set(timelineGroup.load(keys, monitor, success));
 				monitor.done();
 				mutex.release();
 				return Status.OK_STATUS;
@@ -169,18 +189,6 @@ public class TimelineView extends ViewPart {
 			LOGGER.error(e);
 		}
 		return rs.get();
-	}
-
-	private Set<Object> filterValidKeys(Set<Object> keys) {
-		Set<Object> filteredKeys = new HashSet<Object>();
-		keyLoop: for (Object key : keys) {
-			for (ITimelineBandProvider timelineBandProvider : timelineBandProviders) {
-				if (!timelineBandProvider.getContentProvider().isValid(key))
-					continue keyLoop;
-			}
-			filteredKeys.add(key);
-		}
-		return filteredKeys;
 	}
 
 	@Override
@@ -206,8 +214,33 @@ public class TimelineView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.timelinesComposite = new TimelinesComposite(parent, SWT.NONE,
-				this.timelineBandProviders);
+		ITimelineFactory<Timeline> timelineFactory = new ITimelineFactory<Timeline>() {
+			@Override
+			public Timeline createTimeline(Composite parent, int style) {
+				return new Timeline(parent, style);
+			}
+		};
+
+		ITimelineProviderFactory<Timeline> timelineProviderFactory = new ITimelineProviderFactory<Timeline>() {
+			@Override
+			public ITimelineProvider<Timeline> createTimelineProvider() {
+				ITimelineProvider<Timeline> timelineProvider;
+				ITimelineLabelProvider<Timeline> timelineLabelProvider = new TimelineLabelProvider<Timeline>();
+				List<IBandGroupProviders> bandGroupProviders = new ArrayList<IBandGroupProviders>();
+				for (ITimelineBandProvider bandProvider : Activator
+						.getRegisteredTimelineBandProviders()) {
+					bandGroupProviders.add(new BandGroupProviders(bandProvider
+							.getContentProvider(), bandProvider
+							.getBandLabelProvider(), bandProvider
+							.getEventLabelProvider()));
+				}
+				timelineProvider = new TimelineProvider<Timeline>(
+						timelineLabelProvider, bandGroupProviders);
+				return timelineProvider;
+			}
+		};
+		this.timelineGroup = new TimelineGroup<Timeline>(parent,
+				SWT.NONE, timelineFactory, timelineProviderFactory);
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
@@ -217,16 +250,16 @@ public class TimelineView extends ViewPart {
 						IWorkbenchActionConstants.MB_ADDITIONS));
 			}
 		});
-		Menu menu = menuManager.createContextMenu(this.timelinesComposite);
-		this.timelinesComposite.setMenu(menu);
-		getSite().registerContextMenu(menuManager, this.timelinesComposite);
+		Menu menu = menuManager.createContextMenu(this.timelineGroup);
+		this.timelineGroup.setMenu(menu);
+		getSite().registerContextMenu(menuManager, this.timelineGroup);
 
-		getSite().setSelectionProvider(this.timelinesComposite);
+		getSite().setSelectionProvider(this.timelineGroup);
 	}
 
 	@Override
 	public void setFocus() {
-		this.timelinesComposite.setFocus();
+		this.timelineGroup.setFocus();
 	}
 
 }

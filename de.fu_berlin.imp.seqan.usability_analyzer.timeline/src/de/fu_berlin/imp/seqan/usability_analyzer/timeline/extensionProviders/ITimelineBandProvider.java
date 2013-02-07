@@ -1,8 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineContentProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 
 /**
  * Instances of this class provide the data needed to display custom data in the

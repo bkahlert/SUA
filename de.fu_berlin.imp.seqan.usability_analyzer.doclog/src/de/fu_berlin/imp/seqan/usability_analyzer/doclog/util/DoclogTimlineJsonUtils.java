@@ -15,7 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;

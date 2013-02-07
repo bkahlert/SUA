@@ -9,10 +9,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.graphics.Image;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineContentProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;

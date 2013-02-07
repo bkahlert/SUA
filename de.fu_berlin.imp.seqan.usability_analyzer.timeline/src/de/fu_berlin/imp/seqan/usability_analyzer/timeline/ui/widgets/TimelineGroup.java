@@ -28,14 +28,16 @@ import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.SelectionProviderDelegator;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.MultiSourceTimelineViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.MultiSourceTimelineViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.TimelineLabelProvider;
 
 /**
  * This widget display one or more {@link Timeline}s.
@@ -46,15 +48,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.TimelineLabe
  *         {@link ISelectionChangedListener} implementieren lassen
  * 
  */
-public class TimelinesComposite extends Composite implements ISelectionProvider {
+public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
+		implements ISelectionProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(TimelinesComposite.class);
+			.getLogger(TimelineGroup.class);
 
 	private static final String VIEWER_DATA = "VIEWER";
 
-	private List<ITimelineBandProvider> timelineBandProviders;
 	private SelectionProviderDelegator selectionProviderDelegator = new SelectionProviderDelegator();
+
+	private ITimelineFactory<TIMELINE> timelineFactory;
+	private ITimelineProviderFactory<TIMELINE> timelineProviderFactory;
 
 	/**
 	 * TODO Find a more elegant solution to notice when one of the timelines got
@@ -64,11 +69,17 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	 * @param style
 	 * @param timelineBandProviders
 	 */
-	public TimelinesComposite(Composite parent, int style,
-			List<ITimelineBandProvider> timelineBandProviders) {
+	public TimelineGroup(Composite parent, int style,
+			ITimelineFactory<TIMELINE> timelineFactory,
+			ITimelineProviderFactory<TIMELINE> timelineProviderFactory) {
 		super(parent, style);
 		super.setLayout(new FillLayout(SWT.VERTICAL));
-		this.timelineBandProviders = timelineBandProviders;
+
+		Assert.isNotNull(timelineFactory);
+		Assert.isNotNull(timelineProviderFactory);
+		this.timelineFactory = timelineFactory;
+		this.timelineProviderFactory = timelineProviderFactory;
+
 		parent.getDisplay().addFilter(SWT.FocusIn, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -76,9 +87,9 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 					return;
 				Control control = (Control) event.widget;
 				while (control != null) {
-					if (control instanceof Timeline) {
+					if (control instanceof IBaseTimeline) {
 						selectionProviderDelegator
-								.setSelectionProvider(getTimelineViewer((Timeline) control));
+								.setSelectionProvider(getTimelineViewer((IBaseTimeline) control));
 						return;
 					}
 					control = control.getParent();
@@ -103,7 +114,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			IProgressMonitor progressMonitor, final Callable<T> success) {
 
 		final SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				2 + (keys.size() * timelineBandProviders.size()) + 1);
+				2 + (10 * keys.size()) + 1);
 
 		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -121,11 +132,11 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				throw new OperationCanceledException();
 			}
 
-			Timeline timeline;
+			TIMELINE timeline;
 			try {
-				timeline = ExecutorUtil.asyncExec(new Callable<Timeline>() {
+				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
 					@Override
-					public Timeline call() throws Exception {
+					public TIMELINE call() throws Exception {
 						return getTimeline(key);
 					}
 				}).get();
@@ -138,11 +149,12 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			if (timeline == null) {
 				// timeline was not prepared -> create a new one
 				try {
-					timeline = ExecutorUtil.syncExec(new Callable<Timeline>() {
+					timeline = ExecutorUtil.syncExec(new Callable<TIMELINE>() {
 						@Override
-						public Timeline call() throws Exception {
-							Timeline timeline = new Timeline(
-									TimelinesComposite.this, SWT.NONE);
+						public TIMELINE call() throws Exception {
+							TIMELINE timeline = TimelineGroup.this.timelineFactory
+									.createTimeline(TimelineGroup.this,
+											SWT.NONE);
 							timeline.setData(key);
 							return timeline;
 						}
@@ -157,20 +169,20 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				// key
 			}
 
+			monitor.worked(2);
+
 			// init timeline viewer
-			final MultiSourceTimelineViewer timelineViewer = new MultiSourceTimelineViewer(
+			final MultiSourceTimelineViewer<TIMELINE> timelineViewer = new MultiSourceTimelineViewer<TIMELINE>(
 					timeline);
 			ExecutorUtil.syncExec(new Runnable() {
 				public void run() {
 					setTimelineViewer(key, timelineViewer);
 				}
 			});
-			timelineViewer.setTimelineLabelProvider(new TimelineLabelProvider(
-					key));
-			timelineViewer.setProviders(this.timelineBandProviders);
+			timelineViewer.setTimelineProvider(timelineProviderFactory
+					.createTimelineProvider());
 			timelineViewer.setInput(key);
-			timelineViewer.refresh(monitor.newChild(this.timelineBandProviders
-					.size()));
+			timelineViewer.refresh(monitor.newChild(8));
 
 			if (monitor.isCanceled()) {
 				disposeTimelines(key);
@@ -181,7 +193,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				TimelinesComposite.this.layout();
+				TimelineGroup.this.layout();
 				if (success != null)
 					return success.call();
 				return null;
@@ -210,11 +222,11 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
 
-			final Timeline timeline;
+			final TIMELINE timeline;
 			try {
-				timeline = ExecutorUtil.asyncExec(new Callable<Timeline>() {
+				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
 					@Override
-					public Timeline call() throws Exception {
+					public TIMELINE call() throws Exception {
 						return getTimeline(key);
 					}
 				}).get();
@@ -229,23 +241,25 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				continue;
 			}
 
-			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
-					.get(key);
+			if (timeline instanceof Timeline) {
+				final List<TimeZoneDateRange> dateRanges = groupedDateRanges
+						.get(key);
 
-			if (progressMonitor.isCanceled())
-				throw new OperationCanceledException();
+				if (progressMonitor.isCanceled())
+					throw new OperationCanceledException();
 
-			ExecutorUtil.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					TimeZoneDate center = dateRanges.get(0).getStartDate() != null ? dateRanges
-							.get(0).getStartDate() : dateRanges.get(0)
-							.getEndDate();
-					if (center != null && center.getCalendar() != null)
-						timeline.setCenterVisibleDate(center.getCalendar());
-					timeline.highlight(dateRanges);
-				}
-			});
+				ExecutorUtil.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						TimeZoneDate center = dateRanges.get(0).getStartDate() != null ? dateRanges
+								.get(0).getStartDate() : dateRanges.get(0)
+								.getEndDate();
+						if (center != null && center.getCalendar() != null)
+							timeline.setCenterVisibleDate(center.getCalendar());
+						((Timeline) timeline).highlight(dateRanges);
+					}
+				});
+			}
 
 			if (progressMonitor.isCanceled())
 				throw new OperationCanceledException();
@@ -259,7 +273,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				for (Control control : TimelinesComposite.this.getChildren()) {
+				for (Control control : TimelineGroup.this.getChildren()) {
 					if (!control.isDisposed() && control instanceof Timeline) {
 						keys.add(control.getData());
 					}
@@ -276,13 +290,20 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	 * @param key
 	 * @return
 	 */
-	public Timeline getTimeline(final Object key) {
+	@SuppressWarnings("unchecked")
+	public TIMELINE getTimeline(final Object key) {
 		Assert.isNotNull(key);
 		for (Control control : this.getChildren()) {
-			if (!control.isDisposed() && control instanceof Timeline) {
-				Timeline timeline = (Timeline) control;
+			if (!control.isDisposed() && control instanceof IBaseTimeline) {
+				IBaseTimeline timeline = (IBaseTimeline) control;
 				if (key.equals(timeline.getData())) {
-					return timeline;
+					try {
+						return (TIMELINE) timeline;
+					} catch (Exception e) {
+						LOGGER.fatal("Could not cast to generic type. "
+								+ "It should never have happened that an "
+								+ "incompatible timeline type was used.", e);
+					}
 				}
 			}
 		}
@@ -299,7 +320,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	 */
 	public ITimelineViewer getTimelineViewer(final Object key) {
 		Assert.isNotNull(key);
-		Timeline timeline = getTimeline(key);
+		TIMELINE timeline = getTimeline(key);
 		return (ITimelineViewer) timeline.getData(VIEWER_DATA);
 	}
 
@@ -326,7 +347,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 	public void setTimelineViewer(final Object key,
 			ITimelineViewer timelineViewer) {
 		Assert.isNotNull(key);
-		Timeline timeline = getTimeline(key);
+		TIMELINE timeline = getTimeline(key);
 		timeline.setData(VIEWER_DATA, timelineViewer);
 	}
 
@@ -366,7 +387,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 				while (freeTimelines.size() > 0
 						&& unpreparedTimelines.size() > i) {
 					try {
-						Timeline timeline = getTimeline(freeTimelines.remove(0));
+						TIMELINE timeline = getTimeline(freeTimelines.remove(0));
 						timeline.setData(unpreparedTimelines.get(i));
 					} catch (Exception e) {
 						LOGGER.error("Error assigning new key "
@@ -392,10 +413,9 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 			public void run() {
 				for (Object timelineKey : timelineKeys) {
 					try {
-						Timeline selectionTimeline = getTimeline(timelineKey);
-						if (selectionTimeline != null
-								&& !selectionTimeline.isDisposed())
-							selectionTimeline.dispose();
+						TIMELINE timeline = getTimeline(timelineKey);
+						if (timeline != null && !timeline.isDisposed())
+							timeline.dispose();
 					} catch (Exception e) {
 						LOGGER.error("Error disposing " + Timeline.class);
 					}
@@ -405,7 +425,7 @@ public class TimelinesComposite extends Composite implements ISelectionProvider 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				TimelinesComposite.this.layout();
+				TimelineGroup.this.layout();
 			}
 		});
 	}
