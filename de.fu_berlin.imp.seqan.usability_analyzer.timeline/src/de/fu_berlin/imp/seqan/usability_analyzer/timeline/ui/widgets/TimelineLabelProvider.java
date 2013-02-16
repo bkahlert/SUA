@@ -100,7 +100,7 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	public IZoomStep[] getZoomSteps(TIMELINE timeline) {
 		List<IZoomStep> zoomSteps = new ArrayList<IZoomStep>();
 		zoomSteps.add(new ZoomStep(0.675f, Unit.MILLISECOND, 100));
-		zoomSteps.add(new ZoomStep(0.45f, Unit.MILLISECOND, 1));
+		zoomSteps.add(new ZoomStep(0.45f, Unit.MILLISECOND, 100));
 		zoomSteps.add(new ZoomStep(300, Unit.SECOND, 1));
 		zoomSteps.add(new ZoomStep(200, Unit.SECOND, 1));
 		zoomSteps.add(new ZoomStep(135, Unit.SECOND, 1));
