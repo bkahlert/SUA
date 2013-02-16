@@ -35,6 +35,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
@@ -46,7 +47,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;

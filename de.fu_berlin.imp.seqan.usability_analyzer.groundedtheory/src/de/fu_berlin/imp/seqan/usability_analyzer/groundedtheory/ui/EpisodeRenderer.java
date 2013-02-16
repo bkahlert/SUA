@@ -39,6 +39,7 @@ import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
@@ -48,7 +49,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -194,7 +194,7 @@ public class EpisodeRenderer implements IDisposable {
 			} catch (InvalidParameterException e) {
 				return;
 			}
-			if (episode.getRange().equals(newRange))
+			if (episode.getDateRange().equals(newRange))
 				return;
 
 			this.newEpisode = episode.changeRange(newRange);
@@ -535,7 +535,7 @@ public class EpisodeRenderer implements IDisposable {
 					TimeZoneDateRange range = ((HasDateRange) item.getData())
 							.getDateRange();
 					for (IEpisode episode : set) {
-						if (range.isIntersected2(episode.getRange())) {
+						if (range.isIntersected2(episode.getDateRange())) {
 							Rectangle currentBounds = getBounds(item);
 
 							currentBounds.width = (columnBounds.width - this.trackSpace

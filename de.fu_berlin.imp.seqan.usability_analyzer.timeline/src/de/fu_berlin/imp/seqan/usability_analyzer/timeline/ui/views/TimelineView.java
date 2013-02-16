@@ -6,10 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -35,15 +31,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProviders;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroupProviders;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
-import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
+import com.bkahlert.devel.nebula.widgets.timelineGroup.impl.TimelineGroup;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
@@ -56,12 +53,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.IncompleteTimelineGroupViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.Timeline;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineGroup;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.BrowsableTimeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
 
 public class TimelineView extends ViewPart {
@@ -91,15 +86,14 @@ public class TimelineView extends ViewPart {
 			if (timelineLoader != null)
 				timelineLoader.cancel();
 
-			timelineLoader = new Job("Preparing "
+			timelineLoader = new Job("Updating "
 					+ ITimeline.class.getSimpleName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					if (groupedDateRanges.size() > 0) {
-						timelineGroup.refresh(groupedDateRanges, monitor);
+						timelineGroupViewer.highlight(groupedDateRanges,
+								monitor);
 					}
-					setPartName(StringUtils.join(
-							timelineGroup.getTimelineKeys(), ", "));
 					return Status.OK_STATUS;
 				}
 			};
@@ -131,17 +125,18 @@ public class TimelineView extends ViewPart {
 			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
 					.getEntities().toArray(), Fingerprint.class));
 			final Set<Object> filteredKeys = filterValidKeys(keys);
-			open(filteredKeys, new Callable<Void>() {
+			open(filteredKeys);
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
-				public Void call() throws Exception {
+				public void run() {
 					setPartName(StringUtils.join(filteredKeys, ", "));
-					return null;
 				}
 			});
 		}
 	};
 
-	private TimelineGroup<Timeline> timelineGroup;
+	private TimelineGroup<ITimeline> timelineGroup;
+	private HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline> timelineGroupViewer;
 
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
@@ -154,42 +149,26 @@ public class TimelineView extends ViewPart {
 	/**
 	 * Initializes and opens {@link ITimeline}s using an {@link TimelineGroup}.
 	 * <p>
-	 * Existing {@link Timeline}s are recycled. New {@link Timeline} s will be
-	 * created if necessary. If free {@link Timeline}s stay unused they will be
-	 * disposed.
+	 * Existing {@link DecoratableTimeline}s are recycled. New
+	 * {@link DecoratableTimeline} s will be created if necessary. If free
+	 * {@link DecoratableTimeline}s stay unused they will be disposed.
 	 * 
 	 * @param keys
-	 * @param success
 	 */
-	public <T> Future<T> open(final Set<Object> keys, final Callable<T> success) {
-		if (keys.size() == 0) {
-			if (success != null) {
-				return ExecutorUtil.asyncExec(success);
-			} else
-				return null;
-		}
-
+	public void open(final Set<Object> keys) {
 		if (timelineLoader != null)
 			timelineLoader.cancel();
 
-		final AtomicReference<Future<T>> rs = new AtomicReference<Future<T>>();
-		final Semaphore mutex = new Semaphore(0);
 		timelineLoader = new Job("Loading " + ITimeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				rs.set(timelineGroup.load(keys, monitor, success));
+				timelineGroupViewer.setInput(keys);
+				timelineGroupViewer.refresh(monitor);
 				monitor.done();
-				mutex.release();
 				return Status.OK_STATUS;
 			}
 		};
 		timelineLoader.schedule();
-		try {
-			mutex.acquire();
-		} catch (InterruptedException e) {
-			LOGGER.error(e);
-		}
-		return rs.get();
 	}
 
 	@Override
@@ -215,33 +194,33 @@ public class TimelineView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		ITimelineFactory<Timeline> timelineFactory = new ITimelineFactory<Timeline>() {
+		ITimelineFactory<ITimeline> timelineFactory = new ITimelineFactory<ITimeline>() {
 			@Override
-			public Timeline createTimeline(Composite parent, int style) {
-				return new Timeline(parent, style);
+			public ITimeline createTimeline(Composite parent, int style) {
+				return new BrowsableTimeline(parent, style);
 			}
 		};
 
-		ITimelineProviderFactory<Timeline> timelineProviderFactory = new ITimelineProviderFactory<Timeline>() {
+		ITimelineProviderFactory<ITimeline> timelineProviderFactory = new ITimelineProviderFactory<ITimeline>() {
 			@Override
-			public ITimelineProvider<Timeline> createTimelineProvider() {
-				ITimelineProvider<Timeline> timelineProvider;
-				ITimelineLabelProvider<Timeline> timelineLabelProvider = new TimelineLabelProvider<Timeline>();
-				List<IBandGroupProviders> bandGroupProviders = new ArrayList<IBandGroupProviders>();
+			public ITimelineProvider<ITimeline> createTimelineProvider() {
+				ITimelineProvider<ITimeline> timelineProvider;
+				ITimelineLabelProvider<ITimeline> timelineLabelProvider = new TimelineLabelProvider<ITimeline>();
+				List<IBandGroupProvider> bandGroupProvider = new ArrayList<IBandGroupProvider>();
 				for (ITimelineBandProvider bandProvider : Activator
 						.getRegisteredTimelineBandProviders()) {
-					bandGroupProviders.add(new BandGroupProviders(bandProvider
+					bandGroupProvider.add(new BandGroupProviders(bandProvider
 							.getContentProvider(), bandProvider
 							.getBandLabelProvider(), bandProvider
 							.getEventLabelProvider()));
 				}
-				timelineProvider = new TimelineProvider<Timeline>(
-						timelineLabelProvider, bandGroupProviders);
+				timelineProvider = new TimelineProvider<ITimeline>(
+						timelineLabelProvider, bandGroupProvider);
 				return timelineProvider;
 			}
 		};
-		this.timelineGroup = new TimelineGroup<Timeline>(parent, SWT.NONE,
-				timelineFactory, timelineProviderFactory);
+		this.timelineGroup = new TimelineGroup<ITimeline>(parent, SWT.NONE,
+				timelineFactory);
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
@@ -254,8 +233,8 @@ public class TimelineView extends ViewPart {
 		Menu menu = menuManager.createContextMenu(this.timelineGroup);
 		this.timelineGroup.setMenu(menu);
 
-		ITimelineGroupViewer timelineGroupViewer = new IncompleteTimelineGroupViewer<TimelineGroup<Timeline>>(
-				timelineGroup);
+		this.timelineGroupViewer = new HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline>(
+				timelineGroup, timelineProviderFactory);
 		getSite().registerContextMenu(menuManager, timelineGroupViewer);
 		getSite().setSelectionProvider(timelineGroupViewer);
 	}

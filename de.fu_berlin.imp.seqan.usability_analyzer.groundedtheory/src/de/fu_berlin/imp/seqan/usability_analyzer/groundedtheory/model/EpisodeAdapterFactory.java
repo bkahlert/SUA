@@ -20,16 +20,16 @@ public class EpisodeAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof IEpisode) {
 			IEpisode episode = (IEpisode) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
-				return episode.getRange();
+				return episode.getDateRange();
 			}
 			if (adapterType == IdDateRange.class) {
-				TimeZoneDateRange dateRange = episode.getRange();
+				TimeZoneDateRange dateRange = episode.getDateRange();
 				return episode.getId() != null ? new IdDateRange(episode.getId(),
 						dateRange.getStartDate(), dateRange.getEndDate())
 						: null;
 			}
 			if (adapterType == FingerprintDateRange.class) {
-				TimeZoneDateRange dateRange = episode.getRange();
+				TimeZoneDateRange dateRange = episode.getDateRange();
 				return episode.getFingerprint() != null ? new FingerprintDateRange(
 						episode.getFingerprint(), dateRange.getStartDate(),
 						dateRange.getEndDate()) : null;

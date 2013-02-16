@@ -5,9 +5,9 @@ import java.util.Calendar;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
@@ -33,13 +33,11 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineContentProvider getContentProvider() {
 		return new ITimelineContentProvider() {
 
-			private ITimelineViewer timelineViewer = null;
 			private Object input = null;
 
 			@Override
-			public void inputChanged(ITimelineViewer timelineViewer,
-					Object oldInput, Object newInput) {
-				this.timelineViewer = timelineViewer;
+			public void inputChanged(Viewer viewer, Object oldInput,
+					Object newInput) {
 				this.input = newInput;
 			}
 
@@ -181,7 +179,6 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 				// String filename = screenshotFile.getCanonicalPath();
 				// icon = "file://" + filename.replace("%", "%25");
 				// }
-
 				Image image = doclogLabelProvider.getImage(event);
 				if (image != null)
 					return TimelineHelper.createUriFromImage(image);
@@ -212,6 +209,11 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 					return dateRange.getEndDate() != null ? dateRange
 							.getEndDate().getCalendar() : null;
 				}
+				return null;
+			}
+
+			@Override
+			public String getColor(Object event) {
 				return null;
 			}
 

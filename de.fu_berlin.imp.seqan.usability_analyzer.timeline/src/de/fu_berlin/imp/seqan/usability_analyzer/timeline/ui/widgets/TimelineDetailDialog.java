@@ -171,6 +171,21 @@ public class TimelineDetailDialog extends Dialog {
 				customComposite, event, this.timeline);
 		customComposite.layout();
 
+		((Composite) this.getContents()).layout();
+		Shell shell = this.getShell();
+		shell.pack();
+	}
+
+	/**
+	 * Centers the timeline so that is shows the start of the given end.
+	 * <p>
+	 * If the event has no start the end is used.
+	 * <p>
+	 * If the event is null or has no start nor end date, nothing happens.
+	 * 
+	 * @param event
+	 */
+	public void centerOnEvent(Object event) {
 		if (event instanceof HasDateRange) {
 			TimeZoneDateRange dateRange = ((HasDateRange) event).getDateRange();
 			TimeZoneDate center = dateRange != null ? dateRange.getStartDate() != null ? dateRange
@@ -179,10 +194,6 @@ public class TimelineDetailDialog extends Dialog {
 			if (center != null)
 				this.timeline.setCenterVisibleDate(center.getCalendar());
 		}
-
-		((Composite) this.getContents()).layout();
-		Shell shell = this.getShell();
-		shell.pack();
 	}
 
 	public void loadMetaInformation(List<IllustratedText> metaInformation) {
@@ -246,11 +257,13 @@ public class TimelineDetailDialog extends Dialog {
 	public void nextScreenshot() {
 		Object successor = timeline.getSuccessor(this.event);
 		this.load(successor);
+		centerOnEvent(event);
 	}
 
 	public void prevScreenshot() {
 		Object predecessor = timeline.getPredecessor(this.event);
 		this.load(predecessor);
+		centerOnEvent(event);
 	}
 
 	public static void openURL(String url) {

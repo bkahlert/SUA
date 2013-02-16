@@ -10,9 +10,10 @@ import java.util.concurrent.ExecutorService;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;

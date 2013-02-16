@@ -95,6 +95,10 @@ public class CodeInstanceViewerContentProvider implements
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = viewer;
 
+		if (List.class.isInstance(oldInput)) {
+			this.codeService.removeCodeServiceListener(codeServiceListener);
+		}
+
 		if (List.class.isInstance(newInput)) {
 			this.codeables = (List<ICodeable>) newInput;
 			this.codeService.addCodeServiceListener(codeServiceListener);

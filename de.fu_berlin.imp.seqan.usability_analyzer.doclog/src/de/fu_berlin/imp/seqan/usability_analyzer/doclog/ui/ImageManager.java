@@ -58,7 +58,7 @@ public class ImageManager {
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
 			IDecoration.TOP_RIGHT).createImage();
 	public static final Image DOCLOGRECORD_CODED_MEMO = new DecorationOverlayIcon(
-			DOCLOGRECORD,
+			DOCLOGRECORD_MEMO,
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 

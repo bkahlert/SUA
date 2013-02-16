@@ -12,11 +12,12 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;

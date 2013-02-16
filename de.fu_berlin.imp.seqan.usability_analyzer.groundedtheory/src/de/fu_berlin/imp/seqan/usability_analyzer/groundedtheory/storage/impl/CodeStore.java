@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -428,8 +429,14 @@ class CodeStore implements ICodeStore {
 	 * @return
 	 */
 	protected File getMemoLocation(String basename) {
-		return new File(this.codeStoreFile.getParentFile(), basename
-				+ ".memo.txt");
+		File file = new File(this.codeStoreFile.getParentFile(),
+				DigestUtils.md5Hex(basename) + ".memo.txt");
+		if (file.exists())
+			return file;
+		else
+			return new File(this.codeStoreFile.getParentFile(), basename
+					+ ".memo.txt");
+
 	}
 
 	/**
@@ -494,9 +501,13 @@ class CodeStore implements ICodeStore {
 	 */
 	protected String loadMemo(String basename) throws IOException {
 		File memoFile = getMemoLocation(basename);
-		if (memoFile.exists())
-			return FileUtils.readFileToString(memoFile, "UTF-8");
-		else
+		if (memoFile.exists()) {
+			try {
+				return FileUtils.readFileToString(memoFile, "UTF-8");
+			} catch (FileNotFoundException e) {
+				return loadMemo(DigestUtils.md5Hex(basename));
+			}
+		} else
 			return null;
 	}
 
@@ -512,7 +523,11 @@ class CodeStore implements ICodeStore {
 		if ((memo == null || memo.trim().equals("")) && memoFile.exists()) {
 			memoFile.delete();
 		} else {
-			FileUtils.writeStringToFile(memoFile, memo, "UTF-8");
+			try {
+				FileUtils.writeStringToFile(memoFile, memo, "UTF-8");
+			} catch (FileNotFoundException e) {
+				saveMemo(DigestUtils.md5Hex(basename), memo);
+			}
 		}
 	}
 

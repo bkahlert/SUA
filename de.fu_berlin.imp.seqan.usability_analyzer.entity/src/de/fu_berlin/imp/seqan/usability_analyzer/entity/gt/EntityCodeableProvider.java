@@ -14,9 +14,9 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;

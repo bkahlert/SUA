@@ -9,10 +9,11 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;

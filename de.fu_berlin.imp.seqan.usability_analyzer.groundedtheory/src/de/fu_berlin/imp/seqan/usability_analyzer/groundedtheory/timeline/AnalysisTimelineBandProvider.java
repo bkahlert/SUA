@@ -8,10 +8,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
@@ -25,6 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
@@ -42,14 +44,30 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineContentProvider getContentProvider() {
 		return new ITimelineContentProvider() {
 
-			private ITimelineViewer timelineViewer = null;
+			private ICodeService codeService = (ICodeService) PlatformUI
+					.getWorkbench().getService(ICodeService.class);
+
 			private Object input = null;
+			private TimelineRefresher timelineRefresher = null;
 
 			@Override
-			public void inputChanged(ITimelineViewer timelineViewer,
-					Object oldInput, Object newInput) {
-				this.timelineViewer = timelineViewer;
+			public void inputChanged(Viewer viewer, Object oldInput,
+					Object newInput) {
 				this.input = newInput;
+
+				if (oldInput != null && newInput != null) {
+					// do nothing
+				} else if (oldInput == null && newInput == null) {
+					// do nothing
+				} else if (oldInput == null && newInput != null) {
+					this.timelineRefresher = new TimelineRefresher(viewer, 500);
+					this.codeService
+							.addCodeServiceListener(this.timelineRefresher);
+				} else {
+					this.codeService
+							.removeCodeServiceListener(this.timelineRefresher);
+					this.timelineRefresher = null;
+				}
 			}
 
 			@Override
@@ -155,7 +173,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 						}
 					}, 5);
 
-			private ILabelProvider diffLabelProvider = new GTCodeableProvider()
+			private ILabelProvider codeableLabelProvider = new GTCodeableProvider()
 					.getLabelProvider();
 
 			@Override
@@ -169,7 +187,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public URI getIcon(Object event) {
-				Image image = diffLabelProvider.getImage(event);
+				Image image = codeableLabelProvider.getImage(event);
 				if (image != null)
 					return TimelineHelper.createUriFromImage(image);
 				return null;
@@ -188,10 +206,10 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 					if (codeable instanceof HasDateRange) {
 						TimeZoneDateRange dateRange = ((HasDateRange) codeable)
 								.getDateRange();
-						return dateRange.getStartDate() != null ? dateRange
+						return dateRange != null
+								&& dateRange.getStartDate() != null ? dateRange
 								.getStartDate().getCalendar() : null;
 					}
-
 				}
 				return null;
 			}
@@ -208,6 +226,19 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 								.getEndDate().getCalendar() : null;
 					}
 
+				}
+				return null;
+			}
+
+			@Override
+			public String getColor(Object event) {
+				if (event instanceof ICodeInstance) {
+					ICodeInstance codeInstance = (ICodeInstance) event;
+					ICodeable codeable = cache.getPayload(codeInstance, null);
+					if (codeable instanceof IEpisode) {
+						IEpisode episode = (IEpisode) codeable;
+						return new RGB(episode.getColor()).toHexString();
+					}
 				}
 				return null;
 			}

@@ -6,8 +6,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
-public interface IEpisode extends ICodeable, Comparable<IEpisode> {
+public interface IEpisode extends ICodeable, HasDateRange, Comparable<IEpisode> {
 
 	/**
 	 * Returns the {@link ID} this {@link IEpisode} belongs to.
@@ -51,7 +52,7 @@ public interface IEpisode extends ICodeable, Comparable<IEpisode> {
 	 * 
 	 * @return
 	 */
-	public TimeZoneDateRange getRange();
+	public TimeZoneDateRange getDateRange();
 
 	/**
 	 * Returns a copy of the {@link IEpisode} with the new range. This instance

@@ -16,7 +16,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILabelProvider;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 /**

@@ -10,9 +10,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 public class DataDirectoriesContributionItem extends ContributionItem {
 

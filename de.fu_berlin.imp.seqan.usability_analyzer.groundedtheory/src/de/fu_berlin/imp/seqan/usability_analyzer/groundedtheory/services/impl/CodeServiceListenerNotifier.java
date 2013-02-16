@@ -6,7 +6,10 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
+import org.apache.log4j.Logger;
+
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -16,16 +19,28 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 
 public class CodeServiceListenerNotifier {
 
+	private static final Logger LOGGER = Logger
+			.getLogger(CodeServiceListenerNotifier.class);
+
 	private ExecutorService notifierPool = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(2);
 	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
 
 	void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
-		codeServiceListeners.add(codeServiceListener);
+		if (codeServiceListeners.contains(codeServiceListener)) {
+			LOGGER.warn("Tried to add an already registered listener");
+		} else {
+			codeServiceListeners.add(codeServiceListener);
+		}
 	}
 
 	void removeCodeServiceListener(ICodeServiceListener codeServiceListener) {
-		codeServiceListeners.remove(codeServiceListener);
+		if (codeServiceListeners.contains(codeServiceListener)) {
+			codeServiceListeners.remove(codeServiceListener);
+		} else {
+			LOGGER.warn("Tried to remove unregistered listener");
+		}
+
 	}
 
 	void codesCreated(final List<ICode> codes) {

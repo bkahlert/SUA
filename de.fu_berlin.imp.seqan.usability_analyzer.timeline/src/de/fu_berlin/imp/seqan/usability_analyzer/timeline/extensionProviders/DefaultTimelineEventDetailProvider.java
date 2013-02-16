@@ -8,11 +8,12 @@ import org.eclipse.swt.graphics.Color;
 
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.Timeline;
 
 /**
  * This class provides a default implementation of
@@ -40,13 +41,17 @@ public abstract class DefaultTimelineEventDetailProvider<DataType> implements
 	public Color getBackground(DataType data, ITimeline timeline) {
 		boolean isIntersected = false;
 
-		if (timeline instanceof Timeline && data instanceof HasDateRange) {
-			Timeline timeline2 = (Timeline) timeline;
+		if (data instanceof HasDateRange) {
 			TimeZoneDateRange dateRange = ((HasDateRange) data).getDateRange();
 
-			if (timeline2.getHighlightedDateRanges() != null)
-				for (TimeZoneDateRange t : timeline2.getHighlightedDateRanges()) {
-					if (t.isIntersected(dateRange)) {
+			if (timeline.getDecorators() != null)
+				for (IDecorator t : timeline.getDecorators()) {
+					if (new TimeZoneDateRange(
+							t.getStartDate() != null ? new TimeZoneDate(
+									t.getStartDate()) : null,
+							t.getEndDate() != null ? new TimeZoneDate(t
+									.getEndDate()) : null)
+							.isIntersected(dateRange)) {
 						isIntersected = true;
 						break;
 					}

@@ -159,10 +159,11 @@ public class CodeService implements ICodeService {
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {
-				if (!codeStore.codeExists(code))
+				if (!codeStore.codeExists(code)) {
 					codeStore.addAndSaveCode(code);
+					codeServiceListenerNotifier.codesCreated(codes);
+				}
 			}
-			codeServiceListenerNotifier.codesCreated(codes);
 			ICodeInstance[] codeInstances = codeStore.createCodeInstances(
 					codes.toArray(new ICode[0]),
 					codeables.toArray(new ICodeable[0]));

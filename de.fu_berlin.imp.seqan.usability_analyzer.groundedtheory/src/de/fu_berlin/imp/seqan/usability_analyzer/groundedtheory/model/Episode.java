@@ -63,7 +63,7 @@ public class Episode implements IEpisode {
 	private Episode(IEpisode episode) {
 		this.id = episode.getId();
 		this.fingerprint = episode.getFingerprint();
-		this.range = episode.getRange();
+		this.range = episode.getDateRange();
 		this.caption = episode.getCaption();
 		this.creation = episode.getCreation();
 		this.rgb = episode.getColor();
@@ -129,7 +129,7 @@ public class Episode implements IEpisode {
 	}
 
 	@Override
-	public TimeZoneDateRange getRange() {
+	public TimeZoneDateRange getDateRange() {
 		return this.range;
 	}
 
@@ -183,10 +183,11 @@ public class Episode implements IEpisode {
 
 	@Override
 	public int compareTo(IEpisode episode) {
-		if (this.getRange().isBeforeRange(episode.getRange().getStartDate()))
+		if (this.getDateRange().isBeforeRange(
+				episode.getDateRange().getStartDate()))
 			return 1;
-		else if (episode.getRange().isBeforeRange(
-				this.getRange().getStartDate()))
+		else if (episode.getDateRange().isBeforeRange(
+				this.getDateRange().getStartDate()))
 			return -1;
 		else
 			return this.getKey().toString()

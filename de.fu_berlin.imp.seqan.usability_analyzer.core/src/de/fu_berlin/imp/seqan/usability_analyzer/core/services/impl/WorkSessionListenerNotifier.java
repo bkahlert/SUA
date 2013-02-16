@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil.ParametrizedCallable;
 
 public class WorkSessionListenerNotifier {
 	private List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();

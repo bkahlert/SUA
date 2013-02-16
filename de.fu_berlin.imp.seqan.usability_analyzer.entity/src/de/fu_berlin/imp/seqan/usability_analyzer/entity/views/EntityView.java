@@ -19,6 +19,8 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -28,7 +30,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapte
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IDataSourceFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.filters.DataSourceFilter;

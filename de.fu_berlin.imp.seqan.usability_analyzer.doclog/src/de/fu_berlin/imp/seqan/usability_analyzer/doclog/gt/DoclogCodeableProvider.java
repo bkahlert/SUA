@@ -139,5 +139,4 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	public ILabelProvider getLabelProvider() {
 		return new DoclogLabelProvider();
 	}
-
 }

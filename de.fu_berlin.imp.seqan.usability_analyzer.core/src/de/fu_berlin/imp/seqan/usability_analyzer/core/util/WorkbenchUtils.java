@@ -7,6 +7,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 public class WorkbenchUtils {
 	private static final Logger LOGGER = Logger.getLogger(WorkbenchUtils.class);
 

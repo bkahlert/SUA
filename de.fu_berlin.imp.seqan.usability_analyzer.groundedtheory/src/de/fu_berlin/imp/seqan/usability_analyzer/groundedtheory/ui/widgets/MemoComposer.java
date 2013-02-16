@@ -26,7 +26,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -310,6 +311,9 @@ public class MemoComposer extends Composite {
 			});
 			if (oldHtml.equals(html))
 				return false;
+			else
+				oldHtml = html;
+
 			monitor.worked(1);
 
 			if (code != null) {

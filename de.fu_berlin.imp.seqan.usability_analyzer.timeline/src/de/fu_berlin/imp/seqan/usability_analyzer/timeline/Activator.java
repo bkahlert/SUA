@@ -31,7 +31,7 @@ public class Activator implements BundleActivator {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor(
 						"de.fu_berlin.imp.seqan.usability_analyzer.timeline");
-		List<ITimelineBandProvider> registeredTimelineBandProviders = new ArrayList<ITimelineBandProvider>();
+		final List<ITimelineBandProvider> registeredTimelineBandProviders = new ArrayList<ITimelineBandProvider>();
 		for (IConfigurationElement e : config) {
 			try {
 				Object o = e.createExecutableExtension("class");

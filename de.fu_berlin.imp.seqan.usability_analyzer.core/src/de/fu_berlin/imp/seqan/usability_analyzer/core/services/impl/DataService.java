@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
@@ -25,7 +26,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileDataCo
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.ExecutorUtil;
 
 public class DataService implements IDataService {
 
