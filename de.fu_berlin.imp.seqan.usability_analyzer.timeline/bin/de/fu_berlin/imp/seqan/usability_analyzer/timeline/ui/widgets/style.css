@@ -9,8 +9,8 @@ html .timeline-container {
 html .timeline-meta {
     height: 15px;
     padding: 0px;
-    box-shadow: inset 0px 2px 4px #888;
-    background: #ccc;
+    box-shadow: inset 0px 2px 4px #bbb;
+    background: #ddd;
     border: none;
 }
 
