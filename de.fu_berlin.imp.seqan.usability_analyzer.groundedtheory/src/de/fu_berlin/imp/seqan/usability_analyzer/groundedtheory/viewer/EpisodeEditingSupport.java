@@ -67,7 +67,7 @@ public class EpisodeEditingSupport extends EditingSupport {
 				return episode.getCaption();
 			else if (field == Field.STARTDATE)
 				return episode.getDateRange().getStartDate();
-			else if (field == Field.STARTDATE)
+			else if (field == Field.ENDDATE)
 				return episode.getDateRange().getEndDate();
 
 		}
@@ -88,7 +88,8 @@ public class EpisodeEditingSupport extends EditingSupport {
 				} else if (field == Field.STARTDATE) {
 					TimeZoneDate newStartDate = (TimeZoneDate) value;
 					TimeZoneDateRange range = new TimeZoneDateRange(
-							newStartDate, oldEpisode.getDateRange().getEndDate());
+							newStartDate, oldEpisode.getDateRange()
+									.getEndDate());
 					newEpisode = oldEpisode.changeRange(range);
 				} else if (field == Field.ENDDATE) {
 					TimeZoneDate newEndDate = (TimeZoneDate) value;

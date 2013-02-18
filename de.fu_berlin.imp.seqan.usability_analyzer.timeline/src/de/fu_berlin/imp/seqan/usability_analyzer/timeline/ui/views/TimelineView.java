@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -36,7 +38,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelP
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroupProviders;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
@@ -49,10 +51,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
@@ -69,16 +73,39 @@ public class TimelineView extends ViewPart {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (part == TimelineView.this)
-				return;
-
 			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
-			groupedDateRanges.putAll(IdDateRange
-					.group(SelectionRetrieverFactory.getSelectionRetriever(
-							IdDateRange.class).getSelection()));
-			groupedDateRanges.putAll(FingerprintDateRange
-					.group(SelectionRetrieverFactory.getSelectionRetriever(
-							FingerprintDateRange.class).getSelection()));
+			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
+			if (part == TimelineView.this) {
+				if (openedKeys == null)
+					return;
+				// TODO selection nur auf jeweiliger timeline anwenden (und
+				// nicht auf alle)
+				List<HasDateRange> ranges = SelectionRetrieverFactory
+						.getSelectionRetriever(HasDateRange.class)
+						.getSelection();
+				for (Object key : openedKeys) {
+					List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
+					for (HasDateRange range : ranges)
+						dateRanges.add(range.getDateRange());
+					groupedDateRanges.put(key, dateRanges);
+				}
+			} else {
+				groupedDateRanges.putAll(IdDateRange
+						.group(SelectionRetrieverFactory.getSelectionRetriever(
+								IdDateRange.class).getSelection()));
+				groupedDateRanges.putAll(FingerprintDateRange
+						.group(SelectionRetrieverFactory.getSelectionRetriever(
+								FingerprintDateRange.class).getSelection()));
+
+				for (Object key : groupedDateRanges.keySet()) {
+					TimeZoneDate centeredDate = TimeZoneDateRange
+							.calculateOuterDateRange(
+									groupedDateRanges.get(key).toArray(
+											new TimeZoneDateRange[0]))
+							.getStartDate();
+					centeredDates.put(key, centeredDate);
+				}
+			}
 
 			if (groupedDateRanges.keySet().size() == 0)
 				return;
@@ -90,10 +117,14 @@ public class TimelineView extends ViewPart {
 					+ ITimeline.class.getSimpleName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
+					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 					if (groupedDateRanges.size() > 0) {
 						timelineGroupViewer.highlight(groupedDateRanges,
-								monitor);
+								subMonitor.newChild(2));
+						timelineGroupViewer.center(centeredDates,
+								subMonitor.newChild(1));
 					}
+					subMonitor.done();
 					return Status.OK_STATUS;
 				}
 			};
@@ -138,6 +169,8 @@ public class TimelineView extends ViewPart {
 	private TimelineGroup<ITimeline> timelineGroup;
 	private HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline> timelineGroupViewer;
 
+	private Set<Object> openedKeys = null;
+
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
@@ -153,11 +186,13 @@ public class TimelineView extends ViewPart {
 	 * {@link DecoratableTimeline} s will be created if necessary. If free
 	 * {@link DecoratableTimeline}s stay unused they will be disposed.
 	 * 
-	 * @param keys
+	 * @param openedKeys
 	 */
 	public void open(final Set<Object> keys) {
 		if (timelineLoader != null)
 			timelineLoader.cancel();
+
+		this.openedKeys = keys;
 
 		timelineLoader = new Job("Loading " + ITimeline.class.getSimpleName()) {
 			@Override
@@ -206,16 +241,16 @@ public class TimelineView extends ViewPart {
 			public ITimelineProvider<ITimeline> createTimelineProvider() {
 				ITimelineProvider<ITimeline> timelineProvider;
 				ITimelineLabelProvider<ITimeline> timelineLabelProvider = new TimelineLabelProvider<ITimeline>();
-				List<IBandGroupProvider> bandGroupProvider = new ArrayList<IBandGroupProvider>();
+				List<IBandGroupProvider> bandGroupProviders = new ArrayList<IBandGroupProvider>();
 				for (ITimelineBandProvider bandProvider : Activator
 						.getRegisteredTimelineBandProviders()) {
-					bandGroupProvider.add(new BandGroupProviders(bandProvider
+					bandGroupProviders.add(new BandGroupProvider(bandProvider
 							.getContentProvider(), bandProvider
 							.getBandLabelProvider(), bandProvider
 							.getEventLabelProvider()));
 				}
 				timelineProvider = new TimelineProvider<ITimeline>(
-						timelineLabelProvider, bandGroupProvider);
+						timelineLabelProvider, bandGroupProviders);
 				return timelineProvider;
 			}
 		};

@@ -22,7 +22,7 @@ public class DateTimeCellEditor extends CellEditor {
 	@Override
 	protected Control createControl(Composite parent) {
 		this.cDateTime = new CDateTime(parent, CDT.BORDER | CDT.COMPACT
-				| CDT.DATE_LONG | CDT.TIME_MEDIUM | CDT.CLOCK_24_HOUR);
+				| CDT.DATE_SHORT | CDT.TIME_MEDIUM | CDT.CLOCK_24_HOUR);
 		return this.cDateTime;
 	}
 

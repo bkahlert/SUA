@@ -218,6 +218,11 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
+			public boolean isResizable(Object event) {
+				return false;
+			}
+
+			@Override
 			public String[] getClassNames(Object event) {
 				if (event instanceof DoclogRecord) {
 					DoclogRecord doclogRecord = (DoclogRecord) event;

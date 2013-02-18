@@ -205,6 +205,11 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
+			public boolean isResizable(Object event) {
+				return false;
+			}
+
+			@Override
 			public String[] getClassNames(Object event) {
 				if (event instanceof IDiff) {
 					return new String[] { Diff.class.getSimpleName() };
