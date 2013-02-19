@@ -91,7 +91,10 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				if (focusDiffFileRecord != null) {
 					DiffRecordSegment segment = new DiffRecordSegment(
 							focusDiffFileRecord, offset, length);
-					WizardUtils.openAddCodeWizard(segment);
+					WizardUtils.openAddCodeWizard(segment, null); // TODO null
+																	// durch
+																	// Farbe
+																	// setzen
 				} else {
 					log.error("Could not determine the "
 							+ CompareEditor.class.getSimpleName() + " in focus");

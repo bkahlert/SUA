@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
@@ -23,9 +26,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
 public class DiffTimelineBandProvider implements ITimelineBandProvider {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DiffTimelineBandProvider.class);
 
 	private enum BANDS {
 		DIFF_BAND, DIFFRECORD_BAND
@@ -140,6 +149,8 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineEventLabelProvider getEventLabelProvider() {
 		return new ITimelineEventLabelProvider() {
 
+			private ICodeService codeService = (ICodeService) PlatformUI
+					.getWorkbench().getService(ICodeService.class);
 			private DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
 
 			@Override
@@ -200,8 +211,29 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
-			public String getColor(Object event) {
-				return null;
+			public RGB[] getColors(Object event) {
+				List<RGB> colors = new ArrayList<RGB>();
+				if (event instanceof IDiff) {
+					IDiff diff = (IDiff) event;
+					try {
+						for (ICode code : codeService.getCodes(diff)) {
+							colors.add(code.getColor());
+						}
+					} catch (CodeServiceException e) {
+						LOGGER.error(e);
+					}
+				}
+				if (event instanceof DiffRecord) {
+					DiffRecord diffRecord = (DiffRecord) event;
+					try {
+						for (ICode code : codeService.getCodes(diffRecord)) {
+							colors.add(code.getColor());
+						}
+					} catch (CodeServiceException e) {
+						LOGGER.error(e);
+					}
+				}
+				return colors.toArray(new RGB[0]);
 			}
 
 			@Override

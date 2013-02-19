@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
-import org.eclipse.swt.graphics.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -18,45 +17,39 @@ public class Episode implements IEpisode {
 	private Fingerprint fingerprint = null;
 	private TimeZoneDateRange range;
 	private String caption;
-	private RGB rgb;
 	private TimeZoneDate creation;
 
-	public Episode(ID id, TimeZoneDate start, TimeZoneDate end, String name,
-			RGB color) {
+	public Episode(ID id, TimeZoneDate start, TimeZoneDate end, String name) {
 		assert id != null;
 		this.id = id;
 		this.range = new TimeZoneDateRange(start, end);
 		this.caption = name;
-		this.rgb = color;
 		this.creation = new TimeZoneDate();
 	}
 
-	public Episode(ID id, TimeZoneDateRange range, String caption, RGB color) {
+	public Episode(ID id, TimeZoneDateRange range, String caption) {
 		assert id != null;
 		this.id = id;
 		this.range = range;
 		this.caption = caption;
-		this.rgb = color;
 		this.creation = new TimeZoneDate();
 	}
 
 	public Episode(Fingerprint fingerprint, TimeZoneDate start,
-			TimeZoneDate end, String caption, RGB color) {
+			TimeZoneDate end, String caption) {
 		assert fingerprint != null;
 		this.fingerprint = fingerprint;
 		this.range = new TimeZoneDateRange(start, end);
 		this.caption = caption;
-		this.rgb = color;
 		this.creation = new TimeZoneDate();
 	}
 
 	public Episode(Fingerprint fingerprint, TimeZoneDateRange range,
-			String caption, RGB color) {
+			String caption) {
 		assert fingerprint != null;
 		this.fingerprint = fingerprint;
 		this.range = range;
 		this.caption = caption;
-		this.rgb = color;
 		this.creation = new TimeZoneDate();
 	}
 
@@ -66,17 +59,11 @@ public class Episode implements IEpisode {
 		this.range = episode.getDateRange();
 		this.caption = episode.getCaption();
 		this.creation = episode.getCreation();
-		this.rgb = episode.getColor();
 	}
 
 	private Episode(IEpisode episode, String caption) {
 		this(episode);
 		this.caption = caption;
-	}
-
-	private Episode(IEpisode episode, RGB color) {
-		this(episode);
-		this.rgb = color;
 	}
 
 	private Episode(IEpisode episode, TimeZoneDateRange range) {
@@ -151,16 +138,6 @@ public class Episode implements IEpisode {
 	@Override
 	public IEpisode changeCaption(String caption) {
 		return new Episode(this, caption);
-	}
-
-	@Override
-	public RGB getColor() {
-		return this.rgb;
-	}
-
-	@Override
-	public IEpisode changeColor(RGB rgb) {
-		return new Episode(this, rgb);
 	}
 
 	@Override

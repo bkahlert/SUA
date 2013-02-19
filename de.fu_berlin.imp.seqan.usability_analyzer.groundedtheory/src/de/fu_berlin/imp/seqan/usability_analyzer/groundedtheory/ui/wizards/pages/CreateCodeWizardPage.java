@@ -10,7 +10,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.LayoutUtils;
+import com.bkahlert.devel.nebula.widgets.ColorPicker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 
@@ -22,11 +24,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 public class CreateCodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Type in the name for the new code.";
 	private Text newCodeCaption;
+	private RGB initialColor;
+	private ColorPicker colorPicker;
 
-	public CreateCodeWizardPage() {
+	public CreateCodeWizardPage(RGB initialColor) {
 		super(CreateCodeWizardPage.class.getName());
 		setTitle("Create Code");
 		setDescription(DESCRIPTION);
+		this.initialColor = initialColor;
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public class CreateCodeWizardPage extends WizardPage {
 		Composite composite = new Composite(parent, SWT.NONE);
 		setControl(composite);
 
-		composite.setLayout(LayoutUtils.createGridLayout(2, false, 10, 0));
+		composite.setLayout(LayoutUtils.createGridLayout(3, false, 10, 10));
 		int space = new GridLayout().horizontalSpacing;
 		GridData gridData;
 
@@ -57,6 +62,11 @@ public class CreateCodeWizardPage extends WizardPage {
 				updateCompletion();
 			}
 		});
+
+		colorPicker = new ColorPicker(composite,
+				this.initialColor.toClassicRGB());
+		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
+				false));
 	}
 
 	private void updateCompletion() {
@@ -72,5 +82,9 @@ public class CreateCodeWizardPage extends WizardPage {
 
 	public String getNewCodeCaption() {
 		return this.newCodeCaption.getText();
+	}
+
+	public RGB getNewCodeColor() {
+		return new RGB(this.colorPicker.getRGB());
 	}
 }

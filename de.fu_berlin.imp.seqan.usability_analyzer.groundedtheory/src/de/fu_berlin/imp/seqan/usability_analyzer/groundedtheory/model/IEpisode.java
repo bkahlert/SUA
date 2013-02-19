@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
-import org.eclipse.swt.graphics.RGB;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -85,21 +83,5 @@ public interface IEpisode extends ICodeable, HasDateRange, Comparable<IEpisode> 
 	 * @return
 	 */
 	public IEpisode changeCaption(String caption);
-
-	/**
-	 * Return the color of this {@link IEpisode}.
-	 * 
-	 * @return
-	 */
-	public RGB getColor();
-
-	/**
-	 * Returns a copy of the {@link IEpisode} with the new color. This instance
-	 * (not the returned one) stays untouched.
-	 * 
-	 * @param episode
-	 * @return
-	 */
-	public IEpisode changeColor(RGB rgb);
 
 }

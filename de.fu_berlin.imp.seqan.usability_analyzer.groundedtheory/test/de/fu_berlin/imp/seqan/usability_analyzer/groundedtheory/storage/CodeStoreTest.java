@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,7 +19,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
@@ -26,11 +26,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
@@ -87,6 +89,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Set<ICodeInstance> loadedCodeInstances = getEmptyCodeStore()
 				.loadInstances();
 		assertEquals(0, loadedCodeInstances.size());
+	}
+
+	@Test
+	@Ignore
+	public void testGetCodes() {
+		assertTrue(false);
 	}
 
 	@Test
@@ -177,7 +185,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		ICode code3 = new Code(42l, "solution", new TimeZoneDate());
+		ICode code3 = new Code(42l, "solution", new RGB(1.0, 1.0, 1.0),
+				new TimeZoneDate());
 
 		codeStore.addAndSaveCode(code3);
 		assertEquals(3, codeStore.getTopLevelCodes().size());
@@ -267,7 +276,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.getTopLevelCodes().size());
 		assertEquals(0, codeStore.loadInstances().size());
 
-		ICode code = codeStore.createCode("Code #1");
+		ICode code = codeStore.createCode("Code #1", new RGB(1.0, 1.0, 1.0));
 		assertEquals(Long.MIN_VALUE, code.getId());
 		assertEquals("Code #1", code.getCaption());
 	}
@@ -279,14 +288,17 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.getTopLevelCodes().size());
 		assertEquals(0, codeStore.loadInstances().size());
 
-		assertEquals(new Code(Long.MIN_VALUE, "Code #1", new TimeZoneDate()),
-				codeStore.createCode("Code #1"));
-		assertEquals(
-				new Code(Long.MIN_VALUE + 1, "Code #2", new TimeZoneDate()),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
-		assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
-				codeStore.createCode("Code #4"));
+		assertEquals(new Code(Long.MIN_VALUE, "Code #1",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()),
+				codeStore.createCode("Code #1", new RGB(1.0, 1.0, 1.0)));
+		assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2", new RGB(1.0, 1.0,
+				1.0), new TimeZoneDate()), codeStore.createCode("Code #2",
+				new RGB(1.0, 1.0, 1.0)));
+		codeStore.addAndSaveCode(new Code(5l, "Code #3",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()));
+		assertEquals(new Code(6l, "Code #4", new RGB(1.0, 1.0, 1.0),
+				new TimeZoneDate()), codeStore.createCode("Code #4", new RGB(
+				1.0, 1.0, 1.0)));
 	}
 
 	@Test
@@ -296,14 +308,17 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.getTopLevelCodes().size());
 		assertEquals(0, codeStore.loadInstances().size());
 
-		assertEquals(new Code(Long.MIN_VALUE, "Code #1", new TimeZoneDate()),
-				codeStore.createCode("Code #1"));
-		assertEquals(
-				new Code(Long.MIN_VALUE + 1, "Code #2", new TimeZoneDate()),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(5l, "Code #3", new TimeZoneDate()));
-		assertEquals(new Code(6l, "Code #4", new TimeZoneDate()),
-				codeStore.createCode("Code #4"));
+		assertEquals(new Code(Long.MIN_VALUE, "Code #1",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()),
+				codeStore.createCode("Code #1", new RGB(1.0, 1.0, 1.0)));
+		assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2", new RGB(1.0, 1.0,
+				1.0), new TimeZoneDate()), codeStore.createCode("Code #2",
+				new RGB(1.0, 1.0, 1.0)));
+		codeStore.addAndSaveCode(new Code(5l, "Code #3",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()));
+		assertEquals(new Code(6l, "Code #4", new RGB(1.0, 1.0, 1.0),
+				new TimeZoneDate()), codeStore.createCode("Code #4", new RGB(
+				1.0, 1.0, 1.0)));
 	}
 
 	@Test
@@ -313,14 +328,17 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		assertEquals(new Code(234233209l + 1l, "Code #1", new TimeZoneDate()),
-				codeStore.createCode("Code #1"));
-		assertEquals(new Code(234233209l + 2l, "Code #2", new TimeZoneDate()),
-				codeStore.createCode("Code #2"));
-		codeStore.addAndSaveCode(new Code(300000000l, "Code #3",
-				new TimeZoneDate()));
-		assertEquals(new Code(300000001l, "Code #4", new TimeZoneDate()),
-				codeStore.createCode("Code #4"));
+		assertEquals(new Code(234233209l + 1l, "Code #1",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()),
+				codeStore.createCode("Code #1", new RGB(1.0, 1.0, 1.0)));
+		assertEquals(new Code(234233209l + 2l, "Code #2",
+				new RGB(1.0, 1.0, 1.0), new TimeZoneDate()),
+				codeStore.createCode("Code #2", new RGB(1.0, 1.0, 1.0)));
+		codeStore.addAndSaveCode(new Code(300000000l, "Code #3", new RGB(1.0,
+				1.0, 1.0), new TimeZoneDate()));
+		assertEquals(new Code(300000001l, "Code #4", new RGB(1.0, 1.0, 1.0),
+				new TimeZoneDate()), codeStore.createCode("Code #4", new RGB(
+				1.0, 1.0, 1.0)));
 	}
 
 	@Test(expected = CodeStoreFullException.class)
@@ -330,9 +348,9 @@ public class CodeStoreTest extends CodeStoreHelper {
 		testCodes(codeStore, codes);
 		testCodeInstances(codeStore, codeInstances);
 
-		codeStore.addAndSaveCode(new Code(Long.MAX_VALUE, "Code #1",
-				new TimeZoneDate()));
-		codeStore.createCode("Code #2");
+		codeStore.addAndSaveCode(new Code(Long.MAX_VALUE, "Code #1", new RGB(
+				1.0, 1.0, 1.0), new TimeZoneDate()));
+		codeStore.createCode("Code #2", new RGB(1.0, 1.0, 1.0));
 	}
 
 	@Test(expected = InvalidParameterException.class)
@@ -590,8 +608,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		Episode episode = new Episode(new ID("id"), new TimeZoneDateRange(
 				new TimeZoneDate("2000-01-02T14:00:00.000+02:00"),
-				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")), "TimelineViewer",
-				new RGB(120, 130, 140));
+				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")),
+				"TimelineViewer");
 		codeStore.getEpisodes().add(episode);
 		assertEquals(1, codeStore.getEpisodes().size());
 		assertEquals(episode, codeStore.getEpisodes().iterator().next());

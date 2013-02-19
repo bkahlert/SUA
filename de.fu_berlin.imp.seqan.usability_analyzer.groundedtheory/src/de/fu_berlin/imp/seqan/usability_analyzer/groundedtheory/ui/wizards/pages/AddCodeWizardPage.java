@@ -16,6 +16,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.widgets.ColorPicker;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -38,13 +40,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewe
 public class AddCodeWizardPage extends ORWizardPage {
 	private static final String DESCRIPTION = "Choose an existing code to add or create a new one.";
 	private Text newCodeCaption;
+	private ColorPicker colorPicker;
+	private final RGB initialRGB;
 	private boolean createCode = false;
 	private CodeViewer codeViewer;
 
-	public AddCodeWizardPage() {
+	public AddCodeWizardPage(RGB rgb) {
 		super(AddCodeWizardPage.class.getName(), 2);
 		setTitle("Add Code");
 		setDescription(DESCRIPTION);
+		this.initialRGB = rgb;
 	}
 
 	@Override
@@ -62,7 +67,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 		Composite centerWrapper = new Composite(group, SWT.NONE);
 		centerWrapper.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
 				true));
-		centerWrapper.setLayout(new GridLayout(1, false));
+		centerWrapper.setLayout(new GridLayout(2, false));
 
 		this.newCodeCaption = new Text(centerWrapper, SWT.BORDER);
 		this.newCodeCaption.setLayoutData(GridDataFactory.fillDefaults()
@@ -73,6 +78,11 @@ public class AddCodeWizardPage extends ORWizardPage {
 				updateCompletion(newCodeCaption.getText());
 			}
 		});
+
+		colorPicker = new ColorPicker(centerWrapper,
+				this.initialRGB.toClassicRGB());
+		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
+				false));
 	}
 
 	protected void fillRightColumn(Composite composite) {
@@ -126,6 +136,10 @@ public class AddCodeWizardPage extends ORWizardPage {
 
 	public String getNewCodeCaption() {
 		return this.newCodeCaption.getText();
+	}
+
+	public RGB getNewCodeRGB() {
+		return new RGB(this.colorPicker.getRGB());
 	}
 
 	public List<ICode> getExistingCodes() {

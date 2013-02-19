@@ -3,6 +3,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 import java.util.List;
 import java.util.Set;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -19,6 +21,10 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 
 	@Override
 	public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+	}
+
+	@Override
+	public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
 	}
 
 	@Override

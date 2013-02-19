@@ -10,6 +10,7 @@ import org.eclipse.core.commands.ExecutionException;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 public class AddCodeInstanceHandler extends AbstractHandler {
@@ -25,7 +26,8 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				.getSelectionRetriever(ICodeable.class).getSelection();
 
 		if (codeables.size() > 0) {
-			WizardUtils.openAddCodeWizard(codeables);
+			WizardUtils.openAddCodeWizard(codeables,
+					Utils.getFancyCodeColor());
 		}
 
 		return null;

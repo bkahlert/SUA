@@ -9,6 +9,8 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
@@ -40,6 +42,11 @@ public class DiffFileListsContentProvider implements
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
 			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 

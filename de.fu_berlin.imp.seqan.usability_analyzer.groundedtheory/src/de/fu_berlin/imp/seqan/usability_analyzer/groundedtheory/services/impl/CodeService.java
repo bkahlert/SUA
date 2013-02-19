@@ -23,6 +23,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.osgi.service.component.ComponentContext;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
@@ -111,10 +113,11 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public ICode createCode(String caption) throws CodeServiceException {
+	public ICode createCode(String caption, RGB color)
+			throws CodeServiceException {
 		ICode code;
 		try {
-			code = codeStore.createCode(caption);
+			code = codeStore.createCode(caption, color);
 		} catch (CodeStoreFullException e) {
 			throw new CodeServiceException(e);
 		}
@@ -142,9 +145,9 @@ public class CodeService implements ICodeService {
 		return codes;
 	}
 
-	public ICode addCode(String codeCaption, ICodeable codeable)
+	public ICode addCode(String codeCaption, RGB color, ICodeable codeable)
 			throws CodeServiceException {
-		ICode code = createCode(codeCaption);
+		ICode code = createCode(codeCaption, color);
 		addCode(code, codeable);
 		return code;
 	}
@@ -252,6 +255,18 @@ public class CodeService implements ICodeService {
 			code.setCaption(newCaption);
 			codeServiceListenerNotifier.codeRenamed(code, oldCaption,
 					newCaption);
+		} catch (Exception e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void recolorCode(ICode code, RGB newColor)
+			throws CodeServiceException {
+		RGB oldColor = code.getColor();
+		try {
+			code.setColor(newColor);
+			codeServiceListenerNotifier.codeRecolored(code, oldColor, newColor);
 		} catch (Exception e) {
 			throw new CodeServiceException(e);
 		}

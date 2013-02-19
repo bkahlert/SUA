@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -27,6 +28,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class CodeViewer extends Composite implements ISelectionProvider {
 
@@ -46,6 +48,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
+
+		Utils.addCodeColorRenderSupport(tree, 1);
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -82,20 +86,27 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				.getWorkbench().getService(ICodeService.class);
 		CodeViewerUtils.createCodeColumn(treeViewer, codeService);
 
-		treeViewer.createColumn("# ph", 40).setLabelProvider(
+		treeViewer.createColumn("", 16).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							int all = codeService.getAllInstances(code).size();
-							int here = codeService.getInstances(code).size();
-							return (all != here) ? all + " (" + here + ")"
-									: all + "";
-						}
 						return "";
 					}
 				});
+		TreeViewerColumn countColumn = treeViewer.createColumn("# ph", 60);
+		countColumn.getColumn().setAlignment(SWT.RIGHT);
+		countColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (ICode.class.isInstance(element)) {
+					ICode code = (ICode) element;
+					int all = codeService.getAllInstances(code).size();
+					int here = codeService.getInstances(code).size();
+					return (all != here) ? all + " (" + here + ")" : all + "";
+				}
+				return "";
+			}
+		});
 		treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override

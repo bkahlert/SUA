@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
@@ -38,25 +37,24 @@ public class AddEpisodeWizard extends Wizard {
 	private Fingerprint fingerprint;
 	private TimeZoneDateRange range;
 
-	public AddEpisodeWizard(ID id, TimeZoneDateRange range, RGB initialRrgb) {
+	public AddEpisodeWizard(ID id, TimeZoneDateRange range) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.id = id;
 		this.fingerprint = null;
 		this.range = range;
-		this.addCodeWizardPage = new AddEpisodeWizardPage(initialRrgb);
+		this.addCodeWizardPage = new AddEpisodeWizardPage();
 	}
 
-	public AddEpisodeWizard(Fingerprint fingerprint, TimeZoneDateRange range,
-			RGB rgb) {
+	public AddEpisodeWizard(Fingerprint fingerprint, TimeZoneDateRange range) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.id = null;
 		this.fingerprint = fingerprint;
 		this.range = range;
-		this.addCodeWizardPage = new AddEpisodeWizardPage(rgb);
+		this.addCodeWizardPage = new AddEpisodeWizardPage();
 	}
 
 	@Override
@@ -67,15 +65,14 @@ public class AddEpisodeWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		String name = addCodeWizardPage.getEpisodeCaption();
-		RGB rgb = addCodeWizardPage.getEpisodeRGB();
 		IEpisode episode;
 
 		// plugin.xml makes sure the objects only contain a single ID or
 		// Fingerprint
 		if (id != null)
-			episode = new Episode(id, range, name, rgb);
+			episode = new Episode(id, range, name);
 		else
-			episode = new Episode(fingerprint, range, name, rgb);
+			episode = new Episode(fingerprint, range, name);
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);

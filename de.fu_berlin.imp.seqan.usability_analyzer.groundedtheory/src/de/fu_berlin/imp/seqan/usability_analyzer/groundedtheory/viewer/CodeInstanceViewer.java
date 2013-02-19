@@ -24,6 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
@@ -40,6 +41,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
 
+		Utils.addCodeColorRenderSupport(tree, 1);
+
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 		createColumns();
@@ -50,7 +53,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	private void createColumns() {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		treeViewer.createColumn("ID", 300).setLabelProvider(
+		treeViewer.createColumn("ID", 180).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -82,6 +85,13 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 									codedObject);
 						}
 						return null;
+					}
+				});
+		treeViewer.createColumn("", 16).setLabelProvider(
+				new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						return "";
 					}
 				});
 		treeViewer.createColumn("URI", 300).setLabelProvider(

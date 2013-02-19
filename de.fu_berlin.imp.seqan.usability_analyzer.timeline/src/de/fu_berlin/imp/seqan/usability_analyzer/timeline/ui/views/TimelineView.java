@@ -78,6 +78,13 @@ public class TimelineView extends ViewPart {
 			if (part == TimelineView.this) {
 				if (openedKeys == null)
 					return;
+
+				// TODO noch evaluieren, ob das sinn macht.
+				// blöd, wenn man auf screenshots klickt und diese
+				// dann immer grün gehighlighted sind.
+				if (true)
+					return;
+
 				// TODO selection nur auf jeweiliger timeline anwenden (und
 				// nicht auf alle)
 				List<HasDateRange> ranges = SelectionRetrieverFactory

@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -46,6 +47,11 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
 			ViewerUtils.update(viewer, code, null);
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+			ViewerUtils.refresh(viewer, true); // TODO check if update is enough
 		}
 
 		@Override

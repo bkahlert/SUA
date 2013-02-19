@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
@@ -42,6 +43,11 @@ public class EntityContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
 			ViewerUtils.refresh(viewer);
 		}
 

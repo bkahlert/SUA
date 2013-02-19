@@ -4,6 +4,8 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Set;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -29,7 +31,10 @@ public interface ICodeStore {
 	 */
 	public ICode getCode(long id);
 
-	public ICode createCode(String caption) throws CodeStoreFullException;
+	public ICode[] getCodes();
+
+	public ICode createCode(String caption, RGB color)
+			throws CodeStoreFullException;
 
 	public ICodeInstance[] createCodeInstances(ICode[] codes,
 			ICodeable[] codeables) throws InvalidParameterException,

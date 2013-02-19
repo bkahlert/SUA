@@ -23,6 +23,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.data.TreeNode;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -99,10 +100,12 @@ class CodeStore implements ICodeStore {
 				codeStore.memos = new HashMap<Object, String>();
 			if (codeStore.episodes == null)
 				codeStore.episodes = new NoNullSet<IEpisode>();
+
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
 		} catch (Exception e) {
+			logger.error(e);
 			throw new CodeStoreReadException(e);
 		}
 	}
@@ -125,6 +128,18 @@ class CodeStore implements ICodeStore {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public ICode[] getCodes() {
+		List<ICode> codes = new ArrayList<ICode>();
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			for (Iterator<ICode> iterator = codeTree.bfs(); iterator.hasNext();) {
+				ICode code = iterator.next();
+				codes.add(code);
+			}
+		}
+		return codes.toArray(new ICode[0]);
 	}
 
 	public boolean codeExists(ICode code) {
@@ -187,7 +202,8 @@ class CodeStore implements ICodeStore {
 		return (Set<ICodeInstance>) this.codeInstances.clone();
 	}
 
-	public ICode createCode(String caption) throws CodeStoreFullException {
+	public ICode createCode(String caption, RGB color)
+			throws CodeStoreFullException {
 		Long id = Long.MAX_VALUE;
 		ArrayList<Long> ids = new ArrayList<Long>(codeTrees.size());
 		for (TreeNode<ICode> codeTree : codeTrees) {
@@ -201,7 +217,7 @@ class CodeStore implements ICodeStore {
 		id = Code.calculateId(ids);
 		createdIds.add(id);
 
-		ICode code = new Code(id, caption, new TimeZoneDate());
+		ICode code = new Code(id, caption, color, new TimeZoneDate());
 		codeTrees.add(new TreeNode<ICode>(code));
 		return code;
 	}

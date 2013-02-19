@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -75,6 +76,19 @@ public class CodeServiceListenerNotifier {
 				public Void call() throws Exception {
 					codeServiceListener.codeRenamed(code, oldCaption,
 							newCaption);
+					return null;
+				}
+			});
+		}
+	}
+
+	public void codeRecolored(final ICode code, final RGB oldColor,
+			final RGB newColor) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					codeServiceListener.codeRecolored(code, oldColor, newColor);
 					return null;
 				}
 			});

@@ -9,6 +9,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -22,17 +24,18 @@ public class AddCodeWizard extends Wizard {
 	public static final String TITLE = "Add Code";
 	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_ADD_CODE;
 
-	protected final AddCodeWizardPage addCodeWizardPage = new AddCodeWizardPage();
+	protected final AddCodeWizardPage addCodeWizardPage;
 
 	protected List<ICode> affectedCodes;
 
 	private List<ICodeable> codeables;
 
-	public AddCodeWizard(List<ICodeable> codeables) {
+	public AddCodeWizard(List<ICodeable> codeables, RGB initialRGB) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.codeables = codeables;
+		this.addCodeWizardPage = new AddCodeWizardPage(initialRGB);
 	}
 
 	@Override
@@ -48,12 +51,13 @@ public class AddCodeWizard extends Wizard {
 
 		if (this.addCodeWizardPage.getCreateCode()) {
 			String codeCaption = this.addCodeWizardPage.getNewCodeCaption();
+			RGB rgb = this.addCodeWizardPage.getNewCodeRGB();
 			ICode createdCode = null;
 			for (ICodeable codeable : codeables) {
 				try {
 					if (createdCode == null) {
-						createdCode = codeService
-								.addCode(codeCaption, codeable);
+						createdCode = codeService.addCode(codeCaption, rgb,
+								codeable);
 						affectedCodes.add(createdCode);
 					} else {
 						codeService.addCode(createdCode, codeable);

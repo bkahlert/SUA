@@ -50,6 +50,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -76,11 +77,11 @@ public class EpisodeRenderer implements IDisposable {
 	public static Color DEFAULT_BACKGROUND_COLOR = new Color(
 			Display.getCurrent(), 141, 206, 231);
 
-	public static class EpisodeColors {
+	public static class CodeColors {
 		private Color backgroundColor = null;
 		private Color borderColor = null;
 
-		public EpisodeColors(RGB backgroundRGB) {
+		public CodeColors(RGB backgroundRGB) {
 			if (backgroundRGB == null)
 				this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
 			else
@@ -218,7 +219,7 @@ public class EpisodeRenderer implements IDisposable {
 	private static class Renderer implements PaintListener, Listener,
 			IDisposable {
 
-		private Map<IEpisode, EpisodeColors> renderingColors = new HashMap<IEpisode, EpisodeColors>();
+		private Map<IEpisode, CodeColors> renderingColors = new HashMap<IEpisode, CodeColors>();
 
 		private ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
@@ -404,15 +405,23 @@ public class EpisodeRenderer implements IDisposable {
 			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
 			for (IEpisode episode : renderingBounds.keySet()) {
 				if (!renderingColors.containsKey(episode)) {
-					renderingColors.put(episode,
-							new EpisodeColors(episode.getColor()));
+					try {
+						List<ICode> codes = codeService.getCodes(episode);
+						if (codes.size() > 0)
+							renderingColors.put(episode, new CodeColors(
+									codes.get(0).getColor().toClassicRGB()));
+					} catch (CodeServiceException e1) {
+						LOGGER.error("Could not find the episode's "
+								+ ICode.class.getSimpleName() + "s.");
+					}
+
 				}
 
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
-				EpisodeColors episodeColors = renderingColors.get(episode);
+				CodeColors codeColors = renderingColors.get(episode);
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
-						episodeColors.getBackgroundColor());
+						codeColors.getBackgroundColor());
 
 				// draw overlay icons
 				try {

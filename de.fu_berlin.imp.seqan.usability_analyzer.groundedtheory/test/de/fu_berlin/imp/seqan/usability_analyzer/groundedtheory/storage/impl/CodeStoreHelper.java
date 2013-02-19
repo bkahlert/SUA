@@ -14,6 +14,8 @@ import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -74,8 +76,10 @@ public class CodeStoreHelper {
 								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.small.xml")
 						.getFile());
 
-		code1 = new Code(234233209l, "Code #1", new TimeZoneDate());
-		code2 = new Code(9908372l, "Code #2", new TimeZoneDate());
+		code1 = new Code(234233209l, "Code #1", new RGB(1, 0.5, 0),
+				new TimeZoneDate());
+		code2 = new Code(9908372l, "Code #2", new RGB(0, 0.5, 1),
+				new TimeZoneDate());
 
 		codes = new ICode[] { code1, code2 };
 

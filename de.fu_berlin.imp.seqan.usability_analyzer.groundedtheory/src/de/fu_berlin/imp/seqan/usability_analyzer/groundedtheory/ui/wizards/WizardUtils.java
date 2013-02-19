@@ -10,10 +10,10 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.wizards.dialogs.CenteredWizardDialog;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
@@ -91,9 +91,10 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 */
-	public static AddCodeWizard openAddCodeWizard(List<ICodeable> codeables) {
-		return openWizardSuccessfully(new AddCodeWizard(codeables), new Point(
-				800, 600));
+	public static AddCodeWizard openAddCodeWizard(List<ICodeable> codeables,
+			RGB initialRGB) {
+		return openWizardSuccessfully(new AddCodeWizard(codeables, initialRGB),
+				new Point(800, 600));
 	}
 
 	/**
@@ -104,13 +105,14 @@ public class WizardUtils {
 	 * @return
 	 */
 	@SuppressWarnings("serial")
-	public static AddCodeWizard openAddCodeWizard(final ICodeable codeable) {
+	public static AddCodeWizard openAddCodeWizard(final ICodeable codeable,
+			RGB initialRGB) {
 		return openWizardSuccessfully(new AddCodeWizard(
 				new ArrayList<ICodeable>() {
 					{
 						add(codeable);
 					}
-				}), new Point(800, 600));
+				}, initialRGB), new Point(800, 600));
 	}
 
 	/**
@@ -118,11 +120,13 @@ public class WizardUtils {
 	 * displayed instance in case of success.
 	 * 
 	 * @param parentCode
+	 * @param initialColor
 	 * @return
 	 */
-	public static CreateCodeWizard openNewCodeWizard(ICode parentCode) {
-		return openWizardSuccessfully(new CreateCodeWizard(parentCode),
-				new Point(500, 300));
+	public static CreateCodeWizard openNewCodeWizard(ICode parentCode,
+			RGB initialColor) {
+		return openWizardSuccessfully(new CreateCodeWizard(parentCode,
+				initialColor), new Point(500, 300));
 	}
 
 	/**
@@ -134,9 +138,9 @@ public class WizardUtils {
 	 * @return
 	 */
 	public static AddEpisodeWizard openAddEpisodeWizard(ID id,
-			TimeZoneDateRange range, RGB initialRgb) {
-		return openWizardSuccessfully(new AddEpisodeWizard(id, range,
-				initialRgb), new Point(500, 220));
+			TimeZoneDateRange range) {
+		return openWizardSuccessfully(new AddEpisodeWizard(id, range),
+				new Point(500, 220));
 	}
 
 	/**
@@ -148,8 +152,8 @@ public class WizardUtils {
 	 * @return
 	 */
 	public static AddEpisodeWizard openAddEpisodeWizard(
-			Fingerprint fingerprint, TimeZoneDateRange range, RGB initialRgb) {
-		return openWizardSuccessfully(new AddEpisodeWizard(fingerprint, range,
-				initialRgb), new Point(500, 220));
+			Fingerprint fingerprint, TimeZoneDateRange range) {
+		return openWizardSuccessfully(new AddEpisodeWizard(fingerprint, range),
+				new Point(500, 220));
 	}
 }

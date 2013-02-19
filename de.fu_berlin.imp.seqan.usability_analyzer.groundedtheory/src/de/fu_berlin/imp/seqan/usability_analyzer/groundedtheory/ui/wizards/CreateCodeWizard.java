@@ -5,6 +5,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -18,15 +20,16 @@ public class CreateCodeWizard extends Wizard {
 	public static final String TITLE = "Create Code";
 	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_CREATE_CODE;
 
-	protected final CreateCodeWizardPage createCodeWizardPage = new CreateCodeWizardPage();
+	protected final CreateCodeWizardPage createCodeWizardPage;
 	protected final ICode parentCode;
 	private ICode createdCode;
 
-	public CreateCodeWizard(ICode parentCode) {
+	public CreateCodeWizard(ICode parentCode, RGB initialColor) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
 		this.parentCode = parentCode;
+		this.createCodeWizardPage = new CreateCodeWizardPage(initialColor);
 	}
 
 	@Override
@@ -39,8 +42,9 @@ public class CreateCodeWizard extends Wizard {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 		String codeCaption = this.createCodeWizardPage.getNewCodeCaption();
+		RGB codeColor = this.createCodeWizardPage.getNewCodeColor();
 		try {
-			createdCode = codeService.createCode(codeCaption);
+			createdCode = codeService.createCode(codeCaption, codeColor);
 			codeService.setParent(createdCode, parentCode);
 		} catch (CodeServiceException e) {
 			LOGGER.error("Could not create " + ICode.class.getSimpleName()

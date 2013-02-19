@@ -10,6 +10,7 @@ import org.eclipse.core.commands.ExecutionException;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 public class CreateCodeHandler extends AbstractHandler {
@@ -25,8 +26,10 @@ public class CreateCodeHandler extends AbstractHandler {
 				ICode.class).getSelection();
 		assert codes.size() < 2;
 
-		WizardUtils.openNewCodeWizard(codes.size() == 1 ? codes.get(0) : null);
+		WizardUtils.openNewCodeWizard(codes.size() == 1 ? codes.get(0) : null,
+				Utils.getFancyCodeColor());
 
 		return null;
 	}
+
 }

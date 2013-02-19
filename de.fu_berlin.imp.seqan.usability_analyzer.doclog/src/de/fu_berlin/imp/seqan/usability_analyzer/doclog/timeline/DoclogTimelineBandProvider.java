@@ -1,13 +1,18 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
@@ -21,9 +26,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
 public class DoclogTimelineBandProvider implements ITimelineBandProvider {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogTimelineBandProvider.class);
 
 	private enum BANDS {
 		DOCLOGRECORD_BAND
@@ -131,6 +142,8 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineEventLabelProvider getEventLabelProvider() {
 		return new ITimelineEventLabelProvider() {
 
+			private ICodeService codeService = (ICodeService) PlatformUI
+					.getWorkbench().getService(ICodeService.class);
 			private DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
 
 			@Override
@@ -213,8 +226,19 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
-			public String getColor(Object event) {
-				return null;
+			public RGB[] getColors(Object event) {
+				List<RGB> colors = new ArrayList<RGB>();
+				if (event instanceof DoclogRecord) {
+					DoclogRecord doclogRecord = (DoclogRecord) event;
+					try {
+						for (ICode code : codeService.getCodes(doclogRecord)) {
+							colors.add(code.getColor());
+						}
+					} catch (CodeServiceException e) {
+						LOGGER.error(e);
+					}
+				}
+				return colors.toArray(new RGB[0]);
 			}
 
 			@Override

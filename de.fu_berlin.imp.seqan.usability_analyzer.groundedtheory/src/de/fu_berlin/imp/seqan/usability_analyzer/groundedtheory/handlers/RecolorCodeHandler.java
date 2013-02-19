@@ -7,49 +7,48 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class RecolorEpisodeHandler extends AbstractHandler {
+public class RecolorCodeHandler extends AbstractHandler {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(RecolorEpisodeHandler.class);
+			.getLogger(RecolorCodeHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		List<IEpisode> episodes = SelectionRetrieverFactory
-				.getSelectionRetriever(IEpisode.class).getSelection();
+		List<ICode> codes = SelectionRetrieverFactory.getSelectionRetriever(
+				ICode.class).getSelection();
 
-		if (episodes.size() == 1) {
-			IEpisode episode = episodes.get(0);
+		if (codes.size() == 1) {
+			ICode code = codes.get(0);
 			ColorDialog dialog = new ColorDialog(new Shell(
 					Display.getDefault(), SWT.SHELL_TRIM));
-			dialog.setRGB(episode.getColor());
-			RGB newRGB = dialog.open();
-			if (newRGB != null) {
-				IEpisode newEpisode = episode.changeColor(newRGB);
+			dialog.setRGB(code.getColor().toClassicRGB());
+			org.eclipse.swt.graphics.RGB newColor = dialog.open();
+			if (newColor != null) {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
 				try {
-					codeService.replaceEpisodeAndSave(episode, newEpisode);
+					codeService.recolorCode(code, new RGB(newColor));
 				} catch (CodeServiceException e) {
 					LOGGER.error("Error replacing the "
-							+ IEpisode.class.getSimpleName() + "'s color");
+							+ ICode.class.getSimpleName() + "'s color");
 				}
 			}
 		} else {
 			LOGGER.warn("Selection did not only contain a single "
-					+ IEpisode.class.getSimpleName());
+					+ ICode.class.getSimpleName());
 		}
 
 		return null;

@@ -7,12 +7,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import org.eclipse.swt.graphics.RGB;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -75,7 +76,8 @@ public class CodeServiceTest extends CodeServicesHelper {
 		ICodeService emptyCodeService = getEmptyCodeService();
 		Assert.assertEquals(0, emptyCodeService.getCodes(codeable1).size());
 		Assert.assertEquals(0, emptyCodeService.getCodes(codeable2).size());
-		emptyCodeService.addCode(code1.getCaption(), codeable1);
+		emptyCodeService.addCode(code1.getCaption(), new RGB(1.0, 1.0, 1.0),
+				codeable1);
 		Assert.assertEquals(1, emptyCodeService.getCodes(codeable1).size());
 		Assert.assertEquals(code1.getCaption(),
 				emptyCodeService.getCodes(codeable1).get(0).getCaption());
@@ -250,8 +252,8 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 		Episode episode = new Episode(new ID("id"), new TimeZoneDateRange(
 				new TimeZoneDate("2000-01-02T14:00:00.000+02:00"),
-				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")), "TimelineViewer",
-				new RGB(120, 130, 140));
+				new TimeZoneDate("2000-01-02T14:30:00.000+02:00")),
+				"TimelineViewer");
 		codeService.addEpisodeAndSave(episode);
 		assertEquals(1, codeService.getEpisodedKeys().size());
 		assertEquals(new ID("id"), (ID) codeService.getEpisodedKeys().get(0));

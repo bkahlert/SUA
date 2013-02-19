@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -28,11 +28,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -148,8 +145,6 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 				switch ((BANDS) band) {
 				case CODE_BAND:
-					List<ICodeInstance> instances = codeService
-							.getInstances(this.input);
 					Set<IEpisode> episodes;
 					if (this.input instanceof ID)
 						episodes = codeService.getEpisodes((ID) this.input);
@@ -157,8 +152,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 						episodes = codeService
 								.getEpisodes((Fingerprint) this.input);
 					monitor.worked(2);
-					return ArrayUtils.addAll(instances.toArray(),
-							episodes.toArray());
+					return episodes.toArray();
 				}
 
 				return new Object[0];
@@ -212,26 +206,11 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			private ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
-			private Cache<ICodeInstance, ICodeable> cache = new Cache<ICodeInstance, ICodeable>(
-					new CacheFetcher<ICodeInstance, ICodeable>() {
-						@Override
-						public ICodeable fetch(ICodeInstance key,
-								IProgressMonitor progressMonitor) {
-							if (codeService == null)
-								return null;
-							return codeService.getCodedObject(key.getId());
-						}
-					}, 5);
-
 			private ILabelProvider codeableLabelProvider = new GTCodeableProvider()
 					.getLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {
-				if (event instanceof ICodeInstance) {
-					ICodeInstance codeInstance = (ICodeInstance) event;
-					return codeInstance.getCode().getCaption();
-				}
 				return codeableLabelProvider.getText(event);
 			}
 
@@ -250,17 +229,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public Calendar getStart(Object event) {
-				if (event instanceof ICodeInstance) {
-					ICodeInstance codeInstance = (ICodeInstance) event;
-					ICodeable codeable = cache.getPayload(codeInstance, null);
-					if (codeable instanceof HasDateRange) {
-						TimeZoneDateRange dateRange = ((HasDateRange) codeable)
-								.getDateRange();
-						return dateRange != null
-								&& dateRange.getStartDate() != null ? dateRange
-								.getStartDate().getCalendar() : null;
-					}
-				} else if (event instanceof IEpisode) {
+				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
 					return episode.getStart().getCalendar();
 				}
@@ -269,16 +238,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public Calendar getEnd(Object event) {
-				if (event instanceof ICodeInstance) {
-					ICodeInstance codeInstance = (ICodeInstance) event;
-					ICodeable codeable = cache.getPayload(codeInstance, null);
-					if (codeable instanceof HasDateRange) {
-						TimeZoneDateRange dateRange = ((HasDateRange) codeable)
-								.getDateRange();
-						return dateRange.getEndDate() != null ? dateRange
-								.getEndDate().getCalendar() : null;
-					}
-				} else if (event instanceof IEpisode) {
+				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
 					return episode.getEnd().getCalendar();
 				}
@@ -286,19 +246,19 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
-			public String getColor(Object event) {
-				if (event instanceof ICodeInstance) {
-					ICodeInstance codeInstance = (ICodeInstance) event;
-					ICodeable codeable = cache.getPayload(codeInstance, null);
-					if (codeable instanceof IEpisode) {
-						IEpisode episode = (IEpisode) codeable;
-						return new RGB(episode.getColor()).toHexString();
-					}
-				} else if (event instanceof IEpisode) {
+			public RGB[] getColors(Object event) {
+				List<RGB> colors = new ArrayList<RGB>();
+				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
-					return new RGB(episode.getColor()).toHexString();
+					try {
+						for (ICode code : codeService.getCodes(episode)) {
+							colors.add(code.getColor());
+						}
+					} catch (CodeServiceException e) {
+						LOGGER.error(e);
+					}
 				}
-				return null;
+				return colors.toArray(new RGB[0]);
 			}
 
 			@Override

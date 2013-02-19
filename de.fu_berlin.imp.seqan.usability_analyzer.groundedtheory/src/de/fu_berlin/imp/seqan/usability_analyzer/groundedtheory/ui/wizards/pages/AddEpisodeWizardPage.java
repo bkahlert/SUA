@@ -5,25 +5,18 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.widgets.ColorPicker;
-
-
 public class AddEpisodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Choose an name for the new episode.";
 	private Text episodeCaption;
-	private ColorPicker colorPicker;
-	private final RGB initialRGB;
 
-	public AddEpisodeWizardPage(RGB rgb) {
+	public AddEpisodeWizardPage() {
 		super(AddEpisodeWizardPage.class.getName());
 		setTitle("Define Episode");
 		setDescription(DESCRIPTION);
-		this.initialRGB = rgb;
 	}
 
 	public void createControl(Composite parent) {
@@ -44,9 +37,6 @@ public class AddEpisodeWizardPage extends WizardPage {
 			}
 		});
 
-		colorPicker = new ColorPicker(composite, this.initialRGB);
-		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
-				false));
 	}
 
 	private void updateCompletion() {
@@ -64,7 +54,4 @@ public class AddEpisodeWizardPage extends WizardPage {
 		return this.episodeCaption.getText();
 	}
 
-	public RGB getEpisodeRGB() {
-		return this.colorPicker.getRGB();
-	}
 }

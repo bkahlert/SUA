@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -56,10 +58,12 @@ public interface ICodeService {
 	 * Creates a {@link ICode} with the given caption.
 	 * 
 	 * @param caption
+	 * @param color
 	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode createCode(String caption) throws CodeServiceException;
+	public ICode createCode(String caption, RGB color)
+			throws CodeServiceException;
 
 	/**
 	 * Returns an existing {@link ICode} based on it's internal id
@@ -75,11 +79,12 @@ public interface ICodeService {
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param codeCaption
+	 * @param rgb
 	 * @param codeable
 	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode addCode(String codeCaption, ICodeable codeable)
+	public ICode addCode(String codeCaption, RGB rgb, ICodeable codeable)
 			throws CodeServiceException;
 
 	/**
@@ -152,6 +157,18 @@ public interface ICodeService {
 	 * @throws CodeServiceException
 	 */
 	public void renameCode(ICode code, String newCaption)
+			throws CodeServiceException;
+
+	/**
+	 * Recolors a {@link ICode}
+	 * <p>
+	 * This operation is broadcasted through {@link ICodeServiceListener}
+	 * 
+	 * @param code
+	 * @param newColor
+	 * @throws CodeServiceException
+	 */
+	public void recolorCode(ICode code, RGB newColor)
 			throws CodeServiceException;
 
 	/**

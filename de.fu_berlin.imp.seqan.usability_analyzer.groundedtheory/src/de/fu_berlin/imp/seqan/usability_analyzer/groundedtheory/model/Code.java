@@ -2,8 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import java.util.List;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class Code implements ICode {
 
@@ -23,11 +26,13 @@ public class Code implements ICode {
 
 	private final long id;
 	private String caption;
+	private RGB color;
 	private TimeZoneDate creation;
 
-	public Code(long id, String caption, TimeZoneDate creation) {
+	public Code(long id, String caption, RGB color, TimeZoneDate creation) {
 		this.id = id;
 		this.caption = caption;
+		this.color = color;
 		this.creation = creation;
 	}
 
@@ -43,6 +48,16 @@ public class Code implements ICode {
 	@Override
 	public void setCaption(String newCaption) {
 		this.caption = newCaption;
+	}
+
+	@Override
+	public RGB getColor() {
+		return this.color != null ? this.color : Utils.getFancyCodeColor();
+	}
+
+	@Override
+	public void setColor(RGB rgb) {
+		this.color = rgb;
 	}
 
 	@Override

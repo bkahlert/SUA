@@ -66,7 +66,7 @@
             name="Create Episode...">
       </command>
       <command
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode"
             name="Change Color...">
       </command>
    </extension>
@@ -135,11 +135,11 @@
            </activeWhen>
         </handler>
         <handler
-              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RecolorEpisodeHandler"
-              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode">
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RecolorCodeHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode">
            <activeWhen>
               <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isIEpisode">
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
               </reference>
            </activeWhen>
         </handler>
@@ -196,6 +196,19 @@
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isCodeView">
                   </reference>
                </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode"
+               disabledIcon="icons/dtool16/edit_code_tsk.png"
+               icon="icons/etool16/edit_code_tsk.png"
+               label="Change Color..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodes">
+               </reference>
             </visibleWhen>
          </command>
          <command
@@ -270,19 +283,6 @@
                   checkEnabled="false">
                <reference
                      definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
-               </reference>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorEpisode"
-               disabledIcon="icons/dtool16/edit_episode_tsk.png"
-               icon="icons/etool16/edit_episode_tsk.png"
-               label="Change Color..."
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
                </reference>
             </visibleWhen>
          </command>
@@ -438,7 +438,7 @@
                moveable="true"
                ratio="0.5"
                relationship="bottom"
-               relative="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView"
+               relative="de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView"
                standalone="false"
                visible="true">
          </view>
@@ -572,6 +572,19 @@
             <iterate
                   ifEmpty="false"
                   operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodes">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
                <adapt
                      type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
                </adapt>

@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
@@ -26,6 +28,9 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProv
  */
 public class AggregatedBandGroupProvider implements IBandGroupProvider {
 
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger
+			.getLogger(AggregatedBandGroupProvider.class);
 	private List<IBandGroupProvider> bandGroupProviders = new ArrayList<IBandGroupProvider>();
 
 	private Map<Object, IBandGroupProvider> bandToProvider = new HashMap<Object, IBandGroupProvider>();
@@ -216,10 +221,10 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 			}
 
 			@Override
-			public String getColor(Object event) {
+			public RGB[] getColors(Object event) {
 				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
-					String value = bandGroupProvider.getEventLabelProvider()
-							.getColor(event);
+					RGB[] value = bandGroupProvider.getEventLabelProvider()
+							.getColors(event);
 					if (value != null)
 						return value;
 				}

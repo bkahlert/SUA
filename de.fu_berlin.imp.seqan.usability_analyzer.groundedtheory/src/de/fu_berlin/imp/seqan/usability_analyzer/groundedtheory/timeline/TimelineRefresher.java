@@ -6,6 +6,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.Viewer;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
@@ -75,6 +76,11 @@ public class TimelineRefresher implements ICodeServiceListener {
 
 	@Override
 	public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
 		this.scheduleRefresh();
 	}
 
