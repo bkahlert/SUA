@@ -48,7 +48,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListe
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
@@ -166,8 +165,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						.getAdaptableObjects(event.getSelection(),
 								DiffRecord.class);
 				for (DiffRecord diffRecord : diffRecords) {
-					DiffFileEditorUtils.closeCompareEditors(diffRecord);
-					DiffFileEditorUtils.openCompareEditor(diffRecord);
+					diffRecord.open();
 				}
 			}
 		});

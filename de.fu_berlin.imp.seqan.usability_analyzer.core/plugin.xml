@@ -50,6 +50,10 @@
             name="Start Work Session">
       </command>
       <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.open"
+            name="Open">
+      </command>
+      <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.rename"
             name="Rename...">
       </command>
@@ -86,6 +90,15 @@
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories">
         </handler>
         <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.OpenHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.open">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIOpenable">
+              </reference>
+           </activeWhen>
+        </handler>
+        <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.RevealInOSHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS">
            <activeWhen>
@@ -117,6 +130,16 @@
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.hasMultipleIWorkSessionEntities">
                   </reference>
                </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.open"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIOpenable">
+               </reference>
             </visibleWhen>
          </command>
          <command
@@ -195,14 +218,27 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIOpenable">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIOpenable">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="and">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable">
                </adapt>
             </iterate>
          </with>
@@ -214,6 +250,19 @@
             <iterate
                   ifEmpty="false"
                   operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
                <adapt
                      type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
                </adapt>

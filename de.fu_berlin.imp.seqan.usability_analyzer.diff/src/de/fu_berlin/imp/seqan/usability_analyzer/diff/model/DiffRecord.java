@@ -13,14 +13,16 @@ import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffRecord implements HasDateRange, ICodeable, HasID {
+public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 
 	private static final long serialVersionUID = -1200532570493919910L;
 
@@ -34,14 +36,14 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	private DiffRecordMeta meta;
 
 	/**
-	 * Contains the byte position within the parent {@link Diff} where the
-	 * patch starts
+	 * Contains the byte position within the parent {@link Diff} where the patch
+	 * starts
 	 */
 	private long patchStart;
 
 	/**
-	 * Contains the byte position within the parent {@link Diff} where the
-	 * patch end
+	 * Contains the byte position within the parent {@link Diff} where the patch
+	 * end
 	 */
 	private long patchEnd;
 
@@ -50,8 +52,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	private boolean patchFailed = false;
 
 	public DiffRecord(Diff diff, IData originalSource,
-			ISourceStore sourceCache, String commandLine,
-			DiffRecordMeta meta, long contentStart, long contentEnd) {
+			ISourceStore sourceCache, String commandLine, DiffRecordMeta meta,
+			long contentStart, long contentEnd) {
 		this.diff = diff;
 		this.originalSource = originalSource;
 		this.sourceCache = sourceCache;
@@ -142,8 +144,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 	}
 
 	public File getSourceFile() throws IOException {
-		return this.sourceCache.getSourceFile(diff.getID(),
-				diff.getRevision(), this.meta.getToFileName());
+		return this.sourceCache.getSourceFile(diff.getID(), diff.getRevision(),
+				this.meta.getToFileName());
 	}
 
 	public boolean sourceExists() {
@@ -231,8 +233,8 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 		try {
 			File tmp = File.createTempFile("source", ".tmp");
 			FileUtils.write(tmp, sourceString);
-			this.sourceCache.setSourceFile(diff.getID(),
-					diff.getRevision(), this.meta.getToFileName(), tmp);
+			this.sourceCache.setSourceFile(diff.getID(), diff.getRevision(),
+					this.meta.getToFileName(), tmp);
 		} catch (IOException e) {
 			LOGGER.error(
 					"Could not write source file for "
@@ -255,5 +257,11 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID {
 			}
 		}
 		return this.predecessor;
+	}
+
+	@Override
+	public void open() {
+		DiffFileEditorUtils.closeCompareEditors(this);
+		DiffFileEditorUtils.openCompareEditor(this);
 	}
 }

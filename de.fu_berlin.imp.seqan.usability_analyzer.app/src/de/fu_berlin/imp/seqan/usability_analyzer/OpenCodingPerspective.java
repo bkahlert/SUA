@@ -9,6 +9,7 @@ public class OpenCodingPerspective implements IPerspectiveFactory {
 	 * Creates the initial layout for a page.
 	 */
 	public void createInitialLayout(IPageLayout layout) {
+		@SuppressWarnings("unused")
 		String editorArea = layout.getEditorArea();
 		addFastViews(layout);
 		addViewShortcuts(layout);
@@ -47,7 +48,7 @@ public class OpenCodingPerspective implements IPerspectiveFactory {
 				IPageLayout.BOTTOM, 0.43f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView");
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogTimelineView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView",
 				IPageLayout.TOP, 0.5f, IPageLayout.ID_EDITOR_AREA);
 	}
 
