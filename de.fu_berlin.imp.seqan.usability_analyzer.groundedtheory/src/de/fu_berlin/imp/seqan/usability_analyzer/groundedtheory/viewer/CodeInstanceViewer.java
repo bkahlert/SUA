@@ -76,7 +76,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 					@Override
 					public Image getImage(Object element) {
 						if (ICode.class.isInstance(element)) {
-							return ImageManager.CODE;
+							return codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
+									: ImageManager.CODE;
 						}
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codedObject = (ICodeable) element;

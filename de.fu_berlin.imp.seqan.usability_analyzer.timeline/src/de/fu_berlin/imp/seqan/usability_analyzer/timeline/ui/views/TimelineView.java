@@ -79,12 +79,6 @@ public class TimelineView extends ViewPart {
 				if (openedKeys == null)
 					return;
 
-				// TODO noch evaluieren, ob das sinn macht.
-				// blöd, wenn man auf screenshots klickt und diese
-				// dann immer grün gehighlighted sind.
-				if (true)
-					return;
-
 				// TODO selection nur auf jeweiliger timeline anwenden (und
 				// nicht auf alle)
 				List<HasDateRange> ranges = SelectionRetrieverFactory
@@ -92,8 +86,12 @@ public class TimelineView extends ViewPart {
 						.getSelection();
 				for (Object key : openedKeys) {
 					List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
-					for (HasDateRange range : ranges)
+					for (HasDateRange range : ranges) {
+						if (range.getClass().getSimpleName().toLowerCase()
+								.contains("doclog"))
+							return;
 						dateRanges.add(range.getDateRange());
+					}
 					groupedDateRanges.put(key, dateRanges);
 				}
 			} else {
