@@ -76,6 +76,11 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 	}
 
 	@Override
+	public boolean canRunAsJob() {
+		return true;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

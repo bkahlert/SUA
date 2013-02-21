@@ -4,20 +4,18 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-public class TimelinePerspective implements IPerspectiveFactory {
+public class BrowsingPerspective implements IPerspectiveFactory {
 
-	/**
-	 * Creates the initial layout for a page.
-	 */
-	@SuppressWarnings("unused")
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective";
+
 	public void createInitialLayout(IPageLayout layout) {
-		String editorArea = layout.getEditorArea();
-		addFastViews(layout);
-		addViewShortcuts(layout);
 		addPerspectiveShortcuts(layout);
+		layout.setEditorAreaVisible(false);
+		@SuppressWarnings("unused")
+		String editorArea = layout.getEditorArea();
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView",
-				IPageLayout.LEFT, 0.43f, IPageLayout.ID_EDITOR_AREA);
+				IPageLayout.LEFT, 0.64f, IPageLayout.ID_EDITOR_AREA);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1",
 					IPageLayout.BOTTOM, 0.7f, IPageLayout.ID_EDITOR_AREA);
@@ -32,7 +30,7 @@ public class TimelinePerspective implements IPerspectiveFactory {
 				"de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView",
-				IPageLayout.RIGHT, 0.52f, IPageLayout.ID_EDITOR_AREA);
+				IPageLayout.RIGHT, 0.05f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView",
 				IPageLayout.BOTTOM,
@@ -50,24 +48,8 @@ public class TimelinePerspective implements IPerspectiveFactory {
 		}
 	}
 
-	/**
-	 * Add fast views to the perspective.
-	 */
-	private void addFastViews(IPageLayout layout) {
-	}
-
-	/**
-	 * Add view shortcuts to the perspective.
-	 */
-	private void addViewShortcuts(IPageLayout layout) {
-	}
-
-	/**
-	 * Add perspective shortcuts to the perspective.
-	 */
 	private void addPerspectiveShortcuts(IPageLayout layout) {
-		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective");
+		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective");
 		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective");
 	}
-
 }

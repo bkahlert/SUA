@@ -428,56 +428,6 @@
       </initializer>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="*">
-         <view
-               closeable="false"
-               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView"
-               minimized="false"
-               moveable="true"
-               ratio="0.5"
-               relationship="bottom"
-               relative="de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView"
-               standalone="false"
-               visible="true">
-         </view>
-         <view
-               closeable="false"
-               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
-               minimized="false"
-               moveable="true"
-               ratio="0.5"
-               relationship="bottom"
-               relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView"
-               standalone="false"
-               visible="true">
-         </view>
-         <view
-               closeable="false"
-               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
-               minimized="false"
-               moveable="true"
-               ratio="0.5"
-               relationship="bottom"
-               relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
-               standalone="false"
-               visible="true">
-         </view>
-         <view
-               closeable="false"
-               id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView"
-               minimized="false"
-               moveable="true"
-               ratio="0.5"
-               relationship="bottom"
-               relative="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView"
-               standalone="false"
-               visible="true">
-         </view>
-      </perspectiveExtension>
-   </extension>
-   <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
@@ -805,5 +755,8 @@
       <TimelineBandProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.AnalysisTimelineBandProvider">
       </TimelineBandProvider>
+      <TimelineEventDetailProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.EpisodeTimelineEventDetailProvider">
+      </TimelineEventDetailProvider>
    </extension>
 </plugin>

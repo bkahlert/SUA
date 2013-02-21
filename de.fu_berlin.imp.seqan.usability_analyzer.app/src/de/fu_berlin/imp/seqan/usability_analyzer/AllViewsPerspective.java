@@ -3,7 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-public class OpenCodingPerspective implements IPerspectiveFactory {
+public class AllViewsPerspective implements IPerspectiveFactory {
 
 	/**
 	 * Creates the initial layout for a page.
@@ -18,6 +18,10 @@ public class OpenCodingPerspective implements IPerspectiveFactory {
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView",
 				IPageLayout.LEFT, 0.32f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView",
+				IPageLayout.BOTTOM, 0.5f,
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView",
 				IPageLayout.BOTTOM, 0.69f, IPageLayout.ID_EDITOR_AREA);
@@ -68,6 +72,7 @@ public class OpenCodingPerspective implements IPerspectiveFactory {
 	 * Add perspective shortcuts to the perspective.
 	 */
 	private void addPerspectiveShortcuts(IPageLayout layout) {
+		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective");
 		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective");
 	}
 

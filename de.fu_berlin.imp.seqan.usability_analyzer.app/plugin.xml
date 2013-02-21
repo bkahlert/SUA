@@ -13,12 +13,12 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="de.fu_berlin.imp.seqan.usability_analyzer.Perspective"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.app.perspective"
-            name="SeqAn Usability Analyzer">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective"
+            name="Browsing">
       </perspective>
       <perspective
-            class="de.fu_berlin.imp.seqan.usability_analyzer.OpenCodingPerspective"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective"
             id="de.fu_berlin.imp.seqan.usability_analyzer.OpenCodingPerspective"
             name="Open Coding">
       </perspective>
@@ -26,6 +26,16 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective"
             id="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective"
             name="Timeline">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.EditorOnlyPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.EditorOnlyPerspective"
+            name="Editor Only">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective"
+            name="All Views">
       </perspective>
    </extension>
    <extension

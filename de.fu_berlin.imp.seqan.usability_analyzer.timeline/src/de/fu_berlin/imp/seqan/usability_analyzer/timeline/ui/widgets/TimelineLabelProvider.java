@@ -171,10 +171,9 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 		IDataSetInfo dataSetInfo = getDataSetInfo();
 		TimeZoneDateRange range = dataSetInfo.getDateRange();
 		if (range.getStartDate() != null) {
-			return (range.getStartDate().getLocalTime() - range.getStartDate()
-					.getTime()) / 3600000f; // e.g. 2
-											// or
-											// -5.5
+			float offset = (range.getStartDate().getLocalTime() - range
+					.getStartDate().getTime()) / 3600000f; // e.g. 2 or -5.5
+			return offset;
 		}
 		return null;
 	}

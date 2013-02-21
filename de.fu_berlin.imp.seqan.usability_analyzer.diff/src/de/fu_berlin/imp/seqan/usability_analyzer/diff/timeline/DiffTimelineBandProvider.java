@@ -16,7 +16,11 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
+import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -44,12 +48,33 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineContentProvider getContentProvider() {
 		return new ITimelineContentProvider() {
 
+			private ITimelineListener timelineListener = new TimelineAdapter() {
+				@Override
+				public void clicked(TimelineEvent event) {
+					if (!(event.getSource() instanceof DiffRecord))
+						return;
+					DiffRecord diffRecord = (DiffRecord) event.getSource();
+					diffRecord.open();
+				}
+			};
+
 			private Object input = null;
+			private ITimelineGroup<?> timelineGroup = null;
 
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput) {
 				this.input = newInput;
+
+				if (this.timelineGroup != null) {
+					this.timelineGroup.removeTimelineListener(timelineListener);
+				}
+				if (viewer != null
+						&& viewer.getControl() instanceof ITimelineGroup) {
+					this.timelineGroup = (ITimelineGroup<?>) viewer
+							.getControl();
+					this.timelineGroup.addTimelineListener(timelineListener);
+				}
 			}
 
 			@Override
