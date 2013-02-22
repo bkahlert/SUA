@@ -69,6 +69,15 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode"
             name="Change Color...">
       </command>
+      <command
+            description="Pinned memo stay in this view and won&apos;t be replaced if another memorable object has been selected."
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo"
+            name="Pin Memo">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -142,6 +151,10 @@
                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
               </reference>
            </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.FixMemoHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo">
         </handler>
      </extension>
    <extension
@@ -330,6 +343,16 @@
                   name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
                   value="TRUE">
             </parameter>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView?after=additions">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo"
+               disabledIcon="icons/dlcl16/pin_tsk.png"
+               icon="icons/elcl16/pin_tsk.png"
+               style="toggle">
          </command>
       </menuContribution>
    </extension>

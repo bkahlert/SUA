@@ -44,10 +44,8 @@ public class ImageManager {
 	/*
 	 * local tool bar
 	 */
-	//	public static final Image ELCL_CREATE_CODE = getImage("icons/elcl16/create_code_tsk.png"); //$NON-NLS-1$
-	//	public static final Image DLCL_CREATE_CODE = getImage("icons/dlcl16/create_code_tsk.png"); //$NON-NLS-1$
-	//	public static final Image ELCL_ADD_CODE = getImage("icons/elcl16/add_code_tsk.png"); //$NON-NLS-1$
-	//	public static final Image DLCL_ADD_CODE = getImage("icons/dlcl16/add_code_tsk.png"); //$NON-NLS-1$
+	public static final Image ELCL_PIN = getImage("icons/elcl16/pin_tsk.png"); //$NON-NLS-1$
+	public static final Image DLCL_PIN = getImage("icons/dlcl16/pin_tsk.png"); //$NON-NLS-1$
 
 	/*
 	 * objects

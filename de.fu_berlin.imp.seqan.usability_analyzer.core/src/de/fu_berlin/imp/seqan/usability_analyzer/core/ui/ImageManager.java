@@ -31,8 +31,8 @@ public class ImageManager {
 	/*
 	 * local tool bar
 	 */
-	//	public static final Image ELCL_SPACER = getImage("icons/elcl16/spacer.png"); //$NON-NLS-1$
-	//	public static final Image DLCL_SPACER = getImage("icons/dlcl16/spacer.png"); //$NON-NLS-1$
+	public static final Image ELCL_PIN = getImage("icons/elcl16/pin_tsk.png"); //$NON-NLS-1$
+	public static final Image DLCL_PIN = getImage("icons/dlcl16/pin_tsk.png"); //$NON-NLS-1$
 
 	/*
 	 * objects

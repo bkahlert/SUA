@@ -7,12 +7,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
@@ -30,11 +35,15 @@ public class MemoView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView";
 	private MemoComposer memoComposer;
 
-	Job memoLoader = null;
+	private Job memoLoader = null;
+	private boolean pin = false;
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (pin)
+				return;
+
 			final List<ICode> codes = SelectionUtils.getAdaptableObjects(
 					selection, ICode.class);
 			final List<ICodeInstance> codeInstances = SelectionUtils
@@ -93,6 +102,15 @@ public class MemoView extends ViewPart {
 					}
 				});
 
+		MenuManager menuManager = new MenuManager("#PopupMenu");
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				manager.add(new Separator(
+						IWorkbenchActionConstants.MB_ADDITIONS));
+			}
+		});
+
 		SelectionUtils.getSelectionService().addPostSelectionListener(
 				selectionListener);
 	}
@@ -108,6 +126,18 @@ public class MemoView extends ViewPart {
 	public void setFocus() {
 		if (this.memoComposer != null && !this.memoComposer.isDisposed())
 			this.memoComposer.setFocus();
+	}
+
+	/**
+	 * Defines if the currently loaded memo should be pinned.
+	 * <p>
+	 * A pinned memo stays open although another object with memo support is
+	 * selected.
+	 * 
+	 * @param pin
+	 */
+	public void setPin(boolean pin) {
+		this.pin = pin;
 	}
 
 }
