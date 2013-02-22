@@ -7,7 +7,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 
-
+/**
+ * Instances of this class wrap a list of {@link IDataContainer}s and displays
+ * them as one.
+ * 
+ * @author bkahlert
+ * 
+ */
 public class AggregatedDataContainer implements IDataContainer {
 
 	private List<? extends IDataContainer> containers;

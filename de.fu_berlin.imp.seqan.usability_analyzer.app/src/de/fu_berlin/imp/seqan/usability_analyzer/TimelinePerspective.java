@@ -15,9 +15,14 @@ public class TimelinePerspective implements IPerspectiveFactory {
 		addFastViews(layout);
 		addViewShortcuts(layout);
 		addPerspectiveShortcuts(layout);
-		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView",
-				IPageLayout.LEFT, 0.43f, IPageLayout.ID_EDITOR_AREA);
+		{
+			IFolderLayout folderLayout = layout.createFolder("folder_2",
+					IPageLayout.LEFT, 0.43f, IPageLayout.ID_EDITOR_AREA);
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
+		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1",
 					IPageLayout.BOTTOM, 0.7f, IPageLayout.ID_EDITOR_AREA);

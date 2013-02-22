@@ -34,6 +34,17 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
+/**
+ * Instances of this class represent {@link IDataContainer}s that contain
+ * {@link Diff}s.
+ * <p>
+ * For each class of {@link Diff}s a sub {@link IDataContainer} with a valid
+ * {@link ID} as its name must exist. Each of those sub {@link IDataContainer}
+ * contains the {@link Diff}s belonging to this {@link ID}.
+ * 
+ * @author bkahlert
+ * 
+ */
 public class DiffContainer extends AggregatedBaseDataContainer {
 
 	private static final Logger LOGGER = Logger.getLogger(DiffContainer.class);
@@ -45,8 +56,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
-	 * names (see {@link ID#isValid(String)}) and maps all containing files its
-	 * corresponding {@link ID}.
+	 * names (see {@link ID#isValid(String)}) and maps all containing files
+	 * their corresponding {@link ID}.
 	 * 
 	 * @param diffContainer
 	 * @return
@@ -235,14 +246,11 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	public void scanIfNecessary(SubMonitor monitor) {
 		if (this.dataLists == null && this.fileDateRanges == null) {
 			scan(monitor);
-		} else if (this.dataLists == null && this.fileDateRanges != null) {
-			LOGGER.fatal("State error in "
-					+ DiffContainer.class.getSimpleName() + "");
-		} else if (this.dataLists != null && this.fileDateRanges == null) {
-			LOGGER.fatal("State error in "
-					+ DiffContainer.class.getSimpleName() + "");
-		} else {
+		} else if (this.dataLists != null && this.fileDateRanges != null) {
 			// nothing to do
+		} else {
+			LOGGER.fatal("State error in "
+					+ DiffContainer.class.getSimpleName() + "");
 		}
 	}
 
