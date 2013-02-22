@@ -9,21 +9,47 @@ import java.util.NoSuchElementException;
 
 import com.bkahlert.devel.nebula.utils.StringUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
-public class DiffList implements Iterable<IDiff>, HasDateRange {
+public class Diffs implements IDiffs {
 
 	private IDiff[] diffs;
+	private ID id;
 	private TimeZoneDateRange dateRange = null;
 	private String longestPrefix;
 
-	public DiffList(IDiff[] diffs) {
+	public Diffs(IDiff[] diffs) {
 		if (diffs == null)
 			throw new IllegalArgumentException();
+		if (diffs.length == 0)
+			throw new IllegalArgumentException("You must provide at least one "
+					+ IDiff.class.getSimpleName());
+		this.id = diffs[0].getID();
+		for (int i = 1; i < diffs.length; i++) {
+			if (!this.id.equals(diffs[i].getID())) {
+				throw new IllegalArgumentException("All "
+						+ IDiff.class.getSimpleName()
+						+ " must provide the same " + ID.class.getSimpleName()
+						+ ". " + diffs[i].getID() + " does not equal "
+						+ this.id + ".");
+			}
+		}
 		this.diffs = diffs;
 	}
 
+	@Override
+	public ID getID() {
+		return this.id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#getDateRange
+	 * ()
+	 */
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		if (this.dateRange == null) {
@@ -38,15 +64,13 @@ public class DiffList implements Iterable<IDiff>, HasDateRange {
 		return this.dateRange;
 	}
 
-	/**
-	 * Returns the longest common prefix among the files described by the
-	 * {@link DiffRecord} in this {@link DiffList}.
-	 * <p>
-	 * e.g. considering there are the files /source/a.txt, /source/b.txt,
-	 * /src/c.txt this method would return /source/.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#
+	 * getLongestCommonPrefix()
 	 */
+	@Override
 	public String getLongestCommonPrefix() {
 		if (this.longestPrefix == null) {
 			List<DiffRecord> diffRecords = new ArrayList<DiffRecord>();
@@ -81,6 +105,14 @@ public class DiffList implements Iterable<IDiff>, HasDateRange {
 		return i;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#getSuccessor
+	 * (de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff)
+	 */
+	@Override
 	public IDiff getSuccessor(IDiff diff) {
 		int i = getIndex(diff);
 
@@ -93,12 +125,14 @@ public class DiffList implements Iterable<IDiff>, HasDateRange {
 			return null;
 	}
 
-	/**
-	 * Returns all {@link DiffRecord}'s describing the same file.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param filename
-	 * @return
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#getHistory
+	 * (java.lang.String)
 	 */
+	@Override
 	public DiffRecordHistory getHistory(String filename) {
 		DiffRecordHistory history = new DiffRecordHistory();
 		for (IDiff diff : this) {
@@ -112,6 +146,12 @@ public class DiffList implements Iterable<IDiff>, HasDateRange {
 		return history;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#iterator()
+	 */
 	@Override
 	public Iterator<IDiff> iterator() {
 		return new Iterator<IDiff>() {
@@ -134,34 +174,33 @@ public class DiffList implements Iterable<IDiff>, HasDateRange {
 		};
 	}
 
-	/**
-	 * Returns the i-th {@link IDiff} in this {@link DiffList}.
-	 * <p>
-	 * Throws an {@link IndexOutOfBoundsException} exception if i access an
-	 * undefined position.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param i
-	 * @return
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#get(int)
 	 */
+	@Override
 	public IDiff get(int i) {
 		return this.diffs[i];
 	}
 
-	/**
-	 * Returns the number of {@link IDiff}s in this {@link DiffList}.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#length()
 	 */
+	@Override
 	public int length() {
 		return this.diffs.length;
 	}
 
-	/**
-	 * Returns a {@link IDiff} array representing the {@link IDiff}s of this
-	 * {@link DiffList}.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs#toArray()
 	 */
+	@Override
 	public IDiff[] toArray() {
 		return this.diffs;
 	}

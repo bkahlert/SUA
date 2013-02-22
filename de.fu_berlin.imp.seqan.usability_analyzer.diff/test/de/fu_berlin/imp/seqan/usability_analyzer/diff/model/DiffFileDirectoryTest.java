@@ -73,7 +73,7 @@ public class DiffFileDirectoryTest {
 	public void testGetDiffFiles() throws Exception {
 		DiffContainer diffFileManager = getDiffFileManager();
 
-		DiffList diffFiles = diffFileManager.createDiffFiles(id,
+		IDiffs diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 		Assert.assertEquals(6, diffFiles.length());
 	}
@@ -82,7 +82,7 @@ public class DiffFileDirectoryTest {
 	public void testGetRevision() throws Exception {
 		DiffContainer diffFileManager = getDiffFileManager();
 
-		DiffList diffFiles = diffFileManager.createDiffFiles(id,
+		IDiffs diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 
 		for (int i = 0; i < diffFiles.length(); i++) {

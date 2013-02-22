@@ -10,10 +10,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
@@ -23,8 +23,8 @@ public class DiffLabelProvider extends LabelProvider {
 
 	@Override
 	public String getText(Object element) {
-		if (element instanceof DiffList) {
-			DiffList diffList = (DiffList) element;
+		if (element instanceof IDiffs) {
+			IDiffs diffList = (IDiffs) element;
 			ID id = null;
 			if (diffList.length() > 0) {
 				id = diffList.get(0).getID();
@@ -55,7 +55,7 @@ public class DiffLabelProvider extends LabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof DiffList) {
+		if (element instanceof IDiffs) {
 			return ImageManager.DIFFFILELIST;
 		}
 		if (element instanceof IDiff) {

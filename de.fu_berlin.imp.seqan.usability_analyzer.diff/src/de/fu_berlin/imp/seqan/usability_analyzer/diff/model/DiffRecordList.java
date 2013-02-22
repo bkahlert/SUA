@@ -31,7 +31,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static DiffList create(DataList dataList, ITrunk trunk,
+	public static IDiffs create(DataList dataList, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 		List<IDiff> diffs = new ArrayList<IDiff>();
 
@@ -48,13 +48,13 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 			prevDiffFile = diff;
 		}
 
-		// clean up since a DiffList creation can temporally consume much
+		// clean up since a Diffs creation can temporally consume much
 		// heap
 		Runtime.getRuntime().gc();
 
 		progressMonitor.done();
 
-		return new DiffList(diffs.toArray(new IDiff[0]));
+		return new Diffs(diffs.toArray(new IDiff[0]));
 	}
 
 	private static final long serialVersionUID = 1327362495545624312L;

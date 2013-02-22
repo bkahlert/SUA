@@ -33,10 +33,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -116,8 +117,8 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof DiffList) {
-							DiffList diffList = (DiffList) element;
+						if (element instanceof IDiffs) {
+							IDiffs diffList = (IDiffs) element;
 							ID id = null;
 							if (diffList.length() > 0) {
 								id = diffList.get(0).getID();
@@ -141,7 +142,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						if (element instanceof DiffList) {
+						if (element instanceof IDiffs) {
 							return ImageManager.DIFFFILELIST;
 						}
 						if (element instanceof IDiff) {
@@ -246,8 +247,8 @@ public class DiffListsViewer extends SortableTreeViewer {
 		revisionColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (element instanceof DiffList) {
-					DiffList diffList = (DiffList) element;
+				if (element instanceof IDiffs) {
+					IDiffs diffList = (IDiffs) element;
 					return "# " + diffList.length();
 				}
 				if (element instanceof IDiff) {
@@ -314,9 +315,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 					@Override
 					public String getText(Object element) {
 						TimeZoneDateRange range = null;
-						if (element instanceof DiffList) {
-							DiffList diffList = (DiffList) element;
-							range = diffList.getDateRange();
+						if (element instanceof IDiffs) {
+							Diffs diffs = (Diffs) element;
+							range = diffs.getDateRange();
 						}
 						if (element instanceof IDiff) {
 							Diff diff = (Diff) element;
@@ -337,9 +338,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 					@Override
 					public String getText(Object element) {
 						TimeZoneDateRange range = null;
-						if (element instanceof DiffList) {
-							DiffList diffList = (DiffList) element;
-							range = diffList.getDateRange();
+						if (element instanceof IDiffs) {
+							Diffs diffs = (Diffs) element;
+							range = diffs.getDateRange();
 						}
 						if (element instanceof IDiff) {
 							Diff diff = (Diff) element;

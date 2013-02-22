@@ -26,9 +26,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -99,7 +99,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					return new Object[0];
 				}
 
-				final DiffList diffList = (this.input instanceof ID) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+				final IDiffs diffList = (this.input instanceof ID) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
 						.getDefault().getDiffDataContainer()
 						.getDiffFiles((ID) this.input, subMonitor.newChild(1))
 						: null;

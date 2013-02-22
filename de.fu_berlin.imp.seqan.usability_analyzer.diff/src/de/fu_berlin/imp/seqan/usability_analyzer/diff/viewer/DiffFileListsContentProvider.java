@@ -11,10 +11,10 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -116,8 +116,8 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof DiffList) {
-			return ((DiffList) element).length() > 0;
+		if (element instanceof IDiffs) {
+			return ((IDiffs) element).length() > 0;
 		}
 		if (element instanceof IDiff) {
 			DiffRecordList diffFileRecords = ((IDiff) element)
@@ -129,8 +129,8 @@ public class DiffFileListsContentProvider implements
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof DiffList) {
-			return ((DiffList) parentElement).toArray();
+		if (parentElement instanceof IDiffs) {
+			return ((IDiffs) parentElement).toArray();
 		}
 		if (parentElement instanceof IDiff) {
 			DiffRecordList diffFileRecords = ((IDiff) parentElement)
@@ -150,8 +150,8 @@ public class DiffFileListsContentProvider implements
 			 * return the mentioned child list. This way we save one hierarchy
 			 * level (= ID level).
 			 */
-			if (objects.length == 1 && objects[0] instanceof DiffList) {
-				return ((DiffList) objects[0]).toArray();
+			if (objects.length == 1 && objects[0] instanceof IDiffs) {
+				return ((IDiffs) objects[0]).toArray();
 			}
 			return objects;
 		}

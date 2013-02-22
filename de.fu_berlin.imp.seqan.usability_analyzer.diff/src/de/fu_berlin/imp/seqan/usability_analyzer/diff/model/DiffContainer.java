@@ -211,9 +211,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns all {@link Diff}s associated with a given {@link ID}.
 	 * <p>
-	 * If the {@link DiffList} is already in the cached the cached version is
-	 * returned. Otherwise a new {@link DiffList} is constructed and added to
-	 * the cache.
+	 * If the {@link Diffs} is already in the cached the cached version is
+	 * returned. Otherwise a new {@link Diffs} is constructed and added to the
+	 * cache.
 	 * 
 	 * @param id
 	 * @param progressMonitor
@@ -221,7 +221,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * 
 	 * @see DiffCache
 	 */
-	public DiffList getDiffFiles(ID id, IProgressMonitor progressMonitor) {
+	public IDiffs getDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		return diffCache.getPayload(id, progressMonitor);
 	}
 
@@ -236,9 +236,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public DiffList createDiffFiles(ID id, IProgressMonitor progressMonitor) {
+	public IDiffs createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		DiffList diffFiles = DiffRecordList.create(this.dataLists.get(id),
+		IDiffs diffFiles = DiffRecordList.create(this.dataLists.get(id),
 				this.trunk, this.sourceCache, progressMonitor);
 		return diffFiles;
 	}
