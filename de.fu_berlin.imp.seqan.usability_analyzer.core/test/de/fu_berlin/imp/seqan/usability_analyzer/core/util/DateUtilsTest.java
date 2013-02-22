@@ -108,7 +108,7 @@ public class DateUtilsTest {
 	@Test
 	public void testToISO8601() {
 		Calendar calendar = DateUtil.fromISO8601("2011-11-18T15:38:28+09:00");
-		Assert.assertEquals("2011-11-18T15:38:28+09:00",
+		Assert.assertEquals("2011-11-18T15:38:28.0+09:00",
 				DateUtil.toISO8601(calendar));
 	}
 }

@@ -26,7 +26,7 @@ public class DiffLabelProvider extends LabelProvider {
 		if (element instanceof DiffList) {
 			DiffList diffList = (DiffList) element;
 			ID id = null;
-			if (diffList.size() > 0) {
+			if (diffList.length() > 0) {
 				id = diffList.get(0).getID();
 			}
 			return (id != null) ? id.toString() : "";

@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,21 +31,19 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public static DiffList create(DataList dataList,
-			ITrunk trunk, ISourceStore sourceCache,
-			IProgressMonitor progressMonitor) {
-		DiffList diffFiles = new DiffList();
+	public static DiffList create(DataList dataList, ITrunk trunk,
+			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
+		List<IDiff> diffs = new ArrayList<IDiff>();
 
-		Diff prevDiffFile = null;
+		IDiff prevDiffFile = null;
 
-		progressMonitor.beginTask(
-				"Processing " + Diff.class.getSimpleName() + "s",
-				dataList.size());
+		progressMonitor.beginTask("Processing " + Diff.class.getSimpleName()
+				+ "s", dataList.size());
 
 		for (IData data : dataList) { // look ahead = 1
-			Diff diff = new Diff(data, prevDiffFile, trunk,
-					sourceCache, new SubProgressMonitor(progressMonitor, 1));
-			diffFiles.add(diff);
+			Diff diff = new Diff(data, prevDiffFile, trunk, sourceCache,
+					new SubProgressMonitor(progressMonitor, 1));
+			diffs.add(diff);
 
 			prevDiffFile = diff;
 		}
@@ -55,7 +54,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 
 		progressMonitor.done();
 
-		return diffFiles;
+		return new DiffList(diffs.toArray(new IDiff[0]));
 	}
 
 	private static final long serialVersionUID = 1327362495545624312L;
@@ -63,8 +62,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	private ITrunk trunk;
 	private ISourceStore sourceCache;
 
-	public DiffRecordList(Diff diff, ITrunk trunk,
-			ISourceStore sourceCache) {
+	public DiffRecordList(Diff diff, ITrunk trunk, ISourceStore sourceCache) {
 		Assert.isNotNull(diff);
 		Assert.isNotNull(trunk);
 		Assert.isNotNull(sourceCache);
@@ -74,8 +72,7 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	}
 
 	/**
-	 * Creates a {@link DiffRecord} and add it to this
-	 * {@link DiffRecordList}
+	 * Creates a {@link DiffRecord} and add it to this {@link DiffRecordList}
 	 * 
 	 * @param commandLine
 	 * @param metaOldLine
@@ -86,13 +83,11 @@ public class DiffRecordList extends ArrayList<DiffRecord> {
 	public DiffRecord createAndAddRecord(String commandLine,
 			String metaOldLine, String metaNewLine, long contentStart,
 			long contentEnd) {
-		DiffRecordMeta meta = new DiffRecordMeta(metaOldLine,
-				metaNewLine);
+		DiffRecordMeta meta = new DiffRecordMeta(metaOldLine, metaNewLine);
 
 		IData originalSourceFile = trunk.getSourceFile(meta.getToFileName());
-		DiffRecord diffRecord = new DiffRecord(this.diff,
-				originalSourceFile, sourceCache, commandLine, meta,
-				contentStart, contentEnd);
+		DiffRecord diffRecord = new DiffRecord(this.diff, originalSourceFile,
+				sourceCache, commandLine, meta, contentStart, contentEnd);
 		if (!diffRecord.isTemporary()) {
 			this.add(diffRecord);
 			return diffRecord;

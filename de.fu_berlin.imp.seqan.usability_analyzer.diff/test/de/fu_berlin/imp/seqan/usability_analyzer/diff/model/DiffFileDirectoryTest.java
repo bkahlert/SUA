@@ -26,8 +26,7 @@ public class DiffFileDirectoryTest {
 
 	private static ID id = new ID("amudto8y1mzxaebv");
 
-	private static DiffContainer getDiffFileManager()
-			throws URISyntaxException {
+	private static DiffContainer getDiffFileManager() throws URISyntaxException {
 		return new DiffContainer(new FileBaseDataContainer(
 				FileUtils.getFile(root)));
 	}
@@ -76,7 +75,7 @@ public class DiffFileDirectoryTest {
 
 		DiffList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
-		Assert.assertEquals(6, diffFiles.size());
+		Assert.assertEquals(6, diffFiles.length());
 	}
 
 	@Test
@@ -86,7 +85,7 @@ public class DiffFileDirectoryTest {
 		DiffList diffFiles = diffFileManager.createDiffFiles(id,
 				new NullProgressMonitor());
 
-		for (int i = 0; i < diffFiles.size(); i++) {
+		for (int i = 0; i < diffFiles.length(); i++) {
 			IDiff diff = diffFiles.get(i);
 			Assert.assertEquals(i, diff.getRevision());
 		}

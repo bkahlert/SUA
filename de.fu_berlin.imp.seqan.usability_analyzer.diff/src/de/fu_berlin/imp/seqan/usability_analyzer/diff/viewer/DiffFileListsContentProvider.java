@@ -117,7 +117,7 @@ public class DiffFileListsContentProvider implements
 	@Override
 	public boolean hasChildren(Object element) {
 		if (element instanceof DiffList) {
-			return ((DiffList) element).size() > 0;
+			return ((DiffList) element).length() > 0;
 		}
 		if (element instanceof IDiff) {
 			DiffRecordList diffFileRecords = ((IDiff) element)

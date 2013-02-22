@@ -119,7 +119,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 						if (element instanceof DiffList) {
 							DiffList diffList = (DiffList) element;
 							ID id = null;
-							if (diffList.size() > 0) {
+							if (diffList.length() > 0) {
 								id = diffList.get(0).getID();
 							}
 							return (id != null) ? id.toString() : "";
@@ -248,7 +248,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 			public String getText(Object element) {
 				if (element instanceof DiffList) {
 					DiffList diffList = (DiffList) element;
-					return "# " + diffList.size();
+					return "# " + diffList.length();
 				}
 				if (element instanceof IDiff) {
 					IDiff diff = (IDiff) element;

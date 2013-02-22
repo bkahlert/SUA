@@ -106,12 +106,12 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 
 				switch ((BANDS) band) {
 				case DIFF_BAND:
-					IDiff[] diffs = diffList.toArray(new IDiff[0]);
+					IDiff[] diffs = diffList.toArray();
 					monitor.worked(1);
 					return diffs;
 				case DIFFRECORD_BAND:
 					List<DiffRecord> diffRecords = new ArrayList<DiffRecord>();
-					for (Diff diff : diffList) {
+					for (IDiff diff : diffList) {
 						for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
 							diffRecords.add(diffRecord);
 						}
@@ -185,7 +185,13 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					return "Iteration #" + (diff.getRevision() + 1);
 				} else if (event instanceof DiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
-					return diffRecord.getFilename();
+					String prefix = Activator.getDefault()
+							.getDiffDataContainer()
+							.getDiffFiles(diffRecord.getID(), null)
+							.getLongestCommonPrefix();
+					String filename = diffRecord.getFilename();
+					return filename.startsWith(prefix) ? filename
+							.substring(prefix.length()) : filename;
 				}
 				return "";
 			}

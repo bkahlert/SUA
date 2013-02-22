@@ -26,6 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
@@ -69,7 +70,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 							+ ID.class.getSimpleName() + " " + id);
 					return null;
 				}
-				if (diffFiles.size() <= revision) {
+				if (diffFiles.length() <= revision) {
 					LOGGER.error("There is no revision " + revision
 							+ " of the " + Diff.class.getSimpleName()
 							+ "s with " + ID.class.getSimpleName() + " " + id);
@@ -77,7 +78,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 				}
 
 				// 2: Record
-				Diff diff = diffFiles.get(revision);
+				IDiff diff = diffFiles.get(revision);
 				if (path.length <= 2)
 					return diff;
 				String diffFileRecordName;
