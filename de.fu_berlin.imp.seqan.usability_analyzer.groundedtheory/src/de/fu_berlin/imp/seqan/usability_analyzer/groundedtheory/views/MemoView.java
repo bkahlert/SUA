@@ -25,7 +25,6 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.widgets.MemoComposer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.widgets.MemoComposer.IPartDelegate;
@@ -43,6 +42,8 @@ public class MemoView extends ViewPart {
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			if (pin)
 				return;
+
+			System.err.println(selection);
 
 			final List<ICode> codes = SelectionUtils.getAdaptableObjects(
 					selection, ICode.class);
@@ -88,8 +89,7 @@ public class MemoView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.memoComposer = new MemoComposer(parent, SWT.BORDER,
-				new SUAGTPreferenceUtil().getMemoAutosaveAfterMilliseconds(),
+		this.memoComposer = new MemoComposer(parent, SWT.NONE,
 				new IPartDelegate() {
 					@Override
 					public void setName(String name) {

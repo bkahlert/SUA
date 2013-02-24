@@ -9,6 +9,7 @@ import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 
+// FIXME wieder verwenden, wurde durch Editor verwaist
 public class HyperlinkLineStyleListener implements LineStyleListener {
 
 	private static final Pattern URL_PATTERN = Pattern.compile("\\w+://.*");

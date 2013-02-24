@@ -1,8 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.widgets;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -15,7 +13,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -27,6 +24,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -48,7 +46,7 @@ public class MemoComposer extends Composite {
 	}
 
 	private IPartDelegate partDelegate;
-	private StyledText text;
+	private Editor editor;
 
 	private ICodeService codeService = null;
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
@@ -74,47 +72,34 @@ public class MemoComposer extends Composite {
 
 	private String oldHtml = "";
 
-	public MemoComposer(Composite parent, int style,
-			final long autosaveAfterMilliseconds, IPartDelegate partDelegate) {
+	public MemoComposer(Composite parent, int style, IPartDelegate partDelegate) {
 		super(parent, style & ~SWT.BORDER);
 		this.setLayout(GridLayoutFactory.fillDefaults().create());
 
 		this.partDelegate = partDelegate;
 
-		this.text = new StyledText(this, style & SWT.BORDER | SWT.MULTI
+		this.editor = new Editor(this, style & SWT.BORDER | SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
-		this.text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		this.text.addModifyListener(new ModifyListener() {
-			private Timer timer = null;
-
+		this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		this.editor.addModifyListener(new ModifyListener() {
 			@Override
-			public void modifyText(ModifyEvent e) {
-				if (timer != null)
-					timer.cancel();
-				timer = new Timer();
-				timer.schedule(new TimerTask() {
+			public void modifyText(final ModifyEvent e) {
+				System.err.println(e);
+				// FIXME e.text weiterleiten
+				new Job("Auto-Saving Memo") {
 					@Override
-					public void run() {
-						new Job("Auto-Saving Memo") {
-							@Override
-							protected IStatus run(
-									IProgressMonitor progressMonitor) {
-								SubMonitor monitor = SubMonitor.convert(
-										progressMonitor, 1);
-								if (save(monitor)) {
-									LOGGER.info("Memo auto-saved");
-								}
-								monitor.done();
-								return Status.OK_STATUS;
-							}
-						}.schedule();
+					protected IStatus run(IProgressMonitor progressMonitor) {
+						SubMonitor monitor = SubMonitor.convert(
+								progressMonitor, 1);
+						if (save(monitor)) {
+							LOGGER.info("Memo auto-saved");
+						}
+						monitor.done();
+						return Status.OK_STATUS;
 					}
-				}, autosaveAfterMilliseconds);
+				}.schedule();
 			}
 		});
-		this.text.addLineStyleListener(new HyperlinkLineStyleListener());
-		StyledTextHyperlinkHandler.addListenerTo(this.text);
-		SelectAllHandler.addListenerTo(this.text);
 
 		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(
 				ICodeService.class);
@@ -287,15 +272,16 @@ public class MemoComposer extends Composite {
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				text.setText(oldHtml);
-				text.setEnabled(finalEnabled);
-				text.setEditable(finalEnabled);
+				editor.setSource(oldHtml);
+				editor.setEnabled(finalEnabled);
 				layout();
 				monitor.done();
 			}
 		});
 	}
 
+	// FIXME: checken, ob's funktioniert beim closen wegen timing; am besten
+	// text aus event auslesen
 	synchronized private boolean save(IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor, "Saving Memo",
 				3);
@@ -305,7 +291,7 @@ public class MemoComposer extends Composite {
 			String html = ExecutorUtil.syncExec(new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					String s = text.getText();
+					String s = editor.getSource();
 					return s;
 				}
 			});
