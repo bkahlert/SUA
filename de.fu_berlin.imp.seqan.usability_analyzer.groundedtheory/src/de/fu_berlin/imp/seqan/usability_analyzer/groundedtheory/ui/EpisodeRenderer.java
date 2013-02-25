@@ -408,8 +408,8 @@ public class EpisodeRenderer implements IDisposable {
 					try {
 						List<ICode> codes = codeService.getCodes(episode);
 						if (codes.size() > 0)
-							renderingColors.put(episode, new CodeColors(
-									codes.get(0).getColor().toClassicRGB()));
+							renderingColors.put(episode, new CodeColors(codes
+									.get(0).getColor().toClassicRGB()));
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
 								+ ICode.class.getSimpleName() + "s.");
@@ -420,6 +420,8 @@ public class EpisodeRenderer implements IDisposable {
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
 				CodeColors codeColors = renderingColors.get(episode);
+				if (codeColors == null)
+					return;
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
 						codeColors.getBackgroundColor());
 

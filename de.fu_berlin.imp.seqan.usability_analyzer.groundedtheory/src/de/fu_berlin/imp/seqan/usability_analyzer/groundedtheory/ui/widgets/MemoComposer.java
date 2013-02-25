@@ -1,5 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.widgets;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -10,6 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
@@ -20,11 +25,17 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.devel.nebula.widgets.editor.IAnker;
+import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.editor.IAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -78,8 +89,116 @@ public class MemoComposer extends Composite {
 
 		this.partDelegate = partDelegate;
 
+		final ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
+
 		this.editor = new Editor(this, style & SWT.BORDER, 2000);
 		this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		this.editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
+
+			@Override
+			public boolean isResponsible(IAnker anker) {
+				if (anker.getHref() != null) {
+					try {
+						URI uri = new URI(anker.getHref());
+						ICodeable codeable = codeService.getCodedObject(uri);
+						if (codeable != null)
+							return true;
+					} catch (URISyntaxException e) {
+
+					}
+				}
+				return false;
+			}
+
+			@Override
+			public String getHref(IAnker anker) {
+				return anker.getHref();
+			}
+
+			@Override
+			public String[] getClasses(IAnker anker) {
+				return new String[] { "special" };
+			}
+
+			@Override
+			public String getContent(IAnker anker) {
+				if (anker.getHref() != null) {
+					try {
+						URI uri = new URI(anker.getHref());
+						ICodeable codeable = codeService.getCodedObject(uri);
+						ILabelProvider labelProvider = codeService
+								.getLabelProvider(uri);
+						if (codeable != null && labelProvider != null)
+							return labelProvider.getText(codeable);
+					} catch (URISyntaxException e) {
+
+					}
+				}
+				return "!!! " + anker.getHref() + " !!!";
+			}
+		});
+		this.editor.addAnkerListener(new IAnkerListener() {
+			@Override
+			public void ankerClicked(IAnker anker) {
+				final String href = anker.getHref();
+				ExecutorUtil.nonUIAsyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							final URI uri = new URI(href);
+							if (uri.getScheme() == null)
+								return;
+							if (uri.getScheme().equalsIgnoreCase("SUA")) {
+								ICodeService codeService = (ICodeService) PlatformUI
+										.getWorkbench().getService(
+												ICodeService.class);
+								if (!codeService
+										.showCodedObjectInWorkspace(uri)) {
+									Display.getDefault().asyncExec(
+											new Runnable() {
+												@Override
+												public void run() {
+													MessageDialog
+															.openInformation(
+																	PlatformUI
+																			.getWorkbench()
+																			.getActiveWorkbenchWindow()
+																			.getShell(),
+																	"Artefact not found",
+																	"The artefact "
+																			+ uri.toString()
+																			+ " could not be found.");
+												}
+											});
+								}
+							} else {
+								try {
+									IWebBrowser browser = PlatformUI
+											.getWorkbench().getBrowserSupport()
+											.getExternalBrowser();
+									browser.openURL(new URL(uri.toString()));
+								} catch (PartInitException e) {
+									LOGGER.error(
+											"Can't open external browser to open "
+													+ uri.toString(), e);
+								} catch (MalformedURLException e) {
+									LOGGER.error("Can't convert "
+											+ URI.class.getSimpleName()
+											+ " to "
+											+ URL.class.getSimpleName() + ": "
+											+ uri.toString());
+								}
+							}
+						} catch (URISyntaxException e) {
+							LOGGER.fatal("Invalid URI in "
+									+ MemoComposer.class.getSimpleName() + ": "
+									+ href);
+						}
+					}
+				});
+			}
+		});
 		this.editor.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
