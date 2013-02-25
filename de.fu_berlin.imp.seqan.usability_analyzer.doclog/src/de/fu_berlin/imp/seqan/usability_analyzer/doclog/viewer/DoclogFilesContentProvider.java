@@ -64,31 +64,46 @@ public class DoclogFilesContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICode code) {
+		public void memoAdded(ICode code) {
 			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
+		public void memoAdded(ICodeable codeable) {
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void memoModified(ICode code) {
+		}
+
+		@Override
 		public void memoModified(ICodeable codeable) {
+		}
+
+		@Override
+		public void memoRemoved(ICode code) {
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void memoRemoved(ICodeable codeable) {
 			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			// TODO Auto-generated method stub
-
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			// TODO Auto-generated method stub
-
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			// TODO Auto-generated method stub
-
+			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 	};
 

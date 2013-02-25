@@ -78,17 +78,44 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICode code) {
+		public void memoAdded(ICode code) {
 			ViewerUtils.update(viewer, code, null);
 		}
 
 		@Override
-		public void memoModified(ICodeInstance codeInstance) {
+		public void memoAdded(ICodeInstance codeInstance) {
 			ViewerUtils.update(viewer, codeInstance, null);
 		}
 
 		@Override
+		public void memoAdded(ICodeable codeable) {
+			ViewerUtils.update(viewer, codeable, null);
+		}
+
+		@Override
+		public void memoModified(ICode code) {
+		}
+
+		@Override
+		public void memoModified(ICodeInstance codeInstance) {
+		}
+
+		@Override
 		public void memoModified(ICodeable codeable) {
+		}
+
+		@Override
+		public void memoRemoved(ICode code) {
+			ViewerUtils.update(viewer, code, null);
+		}
+
+		@Override
+		public void memoRemoved(ICodeInstance codeInstance) {
+			ViewerUtils.update(viewer, codeInstance, null);
+		}
+
+		@Override
+		public void memoRemoved(ICodeable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
 		}
 

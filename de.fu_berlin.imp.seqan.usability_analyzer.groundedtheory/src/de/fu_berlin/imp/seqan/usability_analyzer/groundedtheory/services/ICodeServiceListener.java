@@ -24,9 +24,17 @@ public interface ICodeServiceListener {
 
 	public void codeDeleted(ICode code);
 
+	public void memoAdded(ICode code);
+
 	public void memoModified(ICode code);
 
+	public void memoRemoved(ICode code);
+
+	public void memoAdded(ICodeable codeable);
+
 	public void memoModified(ICodeable codeable);
+
+	public void memoRemoved(ICodeable codeable);
 
 	public void episodeAdded(IEpisode episode);
 

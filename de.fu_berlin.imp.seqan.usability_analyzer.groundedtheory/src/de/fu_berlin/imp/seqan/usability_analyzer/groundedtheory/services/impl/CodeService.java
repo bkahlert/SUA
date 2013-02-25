@@ -482,13 +482,25 @@ public class CodeService implements ICodeService {
 
 	@Override
 	public void setMemo(ICode code, String html) throws CodeServiceException {
-		String old = this.codeStore.getMemo(code);
-		if ((old != null && old.equals(html)) || (old == null && html == null)
-				|| (old == null && html.trim().isEmpty()))
+		String oldHtml = this.codeStore.getMemo(code);
+
+		if (oldHtml == null || oldHtml.trim().isEmpty())
+			oldHtml = "";
+		if (html == null || html.trim().isEmpty())
+			html = "";
+		if (oldHtml.equals(html))
 			return;
+
 		try {
 			this.codeStore.setMemo(code, html);
-			this.codeServiceListenerNotifier.memoModified(code, html);
+			if (oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoAdded(code, html);
+			else if (!oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoModified(code, html);
+			else if (!oldHtml.equals("") && html.equals(""))
+				this.codeServiceListenerNotifier.memoRemoved(code, html);
+			else
+				throw new CodeStoreWriteException("STATE ERROR");
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
@@ -497,13 +509,27 @@ public class CodeService implements ICodeService {
 	@Override
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeServiceException {
-		String old = this.codeStore.getMemo(codeInstance);
-		if ((old != null && old.equals(html)) || (old == null && html == null)
-				|| (old == null && html.trim().isEmpty()))
+		String oldHtml = this.codeStore.getMemo(codeInstance);
+
+		if (oldHtml == null || oldHtml.trim().isEmpty())
+			oldHtml = "";
+		if (html == null || html.trim().isEmpty())
+			html = "";
+		if (oldHtml.equals(html))
 			return;
+
 		try {
 			this.codeStore.setMemo(codeInstance, html);
-			this.codeServiceListenerNotifier.memoModified(codeInstance, html);
+			if (oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoAdded(codeInstance, html);
+			else if (!oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoModified(codeInstance,
+						html);
+			else if (!oldHtml.equals("") && html.equals(""))
+				this.codeServiceListenerNotifier
+						.memoRemoved(codeInstance, html);
+			else
+				throw new CodeStoreWriteException("STATE ERROR");
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
@@ -512,13 +538,25 @@ public class CodeService implements ICodeService {
 	@Override
 	public void setMemo(ICodeable codeable, String html)
 			throws CodeServiceException {
-		String old = this.codeStore.getMemo(codeable);
-		if ((old != null && old.equals(html)) || (old == null && html == null)
-				|| (old == null && html.trim().isEmpty()))
+		String oldHtml = this.codeStore.getMemo(codeable);
+
+		if (oldHtml == null || oldHtml.trim().isEmpty())
+			oldHtml = "";
+		if (html == null || html.trim().isEmpty())
+			html = "";
+		if (oldHtml.equals(html))
 			return;
+
 		try {
 			this.codeStore.setMemo(codeable, html);
-			this.codeServiceListenerNotifier.memoModified(codeable, html);
+			if (oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoAdded(codeable, html);
+			else if (!oldHtml.equals("") && !html.equals(""))
+				this.codeServiceListenerNotifier.memoModified(codeable, html);
+			else if (!oldHtml.equals("") && html.equals(""))
+				this.codeServiceListenerNotifier.memoRemoved(codeable, html);
+			else
+				throw new CodeStoreWriteException("STATE ERROR");
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}

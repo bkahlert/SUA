@@ -64,14 +64,32 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
+		public void memoAdded(ICode code) {
+			ViewerUtils.refresh(viewer, true);
+		}
+
+		@Override
+		public void memoAdded(ICodeable codeable) {
+			ViewerUtils.refresh(viewer, true);
+		}
+
+		@Override
 		public void memoModified(ICode code) {
-			ViewerUtils.update(viewer, code, null);
 		}
 
 		@Override
 		public void memoModified(ICodeable codeable) {
-			ViewerUtils.update(viewer, codeable, null);
 		};
+
+		@Override
+		public void memoRemoved(ICode code) {
+			ViewerUtils.refresh(viewer, true);
+		}
+
+		@Override
+		public void memoRemoved(ICodeable codeable) {
+			ViewerUtils.refresh(viewer, true);
+		}
 
 		public void episodeAdded(IEpisode episode) {
 			// ViewerUtils.add(viewer, episode.getKey(), episode);

@@ -134,6 +134,44 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
+	void memoAdded(final ICode code, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					codeServiceListener.memoAdded(code);
+					return null;
+				}
+			});
+		}
+	}
+
+	void memoAdded(final ICodeInstance codeInstance, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					if (codeServiceListener instanceof ICodeServiceListener2)
+						((ICodeServiceListener2) codeServiceListener)
+								.memoAdded(codeInstance);
+					return null;
+				}
+			});
+		}
+	}
+
+	void memoAdded(final ICodeable codeable, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					codeServiceListener.memoAdded(codeable);
+					return null;
+				}
+			});
+		}
+	}
+
 	void memoModified(final ICode code, String html) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
@@ -166,6 +204,44 @@ public class CodeServiceListenerNotifier {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoModified(codeable);
+					return null;
+				}
+			});
+		}
+	}
+
+	void memoRemoved(final ICode code, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					codeServiceListener.memoRemoved(code);
+					return null;
+				}
+			});
+		}
+	}
+
+	void memoRemoved(final ICodeInstance codeInstance, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					if (codeServiceListener instanceof ICodeServiceListener2)
+						((ICodeServiceListener2) codeServiceListener)
+								.memoRemoved(codeInstance);
+					return null;
+				}
+			});
+		}
+	}
+
+	void memoRemoved(final ICodeable codeable, String html) {
+		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
+			notifierPool.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					codeServiceListener.memoRemoved(codeable);
 					return null;
 				}
 			});

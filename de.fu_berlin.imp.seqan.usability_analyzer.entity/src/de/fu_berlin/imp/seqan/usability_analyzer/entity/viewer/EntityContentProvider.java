@@ -68,12 +68,30 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICode code) {
+		public void memoAdded(ICode code) {
 			ViewerUtils.refresh(viewer);
 		}
 
 		@Override
+		public void memoAdded(ICodeable codeable) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void memoModified(ICode code) {
+		}
+
+		@Override
 		public void memoModified(ICodeable codeable) {
+		}
+
+		@Override
+		public void memoRemoved(ICode code) {
+			ViewerUtils.refresh(viewer);
+		}
+
+		@Override
+		public void memoRemoved(ICodeable codeable) {
 			ViewerUtils.refresh(viewer);
 		}
 

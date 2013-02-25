@@ -512,7 +512,7 @@ class CodeStore implements ICodeStore {
 	 * Loads the memo saved for the given basename.
 	 * 
 	 * @param basename
-	 * @return
+	 * @return null if no memo exists
 	 * @throws IOException
 	 */
 	protected String loadMemo(String basename) throws IOException {
@@ -532,6 +532,7 @@ class CodeStore implements ICodeStore {
 	 * 
 	 * @param basename
 	 * @param memo
+	 *            if null or empty the memo is removed
 	 * @throws IOException
 	 */
 	protected void saveMemo(String basename, String memo) throws IOException {

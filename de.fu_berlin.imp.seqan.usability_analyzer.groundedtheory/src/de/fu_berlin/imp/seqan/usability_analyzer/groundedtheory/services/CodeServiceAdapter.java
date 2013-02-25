@@ -40,11 +40,27 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
+	public void memoAdded(ICode code) {
+	}
+
+	@Override
+	public void memoAdded(ICodeable codeable) {
+	}
+
+	@Override
 	public void memoModified(ICode code) {
 	}
 
 	@Override
 	public void memoModified(ICodeable codeable) {
+	}
+
+	@Override
+	public void memoRemoved(ICode code) {
+	}
+
+	@Override
+	public void memoRemoved(ICodeable codeable) {
 	}
 
 	@Override

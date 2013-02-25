@@ -78,21 +78,26 @@ public class MemoComposer extends Composite {
 
 		this.partDelegate = partDelegate;
 
-		this.editor = new Editor(this, style & SWT.BORDER | SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
+		this.editor = new Editor(this, style & SWT.BORDER, 2000);
 		this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		this.editor.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
-				System.err.println(e);
-				// FIXME e.text weiterleiten
 				new Job("Auto-Saving Memo") {
 					@Override
 					protected IStatus run(IProgressMonitor progressMonitor) {
 						SubMonitor monitor = SubMonitor.convert(
 								progressMonitor, 1);
-						if (save(monitor)) {
+						if (save((String) e.data, monitor)) {
 							LOGGER.info("Memo auto-saved");
+						}
+						/*
+						 * Sleep a short time to allow the progress bar to
+						 * appear at least shortly.
+						 */
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e1) {
 						}
 						monitor.done();
 						return Status.OK_STATUS;
@@ -100,6 +105,10 @@ public class MemoComposer extends Composite {
 				}.schedule();
 			}
 		});
+		// FIXME
+		// this.editor.addLineStyleListener(new HyperlinkLineStyleListener());
+		// StyledTextHyperlinkHandler.addListenerTo(this.editor);
+		// SelectAllHandler.addListenerTo(this.editor);
 
 		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(
 				ICodeService.class);
@@ -129,7 +138,7 @@ public class MemoComposer extends Composite {
 	synchronized public void lock(IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
 				"Disabling Memo Editor", 2);
-		this.save(monitor.newChild(1));
+		this.save(null, monitor.newChild(1));
 		this.code = null;
 		this.codeInstance = null;
 		this.codeable = null;
@@ -148,7 +157,7 @@ public class MemoComposer extends Composite {
 	synchronized public void load(ICode code, IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
 				"Loading Memo for " + code.getCaption(), 2);
-		this.save(monitor.newChild(1));
+		this.save(null, monitor.newChild(1));
 		this.code = code;
 		this.codeInstance = null;
 		this.codeable = null;
@@ -168,7 +177,7 @@ public class MemoComposer extends Composite {
 			IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
 				"Loading Memo for " + codeInstance.getId().toString(), 2);
-		this.save(monitor.newChild(1));
+		this.save(null, monitor.newChild(1));
 		this.code = null;
 		this.codeInstance = codeInstance;
 		this.codeable = null;
@@ -187,7 +196,7 @@ public class MemoComposer extends Composite {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
 				"Loading Memo for " + codeable.getCodeInstanceID().toString(),
 				2);
-		this.save(monitor.newChild(1));
+		this.save(null, monitor.newChild(1));
 		this.code = null;
 		this.codeInstance = null;
 		this.codeable = codeable;
@@ -280,21 +289,29 @@ public class MemoComposer extends Composite {
 		});
 	}
 
-	// FIXME: checken, ob's funktioniert beim closen wegen timing; am besten
-	// text aus event auslesen
-	synchronized private boolean save(IProgressMonitor progressMonitor) {
+	/**
+	 * Saves the given html to the currently loaded object.
+	 * 
+	 * @param html
+	 *            if null the editor's html is used
+	 * @param progressMonitor
+	 * @return
+	 */
+	synchronized private boolean save(String html,
+			IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor, "Saving Memo",
 				3);
 		if (code == null && codeInstance == null && codeable == null)
 			return false;
 		try {
-			String html = ExecutorUtil.syncExec(new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					String s = editor.getSource();
-					return s;
-				}
-			});
+			if (html == null)
+				html = ExecutorUtil.syncExec(new Callable<String>() {
+					@Override
+					public String call() throws Exception {
+						String s = editor.getSource();
+						return s;
+					}
+				});
 			if (oldHtml.equals(html))
 				return false;
 			else
