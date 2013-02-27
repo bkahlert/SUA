@@ -3,8 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -113,12 +111,6 @@ public class EntityContentProvider implements IStructuredContentProvider,
 
 	public EntityContentProvider() {
 		codeService.addCodeServiceListener(codeServiceListener);
-	}
-
-	@SuppressWarnings("unused")
-	@PostConstruct
-	private void init() {
-
 	}
 
 	@Override

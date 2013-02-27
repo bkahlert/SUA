@@ -138,8 +138,8 @@ public class CodeInstanceViewerContentProvider implements
 		} else {
 			if (this.codeables != null) {
 				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeables = null;
 			}
-			this.codeables = null;
 		}
 	}
 

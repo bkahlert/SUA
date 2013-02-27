@@ -130,6 +130,11 @@ public class EpisodeViewerContentProvider implements
 		if (ICodeService.class.isInstance(newInput)) {
 			this.codeService = (ICodeService) newInput;
 			this.codeService.addCodeServiceListener(codeServiceListener);
+		} else {
+			if (this.codeService != null) {
+				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService = null;
+			}
 		}
 	}
 

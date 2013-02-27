@@ -156,6 +156,11 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		if (ICodeService.class.isInstance(newInput)) {
 			this.codeService = (ICodeService) newInput;
 			this.codeService.addCodeServiceListener(codeServiceListener);
+		} else {
+			if (this.codeService != null) {
+				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService = null;
+			}
 		}
 	}
 

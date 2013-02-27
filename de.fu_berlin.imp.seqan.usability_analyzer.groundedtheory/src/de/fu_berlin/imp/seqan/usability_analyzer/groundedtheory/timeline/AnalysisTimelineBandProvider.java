@@ -49,7 +49,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineContentProvider getContentProvider() {
 		return new ITimelineContentProvider() {
 
-			private ICodeService codeService = (ICodeService) PlatformUI
+			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
 			private ITimelineListener timelineListener = new TimelineAdapter() {
