@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
-import java.util.List;
-
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -11,17 +10,12 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-
-import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -35,51 +29,6 @@ public class MemoView extends ViewPart {
 	private MemoComposer memoComposer;
 
 	private Job memoLoader = null;
-	private boolean pin = false;
-
-	private ISelectionListener selectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (pin)
-				return;
-
-			System.err.println(selection);
-
-			final List<ICode> codes = SelectionUtils.getAdaptableObjects(
-					selection, ICode.class);
-			final List<ICodeInstance> codeInstances = SelectionUtils
-					.getAdaptableObjects(selection, ICodeInstance.class);
-			final List<ICodeable> codeables = SelectionUtils
-					.getAdaptableObjects(selection, ICodeable.class);
-			final List<Object> objects = SelectionUtils.getAdaptableObjects(
-					selection, Object.class);
-
-			if (memoLoader != null)
-				memoLoader.cancel();
-
-			memoLoader = new Job("Loading Memo") {
-				@Override
-				protected IStatus run(IProgressMonitor progressMonitor) {
-					if (progressMonitor.isCanceled())
-						return Status.CANCEL_STATUS;
-					SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
-					if (codes.size() > 0)
-						MemoView.this.memoComposer.load(codes.get(0), monitor);
-					else if (codeInstances.size() > 0)
-						MemoView.this.memoComposer.load(codeInstances.get(0),
-								monitor);
-					else if (codeables.size() > 0)
-						MemoView.this.memoComposer.load(codeables.get(0),
-								monitor);
-					else if (objects.size() > 0)
-						MemoView.this.memoComposer.lock(monitor);
-					monitor.done();
-					return Status.OK_STATUS;
-				}
-			};
-			memoLoader.schedule();
-		}
-	};
 
 	public MemoView() {
 
@@ -110,34 +59,90 @@ public class MemoView extends ViewPart {
 						IWorkbenchActionConstants.MB_ADDITIONS));
 			}
 		});
-
-		SelectionUtils.getSelectionService().addPostSelectionListener(
-				selectionListener);
 	}
 
-	@Override
-	public void dispose() {
-		SelectionUtils.getSelectionService().removePostSelectionListener(
-				selectionListener);
-		super.dispose();
+	synchronized public void load(final ICode code) {
+		Assert.isNotNull(code);
+
+		if (memoLoader != null)
+			memoLoader.cancel();
+
+		memoLoader = new Job("Loading Memo") {
+			@Override
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				if (progressMonitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
+				MemoView.this.memoComposer.load(code, monitor);
+				monitor.done();
+				return Status.OK_STATUS;
+			}
+		};
+		memoLoader.schedule();
+	}
+
+	synchronized public void load(final ICodeInstance codeInstance) {
+		Assert.isNotNull(codeInstance);
+
+		if (memoLoader != null)
+			memoLoader.cancel();
+
+		memoLoader = new Job("Loading Memo") {
+			@Override
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				if (progressMonitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
+				MemoView.this.memoComposer.load(codeInstance, monitor);
+				monitor.done();
+				return Status.OK_STATUS;
+			}
+		};
+		memoLoader.schedule();
+	}
+
+	synchronized public void load(final ICodeable codeable) {
+		Assert.isNotNull(codeable);
+
+		if (memoLoader != null)
+			memoLoader.cancel();
+
+		memoLoader = new Job("Loading Memo") {
+			@Override
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				if (progressMonitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
+				MemoView.this.memoComposer.load(codeable, monitor);
+				monitor.done();
+				return Status.OK_STATUS;
+			}
+		};
+		memoLoader.schedule();
+	}
+
+	synchronized public void lock() {
+		if (memoLoader != null)
+			memoLoader.cancel();
+
+		memoLoader = new Job("Loading Memo") {
+			@Override
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				if (progressMonitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				SubMonitor monitor = SubMonitor.convert(progressMonitor, 1);
+				MemoView.this.memoComposer.lock(monitor);
+				monitor.done();
+				return Status.OK_STATUS;
+			}
+		};
+		memoLoader.schedule();
 	}
 
 	@Override
 	public void setFocus() {
 		if (this.memoComposer != null && !this.memoComposer.isDisposed())
 			this.memoComposer.setFocus();
-	}
-
-	/**
-	 * Defines if the currently loaded memo should be pinned.
-	 * <p>
-	 * A pinned memo stays open although another object with memo support is
-	 * selected.
-	 * 
-	 * @param pin
-	 */
-	public void setPin(boolean pin) {
-		this.pin = pin;
 	}
 
 }

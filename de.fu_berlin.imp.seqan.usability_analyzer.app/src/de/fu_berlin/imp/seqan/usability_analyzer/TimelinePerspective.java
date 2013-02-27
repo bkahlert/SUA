@@ -39,7 +39,7 @@ public class TimelinePerspective implements IPerspectiveFactory {
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView",
 				IPageLayout.RIGHT, 0.52f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView",
 				IPageLayout.BOTTOM,
 				0.5f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");

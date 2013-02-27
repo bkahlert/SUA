@@ -21,11 +21,21 @@
             restorable="true">
       </view>
       <view
+            allowMultiple="true"
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView"
             icon="icons/view/code_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView"
             name="Memo"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView"
+            icon="icons/view/code_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView"
+            name="Memo (Editor-Only)"
             restorable="true">
       </view>
       <view
@@ -153,7 +163,7 @@
            </activeWhen>
         </handler>
         <handler
-              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.FixMemoHandler"
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.PinMemoHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo">
         </handler>
      </extension>
@@ -347,7 +357,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView?after=additions">
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView?after=additions">
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo"
                disabledIcon="icons/dlcl16/pin_tsk.png"

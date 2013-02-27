@@ -14,6 +14,9 @@ public class EditorOnlyPerspective implements IPerspectiveFactory {
 		addFastViews(layout);
 		addViewShortcuts(layout);
 		addPerspectiveShortcuts(layout);
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView",
+				IPageLayout.RIGHT, 0.76f, IPageLayout.ID_EDITOR_AREA);
 	}
 
 	/**

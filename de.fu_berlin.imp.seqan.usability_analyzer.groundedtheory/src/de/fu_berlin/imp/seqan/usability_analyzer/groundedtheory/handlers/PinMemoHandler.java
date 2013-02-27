@@ -9,9 +9,9 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView;
 
-public class FixMemoHandler extends AbstractHandler {
+public class PinMemoHandler extends AbstractHandler {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -24,9 +24,9 @@ public class FixMemoHandler extends AbstractHandler {
 		boolean pin = !oldValue;
 		IWorkbenchPart activePart = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
-		if (activePart instanceof MemoView) {
-			MemoView memoView = (MemoView) activePart;
-			memoView.setPin(pin);
+		if (activePart instanceof PinnableMemoView) {
+			PinnableMemoView pinnableMemoView = (PinnableMemoView) activePart;
+			pinnableMemoView.setPin(pin);
 		}
 		return null;
 	}

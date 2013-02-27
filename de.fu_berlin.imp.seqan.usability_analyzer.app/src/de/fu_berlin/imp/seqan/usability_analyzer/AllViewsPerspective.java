@@ -44,13 +44,14 @@ public class AllViewsPerspective implements IPerspectiveFactory {
 				IPageLayout.TOP, 0.43f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView");
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView",
 				IPageLayout.BOTTOM, 0.38f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView",
-				IPageLayout.BOTTOM, 0.43f,
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView");
+				IPageLayout.BOTTOM,
+				0.43f,
+				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView",
 				IPageLayout.TOP, 0.5f, IPageLayout.ID_EDITOR_AREA);

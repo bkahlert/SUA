@@ -74,6 +74,16 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
          </adapter>
       </factory>
+      <factory
+            adaptableType="org.eclipse.jface.text.ITextSelection"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.TextSelectionAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">

@@ -4,7 +4,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -32,10 +34,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
-import com.bkahlert.devel.nebula.widgets.editor.IAnker;
 import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
-import com.bkahlert.devel.nebula.widgets.editor.IAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -49,6 +51,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 public class MemoComposer extends Composite {
 
 	private static final Logger LOGGER = Logger.getLogger(MemoComposer.class);
+
+	private static final Map<Object, MemoComposer> openedObjects = new HashMap<Object, MemoComposer>();
 
 	public static interface IPartDelegate {
 		public void setImage(Image image);
@@ -71,15 +75,51 @@ public class MemoComposer extends Composite {
 				refreshPartHeader();
 		};
 
-		public void memoModified(ICodeable codeable) {
-			if (codeable.equals(getMemoOwner()))
+		private void reloadIfNecessary(Object object) {
+			if (object.equals(getMemoOwner())) {
 				refreshPartHeader();
+				if (lastSaveBy != MemoComposer.this) {
+					load(null);
+				}
+			}
+		}
+
+		public void memoAdded(ICode code) {
+			reloadIfNecessary(code);
+		};
+
+		public void memoAdded(ICodeable codeable) {
+			reloadIfNecessary(codeable);
+		};
+
+		public void memoModified(ICode code) {
+			reloadIfNecessary(code);
+		};
+
+		public void memoModified(ICodeable codeable) {
+			reloadIfNecessary(codeable);
+		};
+
+		public void memoRemoved(ICode code) {
+			reloadIfNecessary(code);
+		};
+
+		public void memoRemoved(ICodeable codeable) {
+			reloadIfNecessary(codeable);
 		};
 	};
 
 	private ICode code = null;
 	private ICodeInstance codeInstance = null;
 	private ICodeable codeable = null;
+
+	/**
+	 * Reference to the {@link MemoComposer} that executed the last save action.
+	 * <p>
+	 * Used to distinguish the saving {@link MemoComposer} from the others which
+	 * need to reload their contents if they loaded the same object.
+	 */
+	private static MemoComposer lastSaveBy = null;
 
 	private String oldHtml = "";
 
@@ -95,7 +135,6 @@ public class MemoComposer extends Composite {
 		this.editor = new Editor(this, style & SWT.BORDER, 2000);
 		this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		this.editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
-
 			@Override
 			public boolean isResponsible(IAnker anker) {
 				if (anker.getHref() != null) {
@@ -438,6 +477,7 @@ public class MemoComposer extends Composite {
 
 			monitor.worked(1);
 
+			lastSaveBy = this;
 			if (code != null) {
 				try {
 					codeService.setMemo(code, html);

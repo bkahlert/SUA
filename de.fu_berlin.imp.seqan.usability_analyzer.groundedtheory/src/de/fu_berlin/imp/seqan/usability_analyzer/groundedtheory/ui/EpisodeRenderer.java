@@ -612,7 +612,9 @@ public class EpisodeRenderer implements IDisposable {
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					viewer.getControl().redraw();
+					if (viewer.getControl() != null
+							&& !viewer.getControl().isDisposed())
+						viewer.getControl().redraw();
 				}
 			});
 		}
