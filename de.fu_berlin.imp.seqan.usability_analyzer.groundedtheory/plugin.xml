@@ -84,9 +84,20 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo"
             name="Pin Memo">
          <state
-               class="org.eclipse.ui.handlers.RegistryToggleState:false"
                id="org.eclipse.ui.commands.toggleState">
-         </state>
+               <class
+             class="org.eclipse.ui.handlers.RegistryToggleState">
+	         <parameter 
+	               name="default" 
+	               value="false"> 
+	         </parameter> 
+	         <parameter 
+	               name="persisted" 
+	               value="false"> 
+	         </parameter>
+         
+	         </class>
+	         </state>
       </command>
    </extension>
      <extension

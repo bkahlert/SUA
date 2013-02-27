@@ -30,4 +30,5 @@ public class PinMemoHandler extends AbstractHandler {
 		}
 		return null;
 	}
+
 }
