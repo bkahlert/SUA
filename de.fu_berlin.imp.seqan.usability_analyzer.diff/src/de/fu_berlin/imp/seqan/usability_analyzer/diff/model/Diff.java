@@ -15,6 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingData;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
@@ -171,6 +172,14 @@ public class Diff extends WrappingData implements IDiff {
 	@Override
 	public List<String> getContent(long contentStart, long contentEnd) {
 		return Arrays.asList(read(contentStart, contentEnd).split("\n"));
+	}
+
+	@Override
+	public void open() {
+		DiffFileEditorUtils.closeCompareEditors();
+		for (DiffRecord diffRecord : this.diffFileRecords) {
+			diffRecord.open();
+		}
 	}
 
 	@Override

@@ -7,8 +7,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
@@ -33,9 +31,7 @@ public class DiffLabelProvider extends LabelProvider {
 		}
 		if (element instanceof IDiff) {
 			Diff diff = (Diff) element;
-			TimeZoneDate date = diff.getDateRange().getStartDate();
-			return (date != null) ? date.format(new SUACorePreferenceUtil()
-					.getDateFormat()) : "";
+			return "Iteration #" + diff.getRevision();
 		}
 		if (element instanceof DiffRecord) {
 			DiffRecord diffRecord = (DiffRecord) element;

@@ -103,4 +103,27 @@ public class DiffFileEditorUtils {
 			}
 		}
 	}
+
+	/**
+	 * Closes all {@link CompareEditor}s responsible for {@link DiffRecord}s in
+	 * general.
+	 */
+	public static void closeCompareEditors() {
+		for (IWorkbenchWindow workbenchWindow : PlatformUI.getWorkbench()
+				.getWorkbenchWindows()) {
+			IEditorReference[] editorReferences = workbenchWindow
+					.getActivePage().getEditorReferences();
+			for (IEditorReference editorReference : editorReferences) {
+				try {
+					if (editorReference.getEditorInput() instanceof DiffFileRecordCompareEditorInput) {
+						editorReference.getPage().closeEditor(
+								editorReference.getEditor(true), false);
+					}
+				} catch (PartInitException e) {
+					LOGGER.error("Could not close compare editor", e);
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

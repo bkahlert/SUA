@@ -52,6 +52,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFi
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diffs;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
@@ -162,11 +163,19 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		this.diffListsViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				List<DiffRecord> diffRecords = SelectionUtils
-						.getAdaptableObjects(event.getSelection(),
-								DiffRecord.class);
-				for (DiffRecord diffRecord : diffRecords) {
-					diffRecord.open();
+				List<IDiff> diffs = SelectionUtils.getAdaptableObjects(
+						event.getSelection(), IDiff.class);
+				if (diffs.size() > 0) {
+					for (IDiff diff : diffs) {
+						diff.open();
+					}
+				} else {
+					List<DiffRecord> diffRecords = SelectionUtils
+							.getAdaptableObjects(event.getSelection(),
+									DiffRecord.class);
+					for (DiffRecord diffRecord : diffRecords) {
+						diffRecord.open();
+					}
 				}
 			}
 		});
