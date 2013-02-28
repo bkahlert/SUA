@@ -404,9 +404,6 @@ public class EpisodeRenderer implements IDisposable {
 			// Draw episodes
 			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
 			for (IEpisode episode : renderingBounds.keySet()) {
-				if (episode.getCaption().equals("u")) {
-					System.err.println(episode);
-				}
 				// FIXME cache bei Code-Änderungen anpassen, da sonst mit alten
 				// Farben gezeichnet wird
 				if (!renderingColors.containsKey(episode)) {
@@ -415,6 +412,10 @@ public class EpisodeRenderer implements IDisposable {
 						if (codes.size() > 0)
 							renderingColors.put(episode, new CodeColors(codes
 									.get(0).getColor().toClassicRGB()));
+						else
+							renderingColors.put(episode, new CodeColors(Display
+									.getCurrent()
+									.getSystemColor(SWT.COLOR_GRAY).getRGB()));
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
 								+ ICode.class.getSimpleName() + "s.");
@@ -425,8 +426,11 @@ public class EpisodeRenderer implements IDisposable {
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
 				CodeColors codeColors = renderingColors.get(episode);
-				if (codeColors == null)
+				if (codeColors == null) {
+					LOGGER.warn("Could not paint episode because it has no color; "
+							+ episode);
 					return;
+				}
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
 						codeColors.getBackgroundColor());
 
