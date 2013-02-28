@@ -4,9 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -51,8 +49,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 public class MemoComposer extends Composite {
 
 	private static final Logger LOGGER = Logger.getLogger(MemoComposer.class);
-
-	private static final Map<Object, MemoComposer> openedObjects = new HashMap<Object, MemoComposer>();
 
 	public static interface IPartDelegate {
 		public void setImage(Image image);
@@ -518,6 +514,10 @@ public class MemoComposer extends Composite {
 		if (codeable != null)
 			return codeable;
 		return null;
+	}
+
+	public Editor getEditor() {
+		return this.editor;
 	}
 
 }

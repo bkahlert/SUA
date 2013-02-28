@@ -446,12 +446,12 @@ class CodeStore implements ICodeStore {
 	 */
 	protected File getMemoLocation(String basename) {
 		File file = new File(this.codeStoreFile.getParentFile(),
-				DigestUtils.md5Hex(basename) + ".memo.txt");
+				DigestUtils.md5Hex(basename) + ".memo.html");
 		if (file.exists())
 			return file;
 		else
 			return new File(this.codeStoreFile.getParentFile(), basename
-					+ ".memo.txt");
+					+ ".memo.html");
 
 	}
 
