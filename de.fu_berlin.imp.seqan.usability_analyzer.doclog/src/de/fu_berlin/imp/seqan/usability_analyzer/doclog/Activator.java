@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog;
 
 import java.awt.AWTException;
 import java.net.URL;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -11,6 +12,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
@@ -48,7 +50,13 @@ public class Activator extends AbstractUIPlugin {
 				.configure(FileLocator.toFileURL(confURL).getFile());
 
 		try {
-			this.maxCaptureArea = new ScreenshotTaker().getMaxCaptureArea();
+			this.maxCaptureArea = ExecutorUtil
+					.syncExec(new Callable<Rectangle>() {
+						@Override
+						public Rectangle call() throws Exception {
+							return new ScreenshotTaker().getMaxCaptureArea();
+						}
+					});
 		} catch (PartInitException e) {
 			LOGGER.fatal(e);
 		} catch (AWTException e) {
