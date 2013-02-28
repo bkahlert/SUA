@@ -146,7 +146,7 @@ public class MemoView extends ViewPart {
 	}
 
 	public void setSourceMode(boolean on) {
-		this.memoComposer.getEditor().setSourceMode(on);
+		this.memoComposer.setSourceMode(on);
 	}
 
 }

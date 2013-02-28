@@ -40,13 +40,13 @@ public class ScreenshotTaker {
 	/**
 	 * Determines the maximum takeable screenshot size of this computer.
 	 * 
+	 * @UI
 	 * @return
 	 */
 	public org.eclipse.swt.graphics.Rectangle getMaxCaptureArea() {
-		BrowserDialog dialog;
 		try {
-			dialog = new BrowserDialog(null, "about:blank", new Point(
-					Integer.MAX_VALUE, Integer.MAX_VALUE), null, 10);
+			BrowserDialog dialog = new BrowserDialog(null, "about:blank",
+					new Point(Integer.MAX_VALUE, Integer.MAX_VALUE), null, 10);
 			dialog.setBlockOnOpen(false);
 			dialog.open();
 			org.eclipse.swt.graphics.Rectangle maxCaptureArea = getCaptureArea(dialog);

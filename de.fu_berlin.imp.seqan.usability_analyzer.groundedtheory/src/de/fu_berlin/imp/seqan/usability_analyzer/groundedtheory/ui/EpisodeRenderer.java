@@ -404,6 +404,11 @@ public class EpisodeRenderer implements IDisposable {
 			// Draw episodes
 			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
 			for (IEpisode episode : renderingBounds.keySet()) {
+				if (episode.getCaption().equals("u")) {
+					System.err.println(episode);
+				}
+				// FIXME cache bei Code-Änderungen anpassen, da sonst mit alten
+				// Farben gezeichnet wird
 				if (!renderingColors.containsKey(episode)) {
 					try {
 						List<ICode> codes = codeService.getCodes(episode);

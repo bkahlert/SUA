@@ -516,8 +516,11 @@ public class MemoComposer extends Composite {
 		return null;
 	}
 
-	public Editor getEditor() {
-		return this.editor;
+	public void setSourceMode(boolean on) {
+		if (on)
+			this.editor.showSource();
+		else
+			this.editor.hideSource();
 	}
 
 }
