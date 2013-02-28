@@ -190,8 +190,10 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 							.getDiffFiles(diffRecord.getID(), null)
 							.getLongestCommonPrefix();
 					String filename = diffRecord.getFilename();
-					return filename.startsWith(prefix) ? filename
+					String shortenedFilename = filename.startsWith(prefix) ? filename
 							.substring(prefix.length()) : filename;
+					return shortenedFilename + "@"
+							+ diffRecord.getDiffFile().getRevision();
 				}
 				return "";
 			}
