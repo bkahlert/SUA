@@ -73,8 +73,6 @@ public class AllViewsPerspective implements IPerspectiveFactory {
 	 * Add perspective shortcuts to the perspective.
 	 */
 	private void addPerspectiveShortcuts(IPageLayout layout) {
-		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective");
-		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective");
 	}
 
 }

@@ -54,7 +54,5 @@ public class BrowsingPerspective implements IPerspectiveFactory {
 	}
 
 	private void addPerspectiveShortcuts(IPageLayout layout) {
-		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective");
-		layout.addPerspectiveShortcut("de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective");
 	}
 }

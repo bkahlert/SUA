@@ -97,10 +97,12 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 	 * @return
 	 */
 	private IEditorPart getResponsibleEditor(ITextSelection textSelection) {
+		if (textSelection == null)
+			return null;
 		for (IWorkbenchWindow workbenchWindow : PlatformUI.getWorkbench()
 				.getWorkbenchWindows()) {
-			if (workbenchWindow.getSelectionService().getSelection()
-					.equals(textSelection))
+			if (textSelection.equals(workbenchWindow.getSelectionService()
+					.getSelection()))
 				return workbenchWindow.getActivePage().getActiveEditor();
 		}
 		return null;

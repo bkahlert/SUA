@@ -4,7 +4,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-public class TimelinePerspective implements IPerspectiveFactory {
+public class MemoPerspective implements IPerspectiveFactory {
 
 	/**
 	 * Creates the initial layout for a page.
@@ -23,35 +23,25 @@ public class TimelinePerspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
 		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1",
-					IPageLayout.BOTTOM, 0.7f, IPageLayout.ID_EDITOR_AREA);
-			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView");
-		}
-		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView",
-				IPageLayout.RIGHT, 0.61f, "folder_1");
 		layout.addView("org.eclipse.ui.views.ProgressView", IPageLayout.BOTTOM,
 				0.5f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView");
-		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView",
-				IPageLayout.RIGHT, 0.52f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView",
-				IPageLayout.BOTTOM,
-				0.5f,
-				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");
 		{
-			IFolderLayout folderLayout = layout
-					.createFolder(
-							"folder",
-							IPageLayout.RIGHT,
-							0.46f,
-							"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");
+			IFolderLayout folderLayout = layout.createFolder("folder",
+					IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView");
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");
+		}
+		{
+			IFolderLayout folderLayout = layout.createFolder("folder_1",
+					IPageLayout.BOTTOM, 0.81f, "folder");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView");
+			folderLayout.addView("org.eclipse.ui.views.ProgressView");
 		}
 	}
 

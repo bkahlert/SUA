@@ -18,9 +18,9 @@
             name="Browsing">
       </perspective>
       <perspective
-            class="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.OpenCodingPerspective"
-            name="Open Coding">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.MemoPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.MemoPerspective"
+            name="Memo Writing">
       </perspective>
       <perspective
             class="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective"
@@ -37,6 +37,24 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective"
             name="All Views">
       </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.seqan.usability_analyzer.AllViewsPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.seqan.usability_analyzer.BrowsingPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.seqan.usability_analyzer.MemoPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.seqan.usability_analyzer.TimelinePerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
    </extension>
    <extension
          id="de.fu_berlin.imp.seqan.usability_analyzer.application"
