@@ -389,14 +389,11 @@ public class CodeService implements ICodeService {
 		return uriCache.getPayload(codeInstanceID, null);
 	}
 
-	@SuppressWarnings("serial")
 	@Override
-	public boolean showCodedObjectInWorkspace(final URI codeInstanceID) {
-		return this.showCodedObjectsInWorkspace(new ArrayList<URI>() {
-			{
-				add(codeInstanceID);
-			}
-		});
+	public boolean showCodedObjectInWorkspace(final URI codeInstanceID,
+			boolean show) {
+		return this.showCodedObjectsInWorkspace(
+				new ArrayList<URI>(Arrays.asList(codeInstanceID)), show);
 	}
 
 	@Override
@@ -406,7 +403,8 @@ public class CodeService implements ICodeService {
 	 * Since {@link ICodeableProvider#showCodedObjectsInWorkspace(List)} is expected
 	 * to start a separate thread, all {@link ICodeableProvider}s are handled parallel.
 	 */
-	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs) {
+	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
+			boolean show) {
 		List<ICodeableProvider> codeableProviders = this
 				.getRegisteredCodeableProviders();
 		if (codeableProviders == null)
@@ -415,7 +413,7 @@ public class CodeService implements ICodeService {
 		List<Future<Boolean>> rs = new ArrayList<Future<Boolean>>();
 		for (ICodeableProvider codeableProvider : codeableProviders) {
 			Future<Boolean> future = codeableProvider
-					.showCodedObjectsInWorkspace(codeInstanceIDs);
+					.showCodedObjectsInWorkspace(codeInstanceIDs, show);
 			rs.add(future);
 		}
 		for (Future<Boolean> r : rs) {

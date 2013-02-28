@@ -25,7 +25,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -176,36 +175,43 @@ public class MemoComposer extends Composite {
 		this.editor.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerClicked(IAnker anker) {
-				final String href = anker.getHref();
+				this.clicked(anker, false);
+			}
+
+			@Override
+			public void ankerClickedSpecial(IAnker anker) {
+				this.clicked(anker, true);
+			}
+
+			private void clicked(final IAnker anker, final boolean special) {
 				ExecutorUtil.nonUIAsyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {
-							final URI uri = new URI(href);
+							final URI uri = new URI(anker.getHref());
 							if (uri.getScheme() == null)
 								return;
 							if (uri.getScheme().equalsIgnoreCase("SUA")) {
 								ICodeService codeService = (ICodeService) PlatformUI
 										.getWorkbench().getService(
 												ICodeService.class);
-								if (!codeService
-										.showCodedObjectInWorkspace(uri)) {
-									Display.getDefault().asyncExec(
-											new Runnable() {
-												@Override
-												public void run() {
-													MessageDialog
-															.openInformation(
-																	PlatformUI
-																			.getWorkbench()
-																			.getActiveWorkbenchWindow()
-																			.getShell(),
-																	"Artefact not found",
-																	"The artefact "
-																			+ uri.toString()
-																			+ " could not be found.");
-												}
-											});
+								if (!codeService.showCodedObjectInWorkspace(
+										uri, special)) {
+									ExecutorUtil.asyncExec(new Runnable() {
+										@Override
+										public void run() {
+											MessageDialog
+													.openInformation(
+															PlatformUI
+																	.getWorkbench()
+																	.getActiveWorkbenchWindow()
+																	.getShell(),
+															"Artefact not found",
+															"The artefact "
+																	+ uri.toString()
+																	+ " could not be found.");
+										}
+									});
 								}
 							} else {
 								try {
@@ -228,7 +234,7 @@ public class MemoComposer extends Composite {
 						} catch (URISyntaxException e) {
 							LOGGER.fatal("Invalid URI in "
 									+ MemoComposer.class.getSimpleName() + ": "
-									+ href);
+									+ anker);
 						}
 					}
 				});

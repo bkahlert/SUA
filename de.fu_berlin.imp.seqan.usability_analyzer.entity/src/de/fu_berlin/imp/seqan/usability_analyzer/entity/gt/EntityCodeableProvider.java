@@ -58,30 +58,30 @@ public class EntityCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public boolean showCodedObjectsInWorkspace2(
+	public ICodeable[] showCodedObjectsInWorkspace2(
 			final List<ICodeable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			final EntityView entityView = (EntityView) WorkbenchUtils
 					.getView(EntityView.ID);
 			try {
-				return ExecutorUtil.syncExec(new Callable<Boolean>() {
+				return ExecutorUtil.syncExec(new Callable<ICodeable[]>() {
 					@Override
-					public Boolean call() throws Exception {
+					public ICodeable[] call() throws Exception {
 						EntityViewer viewer = entityView.getEntityTableViewer();
 						viewer.setSelection(new StructuredSelection(
 								codedObjects), true);
 						List<ICodeable> selectedCodeables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
 										ICodeable.class);
-						return selectedCodeables.size() == codedObjects.size();
+						return selectedCodeables.toArray(new ICodeable[0]);
 					}
 				});
 			} catch (Exception e) {
 				LOGGER.error(e);
-				return false;
+				return null;
 			}
 		}
-		return true;
+		return null;
 	}
 
 	@Override

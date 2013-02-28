@@ -63,8 +63,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 								.getWorkbench().getService(ICodeService.class);
 						List<URI> codeInstanceIDs = getURIs(selection);
 						if (codeService != null) {
-							codeService
-									.showCodedObjectsInWorkspace(codeInstanceIDs);
+							codeService.showCodedObjectsInWorkspace(
+									codeInstanceIDs, false);
 						} else {
 							LOGGER.error("Could not retrieve "
 									+ ICodeService.class.getSimpleName());

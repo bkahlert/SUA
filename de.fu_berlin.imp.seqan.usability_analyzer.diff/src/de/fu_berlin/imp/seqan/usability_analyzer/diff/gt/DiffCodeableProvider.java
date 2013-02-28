@@ -119,23 +119,20 @@ public class DiffCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public boolean showCodedObjectsInWorkspace2(
+	public ICodeable[] showCodedObjectsInWorkspace2(
 			final List<ICodeable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			DiffExplorerView diffExplorerView = (DiffExplorerView) WorkbenchUtils
 					.getView(DiffExplorerView.ID);
 			if (diffExplorerView == null)
-				return false;
+				return null;
 			if (!openFiles(codedObjects, diffExplorerView))
-				return false;
+				return null;
 			if (!openSegments(codedObjects, diffExplorerView))
-				return false;
+				return null;
 		}
 
-		if (codedObjects.size() > 0) {
-
-		}
-		return true;
+		return codedObjects.toArray(new ICodeable[0]);
 	}
 
 	public boolean openFiles(final List<ICodeable> codedObjects,

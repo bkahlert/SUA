@@ -225,15 +225,16 @@ public interface ICodeService {
 	public ICodeable getCodedObject(URI codeInstanceID);
 
 	/**
-	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
+	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List, boolean)}
 	 */
-	public boolean showCodedObjectInWorkspace(URI codeInstanceID);
+	public boolean showCodedObjectInWorkspace(URI codeInstanceID, boolean open);
 
 	/**
 	 * @return
-	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List)}
+	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List, boolean)}
 	 */
-	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
+			boolean open);
 
 	/**
 	 * @see {@link ICodeableProvider#getLabelProvider(String)}

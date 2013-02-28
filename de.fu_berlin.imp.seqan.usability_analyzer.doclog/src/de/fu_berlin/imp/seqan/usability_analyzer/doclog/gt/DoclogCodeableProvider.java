@@ -94,26 +94,25 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public boolean showCodedObjectsInWorkspace2(
+	public ICodeable[] showCodedObjectsInWorkspace2(
 			final List<ICodeable> codedObjects) {
 		if (codedObjects.size() > 0) {
-			if (!openAndSelectFilesInExplorer(codedObjects,
+			return openAndSelectFilesInExplorer(codedObjects,
 					(DoclogExplorerView) WorkbenchUtils
-							.getView(DoclogExplorerView.ID)))
-				return false;
+							.getView(DoclogExplorerView.ID));
 		}
-		return true;
+		return null;
 	}
 
-	public boolean openAndSelectFilesInExplorer(
+	public ICodeable[] openAndSelectFilesInExplorer(
 			final List<ICodeable> codedObjects,
 			final DoclogExplorerView doclogExplorerView) {
 		Set<Object> keys = CodeableUtils.getKeys(codedObjects);
 
 		// open
-		Future<Boolean> rt = doclogExplorerView.open(keys,
-				new Callable<Boolean>() {
-					public Boolean call() {
+		Future<ICodeable[]> rt = doclogExplorerView.open(keys,
+				new Callable<ICodeable[]>() {
+					public ICodeable[] call() {
 						TreeViewer viewer = doclogExplorerView
 								.getDoclogFilesViewer();
 						viewer.setSelection(new StructuredSelection(
@@ -121,17 +120,17 @@ public class DoclogCodeableProvider extends CodeableProvider {
 						List<ICodeable> selectedCodeables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
 										ICodeable.class);
-						return selectedCodeables.size() == codedObjects.size();
+						return selectedCodeables.toArray(new ICodeable[0]);
 					}
 				});
 		try {
-			return rt.get() != null ? rt.get() : false;
+			return rt.get();
 		} catch (InterruptedException e) {
 			LOGGER.error(e);
-			return false;
+			return null;
 		} catch (ExecutionException e) {
 			LOGGER.error(e);
-			return false;
+			return null;
 		}
 	}
 

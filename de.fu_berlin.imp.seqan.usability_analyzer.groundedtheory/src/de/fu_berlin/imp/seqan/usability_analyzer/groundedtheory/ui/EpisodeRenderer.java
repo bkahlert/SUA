@@ -287,7 +287,8 @@ public class EpisodeRenderer implements IDisposable {
 							@Override
 							public void run() {
 								codeService.showCodedObjectInWorkspace(info
-										.getEpisode().getCodeInstanceID());
+										.getEpisode().getCodeInstanceID(),
+										false);
 							}
 						});
 					}

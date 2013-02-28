@@ -17,7 +17,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILabelProvider;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 /**
@@ -124,7 +126,7 @@ public abstract class CodeableProvider implements ICodeableProvider {
 
 	@Override
 	public final Future<Boolean> showCodedObjectsInWorkspace(
-			final List<URI> codeInstanceIDs) {
+			final List<URI> codeInstanceIDs, final boolean show) {
 		return pool.submit(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
@@ -133,8 +135,27 @@ public abstract class CodeableProvider implements ICodeableProvider {
 				boolean convertedAll = codedObjects.size() == futureCodeables
 						.size();
 				if (codedObjects.size() > 0) {
-					return convertedAll
-							&& showCodedObjectsInWorkspace2(codedObjects);
+					ICodeable[] showedCodeables = showCodedObjectsInWorkspace2(codedObjects);
+					boolean showedAll = showedCodeables != null
+							&& codeInstanceIDs.size() == showedCodeables.length;
+					if (show) {
+						if (showedCodeables == null)
+							return false;
+						for (final IOpenable openable : ArrayUtils
+								.getAdaptableObjects(showedCodeables,
+										IOpenable.class)) {
+							ExecutorUtil.syncExec(new Runnable() {
+								@Override
+								public void run() {
+									openable.open();
+								}
+							});
+						}
+						// TODO check if could be opened
+						return convertedAll && showedAll;
+					} else {
+						return convertedAll && showedAll;
+					}
 				} else {
 					return convertedAll;
 				}
@@ -156,10 +177,9 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 *            e.g. given the URIs sua://abc/... and sua://xyz/... and the
 	 *            namespace xyz only the object described by sua://xyz/... would
 	 *            be in the list.
-	 * @return true if all objects could be displayed; false if at least one
-	 *         object could not be displayed.
+	 * @return all objects that could be displayed
 	 */
-	public abstract boolean showCodedObjectsInWorkspace2(
+	public abstract ICodeable[] showCodedObjectsInWorkspace2(
 			List<ICodeable> codedObjects);
 
 	public ILabelProvider getLabelProvider(URI codeInstanceID) {

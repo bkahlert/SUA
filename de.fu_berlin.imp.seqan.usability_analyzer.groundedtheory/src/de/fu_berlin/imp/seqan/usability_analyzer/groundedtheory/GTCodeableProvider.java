@@ -85,31 +85,32 @@ public class GTCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public boolean showCodedObjectsInWorkspace2(
+	public ICodeable[] showCodedObjectsInWorkspace2(
 			final List<ICodeable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			EpisodeView episodeView = (EpisodeView) WorkbenchUtils
 					.getView(EpisodeView.ID);
 			if (episodeView == null)
-				return false;
+				return codedObjects.toArray(new ICodeable[0]);
 
 			final EpisodeViewer viewer = episodeView.getEpisodeViewer();
 			try {
-				return ExecutorUtil.syncExec(new Callable<Boolean>() {
+				return ExecutorUtil.syncExec(new Callable<ICodeable[]>() {
 					@Override
-					public Boolean call() {
+					public ICodeable[] call() {
 						viewer.setSelection(new StructuredSelection(
 								codedObjects));
-						return SelectionUtils.getAdaptableObjects(
-								viewer.getSelection(), ICodeable.class).size() == codedObjects
-								.size();
+						List<ICodeable> selectedCodeables = SelectionUtils
+								.getAdaptableObjects(viewer.getSelection(),
+										ICodeable.class);
+						return selectedCodeables.toArray(new ICodeable[0]);
 					}
 				});
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
 		}
-		return true;
+		return null;
 	}
 
 	@Override

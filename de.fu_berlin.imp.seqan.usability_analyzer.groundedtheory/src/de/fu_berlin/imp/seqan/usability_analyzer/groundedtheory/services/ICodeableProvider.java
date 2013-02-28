@@ -23,10 +23,13 @@ public interface ICodeableProvider {
 	 * IDs in the active Eclipse Workbench.
 	 * 
 	 * @param codeInstanceIDs
+	 * @param open
+	 *            if true also opens the instance
 	 * @return true if all {@link URI}s could be resolved and displayed in the
 	 *         workbench.
 	 */
-	public Future<Boolean> showCodedObjectsInWorkspace(List<URI> codeInstanceIDs);
+	public Future<Boolean> showCodedObjectsInWorkspace(
+			List<URI> codeInstanceIDs, boolean open);
 
 	/**
 	 * Returns a label provider able to provide a label and image for an
