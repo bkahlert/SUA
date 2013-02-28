@@ -39,7 +39,8 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 	@Override
 	public String getTitle() {
 		return diffRecord != null ? diffRecord.getDiffFile().getID() + ": "
-				+ diffRecord.getFilename() : "EMPTY";
+				+ diffRecord.getFilename() + "@"
+				+ diffRecord.getDiffFile().getRevision() : "EMPTY";
 	}
 
 	@Override
