@@ -17,31 +17,17 @@ public class PinnableMemoView extends MemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView";
 
+	private ISelection lastSelection;
 	private boolean pin = false;
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (pin)
-				return;
+			lastSelection = selection;
 
-			final List<ICode> codes = SelectionUtils.getAdaptableObjects(
-					selection, ICode.class);
-			final List<ICodeInstance> codeInstances = SelectionUtils
-					.getAdaptableObjects(selection, ICodeInstance.class);
-			final List<ICodeable> codeables = SelectionUtils
-					.getAdaptableObjects(selection, ICodeable.class);
-			final List<Object> objects = SelectionUtils.getAdaptableObjects(
-					selection, Object.class);
-
-			if (codes.size() > 0)
-				PinnableMemoView.this.load(codes.get(0));
-			else if (codeInstances.size() > 0)
-				PinnableMemoView.this.load(codeInstances.get(0));
-			else if (codeables.size() > 0)
-				PinnableMemoView.this.load(codeables.get(0));
-			else if (objects.size() > 0)
-				PinnableMemoView.this.lock();
+			if (!pin) {
+				load(selection);
+			}
 		}
 	};
 
@@ -63,6 +49,26 @@ public class PinnableMemoView extends MemoView {
 		super.dispose();
 	}
 
+	public void load(ISelection selection) {
+		final List<ICode> codes = SelectionUtils.getAdaptableObjects(selection,
+				ICode.class);
+		final List<ICodeInstance> codeInstances = SelectionUtils
+				.getAdaptableObjects(selection, ICodeInstance.class);
+		final List<ICodeable> codeables = SelectionUtils.getAdaptableObjects(
+				selection, ICodeable.class);
+		final List<Object> objects = SelectionUtils.getAdaptableObjects(
+				selection, Object.class);
+
+		if (codes.size() > 0)
+			PinnableMemoView.this.load(codes.get(0));
+		else if (codeInstances.size() > 0)
+			PinnableMemoView.this.load(codeInstances.get(0));
+		else if (codeables.size() > 0)
+			PinnableMemoView.this.load(codeables.get(0));
+		else if (objects.size() > 0)
+			PinnableMemoView.this.lock();
+	}
+
 	/**
 	 * Defines if the currently loaded memo should be pinned.
 	 * <p>
@@ -73,6 +79,8 @@ public class PinnableMemoView extends MemoView {
 	 */
 	public void setPin(boolean pin) {
 		this.pin = pin;
+		if (!pin)
+			load(this.lastSelection);
 	}
 
 }
