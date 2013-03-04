@@ -75,7 +75,7 @@ public class Utils {
 				bounds.x -= 2;
 
 				ICode code = (ICode) item.getData();
-				CodeColors info = new CodeColors(code.getColor().toClassicRGB());
+				CodeColors info = new CodeColors(code.getColor());
 				event.gc.setAlpha(128);
 				PaintUtils.drawRoundedRectangle(event.gc, bounds,
 						info.getBackgroundColor(), info.getBorderColor());

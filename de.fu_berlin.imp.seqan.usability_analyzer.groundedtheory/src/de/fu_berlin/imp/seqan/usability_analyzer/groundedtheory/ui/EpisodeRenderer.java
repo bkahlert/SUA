@@ -20,7 +20,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -36,6 +35,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
@@ -74,25 +74,30 @@ public class EpisodeRenderer implements IDisposable {
 
 	public static final int MAX_DISTANCE_TO_RESIZE = 16;
 
-	public static Color DEFAULT_BACKGROUND_COLOR = new Color(
-			Display.getCurrent(), 141, 206, 231);
+	public static Color DEFAULT_BACKGROUND_COLOR = Display.getCurrent()
+			.getSystemColor(SWT.COLOR_GRAY);
 
 	public static class CodeColors {
+		private RGB backgroundRGB;
 		private Color backgroundColor = null;
 		private Color borderColor = null;
 
 		public CodeColors(RGB backgroundRGB) {
+			this.backgroundRGB = backgroundRGB;
+
 			if (backgroundRGB == null)
 				this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
 			else
 				this.backgroundColor = new Color(Display.getCurrent(),
-						backgroundRGB);
+						backgroundRGB.toClassicRGB());
 
 			this.borderColor = new Color(Display.getDefault(), ColorUtils
-					.scaleLightnessBy(
-							new com.bkahlert.devel.nebula.colors.RGB(
-									backgroundColor.getRGB()), 0.85f)
-					.toClassicRGB());
+					.scaleLightnessBy(new RGB(this.backgroundColor.getRGB()),
+							0.85f).toClassicRGB());
+		}
+
+		public RGB getBackgroundRGB() {
+			return backgroundRGB;
 		}
 
 		public Color getBackgroundColor() {
@@ -405,18 +410,37 @@ public class EpisodeRenderer implements IDisposable {
 			// Draw episodes
 			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
 			for (IEpisode episode : renderingBounds.keySet()) {
-				// FIXME cache bei Code-Änderungen anpassen, da sonst mit alten
-				// Farben gezeichnet wird
+				// remove all outdated colors (e.g. because episode got a new
+				// color with different color)
+				if (renderingColors.containsKey(episode)) {
+					try {
+						List<ICode> codes = codeService.getCodes(episode);
+						CodeColors renderingColor = renderingColors
+								.get(episode);
+						if (codes.size() == 0
+								|| !codes
+										.get(0)
+										.getColor()
+										.equals(renderingColor
+												.getBackgroundRGB())) {
+							renderingColor.dispose();
+							renderingColors.remove(episode);
+						}
+					} catch (CodeServiceException e1) {
+						LOGGER.error("Could not find the episode's "
+								+ ICode.class.getSimpleName() + "s.");
+					}
+				}
+
+				// create all missing colors
 				if (!renderingColors.containsKey(episode)) {
 					try {
 						List<ICode> codes = codeService.getCodes(episode);
 						if (codes.size() > 0)
 							renderingColors.put(episode, new CodeColors(codes
-									.get(0).getColor().toClassicRGB()));
+									.get(0).getColor()));
 						else
-							renderingColors.put(episode, new CodeColors(Display
-									.getCurrent()
-									.getSystemColor(SWT.COLOR_GRAY).getRGB()));
+							renderingColors.put(episode, new CodeColors(null));
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
 								+ ICode.class.getSimpleName() + "s.");
