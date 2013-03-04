@@ -54,42 +54,42 @@ public class DiffLabelProvider extends LabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		if (element instanceof IDiffs) {
-			return ImageManager.DIFFFILELIST;
+			return ImageManager.DIFFS;
 		}
 		if (element instanceof IDiff) {
 			Diff diffFile = (Diff) element;
 			try {
 				return (codeService.getCodes(diffFile).size() > 0) ? (codeService
-						.isMemo(diffFile) ? ImageManager.DIFFFILE_CODED_MEMO
-						: ImageManager.DIFFFILE_CODED) : (codeService
-						.isMemo(diffFile) ? ImageManager.DIFFFILE_MEMO
-						: ImageManager.DIFFFILE);
+						.isMemo(diffFile) ? ImageManager.DIFF_CODED_MEMO
+						: ImageManager.DIFF_CODED) : (codeService
+						.isMemo(diffFile) ? ImageManager.DIFF_MEMO
+						: ImageManager.DIFF);
 			} catch (CodeServiceException e) {
-				return ImageManager.DIFFFILE;
+				return ImageManager.DIFF;
 			}
 		}
 		if (element instanceof IDiffRecord) {
 			DiffRecord diffFileRecord = (DiffRecord) element;
 			try {
 				return (codeService.getCodes(diffFileRecord).size() > 0) ? (codeService
-						.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_CODED_MEMO
-						: ImageManager.DIFFFILERECORD_CODED)
-						: (codeService.isMemo(diffFileRecord) ? ImageManager.DIFFFILERECORD_MEMO
-								: ImageManager.DIFFFILERECORD);
+						.isMemo(diffFileRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
+						: ImageManager.DIFFRECORD_CODED)
+						: (codeService.isMemo(diffFileRecord) ? ImageManager.DIFFRECORD_MEMO
+								: ImageManager.DIFFRECORD);
 			} catch (CodeServiceException e) {
-				return ImageManager.DIFFFILERECORD;
+				return ImageManager.DIFFRECORD;
 			}
 		}
 		if (element instanceof IDiffRecordSegment) {
 			DiffRecordSegment diffFileRecordSegment = (DiffRecordSegment) element;
 			try {
 				return (codeService.getCodes(diffFileRecordSegment).size() > 0) ? (codeService
-						.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_CODED_MEMO
-						: ImageManager.DIFFFILERECORDSEGMENT_CODED)
-						: (codeService.isMemo(diffFileRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_MEMO
-								: ImageManager.DIFFFILERECORDSEGMENT);
+						.isMemo(diffFileRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
+						: ImageManager.DIFFRECORDSEGMENT_CODED)
+						: (codeService.isMemo(diffFileRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
+								: ImageManager.DIFFRECORDSEGMENT);
 			} catch (CodeServiceException e) {
-				return ImageManager.DIFFFILERECORDSEGMENT;
+				return ImageManager.DIFFRECORDSEGMENT;
 			}
 		}
 		return super.getImage(element);

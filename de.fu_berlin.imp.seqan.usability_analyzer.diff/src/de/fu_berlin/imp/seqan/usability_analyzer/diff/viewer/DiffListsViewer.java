@@ -145,28 +145,28 @@ public class DiffListsViewer extends SortableTreeViewer {
 					@Override
 					public Image getImage(Object element) {
 						if (element instanceof IDiffs) {
-							return ImageManager.DIFFFILELIST;
+							return ImageManager.DIFFS;
 						}
 						if (element instanceof IDiff) {
 							Diff diff = (Diff) element;
 							try {
 								if (codeService.getCodes(diff).size() > 0) {
-									return codeService.isMemo(diff) ? ImageManager.DIFFFILE_CODED_MEMO
-											: ImageManager.DIFFFILE_CODED;
+									return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO
+											: ImageManager.DIFF_CODED;
 								} else {
 									for (IDiffRecord diffRecord : diff
 											.getDiffFileRecords()) {
 										if (codeService.getCodes(diffRecord)
 												.size() > 0) {
-											return codeService.isMemo(diff) ? ImageManager.DIFFFILE_PARTIALLY_CODED_MEMO
-													: ImageManager.DIFFFILE_PARTIALLY_CODED;
+											return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
+													: ImageManager.DIFF_PARTIALLY_CODED;
 										}
 									}
-									return (codeService.isMemo(diff) ? ImageManager.DIFFFILE_MEMO
-											: ImageManager.DIFFFILE);
+									return (codeService.isMemo(diff) ? ImageManager.DIFF_MEMO
+											: ImageManager.DIFF);
 								}
 							} catch (CodeServiceException e) {
-								return ImageManager.DIFFFILE;
+								return ImageManager.DIFF;
 							}
 						}
 						// TODO: partially coded icon wenn diffrecordsegment
@@ -175,12 +175,12 @@ public class DiffListsViewer extends SortableTreeViewer {
 							DiffRecord diffRecord = (DiffRecord) element;
 							try {
 								return (codeService.getCodes(diffRecord).size() > 0) ? (codeService
-										.isMemo(diffRecord) ? ImageManager.DIFFFILERECORD_CODED_MEMO
-										: ImageManager.DIFFFILERECORD_CODED)
-										: (codeService.isMemo(diffRecord) ? ImageManager.DIFFFILERECORD_MEMO
-												: ImageManager.DIFFFILERECORD);
+										.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
+										: ImageManager.DIFFRECORD_CODED)
+										: (codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO
+												: ImageManager.DIFFRECORD);
 							} catch (CodeServiceException e) {
-								return ImageManager.DIFFFILERECORD;
+								return ImageManager.DIFFRECORD;
 							}
 						}
 						if (element instanceof IDiffRecordSegment) {
@@ -188,13 +188,13 @@ public class DiffListsViewer extends SortableTreeViewer {
 							try {
 								return (codeService.getCodes(diffRecordSegment)
 										.size() > 0) ? (codeService
-										.isMemo(diffRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_CODED_MEMO
-										: ImageManager.DIFFFILERECORDSEGMENT_CODED)
+										.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
+										: ImageManager.DIFFRECORDSEGMENT_CODED)
 										: (codeService
-												.isMemo(diffRecordSegment) ? ImageManager.DIFFFILERECORDSEGMENT_MEMO
-												: ImageManager.DIFFFILERECORDSEGMENT);
+												.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
+												: ImageManager.DIFFRECORDSEGMENT);
 							} catch (CodeServiceException e) {
-								return ImageManager.DIFFFILERECORDSEGMENT;
+								return ImageManager.DIFFRECORDSEGMENT;
 							}
 						}
 						return super.getImage(element);

@@ -29,7 +29,7 @@ public class DiffRecordTimelineEventDetailProvider extends
 	@Override
 	public List<IllustratedText> getMetaInformation(IDiffRecord diffRecord) {
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		metaEntries.add(new IllustratedText(ImageManager.DIFFFILERECORD,
+		metaEntries.add(new IllustratedText(ImageManager.DIFFRECORD,
 				DiffRecord.class.getSimpleName()));
 
 		return metaEntries;

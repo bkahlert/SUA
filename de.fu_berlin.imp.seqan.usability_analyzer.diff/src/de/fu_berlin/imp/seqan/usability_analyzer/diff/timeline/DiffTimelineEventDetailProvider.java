@@ -28,7 +28,7 @@ public class DiffTimelineEventDetailProvider extends
 	@Override
 	public List<IllustratedText> getMetaInformation(IDiff diff) {
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		metaEntries.add(new IllustratedText(ImageManager.DIFFFILE, IDiff.class
+		metaEntries.add(new IllustratedText(ImageManager.DIFF, IDiff.class
 				.getSimpleName()));
 
 		return metaEntries;

@@ -5,7 +5,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.images.Images;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
 /**
  * Handles references to all used images throughout this plug-in.
@@ -39,6 +43,19 @@ public class ImageManager {
 	 */
 	public static final Image ID = getImage("icons/obj16/id_obj.png"); //$NON-NLS-1$
 	public static final Image FINGERPRINT = getImage("icons/obj16/fingerprint_obj.png"); //$NON-NLS-1$
+
+	/*
+	 * overlays
+	 */
+	private static final SUACorePreferenceUtil CORE_PREFERENCE_UTIL = new SUACorePreferenceUtil();
+	public static final ImageDescriptor OVERLAY_OK = Images
+			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorOk()));
+	public static final ImageDescriptor OVERLAY_DIRTY = Images
+			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorDirty()));
+	public static final ImageDescriptor OVERLAY_ERROR = Images
+			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorError()));
+	public static final ImageDescriptor OVERLAY_MISSING = Images
+			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorMissing()));
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

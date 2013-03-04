@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
-import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -39,67 +38,393 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
-	public static final Image DIFFFILELIST = getImage("icons/obj16/difffilelist_obj.png"); //$NON-NLS-1$
+	public static final Image DIFFS = getImage("icons/obj16/difffilelist_obj.png"); //$NON-NLS-1$
 
-	public static final Image DIFFFILE = getImage("icons/obj16/difffile_obj.png"); //$NON-NLS-1$
-	public static final Image DIFFFILE_CODED = new DecorationOverlayIcon(
-			DIFFFILE,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image DIFFFILE_MEMO = new DecorationOverlayIcon(
-			DIFFFILE,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
-	public static final Image DIFFFILE_CODED_MEMO = new DecorationOverlayIcon(
-			DIFFFILE_MEMO,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+	/*
+	 * DIFF
+	 */
+	public static final Image DIFF_BASE = getImage("icons/obj16/difffile_obj.png"); //$NON-NLS-1$
+	public static final Image DIFF = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					null, null }).createImage();
+	public static final Image DIFF_CODED = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_MEMO = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					null, null, null }).createImage();
+	public static final Image DIFF_CODED_MEMO = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
 
-	public static final Image DIFFFILE_PARTIALLY_CODED = new DecorationOverlayIcon(
-			DIFFFILE,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image DIFFFILE_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
-			DIFFFILE_MEMO,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFF_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFF_CODED_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFF_CODED_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
 
-	public static final Image DIFFFILERECORD = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
-	public static final Image DIFFFILERECORD_CODED = new DecorationOverlayIcon(
-			DIFFFILERECORD,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image DIFFFILERECORD_MEMO = new DecorationOverlayIcon(
-			DIFFFILERECORD,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
-	public static final Image DIFFFILERECORD_CODED_MEMO = new DecorationOverlayIcon(
-			DIFFFILERECORD_MEMO,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFF_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFF_CODED_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFF_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFF_PARTIALLY_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFF_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
 
-	public static final Image DIFFFILERECORD_PARTIALLY_CODED = new DecorationOverlayIcon(
-			DIFFFILERECORD,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image DIFFFILERECORD_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
-			DIFFFILERECORD_MEMO,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+	/*
+	 * DIFF RECORD
+	 */
+	public static final Image DIFFRECORD_BASE = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
+	public static final Image DIFFRECORD = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_MEMO = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
 
-	public static final Image DIFFFILERECORDSEGMENT = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$
-	public static final Image DIFFFILERECORDSEGMENT_CODED = new DecorationOverlayIcon(
-			DIFFFILERECORDSEGMENT,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image DIFFFILERECORDSEGMENT_MEMO = new DecorationOverlayIcon(
-			DIFFFILERECORDSEGMENT,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
-	public static final Image DIFFFILERECORDSEGMENT_CODED_MEMO = new DecorationOverlayIcon(
-			DIFFFILERECORDSEGMENT_MEMO,
-			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+	public static final Image DIFFRECORD_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+
+	public static final Image DIFFRECORD_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFFRECORD_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORD_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
+					null }).createImage();
+
+	/*
+	 * DIFF RECORD SEGMENT
+	 */
+	public static final Image DIFFRECORDSEGMENT_BASE = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$
+	public static final Image DIFFRECORDSEGMENT = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_MEMO = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED_MEMO = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_DIRTY,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+
+	public static final Image DIFFRECORDSEGMENT_WORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED_WORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED_MEMO_WORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_OK,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+
+	public static final Image DIFFRECORDSEGMENT_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					null, null }).createImage();
+	public static final Image DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
+			DIFFRECORDSEGMENT_BASE,
+			new ImageDescriptor[] {
+					null,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.OVERLAY_ERROR,
+					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
+					null }).createImage();
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.
