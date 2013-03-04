@@ -54,7 +54,7 @@
       <serviceFactory
             factoryClass="de.fu_berlin.imp.seqan.usability_analyzer.diff.services.impl.CompilationServiceFactory">
          <service
-               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService">
+               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService">
          </service>
       </serviceFactory>
    </extension>

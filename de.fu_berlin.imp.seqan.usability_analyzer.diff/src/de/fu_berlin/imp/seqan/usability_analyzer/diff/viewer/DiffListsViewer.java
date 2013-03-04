@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
@@ -34,16 +33,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffListsViewer extends SortableTreeViewer {
@@ -112,13 +107,14 @@ public class DiffListsViewer extends SortableTreeViewer {
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
 
-		final ICodeService codeService = (ICodeService) PlatformUI
-				.getWorkbench().getService(ICodeService.class);
-
 		this.createColumn("Date", 350).setLabelProvider(
 				new ColumnLabelProvider() {
+					private DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
+
 					@Override
 					public String getText(Object element) {
+						// we do not use diffLabelProvider here because we want
+						// to provide more detailed information
 						if (element instanceof IDiffs) {
 							IDiffs diffList = (IDiffs) element;
 							ID id = null;
@@ -144,60 +140,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						if (element instanceof IDiffs) {
-							return ImageManager.DIFFS;
-						}
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
-							try {
-								if (codeService.getCodes(diff).size() > 0) {
-									return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO
-											: ImageManager.DIFF_CODED;
-								} else {
-									for (IDiffRecord diffRecord : diff
-											.getDiffFileRecords()) {
-										if (codeService.getCodes(diffRecord)
-												.size() > 0) {
-											return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
-													: ImageManager.DIFF_PARTIALLY_CODED;
-										}
-									}
-									return (codeService.isMemo(diff) ? ImageManager.DIFF_MEMO
-											: ImageManager.DIFF);
-								}
-							} catch (CodeServiceException e) {
-								return ImageManager.DIFF;
-							}
-						}
-						// TODO: partially coded icon wenn diffrecordsegment
-						// existiert
-						if (element instanceof IDiffRecord) {
-							DiffRecord diffRecord = (DiffRecord) element;
-							try {
-								return (codeService.getCodes(diffRecord).size() > 0) ? (codeService
-										.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
-										: ImageManager.DIFFRECORD_CODED)
-										: (codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO
-												: ImageManager.DIFFRECORD);
-							} catch (CodeServiceException e) {
-								return ImageManager.DIFFRECORD;
-							}
-						}
-						if (element instanceof IDiffRecordSegment) {
-							DiffRecordSegment diffRecordSegment = (DiffRecordSegment) element;
-							try {
-								return (codeService.getCodes(diffRecordSegment)
-										.size() > 0) ? (codeService
-										.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
-										: ImageManager.DIFFRECORDSEGMENT_CODED)
-										: (codeService
-												.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
-												: ImageManager.DIFFRECORDSEGMENT);
-							} catch (CodeServiceException e) {
-								return ImageManager.DIFFRECORDSEGMENT;
-							}
-						}
-						return super.getImage(element);
+						return diffLabelProvider.getImage(element);
 					}
 				});
 

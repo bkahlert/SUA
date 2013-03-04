@@ -15,7 +15,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
  * @author bkahlert
  * 
  */
-public interface IDiffRecord extends HasDateRange, ICodeable, HasID, IOpenable {
+public interface IDiffRecord extends HasDateRange, ICodeable, HasID, IOpenable,
+		ICompilable {
 
 	/**
 	 * Returns the {@link IDiff} this {@link IDiffRecord} belongs to.

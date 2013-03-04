@@ -8,7 +8,6 @@ import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class CompilationServiceFactory extends AbstractServiceFactory implements
 		ServiceFactory<ICompilationService> {
@@ -25,7 +24,7 @@ public class CompilationServiceFactory extends AbstractServiceFactory implements
 	@Override
 	public Object create(@SuppressWarnings("rawtypes") Class serviceInterface,
 			IServiceLocator parentLocator, IServiceLocator locator) {
-		if (serviceInterface == ICodeService.class) {
+		if (serviceInterface == ICompilationService.class) {
 			if (COMPLIATION_SERVICE == null) {
 				COMPLIATION_SERVICE = new CompilationService();
 			}

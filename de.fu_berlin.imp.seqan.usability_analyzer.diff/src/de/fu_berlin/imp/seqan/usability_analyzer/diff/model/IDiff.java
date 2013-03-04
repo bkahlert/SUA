@@ -9,7 +9,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public interface IDiff extends IData, HasID, HasDateRange, ICodeable, IOpenable {
+public interface IDiff extends IData, HasID, HasDateRange, ICodeable,
+		IOpenable, ICompilable {
 
 	public IDiff getPrevDiffFile();
 
