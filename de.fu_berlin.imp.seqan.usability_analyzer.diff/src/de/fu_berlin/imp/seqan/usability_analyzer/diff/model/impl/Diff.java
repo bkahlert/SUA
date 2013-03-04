@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -17,6 +17,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingData;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
@@ -54,7 +57,7 @@ public class Diff extends WrappingData implements IDiff {
 	private long revision;
 	private TimeZoneDateRange dateRange;
 
-	private DiffRecordList diffFileRecords = null;
+	private DiffRecords diffFileRecords = null;
 
 	public Diff(IData data, IDiff prevDiffFile, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
@@ -121,7 +124,7 @@ public class Diff extends WrappingData implements IDiff {
 	 * getDiffFileRecords()
 	 */
 	@Override
-	public DiffRecordList getDiffFileRecords() {
+	public DiffRecords getDiffFileRecords() {
 		return diffFileRecords;
 	}
 
@@ -152,9 +155,9 @@ public class Diff extends WrappingData implements IDiff {
 	 */
 	@Override
 	public boolean sourcesExist() {
-		DiffRecordList diffFileRecords = this.getDiffFileRecords();
+		IDiffRecords diffFileRecords = this.getDiffFileRecords();
 		if (diffFileRecords != null) {
-			for (DiffRecord diffRecord : diffFileRecords) {
+			for (IDiffRecord diffRecord : diffFileRecords) {
 				if (!diffRecord.sourceExists())
 					return false;
 			}
@@ -177,7 +180,7 @@ public class Diff extends WrappingData implements IDiff {
 	@Override
 	public void open() {
 		DiffFileEditorUtils.closeCompareEditors();
-		for (DiffRecord diffRecord : this.diffFileRecords) {
+		for (IDiffRecord diffRecord : this.diffFileRecords) {
 			diffRecord.open();
 		}
 	}

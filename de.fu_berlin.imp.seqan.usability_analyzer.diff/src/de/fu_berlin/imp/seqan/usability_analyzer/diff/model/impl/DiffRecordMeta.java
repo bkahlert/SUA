@@ -1,13 +1,13 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.text.SimpleDateFormat;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta;
 
-public class DiffRecordMeta implements HasDateRange {
+public class DiffRecordMeta implements IDiffRecordMeta {
 	private static String getNameFromLine(String line) {
 		String name = line.substring(4).split("\t")[0];
 		if (name.substring(0, "./".length()).equals("./")) {
@@ -55,22 +55,61 @@ public class DiffRecordMeta implements HasDateRange {
 		this.dateRange = new TimeZoneDateRange(startDate, endDate);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta#
+	 * getFromFileName()
+	 */
+	@Override
 	public String getFromFileName() {
 		return fromFileName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta#
+	 * getFromFileDate()
+	 */
+	@Override
 	public TimeZoneDate getFromFileDate() {
 		return fromFileDate;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta#
+	 * getToFileName()
+	 */
+	@Override
 	public String getToFileName() {
 		return toFileName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta#
+	 * getToFileDate()
+	 */
+	@Override
 	public TimeZoneDate getToFileDate() {
 		return toFileDate;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta#
+	 * getDateRange()
+	 */
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		return this.dateRange;

@@ -12,7 +12,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.model.WorkbenchAdapter;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 
 public class DiffFileEditorUtils {
 
@@ -58,7 +59,7 @@ public class DiffFileEditorUtils {
 	 * 
 	 * @param diffRecord
 	 */
-	public static void openCompareEditor(DiffRecord diffRecord) {
+	public static void openCompareEditor(IDiffRecord diffRecord) {
 		IWorkbenchPage page = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getActivePage();
 		try {
@@ -79,7 +80,7 @@ public class DiffFileEditorUtils {
 	 * 
 	 * @param diffRecord
 	 */
-	public static void closeCompareEditors(DiffRecord diffRecord) {
+	public static void closeCompareEditors(IDiffRecord diffRecord) {
 		for (IWorkbenchWindow workbenchWindow : PlatformUI.getWorkbench()
 				.getWorkbenchWindows()) {
 			IEditorReference[] editorReferences = workbenchWindow

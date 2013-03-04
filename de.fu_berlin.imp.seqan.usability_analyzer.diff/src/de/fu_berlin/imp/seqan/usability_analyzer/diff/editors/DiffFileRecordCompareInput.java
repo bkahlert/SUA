@@ -9,18 +9,18 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
 public class DiffFileRecordCompareInput extends CompareEditorInput {
-	private DiffRecord diffRecord;
+	private IDiffRecord diffRecord;
 	private Image titleImage;
 
-	public DiffFileRecordCompareInput(DiffRecord diffRecord) {
+	public DiffFileRecordCompareInput(IDiffRecord diffRecord) {
 		super(new CompareConfiguration());
 		this.diffRecord = diffRecord;
 	}
 
-	public DiffRecord getDiffFileRecord() {
+	public IDiffRecord getDiffFileRecord() {
 		return this.diffRecord;
 	}
 

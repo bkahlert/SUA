@@ -6,6 +6,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordHistory;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 
 /**
  * Instances of this class describe all {@link IDiff} belonging to a {@link ID}.

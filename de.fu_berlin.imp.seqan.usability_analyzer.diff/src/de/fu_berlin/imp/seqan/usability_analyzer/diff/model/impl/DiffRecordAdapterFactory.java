@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
 public class DiffRecordAdapterFactory implements IAdapterFactory {
 
@@ -20,8 +21,8 @@ public class DiffRecordAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
-		if (adaptableObject instanceof DiffRecord) {
-			final DiffRecord diffRecord = (DiffRecord) adaptableObject;
+		if (adaptableObject instanceof IDiffRecord) {
+			final IDiffRecord diffRecord = (IDiffRecord) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
 				return new TimeZoneDateRange(diffRecord.getDateRange()
 						.getStartDate(), diffRecord.getDateRange().getEndDate());

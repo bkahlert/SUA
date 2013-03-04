@@ -15,6 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordHistory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 
@@ -96,9 +97,9 @@ public class DiffFileDirectoryTest {
 		DiffRecordHistory diffRecordHistory = getDiffFileRecordHistory();
 		Assert.assertEquals(3, diffRecordHistory.size());
 
-		DiffRecord r0 = diffRecordHistory.get(0);
-		DiffRecord r1 = diffRecordHistory.get(1);
-		DiffRecord r2 = diffRecordHistory.get(2);
+		IDiffRecord r0 = diffRecordHistory.get(0);
+		IDiffRecord r1 = diffRecordHistory.get(1);
+		IDiffRecord r2 = diffRecordHistory.get(2);
 
 		// Assert.assertEquals(r1, r0.getSuccessor());
 		// Assert.assertEquals(r2, r1.getSuccessor());
@@ -115,7 +116,7 @@ public class DiffFileDirectoryTest {
 		Assert.assertEquals(3, diffRecordHistory.size());
 
 		for (int i = 0, j = diffRecordHistory.size(); i < j; i++) {
-			DiffRecord diffRecord = diffRecordHistory.get(i);
+			IDiffRecord diffRecord = diffRecordHistory.get(i);
 			File expectedFile = FileUtils.getFile(root
 					+ "/trunk/sandbox/mordor/apps/exastellar/exastellar.r" + i
 					+ ".cpp");

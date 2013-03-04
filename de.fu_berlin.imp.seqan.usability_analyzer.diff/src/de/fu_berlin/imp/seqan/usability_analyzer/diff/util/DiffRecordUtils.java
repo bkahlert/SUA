@@ -10,10 +10,12 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DiffRecordUtils {
@@ -134,7 +136,7 @@ public class DiffRecordUtils {
 		return descriptors;
 	}
 
-	public static DiffRecordList createRecordsFromDescriptors(Diff diff,
+	public static DiffRecords createRecordsFromDescriptors(Diff diff,
 			ITrunk trunk, ISourceStore sourceCache,
 			List<DiffRecordDescriptor> descriptors,
 			IProgressMonitor progressMonitor) {
@@ -142,8 +144,7 @@ public class DiffRecordUtils {
 		monitor.beginTask("Creating " + DiffRecord.class.getSimpleName() + "s",
 				descriptors.size());
 
-		DiffRecordList diffRecords = new DiffRecordList(diff, trunk,
-				sourceCache);
+		DiffRecords diffRecords = new DiffRecords(diff, trunk, sourceCache);
 
 		for (DiffRecordDescriptor descriptor : descriptors) {
 			diffRecords.createAndAddRecord(descriptor.commandLine,
@@ -158,7 +159,7 @@ public class DiffRecordUtils {
 		return diffRecords;
 	}
 
-	public static DiffRecordList readRecords(Diff diff, ITrunk trunk,
+	public static DiffRecords readRecords(Diff diff, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor);
 		monitor.beginTask("Processing " + diff.getName(), 3);
@@ -167,7 +168,7 @@ public class DiffRecordUtils {
 		List<DiffRecordDescriptor> descriptors = readDescriptors(diff,
 				monitor.newChild(1));
 
-		DiffRecordList diffRecords = createRecordsFromDescriptors(diff, trunk,
+		DiffRecords diffRecords = createRecordsFromDescriptors(diff, trunk,
 				sourceCache, descriptors, monitor.newChild(2));
 
 		LOGGER.info("Parsed " + Diff.class.getSimpleName() + " \""
@@ -186,12 +187,12 @@ public class DiffRecordUtils {
 	 * @param codeables
 	 * @return
 	 */
-	public static List<DiffRecord> getRecordsFromSegments(
+	public static List<IDiffRecord> getRecordsFromSegments(
 			List<ICodeable> codeables) {
-		List<DiffRecord> diffRecords = new LinkedList<DiffRecord>();
+		List<IDiffRecord> diffRecords = new LinkedList<IDiffRecord>();
 		for (ICodeable codeable : codeables) {
-			if (codeable instanceof DiffRecordSegment) {
-				DiffRecordSegment segment = (DiffRecordSegment) codeable;
+			if (codeable instanceof IDiffRecordSegment) {
+				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
 				diffRecords.add(segment.getDiffFileRecord());
 			}
 		}

@@ -16,6 +16,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDa
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
@@ -207,10 +209,10 @@ public class DiffFileTest {
 
 	private void testDiffFileRecordsCountRun(IDiff diff, int[] numContentLines,
 			Long[] timeDifferences, String[] sourceFiles) throws IOException {
-		DiffRecordList diffFileRecords = diff.getDiffFileRecords();
+		DiffRecords diffFileRecords = diff.getDiffFileRecords();
 		Assert.assertEquals(numContentLines.length, diffFileRecords.size());
 		for (int i = 0; i < diffFileRecords.size(); i++) {
-			DiffRecord diffRecord = diffFileRecords.get(i);
+			IDiffRecord diffRecord = diffFileRecords.get(i);
 
 			// patch size
 			Assert.assertEquals(numContentLines[i], diffRecord.getPatchLines()

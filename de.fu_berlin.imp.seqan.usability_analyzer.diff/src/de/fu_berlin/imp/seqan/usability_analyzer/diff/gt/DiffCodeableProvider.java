@@ -23,11 +23,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
@@ -91,7 +93,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 							+ DiffRecord.class.getSimpleName());
 					return null;
 				}
-				for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
+				for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
 					if (diffRecord.getFilename().equals(diffFileRecordName)) {
 						if (codeInstanceID.getFragment() != null) {
 							try {
@@ -186,8 +188,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 	public boolean openSegments(final List<ICodeable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
 		for (ICodeable codeable : codedObjects) {
-			if (codeable instanceof DiffRecordSegment) {
-				DiffRecordSegment segment = (DiffRecordSegment) codeable;
+			if (codeable instanceof IDiffRecordSegment) {
+				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
 				DiffFileEditorUtils.openCompareEditor(segment
 						.getDiffFileRecord());
 				// TODO: Highlight segment

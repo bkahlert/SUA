@@ -25,10 +25,11 @@ import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -51,7 +52,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			private ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
 				public void clicked(TimelineEvent event) {
-					if (!(event.getSource() instanceof DiffRecord))
+					if (!(event.getSource() instanceof IDiffRecord))
 						return;
 					DiffRecord diffRecord = (DiffRecord) event.getSource();
 					diffRecord.open();
@@ -110,9 +111,9 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					monitor.worked(1);
 					return diffs;
 				case DIFFRECORD_BAND:
-					List<DiffRecord> diffRecords = new ArrayList<DiffRecord>();
+					List<IDiffRecord> diffRecords = new ArrayList<IDiffRecord>();
 					for (IDiff diff : diffList) {
-						for (DiffRecord diffRecord : diff.getDiffFileRecords()) {
+						for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
 							diffRecords.add(diffRecord);
 						}
 					}
@@ -183,7 +184,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 				if (event instanceof IDiff) {
 					IDiff diff = (IDiff) event;
 					return "Iteration #" + (diff.getRevision() + 1);
-				} else if (event instanceof DiffRecord) {
+				} else if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					String prefix = Activator.getDefault()
 							.getDiffDataContainer()
@@ -218,7 +219,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					TimeZoneDateRange dateRange = diff.getDateRange();
 					return dateRange.getStartDate() != null ? dateRange
 							.getStartDate().getCalendar() : null;
-				} else if (event instanceof DiffRecord) {
+				} else if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					TimeZoneDateRange dateRange = diffRecord.getDateRange();
 					return dateRange.getStartDate() != null ? dateRange
@@ -234,7 +235,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					TimeZoneDateRange dateRange = diff.getDateRange();
 					return dateRange.getEndDate() != null ? dateRange
 							.getEndDate().getCalendar() : null;
-				} else if (event instanceof DiffRecord) {
+				} else if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					TimeZoneDateRange dateRange = diffRecord.getDateRange();
 					return dateRange.getEndDate() != null ? dateRange
@@ -256,7 +257,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 						LOGGER.error(e);
 					}
 				}
-				if (event instanceof DiffRecord) {
+				if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					try {
 						for (ICode code : codeService.getCodes(diffRecord)) {
@@ -278,7 +279,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			public String[] getClassNames(Object event) {
 				if (event instanceof IDiff) {
 					return new String[] { Diff.class.getSimpleName() };
-				} else if (event instanceof DiffRecord) {
+				} else if (event instanceof IDiffRecord) {
 					return new String[] { DiffRecord.class.getSimpleName() };
 				}
 				return new String[0];

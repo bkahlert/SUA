@@ -11,10 +11,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -126,8 +127,8 @@ public class DiffFileListsContentProvider implements
 		if (element instanceof IDiff) {
 			return null;
 		}
-		if (element instanceof DiffRecord) {
-			return ((DiffRecord) element).getDiffFile();
+		if (element instanceof IDiffRecord) {
+			return ((IDiffRecord) element).getDiffFile();
 		}
 		return null;
 	}
@@ -138,7 +139,7 @@ public class DiffFileListsContentProvider implements
 			return ((IDiffs) element).length() > 0;
 		}
 		if (element instanceof IDiff) {
-			DiffRecordList diffFileRecords = ((IDiff) element)
+			DiffRecords diffFileRecords = ((IDiff) element)
 					.getDiffFileRecords();
 			return diffFileRecords != null && diffFileRecords.size() > 0;
 		}
@@ -151,10 +152,9 @@ public class DiffFileListsContentProvider implements
 			return ((IDiffs) parentElement).toArray();
 		}
 		if (parentElement instanceof IDiff) {
-			DiffRecordList diffFileRecords = ((IDiff) parentElement)
+			IDiffRecords diffRecords = ((IDiff) parentElement)
 					.getDiffFileRecords();
-			return diffFileRecords != null ? diffFileRecords.toArray()
-					: new Object[0];
+			return diffRecords != null ? diffRecords.toArray() : new Object[0];
 		}
 		return new Object[0];
 	}

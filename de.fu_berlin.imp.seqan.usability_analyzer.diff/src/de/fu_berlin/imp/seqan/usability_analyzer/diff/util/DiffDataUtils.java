@@ -9,7 +9,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 
 public class DiffDataUtils {
 

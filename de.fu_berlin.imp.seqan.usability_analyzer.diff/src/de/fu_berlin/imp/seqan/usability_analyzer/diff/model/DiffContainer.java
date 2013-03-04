@@ -26,6 +26,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.CachingDiffFileComparator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffDataUtils;
@@ -238,7 +241,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public IDiffs createDiffFiles(ID id, IProgressMonitor progressMonitor) {
 		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		IDiffs diffFiles = DiffRecordList.create(this.dataLists.get(id),
+		IDiffs diffFiles = DiffRecords.create(this.dataLists.get(id),
 				this.trunk, this.sourceCache, progressMonitor);
 		return diffFiles;
 	}

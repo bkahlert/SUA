@@ -1,9 +1,10 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 
 public class DiffAdapterFactory implements IAdapterFactory {
 

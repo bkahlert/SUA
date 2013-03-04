@@ -11,22 +11,23 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.DefaultTimelineEventDetailProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineEventDetailProvider;
 
 public class DiffRecordTimelineEventDetailProvider extends
-		DefaultTimelineEventDetailProvider<DiffRecord> implements
-		ITimelineEventDetailProvider<DiffRecord> {
+		DefaultTimelineEventDetailProvider<IDiffRecord> implements
+		ITimelineEventDetailProvider<IDiffRecord> {
 
 	@Override
-	public Class<DiffRecord> getType() {
-		return DiffRecord.class;
+	public Class<IDiffRecord> getType() {
+		return IDiffRecord.class;
 	}
 
 	@Override
-	public List<IllustratedText> getMetaInformation(DiffRecord diffRecord) {
+	public List<IllustratedText> getMetaInformation(IDiffRecord diffRecord) {
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
 		metaEntries.add(new IllustratedText(ImageManager.DIFFFILERECORD,
 				DiffRecord.class.getSimpleName()));
@@ -36,7 +37,7 @@ public class DiffRecordTimelineEventDetailProvider extends
 
 	@Override
 	public List<Entry<String, String>> getDetailInformation(
-			DiffRecord diffRecord) {
+			IDiffRecord diffRecord) {
 		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
 
 		detailEntries.add(new DetailEntry("Filename",
@@ -66,7 +67,7 @@ public class DiffRecordTimelineEventDetailProvider extends
 	}
 
 	@Override
-	public void fillCustomComposite(Composite parent, DiffRecord diff,
+	public void fillCustomComposite(Composite parent, IDiffRecord diff,
 			ITimeline timeline) {
 
 	}

@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,10 @@ import com.bkahlert.devel.nebula.utils.StringUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 
 public class Diffs implements IDiffs {
 
@@ -73,13 +77,16 @@ public class Diffs implements IDiffs {
 	@Override
 	public String getLongestCommonPrefix() {
 		if (this.longestPrefix == null) {
-			List<DiffRecord> diffRecords = new ArrayList<DiffRecord>();
-			for (IDiff diff : this)
-				diffRecords.addAll(diff.getDiffFileRecords());
+			List<IDiffRecord> diffRecords = new ArrayList<IDiffRecord>();
+			for (IDiff diff : this) {
+				for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
+					diffRecords.add(diffRecord);
+				}
+			}
 			Map<String, Integer> rs = StringUtils.getLongestCommonPrefix(
-					new StringUtils.IStringAdapter<DiffRecord>() {
+					new StringUtils.IStringAdapter<IDiffRecord>() {
 						@Override
-						public String getString(DiffRecord diffRecord) {
+						public String getString(IDiffRecord diffRecord) {
 							return diffRecord.getFilename();
 						}
 					}, "C:\\".length(), diffRecords.toArray(new DiffRecord[0]));
@@ -136,9 +143,9 @@ public class Diffs implements IDiffs {
 	public DiffRecordHistory getHistory(String filename) {
 		DiffRecordHistory history = new DiffRecordHistory();
 		for (IDiff diff : this) {
-			DiffRecordList diffFileRecords = diff.getDiffFileRecords();
+			IDiffRecords diffFileRecords = diff.getDiffFileRecords();
 			if (diffFileRecords != null)
-				for (DiffRecord diffRecord : diffFileRecords) {
+				for (IDiffRecord diffRecord : diffFileRecords) {
 					if (diffRecord.getFilename().equals(filename))
 						history.add(diffRecord);
 				}

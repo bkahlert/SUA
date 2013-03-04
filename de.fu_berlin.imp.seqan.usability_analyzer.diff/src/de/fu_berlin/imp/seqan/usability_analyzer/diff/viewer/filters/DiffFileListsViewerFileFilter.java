@@ -6,7 +6,7 @@ import java.io.FileFilter;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
 public class DiffFileListsViewerFileFilter extends ViewerFilter {
 
@@ -18,8 +18,8 @@ public class DiffFileListsViewerFileFilter extends ViewerFilter {
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if (element instanceof DiffRecord) {
-			DiffRecord diffRecord = (DiffRecord) element;
+		if (element instanceof IDiffRecord) {
+			IDiffRecord diffRecord = (IDiffRecord) element;
 			return this.fileFilter
 					.accept(new File(diffRecord.getFilename()));
 		}

@@ -15,7 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
-public class CodeStoreTest extends CodeStoreHelper {
+public class CodeStoreSaveTest extends CodeStoreHelper {
 
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -24,7 +24,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		}
 	};
 
-	public CodeStoreTest() throws URISyntaxException {
+	public CodeStoreSaveTest() throws URISyntaxException {
 		super();
 	}
 

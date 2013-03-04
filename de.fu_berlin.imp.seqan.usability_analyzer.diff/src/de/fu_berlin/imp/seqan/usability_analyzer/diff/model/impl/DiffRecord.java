@@ -1,39 +1,39 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
+public class DiffRecord implements IDiffRecord {
 
 	private static final long serialVersionUID = -1200532570493919910L;
 
 	private static Logger LOGGER = Logger.getLogger(DiffRecord.class);
 
-	private Diff diff;
+	private IDiff diff;
 	private IData originalSource;
 	private ISourceStore sourceCache;
 
 	private String commandLine;
-	private DiffRecordMeta meta;
+	private IDiffRecordMeta meta;
 
 	/**
 	 * Contains the byte position within the parent {@link Diff} where the patch
@@ -47,12 +47,12 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 	 */
 	private long patchEnd;
 
-	private DiffRecord predecessor = null;
+	private IDiffRecord predecessor = null;
 
-	private boolean patchFailed = false;
+	private static List<IDiffRecord> patchFailed = new ArrayList<IDiffRecord>();
 
-	public DiffRecord(Diff diff, IData originalSource,
-			ISourceStore sourceCache, String commandLine, DiffRecordMeta meta,
+	public DiffRecord(IDiff diff, IData originalSource,
+			ISourceStore sourceCache, String commandLine, IDiffRecordMeta meta,
 			long contentStart, long contentEnd) {
 		this.diff = diff;
 		this.originalSource = originalSource;
@@ -64,12 +64,18 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		this.patchEnd = contentEnd;
 
 		getSource(); // implicitly patches
-		if (this.patchFailed) {
+		if (patchFailed.contains(this)) {
 			LOGGER.warn("Failed to patch " + originalSource + " of "
 					+ diff.getID());
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getCodeInstanceID()
+	 */
 	@Override
 	public URI getCodeInstanceID() {
 		try {
@@ -83,48 +89,59 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getID()
+	 */
+	@Override
 	public ID getID() {
 		return this.diff.getID();
 	}
 
-	public Diff getDiffFile() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getDiffFile
+	 * ()
+	 */
+	@Override
+	public IDiff getDiffFile() {
 		return diff;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getCommandLine()
+	 */
+	@Override
 	public String getCommandLine() {
 		return commandLine;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getFilename
+	 * ()
+	 */
+	@Override
 	public String getFilename() {
 		return this.meta.getToFileName();
 	}
 
-	/**
-	 * Returns the complete patch
-	 * <p>
-	 * Example:
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * <pre>
-	 * <code>
-	 * --- ./misc/seqan_instrumentation/last_revision_copy/sandbox/tum/apps/ministellar/ministellar.cpp	2011-09-13 14:57:41.156250000 +0200
-	 * +++ ./sandbox/tum/apps/ministellar/ministellar.cpp	2011-09-13 14:59:20.984375000 +0200
-	 * @@ -133,8 +133,8 @@
-	 *                  // HINT: Create an align object on infixes of the sequences.
-	 *  
-	 *                  Align<TInfix, ArrayGaps> ali2;
-	 * -                appendValue(rows(ali2), infix(seqs1[0], leftDim0(seed), rightDim0(seed));
-	 * -                appendValue(rows(ali2), infix(seqs2[0], leftDim1(seed), rightDim1(seed));
-	 * +                appendValue(rows(ali2), infix(seqs1[0], getBeginDim0(seed), getEndDim0(seed));
-	 * +                appendValue(rows(ali2), infix(seqs2[0], getBeginDim1(seed), getEndDim1(seed));
-	 *  
-	 *                  //TScoreValue scoreValue2 = globalAlignment(ali2, score, NeedlemanWunsch());
-	 *                  //std::cout << ali2 << std::endl;
-	 * 
-	 * </code>
-	 * </pre>
-	 * 
-	 * @return list of patch lines
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getPatchLines()
 	 */
+	@Override
 	public List<String> getPatchLines() {
 		return this.getDiffFile().getContent(this.patchStart, this.patchEnd);
 	}
@@ -134,20 +151,50 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		return this.getClass().getSimpleName() + ": " + this.getFilename();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getDateRange
+	 * ()
+	 */
 	@Override
 	public TimeZoneDateRange getDateRange() {
 		return this.meta.getDateRange();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#isTemporary
+	 * ()
+	 */
+	@Override
 	public boolean isTemporary() {
 		return this.getFilename().endsWith("~");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getSourceFile()
+	 */
+	@Override
 	public File getSourceFile() throws IOException {
 		return this.sourceCache.getSourceFile(diff.getID(), diff.getRevision(),
 				this.meta.getToFileName());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#sourceExists
+	 * ()
+	 */
+	@Override
 	public boolean sourceExists() {
 		try {
 			File sourceFile = getSourceFile();
@@ -158,10 +205,22 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getSource
+	 * ()
+	 */
+	@Override
 	public String getSource() {
-		DiffRecord predecessor = this.getPredecessor();
-		if ((predecessor != null && predecessor.patchFailed) || patchFailed) {
-			this.patchFailed = true;
+		if (patchFailed.contains(this)) {
+			return null;
+		}
+
+		IDiffRecord predecessor = this.getPredecessor();
+		if ((predecessor != null && patchFailed.contains(predecessor))) {
+			patchFailed.add(this);
 			return null;
 		}
 
@@ -216,7 +275,7 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 				String filename = getFilename();
 				LOGGER.warn("Could not patch ID: " + diff.getID() + ", "
 						+ filename, e);
-				patchFailed = true;
+				patchFailed.add(this);
 				return null;
 			}
 		}
@@ -242,12 +301,19 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		}
 	}
 
-	public DiffRecord getPredecessor() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getPredecessor()
+	 */
+	@Override
+	public IDiffRecord getPredecessor() {
 		if (this.predecessor == null) {
 			String filename = getFilename();
 			IDiff prevDiffFile = this.getDiffFile().getPrevDiffFile();
 			outer: while (prevDiffFile != null) {
-				for (DiffRecord diffRecord : prevDiffFile.getDiffFileRecords()) {
+				for (IDiffRecord diffRecord : prevDiffFile.getDiffFileRecords()) {
 					if (diffRecord.getFilename().equals(filename)) {
 						this.predecessor = diffRecord;
 						break outer;
@@ -259,9 +325,16 @@ public class DiffRecord implements HasDateRange, ICodeable, HasID, IOpenable {
 		return this.predecessor;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#open()
+	 */
 	@Override
 	public void open() {
 		DiffFileEditorUtils.closeCompareEditors(this);
 		DiffFileEditorUtils.openCompareEditor(this);
 	}
+
 }

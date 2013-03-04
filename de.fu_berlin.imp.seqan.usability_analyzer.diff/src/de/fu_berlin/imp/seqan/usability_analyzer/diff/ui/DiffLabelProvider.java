@@ -7,11 +7,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
@@ -33,14 +35,14 @@ public class DiffLabelProvider extends LabelProvider {
 			Diff diff = (Diff) element;
 			return "Iteration #" + diff.getRevision();
 		}
-		if (element instanceof DiffRecord) {
-			DiffRecord diffRecord = (DiffRecord) element;
+		if (element instanceof IDiffRecord) {
+			IDiffRecord diffRecord = (IDiffRecord) element;
 			String name = diffRecord.getFilename();
 			return (name != null) ? new File(name).getName() + "@"
 					+ diffRecord.getDiffFile().getRevision() : "";
 		}
-		if (element instanceof DiffRecordSegment) {
-			DiffRecordSegment diffRecordSegment = (DiffRecordSegment) element;
+		if (element instanceof IDiffRecordSegment) {
+			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) element;
 			String name = diffRecordSegment.getDiffFileRecord().getFilename();
 			return (name != null) ? new File(name).getName() + ": "
 					+ diffRecordSegment.getSegmentStart() + "+"
@@ -66,7 +68,7 @@ public class DiffLabelProvider extends LabelProvider {
 				return ImageManager.DIFFFILE;
 			}
 		}
-		if (element instanceof DiffRecord) {
+		if (element instanceof IDiffRecord) {
 			DiffRecord diffFileRecord = (DiffRecord) element;
 			try {
 				return (codeService.getCodes(diffFileRecord).size() > 0) ? (codeService
@@ -78,7 +80,7 @@ public class DiffLabelProvider extends LabelProvider {
 				return ImageManager.DIFFFILERECORD;
 			}
 		}
-		if (element instanceof DiffRecordSegment) {
+		if (element instanceof IDiffRecordSegment) {
 			DiffRecordSegment diffFileRecordSegment = (DiffRecordSegment) element;
 			try {
 				return (codeService.getCodes(diffFileRecordSegment).size() > 0) ? (codeService

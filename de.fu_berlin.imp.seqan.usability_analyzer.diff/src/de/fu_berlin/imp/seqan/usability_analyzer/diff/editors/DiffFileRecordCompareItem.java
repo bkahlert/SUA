@@ -11,7 +11,7 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
 /**
  * One of the items a {@link CompareEditor} is made of. Typically the editor
@@ -24,10 +24,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffRecord;
  */
 public class DiffFileRecordCompareItem implements ITypedElement,
 		IModificationDate, IStreamContentAccessor {
-	private DiffRecord diffRecord;
+	private IDiffRecord diffRecord;
 	private Image image;
 
-	public DiffFileRecordCompareItem(DiffRecord diffRecord, Image image) {
+	public DiffFileRecordCompareItem(IDiffRecord diffRecord, Image image) {
 		this.diffRecord = diffRecord;
 		this.image = image;
 	}

@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
+package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import org.apache.log4j.Logger;
 import org.eclipse.compare.internal.CompareEditor;
@@ -13,6 +13,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class TextSelectionAdapterFactory implements IAdapterFactory {
@@ -31,13 +33,13 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof ITextSelection) {
 			final ITextSelection textSelection = (ITextSelection) adaptableObject;
 			if (adapterType == ICodeable.class) {
-				DiffRecord diffRecord = getDiffRecord(textSelection);
+				IDiffRecord diffRecord = getDiffRecord(textSelection);
 				return diffRecord;
 			} else if (adaptableObject == DiffRecordSegment.class) {
-				DiffRecord diffRecord = getDiffRecord(textSelection);
+				IDiffRecord diffRecord = getDiffRecord(textSelection);
 
 				Control focusControl = Display.getCurrent().getFocusControl();
-				DiffRecord focusedDiffFileRecord = null;
+				IDiffRecord focusedDiffFileRecord = null;
 
 				if (focusControl instanceof StyledText) {
 					String text = ((StyledText) focusControl).getText();
@@ -61,7 +63,7 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 					return null;
 				}
 
-				DiffRecordSegment segment = new DiffRecordSegment(
+				IDiffRecordSegment segment = new DiffRecordSegment(
 						focusedDiffFileRecord, offset, length);
 				return segment;
 			}
@@ -70,7 +72,7 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 		return null;
 	}
 
-	private DiffRecord getDiffRecord(ITextSelection textSelection) {
+	private IDiffRecord getDiffRecord(ITextSelection textSelection) {
 		IEditorPart editor = getResponsibleEditor(textSelection);
 
 		if (editor == null)
@@ -81,7 +83,7 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 			return null;
 
 		DiffFileRecordCompareEditorInput diffFileRecordCompareEditorInput = (DiffFileRecordCompareEditorInput) editorInput;
-		DiffRecord diffRecord = diffFileRecordCompareEditorInput
+		IDiffRecord diffRecord = diffFileRecordCompareEditorInput
 				.getDiffFileRecord();
 		return diffRecord;
 	}
