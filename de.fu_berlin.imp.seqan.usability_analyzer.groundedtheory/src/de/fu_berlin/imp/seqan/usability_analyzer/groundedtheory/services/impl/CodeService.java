@@ -132,7 +132,7 @@ public class CodeService implements ICodeService {
 
 	@Override
 	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException {
-		return getCodes(codeable.getCodeInstanceID());
+		return getCodes(codeable.getUri());
 	}
 
 	public List<ICode> getCodes(URI codeableId) throws CodeServiceException {
@@ -316,8 +316,7 @@ public class CodeService implements ICodeService {
 			List<ICode> removedCodes = new LinkedList<ICode>();
 			for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
 				if (codes.contains(codeInstance.getCode())
-						&& codeInstance.getId().equals(
-								codeable.getCodeInstanceID())) {
+						&& codeInstance.getId().equals(codeable.getUri())) {
 					this.codeStore.deleteCodeInstance(codeInstance);
 					removedCodes.add(codeInstance.getCode());
 				}
@@ -334,6 +333,9 @@ public class CodeService implements ICodeService {
 		}
 	}
 
+	// TODO check if removed is also fired to allow viewers to only listen to
+	// removals (so they don't have to refresh their viewers although they are
+	// not affected
 	@Override
 	public void deleteCode(ICode code) throws CodeServiceException {
 		try {
@@ -631,7 +633,7 @@ public class CodeService implements ICodeService {
 					"Arguments must not be null"));
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
-			this.uriCache.removeKey(oldEpisode.getCodeInstanceID());
+			this.uriCache.removeKey(oldEpisode.getUri());
 			episodes.remove(oldEpisode);
 			episodes.add(newEpisode);
 
@@ -662,7 +664,7 @@ public class CodeService implements ICodeService {
 		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
-				this.uriCache.removeKey(episodeToDelete.getCodeInstanceID());
+				this.uriCache.removeKey(episodeToDelete.getUri());
 				episodes.remove(episodeToDelete);
 				removeCodes(getCodes(episodeToDelete), episodeToDelete);
 				deletedEpisodes.add(episodeToDelete);

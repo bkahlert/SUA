@@ -75,7 +75,7 @@ public class GTCodeableProvider extends CodeableProvider {
 				// 1: Compare URI
 				URI id = codeInstanceID;
 				for (IEpisode episode : episodes) {
-					if (episode.getCodeInstanceID().equals(id))
+					if (episode.getUri().equals(id))
 						return episode;
 				}
 

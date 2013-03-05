@@ -50,7 +50,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 			}
 		});
 
-		this.setContentProvider(new DoclogFilesContentProvider());
+		this.setContentProvider(new DoclogContentProvider());
 
 		initColumns(dateFormat, timeDifferenceFormat);
 

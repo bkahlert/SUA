@@ -2,10 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 
 public class CodeStoreHelper {
 	private static File getTempFile() throws IOException {
-		File dir = new File(FileUtils.getTempDirectory(), new BigInteger(130,
-				new SecureRandom()).toString(32));
+		File dir = com.bkahlert.devel.nebula.utils.FileUtils.getTempDirectory();
 		File temp = new File(dir, CodeServiceTest.class.getSimpleName()
 				+ ".xml");
 		dir.deleteOnExit();
@@ -87,7 +84,7 @@ public class CodeStoreHelper {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public URI getCodeInstanceID() {
+			public URI getUri() {
 				try {
 					return new URI("sua://codeInstance1");
 				} catch (URISyntaxException e) {
@@ -99,7 +96,7 @@ public class CodeStoreHelper {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public URI getCodeInstanceID() {
+			public URI getUri() {
 				try {
 					return new URI("sua://codeInstance2");
 				} catch (URISyntaxException e) {
@@ -111,7 +108,7 @@ public class CodeStoreHelper {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public URI getCodeInstanceID() {
+			public URI getUri() {
 				try {
 					return new URI("sua://codeInstance3");
 				} catch (URISyntaxException e) {
@@ -120,11 +117,11 @@ public class CodeStoreHelper {
 			}
 		};
 
-		codeInstance1 = new CodeInstance(code2, codeable1.getCodeInstanceID(),
+		codeInstance1 = new CodeInstance(code2, codeable1.getUri(),
 				new TimeZoneDate("1984-05-15T14:30:00+02:00"));
-		codeInstance2 = new CodeInstance(code1, codeable2.getCodeInstanceID(),
+		codeInstance2 = new CodeInstance(code1, codeable2.getUri(),
 				new TimeZoneDate("2011-11-11T11:11:11+11:00"));
-		codeInstance3 = new CodeInstance(code2, codeable3.getCodeInstanceID(),
+		codeInstance3 = new CodeInstance(code2, codeable3.getUri(),
 				new TimeZoneDate("2002-09-23T23:08:01-04:30"));
 
 		codeInstances = new ICodeInstance[] { codeInstance1, codeInstance2,

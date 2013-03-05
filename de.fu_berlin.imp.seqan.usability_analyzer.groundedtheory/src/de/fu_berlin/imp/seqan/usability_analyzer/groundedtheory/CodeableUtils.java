@@ -23,7 +23,7 @@ public class CodeableUtils {
 	public static Set<ID> getIDs(final List<ICodeable> codedObjects) {
 		Set<ID> ids = new HashSet<ID>();
 		for (ICodeable codeable : codedObjects) {
-			String[] uri = codeable.getCodeInstanceID().getRawPath().split("/");
+			String[] uri = codeable.getUri().getRawPath().split("/");
 			if (uri.length > 1 && ID.isValid(uri[1]))
 				ids.add(new ID(uri[1]));
 		}
@@ -44,7 +44,7 @@ public class CodeableUtils {
 			final List<ICodeable> codedObjects) {
 		Set<Fingerprint> fingerprints = new HashSet<Fingerprint>();
 		for (ICodeable codeable : codedObjects) {
-			String[] uri = codeable.getCodeInstanceID().getRawPath().split("/");
+			String[] uri = codeable.getUri().getRawPath().split("/");
 			if (uri.length > 1 && Fingerprint.isValid(uri[1]))
 				fingerprints.add(new Fingerprint(uri[1]));
 		}

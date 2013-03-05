@@ -45,7 +45,7 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 						@Override
 						public void run() {
 							dataService
-									.setActiveDataDirectories(Arrays
+									.loadDataDirectories(Arrays
 											.asList(dataResourceContainer));
 						}
 					});

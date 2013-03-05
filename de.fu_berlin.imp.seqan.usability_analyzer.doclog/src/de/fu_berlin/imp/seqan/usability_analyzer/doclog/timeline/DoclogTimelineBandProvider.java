@@ -26,6 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -44,12 +45,15 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 	public ITimelineContentProvider getContentProvider() {
 		return new ITimelineContentProvider() {
 
+			private DoclogContentProvider doclogContentProvider = new DoclogContentProvider();
 			private Object input = null;
 
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput) {
 				this.input = newInput;
+				this.doclogContentProvider.inputChanged(viewer, oldInput,
+						newInput);
 			}
 
 			@Override

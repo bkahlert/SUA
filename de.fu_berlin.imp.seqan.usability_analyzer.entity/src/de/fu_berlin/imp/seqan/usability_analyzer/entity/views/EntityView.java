@@ -72,7 +72,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 
 	private IDataServiceListener dataServiceListener = new DataServiceAdapter() {
 		@Override
-		public void activeDataDirectoriesChanged(
+		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
 			LOGGER.info("Refreshing " + EntityViewer.class.getSimpleName());
 			ExecutorUtil.asyncExec(new Runnable() {
@@ -103,12 +103,12 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.dataSourceFilters.put(DataSource.SURVEYRECORD,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
 
-		dataService.addDataDirectoryServiceListener(dataServiceListener);
+		dataService.addDataServiceListener(dataServiceListener);
 	}
 
 	@Override
 	public void dispose() {
-		dataService.removeDataDirectoryServiceListener(dataServiceListener);
+		dataService.removeDataServiceListener(dataServiceListener);
 		super.dispose();
 	}
 

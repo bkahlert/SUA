@@ -61,9 +61,9 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 * #getCodeInstanceID()
 	 */
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
-			return new URI(diffRecord.getCodeInstanceID().toString() + "#"
+			return new URI(diffRecord.getUri().toString() + "#"
 					+ segmentStart + "+" + segmentEnd);
 		} catch (URISyntaxException e) {
 			LOGGER.fatal(

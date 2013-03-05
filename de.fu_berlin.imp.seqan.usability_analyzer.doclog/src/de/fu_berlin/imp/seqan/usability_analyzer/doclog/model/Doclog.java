@@ -116,7 +116,7 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 	}
 
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
 			return new URI("sua://"
 					+ DoclogCodeableProvider.DOCLOG_NAMESPACE

@@ -55,7 +55,7 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 		composite.setLayout(GridLayoutFactory.fillDefaults().numColumns(1)
 				.create());
 
-		URI uri = this.codeable.getCodeInstanceID();
+		URI uri = this.codeable.getUri();
 		Image image = null;
 		String label = "?";
 

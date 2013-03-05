@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors;bundle-version="3.7.0",
  org.eclipse.core.resources;bundle-version="3.7.100",
  de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;bundle-version="1.0.0",
- de.fu_berlin.imp.seqan.usability_analyzer.timeline;bundle-version="1.0.0"
+ de.fu_berlin.imp.seqan.usability_analyzer.timeline;bundle-version="1.0.0",
+ org.eclipse.core.expressions
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.diff,

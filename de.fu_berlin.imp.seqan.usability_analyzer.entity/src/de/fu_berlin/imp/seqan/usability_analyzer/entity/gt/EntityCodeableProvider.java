@@ -48,7 +48,7 @@ public class EntityCodeableProvider extends CodeableProvider {
 			public ICodeable call() throws Exception {
 				for (Entity entity : Activator.getDefault().getLoadedData()
 						.getEntityManager().getPersons()) {
-					if (entity.getCodeInstanceID().equals(codeInstanceID))
+					if (entity.getUri().equals(codeInstanceID))
 						return entity;
 				}
 

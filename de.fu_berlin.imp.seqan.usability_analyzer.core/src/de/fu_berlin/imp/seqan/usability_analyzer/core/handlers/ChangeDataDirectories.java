@@ -52,7 +52,7 @@ public class ChangeDataDirectories extends AbstractHandler {
 					fileDataContainers, newDataDirectories));
 			dataService.addDataDirectories(ListUtils.subtract(
 					newDataDirectories, fileDataContainers));
-			dataService.setActiveDataDirectories(dataDirectoryDialog
+			dataService.loadDataDirectories(dataDirectoryDialog
 					.getSelectedDataDirectories());
 
 			/**

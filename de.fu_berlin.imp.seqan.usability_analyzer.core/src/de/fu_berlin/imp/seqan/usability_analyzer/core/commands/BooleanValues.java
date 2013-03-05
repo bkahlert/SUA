@@ -11,6 +11,7 @@ public class BooleanValues implements IParameterValues {
 	@Override
 	public Map getParameterValues() {
 		Map params = new HashMap();
+		params.put("null", null);
 		params.put(Boolean.TRUE.toString(), Boolean.TRUE);
 		params.put(Boolean.FALSE.toString(), Boolean.FALSE);
 		return params;

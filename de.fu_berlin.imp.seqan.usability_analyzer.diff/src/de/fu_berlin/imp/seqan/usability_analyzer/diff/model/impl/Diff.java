@@ -39,7 +39,7 @@ public class Diff extends WrappingData implements IDiff {
 			.compile("([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff");
 
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
 			return new URI("sua://" + DiffCodeableProvider.DIFF_NAMESPACE + "/"
 					+ getID().toString() + "/" + getRevision());

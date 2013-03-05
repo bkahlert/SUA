@@ -354,7 +354,7 @@ public class MemoComposer extends Composite {
 	synchronized public void load(ICodeable codeable,
 			IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo for " + codeable.getCodeInstanceID().toString(),
+				"Loading Memo for " + codeable.getUri().toString(),
 				2);
 		this.save(null, monitor.newChild(1));
 		this.code = null;
@@ -380,7 +380,7 @@ public class MemoComposer extends Composite {
 					.getId());
 			if (coded != null) {
 				ILabelProvider lp = this.codeService.getLabelProvider(coded
-						.getCodeInstanceID());
+						.getUri());
 				icon = lp.getImage(coded);
 				caption = lp.getText(coded) + " (coded with "
 						+ this.codeInstance.getCode().getCaption() + ")";
@@ -391,7 +391,7 @@ public class MemoComposer extends Composite {
 			}
 		} else if (this.codeable != null) {
 			ILabelProvider lp = this.codeService.getLabelProvider(this.codeable
-					.getCodeInstanceID());
+					.getUri());
 			icon = lp.getImage(this.codeable);
 			caption = lp.getText(this.codeable);
 		} else {

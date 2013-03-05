@@ -28,7 +28,7 @@ class CodeInstance implements ICodeInstance {
 	}
 
 	public CodeInstance(ICode code, ICodeable codeable, TimeZoneDate creation) {
-		this(code, codeable.getCodeInstanceID(), creation);
+		this(code, codeable.getUri(), creation);
 	}
 
 	@Override

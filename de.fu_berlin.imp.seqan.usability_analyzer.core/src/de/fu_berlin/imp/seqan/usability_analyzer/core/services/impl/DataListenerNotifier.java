@@ -17,67 +17,67 @@ public class DataListenerNotifier {
 
 	public void addDataDirectoryServiceListener(
 			IDataServiceListener dataServiceListener) {
-		this.dataServiceListeners
-				.add(dataServiceListener);
+		this.dataServiceListeners.add(dataServiceListener);
 	}
 
 	public void removeDataDirectoryServiceListener(
 			IDataServiceListener dataServiceListener) {
-		this.dataServiceListeners
-				.remove(dataServiceListener);
+		this.dataServiceListeners.remove(dataServiceListener);
 	}
 
 	public void dataDirectoriesAdded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil
-				.nonUIAsyncExec(
-						POOL,
-						dataServiceListeners,
-						new ParametrizedCallable<IDataServiceListener, Void>() {
-							@Override
-							public Void call(
-									IDataServiceListener dataServiceListener)
-									throws Exception {
-								dataServiceListener
-										.dataDirectoriesAdded(dataContainers);
-								return null;
-							}
-						});
+		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+				new ParametrizedCallable<IDataServiceListener, Void>() {
+					@Override
+					public Void call(IDataServiceListener dataServiceListener)
+							throws Exception {
+						dataServiceListener
+								.dataDirectoriesAdded(dataContainers);
+						return null;
+					}
+				});
 	}
 
 	public void dataDirectoriesRemoved(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil
-				.nonUIAsyncExec(
-						POOL,
-						dataServiceListeners,
-						new ParametrizedCallable<IDataServiceListener, Void>() {
-							@Override
-							public Void call(
-									IDataServiceListener dataServiceListener)
-									throws Exception {
-								dataServiceListener
-										.dataDirectoriesRemoved(dataContainers);
-								return null;
-							}
-						});
+		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+				new ParametrizedCallable<IDataServiceListener, Void>() {
+					@Override
+					public Void call(IDataServiceListener dataServiceListener)
+							throws Exception {
+						dataServiceListener
+								.dataDirectoriesRemoved(dataContainers);
+						return null;
+					}
+				});
 	}
 
-	public void activeDataDirectoriesChanged(
+	public void dataDirectoriesLoaded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil
-				.nonUIAsyncExec(
-						POOL,
-						dataServiceListeners,
-						new ParametrizedCallable<IDataServiceListener, Void>() {
-							@Override
-							public Void call(
-									IDataServiceListener dataServiceListener)
-									throws Exception {
-								dataServiceListener
-										.activeDataDirectoriesChanged(dataContainers);
-								return null;
-							}
-						});
+		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+				new ParametrizedCallable<IDataServiceListener, Void>() {
+					@Override
+					public Void call(IDataServiceListener dataServiceListener)
+							throws Exception {
+						dataServiceListener
+								.dataDirectoriesLoaded(dataContainers);
+						return null;
+					}
+				});
+	}
+
+	public void dataDirectoriesUnloaded(
+			final List<? extends IBaseDataContainer> dataContainers) {
+		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+				new ParametrizedCallable<IDataServiceListener, Void>() {
+					@Override
+					public Void call(IDataServiceListener dataServiceListener)
+							throws Exception {
+						dataServiceListener
+								.dataDirectoriesUnloaded(dataContainers);
+						return null;
+					}
+				});
 	}
 }

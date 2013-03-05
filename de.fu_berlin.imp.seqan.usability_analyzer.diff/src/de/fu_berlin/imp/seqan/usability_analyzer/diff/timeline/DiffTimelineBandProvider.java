@@ -23,6 +23,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
@@ -31,6 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -52,20 +54,24 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			private ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
 				public void clicked(TimelineEvent event) {
-					if (!(event.getSource() instanceof IDiffRecord))
+					if (!(event.getSource() instanceof IOpenable))
 						return;
-					DiffRecord diffRecord = (DiffRecord) event.getSource();
-					diffRecord.open();
+					IOpenable openable = (IOpenable) event.getSource();
+					openable.open();
 				}
 			};
 
 			private Object input = null;
 			private ITimelineGroup<?> timelineGroup = null;
+			private DiffContentProvider diffContentProvider = new DiffContentProvider();
 
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput) {
 				this.input = newInput;
+
+				this.diffContentProvider.inputChanged(viewer, oldInput,
+						newInput);
 
 				if (this.timelineGroup != null) {
 					this.timelineGroup.removeTimelineListener(timelineListener);
@@ -181,22 +187,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public String getTitle(Object event) {
-				if (event instanceof IDiff) {
-					IDiff diff = (IDiff) event;
-					return "Iteration #" + (diff.getRevision() + 1);
-				} else if (event instanceof IDiffRecord) {
-					DiffRecord diffRecord = (DiffRecord) event;
-					String prefix = Activator.getDefault()
-							.getDiffDataContainer()
-							.getDiffFiles(diffRecord.getID(), null)
-							.getLongestCommonPrefix();
-					String filename = diffRecord.getFilename();
-					String shortenedFilename = filename.startsWith(prefix) ? filename
-							.substring(prefix.length()) : filename;
-					return shortenedFilename + "@"
-							+ diffRecord.getDiffFile().getRevision();
-				}
-				return "";
+				return diffLabelProvider.getText(event);
 			}
 
 			@Override

@@ -53,7 +53,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	}
 
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
 			return new URI("sua://" + EntityCodeableProvider.ENTITY_NAMESPACE
 					+ "/" + this.getInternalId());

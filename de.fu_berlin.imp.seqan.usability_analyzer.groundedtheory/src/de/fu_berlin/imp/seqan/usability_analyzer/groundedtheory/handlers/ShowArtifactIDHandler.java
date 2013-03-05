@@ -46,7 +46,7 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 		}
 
 		if (doCopy) {
-			URI id = codeables.get(0).getCodeInstanceID();
+			URI id = codeables.get(0).getUri();
 
 			final Clipboard cb = new Clipboard(HandlerUtil
 					.getActiveShell(event).getDisplay());

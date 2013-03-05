@@ -90,13 +90,13 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public void addDataDirectoryServiceListener(
+	public void addDataServiceListener(
 			IDataServiceListener dataServiceListener) {
 		notifier.addDataDirectoryServiceListener(dataServiceListener);
 	}
 
 	@Override
-	public void removeDataDirectoryServiceListener(
+	public void removeDataServiceListener(
 			IDataServiceListener dataServiceListener) {
 		notifier.removeDataDirectoryServiceListener(dataServiceListener);
 	}
@@ -107,15 +107,16 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public void setActiveDataDirectories(
+	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
 		unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
+		notifier.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
 
 		saveActiveToPreferences(baseDataContainers);
 		loadData(this.dataLoaderManager, baseDataContainers);
 		this.activeBaseDataDirectories = baseDataContainers;
 
-		notifier.activeDataDirectoriesChanged(this.activeBaseDataDirectories);
+		notifier.dataDirectoriesLoaded(this.activeBaseDataDirectories);
 	}
 
 	private static void loadData(final DataLoaderManager dataLoaderManager,

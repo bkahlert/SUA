@@ -56,7 +56,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffFileListsContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.filters.DiffFileListsViewerFileFilter;
 import de.ralfebert.rcputils.menus.ContextMenu;
@@ -159,7 +159,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		tree.setLinesVisible(false);
 
 		this.diffListsViewer
-				.setContentProvider(new DiffFileListsContentProvider());
+				.setContentProvider(new DiffContentProvider());
 		this.diffListsViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {

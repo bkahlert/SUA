@@ -31,21 +31,21 @@ public class EpisodeTest {
 	public void testId() throws URISyntaxException {
 		String now = new TimeZoneDate().toISO8601();
 		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
-				new Episode(id, start, end, null).getCodeInstanceID());
+				new Episode(id, start, end, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
-				new Episode(fingerprint, null, end, null).getCodeInstanceID());
+				new Episode(fingerprint, null, end, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
-				new Episode(id, start, null, null).getCodeInstanceID());
+				new Episode(id, start, null, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
-				new Episode(fingerprint, null, null, null).getCodeInstanceID());
+				new Episode(fingerprint, null, null, null).getUri());
 
 		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
-				new Episode(fingerprint, range, null).getCodeInstanceID());
+				new Episode(fingerprint, range, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
-				new Episode(id, rangeNoStart, null).getCodeInstanceID());
+				new Episode(id, rangeNoStart, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/!IAmAFingerprint/" + now),
-				new Episode(fingerprint, rangeNoEnd, null).getCodeInstanceID());
+				new Episode(fingerprint, rangeNoEnd, null).getUri());
 		Assert.assertEquals(new URI("sua://episode/IAmAnID/" + now),
-				new Episode(id, rangeNoStartEnd, null).getCodeInstanceID());
+				new Episode(id, rangeNoStartEnd, null).getUri());
 	}
 }

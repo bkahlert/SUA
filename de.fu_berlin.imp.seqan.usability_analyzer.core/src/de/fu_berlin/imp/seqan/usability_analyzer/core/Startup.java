@@ -11,7 +11,7 @@ public class Startup implements IStartup {
 	public void earlyStartup() {
 		IDataService dataService = (IDataService) PlatformUI.getWorkbench()
 				.getService(IDataService.class);
-		dataService.setActiveDataDirectories(dataService
+		dataService.loadDataDirectories(dataService
 				.getActiveDataDirectories());
 	}
 

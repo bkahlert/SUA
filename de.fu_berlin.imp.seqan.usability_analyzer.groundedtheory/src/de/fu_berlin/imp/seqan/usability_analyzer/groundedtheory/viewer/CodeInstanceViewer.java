@@ -64,7 +64,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codedObject = (ICodeable) element;
 							return codeService.getLabelProvider(
-									codedObject.getCodeInstanceID()).getText(
+									codedObject.getUri()).getText(
 									codedObject);
 						}
 						if (NoCodesNode.class.isInstance(element)) {
@@ -82,7 +82,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codedObject = (ICodeable) element;
 							return codeService.getLabelProvider(
-									codedObject.getCodeInstanceID()).getImage(
+									codedObject.getUri()).getImage(
 									codedObject);
 						}
 						return null;
@@ -101,7 +101,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 					public String getText(Object element) {
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codeable = (ICodeable) element;
-							return codeable.getCodeInstanceID().toString();
+							return codeable.getUri().toString();
 						}
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;

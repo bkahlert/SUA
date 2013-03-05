@@ -72,7 +72,7 @@ public class Episode implements IEpisode {
 	}
 
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		StringBuilder sb = new StringBuilder("sua://episode/"
 				+ ((id != null) ? id : fingerprint));
 

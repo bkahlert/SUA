@@ -58,7 +58,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 			.getService(ICodeService.class);
 
 	IDataServiceListener dataServiceListener = new DataServiceAdapter() {
-		public void activeDataDirectoriesChanged(
+		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> baseDataContainers) {
 			setBold(null);
 		};
@@ -91,12 +91,12 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 		createColumns();
 		sort(0);
 
-		dataService.addDataDirectoryServiceListener(dataServiceListener);
+		dataService.addDataServiceListener(dataServiceListener);
 		table.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				dataService
-						.removeDataDirectoryServiceListener(dataServiceListener);
+						.removeDataServiceListener(dataServiceListener);
 			}
 		});
 	}

@@ -232,7 +232,7 @@ class CodeStore implements ICodeStore {
 			if (assertiveFind(code) != null) {
 				for (ICodeable codeable : codeables) {
 					ICodeInstance codeInstance = new CodeInstance(code,
-							codeable.getCodeInstanceID(), new TimeZoneDate(
+							codeable.getUri(), new TimeZoneDate(
 									new Date(), TimeZone.getDefault()));
 					if (codeInstances.contains(codeInstance))
 						duplicateCodeInstances.add(codeInstance);
@@ -502,7 +502,7 @@ class CodeStore implements ICodeStore {
 		try {
 			return "codeInstance_"
 					+ URLEncoder.encode(
-							codeable.getCodeInstanceID().toString(), "UTF-8");
+							codeable.getUri().toString(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
@@ -584,7 +584,7 @@ class CodeStore implements ICodeStore {
 			logger.error("Error reading memo for " + codeable);
 		}
 		if (memo == null)
-			return this.memos.get(codeable.getCodeInstanceID());
+			return this.memos.get(codeable.getUri());
 		else
 			return memo;
 	};
@@ -619,7 +619,7 @@ class CodeStore implements ICodeStore {
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
-		this.memos.remove(codeable.getCodeInstanceID());
+		this.memos.remove(codeable.getUri());
 		this.save();
 	}
 

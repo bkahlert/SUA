@@ -363,7 +363,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 				allowing(code).getId();
 				will(returnValue(code1.getId()));
 
-				allowing(codeable).getCodeInstanceID();
+				allowing(codeable).getUri();
 				will(returnValue("my_id"));
 			}
 		});
@@ -386,7 +386,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 				allowing(code).getId();
 				will(returnValue(code1.getId()));
 
-				allowing(codeable).getCodeInstanceID();
+				allowing(codeable).getUri();
 				will(returnValue("my_id"));
 			}
 		});
@@ -406,7 +406,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		final ICodeable codeable = context.mock(ICodeable.class);
 		context.checking(new Expectations() {
 			{
-				allowing(codeable).getCodeInstanceID();
+				allowing(codeable).getUri();
 				will(returnValue(new URI("sua://new_id")));
 			}
 		});

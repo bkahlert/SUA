@@ -77,9 +77,9 @@ public class DiffRecord implements IDiffRecord {
 	 * getCodeInstanceID()
 	 */
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
-			return new URI(this.getDiffFile().getCodeInstanceID().toString()
+			return new URI(this.getDiffFile().getUri().toString()
 					+ "/" + URLEncoder.encode(meta.getToFileName(), "UTF-8"));
 		} catch (Exception e) {
 			LOGGER.error(

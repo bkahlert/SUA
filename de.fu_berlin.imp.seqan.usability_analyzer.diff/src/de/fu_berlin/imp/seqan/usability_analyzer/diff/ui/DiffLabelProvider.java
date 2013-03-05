@@ -1,17 +1,17 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui;
 
-import java.io.File;
-
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -33,21 +33,26 @@ public class DiffLabelProvider extends LabelProvider {
 			return (id != null) ? id.toString() : "";
 		}
 		if (element instanceof IDiff) {
-			Diff diff = (Diff) element;
-			return "Iteration #" + diff.getRevision();
-		}
-		if (element instanceof IDiffRecord) {
-			IDiffRecord diffRecord = (IDiffRecord) element;
-			String name = diffRecord.getFilename();
-			return (name != null) ? new File(name).getName() + "@"
-					+ diffRecord.getDiffFile().getRevision() : "";
-		}
-		if (element instanceof IDiffRecordSegment) {
-			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) element;
-			String name = diffRecordSegment.getDiffFileRecord().getFilename();
-			return (name != null) ? new File(name).getName() + ": "
-					+ diffRecordSegment.getSegmentStart() + "+"
-					+ diffRecordSegment.getSegmentLength() : "";
+			IDiff diff = (IDiff) element;
+			return "Iteration #" + (diff.getRevision());
+		} else if (element instanceof IDiffRecord
+				|| element instanceof IDiffRecordSegment) {
+			IDiffRecord diffRecord = element instanceof DiffRecord ? (DiffRecord) element
+					: ((DiffRecordSegment) element).getDiffFileRecord();
+			String prefix = Activator.getDefault().getDiffDataContainer()
+					.getDiffFiles(diffRecord.getID(), null)
+					.getLongestCommonPrefix();
+			String filename = diffRecord.getFilename();
+			String shortenedFilename = filename.startsWith(prefix) ? filename
+					.substring(prefix.length()) : filename;
+
+			String revisionShortenedFilename = shortenedFilename + "@"
+					+ diffRecord.getDiffFile().getRevision();
+			return element instanceof DiffRecord ? revisionShortenedFilename
+					: revisionShortenedFilename + ": "
+							+ ((DiffRecordSegment) element).getSegmentStart()
+							+ "+"
+							+ ((DiffRecordSegment) element).getSegmentLength();
 		}
 		return "";
 	}
@@ -108,7 +113,7 @@ public class DiffLabelProvider extends LabelProvider {
 				} else {
 					if (codeService.getCodes(diff).size() > 0) {
 						return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFF_CODED_WORKING;
+								: ImageManager.DIFF_CODED_NOTWORKING;
 					} else {
 						if (hasCodedChildren(diff)) {
 							return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
@@ -156,7 +161,7 @@ public class DiffLabelProvider extends LabelProvider {
 				} else {
 					if (codeService.getCodes(diffRecord).size() > 0) {
 						return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFFRECORD_CODED_WORKING;
+								: ImageManager.DIFFRECORD_CODED_NOTWORKING;
 					} else {
 						if (hasCodedChildren(diffRecord)) {
 							return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
@@ -195,7 +200,7 @@ public class DiffLabelProvider extends LabelProvider {
 				} else {
 					if (codeService.getCodes(diffRecordSegment).size() > 0) {
 						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
+								: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
 					} else {
 						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORDSEGMENT_NOTWORKING;

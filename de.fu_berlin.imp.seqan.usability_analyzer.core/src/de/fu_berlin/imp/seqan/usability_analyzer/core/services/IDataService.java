@@ -12,10 +12,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
  */
 public interface IDataService {
 
-	public void addDataDirectoryServiceListener(
+	public void addDataServiceListener(
 			IDataServiceListener dataServiceListener);
 
-	public void removeDataDirectoryServiceListener(
+	public void removeDataServiceListener(
 			IDataServiceListener dataServiceListener);
 
 	/**
@@ -31,7 +31,7 @@ public interface IDataService {
 	 * 
 	 * @param list
 	 */
-	public void setActiveDataDirectories(List<? extends IBaseDataContainer> list);
+	public void loadDataDirectories(List<? extends IBaseDataContainer> list);
 
 	/**
 	 * Returns the currently registered {@link IBaseDataContainer}s.

@@ -22,6 +22,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
  * @author bkahlert
  * 
  */
+// FIXME let this be implemented by the contributing providers
 public class TimelineRefresher implements ICodeServiceListener {
 
 	private static class DelayedRefresher extends ExecutorUtil.DelayableThread {

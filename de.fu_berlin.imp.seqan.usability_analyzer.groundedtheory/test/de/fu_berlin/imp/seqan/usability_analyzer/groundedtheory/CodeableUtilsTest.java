@@ -21,7 +21,7 @@ public class CodeableUtilsTest {
 		{
 			add(new ICodeable() {
 				@Override
-				public URI getCodeInstanceID() {
+				public URI getUri() {
 					try {
 						return new URI("sua://diff/2gh/aaa/lll");
 					} catch (URISyntaxException e) {
@@ -31,7 +31,7 @@ public class CodeableUtilsTest {
 			});
 			add(new ICodeable() {
 				@Override
-				public URI getCodeInstanceID() {
+				public URI getUri() {
 					try {
 						return new URI("abc://xyz/!hhh/aaa/lll");
 					} catch (URISyntaxException e) {
@@ -41,7 +41,7 @@ public class CodeableUtilsTest {
 			});
 			add(new ICodeable() {
 				@Override
-				public URI getCodeInstanceID() {
+				public URI getUri() {
 					try {
 						return new URI("sua:///jkl/aaa/lll");
 					} catch (URISyntaxException e) {
@@ -51,7 +51,7 @@ public class CodeableUtilsTest {
 			});
 			add(new ICodeable() {
 				@Override
-				public URI getCodeInstanceID() {
+				public URI getUri() {
 					try {
 						return new URI("abc:///!iuz/aaa/lll");
 					} catch (URISyntaxException e) {
@@ -61,7 +61,7 @@ public class CodeableUtilsTest {
 			});
 			add(new ICodeable() {
 				@Override
-				public URI getCodeInstanceID() {
+				public URI getUri() {
 					try {
 						return new URI("sksjkskjsklskljlk://resource");
 					} catch (URISyntaxException e) {

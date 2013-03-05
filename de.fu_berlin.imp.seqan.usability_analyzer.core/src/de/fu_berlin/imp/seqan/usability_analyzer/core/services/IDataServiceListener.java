@@ -24,13 +24,21 @@ public interface IDataServiceListener {
 			List<? extends IBaseDataContainer> dataContainers);
 
 	/**
-	 * This method is called when the currently active
-	 * {@link IBaseDataContainer} has changed.
+	 * This method is called when a new set of {@link IBaseDataContainer}s has
+	 * been loaded.
 	 * 
 	 * @param dataContainers
-	 * @return the process directory
 	 */
-	public void activeDataDirectoriesChanged(
+	public void dataDirectoriesLoaded(
+			List<? extends IBaseDataContainer> dataContainers);
+
+	/**
+	 * This method is called when the currently loaded set of
+	 * {@link IBaseDataContainer}s has been unloaded.
+	 * 
+	 * @param dataContainers
+	 */
+	public void dataDirectoriesUnloaded(
 			List<? extends IBaseDataContainer> dataContainers);
 
 }

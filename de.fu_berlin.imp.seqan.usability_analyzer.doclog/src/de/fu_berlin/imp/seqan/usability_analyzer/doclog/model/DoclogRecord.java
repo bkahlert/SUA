@@ -154,9 +154,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	}
 
 	@Override
-	public URI getCodeInstanceID() {
+	public URI getUri() {
 		try {
-			return new URI(this.getDoclog().getCodeInstanceID().toString()
+			return new URI(this.getDoclog().getUri().toString()
 					+ "/" + URLEncoder.encode(this.getRawContent(), "UTF-8"));
 		} catch (Exception e) {
 			logger.error(

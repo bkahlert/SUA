@@ -1,8 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import java.io.Serializable;
-import java.net.URI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 /**
  * Instances of this class can have {@link ICode}s assigned to them.
@@ -10,6 +10,5 @@ import java.net.URI;
  * @author bkahlert
  * 
  */
-public interface ICodeable extends Serializable {
-	public URI getCodeInstanceID();
+public interface ICodeable extends ILocatable, Serializable {
 }
