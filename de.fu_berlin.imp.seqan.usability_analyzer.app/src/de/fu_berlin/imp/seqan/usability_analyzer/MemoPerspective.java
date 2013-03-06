@@ -43,6 +43,9 @@ public class MemoPerspective implements IPerspectiveFactory {
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView");
 			folderLayout.addView("org.eclipse.ui.views.ProgressView");
 		}
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView",
+				IPageLayout.BOTTOM, 0.69f, "folder");
 	}
 
 	/**

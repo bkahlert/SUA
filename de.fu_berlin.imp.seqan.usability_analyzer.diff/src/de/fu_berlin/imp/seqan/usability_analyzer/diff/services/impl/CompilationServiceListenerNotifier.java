@@ -39,4 +39,19 @@ public class CompilationServiceListenerNotifier {
 					}
 				});
 	}
+
+	public void compilerOutputChanged(final ICompilable compilable,
+			final String html) {
+		ExecutorUtil.nonUIAsyncExec(POOL, compilationServiceListeners,
+				new ParametrizedCallable<ICompilationServiceListener, Void>() {
+					@Override
+					public Void call(
+							ICompilationServiceListener compilationServiceListener)
+							throws Exception {
+						compilationServiceListener.compilerOutputChanged(
+								compilable, html);
+						return null;
+					}
+				});
+	}
 }

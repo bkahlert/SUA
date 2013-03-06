@@ -12,6 +12,14 @@
             name="Diff Explorer"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView"
+            icon="icons/view16/compileroutput_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView"
+            name="Compiler Output"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

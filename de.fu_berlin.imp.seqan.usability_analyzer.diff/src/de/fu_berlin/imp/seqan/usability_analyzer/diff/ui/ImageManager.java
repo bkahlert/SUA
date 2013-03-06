@@ -14,6 +14,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 public class ImageManager {
 
 	/*
+	 * views
+	 */
+	public static final Image COMPILEROUTPUT_MISC = getImage("icons/view16/compileroutput_misc.png"); //$NON-NLS-1$
+
+	/*
 	 * overlays
 	 */
 	//	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$

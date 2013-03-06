@@ -34,4 +34,20 @@ public interface ICompilationService {
 	 * @return true if the compilatin state could be set; false otherwise
 	 */
 	public boolean compiles(ICompilable[] compilables, Boolean state);
+
+	/**
+	 * Returns the compuler output for the given {@link ICompilable}.
+	 * 
+	 * @param compilable
+	 * @return
+	 */
+	public String compilerOutput(ICompilable compilable);
+
+	/**
+	 * Sets the given compiler output to the given {@link ICompilable}.
+	 * 
+	 * @param compilable
+	 * @param html
+	 */
+	public void compilerOutput(ICompilable compilable, String html);
 }

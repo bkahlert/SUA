@@ -18,4 +18,12 @@ public interface ICompilationServiceListener {
 	 * @param state
 	 */
 	public void compilationStateChanged(ICompilable[] compilables, Boolean state);
+
+	/**
+	 * Gets called if the compiler output of a {@link ICompilable} changed.
+	 * 
+	 * @param compilable
+	 * @param html
+	 */
+	public void compilerOutputChanged(ICompilable compilable, String html);
 }

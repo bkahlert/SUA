@@ -104,6 +104,11 @@ public class MemoComposer extends Composite {
 		};
 	};
 
+	// TODO PropertyChangeService implementieren; header wird nicht
+	// aktualisiert, wenn sich der compilation state verändert hat, da keine
+	// Abhängigkeit zum Diff-Plugin eingeführt werden kann (sonst: zyklische
+	// Abhängigkeit).
+
 	private ICode code = null;
 	private ICodeInstance codeInstance = null;
 	private ICodeable codeable = null;
@@ -354,8 +359,7 @@ public class MemoComposer extends Composite {
 	synchronized public void load(ICodeable codeable,
 			IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo for " + codeable.getUri().toString(),
-				2);
+				"Loading Memo for " + codeable.getUri().toString(), 2);
 		this.save(null, monitor.newChild(1));
 		this.code = null;
 		this.codeInstance = null;

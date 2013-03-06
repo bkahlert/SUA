@@ -132,6 +132,11 @@ public class DiffContentProvider implements IStructuredContentProvider,
 			com.bkahlert.devel.nebula.utils.ViewerUtils.update(viewer,
 					compilables, null);
 		}
+
+		@Override
+		public void compilerOutputChanged(ICompilable compilable, String html) {
+			return;
+		}
 	};
 
 	public DiffContentProvider() {

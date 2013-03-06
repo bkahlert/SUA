@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.services.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -50,7 +51,7 @@ public class CompilationServiceTest {
 	};
 
 	@Test
-	public void test() throws IOException {
+	public void testCompilationStates() throws IOException {
 		IBaseDataContainer baseDataContainer = createBaseDataContainer();
 		ICompilationService compilationService = new CompilationService(
 				baseDataContainer);
@@ -102,5 +103,57 @@ public class CompilationServiceTest {
 		// know of changes in the persistence level
 		assertFalse(compilationService2.compiles(compilable));
 		assertFalse(compilationService2.compiles(compilable2));
+	}
+
+	@Test
+	public void testCompilerOutputs() throws IOException {
+		IBaseDataContainer baseDataContainer = createBaseDataContainer();
+		ICompilationService compilationService = new CompilationService(
+				baseDataContainer);
+
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, "test");
+		assertEquals("test", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, null);
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, " ");
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, "test2");
+		compilationService.compilerOutput(compilable2, "   ");
+		assertEquals("test2", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, null);
+		compilationService.compilerOutput(compilable2, "test3");
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("test3", compilationService.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, "");
+		compilationService.compilerOutput(compilable2, null);
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+
+		// check synchronization and persistence
+		ICompilationService compilationService2 = new CompilationService(
+				baseDataContainer);
+		assertEquals("", compilationService.compilerOutput(compilable));
+		assertEquals("", compilationService.compilerOutput(compilable2));
+		assertEquals("", compilationService2.compilerOutput(compilable));
+		assertEquals("", compilationService2.compilerOutput(compilable2));
+
+		compilationService.compilerOutput(compilable, "test4");
+		compilationService.compilerOutput(compilable2, "test5");
+		assertEquals("test4", compilationService.compilerOutput(compilable));
+		assertEquals("test5", compilationService.compilerOutput(compilable2));
+		assertEquals("test4", compilationService2.compilerOutput(compilable));
+		assertEquals("test5", compilationService2.compilerOutput(compilable2));
 	}
 }

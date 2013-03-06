@@ -14,6 +14,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
+// FIXME PropertyChangeService implementieren; dann müssen view wie der MemoView oder der Compiler Output View nicht mehr alle möglichen Listener registrieren, um ein Object immer korrekt darzustellen
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -72,10 +74,10 @@ public class Activator extends AbstractUIPlugin {
 	};
 
 	public static final Color COLOR_STANDARD = new Color(Display.getDefault(),
-	new RGB(75, 131, 179));
+			new RGB(75, 131, 179));
 
 	public static final Color COLOR_HIGHLIGHT = new Color(Display.getDefault(),
-	new RGB(216, 255, 38));
+			new RGB(216, 255, 38));
 
 	public Activator() {
 
