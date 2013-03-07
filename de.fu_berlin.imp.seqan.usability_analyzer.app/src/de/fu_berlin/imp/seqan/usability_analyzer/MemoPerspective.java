@@ -23,6 +23,13 @@ public class MemoPerspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
 		}
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView",
+				IPageLayout.BOTTOM, 0.62f, "folder_2");
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.ExecutionOutputView",
+				IPageLayout.RIGHT, 0.5f,
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView");
 		layout.addView("org.eclipse.ui.views.ProgressView", IPageLayout.BOTTOM,
 				0.5f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.core.views.TimeZoneDateRangeView");
@@ -43,9 +50,6 @@ public class MemoPerspective implements IPerspectiveFactory {
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView");
 			folderLayout.addView("org.eclipse.ui.views.ProgressView");
 		}
-		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView",
-				IPageLayout.BOTTOM, 0.69f, "folder");
 	}
 
 	/**

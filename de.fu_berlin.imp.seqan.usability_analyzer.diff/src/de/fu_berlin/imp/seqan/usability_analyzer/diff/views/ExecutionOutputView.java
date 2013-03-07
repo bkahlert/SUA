@@ -7,16 +7,17 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 
-public class CompilerOutputView extends AbstractOutputView {
+public class ExecutionOutputView extends AbstractOutputView {
 
-	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView";
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.ExecutionOutputView";
 
 	private static final Logger LOGGER = Logger
-			.getLogger(CompilerOutputView.class);
+			.getLogger(ExecutionOutputView.class);
 
 	@Override
 	public PartInfo getDefaultPartInfo() {
-		return new PartInfo("Compiler Output", ImageManager.COMPILEROUTPUT_MISC);
+		return new PartInfo("Execution Output",
+				ImageManager.COMPILEROUTPUT_MISC);
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class CompilerOutputView extends AbstractOutputView {
 		ILabelProvider labelProvider = this.getCodeService().getLabelProvider(
 				compilable.getUri());
 		if (labelProvider != null) {
-			return new PartInfo("Compiler Output - "
+			return new PartInfo("Execution Output - "
 					+ labelProvider.getText(compilable),
 					labelProvider.getImage(compilable));
 		} else {
@@ -35,12 +36,12 @@ public class CompilerOutputView extends AbstractOutputView {
 
 	@Override
 	public String getHtml(ICompilable compilable, IProgressMonitor monitor) {
-		return this.getCompilationService().compilerOutput(compilable);
+		return this.getCompilationService().executionOutput(compilable);
 	}
 
 	@Override
 	public void setHtml(ICompilable compilable, String html,
 			IProgressMonitor monitor) {
-		this.getCompilationService().compilerOutput(compilable, html);
+		this.getCompilationService().executionOutput(compilable, html);
 	}
 }

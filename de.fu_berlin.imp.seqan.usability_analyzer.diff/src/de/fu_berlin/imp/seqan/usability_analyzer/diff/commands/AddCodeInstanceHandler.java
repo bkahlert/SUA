@@ -34,7 +34,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		IDocument document = idp.getDocument(editor.getEditorInput());
 		// The IannotationModel enables to add/remove/change annotation to a
 		// Document
-		// loaded in an Editor
+		// loaded in an Composer
 		IAnnotationModel iamf = idp.getAnnotationModel(editor.getEditorInput());
 		// Note: The annotation type id specify that you want to create one of
 		// your

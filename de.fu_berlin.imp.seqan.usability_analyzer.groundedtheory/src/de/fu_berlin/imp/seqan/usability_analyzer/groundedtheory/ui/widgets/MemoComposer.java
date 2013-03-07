@@ -33,8 +33,8 @@ import org.eclipse.ui.browser.IWebBrowser;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
-import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -56,7 +56,7 @@ public class MemoComposer extends Composite {
 	}
 
 	private IPartDelegate partDelegate;
-	private Editor editor;
+	private Composer composer;
 
 	private ICodeService codeService = null;
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
@@ -132,9 +132,9 @@ public class MemoComposer extends Composite {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 
-		this.editor = new Editor(this, style & SWT.BORDER, 2000);
-		this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		this.editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
+		this.composer = new Composer(this, style & SWT.BORDER, 2000);
+		this.composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		this.composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
 				if (anker.getHref() != null) {
@@ -177,7 +177,7 @@ public class MemoComposer extends Composite {
 				return "!!! " + anker.getHref() + " !!!";
 			}
 		});
-		this.editor.addAnkerListener(new IAnkerListener() {
+		this.composer.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerClicked(IAnker anker) {
 				this.clicked(anker, false);
@@ -245,7 +245,7 @@ public class MemoComposer extends Composite {
 				});
 			}
 		});
-		this.editor.addModifyListener(new ModifyListener() {
+		this.composer.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
 				new Job("Auto-Saving Memo") {
@@ -302,7 +302,7 @@ public class MemoComposer extends Composite {
 	 */
 	synchronized public void lock(IProgressMonitor progressMonitor) {
 		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Disabling Memo Editor", 2);
+				"Disabling Memo Composer", 2);
 		this.save(null, monitor.newChild(1));
 		this.code = null;
 		this.codeInstance = null;
@@ -445,8 +445,8 @@ public class MemoComposer extends Composite {
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				editor.setSource(oldHtml);
-				editor.setEnabled(finalEnabled);
+				composer.setSource(oldHtml);
+				composer.setEnabled(finalEnabled);
 				layout();
 				monitor.done();
 			}
@@ -457,7 +457,7 @@ public class MemoComposer extends Composite {
 	 * Saves the given html to the currently loaded object.
 	 * 
 	 * @param html
-	 *            if null the editor's html is used
+	 *            if null the composer's html is used
 	 * @param progressMonitor
 	 * @return
 	 */
@@ -472,7 +472,7 @@ public class MemoComposer extends Composite {
 				html = ExecutorUtil.syncExec(new Callable<String>() {
 					@Override
 					public String call() throws Exception {
-						String s = editor.getSource();
+						String s = composer.getSource();
 						return s;
 					}
 				});
@@ -528,9 +528,9 @@ public class MemoComposer extends Composite {
 
 	public void setSourceMode(boolean on) {
 		if (on)
-			this.editor.showSource();
+			this.composer.showSource();
 		else
-			this.editor.hideSource();
+			this.composer.hideSource();
 	}
 
 }
