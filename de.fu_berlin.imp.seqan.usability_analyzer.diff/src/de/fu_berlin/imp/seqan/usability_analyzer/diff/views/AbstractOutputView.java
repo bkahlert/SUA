@@ -87,7 +87,7 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 	};
 
 	public AbstractOutputView() {
-		super(500, true);
+		super(2000, true);
 	}
 
 	public ICodeService getCodeService() {

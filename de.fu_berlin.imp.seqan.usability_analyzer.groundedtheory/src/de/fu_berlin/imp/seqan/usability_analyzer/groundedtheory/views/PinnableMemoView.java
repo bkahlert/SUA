@@ -24,7 +24,6 @@ public class PinnableMemoView extends MemoView {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			lastSelection = selection;
-
 			if (!pin) {
 				load(selection);
 			}
@@ -66,7 +65,7 @@ public class PinnableMemoView extends MemoView {
 		else if (codeables.size() > 0)
 			PinnableMemoView.this.load(codeables.get(0));
 		else if (objects.size() > 0)
-			PinnableMemoView.this.lock();
+			PinnableMemoView.this.load(null);
 	}
 
 	/**

@@ -5,25 +5,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PartInitException;
@@ -33,8 +23,8 @@ import org.eclipse.ui.browser.IWebBrowser;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -45,7 +35,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
-public class MemoComposer extends Composite {
+public class MemoComposer extends AutosaveEditor<Object> {
 
 	private static final Logger LOGGER = Logger.getLogger(MemoComposer.class);
 
@@ -55,23 +45,20 @@ public class MemoComposer extends Composite {
 		public void setName(String name);
 	}
 
-	private IPartDelegate partDelegate;
-	private Composer composer;
-
 	private ICodeService codeService = null;
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
-			if (codeables.contains(getMemoOwner()))
+			if (codeables.contains(getLoadedObject()))
 				refreshPartHeader();
 		}
 
 		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
-			if (codeables.contains(getMemoOwner()))
+			if (codeables.contains(getLoadedObject()))
 				refreshPartHeader();
 		};
 
 		private void reloadIfNecessary(Object object) {
-			if (object.equals(getMemoOwner())) {
+			if (object.equals(getLoadedObject())) {
 				refreshPartHeader();
 				if (lastSaveBy != MemoComposer.this) {
 					load(null);
@@ -109,10 +96,6 @@ public class MemoComposer extends Composite {
 	// Abhängigkeit zum Diff-Plugin eingeführt werden kann (sonst: zyklische
 	// Abhängigkeit).
 
-	private ICode code = null;
-	private ICodeInstance codeInstance = null;
-	private ICodeable codeable = null;
-
 	/**
 	 * Reference to the {@link MemoComposer} that executed the last save action.
 	 * <p>
@@ -121,19 +104,13 @@ public class MemoComposer extends Composite {
 	 */
 	private static MemoComposer lastSaveBy = null;
 
-	private String oldHtml = "";
+	private IPartDelegate partDelegate;
 
 	public MemoComposer(Composite parent, int style, IPartDelegate partDelegate) {
-		super(parent, style & ~SWT.BORDER);
-		this.setLayout(GridLayoutFactory.fillDefaults().create());
+		super(parent, style & ~SWT.BORDER, 2000);
 
 		this.partDelegate = partDelegate;
 
-		final ICodeService codeService = (ICodeService) PlatformUI
-				.getWorkbench().getService(ICodeService.class);
-
-		this.composer = new Composer(this, style & SWT.BORDER, 2000);
-		this.composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		this.composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
@@ -245,126 +222,16 @@ public class MemoComposer extends Composite {
 				});
 			}
 		});
-		this.composer.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(final ModifyEvent e) {
-				new Job("Auto-Saving Memo") {
-					@Override
-					protected IStatus run(IProgressMonitor progressMonitor) {
-						SubMonitor monitor = SubMonitor.convert(
-								progressMonitor, 1);
-						if (save((String) e.data, monitor)) {
-							LOGGER.info("Memo auto-saved");
-						}
-						/*
-						 * Sleep a short time to allow the progress bar to
-						 * appear at least shortly.
-						 */
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e1) {
-						}
-						monitor.done();
-						return Status.OK_STATUS;
-					}
-				}.schedule();
-			}
-		});
-		// FIXME
-		// this.editor.addLineStyleListener(new HyperlinkLineStyleListener());
-		// StyledTextHyperlinkHandler.addListenerTo(this.editor);
-		// SelectAllHandler.addListenerTo(this.editor);
 
 		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(
 				ICodeService.class);
-		codeService.addCodeServiceListener(codeServiceListener);
+		this.codeService.addCodeServiceListener(codeServiceListener);
 		addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				codeService.removeCodeServiceListener(codeServiceListener);
 			}
 		});
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				lock(new NullProgressMonitor());
-			}
-		}).start();
-	}
-
-	/**
-	 * Locks the {@link MemoComposer} so nothing can be edited.
-	 * <p>
-	 * Must be called from a non-UI thread.
-	 * 
-	 * @param codeable
-	 */
-	synchronized public void lock(IProgressMonitor progressMonitor) {
-		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Disabling Memo Composer", 2);
-		this.save(null, monitor.newChild(1));
-		this.code = null;
-		this.codeInstance = null;
-		this.codeable = null;
-		this.load(monitor.newChild(1));
-	}
-
-	/**
-	 * Loads a {@link ICode}.
-	 * <p>
-	 * Must be called from a non-UI thread.
-	 * 
-	 * @param monitor
-	 * 
-	 * @param codeable
-	 */
-	synchronized public void load(ICode code, IProgressMonitor progressMonitor) {
-		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo for " + code.getCaption(), 2);
-		this.save(null, monitor.newChild(1));
-		this.code = code;
-		this.codeInstance = null;
-		this.codeable = null;
-		this.load(monitor.newChild(1));
-	}
-
-	/**
-	 * Loads a {@link ICodeInstance}.
-	 * <p>
-	 * Must be called from a non-UI thread.
-	 * 
-	 * @param monitor
-	 * 
-	 * @param codeable
-	 */
-	synchronized public void load(ICodeInstance codeInstance,
-			IProgressMonitor progressMonitor) {
-		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo for " + codeInstance.getId().toString(), 2);
-		this.save(null, monitor.newChild(1));
-		this.code = null;
-		this.codeInstance = codeInstance;
-		this.codeable = null;
-		this.load(monitor.newChild(1));
-	}
-
-	/**
-	 * Loads a {@link ICodeable}.
-	 * <p>
-	 * Must be called from a non-UI thread.
-	 * 
-	 * @param codeable
-	 */
-	synchronized public void load(ICodeable codeable,
-			IProgressMonitor progressMonitor) {
-		SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo for " + codeable.getUri().toString(), 2);
-		this.save(null, monitor.newChild(1));
-		this.code = null;
-		this.codeInstance = null;
-		this.codeable = codeable;
-		this.load(monitor.newChild(1));
 	}
 
 	/**
@@ -376,28 +243,30 @@ public class MemoComposer extends Composite {
 
 		Image icon = null;
 		String caption = null;
-		if (this.code != null) {
+		if (this.getLoadedObject() instanceof ICode) {
 			icon = ImageManager.CODE;
-			caption = this.code.getCaption();
-		} else if (this.codeInstance != null) {
-			ICodeable coded = this.codeService.getCodedObject(this.codeInstance
+			caption = ((ICode) this.getLoadedObject()).getCaption();
+		} else if (this.getLoadedObject() instanceof ICodeInstance) {
+			ICodeInstance codeInstance = (ICodeInstance) this.getLoadedObject();
+			ICodeable coded = this.codeService.getCodedObject(codeInstance
 					.getId());
 			if (coded != null) {
 				ILabelProvider lp = this.codeService.getLabelProvider(coded
 						.getUri());
 				icon = lp.getImage(coded);
 				caption = lp.getText(coded) + " (coded with "
-						+ this.codeInstance.getCode().getCaption() + ")";
+						+ codeInstance.getCode().getCaption() + ")";
 			} else {
 				icon = PlatformUI.getWorkbench().getSharedImages()
 						.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-				caption = this.codeInstance.getId().toString();
+				caption = codeInstance.getId().toString();
 			}
-		} else if (this.codeable != null) {
-			ILabelProvider lp = this.codeService.getLabelProvider(this.codeable
+		} else if (this.getLoadedObject() instanceof ICodeable) {
+			ICodeable codeable = (ICodeable) this.getLoadedObject();
+			ILabelProvider lp = this.codeService.getLabelProvider(codeable
 					.getUri());
-			icon = lp.getImage(this.codeable);
-			caption = lp.getText(this.codeable);
+			icon = lp.getImage(codeable);
+			caption = lp.getText(codeable);
 		} else {
 			icon = ImageManager.CODE;
 			caption = "No Memo Support";
@@ -418,119 +287,41 @@ public class MemoComposer extends Composite {
 			ExecutorUtil.syncExec(runnable);
 	}
 
-	/**
-	 * Must be called from a non-UI thread.
-	 */
-	synchronized private void load(IProgressMonitor progressMonitor) {
-		final SubMonitor monitor = SubMonitor.convert(progressMonitor,
-				"Loading Memo", 2);
-		refreshPartHeader();
-
-		boolean enabled = true;
-		String html = null;
-		if (this.code != null)
-			html = this.codeService.loadMemo(code);
-		else if (this.codeInstance != null)
-			html = this.codeService.loadMemo(codeInstance);
-		else if (this.codeable != null)
-			html = this.codeService.loadMemo(codeable);
-		else {
-			html = "";
-			enabled = false;
-		}
-		monitor.worked(1);
-
-		final boolean finalEnabled = enabled;
-		oldHtml = html != null ? html : "";
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				composer.setSource(oldHtml);
-				composer.setEnabled(finalEnabled);
-				layout();
-				monitor.done();
-			}
-		});
-	}
-
-	/**
-	 * Saves the given html to the currently loaded object.
-	 * 
-	 * @param html
-	 *            if null the composer's html is used
-	 * @param progressMonitor
-	 * @return
-	 */
-	synchronized private boolean save(String html,
-			IProgressMonitor progressMonitor) {
-		SubMonitor monitor = SubMonitor.convert(progressMonitor, "Saving Memo",
-				3);
-		if (code == null && codeInstance == null && codeable == null)
-			return false;
-		try {
-			if (html == null)
-				html = ExecutorUtil.syncExec(new Callable<String>() {
-					@Override
-					public String call() throws Exception {
-						String s = composer.getSource();
-						return s;
-					}
-				});
-			if (oldHtml.equals(html))
-				return false;
-			else
-				oldHtml = html;
-
-			monitor.worked(1);
-
-			lastSaveBy = this;
-			if (code != null) {
-				try {
-					codeService.setMemo(code, html);
-				} catch (CodeServiceException e) {
-					LOGGER.error("Can't save memo for " + code, e);
-				}
-				return true;
-			}
-			if (codeInstance != null) {
-				try {
-					codeService.setMemo(codeInstance, html);
-				} catch (CodeServiceException e) {
-					LOGGER.error("Can't save memo for " + codeInstance, e);
-				}
-				return true;
-			}
-			if (codeable != null) {
-				try {
-					codeService.setMemo(codeable, html);
-				} catch (CodeServiceException e) {
-					LOGGER.error("Can't save memo for " + codeable, e);
-				}
-				return true;
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error saving memo", e);
-		} finally {
-			monitor.done();
-		}
-		return false;
-	}
-
-	private synchronized Object getMemoOwner() {
-		if (code != null)
-			return code;
-		if (codeInstance != null)
-			return codeInstance;
-		if (codeable != null)
-			return codeable;
-		return null;
-	}
-
 	public void setSourceMode(boolean on) {
 		if (on)
 			this.composer.showSource();
 		else
 			this.composer.hideSource();
+	}
+
+	// VEREINHEITLICHEN AUF EDITORVIEW
+	@Override
+	public String getHtml(Object objectToLoad, IProgressMonitor monitor) {
+		if (objectToLoad instanceof ICode)
+			return this.codeService.loadMemo((ICode) objectToLoad);
+		else if (objectToLoad instanceof ICodeInstance)
+			return this.codeService.loadMemo((ICodeInstance) objectToLoad);
+		else if (objectToLoad instanceof ICodeable)
+			return this.codeService.loadMemo((ICodeable) objectToLoad);
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public void setHtml(Object loadedObject, String html,
+			IProgressMonitor monitor) {
+		try {
+			lastSaveBy = this;
+			if (loadedObject instanceof ICode)
+				this.codeService.setMemo((ICode) loadedObject, html);
+			else if (loadedObject instanceof ICodeInstance)
+				this.codeService.setMemo((ICodeInstance) loadedObject, html);
+			else if (loadedObject instanceof ICodeable)
+				this.codeService.setMemo((ICodeable) loadedObject, html);
+		} catch (CodeServiceException e) {
+			LOGGER.error("Can't save memo for " + loadedObject, e);
+		}
 	}
 
 }
