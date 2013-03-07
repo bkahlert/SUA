@@ -71,14 +71,27 @@ class CompilationServiceUtils {
 	 * @param baseDataContainer
 	 * @param URI
 	 *            uri
-	 * @param compulerOutputFile
+	 * @param compilerOutputFile
 	 * @throws IOException
 	 */
 	private static void setCompilerOutputFile(
 			IBaseDataContainer baseDataContainer, URI uri,
-			File compulerOutputFile) throws IOException {
+			File compilerOutputFile) throws IOException {
 		baseDataContainer.putFile(SCOPE, DigestUtils.md5Hex(uri.toString())
-				+ ".compiler_output.html", compulerOutputFile);
+				+ ".compiler_output.html", compilerOutputFile);
+	}
+
+	private static File getExecutionOutputFile(
+			IBaseDataContainer baseDataContainer, URI uri) throws IOException {
+		return baseDataContainer.getStaticFile(SCOPE,
+				DigestUtils.md5Hex(uri.toString()) + ".execution_output.html");
+	}
+
+	private static void setExecutionOutputFile(
+			IBaseDataContainer baseDataContainer, URI uri,
+			File executionOutputFile) throws IOException {
+		baseDataContainer.putFile(SCOPE, DigestUtils.md5Hex(uri.toString())
+				+ ".execution_output.html", executionOutputFile);
 	}
 
 	/**
@@ -129,7 +142,7 @@ class CompilationServiceUtils {
 			URI uri) throws IOException {
 		String compilerOutput = null;
 		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
-			compilerOutput = CompilerOutputReaderWriter
+			compilerOutput = OutputReaderWriter
 					.fromFile(getCompilerOutputFile(baseDataContainer, uri));
 			if (compilerOutput != null && !compilerOutput.trim().isEmpty())
 				break;
@@ -150,10 +163,51 @@ class CompilationServiceUtils {
 			URI uri, String compilerOutput) throws IOException {
 		Assert.isNotNull(baseDataContainers);
 		Assert.isNotNull(uri);
-		File compilerOutputFile = CompilerOutputReaderWriter
+		File compilerOutputFile = OutputReaderWriter
 				.toFile(compilerOutput);
 		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
 			setCompilerOutputFile(baseDataContainer, uri, compilerOutputFile);
+		}
+	}
+
+	/**
+	 * Returns the output that is generated when the given {@link URI}'s file
+	 * from the given {@link IBaseDataContainer}s is executed.
+	 * 
+	 * @param baseDataContainers
+	 * @param uri
+	 * @return
+	 * @throws IOException
+	 */
+	static String getExecutionOutput(IBaseDataContainer[] baseDataContainers,
+			URI uri) throws IOException {
+		String executionOutput = null;
+		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
+			executionOutput = OutputReaderWriter
+					.fromFile(getExecutionOutputFile(baseDataContainer, uri));
+			if (executionOutput != null && !executionOutput.trim().isEmpty())
+				break;
+		}
+		return executionOutput;
+	}
+
+	/**
+	 * Sets the output that is generated when the given {@link URI}'s file of
+	 * the given {@link IBaseDataContainer} is executed.
+	 * 
+	 * @param baseDataContainers
+	 * @param uri
+	 * @param executionOutput
+	 * @throws IOException
+	 */
+	static void setExecutionOutput(IBaseDataContainer[] baseDataContainers,
+			URI uri, String executionOutput) throws IOException {
+		Assert.isNotNull(baseDataContainers);
+		Assert.isNotNull(uri);
+		File executionOutputFile = OutputReaderWriter
+				.toFile(executionOutput);
+		for (IBaseDataContainer baseDataContainer : baseDataContainers) {
+			setExecutionOutputFile(baseDataContainer, uri, executionOutputFile);
 		}
 	}
 

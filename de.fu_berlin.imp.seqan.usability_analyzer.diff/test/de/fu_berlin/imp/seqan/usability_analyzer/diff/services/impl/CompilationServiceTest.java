@@ -156,4 +156,56 @@ public class CompilationServiceTest {
 		assertEquals("test4", compilationService2.compilerOutput(compilable));
 		assertEquals("test5", compilationService2.compilerOutput(compilable2));
 	}
+
+	@Test
+	public void testRunOutputs() throws IOException {
+		IBaseDataContainer baseDataContainer = createBaseDataContainer();
+		ICompilationService compilationService = new CompilationService(
+				baseDataContainer);
+
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, "test");
+		assertEquals("test", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, null);
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, " ");
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, "test2");
+		compilationService.executionOutput(compilable2, "   ");
+		assertEquals("test2", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, null);
+		compilationService.executionOutput(compilable2, "test3");
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("test3", compilationService.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, "");
+		compilationService.executionOutput(compilable2, null);
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+
+		// check synchronization and persistence
+		ICompilationService compilationService2 = new CompilationService(
+				baseDataContainer);
+		assertEquals("", compilationService.executionOutput(compilable));
+		assertEquals("", compilationService.executionOutput(compilable2));
+		assertEquals("", compilationService2.executionOutput(compilable));
+		assertEquals("", compilationService2.executionOutput(compilable2));
+
+		compilationService.executionOutput(compilable, "test4");
+		compilationService.executionOutput(compilable2, "test5");
+		assertEquals("test4", compilationService.executionOutput(compilable));
+		assertEquals("test5", compilationService.executionOutput(compilable2));
+		assertEquals("test4", compilationService2.executionOutput(compilable));
+		assertEquals("test5", compilationService2.executionOutput(compilable2));
+	}
 }

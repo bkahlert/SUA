@@ -362,7 +362,7 @@
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
                icon="icons/obj16/code_obj.png"
-               label="Show Artefact ID"
+               label="Show Artefact ID..."
                style="push">
             <visibleWhen
                   checkEnabled="false">

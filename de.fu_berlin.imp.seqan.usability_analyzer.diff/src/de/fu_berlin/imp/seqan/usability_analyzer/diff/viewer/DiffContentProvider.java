@@ -19,6 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -125,17 +126,12 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 	private ICompilationService compilationService = (ICompilationService) PlatformUI
 			.getWorkbench().getService(ICompilationService.class);
-	private ICompilationServiceListener compilationServiceListener = new ICompilationServiceListener() {
+	private ICompilationServiceListener compilationServiceListener = new CompilationServiceAdapter() {
 		@Override
 		public void compilationStateChanged(ICompilable[] compilables,
 				Boolean state) {
 			com.bkahlert.devel.nebula.utils.ViewerUtils.update(viewer,
 					compilables, null);
-		}
-
-		@Override
-		public void compilerOutputChanged(ICompilable compilable, String html) {
-			return;
 		}
 	};
 

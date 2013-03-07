@@ -142,6 +142,34 @@ public class CompilationService implements ICompilationService, IDisposable {
 	}
 
 	@Override
+	public String executionOutput(ICompilable compilable) {
+		Assert.isNotNull(compilable);
+		try {
+			return CompilationServiceUtils.getExecutionOutput(
+					baseDataContainers, compilable.getUri());
+		} catch (IOException e) {
+			LOGGER.error("Error reading the execution output", e);
+		}
+		return "";
+	}
+
+	@Override
+	public void executionOutput(ICompilable compilable, String html) {
+		Assert.isNotNull(compilable);
+		if (html == null)
+			html = "";
+		if (executionOutput(compilable).equals(html))
+			return;
+		try {
+			CompilationServiceUtils.setExecutionOutput(baseDataContainers,
+					compilable.getUri(), html);
+		} catch (IOException e) {
+			LOGGER.error("Error reading the execution output", e);
+		}
+		this.notifier.executionOutputChanged(compilable, html);
+	}
+
+	@Override
 	public void dispose() {
 		if (this.dataService != null)
 			this.dataService.removeDataServiceListener(dataServiceListener);

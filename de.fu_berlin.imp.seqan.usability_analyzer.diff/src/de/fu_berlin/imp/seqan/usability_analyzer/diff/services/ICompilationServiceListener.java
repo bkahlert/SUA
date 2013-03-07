@@ -26,4 +26,12 @@ public interface ICompilationServiceListener {
 	 * @param html
 	 */
 	public void compilerOutputChanged(ICompilable compilable, String html);
+
+	/**
+	 * Gets called if the execution output of a {@link ICompilable} changed.
+	 * 
+	 * @param compilable
+	 * @param html
+	 */
+	public void executionOutputChanged(ICompilable compilable, String html);
 }

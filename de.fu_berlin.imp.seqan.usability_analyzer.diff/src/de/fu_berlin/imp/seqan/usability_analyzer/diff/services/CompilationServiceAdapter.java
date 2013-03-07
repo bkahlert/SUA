@@ -14,4 +14,9 @@ public class CompilationServiceAdapter implements ICompilationServiceListener {
 		return;
 	}
 
+	@Override
+	public void executionOutputChanged(ICompilable compilable, String html) {
+		return;
+	}
+
 }

@@ -7,13 +7,13 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Instances of this class are responsible for reading and writing compiler
- * outputs from and to {@link File}s.
+ * Instances of this class are responsible for reading and writing outputs from
+ * and to {@link File}s.
  * 
  * @author bkahlert
  * 
  */
-public class CompilerOutputReaderWriter {
+public class OutputReaderWriter {
 	/**
 	 * Load the compiler output from the given file.
 	 * 
@@ -37,8 +37,7 @@ public class CompilerOutputReaderWriter {
 	 * @throws IOException
 	 */
 	static File toFile(String html) throws IOException {
-		File compilerOutputFile = File.createTempFile("compiler_output",
-				".html");
+		File compilerOutputFile = File.createTempFile("output", ".html");
 		compilerOutputFile.deleteOnExit();
 		if ((html == null || html.trim().equals(""))
 				&& compilerOutputFile.exists()) {
