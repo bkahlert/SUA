@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
@@ -10,7 +9,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
-public class EditorOnlyMemoView extends MemoView {
+public class EditorOnlyMemoView extends AbstractMemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView";
 	private IPartListener partListener = new IPartListener() {
@@ -18,8 +17,9 @@ public class EditorOnlyMemoView extends MemoView {
 		private ICodeable getCodeable(IWorkbenchPart part) {
 			ISelection selection = SelectionUtils.getSelection(part.getSite()
 					.getWorkbenchWindow());
-			if (selection == null)
+			if (selection == null) {
 				return null;
+			}
 			return (ICodeable) Platform.getAdapterManager().getAdapter(
 					selection, ICodeable.class);
 		}
@@ -30,11 +30,13 @@ public class EditorOnlyMemoView extends MemoView {
 
 		@Override
 		public void partActivated(IWorkbenchPart part) {
-			if (part.getClass() == EditorOnlyMemoView.class)
+			if (part.getClass() == EditorOnlyMemoView.class) {
 				return;
-			ICodeable codeable = getCodeable(part);
-			if (codeable != null)
-				load(codeable);
+			}
+			ICodeable codeable = this.getCodeable(part);
+			if (codeable != null) {
+				EditorOnlyMemoView.this.load(codeable);
+			}
 		}
 
 		@Override
@@ -55,14 +57,14 @@ public class EditorOnlyMemoView extends MemoView {
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
-		getSite().getPage().addPartListener(partListener);
-	}
+	public void postInit() {
+		this.getSite().getPage().addPartListener(this.partListener);
+		super.postInit();
+	};
 
 	@Override
 	public void dispose() {
-		getSite().getPage().removePartListener(partListener);
+		this.getSite().getPage().removePartListener(this.partListener);
 		super.dispose();
 	}
 

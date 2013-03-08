@@ -9,7 +9,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.MemoView;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView;
 
 public class ToggleMemoSourceModeHandler extends AbstractHandler {
 
@@ -24,9 +24,9 @@ public class ToggleMemoSourceModeHandler extends AbstractHandler {
 		boolean sourceMode = !oldValue;
 		IWorkbenchPart activePart = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
-		if (activePart instanceof MemoView) {
-			MemoView memoView = (MemoView) activePart;
-			memoView.setSourceMode(sourceMode);
+		if (activePart instanceof AbstractMemoView) {
+			AbstractMemoView abstractMemoView = (AbstractMemoView) activePart;
+			abstractMemoView.setSourceMode(sourceMode);
 		}
 		return null;
 	}

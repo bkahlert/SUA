@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
@@ -13,7 +12,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
-public class PinnableMemoView extends MemoView {
+public class PinnableMemoView extends AbstractMemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView";
 
@@ -23,9 +22,9 @@ public class PinnableMemoView extends MemoView {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			lastSelection = selection;
-			if (!pin) {
-				load(selection);
+			PinnableMemoView.this.lastSelection = selection;
+			if (!PinnableMemoView.this.pin) {
+				PinnableMemoView.this.load(selection);
 			}
 		}
 	};
@@ -35,16 +34,16 @@ public class PinnableMemoView extends MemoView {
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
-		SelectionUtils.getSelectionService(getSite().getWorkbenchWindow())
-				.addPostSelectionListener(selectionListener);
+	public void postInit() {
+		super.postInit();
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.addPostSelectionListener(this.selectionListener);
 	}
 
 	@Override
 	public void dispose() {
-		SelectionUtils.getSelectionService(getSite().getWorkbenchWindow())
-				.removePostSelectionListener(selectionListener);
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.removePostSelectionListener(this.selectionListener);
 		super.dispose();
 	}
 
@@ -58,14 +57,15 @@ public class PinnableMemoView extends MemoView {
 		final List<Object> objects = SelectionUtils.getAdaptableObjects(
 				selection, Object.class);
 
-		if (codes.size() > 0)
+		if (codes.size() > 0) {
 			PinnableMemoView.this.load(codes.get(0));
-		else if (codeInstances.size() > 0)
+		} else if (codeInstances.size() > 0) {
 			PinnableMemoView.this.load(codeInstances.get(0));
-		else if (codeables.size() > 0)
+		} else if (codeables.size() > 0) {
 			PinnableMemoView.this.load(codeables.get(0));
-		else if (objects.size() > 0)
+		} else if (objects.size() > 0) {
 			PinnableMemoView.this.load(null);
+		}
 	}
 
 	/**
@@ -78,8 +78,9 @@ public class PinnableMemoView extends MemoView {
 	 */
 	public void setPin(boolean pin) {
 		this.pin = pin;
-		if (!pin)
-			load(this.lastSelection);
+		if (!pin) {
+			this.load(this.lastSelection);
+		}
 	}
 
 }
