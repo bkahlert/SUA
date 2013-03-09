@@ -9,6 +9,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.views.EditorView;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
@@ -32,8 +33,9 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			List<ICompilable> compilables = SelectionUtils.getAdaptableObjects(
 					selection, ICompilable.class);
-			if (compilables.size() > 0)
-				load(compilables.get(0));
+			if (compilables.size() > 0) {
+				AbstractOutputView.this.load(compilables.get(0));
+			}
 		}
 	};
 
@@ -42,38 +44,38 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void memoRemoved(ICodeable codeable) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void memoRemoved(ICode code) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void memoAdded(ICodeable codeable) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void memoAdded(ICode code) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> removedCodes,
 				List<ICodeable> codeables) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 	};
 	private ICompilationService compilationService = (ICompilationService) PlatformUI
@@ -82,38 +84,38 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 		@Override
 		public void compilationStateChanged(ICompilable[] compilables,
 				Boolean state) {
-			refreshHeader();
+			AbstractOutputView.this.refreshHeader();
 		}
 	};
 
 	public AbstractOutputView() {
-		super(2000, true);
+		super(2000, ToolbarSet.TERMINAL, true);
 	}
 
 	public ICodeService getCodeService() {
-		return codeService;
+		return this.codeService;
 	}
 
 	public ICompilationService getCompilationService() {
-		return compilationService;
+		return this.compilationService;
 	}
 
 	@Override
 	public void postInit() {
-		SelectionUtils.getSelectionService(getSite().getWorkbenchWindow())
-				.addPostSelectionListener(selectionListener);
-		this.codeService.addCodeServiceListener(codeServiceListener);
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.addPostSelectionListener(this.selectionListener);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 		this.compilationService
-				.addCompilationServiceListener(compilationServiceListener);
+				.addCompilationServiceListener(this.compilationServiceListener);
 	}
 
 	@Override
 	public void dispose() {
 		this.compilationService
-				.removeCompilationServiceListener(compilationServiceListener);
-		this.codeService.removeCodeServiceListener(codeServiceListener);
-		SelectionUtils.getSelectionService(getSite().getWorkbenchWindow())
-				.removePostSelectionListener(selectionListener);
+				.removeCompilationServiceListener(this.compilationServiceListener);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.removePostSelectionListener(this.selectionListener);
 		super.dispose();
 	}
 

@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
@@ -24,8 +22,8 @@ public class BrowsableTimeline extends Timeline {
 		super(parent, style);
 		try {
 			this.injectCssFile(getFileUrl(BrowsableTimeline.class, "style.css"));
-		} catch (IOException e) {
-			logger.error("Could not find style.css", e);
+		} catch (RuntimeException e) {
+			this.logger.error("Could not find style.css", e);
 		}
 
 		this.addTimelineListener(new TimelineAdapter() {

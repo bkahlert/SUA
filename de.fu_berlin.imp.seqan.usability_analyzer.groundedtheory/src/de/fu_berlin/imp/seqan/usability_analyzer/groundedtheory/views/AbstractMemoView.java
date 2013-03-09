@@ -21,6 +21,7 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.BrowserOpeningAnkerLis
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IURIListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.SchemeAnkerListener;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -34,7 +35,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class AbstractMemoView extends EditorView<Object> {
 
-	private static final Logger LOGGER = Logger.getLogger(AbstractMemoView.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(AbstractMemoView.class);
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
@@ -95,7 +97,7 @@ public class AbstractMemoView extends EditorView<Object> {
 	};
 
 	public AbstractMemoView() {
-		super(2000, true);
+		super(2000, ToolbarSet.DEFAULT, true);
 	}
 
 	@Override
@@ -231,10 +233,11 @@ public class AbstractMemoView extends EditorView<Object> {
 	}
 
 	/**
-	 * Reference to the {@link AbstractMemoView} that executed the last save action.
+	 * Reference to the {@link AbstractMemoView} that executed the last save
+	 * action.
 	 * <p>
-	 * Used to distinguish the saving {@link AbstractMemoView} from the others which
-	 * need to reload their contents if they loaded the same object.
+	 * Used to distinguish the saving {@link AbstractMemoView} from the others
+	 * which need to reload their contents if they loaded the same object.
 	 */
 	private static AbstractMemoView lastSaveBy = null;
 

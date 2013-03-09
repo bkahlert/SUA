@@ -99,24 +99,6 @@
 	         </class>
 	         </state>
       </command>
-      <command
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.toggleMemoSourceMode"
-            name="Toggle Source Mode">
-         <state
-               id="org.eclipse.ui.commands.toggleState">
-            <class
-                  class="org.eclipse.ui.handlers.RegistryToggleState">
-               <parameter
-                     name="default"
-                     value="false">
-               </parameter>
-               <parameter
-                     name="persisted"
-                     value="false">
-               </parameter>
-            </class>
-         </state>
-      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -194,10 +176,6 @@
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.PinMemoHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo">
-        </handler>
-        <handler
-              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ToggleMemoSourceModeHandler"
-              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.toggleMemoSourceMode">
         </handler>
      </extension>
    <extension
@@ -398,8 +376,7 @@
                style="toggle">
          </command>
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.toggleMemoSourceMode"
-               icon="icons/elcl16/sourceMode_tsk.png"
+               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>
@@ -407,8 +384,7 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView?after=additions">
          <command
-               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.toggleMemoSourceMode"
-               icon="icons/elcl16/sourceMode_tsk.png"
+               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>

@@ -101,6 +101,22 @@
             </visibleWhen>
          </menu>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView?after=additions">
+         <command
+               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               style="toggle">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.diff.views.ExecutionOutputView?after=additions">
+         <command
+               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               style="toggle">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.core.expressions.definitions">
