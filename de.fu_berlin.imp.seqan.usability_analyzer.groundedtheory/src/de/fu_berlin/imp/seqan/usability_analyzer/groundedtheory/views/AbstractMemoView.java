@@ -160,17 +160,25 @@ public class AbstractMemoView extends EditorView<Object> {
 			public void uriClicked(final URI uri, boolean special) {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
-				if (!codeService.showCodedObjectInWorkspace(uri, special)) {
-					ExecutorUtil.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							MessageDialog.openInformation(PlatformUI
-									.getWorkbench().getActiveWorkbenchWindow()
-									.getShell(), "Artefact not found",
-									"The artefact " + uri.toString()
-											+ " could not be found.");
-						}
-					});
+				ICodeable codeable = codeService.getCodedObject(uri);
+				if (!special) {
+					// treat link as a typical link that opens a resource
+					AbstractMemoView.this.load(codeable);
+				} else {
+					// do not follow the link but make Eclipse open the resource
+					if (!codeService.showCodedObjectInWorkspace(uri, special)) {
+						ExecutorUtil.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								MessageDialog.openInformation(PlatformUI
+										.getWorkbench()
+										.getActiveWorkbenchWindow().getShell(),
+										"Artefact not found", "The artefact "
+												+ uri.toString()
+												+ " could not be found.");
+							}
+						});
+					}
 				}
 			}
 		}));
