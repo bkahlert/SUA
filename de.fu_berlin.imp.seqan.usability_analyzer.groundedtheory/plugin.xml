@@ -177,6 +177,40 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.PinMemoHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo">
         </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.NavigateBackMemoViewHandler"
+              commandId="org.eclipse.ui.navigate.back">
+           <activeWhen>
+              <with
+                    variable="activePart">
+                 <and>
+                    <instanceof
+                          value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView">
+                    </instanceof>
+                    <test
+                          property="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.canNavigateBack">
+                    </test>
+                 </and>
+              </with>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.NavigateForwardMemoViewHandler"
+              commandId="org.eclipse.ui.navigate.forward">
+           <activeWhen>
+              <with
+                    variable="activePart">
+                 <and>
+                    <instanceof
+                          value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView">
+                    </instanceof>
+                    <test
+                          property="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.canNavigateForward">
+                    </test>
+                 </and>
+              </with>
+           </activeWhen>
+        </handler>
      </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -370,6 +404,20 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView?after=additions">
          <command
+               commandId="org.eclipse.ui.navigate.back"
+               disabledIcon="IMG_TOOL_BACK_DISABLED"
+               hoverIcon="IMG_TOOL_BACK_HOVER"
+               icon="IMG_TOOL_BACK"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.navigate.forward"
+               disabledIcon="IMG_TOOL_FORWARD_DISABLED"
+               hoverIcon="IMG_TOOL_FORWARD_HOVER"
+               icon="IMG_TOOL_FORWARD"
+               style="push">
+         </command>
+         <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo"
                disabledIcon="icons/dlcl16/pin_tsk.png"
                icon="icons/elcl16/pin_tsk.png"
@@ -383,6 +431,20 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView?after=additions">
+         <command
+               commandId="org.eclipse.ui.navigate.back"
+               disabledIcon="IMG_TOOL_BACK_DISABLED"
+               hoverIcon="IMG_TOOL_BACK_HOVER"
+               icon="IMG_TOOL_BACK"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.navigate.forward"
+               disabledIcon="IMG_TOOL_FORWARD_DISABLED"
+               hoverIcon="IMG_TOOL_FORWARD_HOVER"
+               icon="IMG_TOOL_FORWARD"
+               style="push">
+         </command>
          <command
                commandId="com.bkahlert.devel.nebula.toggleSourceMode"
                style="toggle">
@@ -798,6 +860,13 @@
             namespace="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory"
             properties="containsSingleKey"
             type="org.eclipse.jface.viewers.ISelection">
+      </propertyTester>
+      <propertyTester
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.MemoViewPropertyTester"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.propertyTesters.MemoViewPropertyTester"
+            namespace="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory"
+            properties="canNavigateBack,canNavigateForward"
+            type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView">
       </propertyTester>
    </extension>
    <extension

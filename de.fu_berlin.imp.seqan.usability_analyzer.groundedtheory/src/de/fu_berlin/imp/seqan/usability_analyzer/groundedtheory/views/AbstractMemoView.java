@@ -12,8 +12,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.services.IEvaluationService;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.history.History;
+import com.bkahlert.devel.nebula.utils.history.IHistory;
 import com.bkahlert.devel.nebula.views.EditorView;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
@@ -96,8 +99,12 @@ public class AbstractMemoView extends EditorView<Object> {
 		};
 	};
 
+	private IHistory<ICodeable> codeableHistory;
+
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
+		this.codeableHistory = new History<ICodeable>();
+		this.codeableHistory.add(null);
 	}
 
 	@Override
@@ -163,6 +170,8 @@ public class AbstractMemoView extends EditorView<Object> {
 				ICodeable codeable = codeService.getCodedObject(uri);
 				if (!special) {
 					// treat link as a typical link that opens a resource
+					AbstractMemoView.this.codeableHistory.add(codeable);
+					AbstractMemoView.this.updateNavigation();
 					AbstractMemoView.this.load(codeable);
 				} else {
 					// do not follow the link but make Eclipse open the resource
@@ -276,6 +285,37 @@ public class AbstractMemoView extends EditorView<Object> {
 			}
 		} catch (CodeServiceException e) {
 			LOGGER.error("Can't save memo for " + loadedObject, e);
+		}
+	}
+
+	protected void updateNavigation() {
+		IEvaluationService evaluationService = (IEvaluationService) this
+				.getSite().getService(IEvaluationService.class);
+		evaluationService
+				.requestEvaluation("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.canNavigateBack");
+		evaluationService
+				.requestEvaluation("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.canNavigateForward");
+	}
+
+	public boolean canNavigateBack() {
+		return this.codeableHistory.hasPrev();
+	}
+
+	public void navigateBack() {
+		if (this.codeableHistory.hasPrev()) {
+			this.load(this.codeableHistory.back());
+			this.updateNavigation();
+		}
+	}
+
+	public boolean canNavigateForward() {
+		return this.codeableHistory.hasNext();
+	}
+
+	public void navigateForward() {
+		if (this.codeableHistory.hasNext()) {
+			this.load(this.codeableHistory.forward());
+			this.updateNavigation();
 		}
 	}
 }
