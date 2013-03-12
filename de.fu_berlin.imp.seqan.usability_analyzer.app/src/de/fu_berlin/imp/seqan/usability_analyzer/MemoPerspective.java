@@ -9,12 +9,13 @@ public class MemoPerspective implements IPerspectiveFactory {
 	/**
 	 * Creates the initial layout for a page.
 	 */
+	@Override
 	@SuppressWarnings("unused")
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
-		addFastViews(layout);
-		addViewShortcuts(layout);
-		addPerspectiveShortcuts(layout);
+		this.addFastViews(layout);
+		this.addViewShortcuts(layout);
+		this.addPerspectiveShortcuts(layout);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_2",
 					IPageLayout.LEFT, 0.43f, IPageLayout.ID_EDITOR_AREA);
@@ -38,10 +39,6 @@ public class MemoPerspective implements IPerspectiveFactory {
 					IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView");
-			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView");
-			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1",
@@ -49,6 +46,16 @@ public class MemoPerspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView");
 			folderLayout.addView("org.eclipse.ui.views.ProgressView");
+		}
+		{
+			IFolderLayout folderLayout = layout.createFolder("folder_3",
+					IPageLayout.BOTTOM, 0.78f, "folder");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView");
 		}
 	}
 
