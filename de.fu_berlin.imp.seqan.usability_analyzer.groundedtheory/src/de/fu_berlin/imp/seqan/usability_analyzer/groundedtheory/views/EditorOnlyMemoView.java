@@ -35,7 +35,7 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 			}
 			ICodeable codeable = this.getCodeable(part);
 			if (codeable != null) {
-				EditorOnlyMemoView.this.load(codeable);
+				EditorOnlyMemoView.this.loadAndClearHistory(codeable);
 			}
 		}
 

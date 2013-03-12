@@ -872,7 +872,7 @@
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
       <CodeableProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider">
       </CodeableProvider>
    </extension>
    <extension

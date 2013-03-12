@@ -30,7 +30,7 @@ import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.GTCodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
@@ -105,7 +105,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				.createColumn("Episode", 150);
 		episodeColumn.setLabelProvider(new ColumnLabelProvider() {
 
-			ILabelProvider labelProvider = new GTCodeableProvider()
+			ILabelProvider labelProvider = new EpisodeCodeableProvider()
 					.getLabelProvider();
 
 			@Override

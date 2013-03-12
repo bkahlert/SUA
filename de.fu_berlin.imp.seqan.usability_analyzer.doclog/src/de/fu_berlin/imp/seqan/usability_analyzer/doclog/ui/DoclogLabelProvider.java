@@ -4,8 +4,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -20,16 +18,22 @@ public class DoclogLabelProvider extends LabelProvider {
 	public String getText(Object element) {
 		if (element instanceof Doclog) {
 			Doclog doclog = (Doclog) element;
-			if (doclog.getID() != null)
+			if (doclog.getID() != null) {
 				return doclog.getID().toString();
-			else
+			} else {
 				return doclog.getFingerprint().toString();
+			}
 		}
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
-			TimeZoneDate date = doclogRecord.getDateRange().getStartDate();
-			return (date != null) ? date.format(new SUACorePreferenceUtil()
-					.getDateFormat()) : "";
+			String url = doclogRecord.getUrl();
+			if (url != null) {
+				url = url.replaceAll(".*://", "");
+			}
+			Integer scrollY = doclogRecord.getScrollPosition() != null ? doclogRecord
+					.getScrollPosition().y : null;
+			return url != null ? (scrollY != null ? url + " ⇅" + scrollY : url)
+					: "ERROR";
 		}
 		return "";
 	}
@@ -39,9 +43,9 @@ public class DoclogLabelProvider extends LabelProvider {
 		if (element instanceof Doclog) {
 			Doclog doclog = (Doclog) element;
 			try {
-				return (codeService.getCodes(doclog).size() > 0) ? (codeService
+				return (this.codeService.getCodes(doclog).size() > 0) ? (this.codeService
 						.isMemo(doclog) ? ImageManager.DOCLOGFILE_CODED_MEMO
-						: ImageManager.DOCLOGFILE_CODED) : (codeService
+						: ImageManager.DOCLOGFILE_CODED) : (this.codeService
 						.isMemo(doclog) ? ImageManager.DOCLOGFILE_MEMO
 						: ImageManager.DOCLOGFILE);
 			} catch (CodeServiceException e) {
@@ -51,10 +55,10 @@ public class DoclogLabelProvider extends LabelProvider {
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
 			try {
-				return (codeService.getCodes(doclogRecord).size() > 0) ? (codeService
+				return (this.codeService.getCodes(doclogRecord).size() > 0) ? (this.codeService
 						.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_CODED_MEMO
 						: ImageManager.DOCLOGRECORD_CODED)
-						: (codeService.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_MEMO
+						: (this.codeService.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_MEMO
 								: ImageManager.DOCLOGRECORD);
 			} catch (CodeServiceException e) {
 				return ImageManager.DOCLOGRECORD;

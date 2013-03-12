@@ -74,8 +74,8 @@ public class EpisodeRenderer implements IDisposable {
 
 	public static final int MAX_DISTANCE_TO_RESIZE = 16;
 
-	public static Color DEFAULT_BACKGROUND_COLOR = Display.getCurrent()
-			.getSystemColor(SWT.COLOR_GRAY);
+	public static Color DEFAULT_BACKGROUND_COLOR = new Color(
+			Display.getCurrent(), new org.eclipse.swt.graphics.RGB(85, 85, 85));
 
 	public static class CodeColors {
 		private RGB backgroundRGB;
@@ -85,11 +85,12 @@ public class EpisodeRenderer implements IDisposable {
 		public CodeColors(RGB backgroundRGB) {
 			this.backgroundRGB = backgroundRGB;
 
-			if (backgroundRGB == null)
+			if (backgroundRGB == null) {
 				this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
-			else
+			} else {
 				this.backgroundColor = new Color(Display.getCurrent(),
 						backgroundRGB.toClassicRGB());
+			}
 
 			this.borderColor = new Color(Display.getDefault(), ColorUtils
 					.scaleLightnessBy(new RGB(this.backgroundColor.getRGB()),
@@ -97,24 +98,26 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		public RGB getBackgroundRGB() {
-			return backgroundRGB;
+			return this.backgroundRGB;
 		}
 
 		public Color getBackgroundColor() {
-			return backgroundColor;
+			return this.backgroundColor;
 		}
 
 		public Color getBorderColor() {
-			return borderColor;
+			return this.borderColor;
 		}
 
 		public void dispose() {
 			if (DEFAULT_BACKGROUND_COLOR != this.backgroundColor
 					&& this.backgroundColor != null
-					&& !this.backgroundColor.isDisposed())
+					&& !this.backgroundColor.isDisposed()) {
 				this.backgroundColor.dispose();
-			if (this.borderColor != null && !this.borderColor.isDisposed())
+			}
+			if (this.borderColor != null && !this.borderColor.isDisposed()) {
 				this.borderColor.dispose();
+			}
 		}
 	}
 
@@ -166,14 +169,14 @@ public class EpisodeRenderer implements IDisposable {
 		 * @return 1 for upwards direction and -1 for downwards
 		 */
 		public int getDirection() {
-			return direction;
+			return this.direction;
 		}
 
 		/**
 		 * @return the episode
 		 */
 		public IEpisode getEpisode() {
-			return episode;
+			return this.episode;
 		}
 
 		public IEpisode getNewEpisode() {
@@ -181,7 +184,7 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		public HasDateRange getHoveredItem() {
-			return hoveredItem;
+			return this.hoveredItem;
 		}
 
 		public void setHoveredItem(HasDateRange hoveredItem) {
@@ -191,19 +194,20 @@ public class EpisodeRenderer implements IDisposable {
 				TimeZoneDate end;
 				if (this.direction < 0) {
 					start = hoveredItem.getDateRange().getStartDate();
-					end = episode.getEnd();
+					end = this.episode.getEnd();
 				} else {
-					start = episode.getStart();
+					start = this.episode.getStart();
 					end = hoveredItem.getDateRange().getEndDate();
 				}
 				newRange = new TimeZoneDateRange(start, end);
 			} catch (InvalidParameterException e) {
 				return;
 			}
-			if (episode.getDateRange().equals(newRange))
+			if (this.episode.getDateRange().equals(newRange)) {
 				return;
+			}
 
-			this.newEpisode = episode.changeRange(newRange);
+			this.newEpisode = this.episode.changeRange(newRange);
 
 			this.hoveredItem = hoveredItem;
 		}
@@ -271,13 +275,15 @@ public class EpisodeRenderer implements IDisposable {
 			this.trackSpace = trackSpace;
 		}
 
+		@Override
 		public void handleEvent(Event event) {
 
-			if (this.renderingBounds == null)
+			if (this.renderingBounds == null) {
 				return;
+			}
 
 			final ResizeInfo info = ResizeInfo.getInfoIfApplicable(event,
-					column, renderingBounds);
+					this.column, this.renderingBounds);
 			switch (event.type) {
 			case SWT.MouseDown:
 				if (info != null && info.direction != 0) {
@@ -291,9 +297,9 @@ public class EpisodeRenderer implements IDisposable {
 						ExecutorUtil.asyncRun(new Runnable() {
 							@Override
 							public void run() {
-								codeService.showCodedObjectInWorkspace(info
-										.getEpisode().getUri(),
-										false);
+								Renderer.this.codeService
+										.showCodedObjectInWorkspace(info
+												.getEpisode().getUri(), false);
 							}
 						});
 					}
@@ -305,8 +311,9 @@ public class EpisodeRenderer implements IDisposable {
 							@Override
 							public void run() {
 								try {
-									codeService.replaceEpisodeAndSave(
-											oldEpisode, newEpisode);
+									Renderer.this.codeService
+											.replaceEpisodeAndSave(oldEpisode,
+													newEpisode);
 								} catch (CodeServiceException e) {
 									LOGGER.error("Error resizing "
 											+ IEpisode.class.getSimpleName(), e);
@@ -316,23 +323,23 @@ public class EpisodeRenderer implements IDisposable {
 					}
 					this.resizeInfo = null;
 					event.widget.setData(CONTROL_DATA_STRING, null);
-					hoveredItemTooltip.setVisible(false);
+					this.hoveredItemTooltip.setVisible(false);
 					((Control) event.widget).redraw();
 					((Control) event.widget).setCursor(null);
 				}
 				break;
 			case SWT.MouseMove:
 				if (this.resizeInfo == null) {
-					hoveredItemTooltip.setVisible(false);
+					this.hoveredItemTooltip.setVisible(false);
 
 					Control control = (Control) event.widget;
 					if (info != null) {
 						if (info.direction > 0) {
-							control.setCursor(resizeTopCursor);
+							control.setCursor(this.resizeTopCursor);
 						} else if (info.getDirection() < 0) {
-							control.setCursor(resizeBottomCursor);
+							control.setCursor(this.resizeBottomCursor);
 						} else {
-							control.setCursor(handCursor);
+							control.setCursor(this.handCursor);
 						}
 					} else {
 						control.setCursor(null);
@@ -340,12 +347,14 @@ public class EpisodeRenderer implements IDisposable {
 				} else {
 					Item item = null;
 
-					if (event.widget instanceof Table)
+					if (event.widget instanceof Table) {
 						item = ((Table) event.widget).getItem(new Point(
 								event.x, event.y));
-					if (event.widget instanceof Tree)
+					}
+					if (event.widget instanceof Tree) {
 						item = ((Tree) event.widget).getItem(new Point(event.x,
 								event.y));
+					}
 
 					if (item != null && item.getData() instanceof HasDateRange) {
 						this.resizeInfo.setHoveredItem((HasDateRange) item
@@ -353,7 +362,7 @@ public class EpisodeRenderer implements IDisposable {
 
 						Point pt = ((Tree) event.widget).toDisplay(
 								event.x + 10, event.y);
-						hoveredItemTooltip
+						this.hoveredItemTooltip
 								.setText("New episode "
 										+ (this.resizeInfo.getDirection() < 0 ? "starts at "
 												+ this.resizeInfo
@@ -364,8 +373,8 @@ public class EpisodeRenderer implements IDisposable {
 																.getNewEpisode()
 																.getEnd()
 																.toISO8601()));
-						hoveredItemTooltip.setLocation(pt);
-						hoveredItemTooltip.setVisible(true);
+						this.hoveredItemTooltip.setLocation(pt);
+						this.hoveredItemTooltip.setVisible(true);
 
 						((Control) event.widget).redraw();
 					}
@@ -378,8 +387,9 @@ public class EpisodeRenderer implements IDisposable {
 		public void paintControl(PaintEvent e) {
 			List<Item> items = com.bkahlert.devel.nebula.utils.ViewerUtils
 					.getAllItems((Control) e.widget);
-			if (items.size() == 0)
+			if (items.size() == 0) {
 				return;
+			}
 
 			Object key = getKey(items);
 			if (key == null) {
@@ -408,14 +418,15 @@ public class EpisodeRenderer implements IDisposable {
 			}
 
 			// Draw episodes
-			this.renderingBounds = getEpisodeBounds(getEpisodes(key), items);
-			for (IEpisode episode : renderingBounds.keySet()) {
+			this.renderingBounds = this.getEpisodeBounds(this.getEpisodes(key),
+					items);
+			for (IEpisode episode : this.renderingBounds.keySet()) {
 				// remove all outdated colors (e.g. because episode got a new
 				// color with different color)
-				if (renderingColors.containsKey(episode)) {
+				if (this.renderingColors.containsKey(episode)) {
 					try {
-						List<ICode> codes = codeService.getCodes(episode);
-						CodeColors renderingColor = renderingColors
+						List<ICode> codes = this.codeService.getCodes(episode);
+						CodeColors renderingColor = this.renderingColors
 								.get(episode);
 						if (codes.size() == 0
 								|| !codes
@@ -424,7 +435,7 @@ public class EpisodeRenderer implements IDisposable {
 										.equals(renderingColor
 												.getBackgroundRGB())) {
 							renderingColor.dispose();
-							renderingColors.remove(episode);
+							this.renderingColors.remove(episode);
 						}
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
@@ -433,14 +444,16 @@ public class EpisodeRenderer implements IDisposable {
 				}
 
 				// create all missing colors
-				if (!renderingColors.containsKey(episode)) {
+				if (!this.renderingColors.containsKey(episode)) {
 					try {
-						List<ICode> codes = codeService.getCodes(episode);
-						if (codes.size() > 0)
-							renderingColors.put(episode, new CodeColors(codes
-									.get(0).getColor()));
-						else
-							renderingColors.put(episode, new CodeColors(null));
+						List<ICode> codes = this.codeService.getCodes(episode);
+						if (codes.size() > 0) {
+							this.renderingColors.put(episode, new CodeColors(
+									codes.get(0).getColor()));
+						} else {
+							this.renderingColors.put(episode, new CodeColors(
+									null));
+						}
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
 								+ ICode.class.getSimpleName() + "s.");
@@ -450,7 +463,7 @@ public class EpisodeRenderer implements IDisposable {
 
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
-				CodeColors codeColors = renderingColors.get(episode);
+				CodeColors codeColors = this.renderingColors.get(episode);
 				if (codeColors == null) {
 					LOGGER.warn("Could not paint episode because it has no color; "
 							+ episode);
@@ -461,7 +474,7 @@ public class EpisodeRenderer implements IDisposable {
 
 				// draw overlay icons
 				try {
-					if (codeService.getCodes(episode).size() > 0) {
+					if (this.codeService.getCodes(episode).size() > 0) {
 						Image overlay = ImageManager.OVERLAY_CODED_IMG;
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
@@ -480,7 +493,7 @@ public class EpisodeRenderer implements IDisposable {
 										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
 												: -3));
 					}
-					if (codeService.isMemo(episode)) {
+					if (this.codeService.isMemo(episode)) {
 						Image overlay = ImageManager.OVERLAY_MEMO_IMG;
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
@@ -519,9 +532,9 @@ public class EpisodeRenderer implements IDisposable {
 							&& ((HasID) item.getData()).getID() != null ? ((HasID) item
 							.getData()).getID() : ((HasFingerprint) item
 							.getData()).getFingerprint();
-					if (key == null)
+					if (key == null) {
 						key = currentKey;
-					else if (!key.equals(currentKey)) {
+					} else if (!key.equals(currentKey)) {
 						return null;
 					}
 				} else {
@@ -532,10 +545,11 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		private Set<IEpisode> getEpisodes(Object key) {
-			if (key instanceof ID)
-				return codeService.getEpisodes((ID) key);
-			else
-				return codeService.getEpisodes((Fingerprint) key);
+			if (key instanceof ID) {
+				return this.codeService.getEpisodes((ID) key);
+			} else {
+				return this.codeService.getEpisodes((Fingerprint) key);
+			}
 		}
 
 		/**
@@ -550,8 +564,9 @@ public class EpisodeRenderer implements IDisposable {
 				List<Item> items) {
 			if (this.resizeInfo != null) {
 				set.remove(this.resizeInfo.getEpisode());
-				if (this.resizeInfo.getNewEpisode() != null)
+				if (this.resizeInfo.getNewEpisode() != null) {
 					set.add(this.resizeInfo.getNewEpisode());
+				}
 			}
 
 			// we need to shift the episodes horizontally if we don't want them
@@ -562,7 +577,7 @@ public class EpisodeRenderer implements IDisposable {
 					.calculateTracks(new LinkedList<IEpisode>(set), CONVERTER);
 
 			Rectangle columnBounds = com.bkahlert.devel.nebula.utils.ViewerUtils
-					.getBounds(column);
+					.getBounds(this.column);
 
 			Map<IEpisode, Rectangle> episodeBounds = new HashMap<IEpisode, Rectangle>();
 			for (Item item : items) {
@@ -573,8 +588,9 @@ public class EpisodeRenderer implements IDisposable {
 				// intersect the previous DiffFile making the Episode look one
 				// DiffFile longer.
 				if (item instanceof TreeItem
-						&& ((TreeItem) item).getParentItem() != null)
+						&& ((TreeItem) item).getParentItem() != null) {
 					continue;
+				}
 
 				if (item.getData() instanceof HasDateRange) {
 					TimeZoneDateRange range = ((HasDateRange) item.getData())
@@ -600,9 +616,9 @@ public class EpisodeRenderer implements IDisposable {
 									+ deepestChildBounds.height
 									- currentBounds.y;
 
-							if (!episodeBounds.containsKey(episode))
+							if (!episodeBounds.containsKey(episode)) {
 								episodeBounds.put(episode, currentBounds);
-							else {
+							} else {
 								Rectangle bounds = episodeBounds.get(episode);
 								bounds.y = Math.min(bounds.y, currentBounds.y);
 								bounds.height = Math.max(bounds.height,
@@ -622,22 +638,26 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		private static Item getDeepestChildItem(Item item) {
-			if (!(item instanceof TreeItem))
+			if (!(item instanceof TreeItem)) {
 				return item;
+			}
 			TreeItem[] treeItems = ((TreeItem) item).getItems();
-			if (treeItems == null || treeItems.length == 0)
+			if (treeItems == null || treeItems.length == 0) {
 				return item;
+			}
 			return getDeepestChildItem(treeItems[treeItems.length - 1]);
 		}
 
 		@Override
 		public void dispose() {
 			if (this.resizeTopCursor != null
-					&& !this.resizeTopCursor.isDisposed())
+					&& !this.resizeTopCursor.isDisposed()) {
 				this.resizeTopCursor.dispose();
+			}
 			if (this.resizeBottomCursor != null
-					&& !this.resizeBottomCursor.isDisposed())
+					&& !this.resizeBottomCursor.isDisposed()) {
 				this.resizeBottomCursor.dispose();
+			}
 		}
 	}
 
@@ -646,28 +666,34 @@ public class EpisodeRenderer implements IDisposable {
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					if (viewer.getControl() != null
-							&& !viewer.getControl().isDisposed())
-						viewer.getControl().redraw();
+					if (EpisodeRenderer.this.viewer.getControl() != null
+							&& !EpisodeRenderer.this.viewer.getControl()
+									.isDisposed()) {
+						EpisodeRenderer.this.viewer.getControl().redraw();
+					}
 				}
 			});
 		}
 
+		@Override
 		public void memoModified(
 				de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable codeable) {
-			redraw();
+			this.redraw();
 		};
 
+		@Override
 		public void episodeAdded(IEpisode episode) {
-			redraw();
+			this.redraw();
 		};
 
+		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			redraw();
+			this.redraw();
 		};
 
+		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			redraw();
+			this.redraw();
 		};
 	};
 
@@ -693,28 +719,29 @@ public class EpisodeRenderer implements IDisposable {
 	}
 
 	public void activateRendering() {
-		this.viewer.getControl().addListener(SWT.MeasureItem, renderer);
-		this.viewer.getControl().addListener(SWT.PaintItem, renderer);
-		this.viewer.getControl().addListener(SWT.MouseDown, renderer);
-		this.viewer.getControl().addListener(SWT.MouseUp, renderer);
-		this.viewer.getControl().addListener(SWT.MouseMove, renderer);
-		this.viewer.getControl().addPaintListener(renderer);
-		this.codeService.addCodeServiceListener(codeServiceListener);
+		this.viewer.getControl().addListener(SWT.MeasureItem, this.renderer);
+		this.viewer.getControl().addListener(SWT.PaintItem, this.renderer);
+		this.viewer.getControl().addListener(SWT.MouseDown, this.renderer);
+		this.viewer.getControl().addListener(SWT.MouseUp, this.renderer);
+		this.viewer.getControl().addListener(SWT.MouseMove, this.renderer);
+		this.viewer.getControl().addPaintListener(this.renderer);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	public void deactivateRendering() {
-		this.codeService.removeCodeServiceListener(codeServiceListener);
-		this.viewer.getControl().removePaintListener(renderer);
-		this.viewer.getControl().removeListener(SWT.MouseMove, renderer);
-		this.viewer.getControl().removeListener(SWT.MouseUp, renderer);
-		this.viewer.getControl().removeListener(SWT.MouseDown, renderer);
-		this.viewer.getControl().removeListener(SWT.PaintItem, renderer);
-		this.viewer.getControl().removeListener(SWT.MeasureItem, renderer);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
+		this.viewer.getControl().removePaintListener(this.renderer);
+		this.viewer.getControl().removeListener(SWT.MouseMove, this.renderer);
+		this.viewer.getControl().removeListener(SWT.MouseUp, this.renderer);
+		this.viewer.getControl().removeListener(SWT.MouseDown, this.renderer);
+		this.viewer.getControl().removeListener(SWT.PaintItem, this.renderer);
+		this.viewer.getControl().removeListener(SWT.MeasureItem, this.renderer);
 	}
 
 	@Override
 	public void dispose() {
-		if (this.renderer != null)
+		if (this.renderer != null) {
 			this.renderer.dispose();
+		}
 	}
 }

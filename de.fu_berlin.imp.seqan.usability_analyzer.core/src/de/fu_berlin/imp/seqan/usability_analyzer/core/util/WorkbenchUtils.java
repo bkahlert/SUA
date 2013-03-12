@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
@@ -25,14 +26,16 @@ public class WorkbenchUtils {
 			@Override
 			public IViewPart call() throws Exception {
 				return PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().showView(id);
+						.getActivePage()
+						.showView(id, null, IWorkbenchPage.VIEW_VISIBLE);
 			}
 		};
 		try {
-			if (Display.getCurrent() == Display.getDefault())
+			if (Display.getCurrent() == Display.getDefault()) {
 				return callable.call();
-			else
+			} else {
 				return ExecutorUtil.syncExec(callable);
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving " + IViewPart.class.getSimpleName(),
 					e);

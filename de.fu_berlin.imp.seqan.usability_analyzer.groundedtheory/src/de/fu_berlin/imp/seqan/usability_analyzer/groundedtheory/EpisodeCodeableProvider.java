@@ -39,16 +39,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.EpisodeVi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView;
 
-public class GTCodeableProvider extends CodeableProvider {
+public class EpisodeCodeableProvider extends CodeableProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(GTCodeableProvider.class);
+			.getLogger(EpisodeCodeableProvider.class);
 
-	public static final String DIFF_NAMESPACE = "episode";
+	public static final String EPISODE_NAMESPACE = "episode";
 
 	@Override
 	public List<String> getAllowedNamespaces() {
-		return Arrays.asList(DIFF_NAMESPACE);
+		return Arrays.asList(EPISODE_NAMESPACE);
 	}
 
 	@Override

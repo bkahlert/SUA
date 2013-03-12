@@ -99,12 +99,11 @@ public class AbstractMemoView extends EditorView<Object> {
 		};
 	};
 
-	private IHistory<ICodeable> codeableHistory;
+	private IHistory<Object> history;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
-		this.codeableHistory = new History<ICodeable>();
-		this.codeableHistory.add(null);
+		this.history = new History<Object>();
 	}
 
 	@Override
@@ -170,7 +169,7 @@ public class AbstractMemoView extends EditorView<Object> {
 				ICodeable codeable = codeService.getCodedObject(uri);
 				if (!special) {
 					// treat link as a typical link that opens a resource
-					AbstractMemoView.this.codeableHistory.add(codeable);
+					AbstractMemoView.this.history.add(codeable);
 					AbstractMemoView.this.updateNavigation();
 					AbstractMemoView.this.load(codeable);
 				} else {
@@ -288,6 +287,13 @@ public class AbstractMemoView extends EditorView<Object> {
 		}
 	}
 
+	public void loadAndClearHistory(Object objectToLoad) {
+		this.history.clear();
+		this.history.add(objectToLoad);
+		this.updateNavigation();
+		this.load(objectToLoad);
+	}
+
 	protected void updateNavigation() {
 		IEvaluationService evaluationService = (IEvaluationService) this
 				.getSite().getService(IEvaluationService.class);
@@ -298,23 +304,23 @@ public class AbstractMemoView extends EditorView<Object> {
 	}
 
 	public boolean canNavigateBack() {
-		return this.codeableHistory.hasPrev();
+		return this.history.hasPrev();
 	}
 
 	public void navigateBack() {
-		if (this.codeableHistory.hasPrev()) {
-			this.load(this.codeableHistory.back());
+		if (this.history.hasPrev()) {
+			this.load(this.history.back());
 			this.updateNavigation();
 		}
 	}
 
 	public boolean canNavigateForward() {
-		return this.codeableHistory.hasNext();
+		return this.history.hasNext();
 	}
 
 	public void navigateForward() {
-		if (this.codeableHistory.hasNext()) {
-			this.load(this.codeableHistory.forward());
+		if (this.history.hasNext()) {
+			this.load(this.history.forward());
 			this.updateNavigation();
 		}
 	}

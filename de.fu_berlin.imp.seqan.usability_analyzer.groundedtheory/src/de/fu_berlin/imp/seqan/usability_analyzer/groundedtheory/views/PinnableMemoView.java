@@ -58,13 +58,13 @@ public class PinnableMemoView extends AbstractMemoView {
 				selection, Object.class);
 
 		if (codes.size() > 0) {
-			PinnableMemoView.this.load(codes.get(0));
+			PinnableMemoView.this.loadAndClearHistory(codes.get(0));
 		} else if (codeInstances.size() > 0) {
-			PinnableMemoView.this.load(codeInstances.get(0));
+			PinnableMemoView.this.loadAndClearHistory(codeInstances.get(0));
 		} else if (codeables.size() > 0) {
-			PinnableMemoView.this.load(codeables.get(0));
+			PinnableMemoView.this.loadAndClearHistory(codeables.get(0));
 		} else if (objects.size() > 0) {
-			PinnableMemoView.this.load(null);
+			PinnableMemoView.this.loadAndClearHistory(null);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class PinnableMemoView extends AbstractMemoView {
 	public void setPin(boolean pin) {
 		this.pin = pin;
 		if (!pin) {
-			this.load(this.lastSelection);
+			this.loadAndClearHistory(this.lastSelection);
 		}
 	}
 
