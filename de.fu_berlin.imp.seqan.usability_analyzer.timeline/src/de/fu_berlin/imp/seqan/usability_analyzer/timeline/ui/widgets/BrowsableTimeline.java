@@ -34,6 +34,7 @@ public class BrowsableTimeline extends Timeline {
 				detailDialog.setBlockOnOpen(false);
 				detailDialog.open();
 				detailDialog.load(event.getSource());
+				detailDialog.getShell().setActive();
 			}
 		});
 	}

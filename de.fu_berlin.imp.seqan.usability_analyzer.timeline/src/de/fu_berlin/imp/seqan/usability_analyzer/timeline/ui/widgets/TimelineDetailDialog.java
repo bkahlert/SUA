@@ -73,6 +73,10 @@ public class TimelineDetailDialog extends Dialog {
 
 	public TimelineDetailDialog(Shell parentShell, ITimeline timeline) {
 		super(parentShell);
+		// TODO nicht modal bekommen durch auskommentieren; allerdings gerät
+		// dann das Fenster beim gleichzeitigen Laden eines DiffCompareEditors
+		// in den Hintergrund
+		// this.setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.BORDER | SWT.OK);
 		this.timeline = timeline;
 	}
 
@@ -81,55 +85,56 @@ public class TimelineDetailDialog extends Dialog {
 		return new Point(100, 70);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
-		composite = (Composite) super.createDialogArea(parent);
-		composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
+		this.composite = (Composite) super.createDialogArea(parent);
+		this.composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.marginWidth = borderWidth;
 		gridLayout.marginHeight = borderWidth;
 		gridLayout.horizontalSpacing = borderWidth;
-		composite.setLayout(gridLayout);
+		this.composite.setLayout(gridLayout);
 
-		metaComposite = new RoundedComposite(composite, SWT.BORDER);
-		metaComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false,
-				false, 1, 1));
-		metaComposite.setBackground(SWTResourceManager
+		this.metaComposite = new RoundedComposite(this.composite, SWT.BORDER);
+		this.metaComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
+				false, false, 1, 1));
+		this.metaComposite.setBackground(SWTResourceManager
 				.getColor(SWT.COLOR_LIST_BACKGROUND));
-		metaComposite.setLayout(RowLayoutFactory.fillDefaults().margins(7, 3)
-				.type(SWT.VERTICAL).spacing(3).create());
+		this.metaComposite.setLayout(RowLayoutFactory.fillDefaults()
+				.margins(7, 3).type(SWT.VERTICAL).spacing(3).create());
 
-		customComposite = new Composite(composite, SWT.NONE);
-		customComposite.setLayoutData(GridDataFactory.swtDefaults().span(1, 2)
-				.create());
-		customComposite.setLayout(new FillLayout());
-		customComposite.addListener(SWT.MouseUp, new Listener() {
+		this.customComposite = new Composite(this.composite, SWT.NONE);
+		this.customComposite.setLayoutData(GridDataFactory.swtDefaults()
+				.span(1, 2).create());
+		this.customComposite.setLayout(new FillLayout());
+		this.customComposite.addListener(SWT.MouseUp, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				close();
+				TimelineDetailDialog.this.close();
 			}
 		});
 
-		detailComposite = new RoundedComposite(composite, SWT.BORDER);
-		detailComposite.setBackground(SWTResourceManager
+		this.detailComposite = new RoundedComposite(this.composite, SWT.BORDER);
+		this.detailComposite.setBackground(SWTResourceManager
 				.getColor(SWT.COLOR_LIST_BACKGROUND));
-		detailComposite.setLayout(new GridLayout(2, false));
-		detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false,
-				false, 1, 1));
+		this.detailComposite.setLayout(new GridLayout(2, false));
+		this.detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				false, false, 1, 1));
 
-		composite.addKeyListener(new KeyAdapter() {
+		this.composite.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_RIGHT) {
-					nextScreenshot();
+					TimelineDetailDialog.this.nextScreenshot();
 				} else if (e.keyCode == SWT.ARROW_LEFT) {
-					prevScreenshot();
+					TimelineDetailDialog.this.prevScreenshot();
 				} else if (e.keyCode == SWT.ESC || e.keyCode == SWT.CR) {
-					close();
+					TimelineDetailDialog.this.close();
 				}
 			}
 		});
 
-		return composite;
+		return this.composite;
 	}
 
 	public void load(Object event) {
@@ -152,7 +157,7 @@ public class TimelineDetailDialog extends Dialog {
 			LOGGER.warn("Could not find any compatible "
 					+ ITimelineEventDetailProvider.class.getSimpleName()
 					+ " for " + this.event);
-			responsibleTimelineEventDetailProvider = defaultTimelineEventDetailProvider;
+			responsibleTimelineEventDetailProvider = this.defaultTimelineEventDetailProvider;
 		}
 
 		List<IllustratedText> metaInformation = responsibleTimelineEventDetailProvider
@@ -162,14 +167,14 @@ public class TimelineDetailDialog extends Dialog {
 		Color backgroundColor = responsibleTimelineEventDetailProvider
 				.getBackground(event, this.timeline);
 
-		composite.setBackground(backgroundColor);
-		loadMetaInformation(metaInformation);
-		loadDetailInformation(detailInformation);
+		this.composite.setBackground(backgroundColor);
+		this.loadMetaInformation(metaInformation);
+		this.loadDetailInformation(detailInformation);
 
-		SWTUtil.clearControl(customComposite);
+		SWTUtil.clearControl(this.customComposite);
 		responsibleTimelineEventDetailProvider.fillCustomComposite(
-				customComposite, event, this.timeline);
-		customComposite.layout();
+				this.customComposite, event, this.timeline);
+		this.customComposite.layout();
 
 		((Composite) this.getContents()).layout();
 		Shell shell = this.getShell();
@@ -191,55 +196,57 @@ public class TimelineDetailDialog extends Dialog {
 			TimeZoneDate center = dateRange != null ? dateRange.getStartDate() != null ? dateRange
 					.getStartDate() : dateRange.getEndDate()
 					: null;
-			if (center != null)
+			if (center != null) {
 				this.timeline.setCenterVisibleDate(center.getCalendar());
+			}
 		}
 	}
 
 	public void loadMetaInformation(List<IllustratedText> metaInformation) {
-		SWTUtil.clearControl(metaComposite);
+		SWTUtil.clearControl(this.metaComposite);
 		for (IllustratedText metaEntry : metaInformation) {
 			SimpleIllustratedComposite metaCompositeEntry = new SimpleIllustratedComposite(
-					metaComposite, SWT.CENTER | SWT.BOLD);
-			metaCompositeEntry.setBackground(metaComposite.getBackground());
+					this.metaComposite, SWT.CENTER | SWT.BOLD);
+			metaCompositeEntry
+					.setBackground(this.metaComposite.getBackground());
 			metaCompositeEntry.setSpacing(3);
 			metaCompositeEntry.setContent(metaEntry);
 		}
-		metaComposite.layout();
+		this.metaComposite.layout();
 	}
 
 	public void loadDetailInformation(
 			List<Entry<String, String>> detailInformation) {
-		SWTUtil.clearControl(detailComposite);
+		SWTUtil.clearControl(this.detailComposite);
 		for (Entry<String, String> detailEntry : detailInformation) {
-			Label keyLabel = new Label(detailComposite, SWT.NONE);
+			Label keyLabel = new Label(this.detailComposite, SWT.NONE);
 			keyLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 			keyLabel.setText(detailEntry.getKey());
 
-			Label valueLabel = new Label(detailComposite, SWT.NONE);
+			Label valueLabel = new Label(this.detailComposite, SWT.NONE);
 			valueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
 					false));
 			valueLabel.setText(detailEntry.getValue());
 		}
-		detailComposite.layout();
+		this.detailComposite.layout();
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.BACK_ID,
+		this.createButton(parent, IDialogConstants.BACK_ID,
 				IDialogConstants.BACK_LABEL, false).addSelectionListener(
 				new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						prevScreenshot();
+						TimelineDetailDialog.this.prevScreenshot();
 					}
 				});
-		createButton(parent, IDialogConstants.NEXT_ID,
+		this.createButton(parent, IDialogConstants.NEXT_ID,
 				IDialogConstants.NEXT_LABEL, false).addSelectionListener(
 				new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						nextScreenshot();
+						TimelineDetailDialog.this.nextScreenshot();
 					}
 				});
 		// TODO
@@ -250,20 +257,20 @@ public class TimelineDetailDialog extends Dialog {
 		// openURL(currentData.getUrl());
 		// }
 		// });
-		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
-				true);
+		this.createButton(parent, IDialogConstants.OK_ID,
+				IDialogConstants.OK_LABEL, true);
 	}
 
 	public void nextScreenshot() {
-		Object successor = timeline.getSuccessor(this.event);
+		Object successor = this.timeline.getSuccessor(this.event);
 		this.load(successor);
-		centerOnEvent(event);
+		this.centerOnEvent(this.event);
 	}
 
 	public void prevScreenshot() {
-		Object predecessor = timeline.getPredecessor(this.event);
+		Object predecessor = this.timeline.getPredecessor(this.event);
 		this.load(predecessor);
-		centerOnEvent(event);
+		this.centerOnEvent(this.event);
 	}
 
 	public static void openURL(String url) {
