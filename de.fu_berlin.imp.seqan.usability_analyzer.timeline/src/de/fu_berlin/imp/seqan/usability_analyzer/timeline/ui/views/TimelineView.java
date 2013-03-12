@@ -76,20 +76,22 @@ public class TimelineView extends ViewPart {
 			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
 			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
 			if (part == TimelineView.this) {
-				if (openedKeys == null)
+				if (TimelineView.this.openedKeys == null) {
 					return;
+				}
 
 				// TODO selection nur auf jeweiliger timeline anwenden (und
 				// nicht auf alle)
 				List<HasDateRange> ranges = SelectionRetrieverFactory
 						.getSelectionRetriever(HasDateRange.class)
 						.getSelection();
-				for (Object key : openedKeys) {
+				for (Object key : TimelineView.this.openedKeys) {
 					List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
 					for (HasDateRange range : ranges) {
 						if (range.getClass().getSimpleName().toLowerCase()
-								.contains("doclog"))
+								.contains("doclog")) {
 							return;
+						}
 						dateRanges.add(range.getDateRange());
 					}
 					groupedDateRanges.put(key, dateRanges);
@@ -112,28 +114,30 @@ public class TimelineView extends ViewPart {
 				}
 			}
 
-			if (groupedDateRanges.keySet().size() == 0)
+			if (groupedDateRanges.keySet().size() == 0) {
 				return;
+			}
 
-			if (timelineLoader != null)
-				timelineLoader.cancel();
+			if (TimelineView.this.timelineLoader != null) {
+				TimelineView.this.timelineLoader.cancel();
+			}
 
-			timelineLoader = new Job("Updating "
+			TimelineView.this.timelineLoader = new Job("Updating "
 					+ ITimeline.class.getSimpleName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 					if (groupedDateRanges.size() > 0) {
-						timelineGroupViewer.highlight(groupedDateRanges,
-								subMonitor.newChild(2));
-						timelineGroupViewer.center(centeredDates,
-								subMonitor.newChild(1));
+						TimelineView.this.timelineGroupViewer.highlight(
+								groupedDateRanges, subMonitor.newChild(2));
+						TimelineView.this.timelineGroupViewer.center(
+								centeredDates, subMonitor.newChild(1));
 					}
 					subMonitor.done();
 					return Status.OK_STATUS;
 				}
 			};
-			timelineLoader.schedule();
+			TimelineView.this.timelineLoader.schedule();
 		}
 	};
 
@@ -145,8 +149,9 @@ public class TimelineView extends ViewPart {
 			keyLoop: for (Object key : keys) {
 				for (ITimelineBandProvider timelineBandProvider : Activator
 						.getRegisteredTimelineBandProviders()) {
-					if (!timelineBandProvider.getContentProvider().isValid(key))
+					if (!timelineBandProvider.getContentProvider().isValid(key)) {
 						continue keyLoop;
+					}
 				}
 				filteredKeys.add(key);
 			}
@@ -160,12 +165,13 @@ public class TimelineView extends ViewPart {
 					.getEntities().toArray(), ID.class));
 			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
 					.getEntities().toArray(), Fingerprint.class));
-			final Set<Object> filteredKeys = filterValidKeys(keys);
-			open(filteredKeys);
+			final Set<Object> filteredKeys = this.filterValidKeys(keys);
+			TimelineView.this.open(filteredKeys);
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					setPartName(StringUtils.join(filteredKeys, ", "));
+					TimelineView.this.setPartName(StringUtils.join(
+							filteredKeys, ", "));
 				}
 			});
 		}
@@ -179,9 +185,10 @@ public class TimelineView extends ViewPart {
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
-		if (this.workSessionService == null)
+		if (this.workSessionService == null) {
 			LOGGER.warn("Could not get "
 					+ IWorkSessionService.class.getSimpleName());
+		}
 	}
 
 	/**
@@ -194,39 +201,44 @@ public class TimelineView extends ViewPart {
 	 * @param openedKeys
 	 */
 	public void open(final Set<Object> keys) {
-		if (timelineLoader != null)
-			timelineLoader.cancel();
+		if (this.timelineLoader != null) {
+			this.timelineLoader.cancel();
+		}
 
 		this.openedKeys = keys;
 
-		timelineLoader = new Job("Loading " + ITimeline.class.getSimpleName()) {
+		this.timelineLoader = new Job("Loading "
+				+ ITimeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				timelineGroupViewer.setInput(keys);
-				timelineGroupViewer.refresh(monitor);
+				TimelineView.this.timelineGroupViewer.setInput(keys);
+				TimelineView.this.timelineGroupViewer.refresh(monitor);
 				monitor.done();
 				return Status.OK_STATUS;
 			}
 		};
-		timelineLoader.schedule();
+		this.timelineLoader.schedule();
 	}
 
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
-		if (this.workSessionService != null)
-			this.workSessionService.addWorkSessionListener(workSessionListener);
+		if (this.workSessionService != null) {
+			this.workSessionService
+					.addWorkSessionListener(this.workSessionListener);
+		}
 		SelectionUtils.getSelectionService().addSelectionListener(
-				selectionListener);
+				this.selectionListener);
 	}
 
 	@Override
 	public void dispose() {
 		SelectionUtils.getSelectionService().removeSelectionListener(
-				selectionListener);
-		if (this.workSessionService != null)
+				this.selectionListener);
+		if (this.workSessionService != null) {
 			this.workSessionService
-					.removeWorkSessionListener(workSessionListener);
+					.removeWorkSessionListener(this.workSessionListener);
+		}
 		super.dispose();
 	}
 
@@ -265,6 +277,7 @@ public class TimelineView extends ViewPart {
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				manager.add(new Separator(
 						IWorkbenchActionConstants.MB_ADDITIONS));
@@ -274,9 +287,10 @@ public class TimelineView extends ViewPart {
 		this.timelineGroup.setMenu(menu);
 
 		this.timelineGroupViewer = new HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline>(
-				timelineGroup, timelineProviderFactory);
-		getSite().registerContextMenu(menuManager, timelineGroupViewer);
-		getSite().setSelectionProvider(timelineGroupViewer);
+				this.timelineGroup, timelineProviderFactory);
+		this.getSite().registerContextMenu(menuManager,
+				this.timelineGroupViewer);
+		this.getSite().setSelectionProvider(this.timelineGroupViewer);
 	}
 
 	@Override
