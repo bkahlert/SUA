@@ -22,6 +22,9 @@ public class PinnableMemoView extends AbstractMemoView {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (part == PinnableMemoView.this) {
+				return;
+			}
 			PinnableMemoView.this.lastSelection = selection;
 			if (!PinnableMemoView.this.pin) {
 				PinnableMemoView.this.load(selection);

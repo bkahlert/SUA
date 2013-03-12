@@ -8,8 +8,15 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
@@ -37,6 +44,47 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class AbstractMemoView extends EditorView<Object> {
+
+	private static class MemoViewSelectionProvider implements
+			ISelectionProvider {
+
+		private ISelection selection = null;
+		ListenerList selectionChangedListeners = new ListenerList();
+
+		@Override
+		public void addSelectionChangedListener(
+				ISelectionChangedListener listener) {
+			this.selectionChangedListeners.add(listener);
+		}
+
+		@Override
+		public void removeSelectionChangedListener(
+				ISelectionChangedListener listener) {
+			this.selectionChangedListeners.remove(listener);
+		}
+
+		@Override
+		public ISelection getSelection() {
+			return this.selection;
+		}
+
+		@Override
+		public void setSelection(ISelection selection) {
+			this.selection = selection;
+			final SelectionChangedEvent event = new SelectionChangedEvent(this,
+					selection);
+			Object[] listeners = this.selectionChangedListeners.getListeners();
+			for (int i = 0; i < listeners.length; ++i) {
+				final ISelectionChangedListener l = (ISelectionChangedListener) listeners[i];
+				SafeRunnable.run(new SafeRunnable() {
+					@Override
+					public void run() {
+						l.selectionChanged(event);
+					}
+				});
+			}
+		}
+	}
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
@@ -100,14 +148,17 @@ public class AbstractMemoView extends EditorView<Object> {
 	};
 
 	private IHistory<Object> history;
+	private MemoViewSelectionProvider memoViewSelectionProvider;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
 		this.history = new History<Object>();
+		this.memoViewSelectionProvider = new MemoViewSelectionProvider();
 	}
 
 	@Override
 	public void postInit() {
+		this.getSite().setSelectionProvider(this.memoViewSelectionProvider);
 		this.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
@@ -166,7 +217,7 @@ public class AbstractMemoView extends EditorView<Object> {
 			public void uriClicked(final URI uri, boolean special) {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
-				ICodeable codeable = codeService.getCodedObject(uri);
+				final ICodeable codeable = codeService.getCodedObject(uri);
 				if (!special) {
 					// treat link as a typical link that opens a resource
 					AbstractMemoView.this.history.add(codeable);
@@ -174,6 +225,19 @@ public class AbstractMemoView extends EditorView<Object> {
 					AbstractMemoView.this.load(codeable);
 				} else {
 					// do not follow the link but make Eclipse open the resource
+
+					// fire selection so the clicked elements becomes
+					// highlighted in other views
+					ExecutorUtil.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							AbstractMemoView.this.memoViewSelectionProvider
+									.setSelection(new StructuredSelection(
+											codeable));
+						}
+					});
+
+					// open element
 					if (!codeService.showCodedObjectInWorkspace(uri, special)) {
 						ExecutorUtil.asyncExec(new Runnable() {
 							@Override
