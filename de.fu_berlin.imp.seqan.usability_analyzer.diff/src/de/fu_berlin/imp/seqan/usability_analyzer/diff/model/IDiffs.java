@@ -2,8 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
 import java.util.Iterator;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
@@ -11,13 +10,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordHisto
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 
 /**
- * Instances of this class describe all {@link IDiff} belonging to a {@link ID}.
+ * Instances of this class describe all {@link IDiff} belonging to a
+ * {@link IIdentifier}.
  * 
  * @author bkahlert
  * 
  */
-public interface IDiffs extends HasID, Iterable<IDiff>, HasDateRange {
+public interface IDiffs extends HasIdentifier, Iterable<IDiff>, HasDateRange {
 
+	@Override
 	public TimeZoneDateRange getDateRange();
 
 	/**
@@ -41,6 +42,7 @@ public interface IDiffs extends HasID, Iterable<IDiff>, HasDateRange {
 	 */
 	public DiffRecordHistory getHistory(String filename);
 
+	@Override
 	public Iterator<IDiff> iterator();
 
 	/**

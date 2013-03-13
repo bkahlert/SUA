@@ -24,8 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -65,18 +64,15 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 						.split("/");
 
 				// 0: Key
-				Set<IEpisode> episodes;
-				if (ID.isValid(path[0]))
-					episodes = codeService.getEpisodes(new ID(path[0]));
-				else
-					episodes = codeService
-							.getEpisodes(new Fingerprint(path[0]));
+				Set<IEpisode> episodes = codeService
+						.getEpisodes(IdentifierFactory.createFrom(path[0]));
 
 				// 1: Compare URI
 				URI id = codeInstanceID;
 				for (IEpisode episode : episodes) {
-					if (episode.getUri().equals(id))
+					if (episode.getUri().equals(id)) {
 						return episode;
+					}
 				}
 
 				return null;
@@ -90,8 +86,9 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 		if (codedObjects.size() > 0) {
 			EpisodeView episodeView = (EpisodeView) WorkbenchUtils
 					.getView(EpisodeView.ID);
-			if (episodeView == null)
+			if (episodeView == null) {
 				return codedObjects.toArray(new ICodeable[0]);
+			}
 
 			final EpisodeViewer viewer = episodeView.getEpisodeViewer();
 			try {
@@ -123,24 +120,27 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 			private HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
 
 			protected Image getMemoAnnotatedImage(Image image) {
-				if (image == null)
+				if (image == null) {
 					return null;
+				}
 
-				if (!annotatedImages.containsKey(image)) {
+				if (!this.annotatedImages.containsKey(image)) {
 					Image annotatedImage = new DecorationOverlayIcon(image,
 							ImageManager.OVERLAY_MEMO, IDecoration.TOP_RIGHT)
 							.createImage();
-					annotatedImages.put(image, annotatedImage);
+					this.annotatedImages.put(image, annotatedImage);
 				}
 
-				return annotatedImages.get(image);
+				return this.annotatedImages.get(image);
 			}
 
 			@Override
 			public void dispose() {
-				for (Image annotatedImage : annotatedImages.values())
-					if (annotatedImage != null && !annotatedImage.isDisposed())
+				for (Image annotatedImage : this.annotatedImages.values()) {
+					if (annotatedImage != null && !annotatedImage.isDisposed()) {
 						annotatedImage.dispose();
+					}
+				}
 				super.dispose();
 			}
 
@@ -152,10 +152,10 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 				}
 				if (ICodeInstance.class.isInstance(element)) {
 					ICodeInstance codeInstance = (ICodeInstance) element;
-					ICodeable codedObject = codeService
+					ICodeable codedObject = this.codeService
 							.getCodedObject(codeInstance.getId());
 					if (codedObject != null) {
-						ILabelProvider labelProvider = codeService
+						ILabelProvider labelProvider = this.codeService
 								.getLabelProvider(codeInstance.getId());
 						return (labelProvider != null) ? labelProvider
 								.getText(codedObject) : "[UNKNOWN ORIGIN]";
@@ -172,10 +172,11 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 					if (name.isEmpty()) {
 						List<ICode> codes;
 						try {
-							codes = codeService.getCodes(episode);
+							codes = this.codeService.getCodes(episode);
 							List<String> codeNames = new ArrayList<String>();
-							for (ICode code : codes)
+							for (ICode code : codes) {
 								codeNames.add(code.getCaption());
+							}
 							name = "[" + StringUtils.join(codeNames, ", ")
 									+ "]";
 						} catch (CodeServiceException e) {
@@ -190,17 +191,17 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 			@Override
 			public Image getImage(Object element) {
 				if (ICode.class.isInstance(element)) {
-					return codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
+					return this.codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
 							: ImageManager.CODE;
 				}
 				if (ICodeInstance.class.isInstance(element)) {
 					ICodeInstance codeInstance = (ICodeInstance) element;
-					ICodeable codedObject = codeService
+					ICodeable codedObject = this.codeService
 							.getCodedObject(codeInstance.getId());
 
 					Image image;
 					if (codedObject != null) {
-						ILabelProvider labelProvider = codeService
+						ILabelProvider labelProvider = this.codeService
 								.getLabelProvider(codeInstance.getId());
 						image = (labelProvider != null) ? labelProvider
 								.getImage(codedObject) : null;
@@ -208,17 +209,17 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 						image = PlatformUI.getWorkbench().getSharedImages()
 								.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 					}
-					return (codeService.isMemo(codeInstance)) ? getMemoAnnotatedImage(image)
-							: image;
+					return (this.codeService.isMemo(codeInstance)) ? this
+							.getMemoAnnotatedImage(image) : image;
 				}
 				if (element instanceof IEpisode) {
 					IEpisode episode = (IEpisode) element;
 					Image overlay;
 					try {
-						overlay = (codeService.getCodes(episode).size() > 0) ? (codeService
+						overlay = (this.codeService.getCodes(episode).size() > 0) ? (this.codeService
 								.isMemo(episode) ? ImageManager.EPISODE_CODED_MEMO
 								: ImageManager.EPISODE_CODED)
-								: (codeService.isMemo(episode) ? ImageManager.EPISODE_MEMO
+								: (this.codeService.isMemo(episode) ? ImageManager.EPISODE_MEMO
 										: ImageManager.EPISODE);
 					} catch (CodeServiceException e) {
 						overlay = ImageManager.EPISODE;

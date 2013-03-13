@@ -9,12 +9,13 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
@@ -30,8 +31,9 @@ public class DiffFileTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static IDiff getDiffFile(String diffFileName, ID id, long revision,
-			TimeZoneDateRange dateRange) throws URISyntaxException {
+	private static IDiff getDiffFile(String diffFileName, IIdentifier id,
+			long revision, TimeZoneDateRange dateRange)
+			throws URISyntaxException {
 
 		FileBaseDataContainer baseDataContainer = new FileBaseDataContainer(
 				FileUtils.getFile(root));
@@ -53,7 +55,7 @@ public class DiffFileTest {
 		FileBaseDataContainer baseContainer = new FileBaseDataContainer(
 				FileUtils.getFile(root));
 		Assert.assertEquals(
-				new ID("o6lmo5tpxvn3b6fg"),
+				IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"),
 				DiffDataUtils
 						.getId(new FileData(
 								baseContainer,
@@ -61,7 +63,7 @@ public class DiffFileTest {
 								new File(
 										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
-				new ID("o6lmo5tpxvn3b6fg"),
+				IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"),
 				DiffDataUtils
 						.getId(new FileData(
 								baseContainer,
@@ -112,8 +114,9 @@ public class DiffFileTest {
 	public void testGetContent() throws URISyntaxException {
 		IDiff smallDiffFile = getDiffFile(
 				"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
-				new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
-						new TimeZoneDate("2011-09-13T12:11:02+02:00"), null));
+				IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"), 48l,
+				new TimeZoneDateRange(new TimeZoneDate(
+						"2011-09-13T12:11:02+02:00"), null));
 
 		String firstLine = "--- ./misc/seqan_instrumentation/last_revision_copy/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log	2011-09-13 12:10:14.578125000 +0200";
 		Assert.assertEquals(firstLine,
@@ -130,12 +133,12 @@ public class DiffFileTest {
 	@Test
 	public void testDiffFileRecords() throws URISyntaxException,
 			IllegalArgumentException, IOException {
-		testDiffFileRecordsCountRun(
+		this.testDiffFileRecordsCountRun(
 				getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
-						new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
-								new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-								null)),
+						IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"), 48l,
+						new TimeZoneDateRange(new TimeZoneDate(
+								"2011-09-13T12:11:02+02:00"), null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
@@ -146,12 +149,12 @@ public class DiffFileTest {
 						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
 						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
 
-		testDiffFileRecordsCountRun(
+		this.testDiffFileRecordsCountRun(
 				getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02+0200.diff",
-						new ID("o6lmo5tpxvn3b6fg"), 48l, new TimeZoneDateRange(
-								new TimeZoneDate("2011-09-13T12:11:02+02:00"),
-								null)),
+						IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"), 48l,
+						new TimeZoneDateRange(new TimeZoneDate(
+								"2011-09-13T12:11:02+02:00"), null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
 				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
@@ -162,12 +165,12 @@ public class DiffFileTest {
 						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/seqan_instrumentation_build/seqan_instrumentation_build.log",
 						"o6lmo5tpxvn3b6fg/48/bin/Win32/Debug/ZERO_CHECK/ZERO_CHECK.log" });
 
-		testDiffFileRecordsCountRun(
+		this.testDiffFileRecordsCountRun(
 				getDiffFile(
 						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff",
-						new ID("5lpcjqhy0b9yfech"), 5l, new TimeZoneDateRange(
-								new TimeZoneDate("2011-09-13T10:17:43+02:00"),
-								null)),
+						IdentifierFactory.createFrom("5lpcjqhy0b9yfech"), 5l,
+						new TimeZoneDateRange(new TimeZoneDate(
+								"2011-09-13T10:17:43+02:00"), null)),
 				new int[] { 9, 8, 14, 24, 8, 24, 66, 131, 14, 9, 9 },
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
@@ -184,12 +187,12 @@ public class DiffFileTest {
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/demos/CMakeLists.txt",
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 
-		testDiffFileRecordsCountRun(
+		this.testDiffFileRecordsCountRun(
 				getDiffFile(
 						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43-0530.diff",
-						new ID("5lpcjqhy0b9yfech"), 5l, new TimeZoneDateRange(
-								new TimeZoneDate("2011-09-13T10:17:43+02:00"),
-								null)),
+						IdentifierFactory.createFrom("5lpcjqhy0b9yfech"), 5l,
+						new TimeZoneDateRange(new TimeZoneDate(
+								"2011-09-13T10:17:43+02:00"), null)),
 				new int[] { 9, 8, 14, 24, 8, 24, 66, 131, 14, 9, 9 },
 				new Long[] { null, null, null, null, null, null, null, null,
 						null, null, null },
@@ -225,7 +228,7 @@ public class DiffFileTest {
 			// cached source file location
 			Assert.assertEquals(
 					sourceFiles[i],
-					diffRecord.getID()
+					diffRecord.getIdentifier()
 							+ "/"
 							+ new Long(diffRecord.getDiffFile().getRevision())
 									.toString() + "/"

@@ -10,7 +10,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
@@ -44,7 +44,7 @@ public class DoclogRecordListTest {
 	private int doclogNumDoclogRecords;
 
 	public DoclogRecordListTest() {
-		this.doclogNumDoclogRecords = doclogFileContent.split("\n").length;
+		this.doclogNumDoclogRecords = this.doclogFileContent.split("\n").length;
 	}
 
 	public Doclog getDoclogFile() throws IOException {
@@ -54,15 +54,16 @@ public class DoclogRecordListTest {
 		try {
 			FileWriter fstream = new FileWriter(file);
 			out = new BufferedWriter(fstream);
-			out.write(doclogFileContent);
+			out.write(this.doclogFileContent);
 		} finally {
-			if (out != null)
+			if (out != null) {
 				out.close();
+			}
 		}
 		IBaseDataContainer baseDataContainer = new TempBaseDataContainer();
 		FileData dataResource = new FileData(baseDataContainer,
 				baseDataContainer, file);
-		return new Doclog(dataResource, new ID("fakeID"),
+		return new Doclog(dataResource, IdentifierFactory.createFrom("fakeID"),
 				Doclog.getDateRange(dataResource),
 				Doclog.getToken(dataResource), null);
 	}
@@ -70,8 +71,8 @@ public class DoclogRecordListTest {
 	@Test
 	public void sizeTest() throws Exception {
 		Doclog doclog = this.getDoclogFile();
-		Assert.assertEquals(doclogNumDoclogRecords, doclog.getDoclogRecords()
-				.size());
+		Assert.assertEquals(this.doclogNumDoclogRecords, doclog
+				.getDoclogRecords().size());
 	}
 
 	@Test
@@ -79,7 +80,7 @@ public class DoclogRecordListTest {
 		Doclog doclog = this.getDoclogFile();
 		DoclogRecord oldestRecord = doclog.getDoclogRecords().get(0);
 		DoclogRecord youngestRecord = doclog.getDoclogRecords().get(
-				doclogNumDoclogRecords - 1);
+				this.doclogNumDoclogRecords - 1);
 		Assert.assertEquals(
 				new TimeZoneDate(DateUtil.getDate(2011, 8, 10, 8, 20, 59),
 						TimeZone.getDefault()), oldestRecord.getDate());

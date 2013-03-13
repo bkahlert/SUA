@@ -9,8 +9,7 @@ import org.eclipse.jface.viewers.ILabelProvider;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -113,14 +112,14 @@ public interface ICodeService {
 
 	/**
 	 * Returns all {@link ICodeInstance}s belonging to {@link ICodeable}s of the
-	 * given key.
+	 * given {@link IIdentifier}.
 	 * <p>
 	 * E.g. {@link ICodeable} belonging to ID 20x13b2.
 	 * 
-	 * @param key
+	 * @param identifier
 	 * @return
 	 */
-	List<ICodeInstance> getInstances(Object key);
+	List<ICodeInstance> getInstances(IIdentifier identifier);
 
 	/**
 	 * Returns all direct {@link ICodeInstance}s of the given {@link ICode}.
@@ -343,28 +342,19 @@ public interface ICodeService {
 	public boolean isMemo(ICodeable codeable);
 
 	/**
-	 * Returns the {@link ID}s and {@link Fingerprints} that have at least one
-	 * {@link IEpisode}.
+	 * Returns the {@link IIdentifier}s that have at least one {@link IEpisode}.
 	 * 
 	 * @return
 	 */
-	public List<Object> getEpisodedKeys();
+	public List<IIdentifier> getEpisodedIdentifiers();
 
 	/**
-	 * Returns the {@link IEpisode}s associated to a given {@link ID}.
+	 * Returns the {@link IEpisode}s associated to a given {@link IIdentifier}.
 	 * 
-	 * @param id
+	 * @param identifiers
 	 * @return
 	 */
-	public Set<IEpisode> getEpisodes(ID id);
-
-	/**
-	 * Returns the {@link IEpisode}s associated to a given {@link Fingerprint}.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public Set<IEpisode> getEpisodes(Fingerprint fingerprint);
+	public Set<IEpisode> getEpisodes(IIdentifier identifiers);
 
 	/**
 	 * Adds an episode to the {@link ICodeStore}.

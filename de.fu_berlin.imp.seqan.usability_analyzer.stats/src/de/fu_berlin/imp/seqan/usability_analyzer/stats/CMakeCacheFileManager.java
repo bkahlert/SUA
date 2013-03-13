@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 
 public class CMakeCacheFileManager {

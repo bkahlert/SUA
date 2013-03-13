@@ -9,16 +9,15 @@ import junit.framework.Assert;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.StringData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 
 public class DoclogTest {
@@ -43,30 +42,29 @@ public class DoclogTest {
 
 	@Test
 	public void testGetId() throws URISyntaxException {
-		IData file = getIdDoclogFile();
-		Assert.assertEquals(new ID("0meio6dzt3eo1wj7"), Doclog.getID(file));
-		Assert.assertNull(Doclog.getFingerprint(file));
+		IData file = this.getIdDoclogFile();
+		Assert.assertEquals(IdentifierFactory.createFrom("0meio6dzt3eo1wj7"),
+				Doclog.getIdentifier(file));
 	}
 
 	@Test
 	public void testGetFingerprint() throws URISyntaxException {
-		IData file = getFingerprintDoclogFile();
-		Assert.assertNull(Doclog.getID(file));
-		Assert.assertEquals(
-				new Fingerprint("!2aa2aaccc0b9b73b230bb4667c5971f8"),
-				Doclog.getFingerprint(file));
+		IData file = this.getFingerprintDoclogFile();
+		Assert.assertEquals(IdentifierFactory
+				.createFrom("!2aa2aaccc0b9b73b230bb4667c5971f8"), Doclog
+				.getIdentifier(file));
 	}
 
 	@Test
 	public void testGetDateRange() throws URISyntaxException {
-		IData idFile = getIdDoclogFile();
+		IData idFile = this.getIdDoclogFile();
 		TimeZoneDateRange idDateRange = Doclog.getDateRange(idFile);
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:05:22+02:00"),
 				idDateRange.getStartDate());
 		Assert.assertEquals(new TimeZoneDate("2011-09-14T09:17:49+02:00"),
 				idDateRange.getEndDate());
 
-		IData fingerprintFile = getFingerprintDoclogFile();
+		IData fingerprintFile = this.getFingerprintDoclogFile();
 		TimeZoneDateRange fingerprintDateRange = Doclog
 				.getDateRange(fingerprintFile);
 		Assert.assertEquals(new TimeZoneDate("2011-09-14T14:31:26+02:00"),
@@ -78,9 +76,9 @@ public class DoclogTest {
 	@Test
 	public void testGetToken() throws URISyntaxException {
 		Assert.assertEquals(new Token("7qex"),
-				Doclog.getToken(getIdDoclogFile()));
+				Doclog.getToken(this.getIdDoclogFile()));
 
-		Assert.assertNull(Doclog.getToken(getFingerprintDoclogFile()));
+		Assert.assertNull(Doclog.getToken(this.getFingerprintDoclogFile()));
 	}
 
 	@Test
@@ -99,8 +97,9 @@ public class DoclogTest {
 				"2012-08-26T14:05:05.917+02:00	TYPING-want to learn how we: \\n\\ndocument or write tests.	https://trac.seqan.de/wiki/Tutorial	86.56.60.143	-	0	207	1351	682",
 				"2012-08-26T14:05:06.410+02:00	TYPING-want to learn how we: \\n\\ndocument or write tests.	https://trac.seqan.de/wiki/Tutorial	86.56.60.143	-	0	207	1351	682" };
 		IData data = new StringData("test", StringUtils.join(lines, "\n"));
-		Doclog doclog = new Doclog(data, new ID("id"), new TimeZoneDateRange(
-				new TimeZoneDate(), new TimeZoneDate()), null, 3000);
+		Doclog doclog = new Doclog(data, IdentifierFactory.createFrom("id"),
+				new TimeZoneDateRange(new TimeZoneDate(), new TimeZoneDate()),
+				null, 3000);
 		assertEquals(4, doclog.getDoclogRecords().size());
 
 		assertEquals(new TimeZoneDate("2012-08-26T14:03:54.247+02:00"), doclog

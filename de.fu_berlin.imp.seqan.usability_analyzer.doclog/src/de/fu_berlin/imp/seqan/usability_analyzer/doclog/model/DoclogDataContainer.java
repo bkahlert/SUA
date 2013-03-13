@@ -1,13 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.model;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -19,14 +16,13 @@ import org.eclipse.core.runtime.SubMonitor;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogCache;
 
 public class DoclogDataContainer extends AggregatedBaseDataContainer {
@@ -39,31 +35,24 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	private static final ExecutorService LOADER_POOL = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
-	private static Map<Object, IData> readDoclogFileMappings(
+	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
-		Map<Object, IData> rawDataResource = new HashMap<Object, IData>();
+		Map<IIdentifier, IData> rawDataResource = new HashMap<IIdentifier, IData>();
 		for (IData doclogDataResource : directory.getDoclogDirectory()
 				.getResources()) {
-			if (!Doclog.ID_PATTERN.matcher(doclogDataResource.getName())
-					.matches())
+			if (!Doclog.IDENTIFIER_PATTERN
+					.matcher(doclogDataResource.getName()).matches()) {
 				continue;
-			ID id = Doclog.getID(doclogDataResource);
+			}
+			IIdentifier id = Doclog.getIdentifier(doclogDataResource);
 			rawDataResource.put(id, doclogDataResource);
-		}
-		for (IData doclogDataResource : directory.getDoclogDirectory()
-				.getResources()) {
-			if (!Doclog.FINGERPRINT_PATTERN.matcher(
-					doclogDataResource.getName()).matches())
-				continue;
-			Fingerprint fingerprint = Doclog.getFingerprint(doclogDataResource);
-			rawDataResource.put(fingerprint, doclogDataResource);
 		}
 		return rawDataResource;
 	}
 
-	private Map<Object, IData> datas;
-	private Map<Object, TimeZoneDateRange> fileDateRanges;
-	private Map<Object, Token> fileToken;
+	private Map<IIdentifier, IData> datas;
+	private Map<IIdentifier, TimeZoneDateRange> fileDateRanges;
+	private Map<IIdentifier, Token> fileToken;
 
 	private final IDataContainer doclogDirectory;
 	private final IData mappingFile;
@@ -82,22 +71,23 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	}
 
 	public IDataContainer getDoclogDirectory() {
-		return doclogDirectory;
+		return this.doclogDirectory;
 	}
 
 	public IData getMappingFile() {
-		return mappingFile;
+		return this.mappingFile;
 	}
 
 	public void scan(final SubMonitor monitor) {
 		this.datas = readDoclogFileMappings(this);
-		this.fileDateRanges = new HashMap<Object, TimeZoneDateRange>(
+		this.fileDateRanges = new HashMap<IIdentifier, TimeZoneDateRange>(
 				this.datas.size());
-		this.fileToken = new HashMap<Object, Token>(this.datas.size());
+		this.fileToken = new HashMap<IIdentifier, Token>(this.datas.size());
 
 		long size = 0;
-		for (Object key : this.datas.keySet())
+		for (Object key : this.datas.keySet()) {
 			size += this.datas.get(key).getLength();
+		}
 		monitor.beginTask("Loading " + this.getName(), (int) (size / 1000l));
 
 		// force class loading since DoclogRecord is used in the Callable
@@ -105,19 +95,23 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		DoclogRecord.class.getClass();
 		List<Future<Integer>> futures = ExecutorUtil.nonUIAsyncExec(
 				LOADER_POOL, this.datas.keySet(),
-				new ParametrizedCallable<Object, Integer>() {
+				new ParametrizedCallable<IIdentifier, Integer>() {
 					@Override
-					public Integer call(Object key) throws Exception {
-						final IData data = datas.get(key);
+					public Integer call(IIdentifier identifier)
+							throws Exception {
+						final IData data = DoclogDataContainer.this.datas
+								.get(identifier);
 						try {
 							TimeZoneDateRange dateRange = Doclog
 									.getDateRange(data);
 							Token token = Doclog.getToken(data);
-							synchronized (fileDateRanges) {
-								fileDateRanges.put(key, dateRange);
+							synchronized (DoclogDataContainer.this.fileDateRanges) {
+								DoclogDataContainer.this.fileDateRanges.put(
+										identifier, dateRange);
 							}
-							synchronized (fileToken) {
-								fileToken.put(key, token);
+							synchronized (DoclogDataContainer.this.fileToken) {
+								DoclogDataContainer.this.fileToken.put(
+										identifier, token);
 							}
 						} catch (Exception e) {
 							LOGGER.error(e);
@@ -138,74 +132,37 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns a list of all {@link ID}s occurring in the managed {@link Doclog}
-	 * s
-	 * 
-	 * @return
-	 */
-	public List<ID> getIDs() {
-		List<ID> doclogIDs = new ArrayList<ID>();
-		for (Object key : this.datas.keySet()) {
-			if (key instanceof ID)
-				doclogIDs.add((ID) key);
-		}
-		return doclogIDs;
-	}
-
-	/**
-	 * Returns the {@link ID} that is associated to a {@link Doclog} containing
-	 * the specified {@link Token}.
-	 * 
-	 * @param token
-	 * @return
-	 */
-	public ID getID(Token token) {
-		for (Object key : this.fileToken.keySet()) {
-			if (key instanceof ID && this.fileToken.get(key) != null
-					&& this.fileToken.get(key).equals(token)) {
-				return (ID) key;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns a list of all {@link Fingerprint}s occurring in the managed
+	 * Returns a list of all {@link IIdentifier}s occurring in the managed
 	 * {@link Doclog}s
 	 * 
 	 * @return
 	 */
-	public List<Fingerprint> getFingerprints() {
-		List<Fingerprint> doclogFingerprints = new ArrayList<Fingerprint>();
-		for (Object key : this.datas.keySet()) {
-			if (key instanceof Fingerprint)
-				doclogFingerprints.add((Fingerprint) key);
-		}
-		return doclogFingerprints;
+	public IIdentifier[] getIdentifiers() {
+		return this.datas.keySet().toArray(new IIdentifier[0]);
 	}
 
 	/**
-	 * Returns a list of the {@link Fingerprint}s that are associated to a
+	 * Returns a list of the {@link IIdentifier}s that are associated to a
 	 * {@link Doclog} containing the specified {@link Token}.
 	 * 
 	 * @param token
 	 * @return
 	 */
-	public List<Fingerprint> getFingerprints(Token token) {
-		LinkedList<Fingerprint> fingerprints = new LinkedList<Fingerprint>();
-		for (Object key : this.fileToken.keySet()) {
-			if (key instanceof Fingerprint && this.fileToken.get(key) != null
-					&& this.fileToken.get(key).equals(token)) {
-				fingerprints.add((Fingerprint) key);
+	public IIdentifier[] getIdentifiers(Token token) {
+		LinkedList<IIdentifier> identifiers = new LinkedList<IIdentifier>();
+		for (IIdentifier identifier : this.fileToken.keySet()) {
+			if (this.fileToken.get(identifier) != null
+					&& this.fileToken.get(identifier).equals(token)) {
+				identifiers.add(identifier);
 			}
 		}
-		return fingerprints;
+		return identifiers.toArray(new IIdentifier[0]);
 	}
 
-	public Token getToken(Object key) {
-		for (Object currentKey : this.fileToken.keySet()) {
-			if (currentKey.equals(key)) {
-				return this.fileToken.get(key);
+	public Token getToken(IIdentifier identifier) {
+		for (IIdentifier currentIdentifier : this.fileToken.keySet()) {
+			if (currentIdentifier.equals(identifier)) {
+				return this.fileToken.get(identifier);
 			}
 		}
 		return null;
@@ -215,71 +172,21 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		return this.fileDateRanges.get(key);
 	}
 
-	/**
-	 * Returns a list of all keys (of types {@link ID} and {@link Fingerprint}
-	 * occurring in the managed {@link Doclog}s
-	 * 
-	 * @return
-	 */
-	public Set<Object> getKeys() {
-		return this.datas.keySet();
-	}
-
-	/**
-	 * Returns a {@link File}Êthat can be parsed as a {@link ID} based
-	 * {@link Doclog}.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public IData getFile(ID id) {
-		return this.datas.get(id);
-	}
-
-	/**
-	 * Returns a {@link File}Êthat can be parsed as a {@link Fingerprint} based
-	 * {@link Doclog}.
-	 * 
-	 * @param fingerprint
-	 * @return
-	 */
-	public IData getFile(Fingerprint fingerprint) {
-		return this.datas.get(fingerprint);
-	}
-
-	/**
-	 * Returns the {@link Doclog} associated with a given {@link ID}
-	 * 
-	 * @param id
-	 * @param progressMonitor
-	 * @return
-	 */
-	public Doclog getDoclogFile(ID id, IProgressMonitor progressMonitor) {
-		return this.getDoclogFile((Object) id, progressMonitor);
-	}
-
-	/**
-	 * Returns the {@link Doclog} associated with a given {@link Fingerprint}
-	 * 
-	 * @param fingerprint
-	 * @param progressMonitor
-	 * @return
-	 */
-	public Doclog getDoclogFile(Fingerprint fingerprint,
-			IProgressMonitor progressMonitor) {
-		return this.getDoclogFile((Object) fingerprint, progressMonitor);
+	public IData getFile(IIdentifier identifier) {
+		return this.datas.get(identifier);
 	}
 
 	/**
 	 * Returns the {@link Doclog} associated with a given key using an internal
 	 * {@link DoclogCache}.
 	 * 
-	 * @param key
+	 * @param identifier
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog getDoclogFile(Object key, IProgressMonitor progressMonitor) {
-		return this.doclogCache.getPayload(key, progressMonitor);
+	public Doclog getDoclogFile(IIdentifier identifier,
+			IProgressMonitor progressMonitor) {
+		return this.doclogCache.getPayload(identifier, progressMonitor);
 	}
 
 	/**
@@ -288,21 +195,22 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	 * In contrast to {@link #getDoclogFile(Object, IProgressMonitor)} this
 	 * method always creates the needed objects anew without using any cache.
 	 * 
-	 * @param key
+	 * @param identifier
 	 * @param progressMonitor
 	 * @return
 	 */
-	public Doclog readDoclogFromSource(Object key,
+	public Doclog readDoclogFromSource(IIdentifier identifier,
 			IProgressMonitor progressMonitor) {
 		progressMonitor.beginTask("Parsing " + Doclog.class.getSimpleName(), 2);
-		IData data = this.datas.get(key);
-		if (data == null)
+		IData data = this.datas.get(identifier);
+		if (data == null) {
 			return null;
+		}
 
-		TimeZoneDateRange dateRange = this.fileDateRanges.get(key);
-		Token token = this.fileToken.get(key);
+		TimeZoneDateRange dateRange = this.fileDateRanges.get(identifier);
+		Token token = this.fileToken.get(identifier);
 		progressMonitor.worked(1);
-		Doclog doclog = new Doclog(data, key, dateRange, token, 2000);
+		Doclog doclog = new Doclog(data, identifier, dateRange, token, 2000);
 		progressMonitor.worked(1);
 		progressMonitor.done();
 		return doclog;

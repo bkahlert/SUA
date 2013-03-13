@@ -23,9 +23,9 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -46,13 +46,13 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 		parent.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				resources.dispose();
+				DoclogFilesViewer.this.resources.dispose();
 			}
 		});
 
 		this.setContentProvider(new DoclogContentProvider());
 
-		initColumns(dateFormat, timeDifferenceFormat);
+		this.initColumns(dateFormat, timeDifferenceFormat);
 
 		this.sort(0);
 	}
@@ -69,10 +69,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 					public String getText(Object element) {
 						if (element instanceof Doclog) {
 							Doclog doclog = (Doclog) element;
-							if (doclog.getID() != null)
-								return doclog.getID().toString();
-							else
-								return doclog.getFingerprint().toString();
+							return doclog.getIdentifier().toString();
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
@@ -120,8 +117,9 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 			public int compare(Object arg0, Object arg1) {
 				Long l1 = (Long) arg0;
 				Long l2 = (Long) arg1;
-				if (l1 != null)
+				if (l1 != null) {
 					return l1.compareTo(l2);
+				}
 				return 0;
 			}
 		}, new Class<?>[] { Long.class }).setLabelProvider(
@@ -174,13 +172,15 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 							Status worstStatus = ((Doclog) element)
 									.getScreenshotStatus();
 							RGB backgroundRgb = worstStatus.getRGB();
-							return resources.createColor(backgroundRgb);
+							return DoclogFilesViewer.this.resources
+									.createColor(backgroundRgb);
 						}
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
 							RGB backgroundRgb = doclogRecord.getScreenshot()
 									.getStatus().getRGB();
-							return resources.createColor(backgroundRgb);
+							return DoclogFilesViewer.this.resources
+									.createColor(backgroundRgb);
 						}
 						return null;
 					}
@@ -325,23 +325,24 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * fulfilling the following criteria:
 	 * <ol>
 	 * <li>{@link DoclogRecord} belongs to a {@link Doclog} with the given
-	 * {@link ID}
+	 * {@link IIdentifier}
 	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
 	 * 
 	 * @param treeItems
-	 * @param id
+	 * @param identifier
 	 * @param dataRanges
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
-			TreeItem[] treeItems, ID id, List<TimeZoneDateRange> dataRanges) {
+			TreeItem[] treeItems, IIdentifier identifier,
+			List<TimeZoneDateRange> dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, Doclog.class)) {
 			Doclog doclog = (Doclog) item.getData();
-			if (id.equals(doclog.getID())) {
+			if (identifier.equals(doclog.getIdentifier())) {
 				List<TreePath> childTreePaths = DoclogFilesViewer
 						.getItemsOfIntersectingDataRanges(
 								((TreeItem) item).getItems(), dataRanges);

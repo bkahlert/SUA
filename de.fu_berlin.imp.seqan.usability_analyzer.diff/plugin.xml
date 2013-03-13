@@ -165,7 +165,7 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
          </adapter>
       </factory>
       <factory
@@ -175,7 +175,7 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">

@@ -83,6 +83,17 @@ public class AbstractMemoView extends EditorView<Object> {
 					}
 				});
 			}
+			/*
+			 * Remove the selection automatically after some time. Otherwise
+			 * this view would make other views highlighting the selected
+			 * element again when this view becomes the focus.
+			 */
+			ExecutorUtil.asyncRun(new Runnable() {
+				@Override
+				public void run() {
+					MemoViewSelectionProvider.this.selection = null;
+				}
+			}, 1000);
 		}
 	}
 

@@ -27,11 +27,12 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
@@ -109,7 +110,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 							public StyledString getStyledText(Object element) {
 								Entity entity = (Entity) element;
 
-								ID id = entity.getID();
+								ID id = entity.getId();
 								StyledString styledString = new StyledString(
 										(id != null) ? id.toString() : "",
 										(boldObjects != null
@@ -133,10 +134,10 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 											if (parts.length > 0) {
 												String key = parts[1];
 												if (ID.isValid(key)
-														&& entity.getID() != null
-														&& entity.getID()
-																.equals(new ID(
-																		key))) {
+														&& entity.getId() != null
+														&& entity.getId()
+																.equals(IdentifierFactory
+																		.createFrom(key))) {
 													return codeService
 															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;
@@ -145,8 +146,8 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 														&& entity
 																.getFingerprints()
 																.contains(
-																		new Fingerprint(
-																				key))) {
+																		IdentifierFactory
+																				.createFrom(key))) {
 													return codeService
 															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;

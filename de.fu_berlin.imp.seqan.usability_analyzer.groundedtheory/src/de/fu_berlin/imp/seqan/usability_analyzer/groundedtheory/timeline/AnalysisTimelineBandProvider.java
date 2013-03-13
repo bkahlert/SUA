@@ -24,10 +24,9 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -55,8 +54,9 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			private ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
 				public void resized(TimelineEvent event) {
-					if (!(event.getSource() instanceof IEpisode))
+					if (!(event.getSource() instanceof IEpisode)) {
 						return;
+					}
 					IEpisode oldEpisode = (IEpisode) event.getSource();
 					IEpisode newEpisode = null;
 					TimeZoneDate newStartDate = event.startDate != null ? (TimeZoneDate) new TimeZoneDate(
@@ -86,13 +86,15 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 					Object newInput) {
 				this.input = newInput;
 				if (this.timelineGroup != null) {
-					this.timelineGroup.removeTimelineListener(timelineListener);
+					this.timelineGroup
+							.removeTimelineListener(this.timelineListener);
 				}
 				if (viewer != null
 						&& viewer.getControl() instanceof ITimelineGroup) {
 					this.timelineGroup = (ITimelineGroup<?>) viewer
 							.getControl();
-					this.timelineGroup.addTimelineListener(timelineListener);
+					this.timelineGroup
+							.addTimelineListener(this.timelineListener);
 				}
 
 				if (oldInput != null && newInput != null) {
@@ -112,9 +114,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public boolean isValid(Object key) {
-				if (key instanceof ID) {
-					return true;
-				} else if (key instanceof Fingerprint) {
+				if (key instanceof IIdentifier) {
 					return true;
 				} else {
 					return false;
@@ -145,12 +145,8 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 				switch ((BANDS) band) {
 				case CODE_BAND:
-					Set<IEpisode> episodes;
-					if (this.input instanceof ID)
-						episodes = codeService.getEpisodes((ID) this.input);
-					else
-						episodes = codeService
-								.getEpisodes((Fingerprint) this.input);
+					Set<IEpisode> episodes = codeService
+							.getEpisodes((IIdentifier) this.input);
 					monitor.worked(2);
 					return episodes.toArray();
 				}
@@ -211,14 +207,15 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public String getTitle(Object event) {
-				return codeableLabelProvider.getText(event);
+				return this.codeableLabelProvider.getText(event);
 			}
 
 			@Override
 			public URI getIcon(Object event) {
-				Image image = codeableLabelProvider.getImage(event);
-				if (image != null)
+				Image image = this.codeableLabelProvider.getImage(event);
+				if (image != null) {
 					return TimelineHelper.createUriFromImage(image);
+				}
 				return null;
 			}
 
@@ -251,7 +248,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
 					try {
-						for (ICode code : codeService.getCodes(episode)) {
+						for (ICode code : this.codeService.getCodes(episode)) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

@@ -7,11 +7,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyManager;
 
 /**
@@ -55,14 +55,12 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 		List<SurveyManager> surveyManagers = new ArrayList<SurveyManager>();
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
-			IData surveyData = getSurveyData(baseDataContainer);
+			IData surveyData = this.getSurveyData(baseDataContainer);
 			if (surveyData == null) {
 				LOGGER.error("Could not load survey data");
 			} else {
 				SurveyManager surveyManager = new SurveyManager(surveyData);
 				surveyManager.scanRecords(monitor.newChild(1));
-				List<Token> tokens = surveyManager.getTokens();
-				System.err.println(tokens);
 				surveyManagers.add(surveyManager);
 			}
 		}
@@ -74,29 +72,16 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 	/**
 	 * TODO aggregate in case of multiple hits
 	 * 
-	 * @param id
+	 * @param identifier
 	 * @return
 	 */
-	public SurveyRecord getSurveyRecord(ID id) {
+	public SurveyRecord getSurveyRecord(IIdentifier identifier) {
 		for (SurveyManager surveyManager : this.surveyManagers) {
-			SurveyRecord surveyRecord = surveyManager.getSurveyRecord(id);
-			if (surveyRecord != null)
+			SurveyRecord surveyRecord = surveyManager
+					.getSurveyRecord(identifier);
+			if (surveyRecord != null) {
 				return surveyRecord;
-		}
-		return null;
-	}
-
-	/**
-	 * TODO aggregate in case of multiple hits
-	 * 
-	 * @param token
-	 * @return
-	 */
-	public SurveyRecord getSurveyRecord(Token token) {
-		for (SurveyManager surveyManager : this.surveyManagers) {
-			SurveyRecord surveyRecord = surveyManager.getSurveyRecord(token);
-			if (surveyRecord != null)
-				return surveyRecord;
+			}
 		}
 		return null;
 	}
@@ -105,8 +90,9 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 		List<Token> tokens = new ArrayList<Token>();
 		for (SurveyManager surveyManager : this.surveyManagers) {
 			List<Token> currentTokens = surveyManager.getTokens();
-			if (currentTokens != null)
+			if (currentTokens != null) {
 				tokens.addAll(currentTokens);
+			}
 		}
 		return tokens;
 	}

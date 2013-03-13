@@ -10,9 +10,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
@@ -33,46 +32,27 @@ public class AddEpisodeWizard extends Wizard {
 
 	protected AddEpisodeWizardPage addCodeWizardPage;
 
-	private ID id;
-	private Fingerprint fingerprint;
+	private IIdentifier identifier;
 	private TimeZoneDateRange range;
 
-	public AddEpisodeWizard(ID id, TimeZoneDateRange range) {
+	public AddEpisodeWizard(IIdentifier identifier, TimeZoneDateRange range) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
-		this.id = id;
-		this.fingerprint = null;
-		this.range = range;
-		this.addCodeWizardPage = new AddEpisodeWizardPage();
-	}
-
-	public AddEpisodeWizard(Fingerprint fingerprint, TimeZoneDateRange range) {
-		this.setWindowTitle(TITLE);
-		this.setDefaultPageImageDescriptor(IMAGE);
-		this.setNeedsProgressMonitor(false);
-		this.id = null;
-		this.fingerprint = fingerprint;
+		this.identifier = identifier;
 		this.range = range;
 		this.addCodeWizardPage = new AddEpisodeWizardPage();
 	}
 
 	@Override
 	public void addPages() {
-		this.addPage(addCodeWizardPage);
+		this.addPage(this.addCodeWizardPage);
 	}
 
 	@Override
 	public boolean performFinish() {
-		String name = addCodeWizardPage.getEpisodeCaption();
-		IEpisode episode;
-
-		// plugin.xml makes sure the objects only contain a single ID or
-		// Fingerprint
-		if (id != null)
-			episode = new Episode(id, range, name);
-		else
-			episode = new Episode(fingerprint, range, name);
+		String name = this.addCodeWizardPage.getEpisodeCaption();
+		IEpisode episode = new Episode(this.identifier, this.range, name);
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
@@ -87,8 +67,8 @@ public class AddEpisodeWizard extends Wizard {
 					IStatus status = new Status(IStatus.ERROR,
 							Activator.PLUGIN_ID,
 							"Error creating/saving a new episode", e);
-					ErrorDialog.openError(getShell(), "Code Store Error",
-							status.getMessage(), status);
+					ErrorDialog.openError(AddEpisodeWizard.this.getShell(),
+							"Code Store Error", status.getMessage(), status);
 				}
 			});
 			return false;

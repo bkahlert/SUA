@@ -9,8 +9,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileDirectoryTest;
@@ -34,12 +35,13 @@ public class DiffCacheTest {
 		/*
 		 * Query 5lpcjqhy0b9yfech
 		 */
-		Assert.assertNotNull(diffCache.getPayload(new ID("5lpcjqhy0b9yfech"),
+		Assert.assertNotNull(diffCache.getPayload(
+				IdentifierFactory.createFrom("5lpcjqhy0b9yfech"),
 				new NullProgressMonitor()));
 		Assert.assertEquals(1, diffCache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("5lpcjqhy0b9yfech"));
+				this.add(IdentifierFactory.createFrom("5lpcjqhy0b9yfech"));
 			}
 		}) {
 			Assert.assertTrue(diffCache.getCachedKeys().contains(id));
@@ -48,13 +50,14 @@ public class DiffCacheTest {
 		/*
 		 * Query amudto8y1mzxaebv
 		 */
-		Assert.assertNotNull(diffCache.getPayload(new ID("amudto8y1mzxaebv"),
+		Assert.assertNotNull(diffCache.getPayload(
+				IdentifierFactory.createFrom("amudto8y1mzxaebv"),
 				new NullProgressMonitor()));
 		Assert.assertEquals(2, diffCache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("5lpcjqhy0b9yfech"));
-				add(new ID("amudto8y1mzxaebv"));
+				this.add(IdentifierFactory.createFrom("5lpcjqhy0b9yfech"));
+				this.add(IdentifierFactory.createFrom("amudto8y1mzxaebv"));
 			}
 		}) {
 			Assert.assertTrue(diffCache.getCachedKeys().contains(id));
@@ -63,19 +66,21 @@ public class DiffCacheTest {
 		/*
 		 * Query again 5lpcjqhy0b9yfech
 		 */
-		Assert.assertNotNull(diffCache.getPayload(new ID("5lpcjqhy0b9yfech"),
+		Assert.assertNotNull(diffCache.getPayload(
+				IdentifierFactory.createFrom("5lpcjqhy0b9yfech"),
 				new NullProgressMonitor()));
 
 		/*
 		 * Query o6lmo5tpxvn3b6fg amudto8y1mzxaebv has been removed
 		 */
-		Assert.assertNotNull(diffCache.getPayload(new ID("o6lmo5tpxvn3b6fg"),
+		Assert.assertNotNull(diffCache.getPayload(
+				IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"),
 				new NullProgressMonitor()));
 		Assert.assertEquals(2, diffCache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("5lpcjqhy0b9yfech"));
-				add(new ID("o6lmo5tpxvn3b6fg"));
+				this.add(IdentifierFactory.createFrom("5lpcjqhy0b9yfech"));
+				this.add(IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"));
 			}
 		}) {
 			Assert.assertTrue(diffCache.getCachedKeys().contains(id));

@@ -10,10 +10,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordHistory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
@@ -25,7 +26,8 @@ public class DiffFileDirectoryTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static ID id = new ID("amudto8y1mzxaebv");
+	private static IIdentifier identifier = IdentifierFactory
+			.createFrom("amudto8y1mzxaebv");
 
 	private static DiffContainer getDiffFileManager() throws URISyntaxException {
 		return new DiffContainer(new FileBaseDataContainer(
@@ -34,7 +36,7 @@ public class DiffFileDirectoryTest {
 
 	private DiffRecordHistory getDiffFileRecordHistory()
 			throws URISyntaxException {
-		return getDiffFileManager().createDiffFiles(id,
+		return getDiffFileManager().createDiffFiles(identifier,
 				new NullProgressMonitor()).getHistory(
 				"sandbox/mordor/apps/exastellar/exastellar.cpp");
 	}
@@ -51,19 +53,22 @@ public class DiffFileDirectoryTest {
 		DiffContainer diffFileManager = getDiffFileManager();
 		TimeZoneDateRange dateRange;
 
-		dateRange = diffFileManager.getDateRange(new ID("5lpcjqhy0b9yfech"));
+		dateRange = diffFileManager.getDateRange(IdentifierFactory
+				.createFrom("5lpcjqhy0b9yfech"));
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43+02:00"),
 				dateRange.getStartDate());
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43-05:30"),
 				dateRange.getEndDate());
 
-		dateRange = diffFileManager.getDateRange(new ID("o6lmo5tpxvn3b6fg"));
+		dateRange = diffFileManager.getDateRange(IdentifierFactory
+				.createFrom("o6lmo5tpxvn3b6fg"));
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				dateRange.getStartDate());
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02+02:00"),
 				dateRange.getEndDate());
 
-		dateRange = diffFileManager.getDateRange(new ID("amudto8y1mzxaebv"));
+		dateRange = diffFileManager.getDateRange(IdentifierFactory
+				.createFrom("amudto8y1mzxaebv"));
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T09:41:46+02:00"),
 				dateRange.getStartDate());
 		Assert.assertEquals(new TimeZoneDate("2011-09-13T11:55:46+02:00"),
@@ -74,7 +79,7 @@ public class DiffFileDirectoryTest {
 	public void testGetDiffFiles() throws Exception {
 		DiffContainer diffFileManager = getDiffFileManager();
 
-		IDiffs diffFiles = diffFileManager.createDiffFiles(id,
+		IDiffs diffFiles = diffFileManager.createDiffFiles(identifier,
 				new NullProgressMonitor());
 		Assert.assertEquals(6, diffFiles.length());
 	}
@@ -83,7 +88,7 @@ public class DiffFileDirectoryTest {
 	public void testGetRevision() throws Exception {
 		DiffContainer diffFileManager = getDiffFileManager();
 
-		IDiffs diffFiles = diffFileManager.createDiffFiles(id,
+		IDiffs diffFiles = diffFileManager.createDiffFiles(identifier,
 				new NullProgressMonitor());
 
 		for (int i = 0; i < diffFiles.length(); i++) {
@@ -94,7 +99,7 @@ public class DiffFileDirectoryTest {
 
 	@Test
 	public void testPredecessorSuccessor() throws Exception {
-		DiffRecordHistory diffRecordHistory = getDiffFileRecordHistory();
+		DiffRecordHistory diffRecordHistory = this.getDiffFileRecordHistory();
 		Assert.assertEquals(3, diffRecordHistory.size());
 
 		IDiffRecord r0 = diffRecordHistory.get(0);
@@ -112,7 +117,7 @@ public class DiffFileDirectoryTest {
 
 	@Test
 	public void testSources() throws Exception {
-		DiffRecordHistory diffRecordHistory = getDiffFileRecordHistory();
+		DiffRecordHistory diffRecordHistory = this.getDiffFileRecordHistory();
 		Assert.assertEquals(3, diffRecordHistory.size());
 
 		for (int i = 0, j = diffRecordHistory.size(); i < j; i++) {

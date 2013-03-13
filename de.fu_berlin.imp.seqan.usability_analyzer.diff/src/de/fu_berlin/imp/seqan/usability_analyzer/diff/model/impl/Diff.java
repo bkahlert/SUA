@@ -10,11 +10,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
@@ -42,7 +42,8 @@ public class Diff extends WrappingData implements IDiff {
 	public URI getUri() {
 		try {
 			return new URI("sua://" + DiffCodeableProvider.DIFF_NAMESPACE + "/"
-					+ getID().toString() + "/" + getRevision());
+					+ this.getIdentifier().toString() + "/"
+					+ this.getRevision());
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a " + Diff.class.getSimpleName(),
@@ -53,7 +54,7 @@ public class Diff extends WrappingData implements IDiff {
 
 	private IDiff prevDiffFile;
 
-	private ID id;
+	private IIdentifier identifier;
 	private long revision;
 	private TimeZoneDateRange dateRange;
 
@@ -66,7 +67,7 @@ public class Diff extends WrappingData implements IDiff {
 
 		Assert.isNotNull(sourceCache);
 
-		this.id = DiffDataUtils.getId(data);
+		this.identifier = DiffDataUtils.getId(data);
 		this.revision = DiffDataUtils.getRevision(data);
 		TimeZoneDate prevDate = prevDiffFile != null
 				&& prevDiffFile.getDateRange() != null ? prevDiffFile
@@ -94,11 +95,12 @@ public class Diff extends WrappingData implements IDiff {
 	 */
 	@Override
 	public IDiff getPrevDiffFile() {
-		return prevDiffFile;
+		return this.prevDiffFile;
 	}
 
-	public ID getID() {
-		return id;
+	@Override
+	public IIdentifier getIdentifier() {
+		return this.identifier;
 	}
 
 	/*
@@ -109,7 +111,7 @@ public class Diff extends WrappingData implements IDiff {
 	 */
 	@Override
 	public long getRevision() {
-		return revision;
+		return this.revision;
 	}
 
 	@Override
@@ -125,7 +127,7 @@ public class Diff extends WrappingData implements IDiff {
 	 */
 	@Override
 	public DiffRecords getDiffFileRecords() {
-		return diffFileRecords;
+		return this.diffFileRecords;
 	}
 
 	public int compareTo(Diff diff) {
@@ -158,8 +160,9 @@ public class Diff extends WrappingData implements IDiff {
 		IDiffRecords diffFileRecords = this.getDiffFileRecords();
 		if (diffFileRecords != null) {
 			for (IDiffRecord diffRecord : diffFileRecords) {
-				if (!diffRecord.sourceExists())
+				if (!diffRecord.sourceExists()) {
 					return false;
+				}
 			}
 		}
 		return true;
@@ -174,7 +177,7 @@ public class Diff extends WrappingData implements IDiff {
 	 */
 	@Override
 	public List<String> getContent(long contentStart, long contentEnd) {
-		return Arrays.asList(read(contentStart, contentEnd).split("\n"));
+		return Arrays.asList(this.read(contentStart, contentEnd).split("\n"));
 	}
 
 	@Override
@@ -188,7 +191,7 @@ public class Diff extends WrappingData implements IDiff {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": " + this.getRevision()
-				+ "@" + this.getID().toString();
+				+ "@" + this.getIdentifier().toString();
 	}
 
 }

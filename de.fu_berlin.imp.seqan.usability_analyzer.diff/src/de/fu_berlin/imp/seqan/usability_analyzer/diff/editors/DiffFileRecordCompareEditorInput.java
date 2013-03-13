@@ -38,7 +38,7 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 
 	@Override
 	public String getTitle() {
-		return diffRecord != null ? diffRecord.getDiffFile().getID() + ": "
+		return diffRecord != null ? diffRecord.getDiffFile().getIdentifier() + ": "
 				+ diffRecord.getFilename() + "@"
 				+ diffRecord.getDiffFile().getRevision() : "EMPTY";
 	}
@@ -50,7 +50,7 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 		long predRevision = diffRecord.getPredecessor() != null ? diffRecord
 				.getPredecessor().getDiffFile().getRevision() : -1;
 		long revision = diffRecord.getDiffFile().getRevision();
-		return "ID: " + diffRecord.getDiffFile().getID() + "\nFile:"
+		return "ID: " + diffRecord.getDiffFile().getIdentifier() + "\nFile:"
 				+ diffRecord.getFilename() + "\nRevisions: " + predRevision
 				+ " and " + revision;
 	}

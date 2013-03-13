@@ -16,19 +16,17 @@ import org.eclipse.swt.graphics.Point;
 import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
-		ICodeable, HasID, HasFingerprint {
+		ICodeable, HasIdentifier {
 
 	private static final long serialVersionUID = -8279575943640177616L;
 
@@ -56,9 +54,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 						+ matcher.group(6) + matcher.group(9) + ":"
 						+ matcher.group(10));
 				// Add milliseconds
-				if (matcher.group(7) != null)
+				if (matcher.group(7) != null) {
 					date.setTime(date.getTime()
 							+ Integer.parseInt(matcher.group(7).substring(1)));
+				}
 			} else {
 				// Date does not contain a time zone
 				Date rawDate = DateUtil.getDate(
@@ -69,9 +68,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 						Integer.valueOf(matcher.group(5)),
 						Integer.valueOf(matcher.group(6)));
 				// Add milliseconds
-				if (matcher.group(7) != null)
+				if (matcher.group(7) != null) {
 					rawDate.setTime(rawDate.getTime()
 							+ Integer.parseInt(matcher.group(7).substring(1)));
+				}
 
 				TimeZone timeZone;
 				try {
@@ -113,8 +113,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		Matcher matcher = PATTERN.matcher(line);
 		if (matcher.find()) {
 			this.url = cleanUrl(matcher.group(14));
-			if (this.url == null)
+			if (this.url == null) {
 				throw new DataSourceInvalidException("The url is invalid");
+			}
 			this.ip = matcher.group(15);
 			this.proxyIp = matcher.group(16);
 
@@ -130,8 +131,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 					.group(19)), Integer.parseInt(matcher.group(20)));
 
 			try {
-				if (doclog != null)
+				if (doclog != null) {
 					this.screenshot = new DoclogScreenshot(this);
+				}
 			} catch (UnsupportedEncodingException e) {
 				throw new DataSourceInvalidException(
 						"The doclog contains an invalid URL that can not be mapped to a file.",
@@ -144,22 +146,17 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	}
 
 	@Override
-	public ID getID() {
-		return this.doclog.getID();
-	}
-
-	@Override
-	public Fingerprint getFingerprint() {
-		return this.doclog.getFingerprint();
+	public IIdentifier getIdentifier() {
+		return this.doclog.getIdentifier();
 	}
 
 	@Override
 	public URI getUri() {
 		try {
-			return new URI(this.getDoclog().getUri().toString()
-					+ "/" + URLEncoder.encode(this.getRawContent(), "UTF-8"));
+			return new URI(this.getDoclog().getUri().toString() + "/"
+					+ URLEncoder.encode(this.getRawContent(), "UTF-8"));
 		} catch (Exception e) {
-			logger.error(
+			this.logger.error(
 					"Could not create ID for a "
 							+ DoclogRecord.class.getSimpleName(), e);
 		}
@@ -199,7 +196,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	}
 
 	public String getShortUrl() {
-		String protocollessUrl = getUrl().replaceAll("\\w*://", "");
+		String protocollessUrl = this.getUrl().replaceAll("\\w*://", "");
 		if (protocollessUrl.length() > MAX_SHORT_URL_LENGTH) {
 			int startLength = (int) Math
 					.round(((double) MAX_SHORT_URL_LENGTH - SHORT_URL_SHORTENER
@@ -216,19 +213,20 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	}
 
 	public String getIp() {
-		return ip;
+		return this.ip;
 	}
 
 	public String getProxyIp() {
-		return (proxyIp != null && !proxyIp.equals("-")) ? proxyIp : null;
+		return (this.proxyIp != null && !this.proxyIp.equals("-")) ? this.proxyIp
+				: null;
 	}
 
 	public DoclogAction getAction() {
-		return action;
+		return this.action;
 	}
 
 	public String getActionParameter() {
-		return actionParameter;
+		return this.actionParameter;
 	}
 
 	void setActionParameter(String actionParameter) {
@@ -236,15 +234,15 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	}
 
 	TimeZoneDate getDate() {
-		return date;
+		return this.date;
 	}
 
 	public Point getScrollPosition() {
-		return scrollPosition;
+		return this.scrollPosition;
 	}
 
 	public Point getWindowDimensions() {
-		return windowDimensions;
+		return this.windowDimensions;
 	}
 
 	public void setScreenshot(File screenshotFile) throws IOException {
@@ -259,13 +257,16 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		this.millisecondsPassed = millisecondsPassed;
 	}
 
+	@Override
 	public TimeZoneDateRange getDateRange() {
-		if (this.date == null)
+		if (this.date == null) {
 			return null;
+		}
 
 		TimeZoneDate endDate = this.date.clone();
-		if (this.millisecondsPassed != null)
+		if (this.millisecondsPassed != null) {
 			endDate.addMilliseconds(this.millisecondsPassed);
+		}
 		return new TimeZoneDateRange(this.date, endDate);
 	}
 

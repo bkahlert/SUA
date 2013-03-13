@@ -19,8 +19,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
@@ -54,25 +54,25 @@ public class DoclogCodeableProvider extends CodeableProvider {
 						.split("/");
 
 				// 0: ID / Fingerprint
-				Object key = new ID(path[0]);
+				IIdentifier identifier = IdentifierFactory.createFrom(path[0]);
 				Doclog doclog = Activator.getDefault().getDoclogContainer()
-						.getDoclogFile(key, monitorReference.get());
+						.getDoclogFile(identifier, monitorReference.get());
 				if (doclog == null) {
-					key = new Fingerprint(path[0]);
+					identifier = IdentifierFactory.createFrom(path[0]);
 					doclog = Activator.getDefault().getDoclogContainer()
-							.getDoclogFile(key, monitorReference.get());
+							.getDoclogFile(identifier, monitorReference.get());
 				}
 				if (doclog == null) {
-					LOGGER.error(ID.class.getSimpleName() + " or "
-							+ Fingerprint.class
+					LOGGER.error(IIdentifier.class.getSimpleName()
 							+ " not specified for coded object retrieval for "
-							+ " " + key.toString());
+							+ " " + identifier.toString());
 					return null;
 				}
 
 				// 1: Record
-				if (path.length <= 1)
+				if (path.length <= 1) {
 					return doclog;
+				}
 				String doclogRecordRawContent;
 				try {
 					doclogRecordRawContent = URLDecoder
@@ -97,7 +97,7 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	public ICodeable[] showCodedObjectsInWorkspace2(
 			final List<ICodeable> codedObjects) {
 		if (codedObjects.size() > 0) {
-			return openAndSelectFilesInExplorer(codedObjects,
+			return this.openAndSelectFilesInExplorer(codedObjects,
 					(DoclogExplorerView) WorkbenchUtils
 							.getView(DoclogExplorerView.ID));
 		}
@@ -107,11 +107,13 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	public ICodeable[] openAndSelectFilesInExplorer(
 			final List<ICodeable> codedObjects,
 			final DoclogExplorerView doclogExplorerView) {
-		Set<Object> keys = CodeableUtils.getKeys(codedObjects);
+		Set<IIdentifier> identifiers = CodeableUtils
+				.getIdentifiers(codedObjects);
 
 		// open
-		Future<ICodeable[]> rt = doclogExplorerView.open(keys,
+		Future<ICodeable[]> rt = doclogExplorerView.open(identifiers,
 				new Callable<ICodeable[]>() {
+					@Override
 					public ICodeable[] call() {
 						TreeViewer viewer = doclogExplorerView
 								.getDoclogFilesViewer();

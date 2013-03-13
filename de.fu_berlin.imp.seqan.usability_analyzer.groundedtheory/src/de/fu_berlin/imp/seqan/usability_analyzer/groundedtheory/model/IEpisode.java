@@ -1,35 +1,18 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public interface IEpisode extends ICodeable, HasDateRange, Comparable<IEpisode> {
 
 	/**
-	 * Returns the {@link ID} this {@link IEpisode} belongs to.
+	 * Returns the {@link IIdentifier} this {@link IEpisode} belongs to.
 	 * 
-	 * @return false if this {@link IEpisode} belongs to a {@link Fingerprint}
+	 * @return
 	 */
-	public ID getId();
-
-	/**
-	 * Returns the {@link Fingerprint} this {@link IEpisode} belongs to.
-	 * 
-	 * @return false if this {@link IEpisode} belongs to a {@link ID}
-	 */
-	public Fingerprint getFingerprint();
-
-	/**
-	 * Returns the {@link ID} or {@link Fingerprint} this {@link IEpisode}
-	 * belongs to.
-	 * 
-	 * @return always an object != null and of either type {@link ID} or
-	 *         {@link Fingerprint}
-	 */
-	public Object getKey();
+	public IIdentifier getIdentifier();
 
 	/**
 	 * Returns the {@link TimeZoneDate} this {@link IEpisode} starts.
@@ -50,6 +33,7 @@ public interface IEpisode extends ICodeable, HasDateRange, Comparable<IEpisode> 
 	 * 
 	 * @return
 	 */
+	@Override
 	public TimeZoneDateRange getDateRange();
 
 	/**

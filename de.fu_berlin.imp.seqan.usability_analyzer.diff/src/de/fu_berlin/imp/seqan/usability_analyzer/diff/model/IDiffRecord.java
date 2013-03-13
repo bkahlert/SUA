@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -15,7 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
  * @author bkahlert
  * 
  */
-public interface IDiffRecord extends HasDateRange, ICodeable, HasID, IOpenable,
+public interface IDiffRecord extends HasDateRange, ICodeable, HasIdentifier, IOpenable,
 		ICompilable {
 
 	/**

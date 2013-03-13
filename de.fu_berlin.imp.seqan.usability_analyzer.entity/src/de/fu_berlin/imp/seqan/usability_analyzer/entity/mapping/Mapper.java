@@ -1,11 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping.DoclogKeyMap;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
@@ -21,7 +23,7 @@ public class Mapper {
 				.getMappingFile());
 	}
 
-	public ID getID(Fingerprint fingerprint) {
+	public IIdentifier getID(Fingerprint fingerprint) {
 		return this.doclogMapper.getID(fingerprint);
 	}
 
@@ -34,18 +36,32 @@ public class Mapper {
 	 * {@link Doclog}s belonging to the given {@link Token}.
 	 * <p>
 	 * If you are interested in <b>all</b> {@link Doclog}s you also need to
-	 * check {@link #getID(Token)} as this method only returns an {@link ID} if
+	 * check {@link #getIDs(Token)} as this method only returns an {@link ID} if
 	 * an <b>{@link ID} based</b> {@link Doclog} exists.
 	 * 
 	 * @param token
 	 * @return
 	 */
 	public List<Fingerprint> getFingerprints(Token token) {
-		return this.doclogDataContainer.getFingerprints(token);
+		List<Fingerprint> fingerprints = new ArrayList<Fingerprint>();
+		for (IIdentifier identifier : this.doclogDataContainer
+				.getIdentifiers(token)) {
+			if (identifier instanceof Fingerprint) {
+				fingerprints.add((Fingerprint) identifier);
+			}
+		}
+		return fingerprints;
 	}
 
-	public ID getID(Token token) {
-		return this.doclogDataContainer.getID(token);
+	public List<ID> getIDs(Token token) {
+		List<ID> ids = new ArrayList<ID>();
+		for (IIdentifier identifier : this.doclogDataContainer
+				.getIdentifiers(token)) {
+			if (identifier instanceof ID) {
+				ids.add((ID) identifier);
+			}
+		}
+		return ids;
 	}
 
 	public Token getToken(Fingerprint fingerprint) {

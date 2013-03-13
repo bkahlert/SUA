@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.Assert;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class SourceCache implements ISourceStore {
 	private IBaseDataContainer baseDataContainer;
@@ -32,7 +32,7 @@ public class SourceCache implements ISourceStore {
 	 * java.lang.String)
 	 */
 	@Override
-	public File getSourceFile(ID id, long revision, String filename)
+	public File getSourceFile(IIdentifier id, long revision, String filename)
 			throws IOException {
 		return this.baseDataContainer.getStaticFile(this.scope, id + "/"
 				+ revision + "/" + filename);
@@ -47,7 +47,7 @@ public class SourceCache implements ISourceStore {
 	 * java.lang.String, java.io.File)
 	 */
 	@Override
-	public void setSourceFile(ID id, long revision, String filename, File file)
+	public void setSourceFile(IIdentifier id, long revision, String filename, File file)
 			throws IOException {
 
 		this.baseDataContainer.putFile(this.scope, id + "/" + revision + "/"

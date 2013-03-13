@@ -4,7 +4,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -26,11 +26,11 @@ public class DiffLabelProvider extends LabelProvider {
 	public String getText(Object element) {
 		if (element instanceof IDiffs) {
 			IDiffs diffList = (IDiffs) element;
-			ID id = null;
+			IIdentifier identifier = null;
 			if (diffList.length() > 0) {
-				id = diffList.get(0).getID();
+				identifier = diffList.get(0).getIdentifier();
 			}
-			return (id != null) ? id.toString() : "";
+			return (identifier != null) ? identifier.toString() : "";
 		}
 		if (element instanceof IDiff) {
 			IDiff diff = (IDiff) element;
@@ -40,7 +40,7 @@ public class DiffLabelProvider extends LabelProvider {
 			IDiffRecord diffRecord = element instanceof DiffRecord ? (DiffRecord) element
 					: ((DiffRecordSegment) element).getDiffFileRecord();
 			String prefix = Activator.getDefault().getDiffDataContainer()
-					.getDiffFiles(diffRecord.getID(), null)
+					.getDiffFiles(diffRecord.getIdentifier(), null)
 					.getLongestCommonPrefix();
 			String filename = diffRecord.getFilename();
 			String shortenedFilename = filename.startsWith(prefix) ? filename
@@ -60,7 +60,7 @@ public class DiffLabelProvider extends LabelProvider {
 	private boolean hasCodedChildren(IDiff diff) {
 		for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
 			try {
-				if (codeService.getCodes(diffRecord).size() > 0) {
+				if (this.codeService.getCodes(diffRecord).size() > 0) {
 					return true;
 				}
 			} catch (CodeServiceException e) {
@@ -83,43 +83,43 @@ public class DiffLabelProvider extends LabelProvider {
 		if (element instanceof IDiff) {
 			IDiff diff = (IDiff) element;
 			try {
-				Boolean compiles = compilationService.compiles(diff);
+				Boolean compiles = this.compilationService.compiles(diff);
 				if (compiles == null) {
-					if (codeService.getCodes(diff).size() > 0) {
-						return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO
+					if (this.codeService.getCodes(diff).size() > 0) {
+						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO
 								: ImageManager.DIFF_CODED;
 					} else {
-						if (hasCodedChildren(diff)) {
-							return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
+						if (this.hasCodedChildren(diff)) {
+							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
 									: ImageManager.DIFF_PARTIALLY_CODED;
 						} else {
-							return (codeService.isMemo(diff) ? ImageManager.DIFF_MEMO
+							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO
 									: ImageManager.DIFF);
 						}
 					}
 				} else if (compiles == true) {
-					if (codeService.getCodes(diff).size() > 0) {
-						return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(diff).size() > 0) {
+						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_WORKING
 								: ImageManager.DIFF_CODED_WORKING;
 					} else {
-						if (hasCodedChildren(diff)) {
-							return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
+						if (this.hasCodedChildren(diff)) {
+							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
 									: ImageManager.DIFF_PARTIALLY_CODED_WORKING;
 						} else {
-							return (codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_WORKING
+							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_WORKING
 									: ImageManager.DIFF_WORKING);
 						}
 					}
 				} else {
-					if (codeService.getCodes(diff).size() > 0) {
-						return codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(diff).size() > 0) {
+						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFF_CODED_NOTWORKING;
 					} else {
-						if (hasCodedChildren(diff)) {
-							return codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
+						if (this.hasCodedChildren(diff)) {
+							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
 									: ImageManager.DIFF_PARTIALLY_CODED_NOTWORKING;
 						} else {
-							return (codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_NOTWORKING
+							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_NOTWORKING
 									: ImageManager.DIFF_NOTWORKING);
 						}
 					}
@@ -131,43 +131,43 @@ public class DiffLabelProvider extends LabelProvider {
 		if (element instanceof IDiffRecord) {
 			IDiffRecord diffRecord = (IDiffRecord) element;
 			try {
-				Boolean compiles = compilationService.compiles(diffRecord);
+				Boolean compiles = this.compilationService.compiles(diffRecord);
 				if (compiles == null) {
-					if (codeService.getCodes(diffRecord).size() > 0) {
-						return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
+					if (this.codeService.getCodes(diffRecord).size() > 0) {
+						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
 								: ImageManager.DIFFRECORD_CODED;
 					} else {
-						if (hasCodedChildren(diffRecord)) {
-							return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
+						if (this.hasCodedChildren(diffRecord)) {
+							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED;
 						} else {
-							return (codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO
+							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO
 									: ImageManager.DIFFRECORD);
 						}
 					}
 				} else if (compiles == true) {
-					if (codeService.getCodes(diffRecord).size() > 0) {
-						return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(diffRecord).size() > 0) {
+						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
 								: ImageManager.DIFFRECORD_CODED_WORKING;
 					} else {
-						if (hasCodedChildren(diffRecord)) {
-							return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
+						if (this.hasCodedChildren(diffRecord)) {
+							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED_WORKING;
 						} else {
-							return (codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_WORKING
+							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_WORKING
 									: ImageManager.DIFFRECORD_WORKING);
 						}
 					}
 				} else {
-					if (codeService.getCodes(diffRecord).size() > 0) {
-						return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(diffRecord).size() > 0) {
+						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORD_CODED_NOTWORKING;
 					} else {
-						if (hasCodedChildren(diffRecord)) {
-							return codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
+						if (this.hasCodedChildren(diffRecord)) {
+							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED_NOTWORKING;
 						} else {
-							return (codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
+							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
 									: ImageManager.DIFFRECORD_NOTWORKING);
 						}
 					}
@@ -179,30 +179,30 @@ public class DiffLabelProvider extends LabelProvider {
 		if (element instanceof IDiffRecordSegment) {
 			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) element;
 			try {
-				Boolean compiles = compilationService
+				Boolean compiles = this.compilationService
 						.compiles(diffRecordSegment);
 				if (compiles == null) {
-					if (codeService.getCodes(diffRecordSegment).size() > 0) {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
+					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
 								: ImageManager.DIFFRECORDSEGMENT_CODED;
 					} else {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
 								: ImageManager.DIFFRECORDSEGMENT;
 					}
 				} else if (compiles == true) {
-					if (codeService.getCodes(diffRecordSegment).size() > 0) {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
 								: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
 					} else {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
 								: ImageManager.DIFFRECORDSEGMENT_WORKING;
 					}
 				} else {
-					if (codeService.getCodes(diffRecordSegment).size() > 0) {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
 					} else {
-						return codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
+						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORDSEGMENT_NOTWORKING;
 					}
 				}

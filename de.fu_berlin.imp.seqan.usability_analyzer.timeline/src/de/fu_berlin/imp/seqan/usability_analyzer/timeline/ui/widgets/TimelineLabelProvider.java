@@ -19,11 +19,10 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 import com.bkahlert.devel.nebula.widgets.timeline.model.Unit;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataSetInfo;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 
 public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
@@ -32,13 +31,13 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	private static final Logger LOGGER = Logger
 			.getLogger(TimelineLabelProvider.class);
 
-	private static <TIMELINE extends IBaseTimeline> Object getKey(
+	private static <TIMELINE extends IBaseTimeline> IIdentifier getIdentifier(
 			final TIMELINE timeline) {
 		try {
-			return ExecutorUtil.syncExec(new Callable<Object>() {
+			return ExecutorUtil.syncExec(new Callable<IIdentifier>() {
 				@Override
-				public Object call() throws Exception {
-					return timeline.getData();
+				public IIdentifier call() throws Exception {
+					return (IIdentifier) timeline.getData();
 				}
 			});
 		} catch (Exception e) {
@@ -55,14 +54,11 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 
 	@Override
 	public String getTitle(TIMELINE timeline) {
-		Object key = getKey(timeline);
-		String title;
-		if (key instanceof ID) {
-			title = "ID: " + key.toString();
-		} else if (key instanceof Fingerprint) {
-			title = "Fingerprint: " + key.toString();
-		} else {
-			title = "INVALID TYPE";
+		IIdentifier identifier = getIdentifier(timeline);
+		String title = "NULL";
+		if (identifier != null) {
+			title = identifier.getClass().getSimpleName() + ": "
+					+ identifier.getIdentifier();
 		}
 		return title;
 	}
@@ -97,6 +93,7 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 				dataSetInfo.getName(), decoratorEnd, dataSetInfo.getName()) };
 	}
 
+	@Override
 	public IZoomStep[] getZoomSteps(TIMELINE timeline) {
 		List<IZoomStep> zoomSteps = new ArrayList<IZoomStep>();
 		zoomSteps.add(new ZoomStep(0.675f, Unit.MILLISECOND, 100));

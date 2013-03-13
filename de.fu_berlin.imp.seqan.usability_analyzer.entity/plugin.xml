@@ -62,13 +62,16 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity"
             class="de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord">

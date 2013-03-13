@@ -5,19 +5,18 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class DoclogRecordAdapterFactory implements IAdapterFactory {
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { TimeZoneDateRange.class, IdDateRange.class,
-				FingerprintDateRange.class, IRevealableInOS.class };
+		return new Class[] { TimeZoneDateRange.class,
+				IdentifierDateRange.class, IRevealableInOS.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -28,23 +27,15 @@ public class DoclogRecordAdapterFactory implements IAdapterFactory {
 			if (adapterType == TimeZoneDateRange.class) {
 				return doclogRecord.getDateRange();
 			}
-			if (adapterType == IdDateRange.class) {
-				ID id = doclogRecord.getDoclog().getID();
-				if (id == null)
+			if (adapterType == IdentifierDateRange.class) {
+				IIdentifier identifier = doclogRecord.getDoclog()
+						.getIdentifier();
+				if (identifier == null) {
 					return null;
+				}
 
 				TimeZoneDateRange dateRange = doclogRecord.getDateRange();
-				return new IdDateRange(id, dateRange.getStartDate(),
-						dateRange.getEndDate());
-			}
-			if (adapterType == FingerprintDateRange.class) {
-				Fingerprint fingerprint = doclogRecord.getDoclog()
-						.getFingerprint();
-				if (fingerprint == null)
-					return null;
-
-				TimeZoneDateRange dateRange = doclogRecord.getDateRange();
-				return new FingerprintDateRange(fingerprint,
+				return new IdentifierDateRange(identifier,
 						dateRange.getStartDate(), dateRange.getEndDate());
 			}
 			if (adapterType == IRevealableInOS.class) {

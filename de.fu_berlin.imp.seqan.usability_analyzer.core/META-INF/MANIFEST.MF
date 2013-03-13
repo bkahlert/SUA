@@ -22,6 +22,7 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model.data,
  de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl,
+ de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier,
  de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
   uses:="org.eclipse.jface.preference,
    de.fu_berlin.imp.seqan.usability_analyzer.core.model,

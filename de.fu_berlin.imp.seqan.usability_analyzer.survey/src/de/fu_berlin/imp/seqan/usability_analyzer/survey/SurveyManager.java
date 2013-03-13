@@ -5,14 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import au.com.bytecode.opencsv.CSVReader;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataReader;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecordList;
 
@@ -82,22 +83,14 @@ public class SurveyManager {
 	}
 
 	public SurveyRecordList getSurveyRecords() {
-		return surveyRecords;
+		return this.surveyRecords;
 	}
 
-	public SurveyRecord getSurveyRecord(ID id) {
+	public SurveyRecord getSurveyRecord(IIdentifier identifier) {
+		Assert.isNotNull(identifier);
 		for (SurveyRecord surveyRecord : this.surveyRecords) {
-			ID surveyRecordId = surveyRecord.getID();
-			if (surveyRecordId != null && surveyRecordId.equals(id)) {
-				return surveyRecord;
-			}
-		}
-		return null;
-	}
-
-	public SurveyRecord getSurveyRecord(Token token) {
-		for (SurveyRecord surveyRecord : this.surveyRecords) {
-			if (surveyRecord.getToken().equals(token)) {
+			if (identifier.equals(surveyRecord.getID())
+					|| identifier.equals(surveyRecord.getToken())) {
 				return surveyRecord;
 			}
 		}

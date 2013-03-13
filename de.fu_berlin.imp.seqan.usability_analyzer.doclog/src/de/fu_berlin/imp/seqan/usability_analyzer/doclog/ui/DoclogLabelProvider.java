@@ -18,11 +18,7 @@ public class DoclogLabelProvider extends LabelProvider {
 	public String getText(Object element) {
 		if (element instanceof Doclog) {
 			Doclog doclog = (Doclog) element;
-			if (doclog.getID() != null) {
-				return doclog.getID().toString();
-			} else {
-				return doclog.getFingerprint().toString();
-			}
+			return doclog.getIdentifier().toString();
 		}
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;

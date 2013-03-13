@@ -42,12 +42,10 @@ import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -391,14 +389,13 @@ public class EpisodeRenderer implements IDisposable {
 				return;
 			}
 
-			Object key = getKey(items);
+			Object key = getIdentifier(items);
 			if (key == null) {
 				LOGGER.error(IEpisode.class.getSimpleName()
 						+ "s can currently only be rendered in "
 						+ Viewer.class.getSimpleName()
 						+ "s that display data from a single "
-						+ ID.class.getSimpleName() + " or "
-						+ Fingerprint.class.getSimpleName());
+						+ IIdentifier.class.getSimpleName());
 				return;
 			}
 
@@ -517,39 +514,32 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		/**
-		 * Returns the key ({@link ID} or {@link Fingerprint} contained in the
-		 * given {@link Item}.
+		 * Returns the key ({@link IIdentifier} contained in the given
+		 * {@link Item}.
 		 * 
 		 * @param items
 		 * @return null if no or more than one keys are contained
 		 */
-		public static Object getKey(List<Item> items) {
-			Object key = null;
+		public static Object getIdentifier(List<Item> items) {
+			IIdentifier identifier = null;
 			for (Item item : items) {
-				if (item.getData() instanceof HasID
-						|| item.getData() instanceof HasFingerprint) {
-					Object currentKey = item.getData() instanceof HasID
-							&& ((HasID) item.getData()).getID() != null ? ((HasID) item
-							.getData()).getID() : ((HasFingerprint) item
-							.getData()).getFingerprint();
-					if (key == null) {
-						key = currentKey;
-					} else if (!key.equals(currentKey)) {
+				if (item.getData() instanceof HasIdentifier) {
+					IIdentifier currentIdentifier = item.getData() instanceof HasIdentifier ? ((HasIdentifier) item
+							.getData()).getIdentifier() : null;
+					if (identifier == null) {
+						identifier = currentIdentifier;
+					} else if (!identifier.equals(currentIdentifier)) {
 						return null;
 					}
 				} else {
 					return null;
 				}
 			}
-			return key;
+			return identifier;
 		}
 
 		private Set<IEpisode> getEpisodes(Object key) {
-			if (key instanceof ID) {
-				return this.codeService.getEpisodes((ID) key);
-			} else {
-				return this.codeService.getEpisodes((Fingerprint) key);
-			}
+			return this.codeService.getEpisodes((IIdentifier) key);
 		}
 
 		/**

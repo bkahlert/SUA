@@ -83,23 +83,29 @@ class CodeStore implements ICodeStore {
 
 	public static ICodeStore load(File codeStoreFile)
 			throws CodeStoreReadException {
-		if (codeStoreFile == null || !codeStoreFile.exists())
+		if (codeStoreFile == null || !codeStoreFile.exists()) {
 			throw new CodeStoreReadException(new FileNotFoundException(
 					codeStoreFile.getAbsolutePath()));
+		}
 
 		try {
 			CodeStore codeStore = (CodeStore) xstream.fromXML(codeStoreFile);
 			codeStore.setCodeStoreFile(codeStoreFile);
-			if (codeStore.createdIds == null)
+			if (codeStore.createdIds == null) {
 				codeStore.createdIds = new TreeSet<Long>();
-			if (codeStore.codeTrees == null)
+			}
+			if (codeStore.codeTrees == null) {
 				codeStore.codeTrees = new LinkedList<TreeNode<ICode>>();
-			if (codeStore.codeInstances == null)
+			}
+			if (codeStore.codeInstances == null) {
 				codeStore.codeInstances = new HashSet<ICodeInstance>();
-			if (codeStore.memos == null)
+			}
+			if (codeStore.memos == null) {
 				codeStore.memos = new HashMap<Object, String>();
-			if (codeStore.episodes == null)
+			}
+			if (codeStore.episodes == null) {
 				codeStore.episodes = new NoNullSet<IEpisode>();
+			}
 
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -142,10 +148,12 @@ class CodeStore implements ICodeStore {
 		return codes.toArray(new ICode[0]);
 	}
 
+	@Override
 	public boolean codeExists(ICode code) {
-		for (TreeNode<ICode> codeTree : codeTrees) {
-			if (codeTree.find(code).size() > 0)
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			if (codeTree.find(code).size() > 0) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -191,7 +199,7 @@ class CodeStore implements ICodeStore {
 	 * @return
 	 */
 	protected TreeNode<ICode> assertiveFind(ICode code) {
-		List<TreeNode<ICode>> treeNodes = find(code);
+		List<TreeNode<ICode>> treeNodes = this.find(code);
 		assert treeNodes.size() < 2;
 		return treeNodes.size() == 0 ? null : treeNodes.get(0);
 	}
@@ -202,23 +210,25 @@ class CodeStore implements ICodeStore {
 		return (Set<ICodeInstance>) this.codeInstances.clone();
 	}
 
+	@Override
 	public ICode createCode(String caption, RGB color)
 			throws CodeStoreFullException {
 		Long id = Long.MAX_VALUE;
-		ArrayList<Long> ids = new ArrayList<Long>(codeTrees.size());
-		for (TreeNode<ICode> codeTree : codeTrees) {
+		ArrayList<Long> ids = new ArrayList<Long>(this.codeTrees.size());
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
 			for (ICode code : codeTree) {
-				if (code.getId() == Long.MAX_VALUE)
+				if (code.getId() == Long.MAX_VALUE) {
 					throw new CodeStoreFullException();
+				}
 				ids.add(code.getId());
 			}
 		}
-		ids.addAll(createdIds);
+		ids.addAll(this.createdIds);
 		id = Code.calculateId(ids);
-		createdIds.add(id);
+		this.createdIds.add(id);
 
 		ICode code = new Code(id, caption, color, new TimeZoneDate());
-		codeTrees.add(new TreeNode<ICode>(code));
+		this.codeTrees.add(new TreeNode<ICode>(code));
 		return code;
 	}
 
@@ -229,15 +239,16 @@ class CodeStore implements ICodeStore {
 		List<ICodeInstance> duplicateCodeInstances = new LinkedList<ICodeInstance>();
 		List<ICodeInstance> generatedCodeInstances = new LinkedList<ICodeInstance>();
 		for (ICode code : codes) {
-			if (assertiveFind(code) != null) {
+			if (this.assertiveFind(code) != null) {
 				for (ICodeable codeable : codeables) {
 					ICodeInstance codeInstance = new CodeInstance(code,
-							codeable.getUri(), new TimeZoneDate(
-									new Date(), TimeZone.getDefault()));
-					if (codeInstances.contains(codeInstance))
+							codeable.getUri(), new TimeZoneDate(new Date(),
+									TimeZone.getDefault()));
+					if (this.codeInstances.contains(codeInstance)) {
 						duplicateCodeInstances.add(codeInstance);
-					else
+					} else {
 						generatedCodeInstances.add(codeInstance);
+					}
 				}
 			} else {
 				throw new InvalidParameterException(
@@ -245,8 +256,9 @@ class CodeStore implements ICodeStore {
 								+ ICode.class.getSimpleName() + " for " + code);
 			}
 
-			if (duplicateCodeInstances.size() > 0)
+			if (duplicateCodeInstances.size() > 0) {
 				throw new DuplicateCodeInstanceException(duplicateCodeInstances);
+			}
 		}
 
 		return generatedCodeInstances.toArray(new ICodeInstance[0]);
@@ -264,12 +276,14 @@ class CodeStore implements ICodeStore {
 			throws CodeStoreWriteException {
 		List<ICodeInstance> abandondedCodeInstances = new LinkedList<ICodeInstance>();
 		for (ICodeInstance codeInstance : codeInstances) {
-			if (!this.codeExists(codeInstance.getCode()))
+			if (!this.codeExists(codeInstance.getCode())) {
 				abandondedCodeInstances.add(codeInstance);
+			}
 		}
-		if (abandondedCodeInstances.size() > 0)
+		if (abandondedCodeInstances.size() > 0) {
 			throw new CodeStoreWriteAbandonedCodeInstancesException(
 					abandondedCodeInstances);
+		}
 
 		for (ICodeInstance codeInstance : codeInstances) {
 			this.codeInstances.add(codeInstance);
@@ -278,9 +292,10 @@ class CodeStore implements ICodeStore {
 		this.save();
 	}
 
+	@Override
 	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeHasChildCodesException, CodeDoesNotExistException {
-		removeAndSaveCode(code, false);
+		this.removeAndSaveCode(code, false);
 	}
 
 	@Override
@@ -289,9 +304,11 @@ class CodeStore implements ICodeStore {
 			CodeDoesNotExistException {
 
 		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
-		for (ICodeInstance instance : this.codeInstances)
-			if (instance.getCode().equals(code))
+		for (ICodeInstance instance : this.codeInstances) {
+			if (instance.getCode().equals(code)) {
 				abandoned.add(instance);
+			}
+		}
 		if (deleteInstance) {
 			for (ICodeInstance instance : abandoned) {
 				this.codeInstances.remove(instance);
@@ -303,16 +320,19 @@ class CodeStore implements ICodeStore {
 
 		List<TreeNode<ICode>> codeNodes = this.find(code);
 		assert codeNodes.size() < 2;
-		if (codeNodes.size() == 0)
+		if (codeNodes.size() == 0) {
 			throw new CodeDoesNotExistException(code);
+		}
 
-		if (codeNodes.get(0).hasChildren())
+		if (codeNodes.get(0).hasChildren()) {
 			throw new CodeHasChildCodesException();
+		}
 
-		if (this.codeTrees.contains(codeNodes.get(0)))
+		if (this.codeTrees.contains(codeNodes.get(0))) {
 			this.codeTrees.remove(codeNodes.get(0));
-		else
+		} else {
 			codeNodes.get(0).removeFromParent();
+		}
 
 		this.setMemo(code, null);
 
@@ -328,7 +348,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public ICode getParent(ICode code) {
-		List<TreeNode<ICode>> foundNodes = find(code);
+		List<TreeNode<ICode>> foundNodes = this.find(code);
 		assert foundNodes.size() < 2;
 		if (foundNodes.size() == 1) {
 			TreeNode<ICode> parent = foundNodes.get(0).getParent();
@@ -340,21 +360,24 @@ class CodeStore implements ICodeStore {
 	@Override
 	public ICode setParent(ICode code, ICode parentCode)
 			throws CodeDoesNotExistException, CodeStoreWriteException {
-		TreeNode<ICode> childNode = assertiveFind(code);
+		TreeNode<ICode> childNode = this.assertiveFind(code);
 
-		if (childNode == null)
+		if (childNode == null) {
 			throw new CodeDoesNotExistException(code);
+		}
 
-		TreeNode<ICode> parentNode = assertiveFind(parentCode);
+		TreeNode<ICode> parentNode = this.assertiveFind(parentCode);
 		TreeNode<ICode> oldParentNode = childNode.getParent();
 
-		if (childNode == parentNode)
+		if (childNode == parentNode) {
 			throw new CodeStoreIntegrityProtectionException("Child node"
 					+ childNode + " can't be his own parent node");
-		if (childNode.isAncestorOf(childNode))
+		}
+		if (childNode.isAncestorOf(childNode)) {
 			throw new CodeStoreIntegrityProtectionException("Node" + childNode
 					+ " can't be made a child node of its current child node "
 					+ parentCode);
+		}
 
 		// TODO: Komplexe Schleife
 
@@ -374,14 +397,14 @@ class CodeStore implements ICodeStore {
 			this.codeTrees.add(childNode);
 		}
 
-		save();
+		this.save();
 		return (oldParentNode != null) ? oldParentNode.getData() : null;
 	}
 
 	@Override
 	public List<ICode> getChildren(ICode code) {
 		List<ICode> childCodes = new ArrayList<ICode>();
-		for (TreeNode<ICode> codeTree : codeTrees) {
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
 			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
 			assert foundNodes.size() < 2;
 			if (foundNodes.size() == 1) {
@@ -396,7 +419,7 @@ class CodeStore implements ICodeStore {
 	@Override
 	public List<ICode> getSubCodes(ICode code) {
 		List<ICode> subCodes = new ArrayList<ICode>();
-		for (TreeNode<ICode> codeTree : codeTrees) {
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
 			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
 			assert foundNodes.size() < 2;
 			if (foundNodes.size() == 1) {
@@ -412,7 +435,7 @@ class CodeStore implements ICodeStore {
 	public void save() throws CodeStoreWriteException {
 		try {
 			xstream.toXML(this, new OutputStreamWriter(new FileOutputStream(
-					codeStoreFile), "UTF-8"));
+					this.codeStoreFile), "UTF-8"));
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
@@ -421,12 +444,14 @@ class CodeStore implements ICodeStore {
 	@Override
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeInstanceDoesNotExistException, CodeStoreWriteException {
-		if (!this.codeInstances.contains(codeInstance))
+		if (!this.codeInstances.contains(codeInstance)) {
 			throw new CodeInstanceDoesNotExistException();
+		}
 		this.codeInstances.remove(codeInstance);
 		this.save();
 	}
 
+	@Override
 	public void deleteCodeInstances(ICode code) throws CodeStoreReadException,
 			CodeStoreWriteException {
 		for (Iterator<ICodeInstance> iter = this.codeInstances.iterator(); iter
@@ -447,11 +472,12 @@ class CodeStore implements ICodeStore {
 	protected File getMemoLocation(String basename) {
 		File file = new File(this.codeStoreFile.getParentFile(),
 				DigestUtils.md5Hex(basename) + ".memo.html");
-		if (file.exists())
+		if (file.exists()) {
 			return file;
-		else
+		} else {
 			return new File(this.codeStoreFile.getParentFile(), basename
 					+ ".memo.html");
+		}
 
 	}
 
@@ -463,8 +489,9 @@ class CodeStore implements ICodeStore {
 	 * @return
 	 */
 	protected static String getMemoBasename(ICode code) {
-		if (code == null)
+		if (code == null) {
 			throw new InvalidParameterException();
+		}
 		return "code_" + new Long(code.getId()).toString();
 	}
 
@@ -476,8 +503,9 @@ class CodeStore implements ICodeStore {
 	 * @return
 	 */
 	protected static String getMemoBasename(ICodeInstance codeInstance) {
-		if (codeInstance == null)
+		if (codeInstance == null) {
 			throw new InvalidParameterException();
+		}
 		try {
 			return "codeInstance_"
 					+ new Long(codeInstance.getCode().getId()).toString()
@@ -497,12 +525,12 @@ class CodeStore implements ICodeStore {
 	 * @return
 	 */
 	protected static String getMemoBasename(ICodeable codeable) {
-		if (codeable == null)
+		if (codeable == null) {
 			throw new InvalidParameterException();
+		}
 		try {
 			return "codeInstance_"
-					+ URLEncoder.encode(
-							codeable.getUri().toString(), "UTF-8");
+					+ URLEncoder.encode(codeable.getUri().toString(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
@@ -516,15 +544,16 @@ class CodeStore implements ICodeStore {
 	 * @throws IOException
 	 */
 	protected String loadMemo(String basename) throws IOException {
-		File memoFile = getMemoLocation(basename);
+		File memoFile = this.getMemoLocation(basename);
 		if (memoFile.exists()) {
 			try {
 				return FileUtils.readFileToString(memoFile, "UTF-8");
 			} catch (FileNotFoundException e) {
-				return loadMemo(DigestUtils.md5Hex(basename));
+				return this.loadMemo(DigestUtils.md5Hex(basename));
 			}
-		} else
+		} else {
 			return null;
+		}
 	}
 
 	/**
@@ -536,14 +565,14 @@ class CodeStore implements ICodeStore {
 	 * @throws IOException
 	 */
 	protected void saveMemo(String basename, String memo) throws IOException {
-		File memoFile = getMemoLocation(basename);
+		File memoFile = this.getMemoLocation(basename);
 		if ((memo == null || memo.trim().equals("")) && memoFile.exists()) {
 			memoFile.delete();
 		} else {
 			try {
 				FileUtils.writeStringToFile(memoFile, memo, "UTF-8");
 			} catch (FileNotFoundException e) {
-				saveMemo(DigestUtils.md5Hex(basename), memo);
+				this.saveMemo(DigestUtils.md5Hex(basename), memo);
 			}
 		}
 	}
@@ -552,51 +581,58 @@ class CodeStore implements ICodeStore {
 	public String getMemo(ICode code) {
 		String memo = null;
 		try {
-			memo = loadMemo(getMemoBasename(code));
+			memo = this.loadMemo(getMemoBasename(code));
 		} catch (IOException e) {
 			logger.error("Error reading memo for " + code);
 		}
-		if (memo == null)
-			return this.memos.get(code);
-		else
+		if (memo == null) {
+			return this.memos != null ? this.memos.get(code) : null;
+		} else {
 			return memo;
+		}
 	}
 
 	@Override
 	public String getMemo(ICodeInstance codeInstance) {
 		String memo = null;
 		try {
-			memo = loadMemo(getMemoBasename(codeInstance));
+			memo = this.loadMemo(getMemoBasename(codeInstance));
 		} catch (IOException e) {
 			logger.error("Error reading memo for " + codeInstance);
 		}
-		if (memo == null)
-			return this.memos.get(codeInstance);
-		else
+		if (memo == null) {
+			return this.memos != null ? this.memos.get(codeInstance) : null;
+		} else {
 			return memo;
+		}
 	}
 
+	@Override
 	public String getMemo(ICodeable codeable) {
 		String memo = null;
 		try {
-			memo = loadMemo(getMemoBasename(codeable));
+			memo = this.loadMemo(getMemoBasename(codeable));
 		} catch (IOException e) {
 			logger.error("Error reading memo for " + codeable);
 		}
-		if (memo == null)
-			return this.memos.get(codeable.getUri());
-		else
+		if (memo == null) {
+			return this.memos != null ? this.memos.get(codeable.getUri())
+					: null;
+		} else {
 			return memo;
+		}
 	};
 
 	@Override
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException {
 		try {
-			saveMemo(getMemoBasename(code), html);
+			this.saveMemo(getMemoBasename(code), html);
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
-		this.memos.remove(code);
+		if (this.memos != null) {
+			this.memos.remove(code);
+		}
 		this.save();
 	}
 
@@ -604,22 +640,27 @@ class CodeStore implements ICodeStore {
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException {
 		try {
-			saveMemo(getMemoBasename(codeInstance), html);
+			this.saveMemo(getMemoBasename(codeInstance), html);
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
-		this.memos.remove(codeInstance);
+		if (this.memos != null) {
+			this.memos.remove(codeInstance);
+		}
 		this.save();
 	}
 
+	@Override
 	public void setMemo(ICodeable codeable, String html)
 			throws CodeStoreWriteException {
 		try {
-			saveMemo(getMemoBasename(codeable), html);
+			this.saveMemo(getMemoBasename(codeable), html);
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
-		this.memos.remove(codeable.getUri());
+		if (this.memos != null) {
+			this.memos.remove(codeable.getUri());
+		}
 		this.save();
 	}
 

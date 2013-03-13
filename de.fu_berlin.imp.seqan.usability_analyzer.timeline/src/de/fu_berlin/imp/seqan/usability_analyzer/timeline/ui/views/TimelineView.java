@@ -47,12 +47,10 @@ import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
@@ -76,7 +74,7 @@ public class TimelineView extends ViewPart {
 			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
 			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
 			if (part == TimelineView.this) {
-				if (TimelineView.this.openedKeys == null) {
+				if (TimelineView.this.openedIdentifiers == null) {
 					return;
 				}
 
@@ -85,7 +83,7 @@ public class TimelineView extends ViewPart {
 				List<HasDateRange> ranges = SelectionRetrieverFactory
 						.getSelectionRetriever(HasDateRange.class)
 						.getSelection();
-				for (Object key : TimelineView.this.openedKeys) {
+				for (Object key : TimelineView.this.openedIdentifiers) {
 					List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
 					for (HasDateRange range : ranges) {
 						if (range.getClass().getSimpleName().toLowerCase()
@@ -97,12 +95,10 @@ public class TimelineView extends ViewPart {
 					groupedDateRanges.put(key, dateRanges);
 				}
 			} else {
-				groupedDateRanges.putAll(IdDateRange
+				// TODO elemente wirklich markieren
+				groupedDateRanges.putAll(IdentifierDateRange
 						.group(SelectionRetrieverFactory.getSelectionRetriever(
-								IdDateRange.class).getSelection()));
-				groupedDateRanges.putAll(FingerprintDateRange
-						.group(SelectionRetrieverFactory.getSelectionRetriever(
-								FingerprintDateRange.class).getSelection()));
+								IdentifierDateRange.class).getSelection()));
 
 				for (Object key : groupedDateRanges.keySet()) {
 					TimeZoneDate centeredDate = TimeZoneDateRange
@@ -144,13 +140,14 @@ public class TimelineView extends ViewPart {
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 
-		private Set<Object> filterValidKeys(Set<Object> keys) {
-			Set<Object> filteredKeys = new HashSet<Object>();
-			keyLoop: for (Object key : keys) {
+		private Set<IIdentifier> filterValidIdentifiers(
+				Set<IIdentifier> identifiers) {
+			Set<IIdentifier> filteredKeys = new HashSet<IIdentifier>();
+			identifierLoop: for (IIdentifier key : identifiers) {
 				for (ITimelineBandProvider timelineBandProvider : Activator
 						.getRegisteredTimelineBandProviders()) {
 					if (!timelineBandProvider.getContentProvider().isValid(key)) {
-						continue keyLoop;
+						continue identifierLoop;
 					}
 				}
 				filteredKeys.add(key);
@@ -160,12 +157,11 @@ public class TimelineView extends ViewPart {
 
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			final Set<Object> keys = new HashSet<Object>();
+			final Set<IIdentifier> keys = new HashSet<IIdentifier>();
 			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), ID.class));
-			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), Fingerprint.class));
-			final Set<Object> filteredKeys = this.filterValidKeys(keys);
+					.getEntities().toArray(), IIdentifier.class));
+			final Set<IIdentifier> filteredKeys = this
+					.filterValidIdentifiers(keys);
 			TimelineView.this.open(filteredKeys);
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
@@ -180,7 +176,7 @@ public class TimelineView extends ViewPart {
 	private TimelineGroup<ITimeline> timelineGroup;
 	private HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline> timelineGroupViewer;
 
-	private Set<Object> openedKeys = null;
+	private Set<IIdentifier> openedIdentifiers = null;
 
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
@@ -198,20 +194,20 @@ public class TimelineView extends ViewPart {
 	 * {@link DecoratableTimeline} s will be created if necessary. If free
 	 * {@link DecoratableTimeline}s stay unused they will be disposed.
 	 * 
-	 * @param openedKeys
+	 * @param openedIdentifiers
 	 */
-	public void open(final Set<Object> keys) {
+	public void open(final Set<IIdentifier> identifiers) {
 		if (this.timelineLoader != null) {
 			this.timelineLoader.cancel();
 		}
 
-		this.openedKeys = keys;
+		this.openedIdentifiers = identifiers;
 
 		this.timelineLoader = new Job("Loading "
 				+ ITimeline.class.getSimpleName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				TimelineView.this.timelineGroupViewer.setInput(keys);
+				TimelineView.this.timelineGroupViewer.setInput(identifiers);
 				TimelineView.this.timelineGroupViewer.refresh(monitor);
 				monitor.done();
 				return Status.OK_STATUS;

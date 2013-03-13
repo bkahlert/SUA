@@ -7,10 +7,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
 public class StatsFileManager {
@@ -36,16 +38,17 @@ public class StatsFileManager {
 			List<StatsFile> statsFiles = new ArrayList<StatsFile>();
 			user: for (IDataContainer userContainer : diffFileContainer
 					.getSubContainers()) {
-				if (!ID.isValid(userContainer.getName())) {
+				if (IdentifierFactory.createFrom(userContainer.getName()) == null) {
 					LOGGER.warn("Directory with invalid "
-							+ ID.class.getSimpleName() + " name detected: "
-							+ diffFileContainer.toString());
+							+ IIdentifier.class.getSimpleName()
+							+ " name detected: " + diffFileContainer.toString());
 					continue;
 				}
 
 				for (IData stats : userContainer.getResources()) {
-					if (!StatsFile.PATTERN.matcher(stats.getName()).matches())
+					if (!StatsFile.PATTERN.matcher(stats.getName()).matches()) {
 						continue;
+					}
 					try {
 						statsFiles.add(new StatsFile(stats));
 						continue user;
@@ -68,8 +71,9 @@ public class StatsFileManager {
 	 */
 	public List<StatsFile> getStatsFiles() {
 		List<StatsFile> statsFiles = new ArrayList<StatsFile>();
-		for (List<StatsFile> sf : this.statsFiles.values())
+		for (List<StatsFile> sf : this.statsFiles.values()) {
 			statsFiles.addAll(sf);
+		}
 		return statsFiles;
 	}
 

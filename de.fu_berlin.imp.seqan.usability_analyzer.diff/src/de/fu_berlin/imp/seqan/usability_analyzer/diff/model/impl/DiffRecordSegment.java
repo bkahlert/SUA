@@ -5,8 +5,8 @@ import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 
@@ -34,11 +34,11 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 * 
 	 * @see
 	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment
-	 * #getID()
+	 * #getIdentifier()
 	 */
 	@Override
-	public ID getID() {
-		return this.diffRecord.getID();
+	public IIdentifier getIdentifier() {
+		return this.diffRecord.getIdentifier();
 	}
 
 	/*
@@ -63,8 +63,8 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	@Override
 	public URI getUri() {
 		try {
-			return new URI(diffRecord.getUri().toString() + "#"
-					+ segmentStart + "+" + segmentEnd);
+			return new URI(this.diffRecord.getUri().toString() + "#"
+					+ this.segmentStart + "+" + this.segmentEnd);
 		} catch (URISyntaxException e) {
 			LOGGER.fatal(
 					"Could not create ID for a "
@@ -82,7 +82,7 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 */
 	@Override
 	public IDiffRecord getDiffFileRecord() {
-		return diffRecord;
+		return this.diffRecord;
 	}
 
 	/*
@@ -94,7 +94,7 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 */
 	@Override
 	public long getSegmentStart() {
-		return segmentStart;
+		return this.segmentStart;
 	}
 
 	/*
@@ -106,7 +106,7 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 */
 	@Override
 	public long getSegmentLength() {
-		return segmentEnd;
+		return this.segmentEnd;
 	}
 
 }

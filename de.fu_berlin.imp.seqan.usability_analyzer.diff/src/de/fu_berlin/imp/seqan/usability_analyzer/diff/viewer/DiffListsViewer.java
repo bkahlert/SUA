@@ -27,9 +27,9 @@ import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -55,11 +55,11 @@ public class DiffListsViewer extends SortableTreeViewer {
 		parent.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				resources.dispose();
+				DiffListsViewer.this.resources.dispose();
 			}
 		});
 
-		initColumns(dateFormat, timeDifferenceFormat);
+		this.initColumns(dateFormat, timeDifferenceFormat);
 
 		final ISelectionRetriever<ICodeable> codeableRetriever = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeable.class);
@@ -69,6 +69,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				.getTransfer() };
 		this.addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
+					@Override
 					public void dragStart(DragSourceEvent event) {
 						boolean episodeRendererActive = DiffListsViewer.this
 								.getControl().getData(
@@ -86,6 +87,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 						}
 					};
 
+					@Override
 					public void dragSetData(DragSourceEvent event) {
 						if (LocalSelectionTransfer.getTransfer()
 								.isSupportedType(event.dataType)) {
@@ -94,6 +96,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 						}
 					}
 
+					@Override
 					public void dragFinished(DragSourceEvent event) {
 						LocalSelectionTransfer.getTransfer().setSelection(null);
 						LocalSelectionTransfer.getTransfer()
@@ -117,11 +120,12 @@ public class DiffListsViewer extends SortableTreeViewer {
 						// to provide more detailed information
 						if (element instanceof IDiffs) {
 							IDiffs diffList = (IDiffs) element;
-							ID id = null;
+							IIdentifier identifier = null;
 							if (diffList.length() > 0) {
-								id = diffList.get(0).getID();
+								identifier = diffList.get(0).getIdentifier();
 							}
-							return (id != null) ? id.toString() : "";
+							return (identifier != null) ? identifier.toString()
+									: "";
 						}
 						if (element instanceof IDiff) {
 							Diff diff = (Diff) element;
@@ -140,7 +144,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(Object element) {
-						return diffLabelProvider.getImage(element);
+						return this.diffLabelProvider.getImage(element);
 					}
 				});
 
@@ -158,8 +162,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 					public int compare(Object arg0, Object arg1) {
 						Long l1 = (Long) arg0;
 						Long l2 = (Long) arg1;
-						if (l1 != null)
+						if (l1 != null) {
 							return l1.compareTo(l2);
+						}
 						return 0;
 					}
 				}, new Class<?>[] { Long.class });
@@ -240,17 +245,19 @@ public class DiffListsViewer extends SortableTreeViewer {
 					public Color getBackground(Object element) {
 						if (element instanceof IDiff) {
 							IDiff diff = (IDiff) element;
-							RGB backgroundRgb = diff.sourcesExist() ? preferenceUtil
-									.getColorOk() : preferenceUtil
+							RGB backgroundRgb = diff.sourcesExist() ? this.preferenceUtil
+									.getColorOk() : this.preferenceUtil
 									.getColorMissing();
-							return resources.createColor(backgroundRgb);
+							return DiffListsViewer.this.resources
+									.createColor(backgroundRgb);
 						}
 						if (element instanceof IDiffRecord) {
 							IDiffRecord diffRecord = (IDiffRecord) element;
-							RGB backgroundRgb = diffRecord.sourceExists() ? preferenceUtil
-									.getColorOk() : preferenceUtil
+							RGB backgroundRgb = diffRecord.sourceExists() ? this.preferenceUtil
+									.getColorOk() : this.preferenceUtil
 									.getColorMissing();
-							return resources.createColor(backgroundRgb);
+							return DiffListsViewer.this.resources
+									.createColor(backgroundRgb);
 						}
 						return null;
 					}
@@ -275,8 +282,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 						}
 						TimeZoneDate date = range != null ? range
 								.getStartDate() : null;
-						return date != null ? date.format(preferenceUtil
-								.getDateFormat()) : "";
+						return date != null ? date
+								.format(DiffListsViewer.this.preferenceUtil
+										.getDateFormat()) : "";
 					}
 				});
 		this.createColumn("End", 175).setLabelProvider(
@@ -298,8 +306,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 						}
 						TimeZoneDate date = range != null ? range.getEndDate()
 								: null;
-						return date != null ? date.format(preferenceUtil
-								.getDateFormat()) : "";
+						return date != null ? date
+								.format(DiffListsViewer.this.preferenceUtil
+										.getDateFormat()) : "";
 					}
 				});
 	}

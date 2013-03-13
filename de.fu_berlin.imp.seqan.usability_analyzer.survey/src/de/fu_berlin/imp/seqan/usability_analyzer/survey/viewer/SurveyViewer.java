@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model.SurveyRecordItem;
 
@@ -25,11 +25,11 @@ public class SurveyViewer extends SortableTreeViewer {
 		parent.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				resources.dispose();
+				SurveyViewer.this.resources.dispose();
 			}
 		});
 
-		initColumns();
+		this.initColumns();
 	}
 
 	private void initColumns() {
@@ -40,10 +40,13 @@ public class SurveyViewer extends SortableTreeViewer {
 					public String getText(Object element) {
 						if (element instanceof SurveyRecord) {
 							SurveyRecord surveyRecord = (SurveyRecord) element;
-							ID id = surveyRecord.getID();
+							IIdentifier identifier = surveyRecord
+									.getID();
 							Token token = surveyRecord.getToken();
-							return "ID: "
-									+ ((id != null) ? id.toString() : "-")
+							return IIdentifier.class.getSimpleName()
+									+ ": "
+									+ ((identifier != null) ? identifier
+											.toString() : "-")
 									+ ", Token: "
 									+ ((token != null) ? token.toString() : "-");
 						}

@@ -12,9 +12,9 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 
 public class SurveyRecord {
@@ -34,7 +34,7 @@ public class SurveyRecord {
 		assert keys.length == values.length;
 		this.keys = new ArrayList<String>(Arrays.asList(keys));
 		this.values = new ArrayList<String>(Arrays.asList(values));
-		scanRecord();
+		this.scanRecord();
 	}
 
 	private void scanRecord() {
@@ -50,9 +50,8 @@ public class SurveyRecord {
 				}
 				this.date = new TimeZoneDate(date, timeZone);
 			} catch (ParseException e) {
-				logger.warn(
-						"Could not parse date from "
-								+ SurveyRecord.class.getSimpleName(), e);
+				this.logger.warn("Could not parse date from "
+						+ SurveyRecord.class.getSimpleName(), e);
 			}
 		}
 	}
@@ -74,10 +73,11 @@ public class SurveyRecord {
 	 */
 	public String getField(String key) {
 		int idx = this.keys.indexOf(key);
-		if (idx >= 0)
+		if (idx >= 0) {
 			return this.values.get(idx);
-		else
+		} else {
 			return null;
+		}
 	}
 
 	public TimeZoneDate getDate() {
@@ -112,8 +112,10 @@ public class SurveyRecord {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((keys == null) ? 0 : keys.hashCode());
-		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		result = prime * result
+				+ ((this.keys == null) ? 0 : this.keys.hashCode());
+		result = prime * result
+				+ ((this.values == null) ? 0 : this.values.hashCode());
 		return result;
 	}
 
@@ -124,23 +126,30 @@ public class SurveyRecord {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof SurveyRecord))
+		}
+		if (!(obj instanceof SurveyRecord)) {
 			return false;
+		}
 		SurveyRecord other = (SurveyRecord) obj;
-		if (keys == null) {
-			if (other.keys != null)
+		if (this.keys == null) {
+			if (other.keys != null) {
 				return false;
-		} else if (!keys.equals(other.keys))
+			}
+		} else if (!this.keys.equals(other.keys)) {
 			return false;
-		if (values == null) {
-			if (other.values != null)
+		}
+		if (this.values == null) {
+			if (other.values != null) {
 				return false;
-		} else if (!values.equals(other.values))
+			}
+		} else if (!this.values.equals(other.values)) {
 			return false;
+		}
 		return true;
 	}
 

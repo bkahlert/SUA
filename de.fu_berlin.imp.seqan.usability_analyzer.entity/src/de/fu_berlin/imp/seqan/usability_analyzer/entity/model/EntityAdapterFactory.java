@@ -4,16 +4,19 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class EntityAdapterFactory implements IAdapterFactory {
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { ID.class, Fingerprint.class, SurveyRecord.class };
+		return new Class[] { IIdentifier.class, ID.class, Fingerprint.class,
+				SurveyRecord.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -21,8 +24,11 @@ public class EntityAdapterFactory implements IAdapterFactory {
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof Entity) {
 			Entity entity = (Entity) adaptableObject;
+			if (adapterType == IIdentifier.class) {
+				return entity.getIdentifier();
+			}
 			if (adapterType == ID.class) {
-				return entity.getID();
+				return entity.getId();
 			}
 			if (adapterType == Fingerprint.class) {
 				List<Fingerprint> fingerprints = entity.getFingerprints();

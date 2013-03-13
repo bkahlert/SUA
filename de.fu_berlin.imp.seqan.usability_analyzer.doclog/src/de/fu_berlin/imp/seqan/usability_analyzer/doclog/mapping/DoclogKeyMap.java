@@ -20,9 +20,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.JAXBUtils;
 
 @XmlRootElement(namespace = "de.fu_berlin.imp.seqan.usability_analyzer.srv")
@@ -127,7 +128,7 @@ public class DoclogKeyMap {
 		}
 	}
 
-	synchronized public ID getID(Fingerprint fingerprint) {
+	synchronized public IIdentifier getID(Fingerprint fingerprint) {
 		return this.map.get(fingerprint);
 	}
 

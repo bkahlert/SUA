@@ -1,14 +1,15 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class FinterprintAlreadyMappedException extends Exception {
 
 	private static final long serialVersionUID = -3973751907072660227L;
-	private Fingerprint fingerprint;
-	private ID oldID;
-	private ID newID;
+	private IIdentifier fingerprint;
+	private IIdentifier oldID;
+	private IIdentifier newID;
 
 	public FinterprintAlreadyMappedException(Fingerprint fingerprint, ID oldID,
 			ID newID) {
@@ -22,15 +23,15 @@ public class FinterprintAlreadyMappedException extends Exception {
 		this.newID = newID;
 	}
 
-	public Fingerprint getFingerprint() {
-		return fingerprint;
+	public IIdentifier getFingerprint() {
+		return this.fingerprint;
 	}
 
-	public ID getOldID() {
-		return oldID;
+	public IIdentifier getOldID() {
+		return this.oldID;
 	}
 
-	public ID getNewID() {
-		return newID;
+	public IIdentifier getNewID() {
+		return this.newID;
 	}
 }

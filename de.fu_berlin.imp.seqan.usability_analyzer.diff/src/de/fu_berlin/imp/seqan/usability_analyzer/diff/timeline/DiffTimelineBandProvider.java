@@ -22,9 +22,9 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -54,8 +54,9 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			private ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
 				public void clicked(TimelineEvent event) {
-					if (!(event.getSource() instanceof IOpenable))
+					if (!(event.getSource() instanceof IOpenable)) {
 						return;
+					}
 					IOpenable openable = (IOpenable) event.getSource();
 					openable.open();
 				}
@@ -74,19 +75,21 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 						newInput);
 
 				if (this.timelineGroup != null) {
-					this.timelineGroup.removeTimelineListener(timelineListener);
+					this.timelineGroup
+							.removeTimelineListener(this.timelineListener);
 				}
 				if (viewer != null
 						&& viewer.getControl() instanceof ITimelineGroup) {
 					this.timelineGroup = (ITimelineGroup<?>) viewer
 							.getControl();
-					this.timelineGroup.addTimelineListener(timelineListener);
+					this.timelineGroup
+							.addTimelineListener(this.timelineListener);
 				}
 			}
 
 			@Override
 			public boolean isValid(Object key) {
-				if (key instanceof ID) {
+				if (key instanceof IIdentifier) {
 					return Activator.getDefault().getDiffDataContainer()
 							.getIDs().contains(key);
 				}
@@ -106,9 +109,11 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 					return new Object[0];
 				}
 
-				final IDiffs diffList = (this.input instanceof ID) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
-						.getDefault().getDiffDataContainer()
-						.getDiffFiles((ID) this.input, subMonitor.newChild(1))
+				final IDiffs diffList = (this.input instanceof IIdentifier) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+						.getDefault()
+						.getDiffDataContainer()
+						.getDiffFiles((IIdentifier) this.input,
+								subMonitor.newChild(1))
 						: null;
 
 				switch ((BANDS) band) {
@@ -187,14 +192,15 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public String getTitle(Object event) {
-				return diffLabelProvider.getText(event);
+				return this.diffLabelProvider.getText(event);
 			}
 
 			@Override
 			public URI getIcon(Object event) {
-				Image image = diffLabelProvider.getImage(event);
-				if (image != null)
+				Image image = this.diffLabelProvider.getImage(event);
+				if (image != null) {
 					return TimelineHelper.createUriFromImage(image);
+				}
 				return null;
 			}
 
@@ -241,7 +247,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 				if (event instanceof IDiff) {
 					IDiff diff = (IDiff) event;
 					try {
-						for (ICode code : codeService.getCodes(diff)) {
+						for (ICode code : this.codeService.getCodes(diff)) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {
@@ -251,7 +257,7 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 				if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					try {
-						for (ICode code : codeService.getCodes(diffRecord)) {
+						for (ICode code : this.codeService.getCodes(diffRecord)) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

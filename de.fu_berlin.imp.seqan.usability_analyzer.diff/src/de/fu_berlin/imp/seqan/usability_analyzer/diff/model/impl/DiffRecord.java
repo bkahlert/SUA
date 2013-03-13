@@ -12,9 +12,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -63,10 +63,10 @@ public class DiffRecord implements IDiffRecord {
 		this.patchStart = contentStart;
 		this.patchEnd = contentEnd;
 
-		getSource(); // implicitly patches
+		this.getSource(); // implicitly patches
 		if (patchFailed.contains(this)) {
 			LOGGER.warn("Failed to patch " + originalSource + " of "
-					+ diff.getID());
+					+ diff.getIdentifier());
 		}
 	}
 
@@ -79,8 +79,8 @@ public class DiffRecord implements IDiffRecord {
 	@Override
 	public URI getUri() {
 		try {
-			return new URI(this.getDiffFile().getUri().toString()
-					+ "/" + URLEncoder.encode(meta.getToFileName(), "UTF-8"));
+			return new URI(this.getDiffFile().getUri().toString() + "/"
+					+ URLEncoder.encode(this.meta.getToFileName(), "UTF-8"));
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "
@@ -92,12 +92,12 @@ public class DiffRecord implements IDiffRecord {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#getID()
+	 * @see de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord#
+	 * getIdentifier()
 	 */
 	@Override
-	public ID getID() {
-		return this.diff.getID();
+	public IIdentifier getIdentifier() {
+		return this.diff.getIdentifier();
 	}
 
 	/*
@@ -109,7 +109,7 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public IDiff getDiffFile() {
-		return diff;
+		return this.diff;
 	}
 
 	/*
@@ -120,7 +120,7 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public String getCommandLine() {
-		return commandLine;
+		return this.commandLine;
 	}
 
 	/*
@@ -183,8 +183,8 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public File getSourceFile() throws IOException {
-		return this.sourceCache.getSourceFile(diff.getID(), diff.getRevision(),
-				this.meta.getToFileName());
+		return this.sourceCache.getSourceFile(this.diff.getIdentifier(),
+				this.diff.getRevision(), this.meta.getToFileName());
 	}
 
 	/*
@@ -197,7 +197,7 @@ public class DiffRecord implements IDiffRecord {
 	@Override
 	public boolean sourceExists() {
 		try {
-			File sourceFile = getSourceFile();
+			File sourceFile = this.getSourceFile();
 			return sourceFile != null && sourceFile.exists();
 		} catch (IOException e) {
 			LOGGER.error(e);
@@ -260,21 +260,23 @@ public class DiffRecord implements IDiffRecord {
 					// user emptied file
 				} else {
 					String lastLine = newSource.get(newSource.size() - 1);
-					if (lastLine.equals(""))
+					if (lastLine.equals("")) {
 						newSource.remove(newSource.size() - 1);
+					}
 					if (newSource.size() > 0
 							&& newSource.get(newSource.size() - 1).endsWith(
-									"\n"))
+									"\n")) {
 						newSource.get(newSource.size() - 1).replace("\n$", "");
+					}
 				}
 				this.setAndPersistSource(newSource);
-				LOGGER.info("Successfully patched " + diff.getID() + ", "
-						+ getFilename());
+				LOGGER.info("Successfully patched " + this.diff.getIdentifier()
+						+ ", " + this.getFilename());
 				return StringUtils.join(newSource, "\n");
 			} catch (Exception e) {
-				String filename = getFilename();
-				LOGGER.warn("Could not patch ID: " + diff.getID() + ", "
-						+ filename, e);
+				String filename = this.getFilename();
+				LOGGER.warn("Could not patch ID: " + this.diff.getIdentifier()
+						+ ", " + filename, e);
 				patchFailed.add(this);
 				return null;
 			}
@@ -292,8 +294,8 @@ public class DiffRecord implements IDiffRecord {
 		try {
 			File tmp = File.createTempFile("source", ".tmp");
 			FileUtils.write(tmp, sourceString);
-			this.sourceCache.setSourceFile(diff.getID(), diff.getRevision(),
-					this.meta.getToFileName(), tmp);
+			this.sourceCache.setSourceFile(this.diff.getIdentifier(),
+					this.diff.getRevision(), this.meta.getToFileName(), tmp);
 		} catch (IOException e) {
 			LOGGER.error(
 					"Could not write source file for "
@@ -310,7 +312,7 @@ public class DiffRecord implements IDiffRecord {
 	@Override
 	public IDiffRecord getPredecessor() {
 		if (this.predecessor == null) {
-			String filename = getFilename();
+			String filename = this.getFilename();
 			IDiff prevDiffFile = this.getDiffFile().getPrevDiffFile();
 			outer: while (prevDiffFile != null) {
 				for (IDiffRecord diffRecord : prevDiffFile.getDiffFileRecords()) {

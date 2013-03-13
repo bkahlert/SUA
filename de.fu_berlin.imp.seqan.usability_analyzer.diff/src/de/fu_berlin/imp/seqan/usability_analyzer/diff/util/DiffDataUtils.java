@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
@@ -16,16 +16,18 @@ public class DiffDataUtils {
 	public static ID getId(IData diffFile) {
 		ID id = null;
 		Matcher matcher = Diff.PATTERN.matcher(diffFile.getName());
-		if (matcher.find())
+		if (matcher.find()) {
 			id = new ID(matcher.group(1));
+		}
 		return id;
 	}
 
 	public static Long getRevision(IData data) {
 		String revision = null;
 		Matcher matcher = Diff.PATTERN.matcher(data.getName());
-		if (matcher.find())
+		if (matcher.find()) {
 			revision = matcher.group(2);
+		}
 		try {
 			return Long.parseLong(revision);
 		} catch (NumberFormatException e) {

@@ -19,13 +19,15 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
@@ -39,11 +41,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
 /**
  * Instances of this class represent {@link IDataContainer}s that contain
- * {@link Diff}s.
+ * {@link IDiff}s.
  * <p>
- * For each class of {@link Diff}s a sub {@link IDataContainer} with a valid
- * {@link ID} as its name must exist. Each of those sub {@link IDataContainer}
- * contains the {@link Diff}s belonging to this {@link ID}.
+ * For each class of {@link IDiff}s a sub {@link IDataContainer} with a valid
+ * {@link IIdentifier} as its name must exist. Each of those sub
+ * {@link IDataContainer} contains the {@link IDiff}s belonging to this
+ * {@link IIdentifier}.
  * 
  * @author bkahlert
  * 
@@ -59,8 +62,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
-	 * names (see {@link ID#isValid(String)}) and maps all containing files
-	 * their corresponding {@link ID}.
+	 * names (see {@link IIdentifier#isValid(String)}) and maps all containing
+	 * files their corresponding {@link IIdentifier}.
 	 * 
 	 * @param diffContainer
 	 * @return
@@ -70,19 +73,21 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		Map<ID, DataList> rawFiles = new HashMap<ID, DataList>();
 		for (IDataContainer diffFileDir : diffContainer.getDiffFileDirectory()
 				.getSubContainers()) {
-			if (!ID.isValid(diffFileDir.getName())) {
+			if (IdentifierFactory.createFrom(diffFileDir.getName()) == null) {
 				LOGGER.warn("Directory with invalid "
-						+ ID.class.getSimpleName() + " name detected: "
-						+ diffFileDir.toString());
+						+ IIdentifier.class.getSimpleName()
+						+ " name detected: " + diffFileDir.toString());
 				continue;
 			}
 
 			for (IData diffFile : diffFileDir.getResources()) {
-				if (!Diff.PATTERN.matcher(diffFile.getName()).matches())
+				if (!Diff.PATTERN.matcher(diffFile.getName()).matches()) {
 					continue;
+				}
 				ID id = DiffDataUtils.getId(diffFile);
-				if (!rawFiles.containsKey(id))
+				if (!rawFiles.containsKey(id)) {
 					rawFiles.put(id, new DataList());
+				}
 				rawFiles.get(id).add(diffFile);
 			}
 		}
@@ -144,12 +149,13 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 				this.dataLists.size());
 
 		long size = 0;
-		final HashMap<ID, Long> sizes = new HashMap<ID, Long>();
-		for (ID id : this.dataLists.keySet()) {
+		final HashMap<IIdentifier, Long> sizes = new HashMap<IIdentifier, Long>();
+		for (IIdentifier identifier : this.dataLists.keySet()) {
 			long fileListSize = 0;
-			for (IData file : this.dataLists.get(id))
+			for (IData file : this.dataLists.get(identifier)) {
 				fileListSize += file.getLength();
-			sizes.put(id, fileListSize);
+			}
+			sizes.put(identifier, fileListSize);
 			size += fileListSize;
 		}
 
@@ -159,14 +165,16 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 				new ParametrizedCallable<ID, Integer>() {
 					@Override
 					public Integer call(ID id) throws Exception {
-						final DataList dataList = dataLists.get(id);
+						final DataList dataList = DiffContainer.this.dataLists
+								.get(id);
 
 						final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
 
 						sortDiffFiles(dataList, cachingDiffFileComparator);
 						TimeZoneDateRange dateRange = calculateDateRange(dataList);
-						synchronized (fileDateRanges) {
-							fileDateRanges.put(id, dateRange);
+						synchronized (DiffContainer.this.fileDateRanges) {
+							DiffContainer.this.fileDateRanges
+									.put(id, dateRange);
 						}
 
 						return (int) (sizes.get(id) / 1000l);
@@ -186,12 +194,13 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns a list of all {@link ID}s occurring in the managed {@link Diff}s.
+	 * Returns a list of all {@link IIdentifier}s occurring in the managed
+	 * {@link Diff}s.
 	 * 
 	 * @return
 	 */
 	public Set<ID> getIDs() {
-		scanIfNecessary(null);
+		this.scanIfNecessary(null);
 		return this.dataLists.keySet();
 	}
 
@@ -202,8 +211,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * @param id
 	 * @return
 	 */
-	public TimeZoneDateRange getDateRange(ID id) {
-		scanIfNecessary(null);
+	public TimeZoneDateRange getDateRange(IIdentifier id) {
+		this.scanIfNecessary(null);
 		return this.fileDateRanges.get(id);
 	}
 
@@ -212,7 +221,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	}
 
 	/**
-	 * Returns all {@link Diff}s associated with a given {@link ID}.
+	 * Returns all {@link Diff}s associated with a given {@link IIdentifier}.
 	 * <p>
 	 * If the {@link Diffs} is already in the cached the cached version is
 	 * returned. Otherwise a new {@link Diffs} is constructed and added to the
@@ -224,31 +233,32 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * 
 	 * @see DiffCache
 	 */
-	public IDiffs getDiffFiles(ID id, IProgressMonitor progressMonitor) {
-		return diffCache.getPayload(id, progressMonitor);
+	public IDiffs getDiffFiles(IIdentifier id, IProgressMonitor progressMonitor) {
+		return this.diffCache.getPayload(id, progressMonitor);
 	}
 
 	/**
-	 * Returns all {@link Diff}s associated with a given {@link ID}.
+	 * Returns all {@link IDiff}s associated with a given {@link IIdentifier}.
 	 * <p>
-	 * In contrast to {@link #getDiffFiles(ID, IProgressMonitor)} this method
-	 * always creates the objects anew and does not use any caching
+	 * In contrast to {@link #getDiffFiles(IIdentifier, IProgressMonitor)} this
+	 * method always creates the objects anew and does not use any caching
 	 * functionality.
 	 * 
-	 * @param id
+	 * @param identifier
 	 * @param progressMonitor
 	 * @return
 	 */
-	public IDiffs createDiffFiles(ID id, IProgressMonitor progressMonitor) {
-		scanIfNecessary(SubMonitor.convert(progressMonitor));
-		IDiffs diffFiles = DiffRecords.create(this.dataLists.get(id),
+	public IDiffs createDiffFiles(IIdentifier identifier,
+			IProgressMonitor progressMonitor) {
+		this.scanIfNecessary(SubMonitor.convert(progressMonitor));
+		IDiffs diffFiles = DiffRecords.create(this.dataLists.get(identifier),
 				this.trunk, this.sourceCache, progressMonitor);
 		return diffFiles;
 	}
 
 	public void scanIfNecessary(SubMonitor monitor) {
 		if (this.dataLists == null && this.fileDateRanges == null) {
-			scan(monitor);
+			this.scan(monitor);
 		} else if (this.dataLists != null && this.fileDateRanges != null) {
 			// nothing to do
 		} else {

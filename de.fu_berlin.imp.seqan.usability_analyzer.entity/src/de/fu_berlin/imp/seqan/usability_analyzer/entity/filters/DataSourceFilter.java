@@ -4,8 +4,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
@@ -23,9 +23,9 @@ public class DataSourceFilter extends ViewerFilter {
 		Entity entity = (Entity) element;
 		switch (this.dataSource) {
 		case DIFFS:
-			return entity.getID() != null; // TODO: diffFiles prüfen
+			return entity.getId() != null; // TODO: diffFiles prüfen
 		case DOCLOG:
-			ID id = entity.getID();
+			ID id = entity.getId();
 			if (doclogDataContainer.getFile(id) != null)
 				return true;
 			for (Fingerprint fingerprint : entity.getFingerprints()) {

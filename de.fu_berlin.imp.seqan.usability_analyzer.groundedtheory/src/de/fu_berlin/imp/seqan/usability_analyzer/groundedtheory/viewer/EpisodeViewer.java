@@ -27,8 +27,9 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -51,7 +52,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 		tree.setLinesVisible(false);
 
 		this.treeViewer = new SortableTreeViewer(tree);
-		createColumns();
+		this.createColumns();
 		this.treeViewer.sort(0);
 		this.treeViewer.setAutoExpandLevel(2);
 		this.treeViewer.setContentProvider(new EpisodeViewerContentProvider());
@@ -59,6 +60,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				ICodeService.class));
 		TreeViewerEditor.create(this.treeViewer,
 				new ColumnViewerEditorActivationStrategy(this.treeViewer) {
+					@Override
 					protected boolean isEditorActivationEvent(
 							ColumnViewerEditorActivationEvent event) {
 						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC
@@ -71,10 +73,13 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				.getTransfer() };
 		this.treeViewer.addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
+					@Override
 					public void dragStart(DragSourceEvent event) {
-						if (((TreeSelection) treeViewer.getSelection()).size() > 0) {
+						if (((TreeSelection) EpisodeViewer.this.treeViewer
+								.getSelection()).size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
-									treeViewer.getSelection());
+									EpisodeViewer.this.treeViewer
+											.getSelection());
 							LocalSelectionTransfer.getTransfer()
 									.setSelectionSetTime(
 											event.time & 0xFFFFFFFFL);
@@ -84,6 +89,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 						}
 					};
 
+					@Override
 					public void dragSetData(DragSourceEvent event) {
 						if (LocalSelectionTransfer.getTransfer()
 								.isSupportedType(event.dataType)) {
@@ -92,6 +98,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 						}
 					}
 
+					@Override
 					public void dragFinished(DragSourceEvent event) {
 						LocalSelectionTransfer.getTransfer().setSelection(null);
 						LocalSelectionTransfer.getTransfer()
@@ -101,8 +108,8 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	private void createColumns() {
-		TreeViewerColumn episodeColumn = treeViewer
-				.createColumn("Episode", 150);
+		TreeViewerColumn episodeColumn = this.treeViewer.createColumn(
+				"Episode", 150);
 		episodeColumn.setLabelProvider(new ColumnLabelProvider() {
 
 			ILabelProvider labelProvider = new EpisodeCodeableProvider()
@@ -110,16 +117,12 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 
 			@Override
 			public String getText(Object element) {
-				if (ID.class.isInstance(element)) {
-					ID id = (ID) element;
-					return id.toString();
-				}
-				if (Fingerprint.class.isInstance(element)) {
-					Fingerprint fingerprint = (Fingerprint) element;
-					return fingerprint.toString();
+				if (IIdentifier.class.isInstance(element)) {
+					IIdentifier identifier = (IIdentifier) element;
+					return identifier.toString();
 				}
 				if (IEpisode.class.isInstance(element)) {
-					return labelProvider.getText(element);
+					return this.labelProvider.getText(element);
 				}
 				return "ERROR";
 			}
@@ -133,54 +136,56 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 					return de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.FINGERPRINT;
 				}
 				if (IEpisode.class.isInstance(element)) {
-					return labelProvider.getImage(element);
+					return this.labelProvider.getImage(element);
 				}
 				return null;
 			}
 		});
-		episodeColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
-				EpisodeEditingSupport.Field.NAME));
+		episodeColumn.setEditingSupport(new EpisodeEditingSupport(
+				this.treeViewer, EpisodeEditingSupport.Field.NAME));
 
-		TreeViewerColumn startColumn = treeViewer.createColumn("Start", 170);
+		TreeViewerColumn startColumn = this.treeViewer.createColumn("Start",
+				170);
 		startColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				if (IEpisode.class.isInstance(element)) {
 					IEpisode episode = (IEpisode) element;
-					return episode.getStart() != null ? preferenceUtil
+					return episode.getStart() != null ? EpisodeViewer.this.preferenceUtil
 							.getDateFormat().format(
 									episode.getStart().getDate()) : "-∞";
 				}
 				return "";
 			}
 		});
-		startColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
-				EpisodeEditingSupport.Field.STARTDATE));
+		startColumn.setEditingSupport(new EpisodeEditingSupport(
+				this.treeViewer, EpisodeEditingSupport.Field.STARTDATE));
 
-		TreeViewerColumn endColumn = treeViewer.createColumn("End", 170);
+		TreeViewerColumn endColumn = this.treeViewer.createColumn("End", 170);
 		endColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				if (IEpisode.class.isInstance(element)) {
 					IEpisode episode = (IEpisode) element;
-					return episode.getEnd() != null ? preferenceUtil
+					return episode.getEnd() != null ? EpisodeViewer.this.preferenceUtil
 							.getDateFormat().format(episode.getEnd().getDate())
 							: "+∞";
 				}
 				return "";
 			}
 		});
-		endColumn.setEditingSupport(new EpisodeEditingSupport(treeViewer,
+		endColumn.setEditingSupport(new EpisodeEditingSupport(this.treeViewer,
 				EpisodeEditingSupport.Field.ENDDATE));
 
-		treeViewer.createColumn("Date Created", 170).setLabelProvider(
+		this.treeViewer.createColumn("Date Created", 170).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						if (IEpisode.class.isInstance(element)) {
 							IEpisode episode = (IEpisode) element;
-							return preferenceUtil.getDateFormat().format(
-									episode.getCreation().getDate());
+							return EpisodeViewer.this.preferenceUtil
+									.getDateFormat().format(
+											episode.getCreation().getDate());
 						}
 						return "";
 					}
@@ -188,8 +193,9 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	public Control getControl() {
-		if (this.treeViewer != null)
+		if (this.treeViewer != null) {
 			return this.treeViewer.getTree();
+		}
 		return null;
 	}
 
@@ -215,7 +221,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	public AbstractTreeViewer getViewer() {
-		return treeViewer;
+		return this.treeViewer;
 	}
 
 }

@@ -14,10 +14,11 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -28,7 +29,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class EntityManager {
-	private Logger logger = Logger.getLogger(EntityManager.class);
+	private static Logger LOGGER = Logger.getLogger(EntityManager.class);
 
 	private DiffContainer diffContainer;
 	private DoclogDataContainer doclogDataContainer;
@@ -74,12 +75,13 @@ public class EntityManager {
 					/*
 					 * Diff based
 					 */
-					List<Entity> diffBasedEntities = getEntitiesDiffBased();
+					List<Entity> diffBasedEntities = EntityManager.this
+							.getEntitiesDiffBased();
 					synchronized (entities) {
 						entities.addAll(diffBasedEntities);
 					}
 				} catch (Exception e) {
-					logger.fatal(e);
+					EntityManager.LOGGER.fatal(e);
 				}
 				subMonitor.worked(1);
 				return null;
@@ -92,9 +94,9 @@ public class EntityManager {
 					/*
 					 * Doclog based
 					 */
-					checkPersonsDoclogIdBased();
+					EntityManager.this.checkPersonsDoclogIdBased();
 				} catch (Exception e) {
-					logger.fatal(e);
+					EntityManager.LOGGER.fatal(e);
 				}
 				subMonitor.worked(1);
 				return null;
@@ -107,12 +109,13 @@ public class EntityManager {
 					/*
 					 * Doclog based
 					 */
-					List<Entity> fingerprintBasedEntities = buildEntitiesDoclogFingerprintBased();
+					List<Entity> fingerprintBasedEntities = EntityManager.this
+							.buildEntitiesDoclogFingerprintBased();
 					synchronized (entities) {
 						entities.addAll(fingerprintBasedEntities);
 					}
 				} catch (Exception e) {
-					logger.fatal(e);
+					EntityManager.LOGGER.fatal(e);
 				}
 				subMonitor.worked(1);
 				return null;
@@ -125,12 +128,13 @@ public class EntityManager {
 					/*
 					 * Token based
 					 */
-					List<Entity> tokenBasedEntities = getEntitiesTokenBased();
+					List<Entity> tokenBasedEntities = EntityManager.this
+							.getEntitiesTokenBased();
 					synchronized (entities) {
 						entities.addAll(tokenBasedEntities);
 					}
 				} catch (Exception e) {
-					logger.fatal(e);
+					EntityManager.LOGGER.fatal(e);
 				}
 				subMonitor.worked(1);
 				return null;
@@ -139,7 +143,7 @@ public class EntityManager {
 		try {
 			executorService.invokeAll(callables);
 		} catch (InterruptedException e) {
-			logger.fatal(
+			LOGGER.fatal(
 					"Error matching " + Entity.class.getSimpleName() + "s", e);
 		}
 
@@ -168,22 +172,25 @@ public class EntityManager {
 				}
 			}
 
-			Token token = doclogDataContainer.getToken(id);
+			Token token = this.doclogDataContainer.getToken(id);
 			if (token != null) {
 				SurveyRecord surveyRecord = this.surveyContainer
 						.getSurveyRecord(token);
 				entity.setSurveyRecord(surveyRecord);
 
-				if (this.mapper.getFingerprints(token).size() > 0)
+				if (this.mapper.getFingerprints(token).size() > 0) {
 					this.logIdBasedSurveyHasFingerprints();
-				if (!this.mapper.getID(token).equals(id))
+				}
+				if (this.mapper.getIDs(token).size() != 1
+						|| !this.mapper.getIDs(token).get(0).equals(id)) {
 					this.logIdTokenNotBijective(id, token,
-							this.mapper.getID(token));
+							this.mapper.getIDs(token).get(0));
+				}
 			}
 
-			if (entity.getID() != null && entity.getSurveyRecord() == null) {
+			if (entity.getId() != null && entity.getSurveyRecord() == null) {
 				SurveyRecord surveyRecord = this.surveyContainer
-						.getSurveyRecord(entity.getID());
+						.getSurveyRecord(entity.getId());
 				entity.setSurveyRecord(surveyRecord);
 			}
 
@@ -198,50 +205,68 @@ public class EntityManager {
 	}
 
 	private void checkPersonsDoclogIdBased() {
-		List<ID> doclogIDs = this.doclogDataContainer.getIDs();
+		List<ID> doclogIDs = new ArrayList<ID>();
+		IIdentifier[] doclogIdentifiers = this.doclogDataContainer
+				.getIdentifiers();
+		for (IIdentifier identifier : doclogIdentifiers) {
+			if (identifier instanceof ID) {
+				doclogIDs.add((ID) identifier);
+			}
+		}
 		Set<ID> diffIDs = this.diffContainer.getIDs();
-		for (ID doclogId : doclogIDs) {
-			if (!diffIDs.contains(doclogId))
-				logNoDiffFilesButDoclog(doclogId);
+		for (ID doclogID : doclogIDs) {
+			if (!diffIDs.contains(doclogID)) {
+				this.logNoDiffFilesButDoclog(doclogID);
+			}
 		}
 	}
 
 	private List<Entity> buildEntitiesDoclogFingerprintBased() {
 		List<Entity> entities = new ArrayList<Entity>();
 
-		List<Fingerprint> fingerprints = this.doclogDataContainer
-				.getFingerprints();
-		for (Fingerprint fingerprint : fingerprints) {
+		List<Fingerprint> doclogFingerprints = new ArrayList<Fingerprint>();
+		IIdentifier[] doclogIdentifiers = this.doclogDataContainer
+				.getIdentifiers();
+		for (IIdentifier identifier : doclogIdentifiers) {
+			if (identifier instanceof Fingerprint) {
+				doclogFingerprints.add((Fingerprint) identifier);
+			}
+		}
+		for (Fingerprint doclogFingerprint : doclogFingerprints) {
 			Entity entity = new Entity(this.mapper);
 
-			if (this.mapper.getID(fingerprint) != null) {
-				this.logDoclogRewriteError(this.mapper.getID(fingerprint), null);
+			if (this.mapper.getID(doclogFingerprint) != null) {
+				this.logDoclogRewriteError(
+						this.mapper.getID(doclogFingerprint), null);
 			}
 
-			entity.setFingerprint(fingerprint);
+			entity.setFingerprint(doclogFingerprint);
 
-			Token token = this.doclogDataContainer.getToken(fingerprint);
+			Token token = this.doclogDataContainer.getToken(doclogFingerprint);
 			if (token != null) {
 				entity.setSurveyRecord(this.surveyContainer
 						.getSurveyRecord(token));
 
 				List<Fingerprint> revFingerprints = this.mapper
 						.getFingerprints(token);
-				if (revFingerprints.size() > 1)
+				if (revFingerprints.size() > 1) {
 					this.logDifferentFingerprintsForSurvey(this.mapper
 							.getFingerprints(token));
-				if (revFingerprints.size() == 0)
-					this.logFingerprintTokenNotBijective(fingerprint, token,
-							null);
+				}
+				if (revFingerprints.size() == 0) {
+					this.logFingerprintTokenNotBijective(doclogFingerprint,
+							token, null);
+				}
 				if (revFingerprints.size() == 1
-						&& !revFingerprints.get(0).equals(fingerprint))
-					this.logFingerprintTokenNotBijective(fingerprint, token,
-							revFingerprints.get(0));
+						&& !revFingerprints.get(0).equals(doclogFingerprint)) {
+					this.logFingerprintTokenNotBijective(doclogFingerprint,
+							token, revFingerprints.get(0));
+				}
 			}
 
-			if (entity.getID() != null && entity.getSurveyRecord() == null) {
+			if (entity.getId() != null && entity.getSurveyRecord() == null) {
 				SurveyRecord surveyRecord = this.surveyContainer
-						.getSurveyRecord(entity.getID());
+						.getSurveyRecord(entity.getId());
 				entity.setSurveyRecord(surveyRecord);
 			}
 
@@ -266,10 +291,11 @@ public class EntityManager {
 			entity.setSurveyRecord(surveyRecord);
 
 			List<Fingerprint> fingerprints = this.mapper.getFingerprints(token);
-			if (fingerprints.size() > 1)
+			if (fingerprints.size() > 1) {
 				this.logDifferentFingerprintsForSurvey(fingerprints);
+			}
 			if (fingerprints.size() == 0) {
-				if (this.mapper.getID(token) == null) {
+				if (this.mapper.getIDs(token).size() == 0) {
 					this.logNoFingerprintButToken(token);
 				} else {
 					// handled by id based
@@ -278,7 +304,7 @@ public class EntityManager {
 			if (fingerprints.size() == 1) {
 				// handled by fingerprint based
 
-				if (this.mapper.getID(token) != null) {
+				if (this.mapper.getIDs(token).size() != 0) {
 					this.logIdBasedSurveyHasFingerprints();
 				}
 			}
@@ -289,40 +315,41 @@ public class EntityManager {
 
 	// TODO: survey nach IDs durchsuchen und damit beginnen
 
-	private void logDoclogRewriteError(ID id, IData data) {
-		logger.error("Although the ID is known a fingerprint based doclog was found:\nID: "
+	private void logDoclogRewriteError(IIdentifier id, IData data) {
+		LOGGER.error("Although the ID is known a fingerprint based doclog was found:\nID: "
 				+ id + ((data != null) ? "\n:Fingerprint: " + data : ""));
 	}
 
 	private void logIdBasedSurveyHasFingerprints() {
-		logger.error("Although the survey record could be mapped via an ID "
+		LOGGER.error("Although the survey record could be mapped via an ID "
 				+ "based doclog other fingerprint based doclogs could be found");
 	}
 
-	private void logIdTokenNotBijective(ID id, Token token, ID id2) {
-		logger.error("ID-token-mapping not bijective:\nID " + id + " -> "
+	private void logIdTokenNotBijective(IIdentifier id, Token token,
+			IIdentifier id2) {
+		LOGGER.error("ID-token-mapping not bijective:\nID " + id + " -> "
 				+ token + " -> " + id2);
 	}
 
-	private void logFingerprintTokenNotBijective(Fingerprint fingerprint,
-			Token token, Fingerprint fingerprint2) {
-		logger.error("ID-token-mapping not bijective:\nID " + fingerprint
+	private void logFingerprintTokenNotBijective(IIdentifier fingerprint,
+			Token token, IIdentifier fingerprint2) {
+		LOGGER.error("ID-token-mapping not bijective:\nID " + fingerprint
 				+ " -> " + token + " -> " + fingerprint2);
 	}
 
 	private void logDifferentFingerprintsForSurvey(
 			List<Fingerprint> fingerprints) {
-		logger.error("Different fingerprints accessed the same survey\nFingerprints: "
+		LOGGER.error("Different fingerprints accessed the same survey\nFingerprints: "
 				+ StringUtils.join(fingerprints, ", "));
 	}
 
-	private void logNoDiffFilesButDoclog(ID id) {
-		logger.error("A user never uploaded diff files although he accessed the online documentation with the successfully generated ID:\nID: "
+	private void logNoDiffFilesButDoclog(IIdentifier id) {
+		LOGGER.error("A user never uploaded diff files although he accessed the online documentation with the successfully generated ID:\nID: "
 				+ id);
 	}
 
 	private void logNoFingerprintButToken(Token token) {
-		logger.error("Although a token exists no corresponding fingerprint could be found\nToken: "
+		LOGGER.error("Although a token exists no corresponding fingerprint could be found\nToken: "
 				+ token + "\nVery probably the user has deactivated JavaScript");
 	}
 }

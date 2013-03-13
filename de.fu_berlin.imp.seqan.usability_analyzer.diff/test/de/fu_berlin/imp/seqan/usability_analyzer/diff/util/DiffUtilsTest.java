@@ -10,7 +10,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
@@ -25,8 +25,8 @@ public class DiffUtilsTest {
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery() {
 		{
-			setImposteriser(ClassImposteriser.INSTANCE);
-			setThreadingPolicy(new Synchroniser());
+			this.setImposteriser(ClassImposteriser.INSTANCE);
+			this.setThreadingPolicy(new Synchroniser());
 		}
 	};
 
@@ -36,22 +36,22 @@ public class DiffUtilsTest {
 
 	@Test
 	public void testGetSourceFile() throws IOException {
-		final Diff diff = context.mock(Diff.class);
-		final DiffRecord diffRecord = context.mock(DiffRecord.class);
+		final Diff diff = this.context.mock(Diff.class);
+		final DiffRecord diffRecord = this.context.mock(DiffRecord.class);
 
-		context.checking(new Expectations() {
+		this.context.checking(new Expectations() {
 			{
-				allowing(diff).getID();
-				will(returnValue(new ID("theID")));
+				this.allowing(diff).getIdentifier();
+				this.will(returnValue(IdentifierFactory.createFrom("theID")));
 
-				allowing(diff).getRevision();
-				will(returnValue(27837l));
+				this.allowing(diff).getRevision();
+				this.will(returnValue(27837l));
 
-				allowing(diffRecord).getDiffFile();
-				will(returnValue(diff));
+				this.allowing(diffRecord).getDiffFile();
+				this.will(returnValue(diff));
 
-				allowing(diffRecord).getFilename();
-				will(returnValue("this/is/the/path/to/the/file.cpp"));
+				this.allowing(diffRecord).getFilename();
+				this.will(returnValue("this/is/the/path/to/the/file.cpp"));
 			}
 		});
 
@@ -59,8 +59,8 @@ public class DiffUtilsTest {
 
 		// make sure a file really exists
 		@SuppressWarnings("unused")
-		File tmp = diffUtils.getSourceFile(diffRecord.getDiffFile().getID(),
-				diffRecord.getDiffFile().getRevision(),
+		File tmp = diffUtils.getSourceFile(diffRecord.getDiffFile()
+				.getIdentifier(), diffRecord.getDiffFile().getRevision(),
 				diffRecord.getFilename());
 		// tmp.createNewFile();
 		// diffUtils.setSourceFile(diffRecord.getDiffFile().getID(), diffRecord

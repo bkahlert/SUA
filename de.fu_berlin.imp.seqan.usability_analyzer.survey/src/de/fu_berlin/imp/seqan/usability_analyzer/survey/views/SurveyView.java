@@ -1,9 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.views;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -22,8 +20,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
@@ -41,19 +38,15 @@ public class SurveyView extends ViewPart {
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			final List<ID> ids = ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), ID.class);
-			final List<Token> tokens = ArrayUtils.getAdaptableObjects(
-					workSession.getEntities().toArray(), Token.class);
-			HashSet<Object> idsOrTokens = new HashSet<Object>();
-			idsOrTokens.addAll(ids);
-			idsOrTokens.addAll(tokens);
-			open(idsOrTokens, null);
+			HashSet<IIdentifier> idsOrTokens = new HashSet<IIdentifier>();
+			idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(workSession
+					.getEntities().toArray(), IIdentifier.class));
+			SurveyView.this.open(idsOrTokens, null);
 		}
 	};
 
 	private SurveyViewer surveyViewer;
-	private HashMap<Object, SurveyRecord> openedSurveyRecords = new HashMap<Object, SurveyRecord>();
+	private HashMap<IIdentifier, SurveyRecord> openedSurveyRecords = new HashMap<IIdentifier, SurveyRecord>();
 
 	public SurveyView() {
 	}
@@ -63,19 +56,23 @@ public class SurveyView extends ViewPart {
 		super.init(site);
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
-		if (this.workSessionService == null)
+		if (this.workSessionService == null) {
 			LOGGER.warn("Could not get "
 					+ IWorkSessionService.class.getSimpleName());
+		}
 
-		if (this.workSessionService != null)
-			this.workSessionService.addWorkSessionListener(workSessionListener);
+		if (this.workSessionService != null) {
+			this.workSessionService
+					.addWorkSessionListener(this.workSessionListener);
+		}
 	}
 
 	@Override
 	public void dispose() {
-		if (this.workSessionService != null)
+		if (this.workSessionService != null) {
 			this.workSessionService
-					.removeWorkSessionListener(workSessionListener);
+					.removeWorkSessionListener(this.workSessionListener);
+		}
 		super.dispose();
 	}
 
@@ -86,7 +83,7 @@ public class SurveyView extends ViewPart {
 
 		this.surveyViewer = new SurveyViewer(parent, SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL);
-		final Tree tree = surveyViewer.getTree();
+		final Tree tree = this.surveyViewer.getTree();
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
@@ -100,7 +97,7 @@ public class SurveyView extends ViewPart {
 	}
 
 	/**
-	 * Opens the given {@link ID}s and {@link Token}s. If the corresponding
+	 * Opens the given {@link IIdentifier}s. If the corresponding
 	 * {@link SurveyRecord}s could be successfully opened a caller defined
 	 * {@link Runnable} gets executed.
 	 * <p>
@@ -108,73 +105,68 @@ public class SurveyView extends ViewPart {
 	 * 
 	 * @param <T>
 	 * 
-	 * @param idsOrTokens
+	 * @param identifiers
 	 * @param success
 	 */
-	public <T> Future<T> open(final HashSet<Object> idsOrTokens,
+	public <T> Future<T> open(final HashSet<IIdentifier> identifiers,
 			final Callable<T> success) {
-		final HashMap<Object, SurveyRecord> newOpenedSurveyRecords = new HashMap<Object, SurveyRecord>();
+		final HashMap<IIdentifier, SurveyRecord> newOpenedSurveyRecords = new HashMap<IIdentifier, SurveyRecord>();
 
 		// do not load already opened survey records
-		for (Object idOrToken : openedSurveyRecords.keySet()) {
-			if (idsOrTokens.contains(idOrToken)) {
-				newOpenedSurveyRecords.put(idOrToken,
-						openedSurveyRecords.get(idOrToken));
-				idsOrTokens.remove(idOrToken);
+		for (IIdentifier identifier : this.openedSurveyRecords.keySet()) {
+			if (identifiers.contains(identifier)) {
+				newOpenedSurveyRecords.put(identifier,
+						this.openedSurveyRecords.get(identifier));
+				identifiers.remove(identifier);
 			}
 		}
 
 		// Case 1: no IDs
-		if (idsOrTokens.size() == 0) {
+		if (identifiers.size() == 0) {
 			if (success != null) {
 				return ExecutorUtil.asyncExec(success);
-			} else
+			} else {
 				return null;
+			}
 		}
 
 		// Case 2: multiple IDs
-		for (Object idOrToken : idsOrTokens) {
-			SurveyRecord surveyRecord = null;
-			if (idOrToken instanceof ID) {
-				surveyRecord = Activator.getDefault().getSurveyContainer()
-						.getSurveyRecord((ID) idOrToken);
-			} else if (idOrToken instanceof Token) {
-				surveyRecord = Activator.getDefault().getSurveyContainer()
-						.getSurveyRecord((Token) idOrToken);
-			} else {
-				throw new InvalidParameterException();
-			}
+		for (IIdentifier identifier : identifiers) {
+			SurveyRecord surveyRecord = Activator.getDefault()
+					.getSurveyContainer().getSurveyRecord(identifier);
 			if (surveyRecord != null
-					&& !openedSurveyRecords.containsValue(surveyRecord)
+					&& !this.openedSurveyRecords.containsValue(surveyRecord)
 					&& !newOpenedSurveyRecords.containsValue(surveyRecord)) {
-				newOpenedSurveyRecords.put(idOrToken, surveyRecord);
+				newOpenedSurveyRecords.put(identifier, surveyRecord);
 			}
 		}
 
 		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				if (surveyViewer != null && surveyViewer.getTree() != null
-						&& !surveyViewer.getTree().isDisposed()) {
-					openedSurveyRecords = newOpenedSurveyRecords;
+				if (SurveyView.this.surveyViewer != null
+						&& SurveyView.this.surveyViewer.getTree() != null
+						&& !SurveyView.this.surveyViewer.getTree().isDisposed()) {
+					SurveyView.this.openedSurveyRecords = newOpenedSurveyRecords;
 					final String partName = "Survey - "
 							+ StringUtils.join(newOpenedSurveyRecords.keySet(),
 									", ");
 					ExecutorUtil.syncExec(new Runnable() {
 						@Override
 						public void run() {
-							setPartName(partName);
-							surveyViewer.setInput(newOpenedSurveyRecords
-									.values());
-							surveyViewer.expandAll();
+							SurveyView.this.setPartName(partName);
+							SurveyView.this.surveyViewer
+									.setInput(newOpenedSurveyRecords.values());
+							SurveyView.this.surveyViewer.expandAll();
 						}
 					});
 				}
 
-				if (success != null)
+				if (success != null) {
 					return success.call();
-				else
+				} else {
 					return null;
+				}
 			}
 		});
 	}

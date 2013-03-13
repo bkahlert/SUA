@@ -2,16 +2,15 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 
 public class EpisodeAdapterFactory implements IAdapterFactory {
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { TimeZoneDateRange.class, IdDateRange.class,
-				FingerprintDateRange.class };
+		return new Class[] { TimeZoneDateRange.class, IdentifierDateRange.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -22,16 +21,10 @@ public class EpisodeAdapterFactory implements IAdapterFactory {
 			if (adapterType == TimeZoneDateRange.class) {
 				return episode.getDateRange();
 			}
-			if (adapterType == IdDateRange.class) {
+			if (adapterType == IdentifierDateRange.class) {
 				TimeZoneDateRange dateRange = episode.getDateRange();
-				return episode.getId() != null ? new IdDateRange(episode.getId(),
-						dateRange.getStartDate(), dateRange.getEndDate())
-						: null;
-			}
-			if (adapterType == FingerprintDateRange.class) {
-				TimeZoneDateRange dateRange = episode.getDateRange();
-				return episode.getFingerprint() != null ? new FingerprintDateRange(
-						episode.getFingerprint(), dateRange.getStartDate(),
+				return episode.getIdentifier() != null ? new IdentifierDateRange(
+						episode.getIdentifier(), dateRange.getStartDate(),
 						dateRange.getEndDate()) : null;
 			}
 			return null;

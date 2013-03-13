@@ -16,17 +16,15 @@ import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.utils.ImageUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
-public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
+public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -79,19 +77,15 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 				scrollX, scrollY);
 
 		// Use md5 if filename to long
-		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length())
+		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length()) {
 			relFile = DigestUtils.md5Hex(relFile);
+		}
 		this.filename = relFile + "." + FORMAT;
 	}
 
 	@Override
-	public ID getID() {
-		return this.doclogRecord.getID();
-	}
-
-	@Override
-	public Fingerprint getFingerprint() {
-		return this.doclogRecord.getFingerprint();
+	public IIdentifier getIdentifier() {
+		return this.doclogRecord.getIdentifier();
 	}
 
 	public DoclogRecord getDoclogRecord() {
@@ -101,7 +95,7 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	public File getFile() throws IOException {
 		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
 				.getBaseDataContainer();
-		return baseDataContainer.getStaticFile("screenshots", filename);
+		return baseDataContainer.getStaticFile("screenshots", this.filename);
 	}
 
 	public ImageData calculateImageData() {
@@ -166,12 +160,14 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	}
 
 	public void setFile(File tempScreenshotFile) throws IOException {
-		if (tempScreenshotFile == null)
+		if (tempScreenshotFile == null) {
 			return;
+		}
 
 		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
 				.getBaseDataContainer();
-		baseDataContainer.putFile("screenshots", filename, tempScreenshotFile);
+		baseDataContainer.putFile("screenshots", this.filename,
+				tempScreenshotFile);
 		if (this.imageData != null) {
 			this.imageData = this.calculateImageData();
 		}
@@ -179,8 +175,9 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	}
 
 	public ImageData getImageData() {
-		if (this.imageData == null)
+		if (this.imageData == null) {
 			this.imageData = this.calculateImageData();
+		}
 		return this.imageData;
 	}
 
@@ -189,17 +186,19 @@ public class DoclogScreenshot implements HasDateRange, HasID, HasFingerprint {
 	}
 
 	public Status getStatus() {
-		if (this.status == null)
+		if (this.status == null) {
 			this.status = this.calculateStatus();
+		}
 		return this.status;
 	}
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
-		if (this.getDoclogRecord() != null)
+		if (this.getDoclogRecord() != null) {
 			return this.getDoclogRecord().getDateRange();
-		else
+		} else {
 			return null;
+		}
 	}
 
 }

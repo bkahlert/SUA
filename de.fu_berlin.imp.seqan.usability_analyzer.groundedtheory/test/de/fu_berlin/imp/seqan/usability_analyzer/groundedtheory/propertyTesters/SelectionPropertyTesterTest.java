@@ -6,34 +6,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class SelectionPropertyTesterTest {
-
-	private static class HasBoth implements HasID, HasFingerprint {
-
-		private ID id;
-		private Fingerprint fingerprint;
-
-		public HasBoth(ID id, Fingerprint fingerprint) {
-			this.id = id;
-			this.fingerprint = fingerprint;
-		}
-
-		@Override
-		public ID getID() {
-			return this.id;
-		}
-
-		@Override
-		public Fingerprint getFingerprint() {
-			return this.fingerprint;
-		}
-
-	}
 
 	private static boolean testSelection(Object... elements) {
 		SelectionPropertyTester tester = new SelectionPropertyTester();
@@ -41,36 +18,33 @@ public class SelectionPropertyTesterTest {
 		return tester.test(selection, "containsSingleKey", null, null);
 	}
 
-	private static HasID hasID1 = new HasID() {
+	private static HasIdentifier hasID1 = new HasIdentifier() {
 		@Override
-		public ID getID() {
-			return new ID("id1");
+		public IIdentifier getIdentifier() {
+			return IdentifierFactory.createFrom("id1");
 		}
 	};
 
-	private static HasID hasID2 = new HasID() {
+	private static HasIdentifier hasID2 = new HasIdentifier() {
 		@Override
-		public ID getID() {
-			return new ID("id2");
+		public IIdentifier getIdentifier() {
+			return IdentifierFactory.createFrom("id2");
 		}
 	};
 
-	private static HasFingerprint hasFingerprint1 = new HasFingerprint() {
+	private static HasIdentifier hasFingerprint1 = new HasIdentifier() {
 		@Override
-		public Fingerprint getFingerprint() {
-			return new Fingerprint("!fingerprint1");
+		public IIdentifier getIdentifier() {
+			return IdentifierFactory.createFrom("!fingerprint1");
 		}
 	};
 
-	private static HasFingerprint hasFingerprint2 = new HasFingerprint() {
+	private static HasIdentifier hasFingerprint2 = new HasIdentifier() {
 		@Override
-		public Fingerprint getFingerprint() {
-			return new Fingerprint("!fingerprint2");
+		public IIdentifier getIdentifier() {
+			return IdentifierFactory.createFrom("!fingerprint2");
 		}
 	};
-
-	private static HasBoth hasBoth1 = new HasBoth(hasID1.getID(),
-			hasFingerprint1.getFingerprint());
 
 	@Test
 	public void test() {
@@ -83,10 +57,5 @@ public class SelectionPropertyTesterTest {
 		assertEquals(false, testSelection(hasID1, hasFingerprint2));
 		assertEquals(true, testSelection(hasFingerprint1));
 		assertEquals(true, testSelection(hasFingerprint2));
-		assertEquals(true, testSelection(hasBoth1));
-		assertEquals(true, testSelection(hasBoth1, hasID1));
-		assertEquals(true, testSelection(hasBoth1, hasFingerprint1));
-		assertEquals(false, testSelection(hasBoth1, hasID2));
-		assertEquals(false, testSelection(hasBoth1, hasFingerprint2));
 	}
 }

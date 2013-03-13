@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IAdapterFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
@@ -14,7 +14,7 @@ public class DiffRecordAdapterFactory implements IAdapterFactory {
 
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { TimeZoneDateRange.class, IdDateRange.class,
+		return new Class[] { TimeZoneDateRange.class, IdentifierDateRange.class,
 				IRevealableInOS.class };
 	}
 
@@ -27,8 +27,8 @@ public class DiffRecordAdapterFactory implements IAdapterFactory {
 				return new TimeZoneDateRange(diffRecord.getDateRange()
 						.getStartDate(), diffRecord.getDateRange().getEndDate());
 			}
-			if (adapterType == IdDateRange.class) {
-				return new IdDateRange(diffRecord.getDiffFile().getID(),
+			if (adapterType == IdentifierDateRange.class) {
+				return new IdentifierDateRange(diffRecord.getDiffFile().getIdentifier(),
 						diffRecord.getDateRange().getStartDate(), diffRecord
 								.getDateRange().getEndDate());
 			}

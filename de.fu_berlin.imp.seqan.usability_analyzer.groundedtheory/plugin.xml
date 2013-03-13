@@ -775,7 +775,7 @@
                   operator="and">
                <or>
                   <adapt
-                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID">
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier">
                   </adapt>
                   <adapt
                         type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
@@ -799,7 +799,7 @@
                   operator="and">
                <or>
                   <adapt
-                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID">
+                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier">
                   </adapt>
                   <adapt
                         type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
@@ -828,7 +828,7 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdDateRange">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange">

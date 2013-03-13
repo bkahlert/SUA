@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -18,8 +19,8 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineConten
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
@@ -58,8 +59,8 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 
 			@Override
 			public boolean isValid(Object key) {
-				return Activator.getDefault().getDoclogContainer().getKeys()
-						.contains(key);
+				return ArrayUtils.contains(Activator.getDefault()
+						.getDoclogContainer().getIdentifiers(), key);
 			}
 
 			@Override
@@ -75,23 +76,28 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 					return new Object[0];
 				}
 
-				final Doclog doclog = (this.input instanceof ID) ? Activator
-						.getDefault().getDoclogContainer()
-						.getDoclogFile(this.input, subMonitor.newChild(1))
+				final Doclog doclog = (this.input instanceof IIdentifier) ? Activator
+						.getDefault()
+						.getDoclogContainer()
+						.getDoclogFile((IIdentifier) this.input,
+								subMonitor.newChild(1))
 						: null;
 
-				if (doclog == null)
+				if (doclog == null) {
 					return null;
+				}
 
 				switch ((BANDS) band) {
 				case DOCLOGRECORD_BAND:
 					DoclogRecordList filteredDoclogRecords = new DoclogRecordList();
 					for (DoclogRecord doclogRecord : doclog.getDoclogRecords()) {
-						if (doclogRecord.getAction() == DoclogAction.UNLOAD)
+						if (doclogRecord.getAction() == DoclogAction.UNLOAD) {
 							continue;
+						}
 						if (doclogRecord.getUrl().contains(
-								"dddoc/html_devel/INDEX_"))
+								"dddoc/html_devel/INDEX_")) {
 							continue;
+						}
 						filteredDoclogRecords.add(doclogRecord);
 					}
 					monitor.worked(1);
@@ -196,9 +202,10 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 				// String filename = screenshotFile.getCanonicalPath();
 				// icon = "file://" + filename.replace("%", "%25");
 				// }
-				Image image = doclogLabelProvider.getImage(event);
-				if (image != null)
+				Image image = this.doclogLabelProvider.getImage(event);
+				if (image != null) {
 					return TimelineHelper.createUriFromImage(image);
+				}
 				return null;
 			}
 
@@ -235,7 +242,8 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 				if (event instanceof DoclogRecord) {
 					DoclogRecord doclogRecord = (DoclogRecord) event;
 					try {
-						for (ICode code : codeService.getCodes(doclogRecord)) {
+						for (ICode code : this.codeService
+								.getCodes(doclogRecord)) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

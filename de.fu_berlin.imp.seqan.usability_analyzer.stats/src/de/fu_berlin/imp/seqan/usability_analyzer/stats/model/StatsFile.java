@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 
 public class StatsFile {
 
@@ -46,31 +46,31 @@ public class StatsFile {
 	}
 
 	public ID getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getNode() {
-		return node;
+		return this.node;
 	}
 
 	public String getPlatform() {
-		return platform;
+		return this.platform;
 	}
 
 	public String getSystem() {
-		return system;
+		return this.system;
 	}
 
 	public String getRelease() {
-		return release;
+		return this.release;
 	}
 
 	public String getVersion() {
-		return version;
+		return this.version;
 	}
 
 	public String getPlatformLong() {
-		return platformLong;
+		return this.platformLong;
 	}
 
 }

@@ -19,7 +19,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
@@ -61,7 +62,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 						.split("/");
 
 				// 0: ID
-				ID id = new ID(path[0]);
+				IIdentifier id = IdentifierFactory.createFrom(path[0]);
 				IDiffs diffFiles = Activator.getDefault()
 						.getDiffDataContainer().getDiffFiles(id, monitor.get());
 
@@ -70,20 +71,22 @@ public class DiffCodeableProvider extends CodeableProvider {
 						.parseInt(path[1]) : null;
 				if (revision == null) {
 					LOGGER.error("Revision not specified for coded object retrieval for "
-							+ ID.class.getSimpleName() + " " + id);
+							+ IIdentifier.class.getSimpleName() + " " + id);
 					return null;
 				}
 				if (diffFiles.length() <= revision) {
 					LOGGER.error("There is no revision " + revision
 							+ " of the " + Diff.class.getSimpleName()
-							+ "s with " + ID.class.getSimpleName() + " " + id);
+							+ "s with " + IIdentifier.class.getSimpleName()
+							+ " " + id);
 					return null;
 				}
 
 				// 2: Record
 				IDiff diff = diffFiles.get(revision);
-				if (path.length <= 2)
+				if (path.length <= 2) {
 					return diff;
+				}
 				String diffFileRecordName;
 				try {
 
@@ -126,12 +129,15 @@ public class DiffCodeableProvider extends CodeableProvider {
 		if (codedObjects.size() > 0) {
 			DiffExplorerView diffExplorerView = (DiffExplorerView) WorkbenchUtils
 					.getView(DiffExplorerView.ID);
-			if (diffExplorerView == null)
+			if (diffExplorerView == null) {
 				return null;
-			if (!openFiles(codedObjects, diffExplorerView))
+			}
+			if (!this.openFiles(codedObjects, diffExplorerView)) {
 				return null;
-			if (!openSegments(codedObjects, diffExplorerView))
+			}
+			if (!this.openSegments(codedObjects, diffExplorerView)) {
 				return null;
+			}
 		}
 
 		return codedObjects.toArray(new ICodeable[0]);
@@ -139,7 +145,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 
 	public boolean openFiles(final List<ICodeable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
-		Set<ID> ids = CodeableUtils.getIDs(codedObjects);
+		Set<IIdentifier> ids = CodeableUtils.getIdentifiers(codedObjects);
 
 		codedObjects.addAll(DiffRecordUtils
 				.getRecordsFromSegments(codedObjects));
@@ -148,6 +154,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 		try {
 			Future<Boolean> future = diffExplorerView.open(ids,
 					new Callable<Boolean>() {
+						@Override
 						public Boolean call() {
 							final DiffListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();

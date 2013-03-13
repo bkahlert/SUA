@@ -4,14 +4,14 @@ import java.util.List;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class Code implements ICode {
 
 	/**
-	 * Calculates a unique {@link ID} based on given {@link ID}s
+	 * Calculates a unique {@link IIdentifier} based on given
+	 * {@link IIdentifier}s
 	 * 
 	 * @param existingIds
 	 * @return
@@ -36,13 +36,14 @@ public class Code implements ICode {
 		this.creation = creation;
 	}
 
+	@Override
 	public long getId() {
-		return id;
+		return this.id;
 	}
 
 	@Override
 	public String getCaption() {
-		return caption;
+		return this.caption;
 	}
 
 	@Override
@@ -62,33 +63,37 @@ public class Code implements ICode {
 
 	@Override
 	public TimeZoneDate getCreation() {
-		return creation;
+		return this.creation;
 	}
 
 	@Override
 	public String toString() {
-		return caption;
+		return this.caption;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + (int) (this.id ^ (this.id >>> 32));
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof ICode))
+		}
+		if (!(obj instanceof ICode)) {
 			return false;
+		}
 		ICode other = (ICode) obj;
-		if (id != other.getId())
+		if (this.id != other.getId()) {
 			return false;
+		}
 		return true;
 	}
 

@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.handlers;
 
-import java.util.Set;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -16,10 +14,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
 public class TakeAllScreenshotHandler extends AbstractHandler {
@@ -34,20 +33,19 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 				.setMessage("Do you really want to take all screenshots?\nThis can take some time and will overwrite dirty existing screenshots.");
 		if (messageBox.open() == SWT.YES) {
 			final DoclogRecordList doclogRecords = new DoclogRecordList();
-			Job job = new Job("Parsing " + Doclog.class.getSimpleName()
-					+ "s") {
+			Job job = new Job("Parsing " + Doclog.class.getSimpleName() + "s") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					DoclogDataContainer doclogDataContainer = Activator
 							.getDefault().getDoclogContainer();
-					Set<Object> keys = doclogDataContainer.getKeys();
-					monitor.beginTask(
-							"Parsing " + Doclog.class.getSimpleName() + "s",
-							keys.size());
+					IIdentifier[] identifiers = doclogDataContainer
+							.getIdentifiers();
+					monitor.beginTask("Parsing " + Doclog.class.getSimpleName()
+							+ "s", identifiers.length);
 
-					for (Object key : keys) {
+					for (IIdentifier identifier : identifiers) {
 						doclogRecords.addAll(doclogDataContainer.getDoclogFile(
-								key, new SubProgressMonitor(monitor, 1))
+								identifier, new SubProgressMonitor(monitor, 1))
 								.getDoclogRecords());
 					}
 					monitor.done();

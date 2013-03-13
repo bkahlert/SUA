@@ -14,11 +14,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
@@ -186,13 +186,13 @@ public class DiffFileRecordTest {
 		};
 		final ISourceStore sourceCache = new ISourceStore() {
 			@Override
-			public void setSourceFile(ID id, long revision, String filename,
+			public void setSourceFile(IIdentifier id, long revision, String filename,
 					File file) throws IOException {
 				return;
 			}
 
 			@Override
-			public File getSourceFile(ID id, long revision, String filename)
+			public File getSourceFile(IIdentifier id, long revision, String filename)
 					throws IOException {
 				return null;
 			}

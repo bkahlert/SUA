@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 
 public class CMakeCacheFile {
 
@@ -30,7 +30,7 @@ public class CMakeCacheFile {
 			this.id = new ID(matcher.group(1));
 		}
 
-		values = new HashMap<String, String>();
+		this.values = new HashMap<String, String>();
 		Properties properties = new Properties();
 		try {
 			properties.load(IOUtils.toInputStream(cMakeCacheFile.read()));
@@ -50,17 +50,19 @@ public class CMakeCacheFile {
 	}
 
 	public ID getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getGenerator() {
 		String generator = this.values.get("CMAKE_GENERATOR");
 		String extraGenerator = this.values.get("CMAKE_EXTRA_GENERATOR");
 		List<String> generators = new ArrayList<String>();
-		if (generator != null)
+		if (generator != null) {
 			generators.add(generator);
-		if (extraGenerator != null)
+		}
+		if (extraGenerator != null) {
 			generators.add(extraGenerator);
+		}
 		return StringUtils.join(generators, " + ");
 	}
 

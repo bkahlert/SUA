@@ -38,7 +38,8 @@ public class EpisodeTimelineEventDetailProvider extends
 	public List<Entry<String, String>> getDetailInformation(IEpisode episode) {
 		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
 		detailEntries.add(new DetailEntry("Owner",
-				episode.getKey() != null ? episode.getKey().toString() : ""));
+				episode.getIdentifier() != null ? episode.getIdentifier()
+						.getIdentifier() : ""));
 		detailEntries.add(new DetailEntry("Caption",
 				episode.getCaption() != null ? episode.getCaption() : "-"));
 		detailEntries.add(new DetailEntry("Creation",

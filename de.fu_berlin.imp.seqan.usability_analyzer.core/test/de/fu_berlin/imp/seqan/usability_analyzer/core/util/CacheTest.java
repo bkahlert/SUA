@@ -9,130 +9,132 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 
 public class CacheTest {
 	@SuppressWarnings("serial")
 	@Test
 	public void testCache() {
-		final HashMap<ID, String> db = new HashMap<ID, String>() {
+		final HashMap<IIdentifier, String> db = new HashMap<IIdentifier, String>() {
 			{
-				put(new ID("a"), "aa");
-				put(new ID("b"), "bb");
-				put(new ID("c"), "cc");
-				put(new ID("d"), "dd");
+				this.put(IdentifierFactory.createFrom("a"), "aa");
+				this.put(IdentifierFactory.createFrom("b"), "bb");
+				this.put(IdentifierFactory.createFrom("c"), "cc");
+				this.put(IdentifierFactory.createFrom("d"), "dd");
 			}
 		};
 
-		Cache<ID, String> cache = new Cache<ID, String>(
-				new CacheFetcher<ID, String>() {
+		Cache<IIdentifier, String> cache = new Cache<IIdentifier, String>(
+				new CacheFetcher<IIdentifier, String>() {
 					@Override
-					public String fetch(ID key, IProgressMonitor progressMonitor) {
+					public String fetch(IIdentifier key,
+							IProgressMonitor progressMonitor) {
 						return db.get(key);
 					}
 				}, 3);
 
-		Assert.assertEquals("aa",
-				cache.getPayload(new ID("a"), new NullProgressMonitor()));
+		Assert.assertEquals("aa", cache.getPayload(
+				IdentifierFactory.createFrom("a"), new NullProgressMonitor()));
 		Assert.assertEquals(1, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
+				this.add(IdentifierFactory.createFrom("a"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("aa",
-				cache.getPayload(new ID("a"), new NullProgressMonitor()));
+		Assert.assertEquals("aa", cache.getPayload(
+				IdentifierFactory.createFrom("a"), new NullProgressMonitor()));
 		Assert.assertEquals(1, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
+				this.add(IdentifierFactory.createFrom("a"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("bb",
-				cache.getPayload(new ID("b"), new NullProgressMonitor()));
+		Assert.assertEquals("bb", cache.getPayload(
+				IdentifierFactory.createFrom("b"), new NullProgressMonitor()));
 		Assert.assertEquals(2, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("bb",
-				cache.getPayload(new ID("b"), new NullProgressMonitor()));
+		Assert.assertEquals("bb", cache.getPayload(
+				IdentifierFactory.createFrom("b"), new NullProgressMonitor()));
 		Assert.assertEquals(2, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("cc",
-				cache.getPayload(new ID("c"), new NullProgressMonitor()));
+		Assert.assertEquals("cc", cache.getPayload(
+				IdentifierFactory.createFrom("c"), new NullProgressMonitor()));
 		Assert.assertEquals(3, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
-				add(new ID("c"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
+				this.add(IdentifierFactory.createFrom("c"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("dd",
-				cache.getPayload(new ID("d"), new NullProgressMonitor()));
+		Assert.assertEquals("dd", cache.getPayload(
+				IdentifierFactory.createFrom("d"), new NullProgressMonitor()));
 		Assert.assertEquals(3, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
-				add(new ID("d"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
+				this.add(IdentifierFactory.createFrom("d"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertEquals("cc",
-				cache.getPayload(new ID("c"), new NullProgressMonitor()));
+		Assert.assertEquals("cc", cache.getPayload(
+				IdentifierFactory.createFrom("c"), new NullProgressMonitor()));
 		Assert.assertEquals(3, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
-				add(new ID("c"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
+				this.add(IdentifierFactory.createFrom("c"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()
 					.contains(id));
 		}
 
-		Assert.assertNull(cache.getPayload(new ID("x"),
+		Assert.assertNull(cache.getPayload(IdentifierFactory.createFrom("x"),
 				new NullProgressMonitor()));
 		Assert.assertEquals(3, cache.getCachedKeys().size());
-		for (ID id : new HashSet<ID>() {
+		for (IIdentifier id : new HashSet<IIdentifier>() {
 			{
-				add(new ID("a"));
-				add(new ID("b"));
-				add(new ID("x"));
+				this.add(IdentifierFactory.createFrom("a"));
+				this.add(IdentifierFactory.createFrom("b"));
+				this.add(IdentifierFactory.createFrom("x"));
 			}
 		}) {
 			Assert.assertTrue(id + " not found", cache.getCachedKeys()

@@ -4,58 +4,39 @@ import java.net.URI;
 
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class Episode implements IEpisode {
 
 	private static final Logger LOGGER = Logger.getLogger(Episode.class);
 	private static final long serialVersionUID = 1L;
-	private ID id = null;
-	private Fingerprint fingerprint = null;
+	private IIdentifier identifier = null;
 	private TimeZoneDateRange range;
 	private String caption;
 	private TimeZoneDate creation;
 
-	public Episode(ID id, TimeZoneDate start, TimeZoneDate end, String name) {
-		assert id != null;
-		this.id = id;
+	public Episode(IIdentifier identifier, TimeZoneDate start,
+			TimeZoneDate end, String name) {
+		assert identifier != null;
+		this.identifier = identifier;
 		this.range = new TimeZoneDateRange(start, end);
 		this.caption = name;
 		this.creation = new TimeZoneDate();
 	}
 
-	public Episode(ID id, TimeZoneDateRange range, String caption) {
-		assert id != null;
-		this.id = id;
-		this.range = range;
-		this.caption = caption;
-		this.creation = new TimeZoneDate();
-	}
-
-	public Episode(Fingerprint fingerprint, TimeZoneDate start,
-			TimeZoneDate end, String caption) {
-		assert fingerprint != null;
-		this.fingerprint = fingerprint;
-		this.range = new TimeZoneDateRange(start, end);
-		this.caption = caption;
-		this.creation = new TimeZoneDate();
-	}
-
-	public Episode(Fingerprint fingerprint, TimeZoneDateRange range,
+	public Episode(IIdentifier identifier, TimeZoneDateRange range,
 			String caption) {
-		assert fingerprint != null;
-		this.fingerprint = fingerprint;
+		assert identifier != null;
+		this.identifier = identifier;
 		this.range = range;
 		this.caption = caption;
 		this.creation = new TimeZoneDate();
 	}
 
 	private Episode(IEpisode episode) {
-		this.id = episode.getId();
-		this.fingerprint = episode.getFingerprint();
+		this.identifier = episode.getIdentifier();
 		this.range = episode.getDateRange();
 		this.caption = episode.getCaption();
 		this.creation = episode.getCreation();
@@ -73,8 +54,7 @@ public class Episode implements IEpisode {
 
 	@Override
 	public URI getUri() {
-		StringBuilder sb = new StringBuilder("sua://episode/"
-				+ ((id != null) ? id : fingerprint));
+		StringBuilder sb = new StringBuilder("sua://episode/" + this.identifier);
 
 		sb.append("/");
 
@@ -91,18 +71,8 @@ public class Episode implements IEpisode {
 	}
 
 	@Override
-	public ID getId() {
-		return this.id;
-	}
-
-	@Override
-	public Fingerprint getFingerprint() {
-		return this.fingerprint;
-	}
-
-	@Override
-	public Object getKey() {
-		return this.id != null ? this.id : this.fingerprint;
+	public IIdentifier getIdentifier() {
+		return this.identifier;
 	}
 
 	@Override
@@ -144,30 +114,32 @@ public class Episode implements IEpisode {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(Episode.class.getSimpleName());
 		sb.append(" in ");
-		sb.append(this.getKey());
+		sb.append(this.getIdentifier());
 		sb.append(": ");
-		if (getEnd() != null)
-			sb.append(getEnd().toISO8601());
-		else
+		if (this.getEnd() != null) {
+			sb.append(this.getEnd().toISO8601());
+		} else {
 			sb.append("undefined");
+		}
 		sb.append(" to ");
-		if (getEnd() != null)
-			sb.append(getEnd().toISO8601());
-		else
+		if (this.getEnd() != null) {
+			sb.append(this.getEnd().toISO8601());
+		} else {
 			sb.append("undefined");
+		}
 		return sb.toString();
 	}
 
 	@Override
 	public int compareTo(IEpisode episode) {
 		if (this.getDateRange().isBeforeRange(
-				episode.getDateRange().getStartDate()))
+				episode.getDateRange().getStartDate())) {
 			return 1;
-		else if (episode.getDateRange().isBeforeRange(
-				this.getDateRange().getStartDate()))
+		} else if (episode.getDateRange().isBeforeRange(
+				this.getDateRange().getStartDate())) {
 			return -1;
-		else
-			return this.getKey().toString()
-					.compareTo(episode.getKey().toString());
+		} else {
+			return this.getIdentifier().compareTo(episode.getIdentifier());
+		}
 	}
 }

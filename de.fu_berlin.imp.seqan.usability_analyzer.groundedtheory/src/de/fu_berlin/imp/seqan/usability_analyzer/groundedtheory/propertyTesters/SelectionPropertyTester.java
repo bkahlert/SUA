@@ -11,10 +11,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class SelectionPropertyTester extends PropertyTester {
 
@@ -29,8 +27,9 @@ public class SelectionPropertyTester extends PropertyTester {
 			IStructuredSelection s = (IStructuredSelection) selection;
 			List<T> items = new LinkedList<T>();
 			for (Object item : s.toArray()) {
-				if (clazz.isInstance(item))
+				if (clazz.isInstance(item)) {
 					items.add((T) item);
+				}
 			}
 			return items;
 		}
@@ -41,62 +40,24 @@ public class SelectionPropertyTester extends PropertyTester {
 			Object expectedValue) {
 		if (receiver instanceof ISelection) {
 			if ("containsSingleKey".equals(property)) {
-				Map<ID, List<HasID>> ids = new HashMap<ID, List<HasID>>();
-				List<HasID> hasIDs = getAdaptableObjects((ISelection) receiver,
-						HasID.class);
-				for (HasID hasID : hasIDs) {
-					ID id = hasID.getID();
-					if (id != null) {
-						if (!ids.containsKey(id))
-							ids.put(id, new LinkedList<HasID>());
-						ids.get(id).add(hasID);
-					}
-				}
-
-				Map<Fingerprint, List<HasFingerprint>> fingerprints = new HashMap<Fingerprint, List<HasFingerprint>>();
-				List<HasFingerprint> hasFingerprints = getAdaptableObjects(
-						(ISelection) receiver, HasFingerprint.class);
-				for (HasFingerprint hasFingerprint : hasFingerprints) {
-					Fingerprint fingerprint = hasFingerprint.getFingerprint();
-					if (fingerprint != null) {
-						if (!fingerprints.containsKey(fingerprint))
-							fingerprints.put(fingerprint,
-									new LinkedList<HasFingerprint>());
-						fingerprints.get(fingerprint).add(hasFingerprint);
-					}
-				}
-
-				if (ids.size() > 1)
-					return false;
-				if (ids.size() == 1) {
-					OuterLoop: for (HasFingerprint hasFingerprint : hasFingerprints) {
-						if (!(hasFingerprint instanceof HasID && ((HasID) hasFingerprint)
-								.getID() != null)) {
-							for (HasID hasID : hasIDs) {
-								if (hasID instanceof HasFingerprint) {
-									Fingerprint idsFingerprint = ((HasFingerprint) hasID)
-											.getFingerprint();
-									if (idsFingerprint.equals(hasFingerprint
-											.getFingerprint()))
-										continue OuterLoop;
-								}
-							}
-						} else {
-							ID fingerprintsID = ((HasID) hasFingerprint)
-									.getID();
-							for (HasID hasID : hasIDs) {
-								if (hasID.getID().equals(fingerprintsID))
-									continue OuterLoop;
-							}
+				Map<IIdentifier, List<HasIdentifier>> identifiers = new HashMap<IIdentifier, List<HasIdentifier>>();
+				List<HasIdentifier> hasIdentifiers = getAdaptableObjects(
+						(ISelection) receiver, HasIdentifier.class);
+				for (HasIdentifier hasIdentifier : hasIdentifiers) {
+					IIdentifier identifier = hasIdentifier.getIdentifier();
+					if (identifier != null) {
+						if (!identifiers.containsKey(identifier)) {
+							identifiers.put(identifier,
+									new LinkedList<HasIdentifier>());
 						}
-						return false;
+						identifiers.get(identifier).add(hasIdentifier);
 					}
-					return true;
 				}
-				if (ids.size() == 0) {
-					if (fingerprints.size() == 1)
-						return true;
+
+				if (identifiers.size() != 1) {
 					return false;
+				} else {
+					return true;
 				}
 			}
 		}

@@ -11,15 +11,15 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class CodeableUtilsTest {
 	@SuppressWarnings("serial")
 	public static List<ICodeable> codeables = new ArrayList<ICodeable>() {
 		{
-			add(new ICodeable() {
+			this.add(new ICodeable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -29,7 +29,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			add(new ICodeable() {
+			this.add(new ICodeable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -39,7 +39,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			add(new ICodeable() {
+			this.add(new ICodeable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -49,7 +49,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			add(new ICodeable() {
+			this.add(new ICodeable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -59,7 +59,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			add(new ICodeable() {
+			this.add(new ICodeable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -73,29 +73,12 @@ public class CodeableUtilsTest {
 	};
 
 	@Test
-	public void testGetIDs() {
-		Set<ID> ids = CodeableUtils.getIDs(codeables);
-		assertEquals(2, ids.size());
-		assertTrue(ids.contains(new ID("jkl")));
-		assertTrue(ids.contains(new ID("2gh")));
-	}
-
-	@Test
-	public void testGetFingerprints() {
-		Set<Fingerprint> fingerprints = CodeableUtils
-				.getFingerprints(codeables);
-		assertEquals(2, fingerprints.size());
-		assertTrue(fingerprints.contains(new Fingerprint("!iuz")));
-		assertTrue(fingerprints.contains(new Fingerprint("!hhh")));
-	}
-
-	@Test
-	public void testGetKeys() {
-		Set<Object> keys = CodeableUtils.getKeys(codeables);
-		assertEquals(4, keys.size());
-		assertTrue(keys.contains(new ID("jkl")));
-		assertTrue(keys.contains(new ID("2gh")));
-		assertTrue(keys.contains(new Fingerprint("!iuz")));
-		assertTrue(keys.contains(new Fingerprint("!hhh")));
+	public void testGetIdentifiers() {
+		Set<IIdentifier> identifiers = CodeableUtils.getIdentifiers(codeables);
+		assertEquals(4, identifiers.size());
+		assertTrue(identifiers.contains(IdentifierFactory.createFrom("jkl")));
+		assertTrue(identifiers.contains(IdentifierFactory.createFrom("2gh")));
+		assertTrue(identifiers.contains(IdentifierFactory.createFrom("!iuz")));
+		assertTrue(identifiers.contains(IdentifierFactory.createFrom("!hhh")));
 	}
 }

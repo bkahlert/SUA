@@ -7,13 +7,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Fingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasID;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.Token;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
@@ -29,7 +29,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
 public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
-		HasID, HasFingerprint {
+		HasIdentifier {
 
 	private static final Logger LOGGER = Logger.getLogger(Entity.class);
 
@@ -67,21 +67,37 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 
 	@Override
 	public String getWorkSessionEntityID() {
-		return getInternalId();
+		return this.getInternalId();
+	}
+
+	@Override
+	public IIdentifier getIdentifier() {
+		if (this.getId() != null) {
+			return this.getId();
+		} else if (this.getFingerprints().size() > 0) {
+			return this.getFingerprints().get(0);
+		} else if (this.getToken() != null) {
+			return this.getToken();
+		} else {
+			throw new RuntimeException(new NoInternalIdentifierException(this));
+		}
 	}
 
 	public String getInternalId() throws NoInternalIdentifierException {
-		ID id = this.getID();
-		if (id != null)
+		ID id = this.getId();
+		if (id != null) {
 			return id.toString();
+		}
 
 		Token token = this.getToken();
-		if (token != null)
+		if (token != null) {
 			return token.toString();
+		}
 
 		List<Fingerprint> fingerprints = this.getFingerprints();
-		if (fingerprints != null && fingerprints.size() > 0)
+		if (fingerprints != null && fingerprints.size() > 0) {
 			return "!" + StringUtils.join(fingerprints, "!,");
+		}
 
 		throw new NoInternalIdentifierException(this);
 	}
@@ -96,16 +112,17 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	}
 
 	public void setId(ID id) {
-		if (this.id != null && this.id.equals(id))
+		if (this.id != null && this.id.equals(id)) {
 			return;
+		}
 
 		DiffContainer diffFileDirectory = Activator.getDefault()
 				.getDiffDataContainer();
 		TimeZoneDateRange diffFilesDateRange = diffFileDirectory
 				.getDateRange(id);
 		if (diffFilesDateRange != null) {
-			updateEarliestEntryDate(diffFilesDateRange.getStartDate());
-			updateLatestEntryDate(diffFilesDateRange.getEndDate());
+			this.updateEarliestEntryDate(diffFilesDateRange.getStartDate());
+			this.updateLatestEntryDate(diffFilesDateRange.getEndDate());
 		}
 
 		DoclogDataContainer doclogFileDirectory = de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator
@@ -113,14 +130,14 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(id);
 		if (doclogFileDateRange != null) {
-			updateEarliestEntryDate(doclogFileDateRange.getStartDate());
-			updateLatestEntryDate(doclogFileDateRange.getStartDate());
+			this.updateEarliestEntryDate(doclogFileDateRange.getStartDate());
+			this.updateLatestEntryDate(doclogFileDateRange.getStartDate());
 		}
 
 		this.id = id;
 	}
 
-	public ID getID() {
+	public ID getId() {
 		return this.id;
 	}
 
@@ -131,48 +148,43 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 				.getDefault().getDoclogContainer();
 		TimeZoneDateRange doclogFileDateRange = doclogFileDirectory
 				.getDateRange(fingerprint);
-		updateEarliestEntryDate(doclogFileDateRange.getStartDate());
-		updateLatestEntryDate(doclogFileDateRange.getStartDate());
+		this.updateEarliestEntryDate(doclogFileDateRange.getStartDate());
+		this.updateLatestEntryDate(doclogFileDateRange.getStartDate());
 	}
 
 	public List<Fingerprint> getFingerprints() {
 		List<Fingerprint> fingerprints = new ArrayList<Fingerprint>();
-		ID id = this.getID();
+		ID id = this.getId();
 		if (id != null) {
 			fingerprints.addAll(this.mapper.getFingerprints(id));
 		} else {
-			fingerprints.add(fingerprint);
+			fingerprints.add(this.fingerprint);
 		}
 		return fingerprints;
 	}
 
-	@Override
-	public Fingerprint getFingerprint() {
-		List<Fingerprint> fingerprints = getFingerprints();
-		return fingerprints.size() > 0 ? fingerprints.get(0) : null;
-	}
-
 	public Token getToken() {
-		if (this.surveyRecord != null)
+		if (this.surveyRecord != null) {
 			return this.surveyRecord.getToken();
-		else
+		} else {
 			return null;
+		}
 	}
 
 	public SurveyRecord getSurveyRecord() {
-		return surveyRecord;
+		return this.surveyRecord;
 	}
 
 	public void setSurveyRecord(SurveyRecord surveyRecord) {
 		if (surveyRecord != null) {
-			updateEarliestEntryDate(surveyRecord.getDate());
-			updateLatestEntryDate(surveyRecord.getDate());
+			this.updateEarliestEntryDate(surveyRecord.getDate());
+			this.updateLatestEntryDate(surveyRecord.getDate());
 		}
 		this.surveyRecord = surveyRecord;
 	}
 
 	public StatsFile getStatsFile() {
-		return statsFile;
+		return this.statsFile;
 	}
 
 	public void setStatsFile(StatsFile statsFile) {
@@ -180,7 +192,7 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	}
 
 	public CMakeCacheFile getCMakeCacheFile() {
-		return cMakeCacheFile;
+		return this.cMakeCacheFile;
 	}
 
 	public void setCMakeCacheFile(CMakeCacheFile cMakeCacheFile) {
@@ -188,21 +200,25 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	}
 
 	private void updateEarliestEntryDate(TimeZoneDate date) {
-		if (date == null)
+		if (date == null) {
 			return;
-		if (this.earliestEntryDate == null)
+		}
+		if (this.earliestEntryDate == null) {
 			this.earliestEntryDate = date;
-		else if (this.earliestEntryDate.getTime() > date.getTime())
+		} else if (this.earliestEntryDate.getTime() > date.getTime()) {
 			this.earliestEntryDate = date;
+		}
 	}
 
 	private void updateLatestEntryDate(TimeZoneDate date) {
-		if (date == null)
+		if (date == null) {
 			return;
-		if (this.latestEntryDate == null)
+		}
+		if (this.latestEntryDate == null) {
 			this.latestEntryDate = date;
-		else if (this.latestEntryDate.getTime() < date.getTime())
+		} else if (this.latestEntryDate.getTime() < date.getTime()) {
 			this.latestEntryDate = date;
+		}
 	}
 
 	public TimeZoneDate getEarliestEntryDate() {
@@ -223,24 +239,30 @@ public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((mapper == null) ? 0 : mapper.hashCode());
+		result = prime * result
+				+ ((this.mapper == null) ? 0 : this.mapper.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		Entity other = (Entity) obj;
 		if (this.getInternalId() == null) {
-			if (other.getInternalId() != null)
+			if (other.getInternalId() != null) {
 				return false;
-		} else if (!this.getInternalId().equals(other.getInternalId()))
+			}
+		} else if (!this.getInternalId().equals(other.getInternalId())) {
 			return false;
+		}
 		return true;
 	}
 
