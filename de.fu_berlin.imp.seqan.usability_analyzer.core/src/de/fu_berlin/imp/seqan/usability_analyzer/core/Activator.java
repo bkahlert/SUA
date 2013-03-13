@@ -1,6 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core;
 
+import java.net.URL;
+
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
@@ -40,23 +44,28 @@ public class Activator extends AbstractUIPlugin {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
 			TimeZoneDateRange oldDateRange = new TimeZoneDateRange(
-					oldDateRangeStartEnabled ? oldDateRangeStart : null,
-					oldDateRangeEndEnabled ? oldDateRangeEnd : null);
+					Activator.this.oldDateRangeStartEnabled ? Activator.this.oldDateRangeStart
+							: null,
+					Activator.this.oldDateRangeEndEnabled ? Activator.this.oldDateRangeEnd
+							: null);
 			TimeZoneDateRange newDateRange = null;
 
-			TimeZoneDate newDateRangeStart = oldDateRangeStart;
-			TimeZoneDate newDateRangeEnd = oldDateRangeEnd;
-			boolean newDateRangeStartEnabled = oldDateRangeStartEnabled;
-			boolean newDateRangeEndEnabled = oldDateRangeEndEnabled;
+			TimeZoneDate newDateRangeStart = Activator.this.oldDateRangeStart;
+			TimeZoneDate newDateRangeEnd = Activator.this.oldDateRangeEnd;
+			boolean newDateRangeStartEnabled = Activator.this.oldDateRangeStartEnabled;
+			boolean newDateRangeEndEnabled = Activator.this.oldDateRangeEndEnabled;
 
-			if (corePreferenceUtil.dateRangeStartChanged(event)) {
+			if (Activator.this.corePreferenceUtil.dateRangeStartChanged(event)) {
 				newDateRangeStart = new TimeZoneDate(
 						(String) event.getNewValue());
-			} else if (corePreferenceUtil.dateRangeEndChanged(event)) {
+			} else if (Activator.this.corePreferenceUtil
+					.dateRangeEndChanged(event)) {
 				newDateRangeEnd = new TimeZoneDate((String) event.getNewValue());
-			} else if (corePreferenceUtil.dateRangeStartEnabledChanged(event)) {
+			} else if (Activator.this.corePreferenceUtil
+					.dateRangeStartEnabledChanged(event)) {
 				newDateRangeStartEnabled = (Boolean) event.getNewValue();
-			} else if (corePreferenceUtil.dateRangeEndEnabledChanged(event)) {
+			} else if (Activator.this.corePreferenceUtil
+					.dateRangeEndEnabledChanged(event)) {
 				newDateRangeEndEnabled = (Boolean) event.getNewValue();
 			}
 
@@ -66,10 +75,10 @@ public class Activator extends AbstractUIPlugin {
 			DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,
 					newDateRange);
 
-			oldDateRangeStart = newDateRangeStart;
-			oldDateRangeEnd = newDateRangeEnd;
-			oldDateRangeStartEnabled = newDateRangeStartEnabled;
-			oldDateRangeEndEnabled = newDateRangeEndEnabled;
+			Activator.this.oldDateRangeStart = newDateRangeStart;
+			Activator.this.oldDateRangeEnd = newDateRangeEnd;
+			Activator.this.oldDateRangeStartEnabled = newDateRangeStartEnabled;
+			Activator.this.oldDateRangeEndEnabled = newDateRangeEndEnabled;
 		}
 	};
 
@@ -90,17 +99,25 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		corePreferenceUtil = new SUACorePreferenceUtil();
 
-		corePreferenceUtil.addPropertyChangeListener(dateRangeChangeListener);
-		oldDateRangeStart = corePreferenceUtil.getDateRangeStart();
-		oldDateRangeEnd = corePreferenceUtil.getDateRangeEnd();
-		oldDateRangeStartEnabled = corePreferenceUtil
+		URL confURL = this.getBundle().getEntry("log4j.properties");
+		PropertyConfigurator
+				.configure(FileLocator.toFileURL(confURL).getFile());
+
+		this.corePreferenceUtil = new SUACorePreferenceUtil();
+
+		this.corePreferenceUtil
+				.addPropertyChangeListener(this.dateRangeChangeListener);
+		this.oldDateRangeStart = this.corePreferenceUtil.getDateRangeStart();
+		this.oldDateRangeEnd = this.corePreferenceUtil.getDateRangeEnd();
+		this.oldDateRangeStartEnabled = this.corePreferenceUtil
 				.getDateRangeStartEnabled();
-		oldDateRangeEndEnabled = corePreferenceUtil.getDateRangeEndEnabled();
+		this.oldDateRangeEndEnabled = this.corePreferenceUtil
+				.getDateRangeEndEnabled();
 	}
 
 	/*
@@ -110,9 +127,10 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
-		corePreferenceUtil
-				.removePropertyChangeListener(dateRangeChangeListener);
+		this.corePreferenceUtil
+				.removePropertyChangeListener(this.dateRangeChangeListener);
 		plugin = null;
 		super.stop(context);
 	}
