@@ -8,15 +8,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
@@ -34,6 +28,8 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.SchemeAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -44,58 +40,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
 public class AbstractMemoView extends EditorView<Object> {
-
-	private static class MemoViewSelectionProvider implements
-			ISelectionProvider {
-
-		private ISelection selection = null;
-		ListenerList selectionChangedListeners = new ListenerList();
-
-		@Override
-		public void addSelectionChangedListener(
-				ISelectionChangedListener listener) {
-			this.selectionChangedListeners.add(listener);
-		}
-
-		@Override
-		public void removeSelectionChangedListener(
-				ISelectionChangedListener listener) {
-			this.selectionChangedListeners.remove(listener);
-		}
-
-		@Override
-		public ISelection getSelection() {
-			return this.selection;
-		}
-
-		@Override
-		public void setSelection(ISelection selection) {
-			this.selection = selection;
-			final SelectionChangedEvent event = new SelectionChangedEvent(this,
-					selection);
-			Object[] listeners = this.selectionChangedListeners.getListeners();
-			for (int i = 0; i < listeners.length; ++i) {
-				final ISelectionChangedListener l = (ISelectionChangedListener) listeners[i];
-				SafeRunnable.run(new SafeRunnable() {
-					@Override
-					public void run() {
-						l.selectionChanged(event);
-					}
-				});
-			}
-			/*
-			 * Remove the selection automatically after some time. Otherwise
-			 * this view would make other views highlighting the selected
-			 * element again when this view becomes the focus.
-			 */
-			ExecutorUtil.asyncRun(new Runnable() {
-				@Override
-				public void run() {
-					MemoViewSelectionProvider.this.selection = null;
-				}
-			}, 1000);
-		}
-	}
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
@@ -158,18 +102,18 @@ public class AbstractMemoView extends EditorView<Object> {
 		};
 	};
 
+	private IHighlightService highlightService = (IHighlightService) PlatformUI
+			.getWorkbench().getService(IHighlightService.class);
+
 	private IHistory<Object> history;
-	private MemoViewSelectionProvider memoViewSelectionProvider;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
 		this.history = new History<Object>();
-		this.memoViewSelectionProvider = new MemoViewSelectionProvider();
 	}
 
 	@Override
 	public void postInit() {
-		this.getSite().setSelectionProvider(this.memoViewSelectionProvider);
 		this.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
@@ -237,16 +181,12 @@ public class AbstractMemoView extends EditorView<Object> {
 				} else {
 					// do not follow the link but make Eclipse open the resource
 
-					// fire selection so the clicked elements becomes
-					// highlighted in other views
-					ExecutorUtil.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							AbstractMemoView.this.memoViewSelectionProvider
-									.setSelection(new StructuredSelection(
-											codeable));
-						}
-					});
+					TimeZoneDateRange range = (TimeZoneDateRange) Platform
+							.getAdapterManager().getAdapter(codeable,
+									TimeZoneDateRange.class);
+					if (range != null) {
+						AbstractMemoView.this.highlightService.highlight(null, range);
+					}
 
 					// open element
 					if (!codeService.showCodedObjectInWorkspace(uri, special)) {

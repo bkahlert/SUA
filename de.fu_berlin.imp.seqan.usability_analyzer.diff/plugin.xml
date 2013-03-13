@@ -164,18 +164,12 @@
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
-         </adapter>
       </factory>
       <factory
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">

@@ -305,7 +305,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, List<TimeZoneDateRange> dataRanges) {
+			TreeItem[] treeItems, TimeZoneDateRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, DoclogRecord.class)) {
@@ -337,7 +337,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, IIdentifier identifier,
-			List<TimeZoneDateRange> dataRanges) {
+			TimeZoneDateRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, Doclog.class)) {

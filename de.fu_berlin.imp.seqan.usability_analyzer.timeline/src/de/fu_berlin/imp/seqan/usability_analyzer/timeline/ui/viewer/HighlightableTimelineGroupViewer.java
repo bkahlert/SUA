@@ -17,6 +17,7 @@ import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>, TIMELINE extends ITimeline>
 		extends TimelineGroupViewer<TIMELINEGROUP, TIMELINE> {
@@ -36,8 +37,9 @@ public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends ITimelineGro
 		Map<Object, Calendar> calendars = new HashMap<Object, Calendar>();
 		for (Object key : dates.keySet()) {
 			TimeZoneDate date = dates.get(key);
-			if (date != null)
+			if (date != null) {
 				calendars.put(key, date.getCalendar());
+			}
 		}
 		this.setCenterVisibleDate(calendars, monitor);
 	}
@@ -45,26 +47,25 @@ public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends ITimelineGro
 	/**
 	 * Highlights the given date ranges.
 	 * 
-	 * @param groupedDateRanges
+	 * @param groupedRanges
 	 * @param progressMonitor
 	 */
-	public void highlight(
-			Map<Object, List<TimeZoneDateRange>> groupedDateRanges,
+	public void highlight(Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
 			IProgressMonitor monitor) {
 
 		Map<Object, IDecorator[]> groupedDecorators = new HashMap<Object, IDecorator[]>();
 
-		for (final Object key : groupedDateRanges.keySet()) {
+		for (final Object key : groupedRanges.keySet()) {
 
-			final List<TimeZoneDateRange> dateRanges = groupedDateRanges
-					.get(key);
+			final TimeZoneDateRange[] dateRanges = groupedRanges.get(key);
 
 			List<IDecorator> decorators = new ArrayList<IDecorator>(
-					dateRanges.size());
+					dateRanges.length);
 			for (TimeZoneDateRange dateRange : dateRanges) {
 				if (dateRange.getStartDate() == null
-						&& dateRange.getEndDate() == null)
+						&& dateRange.getEndDate() == null) {
 					continue;
+				}
 				decorators.add(new Decorator(
 						dateRange.getStartDate() != null ? dateRange
 								.getStartDate().getCalendar() : null, dateRange

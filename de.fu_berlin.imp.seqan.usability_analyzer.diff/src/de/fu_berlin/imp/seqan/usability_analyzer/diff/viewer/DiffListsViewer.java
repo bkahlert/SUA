@@ -1,7 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
@@ -9,6 +11,7 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
@@ -22,6 +25,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.TreeItem;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
@@ -311,5 +316,70 @@ public class DiffListsViewer extends SortableTreeViewer {
 										.getDateFormat()) : "";
 					}
 				});
+	}
+
+	/**
+	 * Returns the {@link TreePath}s that describe {@link IDiffRecord}
+	 * fulfilling the following criteria:
+	 * <ol>
+	 * <li>{@link IDiffRecord}'s {@link TimeZoneDateRange} intersects one of the
+	 * given {@link TimeZoneDateRange}s
+	 * </ol>
+	 * 
+	 * @param treeItems
+	 * @param dataRanges
+	 * @return
+	 */
+	public static List<TreePath> getItemsOfIntersectingDataRanges(
+			TreeItem[] treeItems, TimeZoneDateRange[] dataRanges) {
+		List<TreePath> treePaths = new ArrayList<TreePath>();
+		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+				.getItemWithDataType(treeItems, IDiffRecord.class)) {
+			IDiffRecord diffRecord = (IDiffRecord) item.getData();
+			for (TimeZoneDateRange dateRange : dataRanges) {
+				if (dateRange.isIntersected(diffRecord.getDateRange())) {
+					treePaths.add(new TreePath(new Object[] { diffRecord }));
+					break;
+				}
+			}
+		}
+		return treePaths;
+	}
+
+	/**
+	 * Returns the {@link TreePath}s that describe {@link IDiffRecord}
+	 * fulfilling the following criteria:
+	 * <ol>
+	 * <li>{@link IDiffRecord} belongs to a {@link IDiffs} with the given
+	 * {@link IIdentifier}
+	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
+	 * the given {@link TimeZoneDateRange}s
+	 * </ol>
+	 * 
+	 * @param treeItems
+	 * @param identifier
+	 * @param dataRanges
+	 * @return
+	 */
+	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
+			TreeItem[] treeItems, IIdentifier identifier,
+			TimeZoneDateRange[] dataRanges) {
+		List<TreePath> treePaths = new ArrayList<TreePath>();
+		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+				.getItemWithDataType(treeItems, IDiffs.class)) {
+			IDiffs diffs = (IDiffs) item.getData();
+			if (identifier.equals(diffs.getIdentifier())) {
+				List<TreePath> childTreePaths = DiffListsViewer
+						.getItemsOfIntersectingDataRanges(
+								((TreeItem) item).getItems(), dataRanges);
+				for (TreePath childTreePath : childTreePaths) {
+					TreePath treePath = com.bkahlert.devel.nebula.utils.ViewerUtils
+							.merge(new TreePath(new Object[] { diffs }),
+									childTreePath);
+					treePaths.add(treePath);
+				}
+			}
+		}
+		return treePaths;
 	}
 }

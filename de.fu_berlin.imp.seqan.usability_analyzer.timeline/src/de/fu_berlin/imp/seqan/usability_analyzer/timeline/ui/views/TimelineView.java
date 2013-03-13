@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,16 +18,13 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -44,17 +40,15 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.impl.TimelineGroup;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
-import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
-import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
@@ -67,75 +61,6 @@ public class TimelineView extends ViewPart {
 	public static final Logger LOGGER = Logger.getLogger(TimelineView.class);
 
 	private Job timelineLoader = null;
-
-	private ISelectionListener selectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			final Map<Object, List<TimeZoneDateRange>> groupedDateRanges = new HashMap<Object, List<TimeZoneDateRange>>();
-			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
-			if (part == TimelineView.this) {
-				if (TimelineView.this.openedIdentifiers == null) {
-					return;
-				}
-
-				// TODO selection nur auf jeweiliger timeline anwenden (und
-				// nicht auf alle)
-				List<HasDateRange> ranges = SelectionRetrieverFactory
-						.getSelectionRetriever(HasDateRange.class)
-						.getSelection();
-				for (Object key : TimelineView.this.openedIdentifiers) {
-					List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
-					for (HasDateRange range : ranges) {
-						if (range.getClass().getSimpleName().toLowerCase()
-								.contains("doclog")) {
-							return;
-						}
-						dateRanges.add(range.getDateRange());
-					}
-					groupedDateRanges.put(key, dateRanges);
-				}
-			} else {
-				// TODO elemente wirklich markieren
-				groupedDateRanges.putAll(IdentifierDateRange
-						.group(SelectionRetrieverFactory.getSelectionRetriever(
-								IdentifierDateRange.class).getSelection()));
-
-				for (Object key : groupedDateRanges.keySet()) {
-					TimeZoneDate centeredDate = TimeZoneDateRange
-							.calculateOuterDateRange(
-									groupedDateRanges.get(key).toArray(
-											new TimeZoneDateRange[0]))
-							.getStartDate();
-					centeredDates.put(key, centeredDate);
-				}
-			}
-
-			if (groupedDateRanges.keySet().size() == 0) {
-				return;
-			}
-
-			if (TimelineView.this.timelineLoader != null) {
-				TimelineView.this.timelineLoader.cancel();
-			}
-
-			TimelineView.this.timelineLoader = new Job("Updating "
-					+ ITimeline.class.getSimpleName()) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-					if (groupedDateRanges.size() > 0) {
-						TimelineView.this.timelineGroupViewer.highlight(
-								groupedDateRanges, subMonitor.newChild(2));
-						TimelineView.this.timelineGroupViewer.center(
-								centeredDates, subMonitor.newChild(1));
-					}
-					subMonitor.done();
-					return Status.OK_STATUS;
-				}
-			};
-			TimelineView.this.timelineLoader.schedule();
-		}
-	};
 
 	private IWorkSessionService workSessionService;
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
@@ -173,6 +98,87 @@ public class TimelineView extends ViewPart {
 		}
 	};
 
+	private IHighlightService highlightService;
+	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
+		@Override
+		public void highlight(Object sender, TimeZoneDateRange[] ranges) {
+			if (TimelineView.this.openedIdentifiers == null
+					|| TimelineView.this.openedIdentifiers.size() == 0) {
+				return;
+			}
+			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges = new HashMap<IIdentifier, TimeZoneDateRange[]>();
+			for (IIdentifier loadedIdentifier : TimelineView.this.openedIdentifiers) {
+				groupedRanges.put(loadedIdentifier, ranges);
+			}
+			this.highlight(sender, groupedRanges);
+		}
+
+		@Override
+		public void highlight(Object sender,
+				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+			if (sender == TimelineView.this) {
+				return;
+			}
+
+			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
+			// if (part == TimelineView.this) {
+			// if (TimelineView.this.openedIdentifiers == null) {
+			// return;
+			// }
+			//
+			// // TODO selection nur auf jeweiliger timeline anwenden (und
+			// // nicht auf alle)
+			// List<HasDateRange> ranges = SelectionRetrieverFactory
+			// .getSelectionRetriever(HasDateRange.class)
+			// .getSelection();
+			// for (Object key : TimelineView.this.openedIdentifiers) {
+			// List<TimeZoneDateRange> dateRanges = new
+			// LinkedList<TimeZoneDateRange>();
+			// for (HasDateRange range : ranges) {
+			// if (range.getClass().getSimpleName().toLowerCase()
+			// .contains("doclog")) {
+			// return;
+			// }
+			// dateRanges.add(range.getDateRange());
+			// }
+			// groupedDateRanges.put(key, dateRanges);
+			// }
+			// } else {
+			for (Object key : groupedRanges.keySet()) {
+				TimeZoneDate centeredDate = TimeZoneDateRange
+						.calculateOuterDateRange(groupedRanges.get(key))
+						.getStartDate();
+				centeredDates.put(key, centeredDate);
+			}
+			// }
+
+			if (groupedRanges.keySet().size() == 0) {
+				return;
+			}
+
+			if (TimelineView.this.timelineLoader != null) {
+				TimelineView.this.timelineLoader.cancel();
+			}
+
+			TimelineView.this.timelineLoader = new Job("Updating "
+					+ ITimeline.class.getSimpleName()) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+					if (!groupedRanges.isEmpty()) {
+						TimelineView.this.timelineGroupViewer.highlight(
+								groupedRanges, subMonitor.newChild(2));
+						TimelineView.this.timelineGroupViewer.center(
+								centeredDates, subMonitor.newChild(1));
+					}
+					subMonitor.done();
+					return Status.OK_STATUS;
+				}
+			};
+			TimelineView.this.timelineLoader.schedule();
+		}
+	};
+
 	private TimelineGroup<ITimeline> timelineGroup;
 	private HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline> timelineGroupViewer;
 
@@ -184,6 +190,13 @@ public class TimelineView extends ViewPart {
 		if (this.workSessionService == null) {
 			LOGGER.warn("Could not get "
 					+ IWorkSessionService.class.getSimpleName());
+		}
+
+		this.highlightService = (IHighlightService) PlatformUI.getWorkbench()
+				.getService(IHighlightService.class);
+		if (this.highlightService == null) {
+			LOGGER.warn("Could not get "
+					+ IHighlightService.class.getSimpleName());
 		}
 	}
 
@@ -223,14 +236,18 @@ public class TimelineView extends ViewPart {
 			this.workSessionService
 					.addWorkSessionListener(this.workSessionListener);
 		}
-		SelectionUtils.getSelectionService().addSelectionListener(
-				this.selectionListener);
+		if (this.highlightService != null) {
+			this.highlightService
+					.addHighlightServiceListener(this.highlightServiceListener);
+		}
 	}
 
 	@Override
 	public void dispose() {
-		SelectionUtils.getSelectionService().removeSelectionListener(
-				this.selectionListener);
+		if (this.highlightService != null) {
+			this.highlightService
+					.removeHighlightServiceListener(this.highlightServiceListener);
+		}
 		if (this.workSessionService != null) {
 			this.workSessionService
 					.removeWorkSessionListener(this.workSessionListener);

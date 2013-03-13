@@ -10,6 +10,7 @@ import org.osgi.framework.BundleListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -18,6 +19,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 
 	private static IWorkSessionService WORKSESSION_SERVICE;
 	private static IDataService DATA_DIRECTORIES_SERVICE;
+	private static IHighlightService HIGHLIGHT_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -46,15 +48,21 @@ public class ServiceFactory extends AbstractServiceFactory {
 							@Override
 							synchronized public void bundleChanged(
 									BundleEvent event) {
-								if (!disposed
+								if (!this.disposed
 										&& event.getType() == BundleEvent.STOPPED) {
 									DATA_DIRECTORIES_SERVICE.unloadData();
-									disposed = true;
+									this.disposed = true;
 								}
 							}
 						});
 			}
 			return DATA_DIRECTORIES_SERVICE;
+		}
+		if (serviceInterface == IHighlightService.class) {
+			if (HIGHLIGHT_SERVICE == null) {
+				HIGHLIGHT_SERVICE = new HighlightService();
+			}
+			return HIGHLIGHT_SERVICE;
 		}
 
 		return null;
