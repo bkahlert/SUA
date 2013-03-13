@@ -82,7 +82,7 @@ public class DataService implements IDataService {
 		new SUACorePreferenceUtil().setDataDirectory(sb.toString());
 	}
 
-	private DataListenerNotifier notifier = new DataListenerNotifier();
+	private DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
 	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
 	private List<? extends IBaseDataContainer> activeBaseDataDirectories = loadActiveFromPreferences();
 

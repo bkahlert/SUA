@@ -10,7 +10,7 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 
-public class DataListenerNotifier {
+public class DataServiceListenerNotifier {
 	private List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
 	private static final ExecutorService POOL = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(1);
