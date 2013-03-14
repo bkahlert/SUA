@@ -387,7 +387,12 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				}
 
 				if (success != null) {
-					return success.call();
+					return ExecutorUtil.syncExec(new Callable<T>() {
+						@Override
+						public T call() throws Exception {
+							return success.call();
+						}
+					});
 				} else {
 					return null;
 				}
