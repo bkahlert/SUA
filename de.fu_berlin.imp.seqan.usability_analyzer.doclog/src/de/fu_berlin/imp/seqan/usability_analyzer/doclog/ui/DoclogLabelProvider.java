@@ -1,15 +1,22 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider.DetailedLabelProvider;
 
-public class DoclogLabelProvider extends LabelProvider {
+public class DoclogLabelProvider extends DetailedLabelProvider {
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
@@ -31,7 +38,7 @@ public class DoclogLabelProvider extends LabelProvider {
 			return url != null ? (scrollY != null ? url + " ⇅" + scrollY : url)
 					: "ERROR";
 		}
-		return "";
+		return super.getText(element);
 	}
 
 	@Override
@@ -61,6 +68,39 @@ public class DoclogLabelProvider extends LabelProvider {
 			}
 		}
 		return super.getImage(element);
+	}
+
+	@Override
+	public boolean canFillPopup(Object element) {
+		if (element instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) element;
+			if (doclogRecord.getScreenshot() == null) {
+				return false;
+			}
+			DoclogScreenshot screenshot = doclogRecord.getScreenshot();
+			if (screenshot == null) {
+				return false;
+			}
+			ImageData imageData = screenshot.getImageData();
+			if (imageData == null) {
+				return false;
+			}
+			return true;
+		}
+		return super.canFillPopup(element);
+	}
+
+	@Override
+	public Control fillPopup(Object element, Composite composite) {
+		if (element instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) element;
+			Image image = new Image(Display.getCurrent(), doclogRecord
+					.getScreenshot().getImageData());
+			Label label = new Label(composite, SWT.NONE);
+			label.setImage(image);
+			return label;
+		}
+		return super.fillPopup(element, composite);
 	}
 
 }

@@ -11,11 +11,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
+import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.KeyboardUtils;
 import com.bkahlert.devel.nebula.utils.history.History;
 import com.bkahlert.devel.nebula.utils.history.IHistory;
 import com.bkahlert.devel.nebula.views.EditorView;
@@ -36,6 +40,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider.IDetailedLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
@@ -169,11 +174,13 @@ public class AbstractMemoView extends EditorView<Object> {
 		Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
 		listeners.put("SUA", new AnkerAdaptingListener(new IURIListener() {
 			@Override
-			public void uriClicked(final URI uri, boolean special) {
+			public void uriClicked(final URI uri) {
+				this.closePopup();
+
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
 				final ICodeable codeable = codeService.getCodedObject(uri);
-				if (!special) {
+				if (!KeyboardUtils.isMetaKeyPressed()) {
 					// treat link as a typical link that opens a resource
 					AbstractMemoView.this.history.add(codeable);
 					AbstractMemoView.this.updateNavigation();
@@ -185,11 +192,13 @@ public class AbstractMemoView extends EditorView<Object> {
 							.getAdapterManager().getAdapter(codeable,
 									TimeZoneDateRange.class);
 					if (range != null) {
-						AbstractMemoView.this.highlightService.highlight(null, range);
+						AbstractMemoView.this.highlightService.highlight(
+								AbstractMemoView.this, range);
 					}
 
 					// open element
-					if (!codeService.showCodedObjectInWorkspace(uri, special)) {
+					if (!codeService.showCodedObjectInWorkspace(uri,
+							KeyboardUtils.isMetaKeyPressed())) {
 						ExecutorUtil.asyncExec(new Runnable() {
 							@Override
 							public void run() {
@@ -202,6 +211,52 @@ public class AbstractMemoView extends EditorView<Object> {
 							}
 						});
 					}
+				}
+			}
+
+			private PopupDialog popup = null;
+
+			@Override
+			public void uriHovered(URI uri, boolean entered) {
+				this.closePopup();
+
+				ILabelProvider labelProvider = AbstractMemoView.this.codeService
+						.getLabelProvider(uri);
+				final ICodeable codeable = AbstractMemoView.this.codeService
+						.getCodedObject(uri);
+				if (labelProvider == null || codeable == null) {
+					return;
+				}
+
+				if (labelProvider instanceof IDetailedLabelProvider) {
+					final IDetailedLabelProvider detailedLabelProvider = (IDetailedLabelProvider) labelProvider;
+					if (entered && detailedLabelProvider.canFillPopup(codeable)) {
+						this.popup = new PopupDialog() {
+							@Override
+							protected Control createControls(Composite parent) {
+								return detailedLabelProvider.fillPopup(
+										codeable, parent);
+							};
+						};
+						ExecutorUtil.syncExec(new Runnable() {
+							@Override
+							public void run() {
+								popup.open();
+							}
+						});
+					}
+				}
+			}
+
+			public void closePopup() {
+				if (this.popup != null) {
+					ExecutorUtil.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							popup.close();
+						}
+					});
+					this.popup = null;
 				}
 			}
 		}));
