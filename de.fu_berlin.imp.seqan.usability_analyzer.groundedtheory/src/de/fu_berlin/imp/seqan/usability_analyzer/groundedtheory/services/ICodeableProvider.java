@@ -10,13 +10,14 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public interface ICodeableProvider {
 
 /**
 	 * Instances of this class can provide callers of
-	 * {@link ICodeableProvider#getLabelProvider(URI) with further information.
+	 * {@link ICodeableProvider#getLabelProvider(ILocatable) with further information.
 	 * @author bkahlert
 	 *
 	 */

@@ -1,12 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 
 public class LabelProviderService implements ILabelProviderService {
@@ -28,7 +28,7 @@ public class LabelProviderService implements ILabelProviderService {
 	}
 
 	@Override
-	public ILabelProvider getLabelProvider(URI uri) {
+	public ILabelProvider getLabelProvider(ILocatable uri) {
 		for (ILabelProviderFactory labelProviderFactory : this.labelProviderFactories) {
 			ILabelProvider labelProvider = labelProviderFactory.createFor(uri);
 			if (labelProvider != null) {

@@ -33,7 +33,7 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 
 	private ILabelProviderService labelProviderService = null;
-	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.URIPathLabelProviderFactory(
+	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
 			0, "doclog") {
 		@Override
 		protected ILabelProvider create() {

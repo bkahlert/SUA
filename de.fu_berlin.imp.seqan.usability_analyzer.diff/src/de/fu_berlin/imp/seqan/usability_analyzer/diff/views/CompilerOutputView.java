@@ -22,7 +22,7 @@ public class CompilerOutputView extends AbstractOutputView {
 	@Override
 	public PartInfo getPartInfo(ICompilable compilable) {
 		ILabelProvider labelProvider = this.getLabelProviderService()
-				.getLabelProvider(compilable.getUri());
+				.getLabelProvider(compilable);
 		if (labelProvider != null) {
 			return new PartInfo("Compiler Output - "
 					+ labelProvider.getText(compilable),

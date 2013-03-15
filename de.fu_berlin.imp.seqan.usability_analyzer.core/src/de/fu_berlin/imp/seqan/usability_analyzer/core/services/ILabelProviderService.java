@@ -8,6 +8,8 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+
 /**
  * This service is responsible to make {@link ILabelProvider}s accessible across
  * plugin borders.
@@ -19,29 +21,28 @@ public interface ILabelProviderService {
 
 	/**
 	 * Instances of this class may be able to construct a {@link ILabelProvider}
-	 * for the given objects.
+	 * for the given {@link ILocatable}s.
 	 * 
 	 * @author bkahlert
 	 */
 	public static interface ILabelProviderFactory {
 		/**
-		 * Creates an {@link ILabelProvider} for the object references by the
-		 * given {@link URI}.
+		 * Creates an {@link ILabelProvider} for the given {@link ILocatable}.
 		 * 
-		 * @param uri
+		 * @param locatable
 		 * @return null if this {@link ILabelProvider} can't format the
 		 *         requested object.
 		 */
-		public ILabelProvider createFor(URI uri);
+		public ILabelProvider createFor(ILocatable locatable);
 	}
 
 	/**
-	 * Instances of this class decide on the provided {@link URI}' specific
-	 * features whether to return an {@link ILabelProvider} or not.
+	 * Instances of this class decide on the provided {@link ILocatable}'s
+	 * specific features whether to return an {@link ILabelProvider} or not.
 	 * 
 	 * @author bkahlert
 	 */
-	public static abstract class URIPathLabelProviderFactory implements
+	public static abstract class LocatablePathLabelProviderFactory implements
 			ILabelProviderFactory {
 		private int pathSegmentIndex;
 		private String pathSegmentValue;
@@ -50,7 +51,7 @@ public interface ILabelProviderService {
 		 * Constructs an instance that checks the i-th segment of the
 		 * {@link URI}s path (including the host) for a specific value.
 		 * <p>
-		 * e.g. a {@link URIPathLabelProviderFactory} will return a
+		 * e.g. a {@link LocatablePathLabelProviderFactory} will return a
 		 * {@link ILabelProvider} for sua://foo/bar if it check
 		 * <code>pathSegmentIndex
 		 * = 1</code> and <code>pathSegmentValue = bar</code>.
@@ -58,7 +59,7 @@ public interface ILabelProviderService {
 		 * @param pathSegmentIndex
 		 * @param pathSegmentValue
 		 */
-		public URIPathLabelProviderFactory(int pathSegmentIndex,
+		public LocatablePathLabelProviderFactory(int pathSegmentIndex,
 				String pathSegmentValue) {
 			Assert.isTrue(pathSegmentIndex >= 0);
 			Assert.isNotNull(pathSegmentValue);
@@ -67,8 +68,8 @@ public interface ILabelProviderService {
 		}
 
 		@Override
-		public ILabelProvider createFor(URI uri) {
-			List<String> segments = getSegments(uri);
+		public ILabelProvider createFor(ILocatable locatable) {
+			List<String> segments = getSegments(locatable);
 
 			if (segments.size() <= this.pathSegmentIndex) {
 				return null;
@@ -81,7 +82,8 @@ public interface ILabelProviderService {
 			}
 		}
 
-		private List<String> getSegments(URI uri) {
+		private List<String> getSegments(ILocatable locatable) {
+			URI uri = locatable.getUri();
 			String host = uri.getHost();
 			String path = uri.getRawPath();
 
@@ -100,7 +102,7 @@ public interface ILabelProviderService {
 
 	/**
 	 * Adds a {@link ILabelProviderFactory} that is consulted when
-	 * {@link #getLabelProvider(URI)} is called.
+	 * {@link #getLabelProvider(ILocatable)} is called.
 	 * 
 	 * @param labelProviderFactory
 	 */
@@ -110,7 +112,7 @@ public interface ILabelProviderService {
 	/**
 	 * Removed a {@link ILabelProviderFactory} from the pool of
 	 * {@link ILabelProviderFactory}s that is consulted when
-	 * {@link #getLabelProvider(URI)} is called.
+	 * {@link #getLabelProvider(ILocatable)} is called.
 	 * 
 	 * @param labelProviderFactory
 	 */
@@ -121,9 +123,9 @@ public interface ILabelProviderService {
 	 * Returns the {@link ILabelProvider} than can format the object referenced
 	 * by the given {@link URI}.
 	 * 
-	 * @param uri
+	 * @param locatable
 	 * @return null if no {@link ILabelProvider} can be provided.
 	 */
-	public ILabelProvider getLabelProvider(URI uri);
+	public ILabelProvider getLabelProvider(ILocatable locatable);
 
 }

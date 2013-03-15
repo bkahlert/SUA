@@ -159,7 +159,7 @@ public class AbstractMemoView extends EditorView<Object> {
 						ICodeable codeable = AbstractMemoView.this.codeService
 								.getCodedObject(uri);
 						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-								.getLabelProvider(uri);
+								.getLabelProvider(codeable);
 						if (codeable != null && labelProvider != null) {
 							return labelProvider.getText(codeable);
 						}
@@ -224,11 +224,11 @@ public class AbstractMemoView extends EditorView<Object> {
 			public void uriHovered(URI uri, boolean entered) {
 				this.closePopup();
 
-				ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-						.getLabelProvider(uri);
 				final ICodeable codeable = AbstractMemoView.this.codeService
 						.getCodedObject(uri);
-				if (labelProvider == null || codeable == null) {
+				ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
+						.getLabelProvider(codeable);
+				if (codeable == null || labelProvider == null) {
 					return;
 				}
 
@@ -290,7 +290,7 @@ public class AbstractMemoView extends EditorView<Object> {
 					.getId());
 			if (coded != null) {
 				ILabelProvider lp = this.labelProviderService
-						.getLabelProvider(coded.getUri());
+						.getLabelProvider(coded);
 				return new PartInfo(lp.getText(coded) + " (coded with "
 						+ codeInstance.getCode().getCaption() + ")",
 						lp.getImage(coded));
@@ -302,7 +302,7 @@ public class AbstractMemoView extends EditorView<Object> {
 		} else if (loadedObject instanceof ICodeable) {
 			ICodeable codeable = (ICodeable) loadedObject;
 			ILabelProvider lp = this.labelProviderService
-					.getLabelProvider(codeable.getUri());
+					.getLabelProvider(codeable);
 			return new PartInfo(lp.getText(codeable), lp.getImage(codeable));
 		} else {
 			return this.getDefaultPartInfo();

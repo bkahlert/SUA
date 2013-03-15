@@ -23,7 +23,7 @@ public class ExecutionOutputView extends AbstractOutputView {
 	@Override
 	public PartInfo getPartInfo(ICompilable compilable) {
 		ILabelProvider labelProvider = this.getLabelProviderService()
-				.getLabelProvider(compilable.getUri());
+				.getLabelProvider(compilable);
 		if (labelProvider != null) {
 			return new PartInfo("Execution Output - "
 					+ labelProvider.getText(compilable),

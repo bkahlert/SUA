@@ -71,7 +71,7 @@ public final class EpisodeLabelProvider extends LabelProvider {
 					.getCodedObject(codeInstance.getId());
 			if (codedObject != null) {
 				ILabelProvider labelProvider = this.labelProviderService
-						.getLabelProvider(codeInstance.getId());
+						.getLabelProvider(codedObject);
 				return (labelProvider != null) ? labelProvider
 						.getText(codedObject) : "[UNKNOWN ORIGIN]";
 			} else {
@@ -116,7 +116,7 @@ public final class EpisodeLabelProvider extends LabelProvider {
 			Image image;
 			if (codedObject != null) {
 				ILabelProvider labelProvider = this.labelProviderService
-						.getLabelProvider(codeInstance.getId());
+						.getLabelProvider(codedObject);
 				image = (labelProvider != null) ? labelProvider
 						.getImage(codedObject) : null;
 			} else {

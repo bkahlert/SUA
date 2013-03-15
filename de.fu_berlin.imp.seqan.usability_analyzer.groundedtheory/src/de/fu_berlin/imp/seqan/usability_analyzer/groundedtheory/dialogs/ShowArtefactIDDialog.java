@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.dialogs;
 
-import java.net.URI;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -59,7 +57,6 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 		composite.setLayout(GridLayoutFactory.fillDefaults().numColumns(1)
 				.create());
 
-		URI uri = this.codeable.getUri();
 		Image image = null;
 		String label = "?";
 
@@ -72,7 +69,7 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 				.getWorkbench().getService(ILabelProviderService.class);
 		if (labelProviderService != null) {
 			ILabelProvider labelProvider = labelProviderService
-					.getLabelProvider(uri);
+					.getLabelProvider(this.codeable);
 			if (labelProvider != null) {
 				image = labelProvider.getImage(this.codeable);
 				label = labelProvider.getText(this.codeable);
@@ -92,7 +89,7 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 
 		Label uriLabel = new Label(composite, SWT.NONE);
 		uriLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-		uriLabel.setText(uri.toString());
+		uriLabel.setText(this.codeable.getUri().toString());
 		FontUtils.changeFontSizeBy(uriLabel, 2);
 
 		parent.pack();
