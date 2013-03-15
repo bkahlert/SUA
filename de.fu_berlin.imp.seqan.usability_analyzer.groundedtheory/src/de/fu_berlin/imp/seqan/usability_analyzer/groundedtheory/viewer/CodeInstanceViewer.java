@@ -20,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -31,6 +32,9 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeInstanceViewer.class);
+
+	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 	private SortableTreeViewer treeViewer;
 
 	public CodeInstanceViewer(Composite parent, int style) {
@@ -45,7 +49,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
-		createColumns();
+		this.createColumns();
 		this.treeViewer
 				.setContentProvider(new CodeInstanceViewerContentProvider());
 	}
@@ -53,7 +57,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	private void createColumns() {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		treeViewer.createColumn("ID", 180).setLabelProvider(
+		this.treeViewer.createColumn("ID", 180).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -63,9 +67,9 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						}
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codedObject = (ICodeable) element;
-							return codeService.getLabelProvider(
-									codedObject.getUri()).getText(
-									codedObject);
+							return CodeInstanceViewer.this.labelProviderService
+									.getLabelProvider(codedObject.getUri())
+									.getText(codedObject);
 						}
 						if (NoCodesNode.class.isInstance(element)) {
 							return "no codes";
@@ -81,21 +85,21 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						}
 						if (ICodeable.class.isInstance(element)) {
 							ICodeable codedObject = (ICodeable) element;
-							return codeService.getLabelProvider(
-									codedObject.getUri()).getImage(
-									codedObject);
+							return CodeInstanceViewer.this.labelProviderService
+									.getLabelProvider(codedObject.getUri())
+									.getImage(codedObject);
 						}
 						return null;
 					}
 				});
-		treeViewer.createColumn("", 16).setLabelProvider(
+		this.treeViewer.createColumn("", 16).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						return "";
 					}
 				});
-		treeViewer.createColumn("URI", 300).setLabelProvider(
+		this.treeViewer.createColumn("URI", 300).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -141,7 +145,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	public StructuredViewer getViewer() {
-		return treeViewer;
+		return this.treeViewer;
 	}
 
 	/**
@@ -154,9 +158,10 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		List<ICodeable> codeables = new LinkedList<ICodeable>();
 		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
 		for (TreeItem treeItem : treeItems) {
-			ICodeable codeable = getCodeable(treeItem);
-			if (!codeables.contains(codeable))
+			ICodeable codeable = this.getCodeable(treeItem);
+			if (!codeables.contains(codeable)) {
 				codeables.add(codeable);
+			}
 		}
 		return codeables.size() == 1 ? codeables.get(0) : null;
 	}
@@ -172,10 +177,12 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * @return
 	 */
 	public ICodeable getCodeable(TreeItem treeItem) {
-		if (treeItem.getData() instanceof ICodeable)
+		if (treeItem.getData() instanceof ICodeable) {
 			return (ICodeable) treeItem.getData();
-		if (treeItem.getParentItem() != null)
-			return getCodeable(treeItem.getParentItem());
+		}
+		if (treeItem.getParentItem() != null) {
+			return this.getCodeable(treeItem.getParentItem());
+		}
 		return null;
 	}
 

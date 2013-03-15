@@ -20,8 +20,8 @@ import com.bkahlert.devel.nebula.utils.FontUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class ShowArtefactIDDialog extends TitleAreaDialog {
 
@@ -35,21 +35,25 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 		this.codeable = codeable;
 	}
 
+	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.CLOSE_ID,
+		this.createButton(parent, IDialogConstants.CLOSE_ID,
 				IDialogConstants.CLOSE_LABEL, true);
-		createButton(parent, COPY_AND_CLOSE_ID, COPY_AND_CLOSE_STRING, true);
+		this.createButton(parent, COPY_AND_CLOSE_ID, COPY_AND_CLOSE_STRING,
+				true);
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 		Control contents = super.createContents(parent);
-		setTitle("Artefact ID");
-		setMessage(
+		this.setTitle("Artefact ID");
+		this.setMessage(
 				"Press \"Copy and Close\" if you want to copy the artefact ID to your clipboard",
 				IMessageProvider.INFORMATION);
 		return contents;
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setLayout(GridLayoutFactory.fillDefaults().numColumns(1)
@@ -64,10 +68,11 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 		intro.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 		FontUtils.changeFontSizeBy(intro, -1);
 
-		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-				.getService(ICodeService.class);
-		if (codeService != null) {
-			ILabelProvider labelProvider = codeService.getLabelProvider(uri);
+		ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+				.getWorkbench().getService(ILabelProviderService.class);
+		if (labelProviderService != null) {
+			ILabelProvider labelProvider = labelProviderService
+					.getLabelProvider(uri);
 			if (labelProvider != null) {
 				image = labelProvider.getImage(this.codeable);
 				label = labelProvider.getText(this.codeable);

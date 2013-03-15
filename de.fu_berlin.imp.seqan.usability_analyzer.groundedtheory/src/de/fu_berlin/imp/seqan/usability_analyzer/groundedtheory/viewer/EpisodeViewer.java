@@ -31,9 +31,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerpri
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
 
 public class EpisodeViewer extends Composite implements ISelectionProvider {
 
@@ -112,8 +112,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				"Episode", 150);
 		episodeColumn.setLabelProvider(new ColumnLabelProvider() {
 
-			ILabelProvider labelProvider = new EpisodeCodeableProvider()
-					.getLabelProvider();
+			ILabelProvider labelProvider = new EpisodeLabelProvider();
 
 			@Override
 			public String getText(Object element) {

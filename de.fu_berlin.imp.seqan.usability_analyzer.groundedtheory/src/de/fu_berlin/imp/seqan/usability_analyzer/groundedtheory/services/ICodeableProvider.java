@@ -81,12 +81,4 @@ public interface ICodeableProvider {
 	public Future<Boolean> showCodedObjectsInWorkspace(
 			List<URI> codeInstanceIDs, boolean open);
 
-	/**
-	 * Returns a label provider able to provide a label and image for an
-	 * {@link ICodeable}.
-	 * 
-	 * @param codeInstanceID
-	 * @return
-	 */
-	public ILabelProvider getLabelProvider(URI codeInstanceID);
 }

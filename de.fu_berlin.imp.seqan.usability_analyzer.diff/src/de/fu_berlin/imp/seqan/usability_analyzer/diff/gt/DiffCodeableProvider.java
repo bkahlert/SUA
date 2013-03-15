@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
@@ -31,7 +30,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
@@ -206,8 +204,4 @@ public class DiffCodeableProvider extends CodeableProvider {
 						// existing segements could be opened
 	}
 
-	@Override
-	public ILabelProvider getLabelProvider() {
-		return new DiffLabelProvider();
-	}
 }

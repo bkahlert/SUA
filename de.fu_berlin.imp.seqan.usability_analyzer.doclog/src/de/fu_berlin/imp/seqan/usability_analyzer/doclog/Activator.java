@@ -7,15 +7,20 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -26,6 +31,15 @@ public class Activator extends AbstractUIPlugin {
 	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 
 	private static Activator plugin;
+
+	private ILabelProviderService labelProviderService = null;
+	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.URIPathLabelProviderFactory(
+			0, "doclog") {
+		@Override
+		protected ILabelProvider create() {
+			return new DoclogLabelProvider();
+		}
+	};
 
 	private Rectangle maxCaptureArea;
 
@@ -41,11 +55,17 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 
-		URL confURL = getBundle().getEntry("log4j.properties");
+		this.labelProviderService = (ILabelProviderService) PlatformUI
+				.getWorkbench().getService(ILabelProviderService.class);
+		this.labelProviderService
+				.addLabelProviderFactory(this.labelProviderFactory);
+
+		URL confURL = this.getBundle().getEntry("log4j.properties");
 		PropertyConfigurator
 				.configure(FileLocator.toFileURL(confURL).getFile());
 
@@ -71,7 +91,11 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
+		this.labelProviderService
+				.removeLabelProviderFactory(this.labelProviderFactory);
+
 		plugin = null;
 		super.stop(context);
 	}
@@ -86,11 +110,11 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public Rectangle getMaxCaptureArea() {
-		return maxCaptureArea;
+		return this.maxCaptureArea;
 	}
 
 	public DoclogDataContainer getDoclogContainer() {
-		return doclogDataContainer;
+		return this.doclogDataContainer;
 	}
 
 	public void setDoclogDataDirectory(DoclogDataContainer doclogDataContainer) {

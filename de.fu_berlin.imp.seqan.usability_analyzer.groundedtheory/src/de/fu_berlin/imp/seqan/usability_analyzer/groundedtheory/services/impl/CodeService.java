@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.devel.nebula.colors.RGB;
@@ -435,23 +434,6 @@ public class CodeService implements ICodeService {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public ILabelProvider getLabelProvider(URI codeInstanceID) {
-		List<ICodeableProvider> codeableProviders = this
-				.getRegisteredCodeableProviders();
-		if (codeableProviders == null) {
-			return null;
-		}
-		for (ICodeableProvider codeableProvider : codeableProviders) {
-			ILabelProvider labelProvider = codeableProvider
-					.getLabelProvider(codeInstanceID);
-			if (labelProvider != null) {
-				return labelProvider;
-			}
-		}
-		return null;
 	}
 
 	@Override

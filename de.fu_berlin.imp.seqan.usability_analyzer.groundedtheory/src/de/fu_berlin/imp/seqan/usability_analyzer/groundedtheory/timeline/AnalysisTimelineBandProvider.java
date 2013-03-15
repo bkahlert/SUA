@@ -27,12 +27,12 @@ import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
 public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
@@ -202,8 +202,7 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			private ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
-			private ILabelProvider codeableLabelProvider = new EpisodeCodeableProvider()
-					.getLabelProvider();
+			private ILabelProvider codeableLabelProvider = new EpisodeLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {

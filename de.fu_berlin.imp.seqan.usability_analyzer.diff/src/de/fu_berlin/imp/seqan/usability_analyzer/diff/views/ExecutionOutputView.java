@@ -22,15 +22,15 @@ public class ExecutionOutputView extends AbstractOutputView {
 
 	@Override
 	public PartInfo getPartInfo(ICompilable compilable) {
-		ILabelProvider labelProvider = this.getCodeService().getLabelProvider(
-				compilable.getUri());
+		ILabelProvider labelProvider = this.getLabelProviderService()
+				.getLabelProvider(compilable.getUri());
 		if (labelProvider != null) {
 			return new PartInfo("Execution Output - "
 					+ labelProvider.getText(compilable),
 					labelProvider.getImage(compilable));
 		} else {
 			LOGGER.warn("No label provider found for " + compilable);
-			return getDefaultPartInfo();
+			return this.getDefaultPartInfo();
 		}
 	}
 

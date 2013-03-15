@@ -34,6 +34,7 @@ import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -48,6 +49,9 @@ public class AbstractMemoView extends EditorView<Object> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
+
+	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
@@ -152,9 +156,9 @@ public class AbstractMemoView extends EditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ICodeable codeable = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this.codeService
+						ICodeable codeable = AbstractMemoView.this.codeService
 								.getCodedObject(uri);
-						ILabelProvider labelProvider = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this.codeService
+						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
 								.getLabelProvider(uri);
 						if (codeable != null && labelProvider != null) {
 							return labelProvider.getText(codeable);
@@ -220,7 +224,7 @@ public class AbstractMemoView extends EditorView<Object> {
 			public void uriHovered(URI uri, boolean entered) {
 				this.closePopup();
 
-				ILabelProvider labelProvider = AbstractMemoView.this.codeService
+				ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
 						.getLabelProvider(uri);
 				final ICodeable codeable = AbstractMemoView.this.codeService
 						.getCodedObject(uri);
@@ -285,8 +289,8 @@ public class AbstractMemoView extends EditorView<Object> {
 			ICodeable coded = this.codeService.getCodedObject(codeInstance
 					.getId());
 			if (coded != null) {
-				ILabelProvider lp = this.codeService.getLabelProvider(coded
-						.getUri());
+				ILabelProvider lp = this.labelProviderService
+						.getLabelProvider(coded.getUri());
 				return new PartInfo(lp.getText(coded) + " (coded with "
 						+ codeInstance.getCode().getCaption() + ")",
 						lp.getImage(coded));
@@ -297,8 +301,8 @@ public class AbstractMemoView extends EditorView<Object> {
 			}
 		} else if (loadedObject instanceof ICodeable) {
 			ICodeable codeable = (ICodeable) loadedObject;
-			ILabelProvider lp = this.codeService.getLabelProvider(codeable
-					.getUri());
+			ILabelProvider lp = this.labelProviderService
+					.getLabelProvider(codeable.getUri());
 			return new PartInfo(lp.getText(codeable), lp.getImage(codeable));
 		} else {
 			return this.getDefaultPartInfo();

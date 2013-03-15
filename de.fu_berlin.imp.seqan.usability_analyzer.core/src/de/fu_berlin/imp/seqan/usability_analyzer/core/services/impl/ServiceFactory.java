@@ -11,6 +11,7 @@ import org.osgi.framework.BundleListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -20,6 +21,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static IWorkSessionService WORKSESSION_SERVICE;
 	private static IDataService DATA_DIRECTORIES_SERVICE;
 	private static IHighlightService HIGHLIGHT_SERVICE;
+	private static ILabelProviderService LABELPROVIDER_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -63,6 +65,12 @@ public class ServiceFactory extends AbstractServiceFactory {
 				HIGHLIGHT_SERVICE = new HighlightService();
 			}
 			return HIGHLIGHT_SERVICE;
+		}
+		if (serviceInterface == ILabelProviderService.class) {
+			if (LABELPROVIDER_SERVICE == null) {
+				LABELPROVIDER_SERVICE = new LabelProviderService();
+			}
+			return LABELPROVIDER_SERVICE;
 		}
 
 		return null;

@@ -21,15 +21,15 @@ public class CompilerOutputView extends AbstractOutputView {
 
 	@Override
 	public PartInfo getPartInfo(ICompilable compilable) {
-		ILabelProvider labelProvider = this.getCodeService().getLabelProvider(
-				compilable.getUri());
+		ILabelProvider labelProvider = this.getLabelProviderService()
+				.getLabelProvider(compilable.getUri());
 		if (labelProvider != null) {
 			return new PartInfo("Compiler Output - "
 					+ labelProvider.getText(compilable),
 					labelProvider.getImage(compilable));
 		} else {
 			LOGGER.warn("No label provider found for " + compilable);
-			return getDefaultPartInfo();
+			return this.getDefaultPartInfo();
 		}
 	}
 

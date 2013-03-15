@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.viewers.ILabelProvider;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
@@ -47,11 +46,12 @@ public abstract class CodeableProvider implements ICodeableProvider {
 
 	@Override
 	public final FutureTask<ICodeable> getCodedObject(final URI codeInstanceID) {
-		List<String> allowedNamespaces = getAllowedNamespaces();
+		List<String> allowedNamespaces = this.getAllowedNamespaces();
 		if (allowedNamespaces.contains(codeInstanceID.getHost())) {
 			final AtomicReference<IProgressMonitor> monitorReference = new AtomicReference<IProgressMonitor>();
 			final FutureTask<ICodeable> futureTask = new FutureTask<ICodeable>(
-					getCodedObjectCallable(monitorReference, codeInstanceID));
+					this.getCodedObjectCallable(monitorReference,
+							codeInstanceID));
 			new Job("Coded object retrieval") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
@@ -80,10 +80,11 @@ public abstract class CodeableProvider implements ICodeableProvider {
 			ICodeable codeable;
 			try {
 				codeable = futureCodeable.get();
-				if (codeable != null)
+				if (codeable != null) {
 					codeables.add(codeable);
+				}
 			} catch (Exception e) {
-				logger.error("Could not find the coded object", e);
+				this.logger.error("Could not find the coded object", e);
 			}
 		}
 		return codeables;
@@ -118,8 +119,9 @@ public abstract class CodeableProvider implements ICodeableProvider {
 		for (URI codeInstanceID : codeInstanceIDs) {
 			Future<ICodeable> futureCodeable = this
 					.getCodedObject(codeInstanceID);
-			if (futureCodeable != null)
+			if (futureCodeable != null) {
 				futureCodeables.add(futureCodeable);
+			}
 		}
 		return futureCodeables;
 	}
@@ -130,17 +132,21 @@ public abstract class CodeableProvider implements ICodeableProvider {
 		return pool.submit(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				final List<Future<ICodeable>> futureCodeables = getCodedObjectFutures(codeInstanceIDs);
-				final List<ICodeable> codedObjects = getCodedObjects(futureCodeables);
+				final List<Future<ICodeable>> futureCodeables = CodeableProvider.this
+						.getCodedObjectFutures(codeInstanceIDs);
+				final List<ICodeable> codedObjects = CodeableProvider.this
+						.getCodedObjects(futureCodeables);
 				boolean convertedAll = codedObjects.size() == futureCodeables
 						.size();
 				if (codedObjects.size() > 0) {
-					ICodeable[] showedCodeables = showCodedObjectsInWorkspace2(codedObjects);
+					ICodeable[] showedCodeables = CodeableProvider.this
+							.showCodedObjectsInWorkspace2(codedObjects);
 					boolean showedAll = showedCodeables != null
 							&& codeInstanceIDs.size() == showedCodeables.length;
 					if (show) {
-						if (showedCodeables == null)
+						if (showedCodeables == null) {
 							return false;
+						}
 						for (final IOpenable openable : ArrayUtils
 								.getAdaptableObjects(showedCodeables,
 										IOpenable.class)) {
@@ -182,18 +188,4 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	public abstract ICodeable[] showCodedObjectsInWorkspace2(
 			List<ICodeable> codedObjects);
 
-	public ILabelProvider getLabelProvider(URI codeInstanceID) {
-		if (getAllowedNamespaces().contains(codeInstanceID.getHost()))
-			return getLabelProvider();
-		return null;
-	}
-
-	/**
-	 * Returns a label provider able to provide a label and image for the
-	 * {@link ICodeable}s described by the namespaces returned by
-	 * {@link #getAllowedNamespaces()}.
-	 * 
-	 * @return
-	 */
-	protected abstract ILabelProvider getLabelProvider();
 }

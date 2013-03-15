@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 
@@ -25,7 +24,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -136,8 +134,4 @@ public class DoclogCodeableProvider extends CodeableProvider {
 		}
 	}
 
-	@Override
-	public ILabelProvider getLabelProvider() {
-		return new DoclogLabelProvider();
-	}
 }

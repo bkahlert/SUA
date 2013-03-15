@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.viewers.ILabelProvider;
-
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -234,11 +232,6 @@ public interface ICodeService {
 	 */
 	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
 			boolean open);
-
-	/**
-	 * @see {@link ICodeableProvider#getLabelProvider(String)}
-	 */
-	public ILabelProvider getLabelProvider(URI codeInstanceID);
 
 	public ICode getParent(ICode code);
 

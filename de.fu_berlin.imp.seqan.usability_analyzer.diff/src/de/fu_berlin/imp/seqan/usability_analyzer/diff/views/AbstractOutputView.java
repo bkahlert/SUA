@@ -12,6 +12,7 @@ import com.bkahlert.devel.nebula.views.EditorView;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
@@ -38,6 +39,9 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 			}
 		}
 	};
+
+	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
@@ -90,6 +94,10 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 
 	public AbstractOutputView() {
 		super(2000, ToolbarSet.TERMINAL, true);
+	}
+
+	public ILabelProviderService getLabelProviderService() {
+		return this.labelProviderService;
 	}
 
 	public ICodeService getCodeService() {
