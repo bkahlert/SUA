@@ -11,13 +11,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
-import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.KeyboardUtils;
 import com.bkahlert.devel.nebula.utils.history.History;
@@ -33,6 +30,7 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDetailPopupService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -41,7 +39,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider.IDetailedLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
@@ -177,9 +174,12 @@ public class AbstractMemoView extends EditorView<Object> {
 	private void addAnkerListeners() {
 		Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
 		listeners.put("SUA", new AnkerAdaptingListener(new IURIListener() {
+			IDetailPopupService detailPopupService = (IDetailPopupService) PlatformUI
+					.getWorkbench().getService(IDetailPopupService.class);
+
 			@Override
 			public void uriClicked(final URI uri) {
-				this.closePopup();
+				this.detailPopupService.hideDetailPopup();
 
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
@@ -191,7 +191,6 @@ public class AbstractMemoView extends EditorView<Object> {
 					AbstractMemoView.this.load(codeable);
 				} else {
 					// do not follow the link but make Eclipse open the resource
-
 					TimeZoneDateRange range = (TimeZoneDateRange) Platform
 							.getAdapterManager().getAdapter(codeable,
 									TimeZoneDateRange.class);
@@ -218,49 +217,14 @@ public class AbstractMemoView extends EditorView<Object> {
 				}
 			}
 
-			private PopupDialog popup = null;
-
 			@Override
 			public void uriHovered(URI uri, boolean entered) {
-				this.closePopup();
+				this.detailPopupService.hideDetailPopup();
 
 				final ICodeable codeable = AbstractMemoView.this.codeService
 						.getCodedObject(uri);
-				ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-						.getLabelProvider(codeable);
-				if (codeable == null || labelProvider == null) {
-					return;
-				}
-
-				if (labelProvider instanceof IDetailedLabelProvider) {
-					final IDetailedLabelProvider detailedLabelProvider = (IDetailedLabelProvider) labelProvider;
-					if (entered && detailedLabelProvider.canFillPopup(codeable)) {
-						this.popup = new PopupDialog() {
-							@Override
-							protected Control createControls(Composite parent) {
-								return detailedLabelProvider.fillPopup(
-										codeable, parent);
-							};
-						};
-						ExecutorUtil.syncExec(new Runnable() {
-							@Override
-							public void run() {
-								popup.open();
-							}
-						});
-					}
-				}
-			}
-
-			public void closePopup() {
-				if (this.popup != null) {
-					ExecutorUtil.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							popup.close();
-						}
-					});
-					this.popup = null;
+				if (codeable != null && entered) {
+					this.detailPopupService.showDetailPopup(codeable);
 				}
 			}
 		}));
