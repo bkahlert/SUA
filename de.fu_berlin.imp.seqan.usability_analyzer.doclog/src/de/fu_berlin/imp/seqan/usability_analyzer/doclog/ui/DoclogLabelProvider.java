@@ -7,7 +7,6 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -19,6 +18,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
@@ -219,7 +219,6 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 
 			this.disposeImage();
 
-			Color background = this.getBackground(doclogRecord);
 			ImageData imageData = doclogRecord.getScreenshot().getImageData();
 			if (imageData == null) {
 				return null;
@@ -236,7 +235,7 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				break;
 			case BLUR:
 				GC gc = new GC(image);
-				gc.setBackground(background);
+				gc.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 				gc.setAlpha(70);
 				gc.fillRectangle(image.getBounds());
 				gc.dispose();

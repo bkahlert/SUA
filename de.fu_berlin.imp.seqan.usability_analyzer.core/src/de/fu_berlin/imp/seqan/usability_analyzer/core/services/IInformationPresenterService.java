@@ -25,11 +25,20 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
  */
 public interface IInformationPresenterService {
 
+	/**
+	 * Instances of this class provide a background color for the popup
+	 * information window.
+	 * 
+	 * @author bkahlert
+	 */
+	public static interface IInformationBackgroundProvider {
+		public Color getBackground(Object element);
+	}
+
 /**
 	 * Instances of this class can provide callers of
 	 * {@link ILabelProviderService#getLabelProvider(ILocatable) with further information.
 	 * @author bkahlert
-	 *
 	 */
 	public static interface IInformationLabelProvider extends ILabelProvider {
 
@@ -86,14 +95,6 @@ public interface IInformationPresenterService {
 		 */
 		public Control fillInformation(Object element, Composite composite);
 
-		/**
-		 * Returns the color to used as the background of the popup window
-		 * presenting further information of the element.
-		 * 
-		 * @param element
-		 * @return
-		 */
-		public Color getBackground(Object element);
 	}
 
 	/**
@@ -125,12 +126,29 @@ public interface IInformationPresenterService {
 			return new ArrayList<IDetailEntry>();
 		}
 
-		@Override
-		public Color getBackground(Object element) {
-			return null;
-		}
-
 	}
+
+	/**
+	 * Adds a {@link IInformationBackgroundProvider} to the pool of consulted
+	 * {@link IInformationBackgroundProvider}s.
+	 * <p>
+	 * The added {@link IInformationBackgroundProvider} works independently of
+	 * the {@link IInformationLabelProvider} used to determine the popup's
+	 * content.
+	 * 
+	 * @param informationBackgroundProvider
+	 */
+	public void addInformationBackgroundProvider(
+			IInformationBackgroundProvider informationBackgroundProvider);
+
+	/**
+	 * Removes a {@link IInformationBackgroundProvider} from the pool of
+	 * consulted {@link IInformationBackgroundProvider}s.
+	 * 
+	 * @param informationBackgroundProvider
+	 */
+	public void removeInformationBackgroundProvider(
+			IInformationBackgroundProvider informationBackgroundProvider);
 
 	/**
 	 * Installs a new {@link TypedInformationControlManager} on the given

@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.InformationPresenterService.LocatableInformationControl.IPostProcessor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
 
@@ -44,6 +46,10 @@ public class InformationPresenterService implements
 
 	public static class LocatableInformationControl<T extends ILocatable>
 			extends TypedInformationControl<T> {
+
+		public static interface IPostProcessor<T> {
+			public void postProcess(T element, Composite root);
+		}
 
 		private static final int borderWidth = 5;
 
@@ -55,8 +61,14 @@ public class InformationPresenterService implements
 		private Composite customComposite;
 		private RoundedComposite detailComposite;
 
+		private IPostProcessor<T> postProcessor = null;
+
 		public LocatableInformationControl(Shell parentShell, boolean resizable) {
 			super(parentShell, resizable);
+		}
+
+		public void setPostProcessor(IPostProcessor<T> postProcessor) {
+			this.postProcessor = postProcessor;
 		}
 
 		@Override
@@ -124,39 +136,15 @@ public class InformationPresenterService implements
 					.getMetaInformation(input);
 			List<IDetailEntry> detailInformation = informationLabelProvider
 					.getDetailInformation(input);
-			Color backgroundColor = informationLabelProvider
-					.getBackground(input);
 
-			// TODO background color = gelb
 			/*
-			 * TODO etwas in einen interceptor programmieren, der nochmal die
-			 * background-color setzen kann TODO actions hinzufügen TODO focus
-			 * geben können FIXME boolean isIntersected = false;
-			 * 
-			 * if (element instanceof HasDateRange) { TimeZoneDateRange
-			 * dateRange = ((HasDateRange) element) .getDateRange();
-			 * 
-			 * // FIXME // if (timeline.getDecorators() != null) { // for
-			 * (IDecorator t : timeline.getDecorators()) { // if (new
-			 * TimeZoneDateRange( // t.getStartDate() != null ? new
-			 * TimeZoneDate( // t.getStartDate()) : null, // t.getEndDate() !=
-			 * null ? new TimeZoneDate(t // .getEndDate()) : null) //
-			 * .isIntersected(dateRange)) { // isIntersected = true; // break;
-			 * // } // } // }
-			 * 
-			 * return isIntersected ? Activator.COLOR_HIGHLIGHT :
-			 * Activator.COLOR_STANDARD; }
-			 * 
-			 * return Activator.COLOR_STANDARD;
+			 * TODO actions hinzufügen
 			 */
-			// this.composite.setBackground(backgroundColor);
-			// this.composite.getParent().setBackground(backgroundColor);
+			// TODO focus geben können
 
-			if (backgroundColor == null) {
-				backgroundColor = SWTResourceManager
-						.getColor(SWT.COLOR_INFO_BACKGROUND);
+			if (this.postProcessor != null) {
+				this.postProcessor.postProcess(input, this.composite);
 			}
-			this.composite.setBackground(backgroundColor);
 
 			this.loadMetaInformation(metaInformation);
 			this.loadDetailInformation(detailInformation);
@@ -241,14 +229,51 @@ public class InformationPresenterService implements
 		}
 	}
 
+	private List<IInformationBackgroundProvider> informationBackgroundProviders = new ArrayList<IInformationBackgroundProvider>();
+
 	private Map<Control, TypedInformationControlManager<?, ?>> informationControlManagers = new HashMap<Control, TypedInformationControlManager<?, ?>>();
 
 	private ITypedInformationControlCreator<ILocatable> informationControlCreator = new ITypedInformationControlCreator<ILocatable>() {
 		@Override
 		public TypedInformationControl<ILocatable> createInformationControl(
 				Shell parent) {
-			return new LocatableInformationControl<ILocatable>(parent, false);
+			LocatableInformationControl<ILocatable> control = new LocatableInformationControl<ILocatable>(
+					parent, false);
+
+			control.setPostProcessor(new IPostProcessor<ILocatable>() {
+				@Override
+				public void postProcess(ILocatable element, Composite root) {
+					Color backgroundColor = null;
+					for (IInformationBackgroundProvider informationBackgroundProvider : InformationPresenterService.this.informationBackgroundProviders) {
+						backgroundColor = informationBackgroundProvider
+								.getBackground(element);
+						if (backgroundColor != null) {
+							break;
+						}
+					}
+					if (backgroundColor == null) {
+						backgroundColor = SWTResourceManager
+								.getColor(SWT.COLOR_INFO_BACKGROUND);
+					}
+					root.setBackground(backgroundColor);
+				}
+			});
+
+			return control;
 		}
+	};
+
+	@Override
+	public void addInformationBackgroundProvider(
+			IInformationBackgroundProvider informationBackgroundProvider) {
+		this.informationBackgroundProviders.add(informationBackgroundProvider);
+	};
+
+	@Override
+	public void removeInformationBackgroundProvider(
+			IInformationBackgroundProvider informationBackgroundProvider) {
+		this.informationBackgroundProviders
+				.remove(informationBackgroundProvider);
 	};
 
 	@Override
