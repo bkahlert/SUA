@@ -25,37 +25,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
  */
 public interface IInformationPresenterService {
 
-	public static interface IDetailEntry extends Map.Entry<String, String> {
-	}
-
-	public static class DetailEntry implements IDetailEntry {
-		private final String key;
-		private String value;
-
-		public DetailEntry(String key, String value) {
-			super();
-			this.key = key;
-			this.value = value;
-		}
-
-		@Override
-		public String getKey() {
-			return key;
-		}
-
-		@Override
-		public String getValue() {
-			return value;
-		}
-
-		@Override
-		public String setValue(String value) {
-			String old = this.value;
-			this.value = value;
-			return old;
-		}
-	}
-
 /**
 	 * Instances of this class can provide callers of
 	 * {@link ILabelProviderService#getLabelProvider(ILocatable) with further information.
@@ -63,6 +32,38 @@ public interface IInformationPresenterService {
 	 *
 	 */
 	public static interface IInformationLabelProvider extends ILabelProvider {
+
+		public static interface IDetailEntry extends Map.Entry<String, String> {
+		}
+
+		public static class DetailEntry implements IDetailEntry {
+			private final String key;
+			private String value;
+
+			public DetailEntry(String key, String value) {
+				super();
+				this.key = key;
+				this.value = value;
+			}
+
+			@Override
+			public String getKey() {
+				return key;
+			}
+
+			@Override
+			public String getValue() {
+				return value;
+			}
+
+			@Override
+			public String setValue(String value) {
+				String old = this.value;
+				this.value = value;
+				return old;
+			}
+		}
+
 		/**
 		 * Returns true if this {@link IInformationLabelProvider} can provide
 		 * further information for the given element.
@@ -74,8 +75,7 @@ public interface IInformationPresenterService {
 
 		public List<IllustratedText> getMetaInformation(Object element);
 
-		public List<Map.Entry<String, String>> getDetailInformation(
-				Object element);
+		public List<IDetailEntry> getDetailInformation(Object element);
 
 		/**
 		 * Fills the given {@link Composite} with detailed information.
@@ -102,8 +102,8 @@ public interface IInformationPresenterService {
 	 * @author bkahlert
 	 * 
 	 */
-	public static class InformationLabelProvider extends LabelProvider implements
-			IInformationLabelProvider {
+	public static class InformationLabelProvider extends LabelProvider
+			implements IInformationLabelProvider {
 
 		@Override
 		public boolean hasInformation(Object element) {
@@ -121,9 +121,8 @@ public interface IInformationPresenterService {
 		}
 
 		@Override
-		public List<Map.Entry<String, String>> getDetailInformation(
-				Object element) {
-			return new ArrayList<Map.Entry<String, String>>();
+		public List<IDetailEntry> getDetailInformation(Object element) {
+			return new ArrayList<IDetailEntry>();
 		}
 
 		@Override

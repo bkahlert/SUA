@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.swt.SWT;
@@ -25,7 +24,6 @@ import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -169,49 +167,41 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<Entry<String, String>> getDetailInformation(Object element) {
-		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
+	public List<IDetailEntry> getDetailInformation(Object element) {
+		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
-			detailEntries.add(new IInformationPresenterService.DetailEntry("URL",
+			detailEntries.add(new DetailEntry("URL",
 					doclogRecord.getShortUrl() != null ? doclogRecord
 							.getShortUrl() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry("IP",
+			detailEntries.add(new DetailEntry("IP",
 					doclogRecord.getIp() != null ? doclogRecord.getIp() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry("Proxy IP",
-					doclogRecord.getProxyIp() != null ? doclogRecord
-							.getProxyIp() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry("Action",
-					doclogRecord.getAction() != null ? doclogRecord.getAction()
-							.toString() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Action Parameter",
-					doclogRecord.getActionParameter() != null ? doclogRecord
-							.getActionParameter() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Scroll Position",
-					doclogRecord.getScrollPosition() != null ? doclogRecord
-							.getScrollPosition().x
-							+ ", "
-							+ doclogRecord.getScrollPosition().y : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Window Size",
-					doclogRecord.getWindowDimensions() != null ? doclogRecord
-							.getWindowDimensions().x
-							+ ", "
-							+ doclogRecord.getWindowDimensions().y : "-"));
-			detailEntries
-					.add(new IInformationPresenterService.DetailEntry(
-							"Date",
-							(doclogRecord.getDateRange() != null && doclogRecord
-									.getDateRange().getStartDate() != null) ? doclogRecord
-									.getDateRange().getStartDate().toISO8601()
-									: "-"));
+			detailEntries.add(new DetailEntry("Proxy IP", doclogRecord
+					.getProxyIp() != null ? doclogRecord.getProxyIp() : "-"));
+			detailEntries.add(new DetailEntry("Action", doclogRecord
+					.getAction() != null ? doclogRecord.getAction().toString()
+					: "-"));
+			detailEntries.add(new DetailEntry("Action Parameter", doclogRecord
+					.getActionParameter() != null ? doclogRecord
+					.getActionParameter() : "-"));
+			detailEntries.add(new DetailEntry("Scroll Position", doclogRecord
+					.getScrollPosition() != null ? doclogRecord
+					.getScrollPosition().x
+					+ ", "
+					+ doclogRecord.getScrollPosition().y : "-"));
+			detailEntries.add(new DetailEntry("Window Size", doclogRecord
+					.getWindowDimensions() != null ? doclogRecord
+					.getWindowDimensions().x
+					+ ", "
+					+ doclogRecord.getWindowDimensions().y : "-"));
+			detailEntries.add(new DetailEntry("Date", (doclogRecord
+					.getDateRange() != null && doclogRecord.getDateRange()
+					.getStartDate() != null) ? doclogRecord.getDateRange()
+					.getStartDate().toISO8601() : "-"));
 
 			Long milliSecondsPassed = doclogRecord.getDateRange() != null ? doclogRecord
 					.getDateRange().getDifference() : null;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Time Passed",
+			detailEntries.add(new DetailEntry("Time Passed",
 					(milliSecondsPassed != null) ? DurationFormatUtils
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()

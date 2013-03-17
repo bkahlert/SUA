@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -20,7 +19,6 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -178,34 +176,33 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<Entry<String, String>> getDetailInformation(Object element) {
-		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
+	public List<IDetailEntry> getDetailInformation(Object element) {
+		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (element instanceof IEpisode) {
 			IEpisode episode = (IEpisode) element;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Owner", episode.getIdentifier() != null ? episode
-							.getIdentifier().getIdentifier() : ""));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Caption", episode.getCaption() != null ? episode
-							.getCaption() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Creation", (episode.getCreation() != null) ? episode
-							.getCreation().toISO8601() : "-"));
+			detailEntries.add(new DetailEntry("Owner",
+					episode.getIdentifier() != null ? episode.getIdentifier()
+							.getIdentifier() : ""));
+			detailEntries.add(new DetailEntry("Caption",
+					episode.getCaption() != null ? episode.getCaption() : "-"));
+			detailEntries.add(new DetailEntry("Creation", (episode
+					.getCreation() != null) ? episode.getCreation().toISO8601()
+					: "-"));
 
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Start", (episode.getDateRange() != null && episode
-							.getDateRange().getStartDate() != null) ? episode
-							.getDateRange().getStartDate().toISO8601() : "-"));
+			detailEntries.add(new DetailEntry("Start",
+					(episode.getDateRange() != null && episode.getDateRange()
+							.getStartDate() != null) ? episode.getDateRange()
+							.getStartDate().toISO8601() : "-"));
 
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"End", (episode.getDateRange() != null && episode
-							.getDateRange().getEndDate() != null) ? episode
-							.getDateRange().getEndDate().toISO8601() : "-"));
+			detailEntries.add(new DetailEntry("End",
+					(episode.getDateRange() != null && episode.getDateRange()
+							.getEndDate() != null) ? episode.getDateRange()
+							.getEndDate().toISO8601() : "-"));
 
 			Long milliSecondsPassed = episode.getDateRange() != null ? episode
 					.getDateRange().getDifference() : null;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Span", (milliSecondsPassed != null) ? DurationFormatUtils
+			detailEntries.add(new DetailEntry("Span",
+					(milliSecondsPassed != null) ? DurationFormatUtils
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()
 											.getTimeDifferenceFormat(), true)

@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.swt.graphics.Image;
@@ -14,7 +13,6 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
@@ -244,26 +242,25 @@ public class DiffLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<Entry<String, String>> getDetailInformation(Object element) {
-		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
+	public List<IDetailEntry> getDetailInformation(Object element) {
+		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (element instanceof IDiff) {
 			IDiff diff = (IDiff) element;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Name", diff.getName() != null ? diff.getName() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Revision", diff.getRevision() + ""));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"File Size", diff.getLength() + " Bytes"));
+			detailEntries.add(new DetailEntry("Name",
+					diff.getName() != null ? diff.getName() : "-"));
+			detailEntries.add(new DetailEntry("Revision", diff.getRevision()
+					+ ""));
+			detailEntries.add(new DetailEntry("File Size", diff.getLength()
+					+ " Bytes"));
 
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Date", (diff.getDateRange() != null && diff.getDateRange()
+			detailEntries.add(new DetailEntry("Date",
+					(diff.getDateRange() != null && diff.getDateRange()
 							.getStartDate() != null) ? diff.getDateRange()
 							.getStartDate().toISO8601() : "-"));
 
 			Long milliSecondsPassed = diff.getDateRange() != null ? diff
 					.getDateRange().getDifference() : null;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Time Passed",
+			detailEntries.add(new DetailEntry("Time Passed",
 					(milliSecondsPassed != null) ? DurationFormatUtils
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()
@@ -272,29 +269,24 @@ public class DiffLabelProvider extends InformationLabelProvider {
 		}
 		if (element instanceof IDiffRecord) {
 			IDiffRecord diffRecord = (IDiffRecord) element;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Filename", diffRecord.getFilename() != null ? diffRecord
-							.getFilename() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Source", diffRecord.getSource() != null ? diffRecord
-							.getSource() : "-"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Is Temporary", diffRecord.isTemporary() ? "Yes" : "No"));
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Source Exists", diffRecord.sourceExists() ? "Yes" : "No"));
+			detailEntries.add(new DetailEntry("Filename", diffRecord
+					.getFilename() != null ? diffRecord.getFilename() : "-"));
+			detailEntries.add(new DetailEntry("Source",
+					diffRecord.getSource() != null ? diffRecord.getSource()
+							: "-"));
+			detailEntries.add(new DetailEntry("Is Temporary", diffRecord
+					.isTemporary() ? "Yes" : "No"));
+			detailEntries.add(new DetailEntry("Source Exists", diffRecord
+					.sourceExists() ? "Yes" : "No"));
 
-			detailEntries
-					.add(new IInformationPresenterService.DetailEntry(
-							"Date",
-							(diffRecord.getDateRange() != null && diffRecord
-									.getDateRange().getStartDate() != null) ? diffRecord
-									.getDateRange().getStartDate().toISO8601()
-									: "-"));
+			detailEntries.add(new DetailEntry("Date", (diffRecord
+					.getDateRange() != null && diffRecord.getDateRange()
+					.getStartDate() != null) ? diffRecord.getDateRange()
+					.getStartDate().toISO8601() : "-"));
 
 			Long milliSecondsPassed = diffRecord.getDateRange() != null ? diffRecord
 					.getDateRange().getDifference() : null;
-			detailEntries.add(new IInformationPresenterService.DetailEntry(
-					"Time Passed",
+			detailEntries.add(new DetailEntry("Time Passed",
 					(milliSecondsPassed != null) ? DurationFormatUtils
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()

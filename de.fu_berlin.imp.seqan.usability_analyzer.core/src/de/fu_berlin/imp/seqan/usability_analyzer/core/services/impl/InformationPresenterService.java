@@ -34,6 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
@@ -121,9 +122,10 @@ public class InformationPresenterService implements
 
 			List<IllustratedText> metaInformation = informationLabelProvider
 					.getMetaInformation(input);
-			List<Entry<String, String>> detailInformation = informationLabelProvider
+			List<IDetailEntry> detailInformation = informationLabelProvider
 					.getDetailInformation(input);
-			Color backgroundColor = informationLabelProvider.getBackground(input);
+			Color backgroundColor = informationLabelProvider
+					.getBackground(input);
 
 			// TODO background color = gelb
 			/*
@@ -160,7 +162,8 @@ public class InformationPresenterService implements
 			this.loadDetailInformation(detailInformation);
 
 			SWTUtil.clearControl(this.customComposite);
-			informationLabelProvider.fillInformation(input, this.customComposite);
+			informationLabelProvider.fillInformation(input,
+					this.customComposite);
 			this.customComposite.layout();
 
 			return true;
@@ -201,8 +204,7 @@ public class InformationPresenterService implements
 			this.metaComposite.layout();
 		}
 
-		public void loadDetailInformation(
-				List<Entry<String, String>> detailInformation) {
+		public void loadDetailInformation(List<IDetailEntry> detailInformation) {
 			SWTUtil.clearControl(this.detailComposite);
 			for (Entry<String, String> detailEntry : detailInformation) {
 				Label keyLabel = new Label(this.detailComposite, SWT.NONE);
