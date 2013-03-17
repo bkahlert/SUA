@@ -19,18 +19,16 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.KeyboardUtils;
 import com.bkahlert.devel.nebula.utils.history.History;
 import com.bkahlert.devel.nebula.utils.history.IHistory;
-import com.bkahlert.devel.nebula.views.EditorView;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.BrowserOpeningAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IURIListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.SchemeAnkerListener;
+import com.bkahlert.devel.nebula.widgets.browser.listener.URIAdapter;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDetailPopupService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -42,7 +40,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
-public class AbstractMemoView extends EditorView<Object> {
+public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
@@ -50,7 +48,7 @@ public class AbstractMemoView extends EditorView<Object> {
 	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
@@ -120,7 +118,14 @@ public class AbstractMemoView extends EditorView<Object> {
 
 	@Override
 	public void postInit() {
-		this.addAnkerLabelProvider(new IAnkerLabelProvider() {
+		super.postInit();
+		this.addAnkerLabelProviders();
+		this.addAnkerListeners();
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
+	}
+
+	private void addAnkerLabelProviders() {
+		this.getEditor().addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
 				if (anker.getHref() != null) {
@@ -167,20 +172,13 @@ public class AbstractMemoView extends EditorView<Object> {
 				return "!!! " + anker.getHref() + " !!!";
 			}
 		});
-		this.addAnkerListeners();
-		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	private void addAnkerListeners() {
 		Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
-		listeners.put("SUA", new AnkerAdaptingListener(new IURIListener() {
-			IDetailPopupService detailPopupService = (IDetailPopupService) PlatformUI
-					.getWorkbench().getService(IDetailPopupService.class);
-
+		listeners.put("SUA", new AnkerAdaptingListener(new URIAdapter() {
 			@Override
 			public void uriClicked(final URI uri) {
-				this.detailPopupService.hideDetailPopup();
-
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
 				final ICodeable codeable = codeService.getCodedObject(uri);
@@ -216,20 +214,10 @@ public class AbstractMemoView extends EditorView<Object> {
 					}
 				}
 			}
-
-			@Override
-			public void uriHovered(URI uri, boolean entered) {
-				this.detailPopupService.hideDetailPopup();
-
-				final ICodeable codeable = AbstractMemoView.this.codeService
-						.getCodedObject(uri);
-				if (codeable != null && entered) {
-					this.detailPopupService.showDetailPopup(codeable);
-				}
-			}
 		}));
-		this.addAnkerListener(new SchemeAnkerListener(listeners,
-				new BrowserOpeningAnkerListener()));
+		this.getEditor().addAnkerListener(
+				new SchemeAnkerListener(listeners,
+						new BrowserOpeningAnkerListener()));
 	};
 
 	@Override
@@ -280,9 +268,9 @@ public class AbstractMemoView extends EditorView<Object> {
 
 	public void setSourceMode(boolean on) {
 		if (on) {
-			this.showSource();
+			this.getEditor().showSource();
 		} else {
-			this.hideSource();
+			this.getEditor().hideSource();
 		}
 	}
 

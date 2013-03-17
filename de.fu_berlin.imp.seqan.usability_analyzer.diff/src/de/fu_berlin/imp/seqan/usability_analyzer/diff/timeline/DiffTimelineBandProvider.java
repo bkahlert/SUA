@@ -196,6 +196,11 @@ public class DiffTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
+			public String getTooltip(Object event) {
+				return null;
+			}
+
+			@Override
 			public URI getIcon(Object event) {
 				Image image = this.diffLabelProvider.getImage(event);
 				if (image != null) {

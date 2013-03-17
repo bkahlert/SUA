@@ -11,6 +11,7 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.DefaultTimelineEventDetailProvider;
@@ -37,20 +38,20 @@ public class DiffTimelineEventDetailProvider extends
 	@Override
 	public List<Entry<String, String>> getDetailInformation(IDiff diff) {
 		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
-		detailEntries.add(new DetailEntry("Name", diff.getName() != null ? diff
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Name", diff.getName() != null ? diff
 				.getName() : "-"));
-		detailEntries.add(new DetailEntry("Revision", diff.getRevision() + ""));
-		detailEntries.add(new DetailEntry("File Size", diff.getLength()
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Revision", diff.getRevision() + ""));
+		detailEntries.add(new IInformationPresenterService.DetailEntry("File Size", diff.getLength()
 				+ " Bytes"));
 
-		detailEntries.add(new DetailEntry("Date",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Date",
 				(diff.getDateRange() != null && diff.getDateRange()
 						.getStartDate() != null) ? diff.getDateRange()
 						.getStartDate().toISO8601() : "-"));
 
 		Long milliSecondsPassed = diff.getDateRange() != null ? diff
 				.getDateRange().getDifference() : null;
-		detailEntries.add(new DetailEntry("Time Passed",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Time Passed",
 				(milliSecondsPassed != null) ? DurationFormatUtils
 						.formatDuration(milliSecondsPassed,
 								new SUACorePreferenceUtil()

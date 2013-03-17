@@ -11,6 +11,7 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
@@ -40,24 +41,24 @@ public class DiffRecordTimelineEventDetailProvider extends
 			IDiffRecord diffRecord) {
 		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
 
-		detailEntries.add(new DetailEntry("Filename",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Filename",
 				diffRecord.getFilename() != null ? diffRecord.getFilename()
 						: "-"));
-		detailEntries.add(new DetailEntry("Source",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Source",
 				diffRecord.getSource() != null ? diffRecord.getSource() : "-"));
-		detailEntries.add(new DetailEntry("Is Temporary", diffRecord
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Is Temporary", diffRecord
 				.isTemporary() ? "Yes" : "No"));
-		detailEntries.add(new DetailEntry("Source Exists", diffRecord
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Source Exists", diffRecord
 				.sourceExists() ? "Yes" : "No"));
 
-		detailEntries.add(new DetailEntry("Date",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Date",
 				(diffRecord.getDateRange() != null && diffRecord.getDateRange()
 						.getStartDate() != null) ? diffRecord.getDateRange()
 						.getStartDate().toISO8601() : "-"));
 
 		Long milliSecondsPassed = diffRecord.getDateRange() != null ? diffRecord
 				.getDateRange().getDifference() : null;
-		detailEntries.add(new DetailEntry("Time Passed",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Time Passed",
 				(milliSecondsPassed != null) ? DurationFormatUtils
 						.formatDuration(milliSecondsPassed,
 								new SUACorePreferenceUtil()

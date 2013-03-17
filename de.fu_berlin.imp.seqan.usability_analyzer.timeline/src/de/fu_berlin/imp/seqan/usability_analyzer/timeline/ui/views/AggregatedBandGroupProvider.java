@@ -42,19 +42,19 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 	}
 
 	private void clearProviderCache(IBandGroupProvider bandGroupProvider) {
-		for (Iterator<Entry<Object, IBandGroupProvider>> bandToProviderIterator = bandToProvider
+		for (Iterator<Entry<Object, IBandGroupProvider>> bandToProviderIterator = this.bandToProvider
 				.entrySet().iterator(); bandToProviderIterator.hasNext();) {
 			Entry<Object, IBandGroupProvider> bandToProviderEntry = bandToProviderIterator
 					.next();
 			if (bandToProviderEntry.getValue() == bandGroupProvider) {
-				clearBandCache(bandToProviderEntry.getKey());
+				this.clearBandCache(bandToProviderEntry.getKey());
 				bandToProviderIterator.remove();
 			}
 		}
 	}
 
 	private void clearBandCache(Object band) {
-		for (Iterator<Entry<Object, Object>> eventToBandIterator = eventToBand
+		for (Iterator<Entry<Object, Object>> eventToBandIterator = this.eventToBand
 				.entrySet().iterator(); eventToBandIterator.hasNext();) {
 			Entry<Object, Object> eventToBandEntry = eventToBandIterator.next();
 			if (eventToBandEntry.getValue() == band) {
@@ -69,9 +69,10 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 
 			@Override
 			public boolean isValid(Object key) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
-					if (!bandGroupProvider.getContentProvider().isValid(key))
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
+					if (!bandGroupProvider.getContentProvider().isValid(key)) {
 						return false;
+					}
 				}
 				return false;
 			}
@@ -79,7 +80,7 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput,
 					Object newInput) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					bandGroupProvider.getContentProvider().inputChanged(viewer,
 							oldInput, newInput);
 				}
@@ -88,12 +89,15 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 			@Override
 			public Object[] getBands(IProgressMonitor monitor) {
 				SubMonitor subMonitor = SubMonitor.convert(monitor,
-						bandGroupProviders.size());
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
-					clearProviderCache(bandGroupProvider);
+						AggregatedBandGroupProvider.this.bandGroupProviders
+								.size());
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
+					AggregatedBandGroupProvider.this
+							.clearProviderCache(bandGroupProvider);
 					for (Object band : bandGroupProvider.getContentProvider()
 							.getBands(subMonitor.newChild(1))) {
-						bandToProvider.put(band, bandGroupProvider);
+						AggregatedBandGroupProvider.this.bandToProvider.put(
+								band, bandGroupProvider);
 					}
 				}
 				subMonitor.done();
@@ -104,14 +108,17 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 			public Object[] getEvents(Object irrelevant,
 					IProgressMonitor monitor) {
 				SubMonitor subMonitor = SubMonitor.convert(monitor,
-						bandGroupProviders.size());
+						AggregatedBandGroupProvider.this.bandGroupProviders
+								.size());
 				List<Object> events = new ArrayList<Object>();
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
-					for (Object band : bandToProvider.keySet()) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
+					for (Object band : AggregatedBandGroupProvider.this.bandToProvider
+							.keySet()) {
 						for (Object event : bandGroupProvider
 								.getContentProvider().getEvents(band,
 										subMonitor.newChild(1))) {
-							eventToBand.put(event, band);
+							AggregatedBandGroupProvider.this.eventToBand.put(
+									event, band);
 							events.add(event);
 						}
 					}
@@ -128,33 +135,36 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 
 			@Override
 			public Boolean isShowInOverviewBands(Object band) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					Boolean value = bandGroupProvider.getBandLabelProvider()
 							.isShowInOverviewBands(null);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public String getTitle(Object band) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					String value = bandGroupProvider.getBandLabelProvider()
 							.getTitle(null);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public Float getRatio(Object band) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					Float value = bandGroupProvider.getBandLabelProvider()
 							.getRatio(null);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
@@ -167,88 +177,108 @@ public class AggregatedBandGroupProvider implements IBandGroupProvider {
 
 			@Override
 			public String getTitle(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					String value = bandGroupProvider.getEventLabelProvider()
 							.getTitle(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public String getTooltip(Object event) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
+					String value = bandGroupProvider.getEventLabelProvider()
+							.getTooltip(event);
+					if (value != null) {
+						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public Calendar getStart(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					Calendar value = bandGroupProvider.getEventLabelProvider()
 							.getStart(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public URI getImage(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					URI value = bandGroupProvider.getEventLabelProvider()
 							.getImage(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public URI getIcon(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					URI value = bandGroupProvider.getEventLabelProvider()
 							.getIcon(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public Calendar getEnd(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					Calendar value = bandGroupProvider.getEventLabelProvider()
 							.getEnd(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public RGB[] getColors(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					RGB[] value = bandGroupProvider.getEventLabelProvider()
 							.getColors(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}
 
 			@Override
 			public boolean isResizable(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					boolean value = bandGroupProvider.getEventLabelProvider()
 							.isResizable(event);
-					if (value == true)
+					if (value == true) {
 						return true;
+					}
 				}
 				return false;
 			}
 
 			@Override
 			public String[] getClassNames(Object event) {
-				for (IBandGroupProvider bandGroupProvider : bandGroupProviders) {
+				for (IBandGroupProvider bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
 					String[] value = bandGroupProvider.getEventLabelProvider()
 							.getClassNames(event);
-					if (value != null)
+					if (value != null) {
 						return value;
+					}
 				}
 				return null;
 			}

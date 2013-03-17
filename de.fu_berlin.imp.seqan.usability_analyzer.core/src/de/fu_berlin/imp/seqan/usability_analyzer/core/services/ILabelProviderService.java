@@ -7,9 +7,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
@@ -104,52 +101,6 @@ public interface ILabelProviderService {
 	}
 
 /**
-	 * Instances of this class can provide callers of
-	 * {@link ICodeableProvider#getLabelProvider(ILocatable) with further information.
-	 * @author bkahlert
-	 *
-	 */
-	public static interface IDetailedLabelProvider extends ILabelProvider {
-		/**
-		 * Returns true if this {@link IDetailedLabelProvider} can fill a popup.
-		 * 
-		 * @param element
-		 * @return
-		 */
-		public boolean canFillPopup(Object element);
-
-		/**
-		 * Fills the given {@link Composite} with detailed information.
-		 * 
-		 * @param element
-		 * @param composite
-		 * @return the main control; null if no popup should be displayed.
-		 */
-		public Control fillPopup(Object element, Composite composite);
-	}
-
-	/**
-	 * Default implemention of {@link IDetailedLabelProvider}.
-	 * 
-	 * @author bkahlert
-	 * 
-	 */
-	public static class DetailedLabelProvider extends LabelProvider implements
-			IDetailedLabelProvider {
-
-		@Override
-		public boolean canFillPopup(Object element) {
-			return false;
-		}
-
-		@Override
-		public Control fillPopup(Object element, Composite composite) {
-			return null;
-		}
-
-	}
-
-	/**
 	 * Adds a {@link ILabelProviderFactory} that is consulted when
 	 * {@link #getLabelProvider(ILocatable)} is called.
 	 * 

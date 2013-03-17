@@ -181,6 +181,11 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
+			public String getTooltip(Object event) {
+				return null;
+			}
+
+			@Override
 			public URI getIcon(Object event) {
 				/*
 				 * IMPORTANT: Because Mac OS returns filenames in a decomposed

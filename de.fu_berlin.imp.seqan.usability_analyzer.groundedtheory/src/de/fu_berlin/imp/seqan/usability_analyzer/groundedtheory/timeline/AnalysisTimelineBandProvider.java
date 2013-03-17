@@ -202,16 +202,21 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			private ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
-			private ILabelProvider codeableLabelProvider = new EpisodeLabelProvider();
+			private ILabelProvider episodeLabelProvider = new EpisodeLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {
-				return this.codeableLabelProvider.getText(event);
+				return this.episodeLabelProvider.getText(event);
+			}
+
+			@Override
+			public String getTooltip(Object event) {
+				return null;
 			}
 
 			@Override
 			public URI getIcon(Object event) {
-				Image image = this.codeableLabelProvider.getImage(event);
+				Image image = this.episodeLabelProvider.getImage(event);
 				if (image != null) {
 					return TimelineHelper.createUriFromImage(image);
 				}

@@ -24,11 +24,13 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.DefaultTimelineEventDetailProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineEventDetailProvider;
 
+// TODO umschreiben nach IDetailedLabelProvider
 public class DoclogRecordTimelineEventDetailProvider extends
 		DefaultTimelineEventDetailProvider<DoclogRecord> implements
 		ITimelineEventDetailProvider<DoclogRecord> {
@@ -115,38 +117,40 @@ public class DoclogRecordTimelineEventDetailProvider extends
 	public List<Entry<String, String>> getDetailInformation(
 			DoclogRecord doclogRecord) {
 		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
-		detailEntries.add(new DetailEntry("URL",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("URL",
 				doclogRecord.getShortUrl() != null ? doclogRecord.getShortUrl()
 						: "-"));
-		detailEntries.add(new DetailEntry("IP",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("IP",
 				doclogRecord.getIp() != null ? doclogRecord.getIp() : "-"));
-		detailEntries.add(new DetailEntry("Proxy IP",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Proxy IP",
 				doclogRecord.getProxyIp() != null ? doclogRecord.getProxyIp()
 						: "-"));
-		detailEntries.add(new DetailEntry("Action",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Action",
 				doclogRecord.getAction() != null ? doclogRecord.getAction()
 						.toString() : "-"));
-		detailEntries.add(new DetailEntry("Action Parameter", doclogRecord
-				.getActionParameter() != null ? doclogRecord
-				.getActionParameter() : "-"));
-		detailEntries.add(new DetailEntry("Scroll Position",
+		detailEntries.add(new IInformationPresenterService.DetailEntry(
+				"Action Parameter",
+				doclogRecord.getActionParameter() != null ? doclogRecord
+						.getActionParameter() : "-"));
+		detailEntries.add(new IInformationPresenterService.DetailEntry(
+				"Scroll Position",
 				doclogRecord.getScrollPosition() != null ? doclogRecord
 						.getScrollPosition().x
 						+ ", "
 						+ doclogRecord.getScrollPosition().y : "-"));
-		detailEntries.add(new DetailEntry("Window Size", doclogRecord
-				.getWindowDimensions() != null ? doclogRecord
-				.getWindowDimensions().x
-				+ ", "
-				+ doclogRecord.getWindowDimensions().y : "-"));
-		detailEntries.add(new DetailEntry("Date",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Window Size",
+				doclogRecord.getWindowDimensions() != null ? doclogRecord
+						.getWindowDimensions().x
+						+ ", "
+						+ doclogRecord.getWindowDimensions().y : "-"));
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Date",
 				(doclogRecord.getDateRange() != null && doclogRecord
 						.getDateRange().getStartDate() != null) ? doclogRecord
 						.getDateRange().getStartDate().toISO8601() : "-"));
 
 		Long milliSecondsPassed = doclogRecord.getDateRange() != null ? doclogRecord
 				.getDateRange().getDifference() : null;
-		detailEntries.add(new DetailEntry("Time Passed",
+		detailEntries.add(new IInformationPresenterService.DetailEntry("Time Passed",
 				(milliSecondsPassed != null) ? DurationFormatUtils
 						.formatDuration(milliSecondsPassed,
 								new SUACorePreferenceUtil()
@@ -158,14 +162,15 @@ public class DoclogRecordTimelineEventDetailProvider extends
 	@Override
 	public void fillCustomComposite(Composite parent,
 			DoclogRecord doclogRecord, ITimeline timeline) {
-		imageLabel = new Label(parent, SWT.NONE);
+		this.imageLabel = new Label(parent, SWT.NONE);
 
-		disposeImage();
+		this.disposeImage();
 
-		Color background = getBackground(doclogRecord, timeline);
+		Color background = this.getBackground(doclogRecord, timeline);
 		ImageData imageData = doclogRecord.getScreenshot().getImageData();
-		if (imageData == null)
+		if (imageData == null) {
 			return;
+		}
 
 		Image image = new Image(Display.getCurrent(), imageData);
 		switch (doclogRecord.getAction()) {
@@ -190,27 +195,29 @@ public class DoclogRecordTimelineEventDetailProvider extends
 			break;
 		}
 
-		imageLabel.setImage(image);
-		imageLabel.addDisposeListener(new DisposeListener() {
+		this.imageLabel.setImage(image);
+		this.imageLabel.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				disposeImage();
+				DoclogRecordTimelineEventDetailProvider.this.disposeImage();
 			}
 		});
 	}
 
 	private void disposeImage() {
-		if (imageLabel != null && imageLabel.getImage() != null
-				&& !imageLabel.getImage().isDisposed())
-			imageLabel.getImage().dispose();
+		if (this.imageLabel != null && this.imageLabel.getImage() != null
+				&& !this.imageLabel.getImage().isDisposed()) {
+			this.imageLabel.getImage().dispose();
+		}
 	}
 
 	public static void drawScrollDirectionOverlay(DoclogRecord doclogRecord,
 			Image image) {
 		DoclogRecord prevDoclogRecord = doclogRecord.getDoclog()
 				.getPrevDoclogRecord(doclogRecord);
-		if (prevDoclogRecord == null)
+		if (prevDoclogRecord == null) {
 			return;
+		}
 
 		Rectangle arrowBounds = ImageManager.ARROW_TOP_DETAIL_OVERLAY
 				.getBounds();

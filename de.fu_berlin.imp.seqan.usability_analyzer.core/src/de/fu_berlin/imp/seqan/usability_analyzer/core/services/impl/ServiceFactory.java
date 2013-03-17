@@ -10,7 +10,7 @@ import org.osgi.framework.BundleListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDetailPopupService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
@@ -23,7 +23,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static IDataService DATA_DIRECTORIES_SERVICE;
 	private static IHighlightService HIGHLIGHT_SERVICE;
 	private static ILabelProviderService LABELPROVIDER_SERVICE;
-	private static IDetailPopupService DETAILPOPUP_SERVICE;
+	private static IInformationPresenterService DETAILPOPUP_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -75,9 +75,9 @@ public class ServiceFactory extends AbstractServiceFactory {
 			return LABELPROVIDER_SERVICE;
 		}
 
-		if (serviceInterface == IDetailPopupService.class) {
+		if (serviceInterface == IInformationPresenterService.class) {
 			if (DETAILPOPUP_SERVICE == null) {
-				DETAILPOPUP_SERVICE = new DetailPopupService();
+				DETAILPOPUP_SERVICE = new InformationPresenterService();
 			}
 			return DETAILPOPUP_SERVICE;
 		}

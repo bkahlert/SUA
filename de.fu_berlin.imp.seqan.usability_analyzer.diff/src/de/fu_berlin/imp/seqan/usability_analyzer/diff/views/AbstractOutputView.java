@@ -8,7 +8,6 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.views.EditorView;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
@@ -22,8 +21,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.InformationPresentingEditorView;
 
-public abstract class AbstractOutputView extends EditorView<ICompilable> {
+public abstract class AbstractOutputView extends
+		InformationPresentingEditorView<ICompilable> {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -110,6 +111,7 @@ public abstract class AbstractOutputView extends EditorView<ICompilable> {
 
 	@Override
 	public void postInit() {
+		super.postInit();
 		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
 				.addPostSelectionListener(this.selectionListener);
 		this.codeService.addCodeServiceListener(this.codeServiceListener);
