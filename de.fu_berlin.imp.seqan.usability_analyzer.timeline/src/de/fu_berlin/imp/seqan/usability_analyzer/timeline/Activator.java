@@ -12,7 +12,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineEventDetailProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView;
 
 public class Activator implements BundleActivator {
@@ -61,45 +60,16 @@ public class Activator implements BundleActivator {
 		return registeredTimelineBandProviders;
 	}
 
-	/**
-	 * Gets the registered {@link ITimelineEventDetailProvider}s provided via
-	 * the corresponding extension point.
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<ITimelineEventDetailProvider<Object>> getRegisteredTimelineEventDetailProviders() {
-		IConfigurationElement[] config = Platform.getExtensionRegistry()
-				.getConfigurationElementsFor(
-						"de.fu_berlin.imp.seqan.usability_analyzer.timeline");
-		List<ITimelineEventDetailProvider<Object>> registeredTimelineEventDetailProvider = new ArrayList<ITimelineEventDetailProvider<Object>>();
-		for (IConfigurationElement e : config) {
-			try {
-				Object o = e.createExecutableExtension("class");
-				if (o instanceof ITimelineEventDetailProvider<?>) {
-					registeredTimelineEventDetailProvider
-							.add((ITimelineEventDetailProvider<Object>) o);
-				}
-			} catch (CoreException e1) {
-				TimelineView.LOGGER.error(
-						"Error retrieving a currently registered "
-								+ ITimelineBandProvider.class.getSimpleName(),
-						e1);
-				return null;
-			}
-		}
-
-		return registeredTimelineEventDetailProvider;
-	}
-
 	static BundleContext getContext() {
 		return context;
 	}
 
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 	}
 
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
 	}

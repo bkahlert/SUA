@@ -173,8 +173,5 @@
       <TimelineBandProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline.DoclogTimelineBandProvider">
       </TimelineBandProvider>
-      <TimelineEventDetailProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.timeline.DoclogRecordTimelineEventDetailProvider">
-      </TimelineEventDetailProvider>
    </extension>
 </plugin>

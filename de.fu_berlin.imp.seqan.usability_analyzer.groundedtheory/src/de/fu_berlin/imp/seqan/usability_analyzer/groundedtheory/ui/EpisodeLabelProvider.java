@@ -3,17 +3,25 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.DetailedLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -23,7 +31,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
-public final class EpisodeLabelProvider extends LabelProvider {
+public final class EpisodeLabelProvider extends DetailedLabelProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLabelProvider.class);
@@ -152,5 +160,62 @@ public final class EpisodeLabelProvider extends LabelProvider {
 			// return image;
 		}
 		return super.getImage(element);
+	}
+
+	@Override
+	public boolean hasInformation(Object element) {
+		return element instanceof IEpisode;
+	}
+
+	@Override
+	public List<IllustratedText> getMetaInformation(Object element) {
+		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
+		if (element instanceof IEpisode) {
+			metaEntries.add(new IllustratedText(ImageManager.EPISODE,
+					IEpisode.class.getSimpleName()));
+		}
+		return metaEntries;
+	}
+
+	@Override
+	public List<Entry<String, String>> getDetailInformation(Object element) {
+		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
+		if (element instanceof IEpisode) {
+			IEpisode episode = (IEpisode) element;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Owner", episode.getIdentifier() != null ? episode
+							.getIdentifier().getIdentifier() : ""));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Caption", episode.getCaption() != null ? episode
+							.getCaption() : "-"));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Creation", (episode.getCreation() != null) ? episode
+							.getCreation().toISO8601() : "-"));
+
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Start", (episode.getDateRange() != null && episode
+							.getDateRange().getStartDate() != null) ? episode
+							.getDateRange().getStartDate().toISO8601() : "-"));
+
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"End", (episode.getDateRange() != null && episode
+							.getDateRange().getEndDate() != null) ? episode
+							.getDateRange().getEndDate().toISO8601() : "-"));
+
+			Long milliSecondsPassed = episode.getDateRange() != null ? episode
+					.getDateRange().getDifference() : null;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Span", (milliSecondsPassed != null) ? DurationFormatUtils
+							.formatDuration(milliSecondsPassed,
+									new SUACorePreferenceUtil()
+											.getTimeDifferenceFormat(), true)
+							: "unknown"));
+		}
+		return detailEntries;
+	}
+
+	@Override
+	public Control fillInformation(Object element, Composite composite) {
+		return super.fillInformation(element, composite);
 	}
 }

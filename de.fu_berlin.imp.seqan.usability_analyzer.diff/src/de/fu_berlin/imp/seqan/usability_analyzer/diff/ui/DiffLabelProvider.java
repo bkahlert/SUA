@@ -1,10 +1,21 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui;
 
-import org.eclipse.jface.viewers.LabelProvider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.DetailedLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -16,7 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DiffLabelProvider extends LabelProvider {
+public class DiffLabelProvider extends DetailedLabelProvider {
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 	private ICompilationService compilationService = (ICompilationService) PlatformUI
@@ -212,4 +223,90 @@ public class DiffLabelProvider extends LabelProvider {
 		}
 		return super.getImage(element);
 	}
+
+	@Override
+	public boolean hasInformation(Object element) {
+		return element instanceof IDiff || element instanceof IDiffRecord;
+	}
+
+	@Override
+	public List<IllustratedText> getMetaInformation(Object element) {
+		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
+		if (element instanceof IDiff) {
+			metaEntries.add(new IllustratedText(ImageManager.DIFF, IDiff.class
+					.getSimpleName()));
+		}
+		if (element instanceof IDiffRecord) {
+			metaEntries.add(new IllustratedText(ImageManager.DIFFRECORD,
+					DiffRecord.class.getSimpleName()));
+		}
+		return metaEntries;
+	}
+
+	@Override
+	public List<Entry<String, String>> getDetailInformation(Object element) {
+		List<Entry<String, String>> detailEntries = new ArrayList<Entry<String, String>>();
+		if (element instanceof IDiff) {
+			IDiff diff = (IDiff) element;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Name", diff.getName() != null ? diff.getName() : "-"));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Revision", diff.getRevision() + ""));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"File Size", diff.getLength() + " Bytes"));
+
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Date", (diff.getDateRange() != null && diff.getDateRange()
+							.getStartDate() != null) ? diff.getDateRange()
+							.getStartDate().toISO8601() : "-"));
+
+			Long milliSecondsPassed = diff.getDateRange() != null ? diff
+					.getDateRange().getDifference() : null;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Time Passed",
+					(milliSecondsPassed != null) ? DurationFormatUtils
+							.formatDuration(milliSecondsPassed,
+									new SUACorePreferenceUtil()
+											.getTimeDifferenceFormat(), true)
+							: "unknown"));
+		}
+		if (element instanceof IDiffRecord) {
+			IDiffRecord diffRecord = (IDiffRecord) element;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Filename", diffRecord.getFilename() != null ? diffRecord
+							.getFilename() : "-"));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Source", diffRecord.getSource() != null ? diffRecord
+							.getSource() : "-"));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Is Temporary", diffRecord.isTemporary() ? "Yes" : "No"));
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Source Exists", diffRecord.sourceExists() ? "Yes" : "No"));
+
+			detailEntries
+					.add(new IInformationPresenterService.DetailEntry(
+							"Date",
+							(diffRecord.getDateRange() != null && diffRecord
+									.getDateRange().getStartDate() != null) ? diffRecord
+									.getDateRange().getStartDate().toISO8601()
+									: "-"));
+
+			Long milliSecondsPassed = diffRecord.getDateRange() != null ? diffRecord
+					.getDateRange().getDifference() : null;
+			detailEntries.add(new IInformationPresenterService.DetailEntry(
+					"Time Passed",
+					(milliSecondsPassed != null) ? DurationFormatUtils
+							.formatDuration(milliSecondsPassed,
+									new SUACorePreferenceUtil()
+											.getTimeDifferenceFormat(), true)
+							: "unknown"));
+		}
+		return detailEntries;
+	}
+
+	@Override
+	public Control fillInformation(Object element, Composite composite) {
+		return super.fillInformation(element, composite);
+	}
+
 }

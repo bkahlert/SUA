@@ -52,7 +52,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionServi
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.BrowsableTimeline;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.InformationPresentingTimeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
 
 public class TimelineView extends ViewPart {
@@ -262,7 +262,7 @@ public class TimelineView extends ViewPart {
 		ITimelineFactory<ITimeline> timelineFactory = new ITimelineFactory<ITimeline>() {
 			@Override
 			public ITimeline createTimeline(Composite parent, int style) {
-				return new BrowsableTimeline(parent, style);
+				return new InformationPresentingTimeline(parent, style);
 			}
 		};
 

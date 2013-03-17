@@ -15,10 +15,7 @@ import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
 import com.bkahlert.devel.nebula.utils.information.TypedInformationControlManager;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
  * This service can display {@link PopupDialog}s that show detailed information
@@ -73,7 +70,7 @@ public interface IInformationPresenterService {
 		 * @param element
 		 * @return
 		 */
-		public boolean canFillPopup(Object element);
+		public boolean hasInformation(Object element);
 
 		/**
 		 * Fills the given {@link Composite} with detailed information.
@@ -82,13 +79,20 @@ public interface IInformationPresenterService {
 		 * @param composite
 		 * @return the main control; null if no popup should be displayed.
 		 */
-		public Control fillPopup(Object element, Composite composite);
+		public Control fillInformation(Object element, Composite composite);
 
 		public List<IllustratedText> getMetaInformation(Object element);
 
 		public List<Map.Entry<String, String>> getDetailInformation(
 				Object element);
 
+		/**
+		 * Returns the color to used as the background of the popup window
+		 * presenting further information of the element.
+		 * 
+		 * @param element
+		 * @return
+		 */
 		public Color getBackground(Object element);
 	}
 
@@ -102,12 +106,12 @@ public interface IInformationPresenterService {
 			IDetailedLabelProvider {
 
 		@Override
-		public boolean canFillPopup(Object element) {
+		public boolean hasInformation(Object element) {
 			return false;
 		}
 
 		@Override
-		public Control fillPopup(Object element, Composite composite) {
+		public Control fillInformation(Object element, Composite composite) {
 			return null;
 		}
 
@@ -124,32 +128,7 @@ public interface IInformationPresenterService {
 
 		@Override
 		public Color getBackground(Object element) {
-			boolean isIntersected = false;
-
-			if (element instanceof HasDateRange) {
-				TimeZoneDateRange dateRange = ((HasDateRange) element)
-						.getDateRange();
-
-				// FIXME
-				// if (timeline.getDecorators() != null) {
-				// for (IDecorator t : timeline.getDecorators()) {
-				// if (new TimeZoneDateRange(
-				// t.getStartDate() != null ? new TimeZoneDate(
-				// t.getStartDate()) : null,
-				// t.getEndDate() != null ? new TimeZoneDate(t
-				// .getEndDate()) : null)
-				// .isIntersected(dateRange)) {
-				// isIntersected = true;
-				// break;
-				// }
-				// }
-				// }
-
-				return isIntersected ? Activator.COLOR_HIGHLIGHT
-						: Activator.COLOR_STANDARD;
-			}
-
-			return Activator.COLOR_STANDARD;
+			return null;
 		}
 
 	}

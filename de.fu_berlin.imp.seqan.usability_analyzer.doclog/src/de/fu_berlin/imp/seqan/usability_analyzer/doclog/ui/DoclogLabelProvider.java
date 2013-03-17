@@ -88,11 +88,11 @@ public class DoclogLabelProvider extends DetailedLabelProvider {
 	}
 
 	@Override
-	public boolean canFillPopup(Object element) {
+	public boolean hasInformation(Object element) {
 		if (element instanceof DoclogRecord) {
 			return true;
 		}
-		return super.canFillPopup(element);
+		return super.hasInformation(element);
 	}
 
 	@Override
@@ -222,7 +222,7 @@ public class DoclogLabelProvider extends DetailedLabelProvider {
 	}
 
 	@Override
-	public Control fillPopup(Object element, Composite composite) {
+	public Control fillInformation(Object element, Composite composite) {
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
 			this.imageLabel = new Label(composite, SWT.NONE);

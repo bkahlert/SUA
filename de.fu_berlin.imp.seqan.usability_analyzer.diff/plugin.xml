@@ -231,12 +231,6 @@
       <TimelineBandProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline.DiffTimelineBandProvider">
       </TimelineBandProvider>
-      <TimelineEventDetailProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline.DiffTimelineEventDetailProvider">
-      </TimelineEventDetailProvider>
-      <TimelineEventDetailProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline.DiffRecordTimelineEventDetailProvider">
-      </TimelineEventDetailProvider>
    </extension>
 
 </plugin>

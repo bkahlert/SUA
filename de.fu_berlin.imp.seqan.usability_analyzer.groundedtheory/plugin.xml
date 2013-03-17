@@ -777,9 +777,6 @@
                   <adapt
                         type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier">
                   </adapt>
-                  <adapt
-                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
-                  </adapt>
                </or>
                <adapt
                      type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
@@ -800,9 +797,6 @@
                <or>
                   <adapt
                         type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier">
-                  </adapt>
-                  <adapt
-                        type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasFingerprint">
                   </adapt>
                </or>
                <adapt
@@ -826,12 +820,6 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.EpisodeAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierDateRange">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.FingerprintDateRange">
          </adapter>
       </factory>
    </extension>
@@ -880,8 +868,5 @@
       <TimelineBandProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.AnalysisTimelineBandProvider">
       </TimelineBandProvider>
-      <TimelineEventDetailProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.EpisodeTimelineEventDetailProvider">
-      </TimelineEventDetailProvider>
    </extension>
 </plugin>

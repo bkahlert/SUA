@@ -115,7 +115,7 @@ public class InformationPresenterService implements
 				return false;
 			}
 			final IInformationPresenterService.IDetailedLabelProvider detailedLabelProvider = (IInformationPresenterService.IDetailedLabelProvider) labelProvider;
-			if (!detailedLabelProvider.canFillPopup(input)) {
+			if (!detailedLabelProvider.hasInformation(input)) {
 				return false;
 			}
 
@@ -125,12 +125,31 @@ public class InformationPresenterService implements
 					.getDetailInformation(input);
 			Color backgroundColor = detailedLabelProvider.getBackground(input);
 
+			/*
+			 * FIXME boolean isIntersected = false;
+			 * 
+			 * if (element instanceof HasDateRange) { TimeZoneDateRange
+			 * dateRange = ((HasDateRange) element) .getDateRange();
+			 * 
+			 * // FIXME // if (timeline.getDecorators() != null) { // for
+			 * (IDecorator t : timeline.getDecorators()) { // if (new
+			 * TimeZoneDateRange( // t.getStartDate() != null ? new
+			 * TimeZoneDate( // t.getStartDate()) : null, // t.getEndDate() !=
+			 * null ? new TimeZoneDate(t // .getEndDate()) : null) //
+			 * .isIntersected(dateRange)) { // isIntersected = true; // break;
+			 * // } // } // }
+			 * 
+			 * return isIntersected ? Activator.COLOR_HIGHLIGHT :
+			 * Activator.COLOR_STANDARD; }
+			 * 
+			 * return Activator.COLOR_STANDARD;
+			 */
 			this.composite.setBackground(backgroundColor);
 			this.loadMetaInformation(metaInformation);
 			this.loadDetailInformation(detailInformation);
 
 			SWTUtil.clearControl(this.customComposite);
-			detailedLabelProvider.fillPopup(input, this.customComposite);
+			detailedLabelProvider.fillInformation(input, this.customComposite);
 			this.customComposite.layout();
 
 			return true;
