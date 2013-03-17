@@ -26,13 +26,13 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.DetailedLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DoclogLabelProvider extends DetailedLabelProvider {
+public class DoclogLabelProvider extends InformationLabelProvider {
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);

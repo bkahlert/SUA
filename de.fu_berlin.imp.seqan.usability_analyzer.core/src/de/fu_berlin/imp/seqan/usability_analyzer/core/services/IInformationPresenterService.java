@@ -26,7 +26,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 public interface IInformationPresenterService {
 
 	public static interface IDetailEntry extends Map.Entry<String, String> {
-
 	}
 
 	public static class DetailEntry implements IDetailEntry {
@@ -59,18 +58,24 @@ public interface IInformationPresenterService {
 
 /**
 	 * Instances of this class can provide callers of
-	 * {@link ICodeableProvider#getLabelProvider(ILocatable) with further information.
+	 * {@link ILabelProviderService#getLabelProvider(ILocatable) with further information.
 	 * @author bkahlert
 	 *
 	 */
-	public static interface IDetailedLabelProvider extends ILabelProvider {
+	public static interface IInformationLabelProvider extends ILabelProvider {
 		/**
-		 * Returns true if this {@link IDetailedLabelProvider} can fill a popup.
+		 * Returns true if this {@link IInformationLabelProvider} can provide
+		 * further information for the given element.
 		 * 
 		 * @param element
 		 * @return
 		 */
 		public boolean hasInformation(Object element);
+
+		public List<IllustratedText> getMetaInformation(Object element);
+
+		public List<Map.Entry<String, String>> getDetailInformation(
+				Object element);
 
 		/**
 		 * Fills the given {@link Composite} with detailed information.
@@ -80,11 +85,6 @@ public interface IInformationPresenterService {
 		 * @return the main control; null if no popup should be displayed.
 		 */
 		public Control fillInformation(Object element, Composite composite);
-
-		public List<IllustratedText> getMetaInformation(Object element);
-
-		public List<Map.Entry<String, String>> getDetailInformation(
-				Object element);
 
 		/**
 		 * Returns the color to used as the background of the popup window
@@ -97,13 +97,13 @@ public interface IInformationPresenterService {
 	}
 
 	/**
-	 * Default implemention of {@link IDetailedLabelProvider}.
+	 * Default implemention of {@link IInformationLabelProvider}.
 	 * 
 	 * @author bkahlert
 	 * 
 	 */
-	public static class DetailedLabelProvider extends LabelProvider implements
-			IDetailedLabelProvider {
+	public static class InformationLabelProvider extends LabelProvider implements
+			IInformationLabelProvider {
 
 		@Override
 		public boolean hasInformation(Object element) {

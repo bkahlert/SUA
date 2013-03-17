@@ -21,7 +21,7 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.DetailedLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -31,7 +31,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
-public final class EpisodeLabelProvider extends DetailedLabelProvider {
+public final class EpisodeLabelProvider extends InformationLabelProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLabelProvider.class);

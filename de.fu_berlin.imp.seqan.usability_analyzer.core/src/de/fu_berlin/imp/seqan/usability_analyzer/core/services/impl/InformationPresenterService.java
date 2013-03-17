@@ -61,12 +61,12 @@ public class InformationPresenterService implements
 		@Override
 		protected void createContent(Composite composite) {
 			this.composite = composite;
-			composite.setBackgroundMode(SWT.INHERIT_NONE);
+			this.composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
 			GridLayout gridLayout = new GridLayout(2, false);
 			gridLayout.marginWidth = borderWidth;
 			gridLayout.marginHeight = borderWidth;
 			gridLayout.horizontalSpacing = borderWidth;
-			composite.setLayout(gridLayout);
+			this.composite.setLayout(gridLayout);
 
 			this.metaComposite = new RoundedComposite(composite, SWT.BORDER);
 			this.metaComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
@@ -88,7 +88,7 @@ public class InformationPresenterService implements
 			this.detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
 					false, false, 1, 1));
 
-			composite.addKeyListener(new KeyAdapter() {
+			this.composite.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if (e.keyCode == SWT.ARROW_RIGHT) {
@@ -110,23 +110,26 @@ public class InformationPresenterService implements
 				return false;
 			}
 
-			if (!IInformationPresenterService.IDetailedLabelProvider.class
-					.isInstance(labelProvider)) {
-				return false;
-			}
-			final IInformationPresenterService.IDetailedLabelProvider detailedLabelProvider = (IInformationPresenterService.IDetailedLabelProvider) labelProvider;
-			if (!detailedLabelProvider.hasInformation(input)) {
+			if (!IInformationLabelProvider.class.isInstance(labelProvider)) {
 				return false;
 			}
 
-			List<IllustratedText> metaInformation = detailedLabelProvider
+			final IInformationLabelProvider informationLabelProvider = (IInformationLabelProvider) labelProvider;
+			if (!informationLabelProvider.hasInformation(input)) {
+				return false;
+			}
+
+			List<IllustratedText> metaInformation = informationLabelProvider
 					.getMetaInformation(input);
-			List<Entry<String, String>> detailInformation = detailedLabelProvider
+			List<Entry<String, String>> detailInformation = informationLabelProvider
 					.getDetailInformation(input);
-			Color backgroundColor = detailedLabelProvider.getBackground(input);
+			Color backgroundColor = informationLabelProvider.getBackground(input);
 
+			// TODO background color = gelb
 			/*
-			 * FIXME boolean isIntersected = false;
+			 * TODO etwas in einen interceptor programmieren, der nochmal die
+			 * background-color setzen kann TODO actions hinzufügen TODO focus
+			 * geben können FIXME boolean isIntersected = false;
 			 * 
 			 * if (element instanceof HasDateRange) { TimeZoneDateRange
 			 * dateRange = ((HasDateRange) element) .getDateRange();
@@ -144,12 +147,20 @@ public class InformationPresenterService implements
 			 * 
 			 * return Activator.COLOR_STANDARD;
 			 */
+			// this.composite.setBackground(backgroundColor);
+			// this.composite.getParent().setBackground(backgroundColor);
+
+			if (backgroundColor == null) {
+				backgroundColor = SWTResourceManager
+						.getColor(SWT.COLOR_INFO_BACKGROUND);
+			}
 			this.composite.setBackground(backgroundColor);
+
 			this.loadMetaInformation(metaInformation);
 			this.loadDetailInformation(detailInformation);
 
 			SWTUtil.clearControl(this.customComposite);
-			detailedLabelProvider.fillInformation(input, this.customComposite);
+			informationLabelProvider.fillInformation(input, this.customComposite);
 			this.customComposite.layout();
 
 			return true;

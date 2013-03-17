@@ -15,7 +15,7 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.DetailedLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -27,7 +27,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DiffLabelProvider extends DetailedLabelProvider {
+public class DiffLabelProvider extends InformationLabelProvider {
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 	private ICompilationService compilationService = (ICompilationService) PlatformUI
