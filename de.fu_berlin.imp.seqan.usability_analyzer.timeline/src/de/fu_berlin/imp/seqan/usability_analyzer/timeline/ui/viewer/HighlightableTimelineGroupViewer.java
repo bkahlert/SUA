@@ -76,4 +76,5 @@ public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends ITimelineGro
 		}
 		this.setDecorators(groupedDecorators, monitor);
 	}
+
 }

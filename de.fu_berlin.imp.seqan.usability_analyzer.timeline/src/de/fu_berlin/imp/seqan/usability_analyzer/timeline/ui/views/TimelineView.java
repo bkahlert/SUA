@@ -21,6 +21,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -51,6 +52,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListe
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.preferences.SUATimelinePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.InformationPresentingTimeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
@@ -216,6 +218,8 @@ public class TimelineView extends ViewPart {
 
 		this.openedIdentifiers = identifiers;
 
+		this.saveZoomIndex();
+
 		this.timelineLoader = new Job("Loading "
 				+ ITimeline.class.getSimpleName()) {
 			@Override
@@ -227,6 +231,32 @@ public class TimelineView extends ViewPart {
 			}
 		};
 		this.timelineLoader.schedule();
+	}
+
+	private void saveZoomIndex() {
+		Control control = this.timelineGroupViewer.getControl();
+		if (control instanceof TimelineGroup && !control.isDisposed()) {
+			@SuppressWarnings("unchecked")
+			final TimelineGroup<ITimeline> timelineGroup = (TimelineGroup<ITimeline>) this.timelineGroupViewer
+					.getControl();
+			final Set<Object> keys = timelineGroup.getTimelineKeys();
+			if (keys.size() > 0) {
+				ExecutorUtil.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						ITimeline timeline = timelineGroup
+								.getTimeline(new ArrayList<Object>(keys).get(0));
+						if (timeline != null) {
+							Integer zoomIndex = timeline.getZoomIndex();
+							if (zoomIndex != null) {
+								new SUATimelinePreferenceUtil()
+										.setZoomIndex(zoomIndex);
+							}
+						}
+					}
+				});
+			}
+		}
 	}
 
 	@Override
@@ -244,6 +274,7 @@ public class TimelineView extends ViewPart {
 
 	@Override
 	public void dispose() {
+		this.saveZoomIndex();
 		if (this.highlightService != null) {
 			this.highlightService
 					.removeHighlightServiceListener(this.highlightServiceListener);
@@ -270,7 +301,8 @@ public class TimelineView extends ViewPart {
 			@Override
 			public ITimelineProvider<ITimeline> createTimelineProvider() {
 				ITimelineProvider<ITimeline> timelineProvider;
-				ITimelineLabelProvider<ITimeline> timelineLabelProvider = new TimelineLabelProvider<ITimeline>();
+				ITimelineLabelProvider<ITimeline> timelineLabelProvider = new TimelineLabelProvider<ITimeline>(
+						new SUATimelinePreferenceUtil().getZoomIndex());
 				List<IBandGroupProvider> bandGroupProviders = new ArrayList<IBandGroupProvider>();
 				for (ITimelineBandProvider bandProvider : Activator
 						.getRegisteredTimelineBandProviders()) {

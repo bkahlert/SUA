@@ -31,6 +31,12 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	private static final Logger LOGGER = Logger
 			.getLogger(TimelineLabelProvider.class);
 
+	private int zoomIndex;
+
+	public TimelineLabelProvider(int zoomIndex) {
+		this.zoomIndex = zoomIndex;
+	}
+
 	private static <TIMELINE extends IBaseTimeline> IIdentifier getIdentifier(
 			final TIMELINE timeline) {
 		try {
@@ -160,7 +166,7 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 
 	@Override
 	public Integer getZoomIndex() {
-		return 26;
+		return this.zoomIndex;
 	}
 
 	@Override

@@ -8,17 +8,17 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.BundleActivator;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView;
 
-public class Activator implements BundleActivator {
+public class Activator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.timeline";
 
-	private static BundleContext context;
+	private static Activator plugin;
 
 	/**
 	 * Gets the registered {@link ITimelineBandProvider}s provided via the
@@ -60,18 +60,25 @@ public class Activator implements BundleActivator {
 		return registeredTimelineBandProviders;
 	}
 
-	static BundleContext getContext() {
-		return context;
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
 	}
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+	public void stop(BundleContext context) throws Exception {
+		plugin = null;
+		super.stop(context);
 	}
 
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+	/**
+	 * Returns the shared instance
+	 * 
+	 * @return the shared instance
+	 */
+	public static Activator getDefault() {
+		return plugin;
 	}
 
 }
