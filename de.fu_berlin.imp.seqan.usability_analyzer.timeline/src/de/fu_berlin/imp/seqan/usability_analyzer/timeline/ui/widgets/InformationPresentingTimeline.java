@@ -42,6 +42,7 @@ public class InformationPresentingTimeline extends Timeline {
 	private static final Logger LOGGER = Logger
 			.getLogger(InformationPresentingTimeline.class);
 
+	// TODO move everything related to HighlightableTimelineGroupViewer
 	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
 			.getWorkbench().getService(IInformationPresenterService.class);
 

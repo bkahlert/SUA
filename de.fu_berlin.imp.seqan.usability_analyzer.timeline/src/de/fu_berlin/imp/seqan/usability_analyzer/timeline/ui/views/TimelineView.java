@@ -19,9 +19,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -234,17 +235,13 @@ public class TimelineView extends ViewPart {
 	}
 
 	private void saveZoomIndex() {
-		Control control = this.timelineGroupViewer.getControl();
-		if (control instanceof TimelineGroup && !control.isDisposed()) {
-			@SuppressWarnings("unchecked")
-			final TimelineGroup<ITimeline> timelineGroup = (TimelineGroup<ITimeline>) this.timelineGroupViewer
-					.getControl();
-			final Set<Object> keys = timelineGroup.getTimelineKeys();
+		if (this.timelineGroup != null && !this.timelineGroup.isDisposed()) {
+			final Set<Object> keys = this.timelineGroup.getTimelineKeys();
 			if (keys.size() > 0) {
 				ExecutorUtil.syncExec(new Runnable() {
 					@Override
 					public void run() {
-						ITimeline timeline = timelineGroup
+						ITimeline timeline = TimelineView.this.timelineGroup
 								.getTimeline(new ArrayList<Object>(keys).get(0));
 						if (timeline != null) {
 							Integer zoomIndex = timeline.getZoomIndex();
@@ -274,7 +271,6 @@ public class TimelineView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		this.saveZoomIndex();
 		if (this.highlightService != null) {
 			this.highlightService
 					.removeHighlightServiceListener(this.highlightServiceListener);
@@ -318,6 +314,12 @@ public class TimelineView extends ViewPart {
 		};
 		this.timelineGroup = new TimelineGroup<ITimeline>(parent, SWT.NONE,
 				timelineFactory);
+		this.timelineGroup.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				TimelineView.this.saveZoomIndex();
+			}
+		});
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
