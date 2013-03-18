@@ -8,22 +8,24 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
-import com.bkahlert.devel.nebula.viewer.timelineGroup.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
-public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>, TIMELINE extends ITimeline>
-		extends TimelineGroupViewer<TIMELINEGROUP, TIMELINE> {
+public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+		extends TimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
-	public HighlightableTimelineGroupViewer(TIMELINEGROUP timelineGroup,
-			ITimelineProviderFactory<TIMELINE> timelineProviderFactory) {
+	public HighlightableTimelineGroupViewer(
+			TIMELINEGROUP timelineGroup,
+			ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory) {
 		super(timelineGroup, timelineProviderFactory);
 	}
 

@@ -25,6 +25,10 @@ public class NavigateBackAction extends NavigateAction {
 		return "Back";
 	}
 
+	// TODO action hinzufügen, damit man code hinzufügen kann
+	// vonn purple nach rechts nach typedefs am bildschirm suchen
+	// wahrscheinlich möchte der Anwender nur die TRow finden
+
 	@Override
 	public ImageDescriptor getImageDescriptor() {
 		return ImageDescriptor.createFromImage(PlatformUI.getWorkbench()

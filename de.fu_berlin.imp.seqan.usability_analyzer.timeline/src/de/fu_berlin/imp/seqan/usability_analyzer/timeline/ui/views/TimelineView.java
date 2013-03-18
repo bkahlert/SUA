@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
@@ -40,7 +42,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroup
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.impl.TimelineGroup;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -72,8 +74,8 @@ public class TimelineView extends ViewPart {
 				Set<IIdentifier> identifiers) {
 			Set<IIdentifier> filteredKeys = new HashSet<IIdentifier>();
 			identifierLoop: for (IIdentifier key : identifiers) {
-				for (ITimelineBandProvider timelineBandProvider : Activator
-						.getRegisteredTimelineBandProviders()) {
+				for (ITimelineBandProvider<HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> timelineBandProvider : Activator
+						.<HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> getRegisteredTimelineBandProviders()) {
 					if (!timelineBandProvider.getContentProvider().isValid(key)) {
 						continue identifierLoop;
 					}
@@ -182,8 +184,8 @@ public class TimelineView extends ViewPart {
 		}
 	};
 
-	private TimelineGroup<ITimeline> timelineGroup;
-	private HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline> timelineGroupViewer;
+	private TimelineGroup<InformationPresentingTimeline> timelineGroup;
+	private HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> timelineGroupViewer;
 
 	private Set<IIdentifier> openedIdentifiers = null;
 
@@ -282,38 +284,44 @@ public class TimelineView extends ViewPart {
 		super.dispose();
 	}
 
+	private static class TimelineProviderFactory
+			implements
+			ITimelineProviderFactory<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> {
+		@Override
+		public ITimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> createTimelineProvider() {
+			ITimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> timelineProvider;
+			ITimelineLabelProvider<InformationPresentingTimeline> timelineLabelProvider = new TimelineLabelProvider<InformationPresentingTimeline>(
+					new SUATimelinePreferenceUtil().getZoomIndex());
+			List<IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>> bandGroupProviders = new ArrayList<IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>>();
+			for (ITimelineBandProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> bandProvider : Activator
+					.<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier> getRegisteredTimelineBandProviders()) {
+				bandGroupProviders
+						.add(new BandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>(
+								bandProvider.getContentProvider(), bandProvider
+										.getBandLabelProvider(), bandProvider
+										.getEventLabelProvider()));
+			}
+			timelineProvider = new TimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>(
+					timelineLabelProvider, bandGroupProviders);
+			return timelineProvider;
+		}
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		ITimelineFactory<ITimeline> timelineFactory = new ITimelineFactory<ITimeline>() {
+		ITimelineFactory<InformationPresentingTimeline> timelineFactory = new ITimelineFactory<InformationPresentingTimeline>() {
 			@Override
-			public ITimeline createTimeline(Composite parent, int style) {
+			public InformationPresentingTimeline createTimeline(
+					Composite parent, int style) {
 				return new InformationPresentingTimeline(parent, style);
 			}
 		};
 
-		ITimelineProviderFactory<ITimeline> timelineProviderFactory = new ITimelineProviderFactory<ITimeline>() {
-			@Override
-			public ITimelineProvider<ITimeline> createTimelineProvider() {
-				ITimelineProvider<ITimeline> timelineProvider;
-				ITimelineLabelProvider<ITimeline> timelineLabelProvider = new TimelineLabelProvider<ITimeline>(
-						new SUATimelinePreferenceUtil().getZoomIndex());
-				List<IBandGroupProvider> bandGroupProviders = new ArrayList<IBandGroupProvider>();
-				for (ITimelineBandProvider bandProvider : Activator
-						.getRegisteredTimelineBandProviders()) {
-					bandGroupProviders.add(new BandGroupProvider(bandProvider
-							.getContentProvider(), bandProvider
-							.getBandLabelProvider(), bandProvider
-							.getEventLabelProvider()));
-				}
-				timelineProvider = new TimelineProvider<ITimeline>(
-						timelineLabelProvider, bandGroupProviders);
-				return timelineProvider;
-			}
-		};
-		this.timelineGroup = new TimelineGroup<ITimeline>(parent, SWT.NONE,
-				timelineFactory);
+		TimelineProviderFactory timelineProviderFactory = new TimelineProviderFactory();
+		this.timelineGroup = new TimelineGroup<InformationPresentingTimeline>(
+				parent, SWT.NONE, timelineFactory);
 		this.timelineGroup.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -333,7 +341,7 @@ public class TimelineView extends ViewPart {
 		Menu menu = menuManager.createContextMenu(this.timelineGroup);
 		this.timelineGroup.setMenu(menu);
 
-		this.timelineGroupViewer = new HighlightableTimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline>(
+		this.timelineGroupViewer = new HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline>, InformationPresentingTimeline, IIdentifier>(
 				this.timelineGroup, timelineProviderFactory);
 		this.getSite().registerContextMenu(menuManager,
 				this.timelineGroupViewer);
@@ -343,6 +351,13 @@ public class TimelineView extends ViewPart {
 	@Override
 	public void setFocus() {
 		this.timelineGroup.setFocus();
+	}
+
+	public void setCenterVisibleDate(Calendar calendar) {
+		// TODO only changed affected
+		for (Object key : this.timelineGroup.getTimelineKeys()) {
+			this.timelineGroup.getTimeline(key).setCenterVisibleDate(calendar);
+		}
 	}
 
 }

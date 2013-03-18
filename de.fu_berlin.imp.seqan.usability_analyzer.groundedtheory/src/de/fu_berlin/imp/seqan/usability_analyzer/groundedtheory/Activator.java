@@ -5,6 +5,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
@@ -22,6 +23,9 @@ public class Activator extends AbstractUIPlugin {
 			return new EpisodeLabelProvider();
 		}
 	};
+
+	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
+			.getWorkbench().getService(IInformationPresenterService.class);
 
 	public Activator() {
 	}

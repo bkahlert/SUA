@@ -10,19 +10,20 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -35,7 +36,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
-public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
+public class AnalysisTimelineBandProvider
+		implements
+		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AnalysisTimelineBandProvider.class);
@@ -45,8 +48,8 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 	}
 
 	@Override
-	public ITimelineContentProvider getContentProvider() {
-		return new ITimelineContentProvider() {
+	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier>() {
 
 			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
@@ -77,22 +80,21 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 				}
 			};
 
-			private Object input = null;
+			private IIdentifier input = null;
 			private TimelineRefresher timelineRefresher = null;
-			private ITimelineGroup<?> timelineGroup = null;
+			private TimelineGroup<ITimeline> timelineGroup = null;
 
 			@Override
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
+			public void inputChanged(
+					TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier> viewer,
+					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 				if (this.timelineGroup != null) {
 					this.timelineGroup
 							.removeTimelineListener(this.timelineListener);
 				}
-				if (viewer != null
-						&& viewer.getControl() instanceof ITimelineGroup) {
-					this.timelineGroup = (ITimelineGroup<?>) viewer
-							.getControl();
+				if (viewer != null && viewer.getControl() != null) {
+					this.timelineGroup = viewer.getControl();
 					this.timelineGroup
 							.addTimelineListener(this.timelineListener);
 				}
@@ -113,12 +115,8 @@ public class AnalysisTimelineBandProvider implements ITimelineBandProvider {
 			}
 
 			@Override
-			public boolean isValid(Object key) {
-				if (key instanceof IIdentifier) {
-					return true;
-				} else {
-					return false;
-				}
+			public boolean isValid(IIdentifier input) {
+				return true;
 			}
 
 			@Override

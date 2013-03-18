@@ -9,14 +9,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -33,7 +35,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
-public class DoclogTimelineBandProvider implements ITimelineBandProvider {
+public class DoclogTimelineBandProvider
+		implements
+		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogTimelineBandProvider.class);
@@ -43,22 +47,23 @@ public class DoclogTimelineBandProvider implements ITimelineBandProvider {
 	}
 
 	@Override
-	public ITimelineContentProvider getContentProvider() {
-		return new ITimelineContentProvider() {
+	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier>() {
 
 			private DoclogContentProvider doclogContentProvider = new DoclogContentProvider();
-			private Object input = null;
+			private IIdentifier input = null;
 
 			@Override
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
+			public void inputChanged(
+					TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier> viewer,
+					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 				this.doclogContentProvider.inputChanged(viewer, oldInput,
 						newInput);
 			}
 
 			@Override
-			public boolean isValid(Object key) {
+			public boolean isValid(IIdentifier key) {
 				return ArrayUtils.contains(Activator.getDefault()
 						.getDoclogContainer().getIdentifiers(), key);
 			}
