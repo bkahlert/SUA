@@ -5,18 +5,28 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.DateRangeUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationToolBarContributionsProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 // FIXME PropertyChangeService implementieren; dann müssen view wie der MemoView oder der Compiler Output View nicht mehr alle möglichen Listener registrieren, um ein Object immer korrekt darzustellen
 
@@ -82,6 +92,46 @@ public class Activator extends AbstractUIPlugin {
 		}
 	};
 
+	public static abstract class HighlightServiceAction extends Action {
+		@Override
+		public String getText() {
+			return "Highlight";
+		}
+
+		@Override
+		public void run() {
+			IHighlightService highlightService = (IHighlightService) PlatformUI
+					.getWorkbench().getService(IHighlightService.class);
+			if (highlightService != null) {
+				this.run(highlightService);
+			}
+		}
+
+		public abstract void run(IHighlightService highlightService);
+	}
+
+	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
+			.getWorkbench().getService(IInformationPresenterService.class);
+	private IInformationToolBarContributionsProvider informationToolBarContributionsProvider = new IInformationToolBarContributionsProvider() {
+		@Override
+		public void fill(Object element, ToolBarManager toolBarManager,
+				InformationControl<?> informationControl,
+				InformationControlManager<?, ?> informationControlManager) {
+			if (element instanceof HasDateRange) {
+				final TimeZoneDateRange range = ((HasDateRange) element)
+						.getDateRange();
+				if (range != null) {
+					toolBarManager.add(new HighlightServiceAction() {
+						@Override
+						public void run(IHighlightService highlightService) {
+							highlightService.highlight(Activator.this, range);
+						}
+					});
+				}
+			}
+		}
+	};
+
 	public static final Color COLOR_STANDARD = new Color(Display.getDefault(),
 			new RGB(75, 131, 179));
 
@@ -118,6 +168,9 @@ public class Activator extends AbstractUIPlugin {
 				.getDateRangeStartEnabled();
 		this.oldDateRangeEndEnabled = this.corePreferenceUtil
 				.getDateRangeEndEnabled();
+
+		this.informationPresenterService
+				.addInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
 	}
 
 	/*
@@ -129,6 +182,8 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		this.informationPresenterService
+				.removeInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
 		this.corePreferenceUtil
 				.removePropertyChangeListener(this.dateRangeChangeListener);
 		plugin = null;

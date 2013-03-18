@@ -1,12 +1,15 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
@@ -73,24 +76,42 @@ public class InformationPresentingTimeline extends Timeline {
 		}
 	};
 
+	private NavigateBackAction navigateBackAction = null;
+	private NavigateForwardAction navigateForwardAction = null;
+	private Listener navigationListener = new Listener() {
+		@Override
+		public void handleEvent(Event event) {
+			if (event.keyCode == SWT.ARROW_LEFT
+					&& InformationPresentingTimeline.this.navigateBackAction != null) {
+				InformationPresentingTimeline.this.navigateBackAction.run();
+			}
+			if (event.keyCode == SWT.ARROW_RIGHT
+					&& InformationPresentingTimeline.this.navigateForwardAction != null) {
+				InformationPresentingTimeline.this.navigateForwardAction.run();
+			}
+		}
+	};
+
 	private IInformationToolBarContributionsProvider informationToolBarContributionsProvider = new IInformationToolBarContributionsProvider() {
 		@Override
 		public void fill(final Object element, ToolBarManager toolBarManager,
 				final InformationControl<?> informationControl,
 				InformationControlManager<?, ?> informationControlManager) {
 			toolBarManager.add(new Separator());
-			// TODO shortcuts
 			// FIXME Generics geradeziehen
 			// FIXME 5lp browsen in vergangenheit hört vorzeitig auf
 			if (informationControlManager == InformationPresentingTimeline.this.timelineInformationControlManager) {
-				Action backAction = new NavigateBackAction(
+				InformationPresentingTimeline.this.navigateBackAction = new NavigateBackAction(
 						InformationPresentingTimeline.this, informationControl,
 						element);
-				Action forwardAction = new NavigateForwardAction(
+				InformationPresentingTimeline.this.navigateForwardAction = new NavigateForwardAction(
 						InformationPresentingTimeline.this, informationControl,
 						element);
-				toolBarManager.add(backAction);
-				toolBarManager.add(forwardAction);
+				toolBarManager
+						.add(InformationPresentingTimeline.this.navigateBackAction);
+				toolBarManager
+						.add(InformationPresentingTimeline.this.navigateForwardAction);
+				informationControl.setFocus();
 			}
 		}
 	};
@@ -156,10 +177,14 @@ public class InformationPresentingTimeline extends Timeline {
 								return InformationPresentingTimeline.this.hoveredLocatable;
 							}
 						});
+
+		Display.getCurrent().addFilter(SWT.KeyDown, this.navigationListener);
 	}
 
 	@Override
 	public void dispose() {
+		Display.getCurrent().removeFilter(SWT.KeyDown, this.navigationListener);
+
 		this.informationPresenterService
 				.removeInformationBackgroundProvider(this.informationBackgroundProvider);
 		this.informationPresenterService

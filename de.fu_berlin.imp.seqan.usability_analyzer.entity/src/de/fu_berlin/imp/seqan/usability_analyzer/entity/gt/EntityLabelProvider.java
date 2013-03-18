@@ -48,4 +48,5 @@ public class EntityLabelProvider extends LabelProvider {
 		}
 		return ImageManager.ENTITY;
 	}
+
 }
