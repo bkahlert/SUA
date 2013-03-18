@@ -1,9 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.log4j.Logger;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -32,9 +37,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 
 public class DoclogLabelProvider extends InformationLabelProvider {
 
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogLabelProvider.class);
+
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-	private Label imageLabel = null;
+	private Map<Composite, Label> imageLabels = new HashMap<Composite, Label>();
 
 	@Override
 	public String getText(Object element) {
@@ -212,12 +220,12 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public Control fillInformation(Object element, Composite composite) {
+	public Control fillInformation(Object element, final Composite composite) {
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
-			this.imageLabel = new Label(composite, SWT.NONE);
 
-			this.disposeImage();
+			this.disposeImage(composite);
+			Label imageLabel = new Label(composite, SWT.NONE);
 
 			ImageData imageData = doclogRecord.getScreenshot().getImageData();
 			if (imageData == null) {
@@ -246,22 +254,25 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				break;
 			}
 
-			this.imageLabel.setImage(image);
-			this.imageLabel.addDisposeListener(new DisposeListener() {
+			imageLabel.setImage(image);
+			imageLabel.addDisposeListener(new DisposeListener() {
 				@Override
 				public void widgetDisposed(DisposeEvent e) {
-					DoclogLabelProvider.this.disposeImage();
+					DoclogLabelProvider.this.disposeImage(composite);
 				}
 			});
-			return this.imageLabel;
+			this.imageLabels.put(composite, imageLabel);
+			return imageLabel;
 		}
 		return null;
 	}
 
-	private void disposeImage() {
-		if (this.imageLabel != null && this.imageLabel.getImage() != null
-				&& !this.imageLabel.getImage().isDisposed()) {
-			this.imageLabel.getImage().dispose();
+	private void disposeImage(Composite composite) {
+		if (this.imageLabels.get(composite) != null
+				&& this.imageLabels.get(composite).getImage() != null
+				&& !this.imageLabels.get(composite).getImage().isDisposed()) {
+			this.imageLabels.get(composite).getImage().dispose();
+			this.imageLabels.remove(composite);
 		}
 	}
 
@@ -323,6 +334,29 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				(image.getBounds().height - resizedOverlayBounds.height) / 2,
 				resizedOverlayBounds.width, resizedOverlayBounds.height);
 		gc.dispose();
+	}
+
+	@Override
+	public void fill(Object element, ToolBarManager toolBarManager) {
+		if (element instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) element;
+
+			if (doclogRecord.getUrl() != null) {
+				final String url = doclogRecord.getUrl();
+				Action openUrl = new Action() {
+					@Override
+					public String getText() {
+						return "Open URL";
+					}
+
+					@Override
+					public void run() {
+						org.eclipse.swt.program.Program.launch(url);
+					}
+				};
+				toolBarManager.add(openUrl);
+			}
+		}
 	}
 
 }

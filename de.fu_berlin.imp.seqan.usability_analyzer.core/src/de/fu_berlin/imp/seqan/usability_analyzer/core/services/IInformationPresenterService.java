@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -12,7 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.TypedInformationControlManager;
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -33,6 +37,18 @@ public interface IInformationPresenterService {
 	 */
 	public static interface IInformationBackgroundProvider {
 		public Color getBackground(Object element);
+	}
+
+	/**
+	 * Instances of this class provide contributions for the
+	 * {@link ToolBarManager}.
+	 * 
+	 * @author bkahlert
+	 */
+	public static interface IInformationToolBarContributionsProvider {
+		public void fill(Object element, ToolBarManager toolBarManager,
+				InformationControl<?> informationControl,
+				InformationControlManager<?, ?> informationControlManager);
 	}
 
 /**
@@ -95,6 +111,15 @@ public interface IInformationPresenterService {
 		 */
 		public Control fillInformation(Object element, Composite composite);
 
+		/**
+		 * Fills the given {@link ToolBarManager} with custom
+		 * {@link IContributionItem}s and {@link IAction}s.
+		 * 
+		 * @param element
+		 * @param toolBarManager
+		 */
+		public void fill(Object element, ToolBarManager toolBarManager);
+
 	}
 
 	/**
@@ -126,6 +151,11 @@ public interface IInformationPresenterService {
 			return new ArrayList<IDetailEntry>();
 		}
 
+		@Override
+		public void fill(Object element, ToolBarManager toolBarManager) {
+			return;
+		}
+
 	}
 
 	/**
@@ -151,8 +181,29 @@ public interface IInformationPresenterService {
 			IInformationBackgroundProvider informationBackgroundProvider);
 
 	/**
-	 * Installs a new {@link TypedInformationControlManager} on the given
-	 * control.
+	 * Adds a {@link IInformationToolBarContributionsProvider} to the pool of
+	 * consulted {@link IInformationToolBarContributionsProvider}s.
+	 * <p>
+	 * The added {@link IInformationToolBarContributionsProvider} works
+	 * independently of the {@link IInformationLabelProvider} used to determine
+	 * the popup's content.
+	 * 
+	 * @param informationBackgroundProvider
+	 */
+	public void addInformationToolBarContributionProvider(
+			IInformationToolBarContributionsProvider informationToolBarContributionsProvider);
+
+	/**
+	 * Removes a {@link IInformationToolBarContributionsProvider} from the pool
+	 * of consulted {@link IInformationToolBarContributionsProvider}s.
+	 * 
+	 * @param informationBackgroundProvider
+	 */
+	public void removeInformationToolBarContributionProvider(
+			IInformationToolBarContributionsProvider informationToolBarContributionsProvider);
+
+	/**
+	 * Installs a new {@link InformationControlManager} on the given control.
 	 * <p>
 	 * Every time the mouse stops moving the following steps are done:
 	 * <ol>
@@ -168,14 +219,15 @@ public interface IInformationPresenterService {
 	 * 
 	 * @param control
 	 * @param subjectInformationProvider
+	 * @return the generated {@link InformationControlManager}
 	 */
-	public <CONTROL extends Control> void enable(
+	public <CONTROL extends Control> InformationControlManager<CONTROL, ILocatable> enable(
 			CONTROL control,
 			ISubjectInformationProvider<CONTROL, ILocatable> subjectInformationProvider);
 
 	/**
-	 * Deinstalls an the installed {@link TypedInformationControlManager} from
-	 * the given control.
+	 * Deinstalls an the installed {@link InformationControlManager} from the
+	 * given control.
 	 * 
 	 * @param control
 	 */

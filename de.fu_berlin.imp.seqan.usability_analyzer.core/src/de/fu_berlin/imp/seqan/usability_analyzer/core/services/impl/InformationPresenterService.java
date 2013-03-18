@@ -4,245 +4,54 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.RowLayoutFactory;
-import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.ITypedInformationControlCreator;
-import com.bkahlert.devel.nebula.utils.information.TypedInformationControl;
-import com.bkahlert.devel.nebula.utils.information.TypedInformationControlManager;
-import com.bkahlert.devel.nebula.widgets.RoundedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlCreator;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.InformationPresenterService.LocatableInformationControl.IPostProcessor;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.LocatableInformationControl.IPostProcessor;
 
 public class InformationPresenterService implements
 		IInformationPresenterService {
 
-	public static class LocatableInformationControl<T extends ILocatable>
-			extends TypedInformationControl<T> {
-
-		public static interface IPostProcessor<T> {
-			public void postProcess(T element, Composite root);
-		}
-
-		private static final int borderWidth = 5;
-
-		private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
-				.getWorkbench().getService(ILabelProviderService.class);
-
-		private Composite composite;
-		private RoundedComposite metaComposite;
-		private Composite customComposite;
-		private RoundedComposite detailComposite;
-
-		private IPostProcessor<T> postProcessor = null;
-
-		public LocatableInformationControl(Shell parentShell, boolean resizable) {
-			super(parentShell, resizable);
-		}
-
-		public void setPostProcessor(IPostProcessor<T> postProcessor) {
-			this.postProcessor = postProcessor;
-		}
-
-		@Override
-		protected void createContent(Composite composite) {
-			this.composite = composite;
-			this.composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
-			GridLayout gridLayout = new GridLayout(2, false);
-			gridLayout.marginWidth = borderWidth;
-			gridLayout.marginHeight = borderWidth;
-			gridLayout.horizontalSpacing = borderWidth;
-			this.composite.setLayout(gridLayout);
-
-			this.metaComposite = new RoundedComposite(composite, SWT.BORDER);
-			this.metaComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
-					false, false, 1, 1));
-			this.metaComposite.setBackground(SWTResourceManager
-					.getColor(SWT.COLOR_LIST_BACKGROUND));
-			this.metaComposite.setLayout(RowLayoutFactory.fillDefaults()
-					.margins(7, 3).type(SWT.VERTICAL).spacing(3).create());
-
-			this.customComposite = new Composite(composite, SWT.NONE);
-			this.customComposite.setLayoutData(GridDataFactory.swtDefaults()
-					.span(1, 2).create());
-			this.customComposite.setLayout(new FillLayout());
-
-			this.detailComposite = new RoundedComposite(composite, SWT.BORDER);
-			this.detailComposite.setBackground(SWTResourceManager
-					.getColor(SWT.COLOR_LIST_BACKGROUND));
-			this.detailComposite.setLayout(new GridLayout(2, false));
-			this.detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-					false, false, 1, 1));
-
-			this.composite.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.keyCode == SWT.ARROW_RIGHT) {
-						// TimelineDetailDialog.this.nextScreenshot();
-					} else if (e.keyCode == SWT.ARROW_LEFT) {
-						// TimelineDetailDialog.this.prevScreenshot();
-					} else if (e.keyCode == SWT.ESC || e.keyCode == SWT.CR) {
-						// TimelineDetailDialog.this.close();
-					}
-				}
-			});
-		}
-
-		@Override
-		public boolean setTypedInput(T input) {
-			ILabelProvider labelProvider = this.labelProviderService
-					.getLabelProvider(input);
-			if (labelProvider == null) {
-				return false;
-			}
-
-			if (!IInformationLabelProvider.class.isInstance(labelProvider)) {
-				return false;
-			}
-
-			final IInformationLabelProvider informationLabelProvider = (IInformationLabelProvider) labelProvider;
-			if (!informationLabelProvider.hasInformation(input)) {
-				return false;
-			}
-
-			List<IllustratedText> metaInformation = informationLabelProvider
-					.getMetaInformation(input);
-			List<IDetailEntry> detailInformation = informationLabelProvider
-					.getDetailInformation(input);
-
-			/*
-			 * TODO actions hinzufügen
-			 */
-			// TODO focus geben können
-
-			if (this.postProcessor != null) {
-				this.postProcessor.postProcess(input, this.composite);
-			}
-
-			this.loadMetaInformation(metaInformation);
-			this.loadDetailInformation(detailInformation);
-
-			SWTUtil.clearControl(this.customComposite);
-			informationLabelProvider.fillInformation(input,
-					this.customComposite);
-			this.customComposite.layout();
-
-			return true;
-		}
-
-		/**
-		 * Centers the timeline so that is shows the start of the given end.
-		 * <p>
-		 * If the event has no start the end is used.
-		 * <p>
-		 * If the event is null or has no start nor end date, nothing happens.
-		 * 
-		 * @param event
-		 */
-		public void centerOnEvent(Object event) {
-			if (event instanceof HasDateRange) {
-				TimeZoneDateRange dateRange = ((HasDateRange) event)
-						.getDateRange();
-				TimeZoneDate center = dateRange != null ? dateRange
-						.getStartDate() != null ? dateRange.getStartDate()
-						: dateRange.getEndDate() : null;
-				if (center != null) {
-					// this.timeline.setCenterVisibleDate(center.getCalendar());
-				}
-			}
-		}
-
-		public void loadMetaInformation(List<IllustratedText> metaInformation) {
-			SWTUtil.clearControl(this.metaComposite);
-			for (IllustratedText metaEntry : metaInformation) {
-				SimpleIllustratedComposite metaCompositeEntry = new SimpleIllustratedComposite(
-						this.metaComposite, SWT.CENTER | SWT.BOLD);
-				metaCompositeEntry.setBackground(this.metaComposite
-						.getBackground());
-				metaCompositeEntry.setSpacing(3);
-				metaCompositeEntry.setContent(metaEntry);
-			}
-			this.metaComposite.layout();
-		}
-
-		public void loadDetailInformation(List<IDetailEntry> detailInformation) {
-			SWTUtil.clearControl(this.detailComposite);
-			for (Entry<String, String> detailEntry : detailInformation) {
-				Label keyLabel = new Label(this.detailComposite, SWT.NONE);
-				keyLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
-						false));
-				keyLabel.setText(detailEntry.getKey());
-
-				Label valueLabel = new Label(this.detailComposite, SWT.NONE);
-				valueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
-						false));
-				valueLabel.setText(detailEntry.getValue());
-			}
-			this.detailComposite.layout();
-		}
-
-		public void nextScreenshot() {
-			// Object successor =
-			// this.timeline.getSuccessor(this.event);
-			// this.load(successor);
-			// this.centerOnEvent(this.event);
-		}
-
-		public void prevScreenshot() {
-			// Object predecessor =
-			// this.timeline.getPredecessor(this.event);
-			// this.load(predecessor);
-			// this.centerOnEvent(this.event);
-		}
-
-		public void openURL(String url) {
-			if (url != null) {
-				org.eclipse.swt.program.Program.launch(url);
-			}
-		}
-	}
-
 	private List<IInformationBackgroundProvider> informationBackgroundProviders = new ArrayList<IInformationBackgroundProvider>();
+	private List<IInformationToolBarContributionsProvider> informationToolBarContributionsProviders = new ArrayList<IInformationToolBarContributionsProvider>();
 
-	private Map<Control, TypedInformationControlManager<?, ?>> informationControlManagers = new HashMap<Control, TypedInformationControlManager<?, ?>>();
+	private Map<Control, InformationControlManager<?, ?>> informationControlManagers = new HashMap<Control, InformationControlManager<?, ?>>();
 
-	private ITypedInformationControlCreator<ILocatable> informationControlCreator = new ITypedInformationControlCreator<ILocatable>() {
+	private class OwnerInformationControlCreator extends
+			InformationControlCreator<ILocatable> {
+		private InformationControlManager<?, ILocatable> owner = null;
+
+		public void setOwner(
+				InformationControlManager<?, ILocatable> informationControlManager) {
+			Assert.isLegal(informationControlManager != null);
+			this.owner = informationControlManager;
+		}
+
 		@Override
-		public TypedInformationControl<ILocatable> createInformationControl(
+		protected InformationControl<ILocatable> doCreateInformationControl(
 				Shell parent) {
-			LocatableInformationControl<ILocatable> control = new LocatableInformationControl<ILocatable>(
-					parent, false);
+			final LocatableInformationControl<ILocatable> control = new LocatableInformationControl<ILocatable>(
+					parent);
 
 			control.setPostProcessor(new IPostProcessor<ILocatable>() {
 				@Override
-				public void postProcess(ILocatable element, Composite root) {
+				public void postProcess(ILocatable element, Composite root,
+						ToolBarManager toolBarManager,
+						InformationControl<ILocatable> control) {
 					Color backgroundColor = null;
 					for (IInformationBackgroundProvider informationBackgroundProvider : InformationPresenterService.this.informationBackgroundProviders) {
 						backgroundColor = informationBackgroundProvider
@@ -256,12 +65,20 @@ public class InformationPresenterService implements
 								.getColor(SWT.COLOR_INFO_BACKGROUND);
 					}
 					root.setBackground(backgroundColor);
+
+					if (toolBarManager != null) {
+						for (IInformationToolBarContributionsProvider informationToolBarContributionsProvider : InformationPresenterService.this.informationToolBarContributionsProviders) {
+							informationToolBarContributionsProvider.fill(
+									element, toolBarManager, control,
+									OwnerInformationControlCreator.this.owner);
+						}
+					}
 				}
 			});
 
 			return control;
 		}
-	};
+	}
 
 	@Override
 	public void addInformationBackgroundProvider(
@@ -277,13 +94,30 @@ public class InformationPresenterService implements
 	};
 
 	@Override
-	public <CONTROL extends Control> void enable(
+	public void addInformationToolBarContributionProvider(
+			IInformationToolBarContributionsProvider informationToolBarContributionsProvider) {
+		this.informationToolBarContributionsProviders
+				.add(informationToolBarContributionsProvider);
+	}
+
+	@Override
+	public void removeInformationToolBarContributionProvider(
+			IInformationToolBarContributionsProvider informationToolBarContributionsProvider) {
+		this.informationToolBarContributionsProviders
+				.remove(informationToolBarContributionsProvider);
+	}
+
+	@Override
+	public <CONTROL extends Control> InformationControlManager<CONTROL, ILocatable> enable(
 			CONTROL control,
 			ISubjectInformationProvider<CONTROL, ILocatable> subjectInformationProvider) {
-		TypedInformationControlManager<CONTROL, ILocatable> informationControlManager = new TypedInformationControlManager<CONTROL, ILocatable>(
-				this.informationControlCreator, subjectInformationProvider);
+		OwnerInformationControlCreator x = new OwnerInformationControlCreator();
+		InformationControlManager<CONTROL, ILocatable> informationControlManager = new InformationControlManager<CONTROL, ILocatable>(
+				x, subjectInformationProvider);
+		x.setOwner(informationControlManager);
 		informationControlManager.install(control);
 		this.informationControlManagers.put(control, informationControlManager);
+		return informationControlManager;
 	}
 
 	@Override

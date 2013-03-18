@@ -1,12 +1,17 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
@@ -19,6 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationBackgroundProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationToolBarContributionsProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -36,7 +42,64 @@ public class InformationPresentingTimeline extends Timeline {
 	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
 			.getWorkbench().getService(IInformationPresenterService.class);
 
+	private IInformationBackgroundProvider informationBackgroundProvider = new IInformationBackgroundProvider() {
+		@Override
+		public Color getBackground(Object element) {
+			if (element instanceof HasDateRange) {
+				boolean isIntersected = false;
+
+				TimeZoneDateRange dateRange = ((HasDateRange) element)
+						.getDateRange();
+
+				if (InformationPresentingTimeline.this.getDecorators() != null) {
+					for (IDecorator t : InformationPresentingTimeline.this
+							.getDecorators()) {
+						if (new TimeZoneDateRange(
+								t.getStartDate() != null ? new TimeZoneDate(
+										t.getStartDate()) : null,
+								t.getEndDate() != null ? new TimeZoneDate(t
+										.getEndDate()) : null)
+								.isIntersected(dateRange)) {
+							isIntersected = true;
+							break;
+						}
+					}
+				}
+
+				return isIntersected ? Activator.COLOR_HIGHLIGHT
+						: Activator.COLOR_STANDARD;
+			}
+			return null;
+		}
+	};
+
+	private IInformationToolBarContributionsProvider informationToolBarContributionsProvider = new IInformationToolBarContributionsProvider() {
+		@Override
+		public void fill(final Object element, ToolBarManager toolBarManager,
+				final InformationControl<?> informationControl,
+				InformationControlManager<?, ?> informationControlManager) {
+			toolBarManager.add(new Separator());
+			// TODO shortcuts
+			// FIXME Generics geradeziehen
+			// FIXME 5lp browsen in vergangenheit hört vorzeitig auf
+			if (informationControlManager == InformationPresentingTimeline.this.timelineInformationControlManager) {
+				Action backAction = new NavigateBackAction(
+						InformationPresentingTimeline.this, informationControl,
+						element);
+				Action forwardAction = new NavigateForwardAction(
+						InformationPresentingTimeline.this, informationControl,
+						element);
+				toolBarManager.add(backAction);
+				toolBarManager.add(forwardAction);
+			}
+		}
+	};
+
+	private InformationControlManager<InformationPresentingTimeline, ILocatable> timelineInformationControlManager;
+	ILocatable hoveredLocatable;
+
 	public InformationPresentingTimeline(Composite parent, int style) {
+
 		super(parent, style);
 		try {
 			this.injectCssFile(getFileUrl(InformationPresentingTimeline.class,
@@ -46,57 +109,28 @@ public class InformationPresentingTimeline extends Timeline {
 		}
 
 		this.informationPresenterService
-				.addInformationBackgroundProvider(new IInformationBackgroundProvider() {
-					@Override
-					public Color getBackground(Object element) {
-						if (element instanceof HasDateRange) {
-							boolean isIntersected = false;
-
-							TimeZoneDateRange dateRange = ((HasDateRange) element)
-									.getDateRange();
-
-							if (InformationPresentingTimeline.this
-									.getDecorators() != null) {
-								for (IDecorator t : InformationPresentingTimeline.this
-										.getDecorators()) {
-									if (new TimeZoneDateRange(
-											t.getStartDate() != null ? new TimeZoneDate(
-													t.getStartDate()) : null,
-											t.getEndDate() != null ? new TimeZoneDate(
-													t.getEndDate()) : null)
-											.isIntersected(dateRange)) {
-										isIntersected = true;
-										break;
-									}
-								}
-							}
-
-							return isIntersected ? Activator.COLOR_HIGHLIGHT
-									: Activator.COLOR_STANDARD;
-						}
-						return null;
-					}
-				});
-
+				.addInformationBackgroundProvider(this.informationBackgroundProvider);
 		this.informationPresenterService
+				.addInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
+
+		this.timelineInformationControlManager = this.informationPresenterService
 				.enable(this,
 						new ISubjectInformationProvider<InformationPresentingTimeline, ILocatable>() {
-							private ILocatable hoveredLocatable = null;
 							private ITimelineListener timelineListener = new TimelineAdapter() {
 								@Override
 								public void hoveredIn(TimelineEvent event) {
 									if (ILocatable.class.isInstance(event
 											.getSource())) {
-										hoveredLocatable = (ILocatable) event
+										InformationPresentingTimeline.this.hoveredLocatable = (ILocatable) event
 												.getSource();
 									} else {
-										hoveredLocatable = null;
+										InformationPresentingTimeline.this.hoveredLocatable = null;
 									}
 								}
 
 								@Override
 								public void hoveredOut(TimelineEvent event) {
-									hoveredLocatable = null;
+									InformationPresentingTimeline.this.hoveredLocatable = null;
 								}
 							};
 
@@ -119,13 +153,17 @@ public class InformationPresentingTimeline extends Timeline {
 
 							@Override
 							public ILocatable getInformation() {
-								return this.hoveredLocatable;
+								return InformationPresentingTimeline.this.hoveredLocatable;
 							}
 						});
 	}
 
 	@Override
 	public void dispose() {
+		this.informationPresenterService
+				.removeInformationBackgroundProvider(this.informationBackgroundProvider);
+		this.informationPresenterService
+				.removeInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
 		this.informationPresenterService.disable(this);
 		super.dispose();
 	}
