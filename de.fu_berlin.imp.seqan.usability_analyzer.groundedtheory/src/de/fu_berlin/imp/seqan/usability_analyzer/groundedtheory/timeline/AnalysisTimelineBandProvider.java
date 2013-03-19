@@ -38,7 +38,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITi
 
 public class AnalysisTimelineBandProvider
 		implements
-		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> {
+		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AnalysisTimelineBandProvider.class);
@@ -48,8 +48,8 @@ public class AnalysisTimelineBandProvider
 	}
 
 	@Override
-	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> getContentProvider() {
-		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier>() {
+	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
 
 			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
@@ -82,11 +82,11 @@ public class AnalysisTimelineBandProvider
 
 			private IIdentifier input = null;
 			private TimelineRefresher timelineRefresher = null;
-			private TimelineGroup<ITimeline> timelineGroup = null;
+			private TimelineGroup<ITimeline, IIdentifier> timelineGroup = null;
 
 			@Override
 			public void inputChanged(
-					TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier> viewer,
+					TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 				if (this.timelineGroup != null) {

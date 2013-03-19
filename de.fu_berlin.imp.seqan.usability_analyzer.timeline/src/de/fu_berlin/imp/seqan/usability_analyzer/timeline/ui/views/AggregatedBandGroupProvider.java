@@ -28,7 +28,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
  * @author bkahlert
  * 
  */
-public class AggregatedBandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public class AggregatedBandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		implements
 		IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> {
 

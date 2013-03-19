@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> List<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> getRegisteredTimelineBandProviders() {
+	public static <TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> List<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> getRegisteredTimelineBandProviders() {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor(
 						"de.fu_berlin.imp.seqan.usability_analyzer.timeline");

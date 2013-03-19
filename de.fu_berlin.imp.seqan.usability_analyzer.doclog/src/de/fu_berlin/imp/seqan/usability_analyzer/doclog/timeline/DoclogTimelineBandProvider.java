@@ -37,7 +37,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITi
 
 public class DoclogTimelineBandProvider
 		implements
-		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> {
+		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogTimelineBandProvider.class);
@@ -47,15 +47,15 @@ public class DoclogTimelineBandProvider
 	}
 
 	@Override
-	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> getContentProvider() {
-		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier>() {
+	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
 
 			private DoclogContentProvider doclogContentProvider = new DoclogContentProvider();
 			private IIdentifier input = null;
 
 			@Override
 			public void inputChanged(
-					TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier> viewer,
+					TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 				this.doclogContentProvider.inputChanged(viewer, oldInput,

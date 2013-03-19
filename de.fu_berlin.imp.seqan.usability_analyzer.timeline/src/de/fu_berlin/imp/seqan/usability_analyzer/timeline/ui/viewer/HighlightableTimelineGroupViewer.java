@@ -20,7 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
-public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public class HighlightableTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		extends TimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
 	public HighlightableTimelineGroupViewer(

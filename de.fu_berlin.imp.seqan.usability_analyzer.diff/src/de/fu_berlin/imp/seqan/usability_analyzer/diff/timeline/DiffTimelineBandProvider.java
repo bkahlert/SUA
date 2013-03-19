@@ -41,7 +41,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITi
 
 public class DiffTimelineBandProvider
 		implements
-		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> {
+		ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffTimelineBandProvider.class);
@@ -51,8 +51,8 @@ public class DiffTimelineBandProvider
 	}
 
 	@Override
-	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier> getContentProvider() {
-		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier>, TimelineGroup<ITimeline>, ITimeline, IIdentifier>() {
+	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
 
 			private ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
@@ -66,12 +66,12 @@ public class DiffTimelineBandProvider
 			};
 
 			private IIdentifier input = null;
-			private TimelineGroup<?> timelineGroup = null;
+			private TimelineGroup<ITimeline, IIdentifier> timelineGroup = null;
 			private DiffContentProvider diffContentProvider = new DiffContentProvider();
 
 			@Override
 			public void inputChanged(
-					TimelineGroupViewer<TimelineGroup<ITimeline>, ITimeline, IIdentifier> viewer,
+					TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 
@@ -83,7 +83,7 @@ public class DiffTimelineBandProvider
 							.removeTimelineListener(this.timelineListener);
 				}
 				if (viewer != null && viewer.getControl() != null) {
-					this.timelineGroup = (TimelineGroup<?>) viewer.getControl();
+					this.timelineGroup = viewer.getControl();
 					this.timelineGroup
 							.addTimelineListener(this.timelineListener);
 				}
