@@ -17,7 +17,7 @@ public class DiffAdapterFactory implements IAdapterFactory {
 	@Override
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof IDiff) {
-			Diff diff = (Diff) adaptableObject;
+			IDiff diff = (IDiff) adaptableObject;
 			if (adapterType == TimeZoneDateRange.class) {
 				return diff.getDateRange();
 			}

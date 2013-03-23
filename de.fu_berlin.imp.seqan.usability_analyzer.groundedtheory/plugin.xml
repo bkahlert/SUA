@@ -450,6 +450,91 @@
                style="toggle">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:com.bkahlert.nebula.information?after=additions">
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+               disabledIcon="icons/dtool16/add_code_tsk.png"
+               icon="icons/etool16/add_code_tsk.png"
+               label="Add Code to Phenomenon..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+                  </reference>
+               </or>
+            </visibleWhen>
+         </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode"
+               disabledIcon="icons/dtool16/create_episode_tsk.png"
+               icon="icons/etool16/create_episode_tsk.png"
+               label="Create Episode..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               disabledIcon="icons/dtool16/delete_episode_tsk.png"
+               icon="icons/etool16/delete_episode_tsk.png"
+               label="Delete Episode..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+               </reference>
+            </visibleWhen>
+         </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separator3"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
+               icon="icons/obj16/code_obj.png"
+               label="Show Artefact ID..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID"
+               icon="icons/obj16/code_obj.png"
+               label="Copy Artefact ID"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+               </reference>
+            </visibleWhen>
+            <parameter
+                  name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
+                  value="TRUE">
+            </parameter>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">

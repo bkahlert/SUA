@@ -14,10 +14,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.InformationControl;
-import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.information.InformationControlManager;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
@@ -37,18 +36,6 @@ public interface IInformationPresenterService {
 	 */
 	public static interface IInformationBackgroundProvider {
 		public Color getBackground(Object element);
-	}
-
-	/**
-	 * Instances of this class provide contributions for the
-	 * {@link ToolBarManager}.
-	 * 
-	 * @author bkahlert
-	 */
-	public static interface IInformationToolBarContributionsProvider {
-		public void fill(Object element, ToolBarManager toolBarManager,
-				InformationControl<?> informationControl,
-				InformationControlManager<?, ?> informationControlManager);
 	}
 
 /**
@@ -179,28 +166,6 @@ public interface IInformationPresenterService {
 	 */
 	public void removeInformationBackgroundProvider(
 			IInformationBackgroundProvider informationBackgroundProvider);
-
-	/**
-	 * Adds a {@link IInformationToolBarContributionsProvider} to the pool of
-	 * consulted {@link IInformationToolBarContributionsProvider}s.
-	 * <p>
-	 * The added {@link IInformationToolBarContributionsProvider} works
-	 * independently of the {@link IInformationLabelProvider} used to determine
-	 * the popup's content.
-	 * 
-	 * @param informationBackgroundProvider
-	 */
-	public void addInformationToolBarContributionProvider(
-			IInformationToolBarContributionsProvider informationToolBarContributionsProvider);
-
-	/**
-	 * Removes a {@link IInformationToolBarContributionsProvider} from the pool
-	 * of consulted {@link IInformationToolBarContributionsProvider}s.
-	 * 
-	 * @param informationBackgroundProvider
-	 */
-	public void removeInformationToolBarContributionProvider(
-			IInformationToolBarContributionsProvider informationToolBarContributionsProvider);
 
 	/**
 	 * Installs a new {@link InformationControlManager} on the given control.

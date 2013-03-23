@@ -5,7 +5,6 @@ import java.net.URI;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
 import com.bkahlert.devel.nebula.views.EditorView;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
@@ -13,6 +12,7 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.URIAdapter;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
@@ -79,7 +79,7 @@ public abstract class InformationPresentingEditorView<T> extends EditorView<T> {
 					}
 
 					@Override
-					public Point getInformationSize() {
+					public Point getHoverArea() {
 						return new Point(50, 20);
 					}
 

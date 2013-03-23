@@ -1,17 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -21,10 +18,10 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import com.bkahlert.devel.nebula.utils.ImageUtils;
 import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
@@ -37,12 +34,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 
 public class DoclogLabelProvider extends InformationLabelProvider {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogLabelProvider.class);
 
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-	private Map<Composite, Label> imageLabels = new HashMap<Composite, Label>();
 
 	@Override
 	public String getText(Object element) {
@@ -224,15 +221,19 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 		if (element instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) element;
 
-			this.disposeImage(composite);
-			Label imageLabel = new Label(composite, SWT.NONE);
-
 			ImageData imageData = doclogRecord.getScreenshot().getImageData();
 			if (imageData == null) {
 				return null;
 			}
 
-			Image image = new Image(Display.getCurrent(), imageData);
+			Image originalImage = new Image(Display.getCurrent(), imageData);
+			Image image = new Image(Display.getCurrent(), imageData.width - 2,
+					imageData.height - 2);
+			GC originalGC = new GC(originalImage);
+			originalGC.copyArea(image, 1, 1);
+			originalGC.dispose();
+			originalImage.dispose();
+
 			switch (doclogRecord.getAction()) {
 			case READY:
 				drawOverlay(doclogRecord, image,
@@ -254,26 +255,25 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				break;
 			}
 
-			imageLabel.setImage(image);
-			imageLabel.addDisposeListener(new DisposeListener() {
+			Rectangle bounds = Display.getCurrent().getPrimaryMonitor()
+					.getBounds();
+			Point maxSize = new Point((int) Math.round(bounds.width * 0.7),
+					(int) Math.round(bounds.height * 0.7));
+			Point size = ImageUtils.resizeWithinArea(
+					Geometry.getSize(image.getBounds()), maxSize);
+
+			com.bkahlert.nebula.widgets.image.Image imageLabel = new com.bkahlert.nebula.widgets.image.Image(
+					composite, SWT.NONE, size);
+			imageLabel.load(image, new Runnable() {
 				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					DoclogLabelProvider.this.disposeImage(composite);
+				public void run() {
+					composite.getShell().layout();
 				}
 			});
-			this.imageLabels.put(composite, imageLabel);
+			image.dispose();
 			return imageLabel;
 		}
 		return null;
-	}
-
-	private void disposeImage(Composite composite) {
-		if (this.imageLabels.get(composite) != null
-				&& this.imageLabels.get(composite).getImage() != null
-				&& !this.imageLabels.get(composite).getImage().isDisposed()) {
-			this.imageLabels.get(composite).getImage().dispose();
-			this.imageLabels.remove(composite);
-		}
 	}
 
 	private static void drawScrollDirectionOverlay(DoclogRecord doclogRecord,

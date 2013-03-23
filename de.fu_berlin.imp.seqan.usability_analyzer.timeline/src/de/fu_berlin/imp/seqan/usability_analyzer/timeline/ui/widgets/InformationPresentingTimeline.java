@@ -1,25 +1,17 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.InformationControl;
-import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -27,7 +19,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationBackgroundProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationToolBarContributionsProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -77,47 +68,6 @@ public class InformationPresentingTimeline extends Timeline {
 		}
 	};
 
-	private NavigateBackAction navigateBackAction = null;
-	private NavigateForwardAction navigateForwardAction = null;
-	private Listener navigationListener = new Listener() {
-		@Override
-		public void handleEvent(Event event) {
-			if (event.keyCode == SWT.ARROW_LEFT
-					&& InformationPresentingTimeline.this.navigateBackAction != null) {
-				InformationPresentingTimeline.this.navigateBackAction.run();
-			}
-			if (event.keyCode == SWT.ARROW_RIGHT
-					&& InformationPresentingTimeline.this.navigateForwardAction != null) {
-				InformationPresentingTimeline.this.navigateForwardAction.run();
-			}
-		}
-	};
-
-	private IInformationToolBarContributionsProvider informationToolBarContributionsProvider = new IInformationToolBarContributionsProvider() {
-		@Override
-		public void fill(final Object element, ToolBarManager toolBarManager,
-				final InformationControl<?> informationControl,
-				InformationControlManager<?, ?> informationControlManager) {
-			toolBarManager.add(new Separator());
-			// FIXME Generics geradeziehen
-			// FIXME 5lp browsen in vergangenheit hört vorzeitig auf
-			if (informationControlManager == InformationPresentingTimeline.this.timelineInformationControlManager) {
-				InformationPresentingTimeline.this.navigateBackAction = new NavigateBackAction(
-						InformationPresentingTimeline.this, informationControl,
-						element);
-				InformationPresentingTimeline.this.navigateForwardAction = new NavigateForwardAction(
-						InformationPresentingTimeline.this, informationControl,
-						element);
-				toolBarManager
-						.add(InformationPresentingTimeline.this.navigateBackAction);
-				toolBarManager
-						.add(InformationPresentingTimeline.this.navigateForwardAction);
-				informationControl.setFocus();
-			}
-		}
-	};
-
-	private InformationControlManager<InformationPresentingTimeline, ILocatable> timelineInformationControlManager;
 	ILocatable hoveredLocatable;
 
 	public InformationPresentingTimeline(Composite parent, int style) {
@@ -132,10 +82,8 @@ public class InformationPresentingTimeline extends Timeline {
 
 		this.informationPresenterService
 				.addInformationBackgroundProvider(this.informationBackgroundProvider);
-		this.informationPresenterService
-				.addInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
 
-		this.timelineInformationControlManager = this.informationPresenterService
+		this.informationPresenterService
 				.enable(this,
 						new ISubjectInformationProvider<InformationPresentingTimeline, ILocatable>() {
 							private ITimelineListener timelineListener = new TimelineAdapter() {
@@ -169,7 +117,7 @@ public class InformationPresentingTimeline extends Timeline {
 							}
 
 							@Override
-							public Point getInformationSize() {
+							public Point getHoverArea() {
 								return new Point(20, 10);
 							}
 
@@ -178,18 +126,12 @@ public class InformationPresentingTimeline extends Timeline {
 								return InformationPresentingTimeline.this.hoveredLocatable;
 							}
 						});
-
-		Display.getCurrent().addFilter(SWT.KeyDown, this.navigationListener);
 	}
 
 	@Override
 	public void dispose() {
-		Display.getCurrent().removeFilter(SWT.KeyDown, this.navigationListener);
-
 		this.informationPresenterService
 				.removeInformationBackgroundProvider(this.informationBackgroundProvider);
-		this.informationPresenterService
-				.removeInformationToolBarContributionProvider(this.informationToolBarContributionsProvider);
 		this.informationPresenterService.disable(this);
 		super.dispose();
 	}

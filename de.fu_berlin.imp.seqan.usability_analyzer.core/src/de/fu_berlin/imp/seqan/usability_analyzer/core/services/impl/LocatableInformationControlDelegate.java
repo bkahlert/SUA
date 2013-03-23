@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
@@ -14,14 +15,13 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.Delegate;
-import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -37,40 +37,35 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 	private Composite composite;
-	private RoundedComposite metaComposite;
+	private Composite titleArea;
 	private Composite customComposite;
-	private RoundedComposite detailComposite;
+	private Label customCompositeSeparator;
+	private Composite detailComposite;
 	private LocatableInformationControl.IPostProcessor<T> postProcessor = null;
 
 	@Override
 	public void build(Composite parent) {
 		this.composite = parent;
 		this.composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		GridLayout gridLayout = new GridLayout(2, false);
-		gridLayout.marginWidth = LocatableInformationControl.borderWidth;
-		gridLayout.marginHeight = LocatableInformationControl.borderWidth;
-		gridLayout.horizontalSpacing = LocatableInformationControl.borderWidth;
-		this.composite.setLayout(gridLayout);
+		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(this.composite);
 
-		this.metaComposite = new RoundedComposite(this.composite, SWT.BORDER);
-		this.metaComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
-				false, false, 1, 1));
-		this.metaComposite.setBackground(SWTResourceManager
-				.getColor(SWT.COLOR_LIST_BACKGROUND));
-		this.metaComposite.setLayout(RowLayoutFactory.fillDefaults()
-				.margins(7, 3).type(SWT.VERTICAL).spacing(3).create());
+		this.titleArea = new Composite(this.composite, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false)
+				.applyTo(this.titleArea);
+
+		this.addSeparator();
 
 		this.customComposite = new Composite(this.composite, SWT.NONE);
 		this.customComposite.setLayoutData(GridDataFactory.swtDefaults()
-				.span(1, 2).create());
+				.create());
 		this.customComposite.setLayout(new FillLayout());
 
-		this.detailComposite = new RoundedComposite(this.composite, SWT.BORDER);
-		this.detailComposite.setBackground(SWTResourceManager
-				.getColor(SWT.COLOR_LIST_BACKGROUND));
+		this.customCompositeSeparator = this.addSeparator();
+
+		this.detailComposite = new Composite(this.composite, SWT.NONE);
 		this.detailComposite.setLayout(new GridLayout(2, false));
 		this.detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-				false, false, 1, 1));
+				false, false));
 
 		this.composite.addKeyListener(new KeyAdapter() {
 			@Override
@@ -87,10 +82,7 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 	}
 
 	@Override
-	public boolean load(
-			T input,
-			ToolBarManager toolBarManager,
-			com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl<T, com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.Delegate<T>> enhanceableInformationControl) {
+	public boolean load(T input, ToolBarManager toolBarManager) {
 
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(input);
@@ -116,16 +108,17 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 		this.loadDetailInformation(detailInformation);
 
 		SWTUtil.clearControl(this.customComposite);
-		informationLabelProvider.fillInformation(input, this.customComposite);
+		Control control = informationLabelProvider.fillInformation(input,
+				this.customComposite);
 		this.customComposite.layout();
+		this.customCompositeSeparator.setVisible(control != null);
 
 		if (toolBarManager != null) {
 			informationLabelProvider.fill(input, toolBarManager);
 		}
 
 		if (this.postProcessor != null) {
-			this.postProcessor.postProcess(input, this.composite,
-					toolBarManager, enhanceableInformationControl);
+			this.postProcessor.postProcess(input, this.detailComposite);
 		}
 
 		return true;
@@ -152,17 +145,27 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 		}
 	}
 
+	private Label addSeparator() {
+		Label separator = new Label(this.composite, SWT.SEPARATOR
+				| SWT.HORIZONTAL);
+		separator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		return separator;
+	}
+
 	public void loadMetaInformation(List<IllustratedText> metaInformation) {
-		SWTUtil.clearControl(this.metaComposite);
+		SWTUtil.clearControl(this.titleArea);
+		this.titleArea.setLayout(RowLayoutFactory.fillDefaults()
+				.type(SWT.HORIZONTAL).margins(7, 3).spacing(3).create());
 		for (IllustratedText metaEntry : metaInformation) {
 			SimpleIllustratedComposite metaCompositeEntry = new SimpleIllustratedComposite(
-					this.metaComposite, SWT.CENTER | SWT.BOLD);
-			metaCompositeEntry
-					.setBackground(this.metaComposite.getBackground());
+					this.titleArea, SWT.CENTER | SWT.BOLD);
+			// metaCompositeEntry.setBackground(this.titleArea.getBackground());
+
+			metaCompositeEntry.setBackgroundMode(SWT.INHERIT_DEFAULT);
 			metaCompositeEntry.setSpacing(3);
 			metaCompositeEntry.setContent(metaEntry);
 		}
-		this.metaComposite.layout();
+		this.titleArea.layout();
 	}
 
 	public void loadDetailInformation(List<IDetailEntry> detailInformation) {

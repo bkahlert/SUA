@@ -159,14 +159,14 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff"
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
          </adapter>
       </factory>
       <factory
-            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord"
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">

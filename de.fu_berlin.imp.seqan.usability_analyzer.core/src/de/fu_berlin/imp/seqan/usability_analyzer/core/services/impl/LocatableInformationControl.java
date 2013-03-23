@@ -1,11 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl;
-import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.nebula.information.EnhanceableInformationControl;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
@@ -14,8 +12,7 @@ public class LocatableInformationControl<T extends ILocatable>
 		EnhanceableInformationControl<T, LocatableInformationControlDelegate<T>> {
 
 	public static interface IPostProcessor<T extends ILocatable> {
-		public void postProcess(T element, Composite root,
-				ToolBarManager toolBarManager, InformationControl<T> control);
+		public void postProcess(T element, Composite root);
 	}
 
 	static final int borderWidth = 5;

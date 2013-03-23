@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -355,11 +354,20 @@ public class TimelineView extends ViewPart {
 		this.timelineGroup.setFocus();
 	}
 
-	public void setCenterVisibleDate(Calendar calendar) {
-		// TODO only changed affected
-		for (IIdentifier key : this.timelineGroup.getTimelineKeys()) {
-			this.timelineGroup.getTimeline(key).setCenterVisibleDate(calendar);
+	/**
+	 * Returns the {@link InformationPresentingTimeline} currently displaying
+	 * content associated with the given {@link IIdentifier}.
+	 * 
+	 * @param key
+	 * @return
+	 * 
+	 * @thread.ui must be run in the UI thread
+	 */
+	public InformationPresentingTimeline getTimeline(IIdentifier key) {
+		if (this.timelineGroup != null && !this.timelineGroup.isDisposed()) {
+			return this.timelineGroup.getTimeline(key);
 		}
+		return null;
 	}
 
 }

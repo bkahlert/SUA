@@ -41,10 +41,26 @@
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers.NavigateBackHandler"
             commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack">
+         <enabledWhen>
+            <with
+                  variable="com.bkahlert.nebula.information.control">
+               <instanceof
+                     value="com.bkahlert.nebula.information.InformationControl">
+               </instanceof>
+            </with>
+         </enabledWhen>
       </handler>
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers.NavigateForwardHandler"
             commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward">
+         <enabledWhen>
+            <with
+                  variable="com.bkahlert.nebula.information.control">
+               <instanceof
+                     value="com.bkahlert.nebula.information.InformationControl">
+               </instanceof>
+            </with>
+         </enabledWhen>
       </handler>
    </extension>
    <extension
@@ -52,15 +68,63 @@
       <menuContribution
             allPopups="false"
             locationURI="toolbar:com.bkahlert.nebula.information?after=additions">
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.timeline.separator1"
+               visible="true">
+         </separator>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="com.bkahlert.nebula.information.control">
+                  <instanceof
+                        value="com.bkahlert.nebula.information.InformationControl">
+                  </instanceof>
+               </with>
+            </visibleWhen>
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
                style="push">
          </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.timeline.separator2"
+               visible="true">
+         </separator>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1+1">
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1+2">
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="ARROW_LEFT">
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="ARROW_RIGHT">
+      </key>
+      <scheme
+            id="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            name="name">
+      </scheme>
    </extension>
 
 </plugin>

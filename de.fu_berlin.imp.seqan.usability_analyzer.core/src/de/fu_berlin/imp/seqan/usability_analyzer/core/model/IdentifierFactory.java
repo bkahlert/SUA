@@ -27,4 +27,14 @@ public class IdentifierFactory {
 		return null;
 	}
 
+	public static IIdentifier createFrom(ILocatable locatable) {
+		if (locatable != null && locatable.getUri() != null) {
+			String[] parts = locatable.getUri().getRawPath().split("\\s+");
+			if (parts.length > 2) {
+				return createFrom(parts[0]);
+			}
+		}
+		return null;
+	}
+
 }

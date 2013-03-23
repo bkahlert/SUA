@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 
 public class DiffRecordAdapterFactory implements IAdapterFactory {
@@ -14,7 +15,8 @@ public class DiffRecordAdapterFactory implements IAdapterFactory {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { TimeZoneDateRange.class, IRevealableInOS.class };
+		return new Class[] { IIdentifier.class, TimeZoneDateRange.class,
+				IRevealableInOS.class };
 	}
 
 	@SuppressWarnings("rawtypes")

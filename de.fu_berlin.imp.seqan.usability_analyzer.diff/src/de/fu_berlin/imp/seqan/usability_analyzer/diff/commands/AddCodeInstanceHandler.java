@@ -22,7 +22,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.Wizar
 
 public class AddCodeInstanceHandler extends AbstractHandler {
 
-	private final Logger log = Logger.getLogger(AddCodeInstanceHandler.class);
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger
+			.getLogger(AddCodeInstanceHandler.class);
 
 	public static void addAnnotation(IMarker marker, ITextSelection selection,
 			ITextEditor editor) {
@@ -34,7 +36,7 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		IDocument document = idp.getDocument(editor.getEditorInput());
 		// The IannotationModel enables to add/remove/change annotation to a
 		// Document
-		// loaded in an Composer
+		// loaded in an Image
 		IAnnotationModel iamf = idp.getAnnotationModel(editor.getEditorInput());
 		// Note: The annotation type id specify that you want to create one of
 		// your

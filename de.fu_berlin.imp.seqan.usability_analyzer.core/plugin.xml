@@ -75,6 +75,10 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS"
             name="Show In Finder">
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
+            name="Highlight">
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -115,6 +119,10 @@
                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
               </reference>
            </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.HighlightHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight">
         </handler>
      </extension>
    <extension
@@ -178,6 +186,23 @@
             </visibleWhen>
          </command>
          
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
+               visible="true">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:com.bkahlert.nebula.information?after=additions">
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
+               icon="icons/etool16/mark_occurrences.png"
+               style="push">
+         </command>
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
                visible="true">
