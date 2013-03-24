@@ -1,7 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -216,6 +218,8 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 		return detailEntries;
 	}
 
+	private Map<Composite, com.bkahlert.nebula.widgets.image.Image> images = new HashMap<Composite, com.bkahlert.nebula.widgets.image.Image>();
+
 	@Override
 	public Control fillInformation(Object element, final Composite composite) {
 		if (element instanceof DoclogRecord) {
@@ -262,16 +266,19 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 			Point size = ImageUtils.resizeWithinArea(
 					Geometry.getSize(image.getBounds()), maxSize);
 
-			com.bkahlert.nebula.widgets.image.Image imageLabel = new com.bkahlert.nebula.widgets.image.Image(
-					composite, SWT.NONE, size);
-			imageLabel.load(image, new Runnable() {
+			if (!this.images.containsKey(composite)) {
+				this.images.put(composite,
+						new com.bkahlert.nebula.widgets.image.Image(composite,
+								SWT.NONE, size));
+			}
+			this.images.get(composite).load(image, new Runnable() {
 				@Override
 				public void run() {
 					composite.getShell().layout();
 				}
 			});
 			image.dispose();
-			return imageLabel;
+			return this.images.get(composite);
 		}
 		return null;
 	}

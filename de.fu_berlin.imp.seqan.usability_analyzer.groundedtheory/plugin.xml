@@ -134,34 +134,42 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.AddCodeInstanceHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance">
            <activeWhen>
-              <with
-                    variable="selection">
-                 <iterate
-                       ifEmpty="false"
-                       operator="or">
-                    <adapt
-                          type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
-                    </adapt>
-                 </iterate>
-              </with>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeables">
+                 </reference>
+              </or>
            </activeWhen>
         </handler>
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ShowArtifactIDHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID">
            <activeWhen>
-              <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
-              </reference>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                 </reference>
+              </or>
            </activeWhen>
         </handler>
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.CreateEpisodeHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.createEpisode">
            <activeWhen>
-              <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isKeyedHasRange">
-              </reference>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isKeyedHasRange">
+                 </reference>
+              </or>
            </activeWhen>
         </handler>
         <handler
@@ -467,6 +475,9 @@
                   checkEnabled="false">
                <or>
                   <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                  </reference>
+                  <reference
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
                   </reference>
                </or>
@@ -484,9 +495,13 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasKeyedHasRange">
+                  </reference></or>
             </visibleWhen>
          </command>
          <command
@@ -497,9 +512,14 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsIEpisode">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+                  </reference>
+               </or>
             </visibleWhen>
          </command>
          <separator
@@ -513,9 +533,14 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                  </reference>
+               </or>
             </visibleWhen>
          </command>
          <command
@@ -525,9 +550,14 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                  </reference>
+               </or>
             </visibleWhen>
             <parameter
                   name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
@@ -601,9 +631,14 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.DeleteEpisodeHandler"
             commandId="org.eclipse.ui.edit.delete">
          <activeWhen>
-            <reference
-                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
-            </reference>
+            <or>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsIEpisode">
+               </reference>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasIEpisodes">
+               </reference>
+            </or>
          </activeWhen>
       </handler>
    </extension>
@@ -669,6 +704,15 @@
                      type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance">
                </adapt>
             </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+            </instanceof>
          </with>
       </definition>
       <definition
@@ -849,6 +893,15 @@
                      type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode">
                </adapt>
             </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsIEpisode">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode">
+            </instanceof>
          </with>
       </definition>
       <definition

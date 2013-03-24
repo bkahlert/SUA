@@ -17,8 +17,10 @@ public class NavigateForwardHandler extends AbstractNavigateHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("FORWARD");
 		InformationPresentingTimeline timeline = this.getTimeline();
+		if (timeline == null) {
+			return null;
+		}
 		Object successor = timeline.getSuccessor(InformationControlManagerUtils
 				.getCurrentInput());
 		if (successor instanceof ILocatable) {

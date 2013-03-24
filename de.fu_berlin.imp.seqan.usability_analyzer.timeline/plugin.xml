@@ -42,24 +42,22 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers.NavigateBackHandler"
             commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack">
          <enabledWhen>
-            <with
-                  variable="com.bkahlert.nebula.information.control">
-               <instanceof
-                     value="com.bkahlert.nebula.information.InformationControl">
-               </instanceof>
-            </with>
+            <or>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+               </reference>
+            </or>
          </enabledWhen>
       </handler>
       <handler
             class="de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers.NavigateForwardHandler"
             commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward">
          <enabledWhen>
-            <with
-                  variable="com.bkahlert.nebula.information.control">
-               <instanceof
-                     value="com.bkahlert.nebula.information.InformationControl">
-               </instanceof>
-            </with>
+            <or>
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+               </reference>
+            </or>
          </enabledWhen>
       </handler>
    </extension>
@@ -77,17 +75,24 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <with
-                     variable="com.bkahlert.nebula.information.control">
-                  <instanceof
-                        value="com.bkahlert.nebula.information.InformationControl">
-                  </instanceof>
-               </with>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                  </reference>
+               </or>
             </visibleWhen>
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                  </reference>
+               </or>
+            </visibleWhen>
          </command>
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.timeline.separator2"

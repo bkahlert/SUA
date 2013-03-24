@@ -8,6 +8,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
@@ -24,10 +25,13 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 
 		List<ICodeable> codeables = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeable.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
+			codeables.add((ICodeable) InformationControlManagerUtils
+					.getCurrentInput());
+		}
 
 		if (codeables.size() > 0) {
-			WizardUtils.openAddCodeWizard(codeables,
-					Utils.getFancyCodeColor());
+			WizardUtils.openAddCodeWizard(codeables, Utils.getFancyCodeColor());
 		}
 
 		return null;

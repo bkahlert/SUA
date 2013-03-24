@@ -303,6 +303,15 @@
             </iterate>
          </with>
       </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
+            </instanceof>
+         </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">

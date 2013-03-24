@@ -17,8 +17,10 @@ public class NavigateBackHandler extends AbstractNavigateHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("BACK");
 		InformationPresentingTimeline timeline = this.getTimeline();
+		if (timeline == null) {
+			return null;
+		}
 		Object predecessor = timeline
 				.getPredecessor(InformationControlManagerUtils
 						.getCurrentInput());

@@ -8,6 +8,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -26,6 +27,10 @@ public class CreateEpisodeHandler extends AbstractHandler {
 
 		final List<HasDateRange> objects = SelectionRetrieverFactory
 				.getSelectionRetriever(HasDateRange.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof HasDateRange) {
+			objects.add((HasDateRange) InformationControlManagerUtils
+					.getCurrentInput());
+		}
 
 		TimeZoneDateRange range = TimeZoneDateRange
 				.calculateOuterDateRange(objects.toArray(new HasDateRange[0]));

@@ -101,6 +101,7 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 
 		List<IllustratedText> metaInformation = informationLabelProvider
 				.getMetaInformation(input);
+
 		List<IDetailEntry> detailInformation = informationLabelProvider
 				.getDetailInformation(input);
 

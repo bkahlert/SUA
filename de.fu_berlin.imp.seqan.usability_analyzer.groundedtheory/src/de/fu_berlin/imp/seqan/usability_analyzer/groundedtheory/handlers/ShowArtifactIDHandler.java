@@ -13,6 +13,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.dialogs.ShowArtefactIDDialog;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
@@ -27,6 +28,10 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 
 		List<ICodeable> codeables = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeable.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
+			codeables.add((ICodeable) InformationControlManagerUtils
+					.getCurrentInput());
+		}
 
 		if (codeables.size() != 1) {
 			LOGGER.warn(ShowArtifactIDHandler.class.getSimpleName()

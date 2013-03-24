@@ -9,6 +9,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -24,9 +25,14 @@ public class DeleteEpisodeHandler extends AbstractHandler {
 
 		final List<IEpisode> episodes = SelectionRetrieverFactory
 				.getSelectionRetriever(IEpisode.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof IEpisode) {
+			episodes.add((IEpisode) InformationControlManagerUtils
+					.getCurrentInput());
+		}
 
-		if (episodes.size() == 0)
+		if (episodes.size() == 0) {
 			return null;
+		}
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
