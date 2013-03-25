@@ -259,12 +259,16 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				break;
 			}
 
-			Rectangle bounds = Display.getCurrent().getPrimaryMonitor()
+			Rectangle monitorBounds = Display.getCurrent().getPrimaryMonitor()
 					.getBounds();
-			Point maxSize = new Point((int) Math.round(bounds.width * 0.7),
-					(int) Math.round(bounds.height * 0.7));
-			Point size = ImageUtils.resizeWithinArea(
-					Geometry.getSize(image.getBounds()), maxSize);
+			Point maxSize = new Point(
+					(int) Math.round(monitorBounds.width * 0.7),
+					(int) Math.round(monitorBounds.height * 0.7));
+			Point size = Geometry.getSize(image.getBounds());
+			if (size.x > maxSize.x || size.y > maxSize.y) {
+				size = ImageUtils.resizeWithinArea(
+						Geometry.getSize(image.getBounds()), maxSize);
+			}
 
 			if (!this.images.containsKey(composite)) {
 				this.images.put(composite,
