@@ -14,7 +14,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 public class CreateEpisodeHandler extends AbstractHandler {
@@ -28,11 +27,11 @@ public class CreateEpisodeHandler extends AbstractHandler {
 
 		final List<HasDateRange> objects = SelectionRetrieverFactory
 				.getSelectionRetriever(HasDateRange.class).getSelection();
-		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
-			ICodeable input = (ICodeable) InformationControlManagerUtils
+		if (InformationControlManagerUtils.getCurrentInput() instanceof HasDateRange) {
+			HasDateRange input = (HasDateRange) InformationControlManagerUtils
 					.getCurrentInput();
-			if (!codeables.contains(input)) {
-				codeables.add(input);
+			if (!objects.contains(input)) {
+				objects.add(input);
 			}
 		}
 

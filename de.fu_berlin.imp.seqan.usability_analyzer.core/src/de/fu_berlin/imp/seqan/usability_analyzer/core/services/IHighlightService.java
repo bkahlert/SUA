@@ -29,8 +29,10 @@ public interface IHighlightService {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param range
+	 * @param moveInsideViewport
 	 */
-	public void highlight(Object sender, TimeZoneDateRange range);
+	public void highlight(Object sender, TimeZoneDateRange range,
+			boolean moveInsideViewport);
 
 	/**
 	 * Highlights the given {@link TimeZoneDateRange}s.
@@ -38,8 +40,10 @@ public interface IHighlightService {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param ranges
+	 * @param moveInsideViewport
 	 */
-	public void highlight(Object sender, TimeZoneDateRange[] ranges);
+	public void highlight(Object sender, TimeZoneDateRange[] ranges,
+			boolean moveInsideViewport);
 
 	/**
 	 * Highlights the {@link TimeZoneDateRange}s that belong to a specific
@@ -55,9 +59,11 @@ public interface IHighlightService {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param groupedRanges
+	 * @param moveInsideViewport
 	 */
 	public void highlight(Object sender,
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges);
+			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			boolean moveInsideViewport);
 
 	/**
 	 * Highlights the {@link TimeZoneDateRange}s that belong to a specific
@@ -73,7 +79,9 @@ public interface IHighlightService {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param groupedRanges
+	 * @param moveInsideViewport
 	 */
-	public void highlight(Object sender, ISelection selection);
+	public void highlight(Object sender, ISelection selection,
+			boolean moveInsideViewport);
 
 }

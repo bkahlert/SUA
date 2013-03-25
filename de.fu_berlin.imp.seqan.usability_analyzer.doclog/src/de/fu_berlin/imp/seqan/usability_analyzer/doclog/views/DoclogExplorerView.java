@@ -103,7 +103,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	private IHighlightService highlightService;
 	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
-		public void highlight(Object sender, TimeZoneDateRange[] ranges) {
+		public void highlight(Object sender, TimeZoneDateRange[] ranges,
+				boolean moveInsideViewport) {
 			if (DoclogExplorerView.this.loadedIdentifiers == null
 					|| DoclogExplorerView.this.loadedIdentifiers.size() == 0) {
 				return;
@@ -112,15 +113,18 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			for (IIdentifier loadedIdentifier : DoclogExplorerView.this.loadedIdentifiers) {
 				groupedRanges.put(loadedIdentifier, ranges);
 			}
-			this.highlight(sender, groupedRanges);
+			this.highlight(sender, groupedRanges, moveInsideViewport);
 		}
 
 		@Override
 		public void highlight(Object sender,
-				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+				boolean moveInsideViewport) {
 			if (sender == DoclogExplorerView.this) {
 				return;
 			}
+
+			// TODO implement moveInsideViewport support
 
 			ExecutorUtil.syncExec(new Runnable() {
 				@Override
@@ -235,7 +239,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 										.getActivePart() == DoclogExplorerView.this) {
 							DoclogExplorerView.this.highlightService.highlight(
 									DoclogExplorerView.this,
-									event.getSelection());
+									event.getSelection(), false);
 						}
 					}
 				});

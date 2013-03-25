@@ -27,21 +27,24 @@ public class HighlightServiceListenerNotifier {
 		this.highlightServiceListeners.remove(highlightServiceListener);
 	}
 
-	public void highlight(final Object sender, final TimeZoneDateRange[] ranges) {
+	public void highlight(final Object sender,
+			final TimeZoneDateRange[] ranges, final boolean moveInsideViewport) {
 		ExecutorUtil.nonUIAsyncExec(POOL, this.highlightServiceListeners,
 				new ParametrizedCallable<IHighlightServiceListener, Void>() {
 					@Override
 					public Void call(
 							IHighlightServiceListener highlightServiceListener)
 							throws Exception {
-						highlightServiceListener.highlight(sender, ranges);
+						highlightServiceListener.highlight(sender, ranges,
+								moveInsideViewport);
 						return null;
 					}
 				});
 	}
 
 	public void highlight(final Object sender,
-			final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+			final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			final boolean moveInsideViewport) {
 		ExecutorUtil.nonUIAsyncExec(POOL, this.highlightServiceListeners,
 				new ParametrizedCallable<IHighlightServiceListener, Void>() {
 					@Override
@@ -49,7 +52,7 @@ public class HighlightServiceListenerNotifier {
 							IHighlightServiceListener highlightServiceListener)
 							throws Exception {
 						highlightServiceListener.highlight(sender,
-								groupedRanges);
+								groupedRanges, moveInsideViewport);
 						return null;
 					}
 				});

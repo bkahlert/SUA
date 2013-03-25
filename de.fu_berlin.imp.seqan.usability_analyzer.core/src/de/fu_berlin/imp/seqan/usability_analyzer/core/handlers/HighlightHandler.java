@@ -28,7 +28,8 @@ public class HighlightHandler extends AbstractHandler {
 				final TimeZoneDateRange range = ((HasDateRange) input)
 						.getDateRange();
 				if (range != null) {
-					highlightService.highlight(HighlightHandler.this, range);
+					highlightService.highlight(HighlightHandler.this, range,
+							true);
 				}
 			}
 		}

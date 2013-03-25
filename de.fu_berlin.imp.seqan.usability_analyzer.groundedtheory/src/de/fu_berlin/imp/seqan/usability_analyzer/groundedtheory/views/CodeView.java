@@ -88,11 +88,12 @@ public class CodeView extends ViewPart {
 								if (ranges.size() > 0) {
 									CodeView.this.highlightService.highlight(
 											CodeView.class,
-											ranges.toArray(new TimeZoneDateRange[0]));
+											ranges.toArray(new TimeZoneDateRange[0]),
+											false);
 								}
 							}
 							CodeView.this.highlightService.highlight(
-									CodeView.this, event.getSelection());
+									CodeView.this, event.getSelection(), false);
 						}
 					}
 				});

@@ -37,7 +37,8 @@ public class EpisodeView extends ViewPart {
 										.getWorkbenchWindow().getActivePage()
 										.getActivePart() == EpisodeView.this) {
 							EpisodeView.this.highlightService.highlight(
-									EpisodeView.this, event.getSelection());
+									EpisodeView.this, event.getSelection(),
+									false);
 						}
 					}
 				});

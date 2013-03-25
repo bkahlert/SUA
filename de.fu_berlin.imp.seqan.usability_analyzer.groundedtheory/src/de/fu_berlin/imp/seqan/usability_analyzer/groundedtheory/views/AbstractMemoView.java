@@ -194,7 +194,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 									TimeZoneDateRange.class);
 					if (range != null) {
 						AbstractMemoView.this.highlightService.highlight(
-								AbstractMemoView.this, range);
+								AbstractMemoView.this, range, true);
 					}
 
 					// open element

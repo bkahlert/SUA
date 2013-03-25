@@ -105,7 +105,8 @@ public class TimelineView extends ViewPart {
 	private IHighlightService highlightService;
 	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
-		public void highlight(Object sender, TimeZoneDateRange[] ranges) {
+		public void highlight(Object sender, TimeZoneDateRange[] ranges,
+				boolean moveInsideViewport) {
 			if (TimelineView.this.openedIdentifiers == null
 					|| TimelineView.this.openedIdentifiers.size() == 0) {
 				return;
@@ -114,12 +115,13 @@ public class TimelineView extends ViewPart {
 			for (IIdentifier loadedIdentifier : TimelineView.this.openedIdentifiers) {
 				groupedRanges.put(loadedIdentifier, ranges);
 			}
-			this.highlight(sender, groupedRanges);
+			this.highlight(sender, groupedRanges, moveInsideViewport);
 		}
 
 		@Override
 		public void highlight(Object sender,
-				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+				final boolean moveInsideViewport) {
 			if (sender == TimelineView.this) {
 				return;
 			}
@@ -170,10 +172,15 @@ public class TimelineView extends ViewPart {
 				protected IStatus run(IProgressMonitor monitor) {
 					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 					if (!groupedRanges.isEmpty()) {
-						TimelineView.this.timelineGroupViewer.highlight(
-								groupedRanges, subMonitor.newChild(2));
-						TimelineView.this.timelineGroupViewer.center(
-								centeredDates, subMonitor.newChild(1));
+						if (moveInsideViewport) {
+							TimelineView.this.timelineGroupViewer.highlight(
+									groupedRanges, subMonitor.newChild(1));
+							TimelineView.this.timelineGroupViewer.center(
+									centeredDates, subMonitor.newChild(1));
+						} else {
+							TimelineView.this.timelineGroupViewer.highlight(
+									groupedRanges, subMonitor.newChild(2));
+						}
 					}
 					subMonitor.done();
 					return Status.OK_STATUS;

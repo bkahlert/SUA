@@ -113,7 +113,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	private IHighlightService highlightService;
 	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
-		public void highlight(Object sender, TimeZoneDateRange[] ranges) {
+		public void highlight(Object sender, TimeZoneDateRange[] ranges,
+				boolean moveInsideViewport) {
 			if (DiffExplorerView.this.openedDiffs == null
 					|| DiffExplorerView.this.openedDiffs.keySet().size() == 0) {
 				return;
@@ -123,15 +124,18 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					.keySet()) {
 				groupedRanges.put(openedIdentifier, ranges);
 			}
-			this.highlight(sender, groupedRanges);
+			this.highlight(sender, groupedRanges, moveInsideViewport);
 		}
 
 		@Override
 		public void highlight(Object sender,
-				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+				boolean moveInsideViewport) {
 			if (sender == DiffExplorerView.this) {
 				return;
 			}
+
+			// TODO implement moveInsideViewport support
 
 			ExecutorUtil.syncExec(new Runnable() {
 				@Override
@@ -258,7 +262,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 										.getWorkbenchWindow().getActivePage()
 										.getActivePart() == DiffExplorerView.this) {
 							DiffExplorerView.this.highlightService.highlight(
-									DiffExplorerView.this, event.getSelection());
+									DiffExplorerView.this,
+									event.getSelection(), false);
 						}
 					}
 				});

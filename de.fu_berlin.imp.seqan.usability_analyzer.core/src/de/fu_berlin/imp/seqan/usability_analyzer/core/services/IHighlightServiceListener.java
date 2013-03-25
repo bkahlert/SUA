@@ -26,9 +26,11 @@ public interface IHighlightServiceListener {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param ranges
+	 * @param moveInsideViewport
 	 * @see IHighlightService#highlight(TimeZoneDateRange[])
 	 */
-	public void highlight(Object sender, TimeZoneDateRange[] ranges);
+	public void highlight(Object sender, TimeZoneDateRange[] ranges,
+			boolean moveInsideViewport);
 
 	/**
 	 * This method is called if grouped {@link TimeZoneDateRange}s are requested
@@ -41,9 +43,11 @@ public interface IHighlightServiceListener {
 	 * @param sender
 	 *            that requested the highlight
 	 * @param dataContainers
+	 * @param moveInsideViewport
 	 * @see IHighlightService#highlight(Map)
 	 */
 	public void highlight(Object sender,
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges);
+			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			boolean moveInsideViewport);
 
 }

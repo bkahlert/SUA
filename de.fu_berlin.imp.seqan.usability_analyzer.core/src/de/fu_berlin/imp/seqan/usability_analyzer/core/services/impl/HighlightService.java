@@ -42,31 +42,36 @@ public class HighlightService implements IHighlightService {
 	}
 
 	@Override
-	public void highlight(Object sender, TimeZoneDateRange range) {
+	public void highlight(Object sender, TimeZoneDateRange range,
+			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(range);
-		this.highlight(sender, new TimeZoneDateRange[] { range });
+		this.highlight(sender, new TimeZoneDateRange[] { range },
+				moveInsideViewport);
 	}
 
 	@Override
-	public void highlight(Object sender, TimeZoneDateRange[] ranges) {
+	public void highlight(Object sender, TimeZoneDateRange[] ranges,
+			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(ranges);
 		Assert.isTrue(ranges.length > 0);
-		this.notifier.highlight(sender, ranges);
+		this.notifier.highlight(sender, ranges, moveInsideViewport);
 	}
 
 	@Override
 	public void highlight(Object sender,
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges) {
+			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(groupedRanges);
 		Assert.isTrue(!groupedRanges.isEmpty());
-		this.notifier.highlight(sender, groupedRanges);
+		this.notifier.highlight(sender, groupedRanges, moveInsideViewport);
 	}
 
 	@Override
-	public void highlight(Object sender, ISelection selection) {
+	public void highlight(Object sender, ISelection selection,
+			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(selection);
 
@@ -94,7 +99,7 @@ public class HighlightService implements IHighlightService {
 		}
 
 		if (!groupedRangesArr.isEmpty()) {
-			this.highlight(sender, groupedRangesArr);
+			this.highlight(sender, groupedRangesArr, moveInsideViewport);
 		}
 	}
 }
