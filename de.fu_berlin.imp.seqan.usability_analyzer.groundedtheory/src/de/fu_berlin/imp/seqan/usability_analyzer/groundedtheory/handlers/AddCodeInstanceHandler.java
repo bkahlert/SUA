@@ -26,8 +26,11 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		List<ICodeable> codeables = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeable.class).getSelection();
 		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
-			codeables.add((ICodeable) InformationControlManagerUtils
-					.getCurrentInput());
+			ICodeable input = (ICodeable) InformationControlManagerUtils
+					.getCurrentInput();
+			if (!codeables.contains(input)) {
+				codeables.add(input);
+			}
 		}
 
 		if (codeables.size() > 0) {
