@@ -17,8 +17,9 @@ public class LocatableInformationControl<T extends ILocatable>
 
 	static final int borderWidth = 5;
 
-	public LocatableInformationControl(Shell parentShell) {
-		super(parentShell,
+	public LocatableInformationControl(Class<T> informationClass,
+			Shell parentShell) {
+		super(informationClass, parentShell,
 				new DelegateFactory<LocatableInformationControlDelegate<T>>() {
 					@Override
 					public LocatableInformationControlDelegate<T> create() {

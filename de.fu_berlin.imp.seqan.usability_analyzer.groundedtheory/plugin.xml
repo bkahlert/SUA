@@ -1007,4 +1007,11 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.AnalysisTimelineBandProvider">
       </TimelineBandProvider>
    </extension>
+   <extension
+         point="com.bkahlert.nebula.information">
+      <extender
+            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.MemoInformationControlExtender"
+            informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+      </extender>
+   </extension>
 </plugin>

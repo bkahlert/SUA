@@ -68,10 +68,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		private void reloadIfNecessary(Object object) {
 			if (object.equals(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
-				if (lastSaveBy != AbstractMemoView.this) {
-					de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this
-							.load(null);
-				}
+				de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this
+						.load(null);
 			}
 		}
 
@@ -274,15 +272,6 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		}
 	}
 
-	/**
-	 * Reference to the {@link AbstractMemoView} that executed the last save
-	 * action.
-	 * <p>
-	 * Used to distinguish the saving {@link AbstractMemoView} from the others
-	 * which need to reload their contents if they loaded the same object.
-	 */
-	private static AbstractMemoView lastSaveBy = null;
-
 	@Override
 	public String getHtml(Object objectToLoad, IProgressMonitor monitor) {
 		if (objectToLoad instanceof ICode) {
@@ -300,7 +289,6 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 	public void setHtml(Object loadedObject, String html,
 			IProgressMonitor monitor) {
 		try {
-			lastSaveBy = this;
 			if (loadedObject instanceof ICode) {
 				this.codeService.setMemo((ICode) loadedObject, html);
 			} else if (loadedObject instanceof ICodeInstance) {

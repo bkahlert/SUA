@@ -43,7 +43,13 @@ public class DiffLabelProvider extends InformationLabelProvider {
 		}
 		if (element instanceof IDiff) {
 			IDiff diff = (IDiff) element;
-			return "Iteration #" + (diff.getRevision());
+			Long milliSecondsPassed = diff.getDateRange().getDifference();
+			String duration = (milliSecondsPassed != null) ? DurationFormatUtils
+					.formatDuration(milliSecondsPassed,
+							new SUACorePreferenceUtil()
+									.getTimeDifferenceFormat(), true)
+					: "unknown";
+			return "Iteration #" + diff.getRevision() + " - " + duration;
 		} else if (element instanceof IDiffRecord
 				|| element instanceof IDiffRecordSegment) {
 			IDiffRecord diffRecord = element instanceof DiffRecord ? (DiffRecord) element

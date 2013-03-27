@@ -33,7 +33,7 @@ public class InformationPresenterService implements
 		protected InformationControl<ILocatable> doCreateInformationControl(
 				Shell parent) {
 			final LocatableInformationControl<ILocatable> control = new LocatableInformationControl<ILocatable>(
-					parent);
+					ILocatable.class, parent);
 
 			control.setPostProcessor(new IPostProcessor<ILocatable>() {
 				@Override
