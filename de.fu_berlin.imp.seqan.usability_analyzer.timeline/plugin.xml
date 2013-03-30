@@ -101,35 +101,11 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            sequence="M1+1">
-      </key>
-      <key
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            sequence="M1+2">
-      </key>
-      <key
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateBack"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            sequence="ARROW_LEFT">
-      </key>
-      <key
-            commandId="de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigateForward"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            sequence="ARROW_RIGHT">
-      </key>
-      <scheme
-            id="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            name="name">
-      </scheme>
+         point="com.bkahlert.nebula.information">
+      <extender
+            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers.NavigateBindings"
+            informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+      </extender>
    </extension>
 
 </plugin>

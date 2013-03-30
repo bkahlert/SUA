@@ -82,7 +82,7 @@ public class PinnableMemoView extends AbstractMemoView {
 	public void setPin(boolean pin) {
 		this.pin = pin;
 		if (!pin) {
-			this.loadAndClearHistory(this.lastSelection);
+			this.load(this.lastSelection);
 		}
 	}
 

@@ -21,7 +21,7 @@ public class MemoInformationControlExtender extends
 			.getService(ICodeService.class);
 
 	public MemoInformationControlExtender() {
-		super(GridDataFactory.fillDefaults().grab(true, true).minSize(350, 300));
+		super(GridDataFactory.fillDefaults().grab(true, true).minSize(200, 350));
 	}
 
 	@Override

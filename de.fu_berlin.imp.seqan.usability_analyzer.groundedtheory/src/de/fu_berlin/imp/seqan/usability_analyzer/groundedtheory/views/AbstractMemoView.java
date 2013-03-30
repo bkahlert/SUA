@@ -68,8 +68,6 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		private void reloadIfNecessary(Object object) {
 			if (object.equals(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
-				de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this
-						.load(null);
 			}
 		}
 
