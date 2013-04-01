@@ -9,8 +9,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,54 +34,54 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 		implements Delegate<T> {
 	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
-	private Composite composite;
-	private Composite titleArea;
-	private Composite customComposite;
-	private Label customCompositeSeparator;
-	private Composite detailComposite;
+	private Composite l0;
+	private Composite l1Left;
+	private Composite l2TitleArea;
+	private Composite l2CustomComposite;
+	private Label l2CustomCompositeSeparator;
+	private Composite l2DetailComposite;
 	private LocatableInformationControl.IPostProcessor<T> postProcessor = null;
 
 	@Override
-	public void build(Composite parent) {
-		this.composite = parent;
-		this.composite.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(this.composite);
+	public Composite build(Composite l0) {
+		this.l0 = l0;
 
-		this.titleArea = new Composite(this.composite, SWT.NONE);
+		l0.setLayout(GridLayoutFactory.fillDefaults().numColumns(3)
+				.margins(0, 0).spacing(0, 0).create());
+		l0.setBackgroundMode(SWT.INHERIT_DEFAULT);
+
+		this.l1Left = new Composite(l0, SWT.NONE);
+		this.l1Left.setBackgroundMode(SWT.INHERIT_DEFAULT);
+		this.l1Left.setLayoutData(GridDataFactory.fillDefaults()
+				.grab(false, true).hint(10, SWT.DEFAULT).span(1, 999).create());
+
+		Label l1Middle = new Label(l0, SWT.SEPARATOR | SWT.VERTICAL);
+		l1Middle.setLayoutData(GridDataFactory.fillDefaults().grab(false, true)
+				.hint(1, SWT.DEFAULT).span(1, 999).create());
+
+		this.l2TitleArea = new Composite(this.l0, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false)
-				.applyTo(this.titleArea);
+				.applyTo(this.l2TitleArea);
 
 		this.addSeparator();
 
-		this.customComposite = new Composite(this.composite, SWT.NONE);
-		this.customComposite.setLayoutData(GridDataFactory.swtDefaults()
+		this.l2CustomComposite = new Composite(this.l0, SWT.NONE);
+		this.l2CustomComposite.setLayoutData(GridDataFactory.swtDefaults()
 				.create());
-		this.customComposite.setLayout(new FillLayout());
+		this.l2CustomComposite.setLayout(new FillLayout());
 
-		this.customCompositeSeparator = this.addSeparator();
+		this.l2CustomCompositeSeparator = this.addSeparator();
 
-		this.detailComposite = new Composite(this.composite, SWT.NONE);
-		this.detailComposite.setLayout(new GridLayout(2, false));
-		this.detailComposite.setLayoutData(GridDataFactory.fillDefaults()
+		this.l2DetailComposite = new Composite(this.l0, SWT.NONE);
+		this.l2DetailComposite.setLayout(new GridLayout(2, false));
+		this.l2DetailComposite.setLayoutData(GridDataFactory.fillDefaults()
 				.create());
 
-		this.composite.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.ARROW_RIGHT) {
-					// TimelineDetailDialog.this.nextScreenshot();
-				} else if (e.keyCode == SWT.ARROW_LEFT) {
-					// TimelineDetailDialog.this.prevScreenshot();
-				} else if (e.keyCode == SWT.ESC || e.keyCode == SWT.CR) {
-					// TimelineDetailDialog.this.close();
-				}
-			}
-		});
+		return l0;
 	}
 
 	@Override
 	public boolean load(T input, ToolBarManager toolBarManager) {
-
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(input);
 		if (labelProvider == null) {
@@ -108,18 +106,18 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 		this.loadMetaInformation(metaInformation);
 		this.loadDetailInformation(detailInformation);
 
-		SWTUtil.clearControl(this.customComposite);
+		SWTUtil.clearControl(this.l2CustomComposite);
 		Control control = informationLabelProvider.fillInformation(input,
-				this.customComposite);
-		this.customComposite.layout();
-		this.customCompositeSeparator.setVisible(control != null);
+				this.l2CustomComposite);
+		this.l2CustomComposite.layout();
+		this.l2CustomCompositeSeparator.setVisible(control != null);
 
 		if (toolBarManager != null) {
 			informationLabelProvider.fill(input, toolBarManager);
 		}
 
 		if (this.postProcessor != null) {
-			this.postProcessor.postProcess(input, this.detailComposite);
+			this.postProcessor.postProcess(input, this.l1Left);
 		}
 
 		return true;
@@ -147,42 +145,40 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 	}
 
 	private Label addSeparator() {
-		Label separator = new Label(this.composite, SWT.SEPARATOR
-				| SWT.HORIZONTAL);
-		separator.setLayoutData(GridDataFactory.fillDefaults()
+		Label separator = new Label(this.l0, SWT.SEPARATOR | SWT.HORIZONTAL);
+		separator.setLayoutData(GridDataFactory.fillDefaults().minSize(1, 1)
 				.align(SWT.FILL, SWT.CENTER).create());
 		return separator;
 	}
 
 	public void loadMetaInformation(List<IllustratedText> metaInformation) {
-		SWTUtil.clearControl(this.titleArea);
-		this.titleArea.setLayout(RowLayoutFactory.fillDefaults()
+		SWTUtil.clearControl(this.l2TitleArea);
+		this.l2TitleArea.setLayout(RowLayoutFactory.fillDefaults()
 				.type(SWT.HORIZONTAL).margins(7, 3).spacing(3).create());
 		for (IllustratedText metaEntry : metaInformation) {
 			SimpleIllustratedComposite metaCompositeEntry = new SimpleIllustratedComposite(
-					this.titleArea, SWT.CENTER | SWT.BOLD);
-			// metaCompositeEntry.setBackground(this.titleArea.getBackground());
+					this.l2TitleArea, SWT.CENTER | SWT.BOLD);
 
 			metaCompositeEntry.setBackgroundMode(SWT.INHERIT_DEFAULT);
 			metaCompositeEntry.setSpacing(3);
 			metaCompositeEntry.setContent(metaEntry);
 		}
-		this.titleArea.layout();
+		this.l2TitleArea.layout();
 	}
 
 	public void loadDetailInformation(List<IDetailEntry> detailInformation) {
-		SWTUtil.clearControl(this.detailComposite);
+		SWTUtil.clearControl(this.l2DetailComposite);
 		for (Entry<String, String> detailEntry : detailInformation) {
-			Label keyLabel = new Label(this.detailComposite, SWT.NONE);
+			Label keyLabel = new Label(this.l2DetailComposite, SWT.NONE);
 			keyLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 			keyLabel.setText(detailEntry.getKey());
 
-			Label valueLabel = new Label(this.detailComposite, SWT.NONE);
+			Label valueLabel = new Label(this.l2DetailComposite, SWT.NONE);
 			valueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
 					false));
 			valueLabel.setText(detailEntry.getValue());
 		}
-		this.detailComposite.layout();
+		this.l2DetailComposite.layout();
 	}
 
 	public void setPostProcessor(

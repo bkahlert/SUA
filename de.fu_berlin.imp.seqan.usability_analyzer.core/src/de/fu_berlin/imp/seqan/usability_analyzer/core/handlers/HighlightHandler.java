@@ -6,6 +6,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -20,10 +21,11 @@ public class HighlightHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Object input = InformationControlManagerUtils.getCurrentInput();
-		if (input instanceof HasDateRange) {
-			IHighlightService highlightService = (IHighlightService) PlatformUI
-					.getWorkbench().getService(IHighlightService.class);
+		IHighlightService highlightService = (IHighlightService) PlatformUI
+				.getWorkbench().getService(IHighlightService.class);
+		if (InformationControlManagerUtils.getCurrentInput() instanceof HasDateRange) {
+			HasDateRange input = (HasDateRange) InformationControlManagerUtils
+					.getCurrentInput();
 			if (highlightService != null) {
 				final TimeZoneDateRange range = ((HasDateRange) input)
 						.getDateRange();
@@ -32,6 +34,9 @@ public class HighlightHandler extends AbstractHandler {
 							true);
 				}
 			}
+		} else {
+			highlightService.highlight(HighlightHandler.this,
+					SelectionUtils.getSelection(), true);
 		}
 
 		return null;

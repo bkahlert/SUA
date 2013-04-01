@@ -123,6 +123,16 @@
         <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.HighlightHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfHasDateRanges">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                 </reference>
+              </or>
+           </activeWhen>
         </handler>
      </extension>
    <extension
@@ -185,6 +195,22 @@
                </reference>
             </visibleWhen>
          </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
+               icon="icons/etool16/mark_occurrences.png"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsHasDateRanges">
+                  </reference>
+               </or>
+            </visibleWhen>
+         </command>
          
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
@@ -202,6 +228,17 @@
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
                icon="icons/etool16/mark_occurrences.png"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsHasDateRanges">
+                  </reference>
+               </or>
+            </visibleWhen>
          </command>
          <separator
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
@@ -299,6 +336,32 @@
                   operator="and">
                <adapt
                      type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.containsHasDateRanges">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfHasDateRanges">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
                </adapt>
             </iterate>
          </with>
