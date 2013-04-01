@@ -274,6 +274,9 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 				this.images.put(composite,
 						new com.bkahlert.nebula.widgets.image.Image(composite,
 								SWT.NONE, size));
+				this.images.get(composite).setBackground(
+						Display.getCurrent().getSystemColor(
+								SWT.COLOR_INFO_BACKGROUND));
 			}
 			this.images.get(composite).load(image, new Runnable() {
 				@Override

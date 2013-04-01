@@ -89,7 +89,7 @@ public class CodeView extends ViewPart {
 									CodeView.this.highlightService.highlight(
 											CodeView.class,
 											ranges.toArray(new TimeZoneDateRange[0]),
-											false);
+											true);
 								}
 							}
 							CodeView.this.highlightService.highlight(

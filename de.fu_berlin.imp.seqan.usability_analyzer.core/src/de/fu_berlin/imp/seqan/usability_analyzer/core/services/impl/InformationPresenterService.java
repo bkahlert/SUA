@@ -76,7 +76,7 @@ public class InformationPresenterService implements
 			CONTROL control,
 			ISubjectInformationProvider<CONTROL, ILocatable> subjectInformationProvider) {
 		InformationControlManager<CONTROL, ILocatable> informationControlManager = new InformationControlManager<CONTROL, ILocatable>(
-				this.creator, subjectInformationProvider);
+				ILocatable.class, this.creator, subjectInformationProvider);
 		informationControlManager.install(control);
 		this.informationControlManagers.put(control, informationControlManager);
 		return informationControlManager;

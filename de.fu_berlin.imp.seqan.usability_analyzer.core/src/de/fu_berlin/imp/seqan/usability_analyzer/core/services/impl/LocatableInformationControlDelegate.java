@@ -64,8 +64,8 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 
 		this.detailComposite = new Composite(this.composite, SWT.NONE);
 		this.detailComposite.setLayout(new GridLayout(2, false));
-		this.detailComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-				false, false));
+		this.detailComposite.setLayoutData(GridDataFactory.fillDefaults()
+				.create());
 
 		this.composite.addKeyListener(new KeyAdapter() {
 			@Override
@@ -149,7 +149,8 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 	private Label addSeparator() {
 		Label separator = new Label(this.composite, SWT.SEPARATOR
 				| SWT.HORIZONTAL);
-		separator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		separator.setLayoutData(GridDataFactory.fillDefaults()
+				.align(SWT.FILL, SWT.CENTER).create());
 		return separator;
 	}
 

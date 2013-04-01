@@ -277,9 +277,6 @@ public class DiffLabelProvider extends InformationLabelProvider {
 			IDiffRecord diffRecord = (IDiffRecord) element;
 			detailEntries.add(new DetailEntry("Filename", diffRecord
 					.getFilename() != null ? diffRecord.getFilename() : "-"));
-			detailEntries.add(new DetailEntry("Source",
-					diffRecord.getSource() != null ? diffRecord.getSource()
-							: "-"));
 			detailEntries.add(new DetailEntry("Is Temporary", diffRecord
 					.isTemporary() ? "Yes" : "No"));
 			detailEntries.add(new DetailEntry("Source Exists", diffRecord

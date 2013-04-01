@@ -6,7 +6,6 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
@@ -59,10 +58,6 @@ public abstract class AbstractNavigateHandler extends AbstractHandler {
 
 	protected void navigateTo(ILocatable locatable) {
 		if (locatable instanceof HasDateRange) {
-
-			InformationControl<?> control = InformationControlManagerUtils
-					.getCurrentControl();
-
 			TimeZoneDateRange range = ((HasDateRange) locatable).getDateRange();
 			if (range != null) {
 				TimeZoneDate timeZoneDate;
@@ -82,8 +77,8 @@ public abstract class AbstractNavigateHandler extends AbstractHandler {
 								.getCalendar());
 					}
 				}
-				control.setInput(locatable);
-				control.layout();
+				InformationControlManagerUtils.getCurrentManager(
+						ILocatable.class).setInformation(locatable);
 			}
 		}
 	}

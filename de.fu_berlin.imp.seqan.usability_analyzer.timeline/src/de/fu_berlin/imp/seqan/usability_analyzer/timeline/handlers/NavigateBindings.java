@@ -35,13 +35,13 @@ public class NavigateBindings implements
 
 			if (e.keyCode == SWT.ARROW_LEFT || e.keyCode == SWT.ARROW_RIGHT) {
 				try {
-					System.out.println("navigating");
 					this.handlerService.executeCommand(
 							"de.fu_berlin.imp.seqan.usability_analyzer.timeline.navigate"
 									+ (e.keyCode == SWT.ARROW_LEFT ? "Back"
 											: "Forward"), null);
+					e.doit = false;
 				} catch (Exception e1) {
-					LOGGER.error("Error navigating");
+					LOGGER.error("Error navigating", e1);
 				}
 			}
 		}
