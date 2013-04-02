@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -247,21 +249,38 @@ public class TimelineView extends ViewPart {
 			final Set<IIdentifier> inputs = this.timelineGroup
 					.getTimelineKeys();
 			if (inputs.size() > 0) {
-				ExecutorUtil.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						ITimeline timeline = TimelineView.this.timelineGroup
-								.getTimeline(new ArrayList<IIdentifier>(inputs)
-										.get(0));
-						if (timeline != null) {
-							Integer zoomIndex = timeline.getZoomIndex();
-							if (zoomIndex != null) {
-								new SUATimelinePreferenceUtil()
-										.setZoomIndex(zoomIndex);
+				try {
+					final Future<Integer> zoomIndex = ExecutorUtil
+							.syncExec(new Callable<Future<Integer>>() {
+								@Override
+								public Future<Integer> call() throws Exception {
+									ITimeline timeline = TimelineView.this.timelineGroup
+											.getTimeline(new ArrayList<IIdentifier>(
+													inputs).get(0));
+									if (timeline != null) {
+										return timeline.getZoomIndex();
+									} else {
+										return null;
+									}
+								}
+							});
+					ExecutorUtil.nonUIAsyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								if (zoomIndex != null
+										&& zoomIndex.get() != null) {
+									new SUATimelinePreferenceUtil()
+											.setZoomIndex(zoomIndex.get());
+								}
+							} catch (Exception e) {
+								LOGGER.error("Error saving zoom index", e);
 							}
 						}
-					}
-				});
+					});
+				} catch (Exception e) {
+					LOGGER.error("Error saving zoom index", e);
+				}
 			}
 		}
 	}
