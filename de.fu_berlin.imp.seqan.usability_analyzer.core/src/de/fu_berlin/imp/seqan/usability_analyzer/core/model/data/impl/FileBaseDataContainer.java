@@ -23,10 +23,15 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	private List<File> returnedFiles;
 	private IDataSetInfo info;
 
-	public FileBaseDataContainer(File file) {
+	protected FileBaseDataContainer(File file, boolean expectDataSetInfo) {
 		super(file);
 		this.returnedFiles = new ArrayList<File>();
-		this.info = new DataSetInfo(this.getResource("__dataset.txt"));
+		this.info = expectDataSetInfo ? new DataSetInfo(
+				this.getResource("__dataset.txt")) : null;
+	}
+
+	public FileBaseDataContainer(File file) {
+		this(file, true);
 	}
 
 	@Override
@@ -51,8 +56,9 @@ public class FileBaseDataContainer extends FileDataContainer implements
 
 	protected File getTempDirectory() {
 		File tmp = new File(this.getFile(), "tmp");
-		if (!tmp.exists())
+		if (!tmp.exists()) {
 			tmp.mkdirs();
+		}
 		return tmp;
 	}
 
@@ -63,41 +69,45 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	}
 
 	protected File getLocation(String scope, String name) {
-		File scopeDir = getScope(scope);
+		File scopeDir = this.getScope(scope);
 		return new File(scopeDir, name);
 	}
 
 	@Override
 	public File getStaticFile(String scope, String name) throws IOException {
-		File file = getLocation(scope, name);
-		if (!file.exists())
+		File file = this.getLocation(scope, name);
+		if (!file.exists()) {
 			return null;
+		}
 
-		File staticFile = new File(new File(new File(getTempDirectory(),
+		File staticFile = new File(new File(new File(this.getTempDirectory(),
 				"static-files"), scope), name);
-		if (!staticFile.exists())
+		if (!staticFile.exists()) {
 			FileUtils.copyFile(file, staticFile);
+		}
 
 		return staticFile;
 	}
 
 	@Override
 	public void resetStaticFile(String scope, String name) throws IOException {
-		File staticFile = getStaticFile(scope, name);
-		if (staticFile != null && staticFile.exists())
+		File staticFile = this.getStaticFile(scope, name);
+		if (staticFile != null && staticFile.exists()) {
 			staticFile.delete();
+		}
 	}
 
 	@Override
 	public File getFile(String scope, String name) throws IOException {
-		File file = getLocation(scope, name);
+		File file = this.getLocation(scope, name);
 
 		File tmpFile = File.createTempFile("sua-tmp-",
 				FilenameUtils.getName(name));
 		tmpFile.delete();
-		if (file.exists())
+		if (file.exists()) {
 			FileUtils.copyFile(file, tmpFile);
-		returnedFiles.add(tmpFile);
+		}
+		this.returnedFiles.add(tmpFile);
 		return tmpFile;
 	}
 
@@ -105,18 +115,19 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	public void putFile(String scope, String name, File file)
 			throws IOException {
 		if (file == null) {
-			getLocation(scope, name).delete();
+			this.getLocation(scope, name).delete();
 		} else {
-			if (file.exists())
-				FileUtils.copyFile(file, getLocation(scope, name));
+			if (file.exists()) {
+				FileUtils.copyFile(file, this.getLocation(scope, name));
+			}
 		}
-		resetStaticFile(scope, name);
+		this.resetStaticFile(scope, name);
 	}
 
 	@Override
 	public void deleteScope(String scope) {
 		try {
-			FileUtils.deleteDirectory(getScope(scope));
+			FileUtils.deleteDirectory(this.getScope(scope));
 		} catch (IOException e) {
 			LOGGER.error("Error deleting scope \"" + scope + "\"");
 		}
@@ -130,8 +141,9 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	@Override
 	public void dispose() {
 		for (File returnedFile : this.returnedFiles) {
-			if (returnedFile != null && returnedFile.exists())
+			if (returnedFile != null && returnedFile.exists()) {
 				returnedFile.delete();
+			}
 		}
 	}
 

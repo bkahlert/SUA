@@ -75,7 +75,7 @@ public class DiffDataUtils {
 					try {
 						timeZone = new SUACorePreferenceUtil()
 								.getDefaultTimeZone();
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						timeZone = TimeZone.getDefault();
 					}
 				}

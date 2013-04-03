@@ -37,14 +37,13 @@ public class CodeStoreHelper {
 
 	protected File getEmptyFile() throws IOException {
 		File file = getTempFile();
-		FileUtils.copyFile(empty, file);
+		FileUtils.copyFile(this.empty, file);
 		return file;
 	}
 
 	protected File getSmallFile() throws IOException {
 		File file = getTempFile();
-		System.err.println(file);
-		FileUtils.copyFile(small, file);
+		FileUtils.copyFile(this.small, file);
 		return file;
 	}
 
@@ -61,26 +60,26 @@ public class CodeStoreHelper {
 	protected ICodeInstance[] codeInstances;
 
 	public CodeStoreHelper() throws URISyntaxException {
-		empty = new File(
+		this.empty = new File(
 				CodeServiceTest.class
 						.getResource(
 								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.empty.xml")
 						.getFile());
 
-		small = new File(
+		this.small = new File(
 				CodeServiceTest.class
 						.getResource(
 								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.small.xml")
 						.getFile());
 
-		code1 = new Code(234233209l, "Code #1", new RGB(1, 0.5, 0),
+		this.code1 = new Code(234233209l, "Code #1", new RGB(1, 0.5, 0),
 				new TimeZoneDate());
-		code2 = new Code(9908372l, "Code #2", new RGB(0, 0.5, 1),
+		this.code2 = new Code(9908372l, "Code #2", new RGB(0, 0.5, 1),
 				new TimeZoneDate());
 
-		codes = new ICode[] { code1, code2 };
+		this.codes = new ICode[] { this.code1, this.code2 };
 
-		codeable1 = new ICodeable() {
+		this.codeable1 = new ICodeable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -92,7 +91,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		codeable2 = new ICodeable() {
+		this.codeable2 = new ICodeable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -104,7 +103,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		codeable3 = new ICodeable() {
+		this.codeable3 = new ICodeable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -117,15 +116,18 @@ public class CodeStoreHelper {
 			}
 		};
 
-		codeInstance1 = new CodeInstance(code2, codeable1.getUri(),
-				new TimeZoneDate("1984-05-15T14:30:00+02:00"));
-		codeInstance2 = new CodeInstance(code1, codeable2.getUri(),
-				new TimeZoneDate("2011-11-11T11:11:11+11:00"));
-		codeInstance3 = new CodeInstance(code2, codeable3.getUri(),
-				new TimeZoneDate("2002-09-23T23:08:01-04:30"));
+		this.codeInstance1 = new CodeInstance(this.code2,
+				this.codeable1.getUri(), new TimeZoneDate(
+						"1984-05-15T14:30:00+02:00"));
+		this.codeInstance2 = new CodeInstance(this.code1,
+				this.codeable2.getUri(), new TimeZoneDate(
+						"2011-11-11T11:11:11+11:00"));
+		this.codeInstance3 = new CodeInstance(this.code2,
+				this.codeable3.getUri(), new TimeZoneDate(
+						"2002-09-23T23:08:01-04:30"));
 
-		codeInstances = new ICodeInstance[] { codeInstance1, codeInstance2,
-				codeInstance3 };
+		this.codeInstances = new ICodeInstance[] { this.codeInstance1,
+				this.codeInstance2, this.codeInstance3 };
 	}
 
 	/**
@@ -142,8 +144,9 @@ public class CodeStoreHelper {
 		Assert.assertEquals(codes.length, loadedCodes.size());
 
 		HashMap<ICode, Boolean> inCodeStore = new HashMap<ICode, Boolean>();
-		for (ICode loadedCode : loadedCodes)
+		for (ICode loadedCode : loadedCodes) {
 			inCodeStore.put(loadedCode, false);
+		}
 
 		for (ICode loadedCode : loadedCodes) {
 			for (ICode code : codes) {
@@ -167,7 +170,7 @@ public class CodeStoreHelper {
 	protected void testCodeInstances(ICodeStore actualCodeInstances,
 			ICodeInstance[] expectedCodeInstances)
 			throws CodeStoreReadException {
-		testCodeInstances(actualCodeInstances.loadInstances(),
+		this.testCodeInstances(actualCodeInstances.loadInstances(),
 				expectedCodeInstances);
 	}
 
@@ -178,8 +181,9 @@ public class CodeStoreHelper {
 				actualCodeInstances.size());
 
 		HashMap<ICodeInstance, Boolean> inCodeStore = new HashMap<ICodeInstance, Boolean>();
-		for (ICodeInstance loadedInstance : actualCodeInstances)
+		for (ICodeInstance loadedInstance : actualCodeInstances) {
 			inCodeStore.put(loadedInstance, false);
+		}
 
 		for (ICodeInstance loadedInstance : actualCodeInstances) {
 			for (ICodeInstance instance : expectedCodeInstances) {
@@ -212,11 +216,11 @@ public class CodeStoreHelper {
 	}
 
 	protected ICodeStore getEmptyCodeStore() throws IOException {
-		return CodeStore.create(getEmptyFile());
+		return CodeStore.create(this.getEmptyFile());
 	}
 
 	protected ICodeStore getSmallCodeStore() throws IOException {
-		return CodeStore.load(getSmallFile());
+		return CodeStore.load(this.getSmallFile());
 	}
 
 	protected ICodeStore loadFromCodeStore(ICodeStore codeStore)

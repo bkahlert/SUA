@@ -40,15 +40,21 @@ public class SurveyRecord {
 	private void scanRecord() {
 		if (this.keys.contains(KEY_DATE)) {
 			try {
-				Date date = DATE_FORMAT.parse(this.values.get(this.keys
-						.indexOf(KEY_DATE)));
-				TimeZone timeZone;
-				try {
-					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
-				} catch (Exception e) {
-					timeZone = TimeZone.getDefault();
+				String dateString = this.values
+						.get(this.keys.indexOf(KEY_DATE));
+				if (dateString != null && !dateString.isEmpty()) {
+					Date date = DATE_FORMAT.parse(dateString);
+					TimeZone timeZone;
+					try {
+						timeZone = new SUACorePreferenceUtil()
+								.getDefaultTimeZone();
+					} catch (Exception e) {
+						timeZone = TimeZone.getDefault();
+					}
+					this.date = new TimeZoneDate(date, timeZone);
+				} else {
+					this.date = null;
 				}
-				this.date = new TimeZoneDate(date, timeZone);
 			} catch (ParseException e) {
 				this.logger.warn("Could not parse date from "
 						+ SurveyRecord.class.getSimpleName(), e);

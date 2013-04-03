@@ -14,7 +14,7 @@ public class TempBaseDataContainer extends FileBaseDataContainer implements
 		IBaseDataContainer {
 
 	public TempBaseDataContainer() {
-		super(FileUtils.getTempDirectory());
+		super(FileUtils.getTempDirectory(), false);
 	}
 
 }

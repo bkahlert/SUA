@@ -167,7 +167,7 @@ public class DiffFileTest {
 
 		this.testDiffFileRecordsCountRun(
 				getDiffFile(
-						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43.diff",
+						"5lpcjqhy0b9yfech/5lpcjqhy0b9yfech_r00000005_2011-09-13T10-17-43-0530.diff",
 						IdentifierFactory.createFrom("5lpcjqhy0b9yfech"), 5l,
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T10:17:43+02:00"), null)),

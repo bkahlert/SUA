@@ -75,13 +75,22 @@ public class Diff extends WrappingData implements IDiff {
 		this.diffFileRecords = DiffRecordUtils.readRecords(this, trunk,
 				sourceCache, progressMonitor);
 
-		TimeZone diffsFirstRecordTimeZone = this.diffFileRecords.size() > 0 ? this.diffFileRecords
-				.get(0).getDateRange().getEndDate().getTimeZone()
-				: null;
-		TimeZone prevDiffsTimeZone = prevDate != null ? prevDate.getTimeZone()
-				: null;
-		TimeZone defaultTimeZone = diffsFirstRecordTimeZone != null ? diffsFirstRecordTimeZone
-				: prevDiffsTimeZone;
+		TimeZone defaultTimeZone = null;
+		for (IDiffRecord diffRecord : this.diffFileRecords) {
+			TimeZoneDateRange range = diffRecord.getDateRange();
+			if (range != null) {
+				if (range.getStartDate() != null) {
+					defaultTimeZone = range.getStartDate().getTimeZone();
+					break;
+				} else if (range.getEndDate() != null) {
+					defaultTimeZone = range.getEndDate().getTimeZone();
+					break;
+				}
+			}
+		}
+		if (defaultTimeZone == null && prevDate != null) {
+			defaultTimeZone = prevDate.getTimeZone();
+		}
 
 		this.dateRange = new TimeZoneDateRange(prevDate, DiffDataUtils.getDate(
 				data, defaultTimeZone));

@@ -55,23 +55,23 @@ public class DiffFileDirectoryTest {
 
 		dateRange = diffFileManager.getDateRange(IdentifierFactory
 				.createFrom("5lpcjqhy0b9yfech"));
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43.0-05:30"),
 				dateRange.getStartDate());
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43-05:30"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T10:17:43.0-05:30"),
 				dateRange.getEndDate());
 
 		dateRange = diffFileManager.getDateRange(IdentifierFactory
 				.createFrom("o6lmo5tpxvn3b6fg"));
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02.0+02:00"),
 				dateRange.getStartDate());
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T12:11:02.0+02:00"),
 				dateRange.getEndDate());
 
 		dateRange = diffFileManager.getDateRange(IdentifierFactory
 				.createFrom("amudto8y1mzxaebv"));
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T09:41:46+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T09:41:46.0+02:00"),
 				dateRange.getStartDate());
-		Assert.assertEquals(new TimeZoneDate("2011-09-13T11:55:46+02:00"),
+		Assert.assertEquals(new TimeZoneDate("2011-09-13T11:55:46.0+02:00"),
 				dateRange.getEndDate());
 	}
 
