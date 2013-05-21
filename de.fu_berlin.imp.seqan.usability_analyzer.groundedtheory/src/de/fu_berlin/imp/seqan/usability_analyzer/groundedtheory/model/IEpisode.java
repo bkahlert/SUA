@@ -1,12 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
-public interface IEpisode extends ICodeable, HasIdentifier, HasDateRange,
+public interface IEpisode extends ILocatable, HasIdentifier, HasDateRange,
 		Comparable<IEpisode> {
 
 	/**

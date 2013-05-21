@@ -19,16 +19,16 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class ShowArtefactIDDialog extends TitleAreaDialog {
 
 	public static final int COPY_AND_CLOSE_ID = IDialogConstants.OK_ID + 1;
 	public static final String COPY_AND_CLOSE_STRING = "Copy and Close";
 
-	private ICodeable codeable;
+	private ILocatable codeable;
 
-	public ShowArtefactIDDialog(Shell parentShell, ICodeable codeable) {
+	public ShowArtefactIDDialog(Shell parentShell, ILocatable codeable) {
 		super(parentShell);
 		this.codeable = codeable;
 	}

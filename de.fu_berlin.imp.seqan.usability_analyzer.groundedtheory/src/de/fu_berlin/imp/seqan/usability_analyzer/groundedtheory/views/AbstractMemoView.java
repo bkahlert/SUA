@@ -28,11 +28,12 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.URIAdapter;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -52,14 +53,14 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 			if (codeables.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 			if (codeables.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
@@ -77,7 +78,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			this.reloadIfNecessary(codeable);
 		};
 
@@ -87,7 +88,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 			this.reloadIfNecessary(codeable);
 		};
 
@@ -97,7 +98,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			this.reloadIfNecessary(codeable);
 		};
 	};
@@ -127,7 +128,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ICodeable codeable = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this.codeService
+						ILocatable codeable = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this.codeService
 								.getCodedObject(uri);
 						if (codeable != null) {
 							return true;
@@ -154,7 +155,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ICodeable codeable = AbstractMemoView.this.codeService
+						ILocatable codeable = AbstractMemoView.this.codeService
 								.getCodedObject(uri);
 						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
 								.getLabelProvider(codeable);
@@ -177,7 +178,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			public void uriClicked(final URI uri) {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
-				final ICodeable codeable = codeService.getCodedObject(uri);
+				final ILocatable codeable = codeService.getCodedObject(uri);
 				if (!KeyboardUtils.isMetaKeyPressed()) {
 					// treat link as a typical link that opens a resource
 					AbstractMemoView.this.history.add(codeable);
@@ -234,7 +235,7 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 					ImageManager.CODE);
 		} else if (loadedObject instanceof ICodeInstance) {
 			ICodeInstance codeInstance = (ICodeInstance) loadedObject;
-			ICodeable coded = this.codeService.getCodedObject(codeInstance
+			ILocatable coded = this.codeService.getCodedObject(codeInstance
 					.getId());
 			if (coded != null) {
 				ILabelProvider lp = this.labelProviderService
@@ -247,8 +248,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 						.getWorkbench().getSharedImages()
 						.getImage(ISharedImages.IMG_OBJS_WARN_TSK));
 			}
-		} else if (loadedObject instanceof ICodeable) {
-			ICodeable codeable = (ICodeable) loadedObject;
+		} else if (loadedObject instanceof ILocatable) {
+			ILocatable codeable = (ILocatable) loadedObject;
 			ILabelProvider lp = this.labelProviderService
 					.getLabelProvider(codeable);
 			return new PartInfo(lp.getText(codeable), lp.getImage(codeable));
@@ -276,8 +277,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			return this.codeService.loadMemo((ICode) objectToLoad);
 		} else if (objectToLoad instanceof ICodeInstance) {
 			return this.codeService.loadMemo((ICodeInstance) objectToLoad);
-		} else if (objectToLoad instanceof ICodeable) {
-			return this.codeService.loadMemo((ICodeable) objectToLoad);
+		} else if (objectToLoad instanceof ILocatable) {
+			return this.codeService.loadMemo((ILocatable) objectToLoad);
 		} else {
 			return null;
 		}
@@ -291,8 +292,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				this.codeService.setMemo((ICode) loadedObject, html);
 			} else if (loadedObject instanceof ICodeInstance) {
 				this.codeService.setMemo((ICodeInstance) loadedObject, html);
-			} else if (loadedObject instanceof ICodeable) {
-				this.codeService.setMemo((ICodeable) loadedObject, html);
+			} else if (loadedObject instanceof ILocatable) {
+				this.codeService.setMemo((ILocatable) loadedObject, html);
 			}
 		} catch (CodeServiceException e) {
 			LOGGER.error("Can't save memo for " + loadedObject, e);

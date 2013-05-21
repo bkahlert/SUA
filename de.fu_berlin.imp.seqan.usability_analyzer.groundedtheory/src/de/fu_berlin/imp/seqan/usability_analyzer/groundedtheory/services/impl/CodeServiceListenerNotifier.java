@@ -12,7 +12,7 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
@@ -56,7 +56,7 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void codeAssigned(final List<ICode> codes, final List<ICodeable> codeables) {
+	void codeAssigned(final List<ICode> codes, final List<ILocatable> codeables) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override
@@ -96,7 +96,7 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codesRemoved(final List<ICode> removedCodes,
-			final List<ICodeable> codeables) {
+			final List<ILocatable> codeables) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override
@@ -160,7 +160,7 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoAdded(final ICodeable codeable, String html) {
+	void memoAdded(final ILocatable codeable, String html) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override
@@ -198,7 +198,7 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoModified(final ICodeable codeable, String html) {
+	void memoModified(final ILocatable codeable, String html) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override
@@ -236,7 +236,7 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoRemoved(final ICodeable codeable, String html) {
+	void memoRemoved(final ILocatable codeable, String html) {
 		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
 			notifierPool.submit(new Callable<Void>() {
 				@Override

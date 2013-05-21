@@ -12,7 +12,7 @@ import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -31,7 +31,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -47,7 +47,7 @@ public class EpisodeViewerContentProvider implements
 
 		@Override
 		public void codesRemoved(List<ICode> removedCodes,
-				List<ICodeable> codeables) {
+				List<ILocatable> codeables) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -68,7 +68,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -77,7 +77,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 		};
 
 		@Override
@@ -86,7 +86,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 

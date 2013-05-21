@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -16,7 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class DiffRecordUtils {
 	public static Logger LOGGER = Logger.getLogger(DiffRecordUtils.class);
@@ -188,9 +189,9 @@ public class DiffRecordUtils {
 	 * @return
 	 */
 	public static List<IDiffRecord> getRecordsFromSegments(
-			List<ICodeable> codeables) {
+			List<ILocatable> codeables) {
 		List<IDiffRecord> diffRecords = new LinkedList<IDiffRecord>();
-		for (ICodeable codeable : codeables) {
+		for (ILocatable codeable : codeables) {
 			if (codeable instanceof IDiffRecordSegment) {
 				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
 				diffRecords.add(segment.getDiffFileRecord());

@@ -16,7 +16,6 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 /*
@@ -59,7 +58,7 @@ public abstract class InformationPresentingEditorView<T> extends EditorView<T> {
 								@Override
 								public void uriHovered(URI uri, boolean entered) {
 									if (entered) {
-										final ICodeable codeable = InformationPresentingEditorView.this.codeService
+										final ILocatable codeable = InformationPresentingEditorView.this.codeService
 												.getCodedObject(uri);
 										hoveredLocatable = codeable;
 									} else {

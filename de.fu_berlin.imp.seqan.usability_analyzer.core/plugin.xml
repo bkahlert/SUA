@@ -50,6 +50,9 @@
          <service
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService">
          </service>
+         <service
+               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService">
+         </service>
       </serviceFactory>
    </extension>
 <extension

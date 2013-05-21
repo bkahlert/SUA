@@ -17,7 +17,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -37,12 +37,12 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public Callable<ICodeable> getCodedObjectCallable(
+	public Callable<ILocatable> getCodedObjectCallable(
 			final AtomicReference<IProgressMonitor> monitor,
 			final URI codeInstanceID) {
-		return new Callable<ICodeable>() {
+		return new Callable<ILocatable>() {
 			@Override
-			public ICodeable call() throws Exception {
+			public ILocatable call() throws Exception {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
 
@@ -67,26 +67,26 @@ public class EpisodeCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public ICodeable[] showCodedObjectsInWorkspace2(
-			final List<ICodeable> codedObjects) {
+	public ILocatable[] showCodedObjectsInWorkspace2(
+			final List<ILocatable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			EpisodeView episodeView = (EpisodeView) WorkbenchUtils
 					.getView(EpisodeView.ID);
 			if (episodeView == null) {
-				return codedObjects.toArray(new ICodeable[0]);
+				return codedObjects.toArray(new ILocatable[0]);
 			}
 
 			final EpisodeViewer viewer = episodeView.getEpisodeViewer();
 			try {
-				return ExecutorUtil.syncExec(new Callable<ICodeable[]>() {
+				return ExecutorUtil.syncExec(new Callable<ILocatable[]>() {
 					@Override
-					public ICodeable[] call() {
+					public ILocatable[] call() {
 						viewer.setSelection(new StructuredSelection(
 								codedObjects));
-						List<ICodeable> selectedCodeables = SelectionUtils
+						List<ILocatable> selectedCodeables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
-										ICodeable.class);
-						return selectedCodeables.toArray(new ICodeable[0]);
+										ILocatable.class);
+						return selectedCodeables.toArray(new ILocatable[0]);
 					}
 				});
 			} catch (Exception e) {

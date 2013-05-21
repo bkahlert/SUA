@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import java.io.Serializable;
 import java.net.URI;
 
 /**
@@ -8,8 +9,13 @@ import java.net.URI;
  * @author bkahlert
  * 
  */
-public interface ILocatable {
+public interface ILocatable extends Serializable {
 
+	/**
+	 * Returns the {@link URI} that identifies this {@link ILocatable}.
+	 * 
+	 * @return
+	 */
 	public URI getUri();
 
 }

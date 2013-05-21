@@ -14,7 +14,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeInstanceViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -23,13 +23,13 @@ public class CodeInstancesView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView";
 	private CodeInstanceViewer codeInstanceViewer;
 
-	private ISelectionRetriever<ICodeable> codeableRetriever = SelectionRetrieverFactory
-			.getSelectionRetriever(ICodeable.class);
+	private ISelectionRetriever<ILocatable> codeableRetriever = SelectionRetrieverFactory
+			.getSelectionRetriever(ILocatable.class);
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<ICodeable> codeables = codeableRetriever.getSelection();
+			List<ILocatable> codeables = codeableRetriever.getSelection();
 			if (codeables.size() > 0) {
 				if (codeInstanceViewer != null
 						&& !codeInstanceViewer.isDisposed()) {
@@ -70,7 +70,7 @@ public class CodeInstancesView extends ViewPart {
 		this.codeInstanceViewer.setFocus();
 	}
 
-	public ICodeable getCodeable() {
+	public ILocatable getCodeable() {
 		if (this.codeInstanceViewer == null)
 			return null;
 		return this.codeInstanceViewer.getCodeable();

@@ -6,8 +6,8 @@ import java.util.Set;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
@@ -37,7 +37,7 @@ public interface ICodeStore {
 			throws CodeStoreFullException;
 
 	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ICodeable[] codeables) throws InvalidParameterException,
+			ILocatable[] codeables) throws InvalidParameterException,
 			CodeStoreReadException, DuplicateCodeInstanceException;
 
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
@@ -79,14 +79,14 @@ public interface ICodeStore {
 
 	public String getMemo(ICodeInstance codeInstance);
 
-	public String getMemo(ICodeable codeable);
+	public String getMemo(ILocatable codeable);
 
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException;
 
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException;
 
-	public void setMemo(ICodeable codeable, String html)
+	public void setMemo(ILocatable codeable, String html)
 			throws CodeStoreWriteException;
 
 	public Set<IEpisode> getEpisodes();

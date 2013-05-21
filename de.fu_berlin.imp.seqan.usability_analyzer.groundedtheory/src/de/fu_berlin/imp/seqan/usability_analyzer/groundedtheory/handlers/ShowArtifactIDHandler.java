@@ -15,8 +15,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.dialogs.ShowArtefactIDDialog;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class ShowArtifactIDHandler extends AbstractHandler {
 
@@ -26,10 +27,10 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		List<ICodeable> codeables = SelectionRetrieverFactory
-				.getSelectionRetriever(ICodeable.class).getSelection();
-		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
-			ICodeable input = (ICodeable) InformationControlManagerUtils
+		List<ILocatable> codeables = SelectionRetrieverFactory
+				.getSelectionRetriever(ILocatable.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ILocatable) {
+			ILocatable input = (ILocatable) InformationControlManagerUtils
 					.getCurrentInput();
 			if (!codeables.contains(input)) {
 				codeables.add(input);
@@ -39,7 +40,7 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 		if (codeables.size() != 1) {
 			LOGGER.warn(ShowArtifactIDHandler.class.getSimpleName()
 					+ " called with " + codeables.size() + " "
-					+ ICodeable.class.getSimpleName() + "s. Should be 1");
+					+ ILocatable.class.getSimpleName() + "s. Should be 1");
 			return null;
 		}
 

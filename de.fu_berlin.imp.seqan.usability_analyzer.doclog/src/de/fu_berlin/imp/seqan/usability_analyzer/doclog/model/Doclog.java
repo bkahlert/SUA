@@ -18,10 +18,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class Doclog extends WrappingData implements IData, HasDateRange,
-		ICodeable, HasIdentifier {
+		ILocatable, HasIdentifier {
 
 	Logger logger = Logger.getLogger(Doclog.class);
 

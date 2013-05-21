@@ -11,15 +11,15 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 public class CodeableUtilsTest {
 	@SuppressWarnings("serial")
-	public static List<ICodeable> codeables = new ArrayList<ICodeable>() {
+	public static List<ILocatable> codeables = new ArrayList<ILocatable>() {
 		{
-			this.add(new ICodeable() {
+			this.add(new ILocatable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -29,7 +29,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			this.add(new ICodeable() {
+			this.add(new ILocatable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -39,7 +39,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			this.add(new ICodeable() {
+			this.add(new ILocatable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -49,7 +49,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			this.add(new ICodeable() {
+			this.add(new ILocatable() {
 				@Override
 				public URI getUri() {
 					try {
@@ -59,7 +59,7 @@ public class CodeableUtilsTest {
 					}
 				}
 			});
-			this.add(new ICodeable() {
+			this.add(new ILocatable() {
 				@Override
 				public URI getUri() {
 					try {

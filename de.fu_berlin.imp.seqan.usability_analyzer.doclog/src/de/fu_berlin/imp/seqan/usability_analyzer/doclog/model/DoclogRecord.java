@@ -23,10 +23,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
-		ICodeable, HasIdentifier {
+		ILocatable, HasIdentifier {
 
 	private static final long serialVersionUID = -8279575943640177616L;
 

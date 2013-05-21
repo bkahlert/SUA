@@ -7,21 +7,21 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class EditorOnlyMemoView extends AbstractMemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView";
 	private IPartListener partListener = new IPartListener() {
 
-		private ICodeable getCodeable(IWorkbenchPart part) {
+		private ILocatable getCodeable(IWorkbenchPart part) {
 			ISelection selection = SelectionUtils.getSelection(part.getSite()
 					.getWorkbenchWindow());
 			if (selection == null) {
 				return null;
 			}
-			return (ICodeable) Platform.getAdapterManager().getAdapter(
-					selection, ICodeable.class);
+			return (ILocatable) Platform.getAdapterManager().getAdapter(
+					selection, ILocatable.class);
 		}
 
 		@Override
@@ -33,7 +33,7 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 			if (part.getClass() == EditorOnlyMemoView.class) {
 				return;
 			}
-			ICodeable codeable = this.getCodeable(part);
+			ILocatable codeable = this.getCodeable(part);
 			if (codeable != null) {
 				EditorOnlyMemoView.this.loadAndClearHistory(codeable);
 			}

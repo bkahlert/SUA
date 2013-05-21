@@ -7,9 +7,9 @@ import java.util.Set;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -19,13 +19,14 @@ public interface ICodeService {
 	public ICodeStore getCodeStore();
 
 	/**
-	 * Returns all {@link ICode}s associated with the given {@link ICodeable} .
+	 * Returns all {@link ICode}s associated with the given {@link ILocatable} .
 	 * 
 	 * @param codeable
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 * @throws CodeServiceException
 	 */
-	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException;
+	public List<ICode> getCodes(ILocatable codeable)
+			throws CodeServiceException;
 
 	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
@@ -81,7 +82,7 @@ public interface ICodeService {
 	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode addCode(String codeCaption, RGB rgb, ICodeable codeable)
+	public ICode addCode(String codeCaption, RGB rgb, ILocatable codeable)
 			throws CodeServiceException;
 
 	/**
@@ -93,10 +94,10 @@ public interface ICodeService {
 	 * @param codeable
 	 * @throws CodeServiceException
 	 */
-	public void addCode(ICode code, ICodeable codeable)
+	public void addCode(ICode code, ILocatable codeable)
 			throws CodeServiceException;
 
-	public void addCodes(List<ICode> codes, List<ICodeable> codeables)
+	public void addCodes(List<ICode> codes, List<ILocatable> codeables)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
@@ -109,10 +110,10 @@ public interface ICodeService {
 	List<ICodeInstance> getInstances();
 
 	/**
-	 * Returns all {@link ICodeInstance}s belonging to {@link ICodeable}s of the
+	 * Returns all {@link ICodeInstance}s belonging to {@link ILocatable}s of the
 	 * given {@link IIdentifier}.
 	 * <p>
-	 * E.g. {@link ICodeable} belonging to ID 20x13b2.
+	 * E.g. {@link ILocatable} belonging to ID 20x13b2.
 	 * 
 	 * @param identifier
 	 * @return
@@ -142,7 +143,7 @@ public interface ICodeService {
 	 */
 	public Collection<? extends ICodeInstance> getAllInstances(ICode code);
 
-	public void putInstances(ICode code, List<ICodeable> instances);
+	public void putInstances(ICode code, List<ILocatable> instances);
 
 	/**
 	 * Renames a {@link ICode}
@@ -181,7 +182,7 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * Removes a {@link ICode} from an {@link ICodeable}
+	 * Removes a {@link ICode} from an {@link ILocatable}
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
@@ -189,11 +190,11 @@ public interface ICodeService {
 	 * @param codeable
 	 * @throws CodeServiceException
 	 */
-	public void removeCodes(List<ICode> codes, ICodeable codeable)
+	public void removeCodes(List<ICode> codes, ILocatable codeable)
 			throws CodeServiceException;
 
 	/**
-	 * Removes a {@link ICode} from all {@link ICodeable}s and deletes the
+	 * Removes a {@link ICode} from all {@link ILocatable}s and deletes the
 	 * {@link ICode} itself
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
@@ -204,7 +205,7 @@ public interface ICodeService {
 	public void deleteCode(ICode code) throws CodeServiceException;
 
 	/**
-	 * Removes a {@link ICode} from all {@link ICodeable}s and deletes the
+	 * Removes a {@link ICode} from all {@link ILocatable}s and deletes the
 	 * {@link ICode} itself
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
@@ -217,18 +218,18 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * @see {@link ICodeableProvider#getCodedObject(URI)}
+	 * @see {@link ILocatorProvider#getObject(URI)}
 	 */
-	public ICodeable getCodedObject(URI codeInstanceID);
+	public ILocatable getCodedObject(URI codeInstanceID);
 
 	/**
-	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List, boolean)}
+	 * @see {@link ILocatorProvider#showInWorkspace(URI[], boolean)}
 	 */
 	public boolean showCodedObjectInWorkspace(URI codeInstanceID, boolean open);
 
 	/**
 	 * @return
-	 * @see {@link ICodeableProvider#showCodedObjectsInWorkspace(List, boolean)}
+	 * @see {@link ILocatorProvider#showInWorkspace(URI[], boolean)}
 	 */
 	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
 			boolean open);
@@ -277,13 +278,13 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * Sets the memo for the given {@link ICodeable}.
+	 * Sets the memo for the given {@link ILocatable}.
 	 * 
 	 * @param code
 	 * @param html
 	 * @throws CodeServiceException
 	 */
-	public void setMemo(ICodeable codeable, String html)
+	public void setMemo(ILocatable codeable, String html)
 			throws CodeServiceException;
 
 	/**
@@ -303,12 +304,12 @@ public interface ICodeService {
 	public String loadMemo(ICodeInstance codeInstance);
 
 	/**
-	 * Returns the memo for the given {@link ICodeable}.
+	 * Returns the memo for the given {@link ILocatable}.
 	 * 
 	 * @param code
 	 * @param html
 	 */
-	public String loadMemo(ICodeable codeable);
+	public String loadMemo(ILocatable codeable);
 
 	/**
 	 * Returns true if the given {@link ICode} has a memo.
@@ -327,12 +328,12 @@ public interface ICodeService {
 	public boolean isMemo(ICodeInstance codeInstance);
 
 	/**
-	 * Returns true if the given {@link ICodeable} has a memo.
+	 * Returns true if the given {@link ILocatable} has a memo.
 	 * 
 	 * @param code
 	 * @param html
 	 */
-	public boolean isMemo(ICodeable codeable);
+	public boolean isMemo(ILocatable codeable);
 
 	/**
 	 * Returns the {@link IIdentifier}s that have at least one {@link IEpisode}.

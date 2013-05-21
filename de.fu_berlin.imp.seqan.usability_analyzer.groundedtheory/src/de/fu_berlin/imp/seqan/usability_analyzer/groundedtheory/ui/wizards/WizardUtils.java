@@ -19,7 +19,7 @@ import com.bkahlert.devel.nebula.wizards.dialogs.CenteredWizardDialog;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 /**
  * Utility class for {@link IWizard}s
@@ -90,7 +90,7 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 */
-	public static AddCodeWizard openAddCodeWizard(List<ICodeable> codeables,
+	public static AddCodeWizard openAddCodeWizard(List<ILocatable> codeables,
 			RGB initialRGB) {
 		return openWizardSuccessfully(new AddCodeWizard(codeables, initialRGB),
 				new Point(800, 600));
@@ -104,10 +104,10 @@ public class WizardUtils {
 	 * @return
 	 */
 	@SuppressWarnings("serial")
-	public static AddCodeWizard openAddCodeWizard(final ICodeable codeable,
+	public static AddCodeWizard openAddCodeWizard(final ILocatable codeable,
 			RGB initialRGB) {
 		return openWizardSuccessfully(new AddCodeWizard(
-				new ArrayList<ICodeable>() {
+				new ArrayList<ILocatable>() {
 					{
 						this.add(codeable);
 					}

@@ -26,7 +26,7 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -92,8 +92,8 @@ public class ResortableCodeViewer extends CodeViewer {
 						List<ICodeInstance> sourceCodeInstances = SelectionUtils
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
-						List<ICodeable> sourceCodeables = SelectionUtils
-								.getAdaptableObjects(selection, ICodeable.class);
+						List<ILocatable> sourceCodeables = SelectionUtils
+								.getAdaptableObjects(selection, ILocatable.class);
 
 						if (event.item != null
 								&& (sourceCodes.size() != 0
@@ -170,8 +170,8 @@ public class ResortableCodeViewer extends CodeViewer {
 						List<ICodeInstance> sourceCodeInstances = SelectionUtils
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
-						List<ICodeable> sourceCodeables = SelectionUtils
-								.getAdaptableObjects(selection, ICodeable.class);
+						List<ILocatable> sourceCodeables = SelectionUtils
+								.getAdaptableObjects(selection, ILocatable.class);
 
 						if (event.item != null
 								&& event.item.getData() instanceof ICode) {
@@ -194,7 +194,7 @@ public class ResortableCodeViewer extends CodeViewer {
 								}
 							} else if (sourceCodeInstances.size() > 0) {
 								for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
-									ICodeable coded = codeService
+									ILocatable coded = codeService
 											.getCodedObject(sourceCodeInstance
 													.getId());
 									try {
@@ -206,7 +206,7 @@ public class ResortableCodeViewer extends CodeViewer {
 									}
 								}
 							} else if (sourceCodeables.size() > 0) {
-								for (ICodeable sourceCodeable : sourceCodeables) {
+								for (ILocatable sourceCodeable : sourceCodeables) {
 									try {
 										codeService.addCode(targetCode,
 												sourceCodeable);

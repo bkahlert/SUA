@@ -10,10 +10,12 @@ import org.osgi.framework.BundleListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.impl.LocatorService;
 
 public class ServiceFactory extends AbstractServiceFactory {
 
@@ -24,6 +26,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static IHighlightService HIGHLIGHT_SERVICE;
 	private static ILabelProviderService LABELPROVIDER_SERVICE;
 	private static IInformationPresenterService DETAILPOPUP_SERVICE;
+	private static ILocatorService LOCATOR_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -80,6 +83,13 @@ public class ServiceFactory extends AbstractServiceFactory {
 				DETAILPOPUP_SERVICE = new InformationPresenterService();
 			}
 			return DETAILPOPUP_SERVICE;
+		}
+
+		if (serviceInterface == ILocatorService.class) {
+			if (LOCATOR_SERVICE == null) {
+				LOCATOR_SERVICE = new LocatorService();
+			}
+			return LOCATOR_SERVICE;
 		}
 
 		return null;

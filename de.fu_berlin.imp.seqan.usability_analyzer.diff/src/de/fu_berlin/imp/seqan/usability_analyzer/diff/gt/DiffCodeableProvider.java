@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
@@ -34,7 +35,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
 
 public class DiffCodeableProvider extends CodeableProvider {
@@ -50,12 +51,12 @@ public class DiffCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public Callable<ICodeable> getCodedObjectCallable(
+	public Callable<ILocatable> getCodedObjectCallable(
 			final AtomicReference<IProgressMonitor> monitor,
 			final URI codeInstanceID) {
-		return new Callable<ICodeable>() {
+		return new Callable<ILocatable>() {
 			@Override
-			public ICodeable call() throws Exception {
+			public ILocatable call() throws Exception {
 				String[] path = codeInstanceID.getRawPath().substring(1)
 						.split("/");
 
@@ -122,8 +123,8 @@ public class DiffCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public ICodeable[] showCodedObjectsInWorkspace2(
-			final List<ICodeable> codedObjects) {
+	public ILocatable[] showCodedObjectsInWorkspace2(
+			final List<ILocatable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			DiffExplorerView diffExplorerView = (DiffExplorerView) WorkbenchUtils
 					.getView(DiffExplorerView.ID);
@@ -138,10 +139,10 @@ public class DiffCodeableProvider extends CodeableProvider {
 			}
 		}
 
-		return codedObjects.toArray(new ICodeable[0]);
+		return codedObjects.toArray(new ILocatable[0]);
 	}
 
-	public boolean openFiles(final List<ICodeable> codedObjects,
+	public boolean openFiles(final List<ILocatable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
 		Set<IIdentifier> ids = CodeableUtils.getIdentifiers(codedObjects);
 
@@ -157,11 +158,11 @@ public class DiffCodeableProvider extends CodeableProvider {
 							final DiffListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();
 							try {
-								List<ICodeable> selectedCodeables;
+								List<ILocatable> selectedCodeables;
 								selectedCodeables = ExecutorUtil
-										.syncExec(new Callable<List<ICodeable>>() {
+										.syncExec(new Callable<List<ILocatable>>() {
 											@Override
-											public List<ICodeable> call()
+											public List<ILocatable> call()
 													throws Exception {
 												viewer.setSelection(
 														new StructuredSelection(
@@ -169,7 +170,7 @@ public class DiffCodeableProvider extends CodeableProvider {
 														true);
 												return SelectionUtils.getAdaptableObjects(
 														viewer.getSelection(),
-														ICodeable.class);
+														ILocatable.class);
 											}
 										});
 								return selectedCodeables.size() == codedObjects
@@ -190,9 +191,9 @@ public class DiffCodeableProvider extends CodeableProvider {
 		}
 	}
 
-	public boolean openSegments(final List<ICodeable> codedObjects,
+	public boolean openSegments(final List<ILocatable> codedObjects,
 			final DiffExplorerView diffExplorerView) {
-		for (ICodeable codeable : codedObjects) {
+		for (ILocatable codeable : codedObjects) {
 			if (codeable instanceof IDiffRecordSegment) {
 				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
 				DiffFileEditorUtils.openCompareEditor(segment

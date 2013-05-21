@@ -18,21 +18,21 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 
 /**
- * This class provides a standard implementation of {@link ICodeableProvider}.
+ * This class provides a standard implementation of {@link ILocatorProvider}.
  * It automatically retrieves the coded objects from given {@link URI}s asynchronously and calls {@link #showCodedObjectsInWorkspace2(List).
  * @author bkahlert
  *
  */
-public abstract class CodeableProvider implements ICodeableProvider {
+public abstract class CodeableProvider implements ILocatorProvider {
 
 	private final Logger logger = Logger.getLogger(CodeableProvider.class);
 
 	/**
-	 * Used to call one {@link ICodeableProvider} per {@link Thread}
+	 * Used to call one {@link ILocatorProvider} per {@link Thread}
 	 */
 	private static final ExecutorService pool = ExecutorUtil
 			.newFixedMultipleOfProcessorsThreadPool(1);
@@ -45,11 +45,11 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	public abstract List<String> getAllowedNamespaces();
 
 	@Override
-	public final FutureTask<ICodeable> getCodedObject(final URI codeInstanceID) {
+	public final Future<ILocatable> getObject(final URI codeInstanceID) {
 		List<String> allowedNamespaces = this.getAllowedNamespaces();
 		if (allowedNamespaces.contains(codeInstanceID.getHost())) {
 			final AtomicReference<IProgressMonitor> monitorReference = new AtomicReference<IProgressMonitor>();
-			final FutureTask<ICodeable> futureTask = new FutureTask<ICodeable>(
+			final FutureTask<ILocatable> futureTask = new FutureTask<ILocatable>(
 					this.getCodedObjectCallable(monitorReference,
 							codeInstanceID));
 			new Job("Coded object retrieval") {
@@ -73,11 +73,11 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 * @param futureCodeables
 	 * @return
 	 */
-	public final List<ICodeable> getCodedObjects(
-			List<Future<ICodeable>> futureCodeables) {
-		List<ICodeable> codeables = new ArrayList<ICodeable>();
-		for (Future<ICodeable> futureCodeable : futureCodeables) {
-			ICodeable codeable;
+	public final List<ILocatable> getCodedObjects(
+			List<Future<ILocatable>> futureCodeables) {
+		List<ILocatable> codeables = new ArrayList<ILocatable>();
+		for (Future<ILocatable> futureCodeable : futureCodeables) {
+			ILocatable codeable;
 			try {
 				codeable = futureCodeable.get();
 				if (codeable != null) {
@@ -98,7 +98,7 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 * @param codeInstanceID
 	 * @return
 	 */
-	public abstract Callable<ICodeable> getCodedObjectCallable(
+	public abstract Callable<ILocatable> getCodedObjectCallable(
 			AtomicReference<IProgressMonitor> monitorReference,
 			URI codeInstanceID);
 
@@ -106,19 +106,17 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 * Returns a list of {@link Future}s which find the coded objects described
 	 * by the {@link URI}s.
 	 * 
-	 * @param codeInstanceIDs
+	 * @param uris
 	 *            that describe the coded objects to be returned
 	 * @param namespace
 	 *            for which to filter the {@link URI}s
 	 * @return
 	 * @see {@link #getAllowedNamespaces()}
 	 */
-	public final List<Future<ICodeable>> getCodedObjectFutures(
-			List<URI> codeInstanceIDs) {
-		List<Future<ICodeable>> futureCodeables = new ArrayList<Future<ICodeable>>();
-		for (URI codeInstanceID : codeInstanceIDs) {
-			Future<ICodeable> futureCodeable = this
-					.getCodedObject(codeInstanceID);
+	public final List<Future<ILocatable>> getCodedObjectFutures(URI[] uris) {
+		List<Future<ILocatable>> futureCodeables = new ArrayList<Future<ILocatable>>();
+		for (URI codeInstanceID : uris) {
+			Future<ILocatable> futureCodeable = this.getObject(codeInstanceID);
 			if (futureCodeable != null) {
 				futureCodeables.add(futureCodeable);
 			}
@@ -127,22 +125,22 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	}
 
 	@Override
-	public final Future<Boolean> showCodedObjectsInWorkspace(
-			final List<URI> codeInstanceIDs, final boolean show) {
+	public final Future<Boolean> showInWorkspace(final URI[] uris,
+			final boolean show) {
 		return pool.submit(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				final List<Future<ICodeable>> futureCodeables = CodeableProvider.this
-						.getCodedObjectFutures(codeInstanceIDs);
-				final List<ICodeable> codedObjects = CodeableProvider.this
+				final List<Future<ILocatable>> futureCodeables = CodeableProvider.this
+						.getCodedObjectFutures(uris);
+				final List<ILocatable> codedObjects = CodeableProvider.this
 						.getCodedObjects(futureCodeables);
 				boolean convertedAll = codedObjects.size() == futureCodeables
 						.size();
 				if (codedObjects.size() > 0) {
-					ICodeable[] showedCodeables = CodeableProvider.this
+					ILocatable[] showedCodeables = CodeableProvider.this
 							.showCodedObjectsInWorkspace2(codedObjects);
 					boolean showedAll = showedCodeables != null
-							&& codeInstanceIDs.size() == showedCodeables.length;
+							&& uris.length == showedCodeables.length;
 					if (show) {
 						if (showedCodeables == null) {
 							return false;
@@ -185,7 +183,7 @@ public abstract class CodeableProvider implements ICodeableProvider {
 	 *            be in the list.
 	 * @return all objects that could be displayed
 	 */
-	public abstract ICodeable[] showCodedObjectsInWorkspace2(
-			List<ICodeable> codedObjects);
+	public abstract ILocatable[] showCodedObjectsInWorkspace2(
+			List<ILocatable> codedObjects);
 
 }

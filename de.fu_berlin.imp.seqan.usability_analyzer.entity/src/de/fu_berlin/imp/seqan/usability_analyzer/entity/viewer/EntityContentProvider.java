@@ -14,7 +14,7 @@ import com.bkahlert.devel.nebula.utils.ViewerUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -35,7 +35,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> code, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> code, List<ILocatable> codeables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -50,7 +50,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -71,7 +71,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -80,7 +80,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 		}
 
 		@Override
@@ -89,7 +89,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			ViewerUtils.refresh(viewer);
 		}
 

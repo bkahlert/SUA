@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer.EntityViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
 
 public class EntityCodeableProvider extends CodeableProvider {
@@ -34,11 +34,11 @@ public class EntityCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public Callable<ICodeable> getCodedObjectCallable(
+	public Callable<ILocatable> getCodedObjectCallable(
 			AtomicReference<IProgressMonitor> monitor, final URI codeInstanceID) {
-		return new Callable<ICodeable>() {
+		return new Callable<ILocatable>() {
 			@Override
-			public ICodeable call() throws Exception {
+			public ILocatable call() throws Exception {
 				for (Entity entity : Activator.getDefault().getLoadedData()
 						.getEntityManager().getPersons()) {
 					if (entity.getUri().equals(codeInstanceID)) {
@@ -52,22 +52,22 @@ public class EntityCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public ICodeable[] showCodedObjectsInWorkspace2(
-			final List<ICodeable> codedObjects) {
+	public ILocatable[] showCodedObjectsInWorkspace2(
+			final List<ILocatable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			final EntityView entityView = (EntityView) WorkbenchUtils
 					.getView(EntityView.ID);
 			try {
-				return ExecutorUtil.syncExec(new Callable<ICodeable[]>() {
+				return ExecutorUtil.syncExec(new Callable<ILocatable[]>() {
 					@Override
-					public ICodeable[] call() throws Exception {
+					public ILocatable[] call() throws Exception {
 						EntityViewer viewer = entityView.getEntityTableViewer();
 						viewer.setSelection(new StructuredSelection(
 								codedObjects), true);
-						List<ICodeable> selectedCodeables = SelectionUtils
+						List<ILocatable> selectedCodeables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
-										ICodeable.class);
-						return selectedCodeables.toArray(new ICodeable[0]);
+										ILocatable.class);
+						return selectedCodeables.toArray(new ILocatable[0]);
 					}
 				});
 			} catch (Exception e) {

@@ -10,7 +10,8 @@ import org.eclipse.core.commands.ExecutionException;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
@@ -23,10 +24,10 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		List<ICodeable> codeables = SelectionRetrieverFactory
-				.getSelectionRetriever(ICodeable.class).getSelection();
-		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
-			ICodeable input = (ICodeable) InformationControlManagerUtils
+		List<ILocatable> codeables = SelectionRetrieverFactory
+				.getSelectionRetriever(ILocatable.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ILocatable) {
+			ILocatable input = (ILocatable) InformationControlManagerUtils
 					.getCurrentInput();
 			if (!codeables.contains(input)) {
 				codeables.add(input);

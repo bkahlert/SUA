@@ -35,13 +35,14 @@ import org.xml.sax.SAXParseException;
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
@@ -361,7 +362,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testNonExistingCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(code).getId();
@@ -377,14 +378,14 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
-				new ICodeable[] { codeable });
+				new ILocatable[] { codeable });
 	}
 
 	@Test(expected = InvalidParameterException.class)
 	public void testEmptyCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(code).getId();
@@ -400,14 +401,14 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
-				new ICodeable[] { codeable });
+				new ILocatable[] { codeable });
 	}
 
 	@Test
 	public void testSmallCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException,
 			URISyntaxException {
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable).getUri();
@@ -420,7 +421,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		this.testCodeInstances(codeStore, this.codeInstances);
 
 		final ICodeInstance codeInstance = codeStore.createCodeInstances(
-				new ICode[] { this.code1 }, new ICodeable[] { codeable })[0];
+				new ICode[] { this.code1 }, new ILocatable[] { codeable })[0];
 		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance });
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, new ICodeInstance[] {

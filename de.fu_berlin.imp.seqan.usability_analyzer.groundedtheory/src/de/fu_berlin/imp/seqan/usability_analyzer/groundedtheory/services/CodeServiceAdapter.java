@@ -6,7 +6,7 @@ import java.util.Set;
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 
 public class CodeServiceAdapter implements ICodeServiceListener {
@@ -16,7 +16,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+	public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+	public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoAdded(ICodeable codeable) {
+	public void memoAdded(ILocatable codeable) {
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoModified(ICodeable codeable) {
+	public void memoModified(ILocatable codeable) {
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoRemoved(ICodeable codeable) {
+	public void memoRemoved(ILocatable codeable) {
 	}
 
 	@Override

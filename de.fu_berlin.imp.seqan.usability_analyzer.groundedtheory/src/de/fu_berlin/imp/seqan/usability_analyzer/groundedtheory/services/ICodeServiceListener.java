@@ -6,19 +6,19 @@ import java.util.Set;
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 
 public interface ICodeServiceListener {
 	public void codesAdded(List<ICode> codes);
 
-	public void codesAssigned(List<ICode> codes, List<ICodeable> codeables);
+	public void codesAssigned(List<ICode> codes, List<ILocatable> codeables);
 
 	public void codeRenamed(ICode code, String oldCaption, String newCaption);
 
 	public void codeRecolored(ICode code, RGB oldColor, RGB newColor);
 
-	public void codesRemoved(List<ICode> removedCodes, List<ICodeable> codeables);
+	public void codesRemoved(List<ICode> removedCodes, List<ILocatable> codeables);
 
 	public void codeMoved(ICode code, ICode oldParentCode, ICode newParentCode);
 
@@ -30,11 +30,11 @@ public interface ICodeServiceListener {
 
 	public void memoRemoved(ICode code);
 
-	public void memoAdded(ICodeable codeable);
+	public void memoAdded(ILocatable codeable);
 
-	public void memoModified(ICodeable codeable);
+	public void memoModified(ILocatable codeable);
 
-	public void memoRemoved(ICodeable codeable);
+	public void memoRemoved(ILocatable codeable);
 
 	public void episodeAdded(IEpisode episode);
 

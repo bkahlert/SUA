@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -24,18 +23,18 @@ import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ILocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -51,18 +50,18 @@ public class CodeService implements ICodeService {
 
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
 
-	private Cache<URI, ICodeable> uriCache = new Cache<URI, ICodeable>(
-			new CacheFetcher<URI, ICodeable>() {
+	private Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
+			new CacheFetcher<URI, ILocatable>() {
 				@Override
-				public ICodeable fetch(URI codeInstanceID,
+				public ILocatable fetch(URI codeInstanceID,
 						IProgressMonitor progressMonitor) {
-					List<ICodeableProvider> codeableProviders = CodeService.this.getRegisteredCodeableProviders();
-					if (codeableProviders == null) {
+					List<ILocatorProvider> locatorProviders = CodeService.this.getRegisteredCodeableProviders();
+					if (locatorProviders == null) {
 						return null;
 					}
-					for (ICodeableProvider codeableProvider : codeableProviders) {
-						FutureTask<ICodeable> codedObject = codeableProvider
-								.getCodedObject(codeInstanceID);
+					for (ILocatorProvider locatorProvider : locatorProviders) {
+						Future<ILocatable> codedObject = locatorProvider
+								.getObject(codeInstanceID);
 						if (codedObject != null) {
 							try {
 								return codedObject.get();
@@ -133,7 +132,8 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public List<ICode> getCodes(ICodeable codeable) throws CodeServiceException {
+	public List<ICode> getCodes(ILocatable codeable)
+			throws CodeServiceException {
 		return this.getCodes(codeable.getUri());
 	}
 
@@ -149,7 +149,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public ICode addCode(String codeCaption, RGB color, ICodeable codeable)
+	public ICode addCode(String codeCaption, RGB color, ILocatable codeable)
 			throws CodeServiceException {
 		ICode code = this.createCode(codeCaption, color);
 		this.addCode(code, codeable);
@@ -157,13 +157,13 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void addCode(ICode code, final ICodeable codeable)
+	public void addCode(ICode code, final ILocatable codeable)
 			throws CodeServiceException {
 		this.addCodes(Arrays.asList(code), Arrays.asList(codeable));
 	}
 
 	@Override
-	public void addCodes(List<ICode> codes, List<ICodeable> codeables)
+	public void addCodes(List<ICode> codes, List<ILocatable> codeables)
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {
@@ -174,7 +174,7 @@ public class CodeService implements ICodeService {
 			}
 			ICodeInstance[] codeInstances = this.codeStore.createCodeInstances(
 					codes.toArray(new ICode[0]),
-					codeables.toArray(new ICodeable[0]));
+					codeables.toArray(new ILocatable[0]));
 			this.codeStore.addAndSaveCodeInstances(codeInstances);
 			this.codeServiceListenerNotifier.codeAssigned(codes, codeables);
 		} catch (CodeStoreWriteException e) {
@@ -240,7 +240,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void putInstances(ICode code, List<ICodeable> instances) {
+	public void putInstances(ICode code, List<ILocatable> instances) {
 		// TODO Auto-generated method stub
 
 	}
@@ -307,7 +307,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void removeCodes(List<ICode> codes, final ICodeable codeable)
+	public void removeCodes(List<ICode> codes, final ILocatable codeable)
 			throws CodeServiceException {
 		if (codes.size() == 0) {
 			return;
@@ -366,21 +366,21 @@ public class CodeService implements ICodeService {
 		}
 	}
 
-	private List<ICodeableProvider> getRegisteredCodeableProviders() {
+	private List<ILocatorProvider> getRegisteredCodeableProviders() {
 		IConfigurationElement[] config = Platform
 				.getExtensionRegistry()
 				.getConfigurationElementsFor(
 						"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider");
-		List<ICodeableProvider> registeredCodeableProviders = new ArrayList<ICodeableProvider>();
+		List<ILocatorProvider> registeredCodeableProviders = new ArrayList<ILocatorProvider>();
 		for (IConfigurationElement e : config) {
 			try {
 				Object o = e.createExecutableExtension("class");
-				if (o instanceof ICodeableProvider) {
-					registeredCodeableProviders.add((ICodeableProvider) o);
+				if (o instanceof ILocatorProvider) {
+					registeredCodeableProviders.add((ILocatorProvider) o);
 				}
 			} catch (CoreException e1) {
 				LOGGER.error("Error retrieving a currently registered "
-						+ ICodeableProvider.class.getSimpleName(), e1);
+						+ ILocatorProvider.class.getSimpleName(), e1);
 				return null;
 			}
 		}
@@ -388,7 +388,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public ICodeable getCodedObject(URI codeInstanceID) {
+	public ILocatable getCodedObject(URI codeInstanceID) {
 		return this.uriCache.getPayload(codeInstanceID, null);
 	}
 
@@ -403,21 +403,20 @@ public class CodeService implements ICodeService {
 	/**
 	 * Shows the given {@link URI}s in the workspace.
 	 * <p>
-	 * Since {@link ICodeableProvider#showCodedObjectsInWorkspace(List)} is expected
-	 * to start a separate thread, all {@link ICodeableProvider}s are handled parallel.
+	 * Since {@link ILocatorProvider#showCodedObjectsInWorkspace(List)} is expected
+	 * to start a separate thread, all {@link ILocatorProvider}s are handled parallel.
 	 */
-	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
-			boolean show) {
-		List<ICodeableProvider> codeableProviders = this
+	public boolean showCodedObjectsInWorkspace(List<URI> uris, boolean show) {
+		List<ILocatorProvider> locatorProviders = this
 				.getRegisteredCodeableProviders();
-		if (codeableProviders == null) {
+		if (locatorProviders == null) {
 			return true;
 		}
 
 		List<Future<Boolean>> rs = new ArrayList<Future<Boolean>>();
-		for (ICodeableProvider codeableProvider : codeableProviders) {
-			Future<Boolean> future = codeableProvider
-					.showCodedObjectsInWorkspace(codeInstanceIDs, show);
+		for (ILocatorProvider locatorProvider : locatorProviders) {
+			Future<Boolean> future = locatorProvider.showInWorkspace(
+					uris.toArray(new URI[0]), show);
 			rs.add(future);
 		}
 		for (Future<Boolean> r : rs) {
@@ -442,7 +441,7 @@ public class CodeService implements ICodeService {
 		try {
 			this.codeStore.deleteCodeInstance(codeInstance);
 			ICode code = codeInstance.getCode();
-			List<ICodeable> codeables = Arrays.asList(this
+			List<ILocatable> codeables = Arrays.asList(this
 					.getCodedObject(codeInstance.getId()));
 			this.codeServiceListenerNotifier.codesRemoved(Arrays.asList(code),
 					codeables);
@@ -464,7 +463,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public String loadMemo(ICodeable codeable) {
+	public String loadMemo(ILocatable codeable) {
 		return this.codeStore.getMemo(codeable);
 	}
 
@@ -532,7 +531,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void setMemo(ICodeable codeable, String html)
+	public void setMemo(ILocatable codeable, String html)
 			throws CodeServiceException {
 		String oldHtml = this.codeStore.getMemo(codeable);
 
@@ -569,7 +568,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public boolean isMemo(ICodeable codeable) {
+	public boolean isMemo(ILocatable codeable) {
 		String html = this.codeStore.getMemo(codeable);
 		return html != null && !html.trim().isEmpty();
 	}
@@ -635,7 +634,7 @@ public class CodeService implements ICodeService {
 			List<ICode> codes = this.getCodes(oldEpisode);
 			this.removeCodes(codes, oldEpisode);
 			this.addCodes(codes,
-					new LinkedList<ICodeable>(Arrays.asList(newEpisode)));
+					new LinkedList<ILocatable>(Arrays.asList(newEpisode)));
 
 			String memo = this.loadMemo(oldEpisode);
 			this.setMemo(oldEpisode, null);

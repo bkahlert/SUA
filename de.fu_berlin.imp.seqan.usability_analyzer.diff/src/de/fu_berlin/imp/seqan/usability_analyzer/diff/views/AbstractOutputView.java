@@ -17,7 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServic
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -48,7 +48,7 @@ public abstract class AbstractOutputView extends
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
@@ -58,7 +58,7 @@ public abstract class AbstractOutputView extends
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
@@ -69,12 +69,12 @@ public abstract class AbstractOutputView extends
 
 		@Override
 		public void codesRemoved(List<ICode> removedCodes,
-				List<ICodeable> codeables) {
+				List<ILocatable> codeables) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 			AbstractOutputView.this.refreshHeader();
 		}
 

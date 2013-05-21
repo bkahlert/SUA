@@ -7,7 +7,7 @@ import java.util.List;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 /**
  * Instances of this class describe a record within a {@link IDiff}.
@@ -15,7 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
  * @author bkahlert
  * 
  */
-public interface IDiffRecord extends HasDateRange, ICodeable, HasIdentifier, IOpenable,
+public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier, IOpenable,
 		ICompilable {
 
 	/**

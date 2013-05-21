@@ -20,9 +20,10 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
@@ -65,8 +66,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 							ICode code = (ICode) element;
 							return code.getCaption();
 						}
-						if (ICodeable.class.isInstance(element)) {
-							ICodeable codedObject = (ICodeable) element;
+						if (ILocatable.class.isInstance(element)) {
+							ILocatable codedObject = (ILocatable) element;
 							return CodeInstanceViewer.this.labelProviderService
 									.getLabelProvider(codedObject).getText(
 											codedObject);
@@ -83,8 +84,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 							return codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
 									: ImageManager.CODE;
 						}
-						if (ICodeable.class.isInstance(element)) {
-							ICodeable codedObject = (ICodeable) element;
+						if (ILocatable.class.isInstance(element)) {
+							ILocatable codedObject = (ILocatable) element;
 							return CodeInstanceViewer.this.labelProviderService
 									.getLabelProvider(codedObject).getImage(
 											codedObject);
@@ -103,8 +104,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (ICodeable.class.isInstance(element)) {
-							ICodeable codeable = (ICodeable) element;
+						if (ILocatable.class.isInstance(element)) {
+							ILocatable codeable = (ILocatable) element;
 							return codeable.getUri().toString();
 						}
 						if (ICode.class.isInstance(element)) {
@@ -140,7 +141,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		this.treeViewer.setSelection(selection);
 	}
 
-	public void setInput(List<ICodeable> codeables) {
+	public void setInput(List<ILocatable> codeables) {
 		this.treeViewer.setInput(codeables);
 	}
 
@@ -149,16 +150,16 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	/**
-	 * Returns the {@link ICodeable} that is the root of the currently selected
+	 * Returns the {@link ILocatable} that is the root of the currently selected
 	 * item (e.g. a {@link ICode}).
 	 * 
 	 * @return
 	 */
-	public ICodeable getCodeable() {
-		List<ICodeable> codeables = new LinkedList<ICodeable>();
+	public ILocatable getCodeable() {
+		List<ILocatable> codeables = new LinkedList<ILocatable>();
 		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
 		for (TreeItem treeItem : treeItems) {
-			ICodeable codeable = this.getCodeable(treeItem);
+			ILocatable codeable = this.getCodeable(treeItem);
 			if (!codeables.contains(codeable)) {
 				codeables.add(codeable);
 			}
@@ -167,18 +168,18 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	/**
-	 * Returns the {@link ICodeable} that is the root of the given
+	 * Returns the {@link ILocatable} that is the root of the given
 	 * {@link TreeItem}.
 	 * <p>
 	 * If the {@link TreeItem} is itself the representative for a
-	 * {@link ICodeable} it is also returned.
+	 * {@link ILocatable} it is also returned.
 	 * 
 	 * @param treeItem
 	 * @return
 	 */
-	public ICodeable getCodeable(TreeItem treeItem) {
-		if (treeItem.getData() instanceof ICodeable) {
-			return (ICodeable) treeItem.getData();
+	public ILocatable getCodeable(TreeItem treeItem) {
+		if (treeItem.getData() instanceof ILocatable) {
+			return (ILocatable) treeItem.getData();
 		}
 		if (treeItem.getParentItem() != null) {
 			return this.getCodeable(treeItem.getParentItem());

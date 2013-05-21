@@ -23,12 +23,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContaine
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
 
-public class Entity implements HasDateRange, ICodeable, IWorkSessionEntity,
+public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 		HasIdentifier {
 
 	private static final Logger LOGGER = Logger.getLogger(Entity.class);

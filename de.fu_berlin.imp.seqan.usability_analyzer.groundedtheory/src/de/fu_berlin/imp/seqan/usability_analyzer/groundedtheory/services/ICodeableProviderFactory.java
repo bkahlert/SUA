@@ -5,5 +5,5 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 
 public interface ICodeableProviderFactory extends IExecutableExtensionFactory {
 	@Override
-	public ICodeableProvider create() throws CoreException;
+	public ILocatorProvider create() throws CoreException;
 }

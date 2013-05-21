@@ -29,11 +29,12 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -234,13 +235,13 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ICodeable[] codeables) throws InvalidParameterException,
+			ILocatable[] codeables) throws InvalidParameterException,
 			CodeStoreReadException, DuplicateCodeInstanceException {
 		List<ICodeInstance> duplicateCodeInstances = new LinkedList<ICodeInstance>();
 		List<ICodeInstance> generatedCodeInstances = new LinkedList<ICodeInstance>();
 		for (ICode code : codes) {
 			if (this.assertiveFind(code) != null) {
-				for (ICodeable codeable : codeables) {
+				for (ILocatable codeable : codeables) {
 					ICodeInstance codeInstance = new CodeInstance(code,
 							codeable.getUri(), new TimeZoneDate(new Date(),
 									TimeZone.getDefault()));
@@ -518,13 +519,13 @@ class CodeStore implements ICodeStore {
 	}
 
 	/**
-	 * Returns the basename for the given {@link ICodeable} for use in
+	 * Returns the basename for the given {@link ILocatable} for use in
 	 * conjunction {@link #getMemoLocation(String)}.
 	 * 
 	 * @param codeable
 	 * @return
 	 */
-	protected static String getMemoBasename(ICodeable codeable) {
+	protected static String getMemoBasename(ILocatable codeable) {
 		if (codeable == null) {
 			throw new InvalidParameterException();
 		}
@@ -608,7 +609,7 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public String getMemo(ICodeable codeable) {
+	public String getMemo(ILocatable codeable) {
 		String memo = null;
 		try {
 			memo = this.loadMemo(getMemoBasename(codeable));
@@ -651,7 +652,7 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void setMemo(ICodeable codeable, String html)
+	public void setMemo(ILocatable codeable, String html)
 			throws CodeStoreWriteException {
 		try {
 			this.saveMemo(getMemoBasename(codeable), html);

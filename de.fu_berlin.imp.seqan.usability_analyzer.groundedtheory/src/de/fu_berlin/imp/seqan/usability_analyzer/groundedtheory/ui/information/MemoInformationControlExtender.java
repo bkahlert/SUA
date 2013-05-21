@@ -7,12 +7,13 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class MemoInformationControlExtender extends
-		EditorInformationControlExtender<ICodeable> {
+		EditorInformationControlExtender<ILocatable> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(MemoInformationControlExtender.class);
@@ -25,13 +26,13 @@ public class MemoInformationControlExtender extends
 	}
 
 	@Override
-	public String getHtml(ICodeable objectToLoad, IProgressMonitor monitor) {
+	public String getHtml(ILocatable objectToLoad, IProgressMonitor monitor) {
 		return MemoInformationControlExtender.this.codeService
 				.loadMemo(objectToLoad);
 	}
 
 	@Override
-	public void setHtml(ICodeable loadedObject, String html,
+	public void setHtml(ILocatable loadedObject, String html,
 			IProgressMonitor monitor) {
 		try {
 			MemoInformationControlExtender.this.codeService.setMemo(

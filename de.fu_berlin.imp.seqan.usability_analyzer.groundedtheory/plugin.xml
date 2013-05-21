@@ -136,10 +136,10 @@
            <activeWhen>
               <or>
                  <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
                  </reference>
                  <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeables">
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatables">
                  </reference>
               </or>
            </activeWhen>
@@ -150,10 +150,10 @@
            <activeWhen>
               <or>
                  <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
                  </reference>
                  <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
                  </reference>
               </or>
            </activeWhen>
@@ -297,7 +297,7 @@
                   checkEnabled="false">
                <or>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleILocatables">
                   </reference>
                </or>
             </visibleWhen>
@@ -387,7 +387,7 @@
             <visibleWhen
                   checkEnabled="false">
                <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
                </reference>
             </visibleWhen>
          </command>
@@ -399,7 +399,7 @@
             <visibleWhen
                   checkEnabled="false">
                <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
                </reference>
             </visibleWhen>
             <parameter
@@ -475,10 +475,10 @@
                   checkEnabled="false">
                <or>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleILocatables">
                   </reference>
                </or>
             </visibleWhen>
@@ -535,10 +535,10 @@
                   checkEnabled="false">
                <or>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
                   </reference>
                </or>
             </visibleWhen>
@@ -552,10 +552,10 @@
                   checkEnabled="false">
                <or>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
                   </reference>
                </or>
             </visibleWhen>
@@ -668,14 +668,14 @@
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleICodeables">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasMultipleILocatables">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="or">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
                </adapt>
             </iterate>
          </with>
@@ -707,11 +707,11 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeable">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
          <with
                variable="com.bkahlert.nebula.information.input">
             <instanceof
-                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
             </instanceof>
          </with>
       </definition>
@@ -734,14 +734,14 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeables">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatables">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="and">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
                </adapt>
             </iterate>
          </with>
@@ -824,29 +824,29 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.adaptsToICodeable">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.adaptsToILocatable">
          <adapt
-               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
          </adapt>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeables">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasILocatables">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="or">
                <adapt
-                     type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
                </adapt>
             </iterate>
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodeable">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
          <and>
             <reference
-                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeables">
+                  definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasILocatables">
             </reference>
             <reference
                   definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.definitions.singleSelection">
@@ -950,7 +950,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance"
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstanceAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
          </adapter>
       </factory>
       <factory

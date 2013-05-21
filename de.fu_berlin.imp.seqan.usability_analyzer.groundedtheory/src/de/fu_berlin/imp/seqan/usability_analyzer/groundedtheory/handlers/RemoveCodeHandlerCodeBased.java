@@ -14,7 +14,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView;
 
@@ -34,7 +34,7 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 		if (codeInstanceView == null)
 			return null;
 
-		ICodeable codeable = getIndirectlySelectedCodeable(codeInstanceView);
+		ILocatable codeable = getIndirectlySelectedCodeable(codeInstanceView);
 		if (codeable == null)
 			return null;
 
@@ -78,14 +78,14 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 		return (CodeInstancesView) part;
 	}
 
-	private ICodeable getIndirectlySelectedCodeable(
+	private ILocatable getIndirectlySelectedCodeable(
 			CodeInstancesView codeInstanceView) {
-		ICodeable codeable = codeInstanceView.getCodeable();
+		ILocatable codeable = codeInstanceView.getCodeable();
 		if (codeable == null) {
 			LOGGER.error(RemoveCodeHandlerCodeBased.class.getSimpleName()
 					+ " was activated but the sending "
 					+ CodeInstancesView.class.getSimpleName()
-					+ " has no selected " + ICodeable.class.getSimpleName());
+					+ " has no selected " + ILocatable.class.getSimpleName());
 			return null;
 		}
 		return codeable;

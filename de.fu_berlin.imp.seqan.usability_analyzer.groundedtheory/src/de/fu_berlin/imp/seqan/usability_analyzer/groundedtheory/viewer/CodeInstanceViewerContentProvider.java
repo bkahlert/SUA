@@ -11,8 +11,9 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -25,7 +26,7 @@ public class CodeInstanceViewerContentProvider implements
 	private Viewer viewer;
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-	private List<ICodeable> codeables;
+	private List<ILocatable> codeables;
 
 	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
@@ -35,7 +36,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
@@ -50,7 +51,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
@@ -71,7 +72,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
 		}
 
@@ -89,7 +90,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 		}
 
 		@Override
@@ -98,7 +99,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
 		}
 
@@ -133,7 +134,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		if (List.class.isInstance(newInput)) {
-			this.codeables = (List<ICodeable>) newInput;
+			this.codeables = (List<ILocatable>) newInput;
 			this.codeService.addCodeServiceListener(codeServiceListener);
 		} else {
 			if (this.codeables != null) {
@@ -160,7 +161,7 @@ public class CodeInstanceViewerContentProvider implements
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (ICodeable.class.isInstance(element)) {
+		if (ILocatable.class.isInstance(element)) {
 			return true;
 		}
 		Object[] children = getChildren(element);
@@ -169,8 +170,8 @@ public class CodeInstanceViewerContentProvider implements
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (ICodeable.class.isInstance(parentElement)) {
-			ICodeable codeable = (ICodeable) parentElement;
+		if (ILocatable.class.isInstance(parentElement)) {
+			ILocatable codeable = (ILocatable) parentElement;
 			try {
 				List<ICode> codes = codeService.getCodes(codeable);
 				if (codes.size() > 0)

@@ -17,7 +17,7 @@ import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
 
 public class AddCodeInstanceHandler extends AbstractHandler {
@@ -53,8 +53,8 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = SelectionUtils.getSelection();
-		ICodeable codeable = (ICodeable) Platform.getAdapterManager()
-				.getAdapter(selection, ICodeable.class);
+		ILocatable codeable = (ILocatable) Platform.getAdapterManager()
+				.getAdapter(selection, ILocatable.class);
 		if (codeable != null) {
 			WizardUtils.openAddCodeWizard(codeable, null); // TODO null
 															// durch

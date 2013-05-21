@@ -667,7 +667,7 @@ public class EpisodeRenderer implements IDisposable {
 
 		@Override
 		public void memoModified(
-				de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable codeable) {
+				de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable codeable) {
 			this.redraw();
 		};
 

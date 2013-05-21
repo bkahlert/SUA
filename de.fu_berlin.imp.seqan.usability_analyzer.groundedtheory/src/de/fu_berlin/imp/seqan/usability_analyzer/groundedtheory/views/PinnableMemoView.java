@@ -9,7 +9,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class PinnableMemoView extends AbstractMemoView {
@@ -55,8 +55,8 @@ public class PinnableMemoView extends AbstractMemoView {
 				ICode.class);
 		final List<ICodeInstance> codeInstances = SelectionUtils
 				.getAdaptableObjects(selection, ICodeInstance.class);
-		final List<ICodeable> codeables = SelectionUtils.getAdaptableObjects(
-				selection, ICodeable.class);
+		final List<ILocatable> codeables = SelectionUtils.getAdaptableObjects(
+				selection, ILocatable.class);
 		final List<Object> objects = SelectionUtils.getAdaptableObjects(
 				selection, Object.class);
 

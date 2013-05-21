@@ -33,6 +33,7 @@ Export-Package: de.fu_berlin.imp.seqan.usability_analyzer.core,
    de.fu_berlin.imp.seqan.usability_analyzer.core.util,
    org.eclipse.core.runtime.preferences",
  de.fu_berlin.imp.seqan.usability_analyzer.core.services,
+ de.fu_berlin.imp.seqan.usability_analyzer.core.services.location,
  de.fu_berlin.imp.seqan.usability_analyzer.core.ui;
   uses:="org.eclipse.jface.action,
    com.bkahlert.devel.nebula.dialogs,

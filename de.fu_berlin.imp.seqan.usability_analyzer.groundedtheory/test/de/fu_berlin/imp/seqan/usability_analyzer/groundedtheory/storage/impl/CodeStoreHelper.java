@@ -14,10 +14,11 @@ import org.apache.commons.io.FileUtils;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceTest;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
@@ -49,9 +50,9 @@ public class CodeStoreHelper {
 
 	protected ICode code1;
 	protected ICode code2;
-	protected ICodeable codeable1;
-	protected ICodeable codeable2;
-	protected ICodeable codeable3;
+	protected ILocatable codeable1;
+	protected ILocatable codeable2;
+	protected ILocatable codeable3;
 	protected ICodeInstance codeInstance1;
 	protected ICodeInstance codeInstance2;
 	protected ICodeInstance codeInstance3;
@@ -79,7 +80,7 @@ public class CodeStoreHelper {
 
 		this.codes = new ICode[] { this.code1, this.code2 };
 
-		this.codeable1 = new ICodeable() {
+		this.codeable1 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -91,7 +92,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		this.codeable2 = new ICodeable() {
+		this.codeable2 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -103,7 +104,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		this.codeable3 = new ICodeable() {
+		this.codeable3 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

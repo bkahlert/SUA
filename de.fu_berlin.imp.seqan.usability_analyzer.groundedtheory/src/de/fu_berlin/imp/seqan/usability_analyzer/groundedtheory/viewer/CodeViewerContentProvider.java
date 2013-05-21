@@ -12,7 +12,7 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
@@ -39,7 +39,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
 			for (ICode code : codes)
 				ViewerUtils.refresh(viewer, code, true);
 		}
@@ -55,7 +55,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
@@ -88,7 +88,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
+		public void memoAdded(ILocatable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
 		}
 
@@ -101,7 +101,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 		}
 
 		@Override
@@ -115,7 +115,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
+		public void memoRemoved(ILocatable codeable) {
 			ViewerUtils.update(viewer, codeable, null);
 		}
 

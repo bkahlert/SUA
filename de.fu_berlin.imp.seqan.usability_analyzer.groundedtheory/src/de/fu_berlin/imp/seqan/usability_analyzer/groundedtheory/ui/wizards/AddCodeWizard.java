@@ -12,7 +12,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
@@ -28,9 +28,9 @@ public class AddCodeWizard extends Wizard {
 
 	protected List<ICode> affectedCodes;
 
-	private List<ICodeable> codeables;
+	private List<ILocatable> codeables;
 
-	public AddCodeWizard(List<ICodeable> codeables, RGB initialRGB) {
+	public AddCodeWizard(List<ILocatable> codeables, RGB initialRGB) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
@@ -53,7 +53,7 @@ public class AddCodeWizard extends Wizard {
 			String codeCaption = this.addCodeWizardPage.getNewCodeCaption();
 			RGB rgb = this.addCodeWizardPage.getNewCodeRGB();
 			ICode createdCode = null;
-			for (ICodeable codeable : codeables) {
+			for (ILocatable codeable : codeables) {
 				try {
 					if (createdCode == null) {
 						createdCode = codeService.addCode(codeCaption, rgb,

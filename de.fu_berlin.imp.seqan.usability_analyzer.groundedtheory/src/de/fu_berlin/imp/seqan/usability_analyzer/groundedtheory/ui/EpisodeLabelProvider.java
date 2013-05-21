@@ -22,7 +22,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -73,7 +73,7 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 		}
 		if (ICodeInstance.class.isInstance(element)) {
 			ICodeInstance codeInstance = (ICodeInstance) element;
-			ICodeable codedObject = this.codeService
+			ILocatable codedObject = this.codeService
 					.getCodedObject(codeInstance.getId());
 			if (codedObject != null) {
 				ILabelProvider labelProvider = this.labelProviderService
@@ -116,7 +116,7 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 		}
 		if (ICodeInstance.class.isInstance(element)) {
 			ICodeInstance codeInstance = (ICodeInstance) element;
-			ICodeable codedObject = this.codeService
+			ILocatable codedObject = this.codeService
 					.getCodedObject(codeInstance.getId());
 
 			Image image;

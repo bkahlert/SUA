@@ -11,7 +11,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -26,7 +26,7 @@ public class DeleteEpisodeHandler extends AbstractHandler {
 
 		final List<IEpisode> episodes = SelectionRetrieverFactory
 				.getSelectionRetriever(IEpisode.class).getSelection();
-		if (InformationControlManagerUtils.getCurrentInput() instanceof ICodeable) {
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ILocatable) {
 			IEpisode input = (IEpisode) InformationControlManagerUtils
 					.getCurrentInput();
 			if (!episodes.contains(input)) {

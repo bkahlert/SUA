@@ -26,7 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeableUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeableProvider;
 
 public class DoclogCodeableProvider extends CodeableProvider {
@@ -42,12 +42,12 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public Callable<ICodeable> getCodedObjectCallable(
+	public Callable<ILocatable> getCodedObjectCallable(
 			final AtomicReference<IProgressMonitor> monitorReference,
 			final URI codeInstanceID) {
-		return new Callable<ICodeable>() {
+		return new Callable<ILocatable>() {
 			@Override
-			public ICodeable call() throws Exception {
+			public ILocatable call() throws Exception {
 				String[] path = codeInstanceID.getRawPath().substring(1)
 						.split("/");
 
@@ -92,8 +92,8 @@ public class DoclogCodeableProvider extends CodeableProvider {
 	}
 
 	@Override
-	public ICodeable[] showCodedObjectsInWorkspace2(
-			final List<ICodeable> codedObjects) {
+	public ILocatable[] showCodedObjectsInWorkspace2(
+			final List<ILocatable> codedObjects) {
 		if (codedObjects.size() > 0) {
 			return this.openAndSelectFilesInExplorer(codedObjects,
 					(DoclogExplorerView) WorkbenchUtils
@@ -102,25 +102,25 @@ public class DoclogCodeableProvider extends CodeableProvider {
 		return null;
 	}
 
-	public ICodeable[] openAndSelectFilesInExplorer(
-			final List<ICodeable> codedObjects,
+	public ILocatable[] openAndSelectFilesInExplorer(
+			final List<ILocatable> codedObjects,
 			final DoclogExplorerView doclogExplorerView) {
 		Set<IIdentifier> identifiers = CodeableUtils
 				.getIdentifiers(codedObjects);
 
 		// open
-		Future<ICodeable[]> rt = doclogExplorerView.open(identifiers,
-				new Callable<ICodeable[]>() {
+		Future<ILocatable[]> rt = doclogExplorerView.open(identifiers,
+				new Callable<ILocatable[]>() {
 					@Override
-					public ICodeable[] call() {
+					public ILocatable[] call() {
 						TreeViewer viewer = doclogExplorerView
 								.getDoclogFilesViewer();
 						viewer.setSelection(new StructuredSelection(
 								codedObjects), true);
-						List<ICodeable> selectedCodeables = SelectionUtils
+						List<ILocatable> selectedCodeables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
-										ICodeable.class);
-						return selectedCodeables.toArray(new ICodeable[0]);
+										ILocatable.class);
+						return selectedCodeables.toArray(new ILocatable[0]);
 					}
 				});
 		try {

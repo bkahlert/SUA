@@ -11,8 +11,8 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class CodeStoreSaveTest extends CodeStoreHelper {
@@ -40,7 +40,7 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 
 	@Test(expected = InvalidParameterException.class)
 	public void getInvalidBasenameCodeable() {
-		CodeStore.getMemoBasename((ICodeable) null);
+		CodeStore.getMemoBasename((ILocatable) null);
 	}
 
 	@Test

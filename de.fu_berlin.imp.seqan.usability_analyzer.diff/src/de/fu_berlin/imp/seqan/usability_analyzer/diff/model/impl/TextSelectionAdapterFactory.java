@@ -15,7 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class TextSelectionAdapterFactory implements IAdapterFactory {
 
@@ -24,7 +24,7 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { ICodeable.class, DiffRecordSegment.class };
+		return new Class[] { ILocatable.class, DiffRecordSegment.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -32,7 +32,7 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof ITextSelection) {
 			final ITextSelection textSelection = (ITextSelection) adaptableObject;
-			if (adapterType == ICodeable.class) {
+			if (adapterType == ILocatable.class) {
 				IDiffRecord diffRecord = getDiffRecord(textSelection);
 				return diffRecord;
 			} else if (adaptableObject == DiffRecordSegment.class) {

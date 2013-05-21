@@ -13,6 +13,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -23,7 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServic
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -37,8 +38,8 @@ public class DiffContentProvider implements IStructuredContentProvider,
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
-		private boolean isResponsible(List<ICodeable> codeables) {
-			for (ICodeable codeable : codeables) {
+		private boolean isResponsible(List<ILocatable> codeables) {
+			for (ILocatable codeable : codeables) {
 				if (codeable.getUri().getHost().equals("diff"))
 					return true;
 			}
@@ -50,7 +51,7 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> code, List<ICodeable> codeables) {
+		public void codesAssigned(List<ICode> code, List<ILocatable> codeables) {
 			if (isResponsible(codeables))
 				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
@@ -65,7 +66,7 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ICodeable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
 			if (isResponsible(codeables))
 				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
@@ -85,8 +86,8 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ICodeable codeable) {
-			if (isResponsible(new ArrayList<ICodeable>(Arrays.asList(codeable))))
+		public void memoAdded(ILocatable codeable) {
+			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
 				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 
@@ -95,7 +96,7 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ICodeable codeable) {
+		public void memoModified(ILocatable codeable) {
 		}
 
 		@Override
@@ -103,8 +104,8 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ICodeable codeable) {
-			if (isResponsible(new ArrayList<ICodeable>(Arrays.asList(codeable))))
+		public void memoRemoved(ILocatable codeable) {
+			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
 				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
 		}
 

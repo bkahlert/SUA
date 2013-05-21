@@ -58,7 +58,7 @@ public class CompilationService implements ICompilationService, IDisposable {
 
 	/**
 	 * Constructs a {@link CompilationService} that uses relies on an available
-	 * {@link IDataService}.
+	 * {@link ILocatorService}.
 	 */
 	public CompilationService() {
 		this.dataService = (IDataService) PlatformUI.getWorkbench().getService(

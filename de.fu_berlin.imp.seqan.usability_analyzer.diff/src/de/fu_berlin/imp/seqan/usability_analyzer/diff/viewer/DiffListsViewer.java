@@ -43,7 +43,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffListsViewer extends SortableTreeViewer {
@@ -66,8 +66,8 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 		this.initColumns(dateFormat, timeDifferenceFormat);
 
-		final ISelectionRetriever<ICodeable> codeableRetriever = SelectionRetrieverFactory
-				.getSelectionRetriever(ICodeable.class);
+		final ISelectionRetriever<ILocatable> codeableRetriever = SelectionRetrieverFactory
+				.getSelectionRetriever(ILocatable.class);
 
 		int operations = DND.DROP_LINK;
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer

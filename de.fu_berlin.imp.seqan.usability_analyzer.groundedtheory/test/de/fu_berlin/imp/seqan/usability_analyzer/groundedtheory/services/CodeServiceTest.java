@@ -20,7 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICodeable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServicesHelper;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
 
@@ -40,7 +40,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testGetCodes() throws IOException {
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable).getUri();
@@ -60,10 +60,10 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testAddCode() throws IOException, URISyntaxException {
-		final ICodeable codeable1 = this.context.mock(ICodeable.class,
-				"ICodeable #1");
-		final ICodeable codeable2 = this.context.mock(ICodeable.class,
-				"ICodeable #2");
+		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+				"ILocatable #1");
+		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+				"ILocatable #2");
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable1).getUri();
@@ -109,7 +109,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test(expected = CodeServiceException.class)
 	public void testDuplicateAddCode() throws IOException {
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable).getUri();
@@ -126,7 +126,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test(expected = CodeServiceException.class)
 	public void testEmptyRemoveCode() throws IOException {
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable).getUri();
@@ -141,7 +141,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test(expected = CodeServiceException.class)
 	public void testSmallRemoveCodeNonExisting() throws IOException {
-		final ICodeable codeable = this.context.mock(ICodeable.class);
+		final ILocatable codeable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable).getUri();
@@ -156,12 +156,12 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testSmallRemoveCodeExisting() throws IOException {
-		final ICodeable codeable1 = this.context.mock(ICodeable.class,
-				"ICodeable #1");
-		final ICodeable codeable2 = this.context.mock(ICodeable.class,
-				"ICodeable #2");
-		final ICodeable codeable3 = this.context.mock(ICodeable.class,
-				"ICodeable #3");
+		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+				"ILocatable #1");
+		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+				"ILocatable #2");
+		final ILocatable codeable3 = this.context.mock(ILocatable.class,
+				"ILocatable #3");
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable1).getUri();
@@ -219,12 +219,12 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testDeleteCodeExisting() throws IOException {
-		final ICodeable codeable1 = this.context.mock(ICodeable.class,
-				"ICodeable #1");
-		final ICodeable codeable2 = this.context.mock(ICodeable.class,
-				"ICodeable #2");
-		final ICodeable codeable3 = this.context.mock(ICodeable.class,
-				"ICodeable #3");
+		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+				"ILocatable #1");
+		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+				"ILocatable #2");
+		final ILocatable codeable3 = this.context.mock(ILocatable.class,
+				"ILocatable #3");
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(codeable1).getUri();
