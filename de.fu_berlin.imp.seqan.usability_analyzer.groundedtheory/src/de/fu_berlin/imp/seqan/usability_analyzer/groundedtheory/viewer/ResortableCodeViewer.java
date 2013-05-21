@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -25,8 +26,9 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -42,19 +44,20 @@ public class ResortableCodeViewer extends CodeViewer {
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
 				.getTransfer() };
 
-		getViewer().addDragSupport(operations, transferTypes,
+		this.getViewer().addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
 					final ISelectionRetriever<ICode> codeRetriever = SelectionRetrieverFactory
 							.getSelectionRetriever(ICode.class);
 					final ISelectionRetriever<ICodeInstance> instanceRetriever = SelectionRetrieverFactory
 							.getSelectionRetriever(ICodeInstance.class);
 
+					@Override
 					public void dragStart(DragSourceEvent event) {
-						List<ICode> codes = codeRetriever.getSelection();
-						List<ICodeInstance> instances = instanceRetriever
+						List<ICode> codes = this.codeRetriever.getSelection();
+						List<ICodeInstance> instances = this.instanceRetriever
 								.getSelection();
-						if (codeRetriever.getSelection().size() > 0
-								|| instanceRetriever.getSelection().size() > 0) {
+						if (this.codeRetriever.getSelection().size() > 0
+								|| this.instanceRetriever.getSelection().size() > 0) {
 							List<Object> elements = new LinkedList<Object>();
 							elements.addAll(codes);
 							elements.addAll(instances);
@@ -69,6 +72,7 @@ public class ResortableCodeViewer extends CodeViewer {
 						}
 					};
 
+					@Override
 					public void dragSetData(DragSourceEvent event) {
 						if (LocalSelectionTransfer.getTransfer()
 								.isSupportedType(event.dataType)) {
@@ -77,13 +81,15 @@ public class ResortableCodeViewer extends CodeViewer {
 						}
 					}
 
+					@Override
 					public void dragFinished(DragSourceEvent event) {
 
 					}
 				});
 
-		getViewer().addDropSupport(operations, transferTypes,
+		this.getViewer().addDropSupport(operations, transferTypes,
 				new DropTargetAdapter() {
+					@Override
 					public void dragOver(DropTargetEvent event) {
 						ISelection selection = LocalSelectionTransfer
 								.getTransfer().getSelection();
@@ -93,7 +99,8 @@ public class ResortableCodeViewer extends CodeViewer {
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
 						List<ILocatable> sourceCodeables = SelectionUtils
-								.getAdaptableObjects(selection, ILocatable.class);
+								.getAdaptableObjects(selection,
+										ILocatable.class);
 
 						if (event.item != null
 								&& (sourceCodes.size() != 0
@@ -102,14 +109,18 @@ public class ResortableCodeViewer extends CodeViewer {
 							event.feedback = DND.FEEDBACK_EXPAND
 									| DND.FEEDBACK_SCROLL;
 
-							Point point = Display.getCurrent().map(null,
-									getViewer().getControl(), event.x, event.y);
+							Point point = Display.getCurrent().map(
+									null,
+									ResortableCodeViewer.this.getViewer()
+											.getControl(), event.x, event.y);
 
 							Rectangle bounds = null;
-							if (event.item instanceof TreeItem)
+							if (event.item instanceof TreeItem) {
 								bounds = ((TreeItem) event.item).getBounds();
-							if (event.item instanceof TableItem)
+							}
+							if (event.item instanceof TableItem) {
 								bounds = ((TableItem) event.item).getBounds();
+							}
 
 							if (event.item.getData() instanceof ICode) {
 								if (sourceCodes.size() != 0
@@ -152,6 +163,7 @@ public class ResortableCodeViewer extends CodeViewer {
 						}
 					}
 
+					@Override
 					public void drop(DropTargetEvent event) {
 						if (event.data == null) {
 							event.detail = DND.DROP_NONE;
@@ -160,8 +172,9 @@ public class ResortableCodeViewer extends CodeViewer {
 
 						ICodeService codeService = (ICodeService) PlatformUI
 								.getWorkbench().getService(ICodeService.class);
-						if (codeService == null)
+						if (codeService == null) {
 							return;
+						}
 
 						ISelection selection = LocalSelectionTransfer
 								.getTransfer().getSelection();
@@ -171,7 +184,8 @@ public class ResortableCodeViewer extends CodeViewer {
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
 						List<ILocatable> sourceCodeables = SelectionUtils
-								.getAdaptableObjects(selection, ILocatable.class);
+								.getAdaptableObjects(selection,
+										ILocatable.class);
 
 						if (event.item != null
 								&& event.item.getData() instanceof ICode) {
@@ -194,14 +208,23 @@ public class ResortableCodeViewer extends CodeViewer {
 								}
 							} else if (sourceCodeInstances.size() > 0) {
 								for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
-									ILocatable coded = codeService
-											.getCodedObject(sourceCodeInstance
-													.getId());
 									try {
+										ILocatorService locatorService = (ILocatorService) PlatformUI
+												.getWorkbench().getService(
+														ILocatorService.class);
+										ILocatable coded = locatorService
+												.resolve(
+														sourceCodeInstance
+																.getId(), null)
+												.get();
 										codeService
 												.deleteCodeInstance(sourceCodeInstance);
 										codeService.addCode(targetCode, coded);
 									} catch (CodeServiceException e) {
+										LOGGER.error(e);
+									} catch (InterruptedException e) {
+										LOGGER.error(e);
+									} catch (ExecutionException e) {
 										LOGGER.error(e);
 									}
 								}

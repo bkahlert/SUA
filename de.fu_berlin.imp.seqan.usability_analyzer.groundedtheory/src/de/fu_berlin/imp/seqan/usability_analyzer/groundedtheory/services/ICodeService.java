@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -216,23 +217,6 @@ public interface ICodeService {
 	 */
 	public void deleteCode(ICode code, boolean forceDelete)
 			throws CodeServiceException;
-
-	/**
-	 * @see {@link ILocatorProvider#getObject(URI)}
-	 */
-	public ILocatable getCodedObject(URI codeInstanceID);
-
-	/**
-	 * @see {@link ILocatorProvider#showInWorkspace(URI[], boolean)}
-	 */
-	public boolean showCodedObjectInWorkspace(URI codeInstanceID, boolean open);
-
-	/**
-	 * @return
-	 * @see {@link ILocatorProvider#showInWorkspace(URI[], boolean)}
-	 */
-	public boolean showCodedObjectsInWorkspace(List<URI> codeInstanceIDs,
-			boolean open);
 
 	public ICode getParent(ICode code);
 

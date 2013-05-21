@@ -9,10 +9,9 @@ import java.util.concurrent.ExecutorService;
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
@@ -23,21 +22,21 @@ public class CodeServiceListenerNotifier {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeServiceListenerNotifier.class);
 
-	private ExecutorService notifierPool = ExecutorUtil
+	private ExecutorService notifierPool = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(2);
 	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
 
 	void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
-		if (codeServiceListeners.contains(codeServiceListener)) {
+		if (this.codeServiceListeners.contains(codeServiceListener)) {
 			LOGGER.warn("Tried to add an already registered listener");
 		} else {
-			codeServiceListeners.add(codeServiceListener);
+			this.codeServiceListeners.add(codeServiceListener);
 		}
 	}
 
 	void removeCodeServiceListener(ICodeServiceListener codeServiceListener) {
-		if (codeServiceListeners.contains(codeServiceListener)) {
-			codeServiceListeners.remove(codeServiceListener);
+		if (this.codeServiceListeners.contains(codeServiceListener)) {
+			this.codeServiceListeners.remove(codeServiceListener);
 		} else {
 			LOGGER.warn("Tried to remove unregistered listener");
 		}
@@ -45,8 +44,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codesCreated(final List<ICode> codes) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesAdded(codes);
@@ -57,8 +56,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codeAssigned(final List<ICode> codes, final List<ILocatable> codeables) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesAssigned(codes, codeables);
@@ -70,8 +69,8 @@ public class CodeServiceListenerNotifier {
 
 	public void codeRenamed(final ICode code, final String oldCaption,
 			final String newCaption) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeRenamed(code, oldCaption,
@@ -84,8 +83,8 @@ public class CodeServiceListenerNotifier {
 
 	public void codeRecolored(final ICode code, final RGB oldColor,
 			final RGB newColor) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeRecolored(code, oldColor, newColor);
@@ -97,8 +96,8 @@ public class CodeServiceListenerNotifier {
 
 	void codesRemoved(final List<ICode> removedCodes,
 			final List<ILocatable> codeables) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesRemoved(removedCodes, codeables);
@@ -110,8 +109,8 @@ public class CodeServiceListenerNotifier {
 
 	public void codeMoved(final ICode code, final ICode oldParentCode,
 			final ICode newParentCode) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeMoved(code, oldParentCode,
@@ -123,8 +122,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codeDeleted(final ICode code) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeDeleted(code);
@@ -135,8 +134,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoAdded(final ICode code, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoAdded(code);
@@ -147,13 +146,14 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoAdded(final ICodeInstance codeInstance, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2)
+					if (codeServiceListener instanceof ICodeServiceListener2) {
 						((ICodeServiceListener2) codeServiceListener)
 								.memoAdded(codeInstance);
+					}
 					return null;
 				}
 			});
@@ -161,8 +161,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoAdded(final ILocatable codeable, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoAdded(codeable);
@@ -173,8 +173,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoModified(final ICode code, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoModified(code);
@@ -185,13 +185,14 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoModified(final ICodeInstance codeInstance, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2)
+					if (codeServiceListener instanceof ICodeServiceListener2) {
 						((ICodeServiceListener2) codeServiceListener)
 								.memoModified(codeInstance);
+					}
 					return null;
 				}
 			});
@@ -199,8 +200,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoModified(final ILocatable codeable, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoModified(codeable);
@@ -211,8 +212,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoRemoved(final ICode code, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoRemoved(code);
@@ -223,13 +224,14 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoRemoved(final ICodeInstance codeInstance, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2)
+					if (codeServiceListener instanceof ICodeServiceListener2) {
 						((ICodeServiceListener2) codeServiceListener)
 								.memoRemoved(codeInstance);
+					}
 					return null;
 				}
 			});
@@ -237,8 +239,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void memoRemoved(final ILocatable codeable, String html) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoRemoved(codeable);
@@ -249,8 +251,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	public void episodeAdded(final IEpisode episode) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodeAdded(episode);
@@ -262,8 +264,8 @@ public class CodeServiceListenerNotifier {
 
 	public void episodeReplaced(final IEpisode oldEpisode,
 			final IEpisode newEpisode) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodeReplaced(oldEpisode, newEpisode);
@@ -274,8 +276,8 @@ public class CodeServiceListenerNotifier {
 	}
 
 	public void episodesDeleted(final Set<IEpisode> deletedEpisodes) {
-		for (final ICodeServiceListener codeServiceListener : codeServiceListeners) {
-			notifierPool.submit(new Callable<Void>() {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodesDeleted(deletedEpisodes);

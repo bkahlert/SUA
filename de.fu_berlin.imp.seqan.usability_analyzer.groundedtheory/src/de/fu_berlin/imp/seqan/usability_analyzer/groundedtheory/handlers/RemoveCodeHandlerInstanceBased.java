@@ -13,6 +13,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
@@ -27,8 +28,9 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 		List<ICodeInstance> codeInstances = SelectionRetrieverFactory
 				.getSelectionRetriever(ICodeInstance.class).getSelection();
 
-		if (codeInstances.size() == 0)
+		if (codeInstances.size() == 0) {
 			return null;
+		}
 
 		boolean delete = MessageDialog
 				.openQuestion(
@@ -43,14 +45,18 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 										"\n"));
 
 		if (delete) {
+			ILocatorService locatorService = (ILocatorService) PlatformUI
+					.getWorkbench().getService(ILocatorService.class);
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 					.getService(ICodeService.class);
 
 			for (ICodeInstance codeInstance : codeInstances) {
 				try {
-					codeService.removeCodes(
-							Arrays.asList(codeInstance.getCode()),
-							codeService.getCodedObject(codeInstance.getId()));
+					codeService.removeCodes(Arrays.asList(codeInstance
+							.getCode()),
+							locatorService
+									.resolve(codeInstance.getId(), null)
+									.get());
 				} catch (Exception e) {
 					LOGGER.error("Error removing code", e);
 				}

@@ -7,11 +7,11 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorService.DelayableThread;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
@@ -25,7 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 // FIXME let this be implemented by the contributing providers
 public class TimelineRefresher implements ICodeServiceListener {
 
-	private static class DelayedRefresher extends ExecutorUtil.DelayableThread {
+	private static class DelayedRefresher extends DelayableThread {
 		public DelayedRefresher(final Viewer viewer, long delay) {
 			super(new Runnable() {
 				@Override
@@ -86,7 +86,8 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesRemoved(List<ICode> removedCodes, List<ILocatable> codeables) {
+	public void codesRemoved(List<ICode> removedCodes,
+			List<ILocatable> codeables) {
 		this.scheduleRefresh();
 	}
 

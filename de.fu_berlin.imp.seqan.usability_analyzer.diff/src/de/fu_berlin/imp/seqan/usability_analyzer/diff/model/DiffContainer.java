@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
@@ -57,7 +56,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
-	private static final ExecutorService LOADER_POOL = ExecutorUtil
+	private static final ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	/**
@@ -160,26 +159,29 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		}
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
-		List<Future<Integer>> futures = ExecutorUtil.nonUIAsyncExec(
-				LOADER_POOL, this.dataLists.keySet(),
-				new ParametrizedCallable<ID, Integer>() {
-					@Override
-					public Integer call(ID id) throws Exception {
-						final DataList dataList = DiffContainer.this.dataLists
-								.get(id);
+		List<Future<Integer>> futures = ExecutorUtil
+				.nonUIAsyncExec(
+						LOADER_POOL,
+						this.dataLists.keySet(),
+						new com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable<ID, Integer>() {
+							@Override
+							public Integer call(ID id) throws Exception {
+								final DataList dataList = DiffContainer.this.dataLists
+										.get(id);
 
-						final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
+								final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
 
-						sortDiffFiles(dataList, cachingDiffFileComparator);
-						TimeZoneDateRange dateRange = calculateDateRange(dataList);
-						synchronized (DiffContainer.this.fileDateRanges) {
-							DiffContainer.this.fileDateRanges
-									.put(id, dateRange);
-						}
+								sortDiffFiles(dataList,
+										cachingDiffFileComparator);
+								TimeZoneDateRange dateRange = calculateDateRange(dataList);
+								synchronized (DiffContainer.this.fileDateRanges) {
+									DiffContainer.this.fileDateRanges.put(id,
+											dateRange);
+								}
 
-						return (int) (sizes.get(id) / 1000l);
-					}
-				});
+								return (int) (sizes.get(id) / 1000l);
+							}
+						});
 		for (Future<Integer> future : futures) {
 			try {
 				int worked = future.get();

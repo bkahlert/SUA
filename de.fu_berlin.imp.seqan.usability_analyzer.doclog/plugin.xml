@@ -128,9 +128,9 @@
       </factory>
    </extension>
    <extension
-         point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
       <CodeableProviderFactory
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProviderFactory">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProviderFactory">
       </CodeableProviderFactory>
    </extension>
    <extension

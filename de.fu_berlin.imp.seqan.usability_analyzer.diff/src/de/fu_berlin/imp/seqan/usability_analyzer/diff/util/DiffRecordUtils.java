@@ -17,7 +17,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class DiffRecordUtils {
 	public static Logger LOGGER = Logger.getLogger(DiffRecordUtils.class);
@@ -67,8 +66,9 @@ public class DiffRecordUtils {
 		Integer newLineLength = null;
 		try {
 			for (String line : data) {
-				if (line.equals("RESET"))
+				if (line.equals("RESET")) {
 					break;
+				}
 
 				long lineLength = line.getBytes().length;
 				if (newLineLength == null) {
@@ -116,8 +116,9 @@ public class DiffRecordUtils {
 				contentEnd += lineLength;
 
 				monitor.worked((int) (lineLength / 1000));
-				if (progressMonitor.isCanceled())
+				if (progressMonitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 			}
 		} catch (Exception e) {
 			monitor.beginTask("Aborting " + Diff.class.getSimpleName()
@@ -152,8 +153,9 @@ public class DiffRecordUtils {
 					descriptor.metaOldLine, descriptor.metaNewLine,
 					descriptor.contentStart, descriptor.contentEnd);
 			monitor.worked(1);
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 		}
 		monitor.done();
 
@@ -185,13 +187,13 @@ public class DiffRecordUtils {
 	 * Looks for {@link DiffRecordSegment}s and returns a list of the
 	 * corresponding {@link DiffRecord}s.
 	 * 
-	 * @param codeables
+	 * @param locatables
 	 * @return
 	 */
 	public static List<IDiffRecord> getRecordsFromSegments(
-			List<ILocatable> codeables) {
+			ILocatable[] locatables) {
 		List<IDiffRecord> diffRecords = new LinkedList<IDiffRecord>();
-		for (ILocatable codeable : codeables) {
+		for (ILocatable codeable : locatables) {
 			if (codeable instanceof IDiffRecordSegment) {
 				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
 				diffRecords.add(segment.getDiffFileRecord());

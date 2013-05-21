@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider" name="Locator Provider" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider.exsd"/>
    <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange" name="Date Range" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.core.daterange.exsd"/>
    <extension-point id="de.fu_berlin.imp.seqan.usability_analyzer.core.dataload" name="Data Load" schema="schema/de.fu_berlin.imp.seqan.usability_analyzer.core.dataload.exsd"/>
    <extension point="org.eclipse.ui.views">

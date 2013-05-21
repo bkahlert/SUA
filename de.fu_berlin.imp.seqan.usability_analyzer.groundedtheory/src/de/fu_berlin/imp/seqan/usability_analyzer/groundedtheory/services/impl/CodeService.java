@@ -10,15 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.devel.nebula.colors.RGB;
@@ -26,15 +22,13 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ILocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -48,37 +42,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.Dup
 
 public class CodeService implements ICodeService {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
-
-	private Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
-			new CacheFetcher<URI, ILocatable>() {
-				@Override
-				public ILocatable fetch(URI codeInstanceID,
-						IProgressMonitor progressMonitor) {
-					List<ILocatorProvider> locatorProviders = CodeService.this.getRegisteredCodeableProviders();
-					if (locatorProviders == null) {
-						return null;
-					}
-					for (ILocatorProvider locatorProvider : locatorProviders) {
-						Future<ILocatable> codedObject = locatorProvider
-								.getObject(codeInstanceID);
-						if (codedObject != null) {
-							try {
-								return codedObject.get();
-							} catch (InterruptedException e) {
-								LOGGER.error(
-										"Could not retrieve the coded object",
-										e);
-							} catch (ExecutionException e) {
-								LOGGER.error(
-										"Could not retrieve the coded object",
-										e);
-							}
-						}
-					}
-					return null;
-				}
-			}, 200);
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	@SuppressWarnings("unused")
 	private ComponentContext context;
@@ -366,88 +333,23 @@ public class CodeService implements ICodeService {
 		}
 	}
 
-	private List<ILocatorProvider> getRegisteredCodeableProviders() {
-		IConfigurationElement[] config = Platform
-				.getExtensionRegistry()
-				.getConfigurationElementsFor(
-						"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider");
-		List<ILocatorProvider> registeredCodeableProviders = new ArrayList<ILocatorProvider>();
-		for (IConfigurationElement e : config) {
-			try {
-				Object o = e.createExecutableExtension("class");
-				if (o instanceof ILocatorProvider) {
-					registeredCodeableProviders.add((ILocatorProvider) o);
-				}
-			} catch (CoreException e1) {
-				LOGGER.error("Error retrieving a currently registered "
-						+ ILocatorProvider.class.getSimpleName(), e1);
-				return null;
-			}
-		}
-		return registeredCodeableProviders;
-	}
-
-	@Override
-	public ILocatable getCodedObject(URI codeInstanceID) {
-		return this.uriCache.getPayload(codeInstanceID, null);
-	}
-
-	@Override
-	public boolean showCodedObjectInWorkspace(final URI codeInstanceID,
-			boolean show) {
-		return this.showCodedObjectsInWorkspace(
-				new ArrayList<URI>(Arrays.asList(codeInstanceID)), show);
-	}
-
-	@Override
-	/**
-	 * Shows the given {@link URI}s in the workspace.
-	 * <p>
-	 * Since {@link ILocatorProvider#showCodedObjectsInWorkspace(List)} is expected
-	 * to start a separate thread, all {@link ILocatorProvider}s are handled parallel.
-	 */
-	public boolean showCodedObjectsInWorkspace(List<URI> uris, boolean show) {
-		List<ILocatorProvider> locatorProviders = this
-				.getRegisteredCodeableProviders();
-		if (locatorProviders == null) {
-			return true;
-		}
-
-		List<Future<Boolean>> rs = new ArrayList<Future<Boolean>>();
-		for (ILocatorProvider locatorProvider : locatorProviders) {
-			Future<Boolean> future = locatorProvider.showInWorkspace(
-					uris.toArray(new URI[0]), show);
-			rs.add(future);
-		}
-		for (Future<Boolean> r : rs) {
-			try {
-				if (!r.get()) {
-					return false;
-				}
-			} catch (InterruptedException e) {
-				LOGGER.error("Error while showing coded objects", e);
-				return false;
-			} catch (ExecutionException e) {
-				LOGGER.error("Error while showing coded objects", e);
-				return false;
-			}
-		}
-		return true;
-	}
-
 	@Override
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException {
 		try {
 			this.codeStore.deleteCodeInstance(codeInstance);
 			ICode code = codeInstance.getCode();
-			List<ILocatable> codeables = Arrays.asList(this
-					.getCodedObject(codeInstance.getId()));
+			List<ILocatable> codeables = Arrays.asList(this.locatorService
+					.resolve(codeInstance.getId(), null).get());
 			this.codeServiceListenerNotifier.codesRemoved(Arrays.asList(code),
 					codeables);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CodeServiceException(e);
+		} catch (ExecutionException e) {
 			throw new CodeServiceException(e);
 		}
 	}
@@ -627,7 +529,7 @@ public class CodeService implements ICodeService {
 		}
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
-			this.uriCache.removeKey(oldEpisode.getUri());
+			this.locatorService.unresolve(oldEpisode.getUri());
 			episodes.remove(oldEpisode);
 			episodes.add(newEpisode);
 
@@ -658,7 +560,7 @@ public class CodeService implements ICodeService {
 		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
-				this.uriCache.removeKey(episodeToDelete.getUri());
+				this.locatorService.unresolve(episodeToDelete.getUri());
 				episodes.remove(episodeToDelete);
 				this.removeCodes(this.getCodes(episodeToDelete),
 						episodeToDelete);

@@ -16,7 +16,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
@@ -41,7 +41,7 @@ public class Diff extends WrappingData implements IDiff {
 	@Override
 	public URI getUri() {
 		try {
-			return new URI("sua://" + DiffCodeableProvider.DIFF_NAMESPACE + "/"
+			return new URI("sua://" + DiffLocatorProvider.DIFF_NAMESPACE + "/"
 					+ this.getIdentifier().toString() + "/"
 					+ this.getRevision());
 		} catch (Exception e) {

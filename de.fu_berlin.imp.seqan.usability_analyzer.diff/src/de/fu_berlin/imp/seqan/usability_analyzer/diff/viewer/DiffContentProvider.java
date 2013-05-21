@@ -24,7 +24,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServic
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -40,8 +39,9 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		private boolean isResponsible(List<ILocatable> codeables) {
 			for (ILocatable codeable : codeables) {
-				if (codeable.getUri().getHost().equals("diff"))
+				if (codeable.getUri().getHost().equals("diff")) {
 					return true;
+				}
 			}
 			return false;
 		}
@@ -52,8 +52,10 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codesAssigned(List<ICode> code, List<ILocatable> codeables) {
-			if (isResponsible(codeables))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(codeables)) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DiffContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -62,13 +64,16 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
-			if (isResponsible(codeables))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(codeables)) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DiffContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -78,7 +83,8 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeDeleted(ICode code) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
 		}
 
 		@Override
@@ -87,8 +93,11 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void memoAdded(ILocatable codeable) {
-			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
+					.asList(codeable)))) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DiffContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -105,23 +114,29 @@ public class DiffContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void memoRemoved(ILocatable codeable) {
-			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
+					.asList(codeable)))) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DiffContentProvider.this.viewer);
+			}
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
 		}
 	};
 
@@ -131,15 +146,15 @@ public class DiffContentProvider implements IStructuredContentProvider,
 		@Override
 		public void compilationStateChanged(ICompilable[] compilables,
 				Boolean state) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.update(viewer,
-					compilables, null);
+			com.bkahlert.devel.nebula.utils.ViewerUtils.update(
+					DiffContentProvider.this.viewer, compilables, null);
 		}
 	};
 
 	public DiffContentProvider() {
-		this.codeService.addCodeServiceListener(codeServiceListener);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 		this.compilationService
-				.addCompilationServiceListener(compilationServiceListener);
+				.addCompilationServiceListener(this.compilationServiceListener);
 	}
 
 	@Override
@@ -150,8 +165,8 @@ public class DiffContentProvider implements IStructuredContentProvider,
 	@Override
 	public void dispose() {
 		this.compilationService
-				.removeCompilationServiceListener(compilationServiceListener);
-		this.codeService.removeCodeServiceListener(codeServiceListener);
+				.removeCompilationServiceListener(this.compilationServiceListener);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override

@@ -43,6 +43,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
@@ -178,7 +179,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private ExecutorService LOADER_POOL = ExecutorUtil
+	private ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
@@ -349,7 +350,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		// Case 2: multiple IDs
 		final List<Future<Job>> loaders = ExecutorUtil.nonUIAsyncExec(
 				this.LOADER_POOL, ids,
-				new ExecutorUtil.ParametrizedCallable<IIdentifier, Job>() {
+				new ParametrizedCallable<IIdentifier, Job>() {
 					@Override
 					public Job call(final IIdentifier identifier)
 							throws Exception {

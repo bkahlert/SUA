@@ -14,6 +14,7 @@ import org.junit.Test;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.LocatableUtils;
 
 public class CodeableUtilsTest {
 	@SuppressWarnings("serial")
@@ -74,7 +75,8 @@ public class CodeableUtilsTest {
 
 	@Test
 	public void testGetIdentifiers() {
-		Set<IIdentifier> identifiers = CodeableUtils.getIdentifiers(codeables);
+		Set<IIdentifier> identifiers = LocatableUtils.getIdentifiers(codeables
+				.toArray(new ILocatable[0]));
 		assertEquals(4, identifiers.size());
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("jkl")));
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("2gh")));

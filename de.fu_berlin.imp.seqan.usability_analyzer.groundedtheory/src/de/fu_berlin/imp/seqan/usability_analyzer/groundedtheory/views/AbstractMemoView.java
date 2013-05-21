@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,8 +34,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -45,6 +47,9 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
+
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
@@ -128,13 +133,13 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ILocatable codeable = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AbstractMemoView.this.codeService
-								.getCodedObject(uri);
-						if (codeable != null) {
+						Future<ILocatable> codeable = AbstractMemoView.this.locatorService
+								.resolve(uri, null);
+						if (codeable.get() != null) {
 							return true;
 						}
-					} catch (URISyntaxException e) {
-
+					} catch (Exception e) {
+						LOGGER.error("Error handling " + anker.getHref(), e);
 					}
 				}
 				return false;
@@ -155,15 +160,17 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ILocatable codeable = AbstractMemoView.this.codeService
-								.getCodedObject(uri);
+						ILocatable locatable = AbstractMemoView.this.locatorService
+								.resolve(uri, null).get();
 						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-								.getLabelProvider(codeable);
-						if (codeable != null && labelProvider != null) {
-							return labelProvider.getText(codeable);
+								.getLabelProvider(locatable);
+						if (locatable != null && labelProvider != null) {
+							return labelProvider.getText(locatable);
 						}
 					} catch (URISyntaxException e) {
 
+					} catch (Exception e) {
+						LOGGER.error(e);
 					}
 				}
 				return "!!! " + anker.getHref() + " !!!";
@@ -176,39 +183,47 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		listeners.put("SUA", new AnkerAdaptingListener(new URIAdapter() {
 			@Override
 			public void uriClicked(final URI uri) {
-				ICodeService codeService = (ICodeService) PlatformUI
-						.getWorkbench().getService(ICodeService.class);
-				final ILocatable codeable = codeService.getCodedObject(uri);
-				if (!KeyboardUtils.isMetaKeyPressed()) {
-					// treat link as a typical link that opens a resource
-					AbstractMemoView.this.history.add(codeable);
-					AbstractMemoView.this.updateNavigation();
-					AbstractMemoView.this.load(codeable);
-				} else {
-					// do not follow the link but make Eclipse open the resource
-					TimeZoneDateRange range = (TimeZoneDateRange) Platform
-							.getAdapterManager().getAdapter(codeable,
-									TimeZoneDateRange.class);
-					if (range != null) {
-						AbstractMemoView.this.highlightService.highlight(
-								AbstractMemoView.this, range, true);
-					}
+				try {
+					final ILocatable codeable = AbstractMemoView.this.locatorService
+							.resolve(uri, null).get();
+					if (!KeyboardUtils.isMetaKeyPressed()) {
+						// treat link as a typical link that opens a resource
+						AbstractMemoView.this.history.add(codeable);
+						AbstractMemoView.this.updateNavigation();
+						AbstractMemoView.this.load(codeable);
+					} else {
+						// do not follow the link but make Eclipse open the
+						// resource
+						TimeZoneDateRange range = (TimeZoneDateRange) Platform
+								.getAdapterManager().getAdapter(codeable,
+										TimeZoneDateRange.class);
+						if (range != null) {
+							AbstractMemoView.this.highlightService.highlight(
+									AbstractMemoView.this, range, true);
+						}
 
-					// open element
-					if (!codeService.showCodedObjectInWorkspace(uri,
-							KeyboardUtils.isMetaKeyPressed())) {
-						ExecutorUtil.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								MessageDialog.openInformation(PlatformUI
-										.getWorkbench()
-										.getActiveWorkbenchWindow().getShell(),
-										"Artefact not found", "The artefact "
-												+ uri.toString()
-												+ " could not be found.");
-							}
-						});
+						// open element
+						if (!AbstractMemoView.this.locatorService
+								.showInWorkspace(uri,
+										KeyboardUtils.isMetaKeyPressed(), null)
+								.get()) {
+							ExecutorUtil.asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									MessageDialog.openInformation(PlatformUI
+											.getWorkbench()
+											.getActiveWorkbenchWindow()
+											.getShell(), "Artefact not found",
+											"The artefact " + uri.toString()
+													+ " could not be found.");
+								}
+							});
+						}
 					}
+				} catch (InterruptedException e) {
+					LOGGER.error(e);
+				} catch (ExecutionException e) {
+					LOGGER.error(e);
 				}
 			}
 		}));
@@ -234,20 +249,27 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			return new PartInfo(((ICode) loadedObject).getCaption(),
 					ImageManager.CODE);
 		} else if (loadedObject instanceof ICodeInstance) {
-			ICodeInstance codeInstance = (ICodeInstance) loadedObject;
-			ILocatable coded = this.codeService.getCodedObject(codeInstance
-					.getId());
-			if (coded != null) {
-				ILabelProvider lp = this.labelProviderService
-						.getLabelProvider(coded);
-				return new PartInfo(lp.getText(coded) + " (coded with "
-						+ codeInstance.getCode().getCaption() + ")",
-						lp.getImage(coded));
-			} else {
-				return new PartInfo(codeInstance.getId().toString(), PlatformUI
-						.getWorkbench().getSharedImages()
-						.getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+			try {
+				ICodeInstance codeInstance = (ICodeInstance) loadedObject;
+				ILocatable coded = this.locatorService.resolve(
+						codeInstance.getId(), null).get();
+				if (coded != null) {
+					ILabelProvider lp = this.labelProviderService
+							.getLabelProvider(coded);
+					return new PartInfo(lp.getText(coded) + " (coded with "
+							+ codeInstance.getCode().getCaption() + ")",
+							lp.getImage(coded));
+				} else {
+					return new PartInfo(codeInstance.getId().toString(),
+							PlatformUI.getWorkbench().getSharedImages()
+									.getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+				}
+			} catch (InterruptedException e) {
+				LOGGER.error(e);
+			} catch (ExecutionException e) {
+				LOGGER.error(e);
 			}
+			return new PartInfo("ERROR", null);
 		} else if (loadedObject instanceof ILocatable) {
 			ILocatable codeable = (ILocatable) loadedObject;
 			ILabelProvider lp = this.labelProviderService

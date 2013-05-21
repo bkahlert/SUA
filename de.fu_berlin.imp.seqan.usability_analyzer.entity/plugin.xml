@@ -154,9 +154,9 @@ super="org.eclipse.ui.workbench.texteditor.info"
 name="com.ibm.example.myannotation" markerType="com.ibm.mymarkers.mymarker"/>
 </extension>
 <extension
-      point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+      point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
    <CodeableProviderFactory
-         class="de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProviderFactory">
+         class="de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProviderFactory">
    </CodeableProviderFactory>
 </extension>
 </plugin>

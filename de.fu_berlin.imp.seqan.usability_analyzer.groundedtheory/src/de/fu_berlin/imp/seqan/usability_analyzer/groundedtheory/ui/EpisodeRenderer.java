@@ -46,6 +46,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -228,6 +229,8 @@ public class EpisodeRenderer implements IDisposable {
 
 		private Map<IEpisode, CodeColors> renderingColors = new HashMap<IEpisode, CodeColors>();
 
+		private ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
 		private ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 
@@ -292,14 +295,8 @@ public class EpisodeRenderer implements IDisposable {
 			case SWT.MouseUp:
 				if (this.resizeInfo == null) {
 					if (info != null && info.getDirection() == 0) {
-						ExecutorUtil.asyncRun(new Runnable() {
-							@Override
-							public void run() {
-								Renderer.this.codeService
-										.showCodedObjectInWorkspace(info
-												.getEpisode().getUri(), false);
-							}
-						});
+						Renderer.this.locatorService.showInWorkspace(info
+								.getEpisode().getUri(), false, null);
 					}
 				} else {
 					final IEpisode oldEpisode = this.resizeInfo.getEpisode();

@@ -30,6 +30,8 @@ public class CompilationServiceTest {
 	}
 
 	private ICompilable compilable = new ICompilable() {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public URI getUri() {
 			try {
@@ -40,6 +42,8 @@ public class CompilationServiceTest {
 		}
 	};
 	private ICompilable compilable2 = new ICompilable() {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public URI getUri() {
 			try {
@@ -52,160 +56,184 @@ public class CompilationServiceTest {
 
 	@Test
 	public void testCompilationStates() throws IOException {
-		IBaseDataContainer baseDataContainer = createBaseDataContainer();
+		IBaseDataContainer baseDataContainer = this.createBaseDataContainer();
 		ICompilationService compilationService = new CompilationService(
 				baseDataContainer);
 
-		assertNull(compilationService.compiles(compilable));
-		assertNull(compilationService.compiles(compilable2));
+		assertNull(compilationService.compiles(this.compilable));
+		assertNull(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, true);
-		assertTrue(compilationService.compiles(compilable));
-		assertNull(compilationService.compiles(compilable2));
+		compilationService
+				.compiles(new ICompilable[] { this.compilable }, true);
+		assertTrue(compilationService.compiles(this.compilable));
+		assertNull(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, null);
-		assertNull(compilationService.compiles(compilable));
-		assertNull(compilationService.compiles(compilable2));
+		compilationService
+				.compiles(new ICompilable[] { this.compilable }, null);
+		assertNull(compilationService.compiles(this.compilable));
+		assertNull(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, false);
-		assertFalse(compilationService.compiles(compilable));
-		assertNull(compilationService.compiles(compilable2));
+		compilationService.compiles(new ICompilable[] { this.compilable },
+				false);
+		assertFalse(compilationService.compiles(this.compilable));
+		assertNull(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, true);
-		compilationService.compiles(new ICompilable[] { compilable2 }, false);
-		assertTrue(compilationService.compiles(compilable));
-		assertFalse(compilationService.compiles(compilable2));
+		compilationService
+				.compiles(new ICompilable[] { this.compilable }, true);
+		compilationService.compiles(new ICompilable[] { this.compilable2 },
+				false);
+		assertTrue(compilationService.compiles(this.compilable));
+		assertFalse(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, null);
-		compilationService.compiles(new ICompilable[] { compilable2 }, true);
-		assertNull(compilationService.compiles(compilable));
-		assertTrue(compilationService.compiles(compilable2));
+		compilationService
+				.compiles(new ICompilable[] { this.compilable }, null);
+		compilationService.compiles(new ICompilable[] { this.compilable2 },
+				true);
+		assertNull(compilationService.compiles(this.compilable));
+		assertTrue(compilationService.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, false);
-		compilationService.compiles(new ICompilable[] { compilable2 }, false);
-		assertFalse(compilationService.compiles(compilable));
-		assertFalse(compilationService.compiles(compilable2));
+		compilationService.compiles(new ICompilable[] { this.compilable },
+				false);
+		compilationService.compiles(new ICompilable[] { this.compilable2 },
+				false);
+		assertFalse(compilationService.compiles(this.compilable));
+		assertFalse(compilationService.compiles(this.compilable2));
 
 		// check synchronization and persistence
 		ICompilationService compilationService2 = new CompilationService(
 				baseDataContainer);
-		assertFalse(compilationService.compiles(compilable));
-		assertFalse(compilationService.compiles(compilable2));
-		assertFalse(compilationService2.compiles(compilable));
-		assertFalse(compilationService2.compiles(compilable2));
+		assertFalse(compilationService.compiles(this.compilable));
+		assertFalse(compilationService.compiles(this.compilable2));
+		assertFalse(compilationService2.compiles(this.compilable));
+		assertFalse(compilationService2.compiles(this.compilable2));
 
-		compilationService.compiles(new ICompilable[] { compilable }, null);
-		compilationService.compiles(new ICompilable[] { compilable2 }, true);
-		assertNull(compilationService.compiles(compilable));
-		assertTrue(compilationService.compiles(compilable2));
+		compilationService
+				.compiles(new ICompilable[] { this.compilable }, null);
+		compilationService.compiles(new ICompilable[] { this.compilable2 },
+				true);
+		assertNull(compilationService.compiles(this.compilable));
+		assertTrue(compilationService.compiles(this.compilable2));
 
 		// values stay unchanged since the second compilation service does not
 		// know of changes in the persistence level
-		assertFalse(compilationService2.compiles(compilable));
-		assertFalse(compilationService2.compiles(compilable2));
+		assertFalse(compilationService2.compiles(this.compilable));
+		assertFalse(compilationService2.compiles(this.compilable2));
 	}
 
 	@Test
 	public void testCompilerOutputs() throws IOException {
-		IBaseDataContainer baseDataContainer = createBaseDataContainer();
+		IBaseDataContainer baseDataContainer = this.createBaseDataContainer();
 		ICompilationService compilationService = new CompilationService(
 				baseDataContainer);
 
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, "test");
-		assertEquals("test", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, "test");
+		assertEquals("test", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, null);
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, null);
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, " ");
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, " ");
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, "test2");
-		compilationService.compilerOutput(compilable2, "   ");
-		assertEquals("test2", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, "test2");
+		compilationService.compilerOutput(this.compilable2, "   ");
+		assertEquals("test2",
+				compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, null);
-		compilationService.compilerOutput(compilable2, "test3");
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("test3", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, null);
+		compilationService.compilerOutput(this.compilable2, "test3");
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("test3",
+				compilationService.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, "");
-		compilationService.compilerOutput(compilable2, null);
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, "");
+		compilationService.compilerOutput(this.compilable2, null);
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
 
 		// check synchronization and persistence
 		ICompilationService compilationService2 = new CompilationService(
 				baseDataContainer);
-		assertEquals("", compilationService.compilerOutput(compilable));
-		assertEquals("", compilationService.compilerOutput(compilable2));
-		assertEquals("", compilationService2.compilerOutput(compilable));
-		assertEquals("", compilationService2.compilerOutput(compilable2));
+		assertEquals("", compilationService.compilerOutput(this.compilable));
+		assertEquals("", compilationService.compilerOutput(this.compilable2));
+		assertEquals("", compilationService2.compilerOutput(this.compilable));
+		assertEquals("", compilationService2.compilerOutput(this.compilable2));
 
-		compilationService.compilerOutput(compilable, "test4");
-		compilationService.compilerOutput(compilable2, "test5");
-		assertEquals("test4", compilationService.compilerOutput(compilable));
-		assertEquals("test5", compilationService.compilerOutput(compilable2));
-		assertEquals("test4", compilationService2.compilerOutput(compilable));
-		assertEquals("test5", compilationService2.compilerOutput(compilable2));
+		compilationService.compilerOutput(this.compilable, "test4");
+		compilationService.compilerOutput(this.compilable2, "test5");
+		assertEquals("test4",
+				compilationService.compilerOutput(this.compilable));
+		assertEquals("test5",
+				compilationService.compilerOutput(this.compilable2));
+		assertEquals("test4",
+				compilationService2.compilerOutput(this.compilable));
+		assertEquals("test5",
+				compilationService2.compilerOutput(this.compilable2));
 	}
 
 	@Test
 	public void testRunOutputs() throws IOException {
-		IBaseDataContainer baseDataContainer = createBaseDataContainer();
+		IBaseDataContainer baseDataContainer = this.createBaseDataContainer();
 		ICompilationService compilationService = new CompilationService(
 				baseDataContainer);
 
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, "test");
-		assertEquals("test", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, "test");
+		assertEquals("test",
+				compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, null);
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, null);
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, " ");
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, " ");
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, "test2");
-		compilationService.executionOutput(compilable2, "   ");
-		assertEquals("test2", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, "test2");
+		compilationService.executionOutput(this.compilable2, "   ");
+		assertEquals("test2",
+				compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, null);
-		compilationService.executionOutput(compilable2, "test3");
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("test3", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, null);
+		compilationService.executionOutput(this.compilable2, "test3");
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("test3",
+				compilationService.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, "");
-		compilationService.executionOutput(compilable2, null);
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, "");
+		compilationService.executionOutput(this.compilable2, null);
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
 
 		// check synchronization and persistence
 		ICompilationService compilationService2 = new CompilationService(
 				baseDataContainer);
-		assertEquals("", compilationService.executionOutput(compilable));
-		assertEquals("", compilationService.executionOutput(compilable2));
-		assertEquals("", compilationService2.executionOutput(compilable));
-		assertEquals("", compilationService2.executionOutput(compilable2));
+		assertEquals("", compilationService.executionOutput(this.compilable));
+		assertEquals("", compilationService.executionOutput(this.compilable2));
+		assertEquals("", compilationService2.executionOutput(this.compilable));
+		assertEquals("", compilationService2.executionOutput(this.compilable2));
 
-		compilationService.executionOutput(compilable, "test4");
-		compilationService.executionOutput(compilable2, "test5");
-		assertEquals("test4", compilationService.executionOutput(compilable));
-		assertEquals("test5", compilationService.executionOutput(compilable2));
-		assertEquals("test4", compilationService2.executionOutput(compilable));
-		assertEquals("test5", compilationService2.executionOutput(compilable2));
+		compilationService.executionOutput(this.compilable, "test4");
+		compilationService.executionOutput(this.compilable2, "test5");
+		assertEquals("test4",
+				compilationService.executionOutput(this.compilable));
+		assertEquals("test5",
+				compilationService.executionOutput(this.compilable2));
+		assertEquals("test4",
+				compilationService2.executionOutput(this.compilable));
+		assertEquals("test5",
+				compilationService2.executionOutput(this.compilable2));
 	}
 }

@@ -21,7 +21,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityCodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
@@ -55,7 +55,7 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 	@Override
 	public URI getUri() {
 		try {
-			return new URI("sua://" + EntityCodeableProvider.ENTITY_NAMESPACE
+			return new URI("sua://" + EntityLocatorProvider.ENTITY_NAMESPACE
 					+ "/" + this.getInternalId());
 		} catch (Exception e) {
 			LOGGER.error(

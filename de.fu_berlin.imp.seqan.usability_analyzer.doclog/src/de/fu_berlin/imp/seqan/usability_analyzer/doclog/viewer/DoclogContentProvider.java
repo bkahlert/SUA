@@ -17,7 +17,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -32,8 +31,9 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		private boolean isResponsible(List<ILocatable> codeables) {
 			for (ILocatable codeable : codeables) {
-				if (codeable.getUri().getHost().equals("doclog"))
+				if (codeable.getUri().getHost().equals("doclog")) {
 					return true;
+				}
 			}
 			return false;
 		}
@@ -44,8 +44,10 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
-			if (isResponsible(codeables))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(codeables)) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DoclogContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -54,13 +56,16 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
-			if (isResponsible(codeables))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(codeables)) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DoclogContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -70,7 +75,8 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codeDeleted(ICode code) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
@@ -79,8 +85,11 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void memoAdded(ILocatable codeable) {
-			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
+					.asList(codeable)))) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DoclogContentProvider.this.viewer);
+			}
 		}
 
 		@Override
@@ -97,28 +106,34 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void memoRemoved(ILocatable codeable) {
-			if (isResponsible(new ArrayList<ILocatable>(Arrays.asList(codeable))))
-				com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
+					.asList(codeable)))) {
+				com.bkahlert.devel.nebula.utils.ViewerUtils
+						.refresh(DoclogContentProvider.this.viewer);
+			}
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils.refresh(viewer);
+			com.bkahlert.devel.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
 		}
 	};
 
 	public DoclogContentProvider() {
-		codeService.addCodeServiceListener(codeServiceListener);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
@@ -128,7 +143,7 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 
 	@Override
 	public void dispose() {
-		codeService.removeCodeServiceListener(codeServiceListener);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override

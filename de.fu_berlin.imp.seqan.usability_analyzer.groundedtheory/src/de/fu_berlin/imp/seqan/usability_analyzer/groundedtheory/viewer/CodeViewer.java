@@ -20,11 +20,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -56,21 +56,16 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				final ISelection selection = event.getSelection();
-				ExecutorUtil.asyncRun(new Runnable() {
-					@Override
-					public void run() {
-						ICodeService codeService = (ICodeService) PlatformUI
-								.getWorkbench().getService(ICodeService.class);
-						List<URI> codeInstanceIDs = getURIs(selection);
-						if (codeService != null) {
-							codeService.showCodedObjectsInWorkspace(
-									codeInstanceIDs, false);
-						} else {
-							LOGGER.error("Could not retrieve "
-									+ ICodeService.class.getSimpleName());
-						}
-					}
-				});
+				ILocatorService locatorService = (ILocatorService) PlatformUI
+						.getWorkbench().getService(ILocatorService.class);
+				URI[] codeInstanceIDs = getURIs(selection);
+				if (locatorService != null) {
+					locatorService
+							.showInWorkspace(codeInstanceIDs, false, null);
+				} else {
+					LOGGER.error("Could not retrieve "
+							+ ILocatorService.class.getSimpleName());
+				}
 			}
 		});
 		this.createColumns();
@@ -190,7 +185,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	 * @param selection
 	 * @return
 	 */
-	public static List<URI> getURIs(ISelection selection) {
+	public static URI[] getURIs(ISelection selection) {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 
@@ -204,7 +199,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		for (ICodeInstance codeInstance : codeInstances) {
 			uris.add(codeInstance.getId());
 		}
-		return uris;
+		return uris.toArray(new URI[0]);
 	}
 
 	public AbstractTreeViewer getViewer() {

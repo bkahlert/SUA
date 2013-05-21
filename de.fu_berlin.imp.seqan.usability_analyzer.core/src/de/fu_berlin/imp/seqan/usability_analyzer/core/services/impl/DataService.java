@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
@@ -31,7 +32,7 @@ public class DataService implements IDataService {
 
 	private static final Logger LOGGER = Logger.getLogger(DataService.class);
 
-	private static final ExecutorService LOADER_POOL = ExecutorUtil
+	private static final ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(2);
 
 	public static List<IBaseDataContainer> loadFromPreferences() {
@@ -90,15 +91,14 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public void addDataServiceListener(
-			IDataServiceListener dataServiceListener) {
-		notifier.addDataDirectoryServiceListener(dataServiceListener);
+	public void addDataServiceListener(IDataServiceListener dataServiceListener) {
+		this.notifier.addDataDirectoryServiceListener(dataServiceListener);
 	}
 
 	@Override
 	public void removeDataServiceListener(
 			IDataServiceListener dataServiceListener) {
-		notifier.removeDataDirectoryServiceListener(dataServiceListener);
+		this.notifier.removeDataDirectoryServiceListener(dataServiceListener);
 	}
 
 	@Override
@@ -110,13 +110,13 @@ public class DataService implements IDataService {
 	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
 		unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
-		notifier.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
+		this.notifier.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
 
 		saveActiveToPreferences(baseDataContainers);
 		loadData(this.dataLoaderManager, baseDataContainers);
 		this.activeBaseDataDirectories = baseDataContainers;
 
-		notifier.dataDirectoriesLoaded(this.activeBaseDataDirectories);
+		this.notifier.dataDirectoriesLoaded(this.activeBaseDataDirectories);
 	}
 
 	private static void loadData(final DataLoaderManager dataLoaderManager,
@@ -128,52 +128,50 @@ public class DataService implements IDataService {
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
 				long loadStart = System.currentTimeMillis();
-				monitor.beginTask(getName(),
+				monitor.beginTask(this.getName(),
 						dataLoaderManager.getNumDataLoaderProviders());
 				for (List<String> sources : dataLoaderManager
 						.getLoadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecutorUtil
-							.nonUIAsyncExec(
-									LOADER_POOL,
-									sources,
-									new ExecutorUtil.ParametrizedCallable<String, Job>() {
+					List<Future<Job>> futures = ExecutorUtil.nonUIAsyncExec(
+							LOADER_POOL, sources,
+							new ParametrizedCallable<String, Job>() {
+								@Override
+								public Job call(final String source)
+										throws Exception {
+									final IDataLoadProvider dataLoadProvider = dataLoaderManager
+											.getDataLoadProvider(source);
+									Job loader = new Job(
+											dataLoadProvider
+													.getUnloaderJobName(baseDataContainers)) {
 										@Override
-										public Job call(final String source)
-												throws Exception {
-											final IDataLoadProvider dataLoadProvider = dataLoaderManager
-													.getDataLoadProvider(source);
-											Job loader = new Job(
-													dataLoadProvider
-															.getUnloaderJobName(baseDataContainers)) {
-												@Override
-												protected IStatus run(
-														IProgressMonitor monitor) {
-													final SubMonitor subMonitor = SubMonitor
-															.convert(monitor);
+										protected IStatus run(
+												IProgressMonitor monitor) {
+											final SubMonitor subMonitor = SubMonitor
+													.convert(monitor);
 
-													long start = System
-															.currentTimeMillis();
-													dataLoadProvider.load(
-															baseDataContainers,
-															subMonitor);
-													LOGGER.info("---- loaded "
-															+ source
-															+ " within "
-															+ (System
-																	.currentTimeMillis() - start)
-															+ "ms");
+											long start = System
+													.currentTimeMillis();
+											dataLoadProvider.load(
+													baseDataContainers,
+													subMonitor);
+											LOGGER.info("---- loaded "
+													+ source
+													+ " within "
+													+ (System
+															.currentTimeMillis() - start)
+													+ "ms");
 
-													subMonitor.done();
-													return Status.OK_STATUS;
-												}
-											};
-											loader.setProgressGroup(monitor, 1);
-											loader.setSystem(true);
-											loader.schedule();
-											return loader;
+											subMonitor.done();
+											return Status.OK_STATUS;
 										}
-									});
+									};
+									loader.setProgressGroup(monitor, 1);
+									loader.setSystem(true);
+									loader.schedule();
+									return loader;
+								}
+							});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();
@@ -207,51 +205,48 @@ public class DataService implements IDataService {
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
 				long unloadStart = System.currentTimeMillis();
-				monitor.beginTask(getName(),
+				monitor.beginTask(this.getName(),
 						dataLoaderManager.getNumDataLoaderProviders());
 				for (List<String> sources : dataLoaderManager
 						.getUnloadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecutorUtil
-							.nonUIAsyncExec(
-									LOADER_POOL,
-									sources,
-									new ExecutorUtil.ParametrizedCallable<String, Job>() {
+					List<Future<Job>> futures = ExecutorUtil.nonUIAsyncExec(
+							LOADER_POOL, sources,
+							new ParametrizedCallable<String, Job>() {
+								@Override
+								public Job call(final String source)
+										throws Exception {
+									final IDataLoadProvider dataLoadProvider = dataLoaderManager
+											.getDataLoadProvider(source);
+									Job loader = new Job(
+											dataLoadProvider
+													.getLoaderJobName(baseDataContainers)) {
 										@Override
-										public Job call(final String source)
-												throws Exception {
-											final IDataLoadProvider dataLoadProvider = dataLoaderManager
-													.getDataLoadProvider(source);
-											Job loader = new Job(
-													dataLoadProvider
-															.getLoaderJobName(baseDataContainers)) {
-												@Override
-												protected IStatus run(
-														IProgressMonitor monitor) {
-													final SubMonitor subMonitor = SubMonitor
-															.convert(monitor);
+										protected IStatus run(
+												IProgressMonitor monitor) {
+											final SubMonitor subMonitor = SubMonitor
+													.convert(monitor);
 
-													long start = System
-															.currentTimeMillis();
-													dataLoadProvider
-															.unload(subMonitor);
-													LOGGER.info("---- unloaded "
-															+ source
-															+ " within "
-															+ (System
-																	.currentTimeMillis() - start)
-															+ "ms");
+											long start = System
+													.currentTimeMillis();
+											dataLoadProvider.unload(subMonitor);
+											LOGGER.info("---- unloaded "
+													+ source
+													+ " within "
+													+ (System
+															.currentTimeMillis() - start)
+													+ "ms");
 
-													subMonitor.done();
-													return Status.OK_STATUS;
-												}
-											};
-											loader.setProgressGroup(monitor, 1);
-											loader.setSystem(true);
-											loader.schedule();
-											return loader;
+											subMonitor.done();
+											return Status.OK_STATUS;
 										}
-									});
+									};
+									loader.setProgressGroup(monitor, 1);
+									loader.setSystem(true);
+									loader.schedule();
+									return loader;
+								}
+							});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();
@@ -284,28 +279,31 @@ public class DataService implements IDataService {
 	@Override
 	public void addDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers) {
-		if (dataContainers.size() == 0)
+		if (dataContainers.size() == 0) {
 			return;
+		}
 		List<IBaseDataContainer> currentDataDirectories = loadFromPreferences();
 		for (IBaseDataContainer fileDataContainer : dataContainers) {
-			if (!currentDataDirectories.contains(fileDataContainer))
+			if (!currentDataDirectories.contains(fileDataContainer)) {
 				currentDataDirectories.add(fileDataContainer);
+			}
 		}
 		saveToPreferences(currentDataDirectories);
-		notifier.dataDirectoriesAdded(dataContainers);
+		this.notifier.dataDirectoriesAdded(dataContainers);
 	}
 
 	@Override
 	public void removeDataDirectories(
 			List<? extends IBaseDataContainer> dataContainers) {
-		if (dataContainers.size() == 0)
+		if (dataContainers.size() == 0) {
 			return;
+		}
 		List<IBaseDataContainer> currentDataDirectories = loadFromPreferences();
 		for (IBaseDataContainer baseDataContainer : dataContainers) {
 			currentDataDirectories.remove(baseDataContainer);
 		}
 		saveToPreferences(currentDataDirectories);
-		notifier.dataDirectoriesRemoved(dataContainers);
+		this.notifier.dataDirectoriesRemoved(dataContainers);
 	}
 
 	@Override

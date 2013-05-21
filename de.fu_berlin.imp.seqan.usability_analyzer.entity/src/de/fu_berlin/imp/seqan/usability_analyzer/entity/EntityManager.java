@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
@@ -61,7 +59,7 @@ public class EntityManager {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
 		final ArrayList<Entity> entities = new ArrayList<Entity>();
 
-		ExecutorService executorService = ExecutorUtil
+		ExecutorService executorService = com.bkahlert.devel.nebula.utils.ExecutorService
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		// force class loading since they are used in the Callable

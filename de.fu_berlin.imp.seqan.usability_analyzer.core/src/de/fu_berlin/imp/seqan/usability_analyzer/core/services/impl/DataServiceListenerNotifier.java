@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 
 public class DataServiceListenerNotifier {
 	private List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
-	private static final ExecutorService POOL = ExecutorUtil
+	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	public void addDataDirectoryServiceListener(
@@ -27,7 +27,7 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesAdded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.dataServiceListeners,
 				new ParametrizedCallable<IDataServiceListener, Void>() {
 					@Override
 					public Void call(IDataServiceListener dataServiceListener)
@@ -41,7 +41,7 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesRemoved(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.dataServiceListeners,
 				new ParametrizedCallable<IDataServiceListener, Void>() {
 					@Override
 					public Void call(IDataServiceListener dataServiceListener)
@@ -55,7 +55,7 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesLoaded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.dataServiceListeners,
 				new ParametrizedCallable<IDataServiceListener, Void>() {
 					@Override
 					public Void call(IDataServiceListener dataServiceListener)
@@ -69,7 +69,7 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesUnloaded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		ExecutorUtil.nonUIAsyncExec(POOL, dataServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.dataServiceListeners,
 				new ParametrizedCallable<IDataServiceListener, Void>() {
 					@Override
 					public Void call(IDataServiceListener dataServiceListener)

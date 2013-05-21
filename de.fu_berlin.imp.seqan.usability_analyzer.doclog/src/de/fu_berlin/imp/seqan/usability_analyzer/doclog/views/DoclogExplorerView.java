@@ -38,6 +38,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
@@ -167,7 +168,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private ExecutorService LOADER_POOL = ExecutorUtil
+	private ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 	private Set<IIdentifier> loadedIdentifiers;
 
@@ -321,7 +322,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		// Case 2: multiple IDs
 		final List<Future<Job>> loaders = ExecutorUtil.nonUIAsyncExec(
 				this.LOADER_POOL, identifiers,
-				new ExecutorUtil.ParametrizedCallable<IIdentifier, Job>() {
+				new ParametrizedCallable<IIdentifier, Job>() {
 					@Override
 					public Job call(final IIdentifier identifier)
 							throws Exception {

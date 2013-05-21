@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutorService;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
@@ -50,8 +48,8 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		this.surveyContainer = surveyContainer;
 
 		try {
-			statsFileManager = new StatsFileManager(baseDataContainers);
-			cMakeCacheFileManager = new CMakeCacheFileManager(
+			this.statsFileManager = new StatsFileManager(baseDataContainers);
+			this.cMakeCacheFileManager = new CMakeCacheFileManager(
 					baseDataContainers);
 		} catch (Exception e) {
 			throw new EntityDataException("Error", e);
@@ -60,14 +58,14 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	public void scan(final SubMonitor monitor) throws EntityDataException {
 		monitor.setWorkRemaining(100);
-		ExecutorService executorService = ExecutorUtil
+		ExecutorService executorService = com.bkahlert.devel.nebula.utils.ExecutorService
 				.newFixedMultipleOfProcessorsThreadPool(2);
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		callables.add(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				try {
-					statsFileManager.scanFiles();
+					EntityDataContainer.this.statsFileManager.scanFiles();
 				} catch (Exception e) {
 					LOGGER.fatal(e);
 				}
@@ -79,7 +77,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 			@Override
 			public Void call() throws Exception {
 				try {
-					cMakeCacheFileManager.scanFiles();
+					EntityDataContainer.this.cMakeCacheFileManager.scanFiles();
 				} catch (Exception e) {
 					LOGGER.fatal(e);
 				}
@@ -94,7 +92,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		}
 
 		try {
-			mapper = new Mapper(doclogDataContainer);
+			this.mapper = new Mapper(this.doclogDataContainer);
 		} catch (FileNotFoundException e) {
 			// TODO
 			try {
@@ -107,26 +105,26 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		}
 		monitor.worked(10);
 
-		entityManager = new EntityManager(diffContainer, doclogDataContainer,
-				surveyContainer, statsFileManager, cMakeCacheFileManager,
-				mapper);
-		entityManager.scan(monitor.newChild(60));
+		this.entityManager = new EntityManager(this.diffContainer,
+				this.doclogDataContainer, this.surveyContainer,
+				this.statsFileManager, this.cMakeCacheFileManager, this.mapper);
+		this.entityManager.scan(monitor.newChild(60));
 	}
 
 	public EntityManager getEntityManager() {
-		return entityManager;
+		return this.entityManager;
 	}
 
 	public Mapper getMapper() {
-		return mapper;
+		return this.mapper;
 	}
 
 	public StatsFileManager getStatsFileManager() {
-		return statsFileManager;
+		return this.statsFileManager;
 	}
 
 	public CMakeCacheFileManager getCMakeCacheFileManager() {
-		return cMakeCacheFileManager;
+		return this.cMakeCacheFileManager;
 	}
 
 }

@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -18,11 +19,12 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -34,6 +36,8 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLabelProvider.class);
 
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 	ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
@@ -73,16 +77,24 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 		}
 		if (ICodeInstance.class.isInstance(element)) {
 			ICodeInstance codeInstance = (ICodeInstance) element;
-			ILocatable codedObject = this.codeService
-					.getCodedObject(codeInstance.getId());
-			if (codedObject != null) {
-				ILabelProvider labelProvider = this.labelProviderService
-						.getLabelProvider(codedObject);
-				return (labelProvider != null) ? labelProvider
-						.getText(codedObject) : "[UNKNOWN ORIGIN]";
-			} else {
-				return codeInstance.getId().toString();
+			try {
+				ILocatable codedObject;
+				codedObject = this.locatorService.resolve(
+						codeInstance.getId(), null).get();
+				if (codedObject != null) {
+					ILabelProvider labelProvider = this.labelProviderService
+							.getLabelProvider(codedObject);
+					return (labelProvider != null) ? labelProvider
+							.getText(codedObject) : "[UNKNOWN ORIGIN]";
+				} else {
+					return codeInstance.getId().toString();
+				}
+			} catch (InterruptedException e) {
+				LOGGER.error(e);
+			} catch (ExecutionException e) {
+				LOGGER.error(e);
 			}
+			return "ERROR";
 		}
 		if (NoCodesNode.class.isInstance(element)) {
 			return "no code";
@@ -116,21 +128,27 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 		}
 		if (ICodeInstance.class.isInstance(element)) {
 			ICodeInstance codeInstance = (ICodeInstance) element;
-			ILocatable codedObject = this.codeService
-					.getCodedObject(codeInstance.getId());
+			try {
+				ILocatable codedObject = this.locatorService.resolve(
+						codeInstance.getId(), null).get();
 
-			Image image;
-			if (codedObject != null) {
-				ILabelProvider labelProvider = this.labelProviderService
-						.getLabelProvider(codedObject);
-				image = (labelProvider != null) ? labelProvider
-						.getImage(codedObject) : null;
-			} else {
-				image = PlatformUI.getWorkbench().getSharedImages()
-						.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+				Image image;
+				if (codedObject != null) {
+					ILabelProvider labelProvider = this.labelProviderService
+							.getLabelProvider(codedObject);
+					image = (labelProvider != null) ? labelProvider
+							.getImage(codedObject) : null;
+				} else {
+					image = PlatformUI.getWorkbench().getSharedImages()
+							.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+				}
+				return (this.codeService.isMemo(codeInstance)) ? this
+						.getMemoAnnotatedImage(image) : image;
+			} catch (InterruptedException e) {
+				LOGGER.error(e);
+			} catch (ExecutionException e) {
+				LOGGER.error(e);
 			}
-			return (this.codeService.isMemo(codeInstance)) ? this
-					.getMemoAnnotatedImage(image) : image;
 		}
 		if (element instanceof IEpisode) {
 			IEpisode episode = (IEpisode) element;

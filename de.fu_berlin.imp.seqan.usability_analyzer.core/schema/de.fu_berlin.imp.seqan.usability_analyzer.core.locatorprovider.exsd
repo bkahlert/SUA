@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="de.fu_berlin.imp.seqan.usability_analyzer.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory" id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider" name="Codeable Provider"/>
+         <meta.schema plugin="de.fu_berlin.imp.seqan.usability_analyzer.core" id="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider" name="Locator Provider"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -19,8 +19,8 @@
       <complexType>
          <sequence>
             <choice>
-               <element ref="CodeableProvider"/>
-               <element ref="CodeableProviderFactory"/>
+               <element ref="LocatorProvider"/>
+               <element ref="LocatorProviderFactory"/>
             </choice>
          </sequence>
          <attribute name="point" type="string" use="required">
@@ -50,7 +50,7 @@
       </complexType>
    </element>
 
-   <element name="CodeableProvider">
+   <element name="LocatorProvider">
       <complexType>
          <attribute name="class" type="string" use="required">
             <annotation>
@@ -58,14 +58,14 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ILocatorProvider"/>
+                  <meta.attribute kind="java" basedOn=":de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider"/>
                </appinfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
-   <element name="CodeableProviderFactory">
+   <element name="LocatorProviderFactory">
       <complexType>
          <attribute name="class" type="string" use="required">
             <annotation>
@@ -73,7 +73,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeableProviderFactory"/>
+                  <meta.attribute kind="java" basedOn=":de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProviderFactory"/>
                </appinfo>
             </annotation>
          </attribute>

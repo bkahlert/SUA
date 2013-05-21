@@ -13,7 +13,6 @@ import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -32,53 +31,63 @@ public class CodeInstanceViewerContentProvider implements
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override
 		public void memoAdded(ICode code) {
-			ViewerUtils.update(viewer, code, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					code, null);
 		}
 
 		@Override
 		public void memoAdded(ILocatable codeable) {
-			ViewerUtils.update(viewer, codeable, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					codeable, null);
 		}
 
 		@Override
 		public void memoAdded(ICodeInstance codeInstance) {
-			ViewerUtils.update(viewer, codeInstance, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					codeInstance, null);
 		}
 
 		@Override
@@ -95,32 +104,38 @@ public class CodeInstanceViewerContentProvider implements
 
 		@Override
 		public void memoRemoved(ICode code) {
-			ViewerUtils.update(viewer, code, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					code, null);
 		}
 
 		@Override
 		public void memoRemoved(ILocatable codeable) {
-			ViewerUtils.update(viewer, codeable, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					codeable, null);
 		}
 
 		@Override
 		public void memoRemoved(ICodeInstance codeInstance) {
-			ViewerUtils.update(viewer, codeInstance, null);
+			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
+					codeInstance, null);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			ViewerUtils.refresh(viewer, false);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					false);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(viewer, false);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					false);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			ViewerUtils.refresh(viewer, false);
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					false);
 		}
 	};
 
@@ -130,15 +145,17 @@ public class CodeInstanceViewerContentProvider implements
 		this.viewer = viewer;
 
 		if (List.class.isInstance(oldInput)) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 
 		if (List.class.isInstance(newInput)) {
 			this.codeables = (List<ILocatable>) newInput;
-			this.codeService.addCodeServiceListener(codeServiceListener);
+			this.codeService.addCodeServiceListener(this.codeServiceListener);
 		} else {
 			if (this.codeables != null) {
-				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService
+						.removeCodeServiceListener(this.codeServiceListener);
 				this.codeables = null;
 			}
 		}
@@ -147,7 +164,8 @@ public class CodeInstanceViewerContentProvider implements
 	@Override
 	public void dispose() {
 		if (this.codeables != null) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 	}
 
@@ -164,8 +182,8 @@ public class CodeInstanceViewerContentProvider implements
 		if (ILocatable.class.isInstance(element)) {
 			return true;
 		}
-		Object[] children = getChildren(element);
-		return children != null ? getChildren(element).length > 0 : false;
+		Object[] children = this.getChildren(element);
+		return children != null ? this.getChildren(element).length > 0 : false;
 	}
 
 	@Override
@@ -173,36 +191,40 @@ public class CodeInstanceViewerContentProvider implements
 		if (ILocatable.class.isInstance(parentElement)) {
 			ILocatable codeable = (ILocatable) parentElement;
 			try {
-				List<ICode> codes = codeService.getCodes(codeable);
-				if (codes.size() > 0)
+				List<ICode> codes = this.codeService.getCodes(codeable);
+				if (codes.size() > 0) {
 					return codes.toArray();
-				else
+				} else {
 					return new Object[] { new NoCodesNode() };
+				}
 			} catch (CodeServiceException e) {
 				return null;
 			}
 		}
 		if (ICode.class.isInstance(parentElement)) {
 			ICode code = (ICode) parentElement;
-			ICode parentCode = codeService.getParent(code);
-			if (parentCode != null)
+			ICode parentCode = this.codeService.getParent(code);
+			if (parentCode != null) {
 				return new Object[] { parentCode };
-			else
+			} else {
 				return new Object[0];
+			}
 		}
 		return null;
 	}
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (!(inputElement instanceof List))
+		if (!(inputElement instanceof List)) {
 			return new Object[0];
+		}
 
 		List<?> list = (List<?>) inputElement;
-		if (list.size() > 0)
+		if (list.size() > 0) {
 			return list.toArray();
-		else
+		} else {
 			return new Object[] { new NoCodesNode() };
+		}
 	}
 
 }

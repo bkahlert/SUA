@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 
 public class CompilationServiceListenerNotifier {
 	private List<ICompilationServiceListener> compilationServiceListeners = new ArrayList<ICompilationServiceListener>();
-	private static final ExecutorService POOL = ExecutorUtil
+	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	public void addCompilationServiceListener(
@@ -27,7 +27,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilationStateChanged(final ICompilable[] compilables,
 			final Boolean state) {
-		ExecutorUtil.nonUIAsyncExec(POOL, compilationServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(
@@ -42,7 +42,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilerOutputChanged(final ICompilable compilable,
 			final String html) {
-		ExecutorUtil.nonUIAsyncExec(POOL, compilationServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(
@@ -57,7 +57,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void executionOutputChanged(final ICompilable compilable,
 			final String html) {
-		ExecutorUtil.nonUIAsyncExec(POOL, compilationServiceListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(

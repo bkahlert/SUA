@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 
 public class WorkSessionListenerNotifier {
 	private List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
-	private static final ExecutorService POOL = ExecutorUtil
+	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	void addWorkSessionListener(IWorkSessionListener workSessionListener) {
@@ -24,7 +24,7 @@ public class WorkSessionListenerNotifier {
 	}
 
 	void workSessionStarted(final IWorkSession workSession) {
-		ExecutorUtil.nonUIAsyncExec(POOL, workSessionListeners,
+		ExecutorUtil.nonUIAsyncExec(POOL, this.workSessionListeners,
 				new ParametrizedCallable<IWorkSessionListener, Void>() {
 					@Override
 					public Void call(IWorkSessionListener workSessionListener)

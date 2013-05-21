@@ -16,7 +16,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.WrappingDa
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogCodeableProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
@@ -101,7 +101,7 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 	@Override
 	public URI getUri() {
 		try {
-			return new URI("sua://" + DoclogCodeableProvider.DOCLOG_NAMESPACE
+			return new URI("sua://" + DoclogLocatorProvider.DOCLOG_NAMESPACE
 					+ "/" + this.getIdentifier().toString());
 		} catch (Exception e) {
 			this.logger

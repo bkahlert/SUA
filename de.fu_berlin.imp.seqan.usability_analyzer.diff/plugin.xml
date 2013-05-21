@@ -221,9 +221,9 @@
       </handler>
    </extension>
    <extension
-         point="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.codeableprovider">
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
       <CodeableProviderFactory
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffCodeableProviderFactory">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProviderFactory">
       </CodeableProviderFactory>
    </extension>
    <extension

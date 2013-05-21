@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -14,7 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService
 
 public class HighlightServiceListenerNotifier {
 	private List<IHighlightServiceListener> highlightServiceListeners = new ArrayList<IHighlightServiceListener>();
-	private static final ExecutorService POOL = ExecutorUtil
+	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
 			.newFixedMultipleOfProcessorsThreadPool(1);
 
 	public void addHighlightServiceListener(
