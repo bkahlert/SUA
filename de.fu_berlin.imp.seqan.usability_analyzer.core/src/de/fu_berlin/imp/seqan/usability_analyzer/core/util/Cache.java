@@ -22,11 +22,13 @@ public class Cache<KEY, PAYLOAD> {
 
 		public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
 			if (this.payload == null) {
-				if (cacheFetcher != null && key != null)
-					this.payload = cacheFetcher.fetch(key, progressMonitor);
+				if (Cache.this.cacheFetcher != null && key != null) {
+					this.payload = Cache.this.cacheFetcher.fetch(key,
+							progressMonitor);
+				}
 			}
 			this.usedCount++;
-			return payload;
+			return this.payload;
 		}
 
 		public int getUsedCount() {
@@ -46,8 +48,12 @@ public class Cache<KEY, PAYLOAD> {
 
 	public synchronized PAYLOAD getPayload(KEY id,
 			IProgressMonitor progressMonitor) {
+		// TODO insert following line if debugging diffs - makes the diffs be
+		// created on every try
+		// new DiffCacheEntry(id).getPayload(id, progressMonitor);
+
 		if (!this.cache.containsKey(id)) {
-			shrinkCache();
+			this.shrinkCache();
 			DiffCacheEntry cacheEntry = new DiffCacheEntry(id);
 			this.cache.put(id, cacheEntry);
 		}
@@ -57,11 +63,11 @@ public class Cache<KEY, PAYLOAD> {
 	}
 
 	public synchronized Set<KEY> getCachedKeys() {
-		return cache.keySet();
+		return this.cache.keySet();
 	}
 
 	synchronized private void shrinkCache() {
-		if (this.cache.size() >= cacheSize) {
+		if (this.cache.size() >= this.cacheSize) {
 			KEY delete = null;
 			int minUsedCount = Integer.MAX_VALUE;
 			for (KEY key : this.cache.keySet()) {
@@ -76,7 +82,8 @@ public class Cache<KEY, PAYLOAD> {
 	}
 
 	public synchronized void removeKey(KEY key) {
-		if (this.cache.containsKey(key))
+		if (this.cache.containsKey(key)) {
 			this.cache.remove(key);
+		}
 	}
 }

@@ -104,9 +104,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			final List<IIdentifier> ids = ArrayUtils.getAdaptableObjects(
-					workSession.getEntities().toArray(), IIdentifier.class);
-			DiffExplorerView.this.open(new HashSet<IIdentifier>(ids), null);
+			DiffExplorerView.this.load(workSession);
 		}
 	};
 
@@ -310,6 +308,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 				&& this.diffListsViewer.getControl() != null
 				&& !this.diffListsViewer.getControl().isDisposed()) {
 			this.diffListsViewer.getControl().setFocus();
+			this.load(this.workSessionService.getCurrentWorkSession());
 		}
 	}
 
@@ -463,6 +462,17 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 								.get(fileFilter));
 			}
 		}
+	}
+
+	/**
+	 * Loads the {@link Diff}s from the given {@link IWorkSession}.
+	 * 
+	 * @param workSession
+	 */
+	public void load(IWorkSession workSession) {
+		final List<IIdentifier> ids = ArrayUtils.getAdaptableObjects(
+				workSession.getEntities().toArray(), IIdentifier.class);
+		DiffExplorerView.this.open(new HashSet<IIdentifier>(ids), null);
 	}
 
 }

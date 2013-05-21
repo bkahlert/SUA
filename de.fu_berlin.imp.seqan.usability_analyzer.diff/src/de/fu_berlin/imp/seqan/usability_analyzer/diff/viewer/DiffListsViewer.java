@@ -382,4 +382,5 @@ public class DiffListsViewer extends SortableTreeViewer {
 		}
 		return treePaths;
 	}
+
 }

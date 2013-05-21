@@ -93,10 +93,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			final Set<IIdentifier> identifiers = new HashSet<IIdentifier>();
-			identifiers.addAll(ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), IIdentifier.class));
-			DoclogExplorerView.this.open(identifiers, null);
+			DoclogExplorerView.this.load(workSession);
 		}
 	};
 
@@ -260,6 +257,11 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 	@Override
 	public void setFocus() {
+		if (this.treeViewer != null
+				&& !this.treeViewer.getControl().isDisposed()) {
+			this.treeViewer.getControl().setFocus();
+			this.load(this.workSessionService.getCurrentWorkSession());
+		}
 	}
 
 	@Override
@@ -402,5 +404,17 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Loads the {@link Doclog}s from the given {@link IWorkSession}.
+	 * 
+	 * @param workSession
+	 */
+	public void load(IWorkSession workSession) {
+		final Set<IIdentifier> identifiers = new HashSet<IIdentifier>();
+		identifiers.addAll(ArrayUtils.getAdaptableObjects(workSession
+				.getEntities().toArray(), IIdentifier.class));
+		DoclogExplorerView.this.open(identifiers, null);
 	}
 }

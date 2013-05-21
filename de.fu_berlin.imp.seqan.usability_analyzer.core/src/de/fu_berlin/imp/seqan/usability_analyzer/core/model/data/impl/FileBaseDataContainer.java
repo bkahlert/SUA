@@ -82,7 +82,8 @@ public class FileBaseDataContainer extends FileDataContainer implements
 
 		File staticFile = new File(new File(new File(this.getTempDirectory(),
 				"static-files"), scope), name);
-		if (!staticFile.exists()) {
+		if (!staticFile.exists()
+				|| staticFile.lastModified() != file.lastModified()) {
 			FileUtils.copyFile(file, staticFile);
 		}
 

@@ -99,6 +99,7 @@ public class CodeView extends ViewPart {
 	public void setFocus() {
 		if (this.codeViewer != null && !this.codeViewer.isDisposed()) {
 			this.codeViewer.setFocus();
+			this.codeViewer.refresh();
 		}
 	}
 

@@ -38,10 +38,7 @@ public class SurveyView extends ViewPart {
 	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			HashSet<IIdentifier> idsOrTokens = new HashSet<IIdentifier>();
-			idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), IIdentifier.class));
-			SurveyView.this.open(idsOrTokens, null);
+			SurveyView.this.load(workSession);
 		}
 	};
 
@@ -93,7 +90,23 @@ public class SurveyView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		this.surveyViewer.getControl().setFocus();
+		if (this.surveyViewer != null
+				&& !this.surveyViewer.getControl().isDisposed()) {
+			this.surveyViewer.getControl().setFocus();
+			this.load(this.workSessionService.getCurrentWorkSession());
+		}
+	}
+
+	/**
+	 * Loads the data from the given {@link IWorkSession}.
+	 * 
+	 * @param workSession
+	 */
+	public void load(IWorkSession workSession) {
+		HashSet<IIdentifier> idsOrTokens = new HashSet<IIdentifier>();
+		idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(workSession
+				.getEntities().toArray(), IIdentifier.class));
+		SurveyView.this.open(idsOrTokens, null);
 	}
 
 	/**

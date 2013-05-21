@@ -73,7 +73,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				});
 			}
 		});
-		createColumns();
+		this.createColumns();
 		this.treeViewer.setContentProvider(new CodeViewerContentProvider(
 				showInstances));
 		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
@@ -84,16 +84,16 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		// TODO: Cache labelProviders on URI base
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		CodeViewerUtils.createCodeColumn(treeViewer, codeService);
+		CodeViewerUtils.createCodeColumn(this.treeViewer, codeService);
 
-		treeViewer.createColumn("", 16).setLabelProvider(
+		this.treeViewer.createColumn("", 16).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						return "";
 					}
 				});
-		TreeViewerColumn countColumn = treeViewer.createColumn("# ph", 60);
+		TreeViewerColumn countColumn = this.treeViewer.createColumn("# ph", 60);
 		countColumn.getColumn().setAlignment(SWT.RIGHT);
 		countColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -107,7 +107,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				return "";
 			}
 		});
-		treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
+		this.treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -126,19 +126,22 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						return "ERROR";
 					}
 				});
-		treeViewer.createColumn("Date Created", 0/* 170 */).setLabelProvider(
-				new ColumnLabelProvider() {
+		this.treeViewer.createColumn("Date Created", 0/* 170 */)
+				.setLabelProvider(new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
-							return preferenceUtil.getDateFormat().format(
-									code.getCreation().getDate());
+							return CodeViewer.this.preferenceUtil
+									.getDateFormat().format(
+											code.getCreation().getDate());
 						}
 						if (ICodeInstance.class.isInstance(element)) {
 							ICodeInstance codeInstance = (ICodeInstance) element;
-							return preferenceUtil.getDateFormat().format(
-									codeInstance.getCreation().getDate());
+							return CodeViewer.this.preferenceUtil
+									.getDateFormat().format(
+											codeInstance.getCreation()
+													.getDate());
 						}
 						if (NoCodesNode.class.isInstance(element)) {
 							return "";
@@ -149,8 +152,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	public Control getControl() {
-		if (this.treeViewer != null)
+		if (this.treeViewer != null) {
 			return this.treeViewer.getTree();
+		}
 		return null;
 	}
 
@@ -197,13 +201,18 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			codeInstances.addAll(codeService.getAllInstances(code));
 		}
 		List<URI> uris = new ArrayList<URI>();
-		for (ICodeInstance codeInstance : codeInstances)
+		for (ICodeInstance codeInstance : codeInstances) {
 			uris.add(codeInstance.getId());
+		}
 		return uris;
 	}
 
 	public AbstractTreeViewer getViewer() {
-		return treeViewer;
+		return this.treeViewer;
+	}
+
+	public void refresh() {
+		this.treeViewer.refresh();
 	}
 
 }

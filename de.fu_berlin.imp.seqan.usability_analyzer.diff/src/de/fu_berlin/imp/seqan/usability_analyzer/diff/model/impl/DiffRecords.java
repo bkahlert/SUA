@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
@@ -40,16 +40,16 @@ public class DiffRecords implements IDiffRecords {
 	 */
 	public static IDiffs create(DataList dataList, ITrunk trunk,
 			ISourceStore sourceCache, IProgressMonitor progressMonitor) {
+		SubMonitor monitor = SubMonitor.convert(progressMonitor,
+				dataList.size());
+
 		List<IDiff> diffs = new ArrayList<IDiff>();
 
 		IDiff prevDiffFile = null;
 
-		progressMonitor.beginTask("Processing " + Diff.class.getSimpleName()
-				+ "s", dataList.size());
-
 		for (IData data : dataList) { // look ahead = 1
 			Diff diff = new Diff(data, prevDiffFile, trunk, sourceCache,
-					new SubProgressMonitor(progressMonitor, 1));
+					monitor.newChild(1));
 			diffs.add(diff);
 
 			prevDiffFile = diff;
@@ -59,7 +59,7 @@ public class DiffRecords implements IDiffRecords {
 		// heap
 		Runtime.getRuntime().gc();
 
-		progressMonitor.done();
+		monitor.done();
 
 		return new Diffs(diffs.toArray(new IDiff[0]));
 	}
@@ -79,14 +79,16 @@ public class DiffRecords implements IDiffRecords {
 		this.sourceCache = sourceCache;
 	}
 
+	@Override
 	public IDiffRecord createAndAddRecord(String commandLine,
 			String metaOldLine, String metaNewLine, long contentStart,
 			long contentEnd) {
 		IDiffRecordMeta meta = new DiffRecordMeta(metaOldLine, metaNewLine);
 
-		IData originalSourceFile = trunk.getSourceFile(meta.getToFileName());
+		IData originalSourceFile = this.trunk.getSourceFile(meta
+				.getToFileName());
 		IDiffRecord diffRecord = new DiffRecord(this.diff, originalSourceFile,
-				sourceCache, commandLine, meta, contentStart, contentEnd);
+				this.sourceCache, commandLine, meta, contentStart, contentEnd);
 		if (!diffRecord.isTemporary()) {
 			this.diffRecords.add(diffRecord);
 			return diffRecord;
@@ -100,17 +102,21 @@ public class DiffRecords implements IDiffRecords {
 		return new Iterator<IDiffRecord>() {
 			private int pos = 0;
 
+			@Override
 			public boolean hasNext() {
-				return pos < diffRecords.size();
+				return this.pos < DiffRecords.this.diffRecords.size();
 			}
 
+			@Override
 			public IDiffRecord next() throws NoSuchElementException {
-				if (hasNext())
-					return diffRecords.get(pos++);
-				else
+				if (this.hasNext()) {
+					return DiffRecords.this.diffRecords.get(this.pos++);
+				} else {
 					throw new NoSuchElementException();
+				}
 			}
 
+			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
@@ -127,6 +133,7 @@ public class DiffRecords implements IDiffRecords {
 		return this.diffRecords.size();
 	}
 
+	@Override
 	public Object[] toArray() {
 		return this.diffRecords.toArray();
 	}

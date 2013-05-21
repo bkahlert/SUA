@@ -15,6 +15,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -62,9 +63,20 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 				return null;
 			}
 
-			for (IViewReference viewReference : allViews) {
-				if (viewReference.getId().equals(ID))
-					return viewReference.getView(true);
+			for (final IViewReference viewReference : allViews) {
+				if (viewReference.getId().equals(ID)) {
+					try {
+						return ExecutorUtil.syncExec(new Callable<IViewPart>() {
+							@Override
+							public IViewPart call() throws Exception {
+								return viewReference.getView(true);
+							}
+						});
+					} catch (Exception e) {
+						LOGGER.fatal("Error retrieving "
+								+ ViewPart.class.getSimpleName() + " " + ID);
+					}
+				}
 			}
 			return null;
 		}
@@ -78,8 +90,8 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					entityViewer.setInput(Activator.getDefault()
-							.getLoadedData());
+					EntityView.this.entityViewer.setInput(Activator
+							.getDefault().getLoadedData());
 				}
 			});
 		}
@@ -103,12 +115,12 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.dataSourceFilters.put(DataSource.SURVEYRECORD,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
 
-		dataService.addDataServiceListener(dataServiceListener);
+		this.dataService.addDataServiceListener(this.dataServiceListener);
 	}
 
 	@Override
 	public void dispose() {
-		dataService.removeDataServiceListener(dataServiceListener);
+		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}
 
@@ -116,6 +128,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	 * This is a callback that will allow us to create the viewer and initialize
 	 * it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().create());
 
@@ -141,26 +154,31 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			}
 		};
 
-		applyFilters();
+		this.applyFilters();
 	}
 
 	private void applyFilters() {
 		for (DataSource dataSource : new SUAEntityPreferenceUtil()
 				.getFilterdDataSources()) {
-			dataSourceFilterChanged(dataSource, true);
+			this.dataSourceFilterChanged(dataSource, true);
 		}
-		this.dateRangeChanged(null, preferenceUtil.getDateRange());
+		this.dateRangeChanged(null, this.preferenceUtil.getDateRange());
 	}
 
 	public EntityViewer getEntityTableViewer() {
-		return entityViewer;
+		return this.entityViewer;
 	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
-		entityViewer.getControl().setFocus();
+		if (this.entityViewer != null
+				&& !this.entityViewer.getControl().isDisposed()) {
+			this.entityViewer.getControl().setFocus();
+			this.entityViewer.setInput(Activator.getDefault().getLoadedData());
+		}
 	}
 
 	@Override
@@ -174,7 +192,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			this.entityViewer.removeFilter(dataSourceFilter);
 		}
 
-		updateStatus();
+		this.updateStatus();
 	}
 
 	@Override
@@ -184,20 +202,23 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			ExecutorUtil.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					entityViewer.removeFilter(dateRangeFilter);
-					dateRangeFilter = new DateRangeFilter(newDateRange);
-					entityViewer.addFilter(dateRangeFilter);
-					updateStatus();
+					EntityView.this.entityViewer
+							.removeFilter(EntityView.this.dateRangeFilter);
+					EntityView.this.dateRangeFilter = new DateRangeFilter(
+							newDateRange);
+					EntityView.this.entityViewer
+							.addFilter(EntityView.this.dateRangeFilter);
+					EntityView.this.updateStatus();
 				}
 			});
 		}
 	}
 
 	private void updateStatus() {
-		int numEntries = entityViewer.getTable().getItems().length;
+		int numEntries = this.entityViewer.getTable().getItems().length;
 		this.status.setText(numEntries
 				+ ((numEntries != 1) ? " entries" : " entry"));
-		IStatusLineManager manager = getViewSite().getActionBars()
+		IStatusLineManager manager = this.getViewSite().getActionBars()
 				.getStatusLineManager();
 		manager.setMessage(numEntries
 				+ ((numEntries != 1) ? " entries" : " entry"));

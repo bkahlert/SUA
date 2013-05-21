@@ -46,10 +46,10 @@ public class TimeZoneDateRangeView extends ViewPart {
 		this.startDateTimeEnabled = this.createCheckbox(parent);
 
 		this.createLabel(parent, "End");
-		this.endDateTime = createCDateTime(parent);
+		this.endDateTime = this.createCDateTime(parent);
 		this.endDateTimeEnabled = this.createCheckbox(parent);
 
-		configure();
+		this.configure();
 	}
 
 	private SimpleNoteComposite createHowTo(Composite parent) {
@@ -76,7 +76,7 @@ public class TimeZoneDateRangeView extends ViewPart {
 				| CDT.CLOCK_24_HOUR);
 		cDateTime.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, false).create());
-		cDateTime.setPattern(preferenceUtil.getDateFormatString());
+		cDateTime.setPattern(this.preferenceUtil.getDateFormatString());
 		return cDateTime;
 	}
 
@@ -87,64 +87,87 @@ public class TimeZoneDateRangeView extends ViewPart {
 	}
 
 	private void configure() {
-		TimeZoneDate dateRangeStart = preferenceUtil.getDateRangeStart();
-		TimeZoneDate dateRangeEnd = preferenceUtil.getDateRangeEnd();
-		if (startDateTime != null && !startDateTime.isDisposed()
+		TimeZoneDate dateRangeStart = this.preferenceUtil.getDateRangeStart();
+		TimeZoneDate dateRangeEnd = this.preferenceUtil.getDateRangeEnd();
+		if (this.startDateTime != null && !this.startDateTime.isDisposed()
 				&& dateRangeStart != null) {
-			startDateTime.setSelection(dateRangeStart.getDate());
-			startDateTime.setEnabled(preferenceUtil.getDateRangeStartEnabled());
-			startDateTime.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeStart(new TimeZoneDate(
-							startDateTime.getSelection(), TimeZone.getDefault()));
-				}
-			});
-		}
-		if (endDateTime != null && !endDateTime.isDisposed()
-				&& dateRangeEnd != null) {
-			endDateTime.setSelection(dateRangeEnd.getDate());
-			endDateTime.setEnabled(preferenceUtil.getDateRangeEndEnabled());
-			endDateTime.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					preferenceUtil.setDateRangeEnd(new TimeZoneDate(endDateTime
-							.getSelection(), TimeZone.getDefault()));
-				}
-			});
-		}
-		if (startDateTimeEnabled != null && !startDateTimeEnabled.isDisposed()) {
-			startDateTimeEnabled.setSelection(preferenceUtil
+			this.startDateTime.setSelection(dateRangeStart.getDate());
+			this.startDateTime.setEnabled(this.preferenceUtil
 					.getDateRangeStartEnabled());
-			startDateTimeEnabled.addSelectionListener(new SelectionAdapter() {
+			this.startDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					boolean enabled = startDateTimeEnabled.getSelection();
-					preferenceUtil.setDateRangeStartEnabled(enabled);
-					if (startDateTime != null && !startDateTime.isDisposed()) {
-						startDateTime.setEnabled(enabled);
-					}
+					TimeZoneDateRangeView.this.preferenceUtil
+							.setDateRangeStart(new TimeZoneDate(
+									TimeZoneDateRangeView.this.startDateTime
+											.getSelection(), TimeZone
+											.getDefault()));
 				}
 			});
 		}
-		if (endDateTimeEnabled != null && !endDateTimeEnabled.isDisposed()) {
-			endDateTimeEnabled.setSelection(preferenceUtil
+		if (this.endDateTime != null && !this.endDateTime.isDisposed()
+				&& dateRangeEnd != null) {
+			this.endDateTime.setSelection(dateRangeEnd.getDate());
+			this.endDateTime.setEnabled(this.preferenceUtil
 					.getDateRangeEndEnabled());
-			endDateTimeEnabled.addSelectionListener(new SelectionAdapter() {
+			this.endDateTime.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					boolean enabled = endDateTimeEnabled.getSelection();
-					preferenceUtil.setDateRangeEndEnabled(enabled);
-					if (endDateTime != null && !endDateTime.isDisposed()) {
-						endDateTime.setEnabled(enabled);
-					}
+					TimeZoneDateRangeView.this.preferenceUtil
+							.setDateRangeEnd(new TimeZoneDate(
+									TimeZoneDateRangeView.this.endDateTime
+											.getSelection(), TimeZone
+											.getDefault()));
 				}
 			});
+		}
+		if (this.startDateTimeEnabled != null
+				&& !this.startDateTimeEnabled.isDisposed()) {
+			this.startDateTimeEnabled.setSelection(this.preferenceUtil
+					.getDateRangeStartEnabled());
+			this.startDateTimeEnabled
+					.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							boolean enabled = TimeZoneDateRangeView.this.startDateTimeEnabled
+									.getSelection();
+							TimeZoneDateRangeView.this.preferenceUtil
+									.setDateRangeStartEnabled(enabled);
+							if (TimeZoneDateRangeView.this.startDateTime != null
+									&& !TimeZoneDateRangeView.this.startDateTime
+											.isDisposed()) {
+								TimeZoneDateRangeView.this.startDateTime
+										.setEnabled(enabled);
+							}
+						}
+					});
+		}
+		if (this.endDateTimeEnabled != null
+				&& !this.endDateTimeEnabled.isDisposed()) {
+			this.endDateTimeEnabled.setSelection(this.preferenceUtil
+					.getDateRangeEndEnabled());
+			this.endDateTimeEnabled
+					.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							boolean enabled = TimeZoneDateRangeView.this.endDateTimeEnabled
+									.getSelection();
+							TimeZoneDateRangeView.this.preferenceUtil
+									.setDateRangeEndEnabled(enabled);
+							if (TimeZoneDateRangeView.this.endDateTime != null
+									&& !TimeZoneDateRangeView.this.endDateTime
+											.isDisposed()) {
+								TimeZoneDateRangeView.this.endDateTime
+										.setEnabled(enabled);
+							}
+						}
+					});
 		}
 	}
 
 	@Override
 	public void setFocus() {
+		// TODO load if view had no focus
 	}
 
 }

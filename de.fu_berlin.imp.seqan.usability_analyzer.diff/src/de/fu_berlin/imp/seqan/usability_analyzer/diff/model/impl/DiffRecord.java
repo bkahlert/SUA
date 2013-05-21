@@ -12,6 +12,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.bkahlert.nebula.utils.DiffUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -19,7 +21,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtil
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordMeta;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ISourceStore;
 
 public class DiffRecord implements IDiffRecord {
@@ -148,7 +149,8 @@ public class DiffRecord implements IDiffRecord {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + ": " + this.getFilename();
+		return this.getClass().getSimpleName() + ": " + this.getFilename()
+				+ "@" + this.diff.getRevision();
 	}
 
 	/*
@@ -254,25 +256,12 @@ public class DiffRecord implements IDiffRecord {
 
 			try {
 				List<String> patch = this.getPatchLines();
-				List<String> newSource = DiffUtils.patch(predecessorSource,
-						patch);
-				if (newSource.size() == 0) {
-					// user emptied file
-				} else {
-					String lastLine = newSource.get(newSource.size() - 1);
-					if (lastLine.equals("")) {
-						newSource.remove(newSource.size() - 1);
-					}
-					if (newSource.size() > 0
-							&& newSource.get(newSource.size() - 1).endsWith(
-									"\n")) {
-						newSource.get(newSource.size() - 1).replace("\n$", "");
-					}
-				}
+				String newSource = DiffUtils.patch(predecessorSource,
+						StringUtils.join(patch, "\n") + "\n");
 				this.setAndPersistSource(newSource);
 				LOGGER.info("Successfully patched " + this.diff.getIdentifier()
 						+ ", " + this.getFilename());
-				return StringUtils.join(newSource, "\n");
+				return newSource;
 			} catch (Exception e) {
 				String filename = this.getFilename();
 				LOGGER.warn("Could not patch ID: " + this.diff.getIdentifier()
@@ -283,14 +272,10 @@ public class DiffRecord implements IDiffRecord {
 		}
 	}
 
-	void setAndPersistSource(List<String> source) {
+	void setAndPersistSource(String sourceString) {
 		// this method consumes much space
 		Runtime.getRuntime().gc();
 
-		String sourceString = StringUtils.join(source, "\n");
-		if (sourceString.endsWith("\n")) {
-			sourceString = sourceString.substring(0, sourceString.length() - 1);
-		}
 		try {
 			File tmp = File.createTempFile("source", ".tmp");
 			FileUtils.write(tmp, sourceString);
