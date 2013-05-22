@@ -104,8 +104,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 					@Override
 					public String getText(Object element) {
 						if (ILocatable.class.isInstance(element)) {
-							ILocatable codeable = (ILocatable) element;
-							return codeable.getUri().toString();
+							ILocatable locatable = (ILocatable) element;
+							return locatable.getUri().toString();
 						}
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
@@ -140,8 +140,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		this.treeViewer.setSelection(selection);
 	}
 
-	public void setInput(List<ILocatable> codeables) {
-		this.treeViewer.setInput(codeables);
+	public void setInput(List<ILocatable> locatables) {
+		this.treeViewer.setInput(locatables);
 	}
 
 	public StructuredViewer getViewer() {
@@ -154,16 +154,16 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * 
 	 * @return
 	 */
-	public ILocatable getCodeable() {
-		List<ILocatable> codeables = new LinkedList<ILocatable>();
+	public ILocatable getLocatable() {
+		List<ILocatable> locatables = new LinkedList<ILocatable>();
 		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
 		for (TreeItem treeItem : treeItems) {
-			ILocatable codeable = this.getCodeable(treeItem);
-			if (!codeables.contains(codeable)) {
-				codeables.add(codeable);
+			ILocatable locatable = this.getLocatable(treeItem);
+			if (!locatables.contains(locatable)) {
+				locatables.add(locatable);
 			}
 		}
-		return codeables.size() == 1 ? codeables.get(0) : null;
+		return locatables.size() == 1 ? locatables.get(0) : null;
 	}
 
 	/**
@@ -176,12 +176,12 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * @param treeItem
 	 * @return
 	 */
-	public ILocatable getCodeable(TreeItem treeItem) {
+	public ILocatable getLocatable(TreeItem treeItem) {
 		if (treeItem.getData() instanceof ILocatable) {
 			return (ILocatable) treeItem.getData();
 		}
 		if (treeItem.getParentItem() != null) {
-			return this.getCodeable(treeItem.getParentItem());
+			return this.getLocatable(treeItem.getParentItem());
 		}
 		return null;
 	}

@@ -31,7 +31,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -47,7 +47,7 @@ public class EpisodeViewerContentProvider implements
 
 		@Override
 		public void codesRemoved(List<ICode> removedCodes,
-				List<ILocatable> codeables) {
+				List<ILocatable> locatables) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -68,7 +68,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
+		public void memoAdded(ILocatable locatable) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -77,7 +77,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoModified(ILocatable codeable) {
+		public void memoModified(ILocatable locatable) {
 		};
 
 		@Override
@@ -86,7 +86,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
+		public void memoRemoved(ILocatable locatable) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 

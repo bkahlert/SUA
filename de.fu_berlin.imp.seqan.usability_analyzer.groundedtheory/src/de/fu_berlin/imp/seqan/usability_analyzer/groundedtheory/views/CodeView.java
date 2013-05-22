@@ -61,11 +61,11 @@ public class CodeView extends ViewPart {
 		// ICodeInstance.class);
 		// List<TimeZoneDateRange> ranges = new ArrayList<TimeZoneDateRange>();
 		// for (ICodeInstance codeInstance : codeInstances) {
-		// ILocatable codeable = CodeView.this.codeService
+		// ILocatable locatable = CodeView.this.codeService
 		// .getCodedObject(codeInstance
 		// .getId());
-		// if (codeable instanceof HasDateRange) {
-		// ranges.add(((HasDateRange) codeable)
+		// if (locatable instanceof HasDateRange) {
+		// ranges.add(((HasDateRange) locatable)
 		// .getDateRange());
 		// }
 		// }

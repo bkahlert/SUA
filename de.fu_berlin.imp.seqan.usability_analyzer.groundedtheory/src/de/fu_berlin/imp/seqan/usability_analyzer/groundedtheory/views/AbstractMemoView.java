@@ -58,15 +58,15 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
-			if (codeables.contains(AbstractMemoView.this.getLoadedObject())) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+			if (locatables.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
-			if (codeables.contains(AbstractMemoView.this.getLoadedObject())) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
+			if (locatables.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		};
@@ -83,8 +83,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
-			this.reloadIfNecessary(codeable);
+		public void memoAdded(ILocatable locatable) {
+			this.reloadIfNecessary(locatable);
 		};
 
 		@Override
@@ -93,8 +93,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoModified(ILocatable codeable) {
-			this.reloadIfNecessary(codeable);
+		public void memoModified(ILocatable locatable) {
+			this.reloadIfNecessary(locatable);
 		};
 
 		@Override
@@ -103,8 +103,8 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 		};
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
-			this.reloadIfNecessary(codeable);
+		public void memoRemoved(ILocatable locatable) {
+			this.reloadIfNecessary(locatable);
 		};
 	};
 
@@ -133,9 +133,9 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						Future<ILocatable> codeable = AbstractMemoView.this.locatorService
+						Future<ILocatable> locatable = AbstractMemoView.this.locatorService
 								.resolve(uri, null);
-						if (codeable.get() != null) {
+						if (locatable.get() != null) {
 							return true;
 						}
 					} catch (Exception e) {
@@ -184,18 +184,18 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			@Override
 			public void uriClicked(final URI uri) {
 				try {
-					final ILocatable codeable = AbstractMemoView.this.locatorService
+					final ILocatable locatable = AbstractMemoView.this.locatorService
 							.resolve(uri, null).get();
 					if (!KeyboardUtils.isMetaKeyPressed()) {
 						// treat link as a typical link that opens a resource
-						AbstractMemoView.this.history.add(codeable);
+						AbstractMemoView.this.history.add(locatable);
 						AbstractMemoView.this.updateNavigation();
-						AbstractMemoView.this.load(codeable);
+						AbstractMemoView.this.load(locatable);
 					} else {
 						// do not follow the link but make Eclipse open the
 						// resource
 						TimeZoneDateRange range = (TimeZoneDateRange) Platform
-								.getAdapterManager().getAdapter(codeable,
+								.getAdapterManager().getAdapter(locatable,
 										TimeZoneDateRange.class);
 						if (range != null) {
 							AbstractMemoView.this.highlightService.highlight(
@@ -271,10 +271,10 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			}
 			return new PartInfo("ERROR", null);
 		} else if (loadedObject instanceof ILocatable) {
-			ILocatable codeable = (ILocatable) loadedObject;
+			ILocatable locatable = (ILocatable) loadedObject;
 			ILabelProvider lp = this.labelProviderService
-					.getLabelProvider(codeable);
-			return new PartInfo(lp.getText(codeable), lp.getImage(codeable));
+					.getLabelProvider(locatable);
+			return new PartInfo(lp.getText(locatable), lp.getImage(locatable));
 		} else {
 			return this.getDefaultPartInfo();
 		}

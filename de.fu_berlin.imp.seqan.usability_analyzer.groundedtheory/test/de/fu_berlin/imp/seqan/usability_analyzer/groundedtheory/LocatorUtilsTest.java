@@ -16,9 +16,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.LocatableUtils;
 
-public class CodeableUtilsTest {
+public class LocatorUtilsTest {
 	@SuppressWarnings("serial")
-	public static List<ILocatable> codeables = new ArrayList<ILocatable>() {
+	public static List<ILocatable> locatables = new ArrayList<ILocatable>() {
 		{
 			this.add(new ILocatable() {
 				@Override
@@ -75,7 +75,7 @@ public class CodeableUtilsTest {
 
 	@Test
 	public void testGetIdentifiers() {
-		Set<IIdentifier> identifiers = LocatableUtils.getIdentifiers(codeables
+		Set<IIdentifier> identifiers = LocatableUtils.getIdentifiers(locatables
 				.toArray(new ILocatable[0]));
 		assertEquals(4, identifiers.size());
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("jkl")));

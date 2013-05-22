@@ -6,14 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -31,8 +30,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
 
-	private static final ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(1);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
@@ -92,9 +90,8 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		// force class loading since DoclogRecord is used in the Callable
 		DoclogAction.class.getClass();
 		DoclogRecord.class.getClass();
-		List<Future<Integer>> futures = ExecutorUtil
+		List<Future<Integer>> futures = EXECUTOR_SERVICE
 				.nonUIAsyncExec(
-						LOADER_POOL,
 						this.datas.keySet(),
 						new com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable<IIdentifier, Integer>() {
 							@Override

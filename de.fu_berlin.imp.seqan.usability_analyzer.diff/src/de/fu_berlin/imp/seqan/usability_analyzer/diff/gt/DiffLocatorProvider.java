@@ -145,7 +145,7 @@ public class DiffLocatorProvider implements ILocatorProvider {
 							final DiffListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();
 							try {
-								List<ILocatable> selectedCodeables = ExecutorUtil
+								List<ILocatable> selectedLocatables = ExecutorUtil
 										.syncExec(new Callable<List<ILocatable>>() {
 											@Override
 											public List<ILocatable> call()
@@ -158,7 +158,7 @@ public class DiffLocatorProvider implements ILocatorProvider {
 														ILocatable.class);
 											}
 										});
-								return selectedCodeables
+								return selectedLocatables
 										.toArray(new ILocatable[0]);
 							} catch (Exception e) {
 								return new ILocatable[0];
@@ -177,9 +177,9 @@ public class DiffLocatorProvider implements ILocatorProvider {
 
 	public boolean openSegments(final ILocatable[] locatables,
 			final DiffExplorerView diffExplorerView) {
-		for (ILocatable codeable : locatables) {
-			if (codeable instanceof IDiffRecordSegment) {
-				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
+		for (ILocatable locatable : locatables) {
+			if (locatable instanceof IDiffRecordSegment) {
+				IDiffRecordSegment segment = (IDiffRecordSegment) locatable;
 				DiffFileEditorUtils.openCompareEditor(segment
 						.getDiffFileRecord());
 				// TODO: Highlight segment

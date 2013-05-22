@@ -193,9 +193,9 @@ public class DiffRecordUtils {
 	public static List<IDiffRecord> getRecordsFromSegments(
 			ILocatable[] locatables) {
 		List<IDiffRecord> diffRecords = new LinkedList<IDiffRecord>();
-		for (ILocatable codeable : locatables) {
-			if (codeable instanceof IDiffRecordSegment) {
-				IDiffRecordSegment segment = (IDiffRecordSegment) codeable;
+		for (ILocatable locatable : locatables) {
+			if (locatable instanceof IDiffRecordSegment) {
+				IDiffRecordSegment segment = (IDiffRecordSegment) locatable;
 				diffRecords.add(segment.getDiffFileRecord());
 			}
 		}

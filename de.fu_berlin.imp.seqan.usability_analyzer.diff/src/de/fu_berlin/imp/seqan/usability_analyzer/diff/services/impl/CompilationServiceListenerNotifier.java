@@ -2,18 +2,16 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 
 public class CompilationServiceListenerNotifier {
 	private List<ICompilationServiceListener> compilationServiceListeners = new ArrayList<ICompilationServiceListener>();
-	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(1);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	public void addCompilationServiceListener(
 			ICompilationServiceListener compilationServiceListener) {
@@ -27,7 +25,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilationStateChanged(final ICompilable[] compilables,
 			final Boolean state) {
-		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
+		EXECUTOR_SERVICE.nonUIAsyncExec(this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(
@@ -42,7 +40,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilerOutputChanged(final ICompilable compilable,
 			final String html) {
-		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
+		EXECUTOR_SERVICE.nonUIAsyncExec(this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(
@@ -57,7 +55,7 @@ public class CompilationServiceListenerNotifier {
 
 	public void executionOutputChanged(final ICompilable compilable,
 			final String html) {
-		ExecutorUtil.nonUIAsyncExec(POOL, this.compilationServiceListeners,
+		EXECUTOR_SERVICE.nonUIAsyncExec(this.compilationServiceListeners,
 				new ParametrizedCallable<ICompilationServiceListener, Void>() {
 					@Override
 					public Void call(

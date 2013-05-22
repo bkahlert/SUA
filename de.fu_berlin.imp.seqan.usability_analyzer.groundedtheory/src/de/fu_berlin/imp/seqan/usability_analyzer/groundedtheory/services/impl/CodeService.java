@@ -99,16 +99,16 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public List<ICode> getCodes(ILocatable codeable)
+	public List<ICode> getCodes(ILocatable locatable)
 			throws CodeServiceException {
-		return this.getCodes(codeable.getUri());
+		return this.getCodes(locatable.getUri());
 	}
 
 	@Override
-	public List<ICode> getCodes(URI codeableId) throws CodeServiceException {
+	public List<ICode> getCodes(URI locatableId) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
 		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
-			if (codeInstance.getId().equals(codeableId)) {
+			if (codeInstance.getId().equals(locatableId)) {
 				codes.add(codeInstance.getCode());
 			}
 		}
@@ -116,21 +116,21 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public ICode addCode(String codeCaption, RGB color, ILocatable codeable)
+	public ICode addCode(String codeCaption, RGB color, ILocatable locatable)
 			throws CodeServiceException {
 		ICode code = this.createCode(codeCaption, color);
-		this.addCode(code, codeable);
+		this.addCode(code, locatable);
 		return code;
 	}
 
 	@Override
-	public void addCode(ICode code, final ILocatable codeable)
+	public void addCode(ICode code, final ILocatable locatable)
 			throws CodeServiceException {
-		this.addCodes(Arrays.asList(code), Arrays.asList(codeable));
+		this.addCodes(Arrays.asList(code), Arrays.asList(locatable));
 	}
 
 	@Override
-	public void addCodes(List<ICode> codes, List<ILocatable> codeables)
+	public void addCodes(List<ICode> codes, List<ILocatable> locatables)
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {
@@ -141,9 +141,9 @@ public class CodeService implements ICodeService {
 			}
 			ICodeInstance[] codeInstances = this.codeStore.createCodeInstances(
 					codes.toArray(new ICode[0]),
-					codeables.toArray(new ILocatable[0]));
+					locatables.toArray(new ILocatable[0]));
 			this.codeStore.addAndSaveCodeInstances(codeInstances);
-			this.codeServiceListenerNotifier.codeAssigned(codes, codeables);
+			this.codeServiceListenerNotifier.codeAssigned(codes, locatables);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeStoreReadException e) {
@@ -274,7 +274,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void removeCodes(List<ICode> codes, final ILocatable codeable)
+	public void removeCodes(List<ICode> codes, final ILocatable locatable)
 			throws CodeServiceException {
 		if (codes.size() == 0) {
 			return;
@@ -283,7 +283,7 @@ public class CodeService implements ICodeService {
 			List<ICode> removedCodes = new LinkedList<ICode>();
 			for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
 				if (codes.contains(codeInstance.getCode())
-						&& codeInstance.getId().equals(codeable.getUri())) {
+						&& codeInstance.getId().equals(locatable.getUri())) {
 					this.codeStore.deleteCodeInstance(codeInstance);
 					removedCodes.add(codeInstance.getCode());
 				}
@@ -293,7 +293,7 @@ public class CodeService implements ICodeService {
 			}
 
 			this.codeServiceListenerNotifier.codesRemoved(removedCodes,
-					Arrays.asList(codeable));
+					Arrays.asList(locatable));
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
@@ -339,10 +339,10 @@ public class CodeService implements ICodeService {
 		try {
 			this.codeStore.deleteCodeInstance(codeInstance);
 			ICode code = codeInstance.getCode();
-			List<ILocatable> codeables = Arrays.asList(this.locatorService
+			List<ILocatable> locatables = Arrays.asList(this.locatorService
 					.resolve(codeInstance.getId(), null).get());
 			this.codeServiceListenerNotifier.codesRemoved(Arrays.asList(code),
-					codeables);
+					locatables);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
@@ -365,8 +365,8 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public String loadMemo(ILocatable codeable) {
-		return this.codeStore.getMemo(codeable);
+	public String loadMemo(ILocatable locatable) {
+		return this.codeStore.getMemo(locatable);
 	}
 
 	@Override
@@ -433,9 +433,9 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void setMemo(ILocatable codeable, String html)
+	public void setMemo(ILocatable locatable, String html)
 			throws CodeServiceException {
-		String oldHtml = this.codeStore.getMemo(codeable);
+		String oldHtml = this.codeStore.getMemo(locatable);
 
 		if (oldHtml == null || oldHtml.trim().isEmpty()) {
 			oldHtml = "";
@@ -448,13 +448,13 @@ public class CodeService implements ICodeService {
 		}
 
 		try {
-			this.codeStore.setMemo(codeable, html);
+			this.codeStore.setMemo(locatable, html);
 			if (oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoAdded(codeable, html);
+				this.codeServiceListenerNotifier.memoAdded(locatable, html);
 			} else if (!oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoModified(codeable, html);
+				this.codeServiceListenerNotifier.memoModified(locatable, html);
 			} else if (!oldHtml.equals("") && html.equals("")) {
-				this.codeServiceListenerNotifier.memoRemoved(codeable, html);
+				this.codeServiceListenerNotifier.memoRemoved(locatable, html);
 			} else {
 				throw new CodeStoreWriteException("STATE ERROR");
 			}
@@ -470,8 +470,8 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public boolean isMemo(ILocatable codeable) {
-		String html = this.codeStore.getMemo(codeable);
+	public boolean isMemo(ILocatable locatable) {
+		String html = this.codeStore.getMemo(locatable);
 		return html != null && !html.trim().isEmpty();
 	}
 

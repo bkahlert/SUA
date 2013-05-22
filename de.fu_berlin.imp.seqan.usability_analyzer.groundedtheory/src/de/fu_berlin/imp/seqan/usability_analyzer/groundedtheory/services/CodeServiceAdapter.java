@@ -16,7 +16,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
+	public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
+	public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoAdded(ILocatable codeable) {
+	public void memoAdded(ILocatable locatable) {
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoModified(ILocatable codeable) {
+	public void memoModified(ILocatable locatable) {
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoRemoved(ILocatable codeable) {
+	public void memoRemoved(ILocatable locatable) {
 	}
 
 	@Override

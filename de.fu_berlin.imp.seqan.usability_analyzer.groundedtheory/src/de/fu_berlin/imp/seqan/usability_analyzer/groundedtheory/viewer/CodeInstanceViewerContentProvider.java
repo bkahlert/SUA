@@ -25,7 +25,7 @@ public class CodeInstanceViewerContentProvider implements
 	private Viewer viewer;
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-	private List<ILocatable> codeables;
+	private List<ILocatable> locatables;
 
 	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
 
@@ -36,7 +36,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					true);
 		}
@@ -54,7 +54,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					true);
 		}
@@ -79,9 +79,9 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
+		public void memoAdded(ILocatable locatable) {
 			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
-					codeable, null);
+					locatable, null);
 		}
 
 		@Override
@@ -99,7 +99,7 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoModified(ILocatable codeable) {
+		public void memoModified(ILocatable locatable) {
 		}
 
 		@Override
@@ -109,9 +109,9 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
+		public void memoRemoved(ILocatable locatable) {
 			ViewerUtils.update(CodeInstanceViewerContentProvider.this.viewer,
-					codeable, null);
+					locatable, null);
 		}
 
 		@Override
@@ -150,20 +150,20 @@ public class CodeInstanceViewerContentProvider implements
 		}
 
 		if (List.class.isInstance(newInput)) {
-			this.codeables = (List<ILocatable>) newInput;
+			this.locatables = (List<ILocatable>) newInput;
 			this.codeService.addCodeServiceListener(this.codeServiceListener);
 		} else {
-			if (this.codeables != null) {
+			if (this.locatables != null) {
 				this.codeService
 						.removeCodeServiceListener(this.codeServiceListener);
-				this.codeables = null;
+				this.locatables = null;
 			}
 		}
 	}
 
 	@Override
 	public void dispose() {
-		if (this.codeables != null) {
+		if (this.locatables != null) {
 			this.codeService
 					.removeCodeServiceListener(this.codeServiceListener);
 		}
@@ -189,9 +189,9 @@ public class CodeInstanceViewerContentProvider implements
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (ILocatable.class.isInstance(parentElement)) {
-			ILocatable codeable = (ILocatable) parentElement;
+			ILocatable locatable = (ILocatable) parentElement;
 			try {
-				List<ICode> codes = this.codeService.getCodes(codeable);
+				List<ICode> codes = this.codeService.getCodes(locatable);
 				if (codes.size() > 0) {
 					return codes.toArray();
 				} else {

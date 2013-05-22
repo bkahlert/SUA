@@ -234,15 +234,15 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ILocatable[] codeables) throws InvalidParameterException,
+			ILocatable[] locatables) throws InvalidParameterException,
 			CodeStoreReadException, DuplicateCodeInstanceException {
 		List<ICodeInstance> duplicateCodeInstances = new LinkedList<ICodeInstance>();
 		List<ICodeInstance> generatedCodeInstances = new LinkedList<ICodeInstance>();
 		for (ICode code : codes) {
 			if (this.assertiveFind(code) != null) {
-				for (ILocatable codeable : codeables) {
+				for (ILocatable locatable : locatables) {
 					ICodeInstance codeInstance = new CodeInstance(code,
-							codeable.getUri(), new TimeZoneDate(new Date(),
+							locatable.getUri(), new TimeZoneDate(new Date(),
 									TimeZone.getDefault()));
 					if (this.codeInstances.contains(codeInstance)) {
 						duplicateCodeInstances.add(codeInstance);
@@ -521,16 +521,16 @@ class CodeStore implements ICodeStore {
 	 * Returns the basename for the given {@link ILocatable} for use in
 	 * conjunction {@link #getMemoLocation(String)}.
 	 * 
-	 * @param codeable
+	 * @param locatable
 	 * @return
 	 */
-	protected static String getMemoBasename(ILocatable codeable) {
-		if (codeable == null) {
+	protected static String getMemoBasename(ILocatable locatable) {
+		if (locatable == null) {
 			throw new InvalidParameterException();
 		}
 		try {
 			return "codeInstance_"
-					+ URLEncoder.encode(codeable.getUri().toString(), "UTF-8");
+					+ URLEncoder.encode(locatable.getUri().toString(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
@@ -608,15 +608,15 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public String getMemo(ILocatable codeable) {
+	public String getMemo(ILocatable locatable) {
 		String memo = null;
 		try {
-			memo = this.loadMemo(getMemoBasename(codeable));
+			memo = this.loadMemo(getMemoBasename(locatable));
 		} catch (IOException e) {
-			logger.error("Error reading memo for " + codeable);
+			logger.error("Error reading memo for " + locatable);
 		}
 		if (memo == null) {
-			return this.memos != null ? this.memos.get(codeable.getUri())
+			return this.memos != null ? this.memos.get(locatable.getUri())
 					: null;
 		} else {
 			return memo;
@@ -651,15 +651,15 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void setMemo(ILocatable codeable, String html)
+	public void setMemo(ILocatable locatable, String html)
 			throws CodeStoreWriteException {
 		try {
-			this.saveMemo(getMemoBasename(codeable), html);
+			this.saveMemo(getMemoBasename(locatable), html);
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
 		if (this.memos != null) {
-			this.memos.remove(codeable.getUri());
+			this.memos.remove(locatable.getUri());
 		}
 		this.save();
 	}

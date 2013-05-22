@@ -55,12 +55,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void codeAssigned(final List<ICode> codes, final List<ILocatable> codeables) {
+	void codeAssigned(final List<ICode> codes, final List<ILocatable> locatables) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.codesAssigned(codes, codeables);
+					codeServiceListener.codesAssigned(codes, locatables);
 					return null;
 				}
 			});
@@ -95,12 +95,12 @@ public class CodeServiceListenerNotifier {
 	}
 
 	void codesRemoved(final List<ICode> removedCodes,
-			final List<ILocatable> codeables) {
+			final List<ILocatable> locatables) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.codesRemoved(removedCodes, codeables);
+					codeServiceListener.codesRemoved(removedCodes, locatables);
 					return null;
 				}
 			});
@@ -160,12 +160,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoAdded(final ILocatable codeable, String html) {
+	void memoAdded(final ILocatable locatable, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.memoAdded(codeable);
+					codeServiceListener.memoAdded(locatable);
 					return null;
 				}
 			});
@@ -199,12 +199,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoModified(final ILocatable codeable, String html) {
+	void memoModified(final ILocatable locatable, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.memoModified(codeable);
+					codeServiceListener.memoModified(locatable);
 					return null;
 				}
 			});
@@ -238,12 +238,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoRemoved(final ILocatable codeable, String html) {
+	void memoRemoved(final ILocatable locatable, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.memoRemoved(codeable);
+					codeServiceListener.memoRemoved(locatable);
 					return null;
 				}
 			});

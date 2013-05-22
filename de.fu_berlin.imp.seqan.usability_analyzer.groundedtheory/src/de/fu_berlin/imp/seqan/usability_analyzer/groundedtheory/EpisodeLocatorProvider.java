@@ -19,7 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.EpisodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView;
 
-public class EpisodeCodeableProvider implements ILocatorProvider {
+public class EpisodeLocatorProvider implements ILocatorProvider {
 
 	public static final String EPISODE_NAMESPACE = "episode";
 

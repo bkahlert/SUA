@@ -23,18 +23,18 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		List<ILocatable> codeables = SelectionRetrieverFactory
+		List<ILocatable> locatables = SelectionRetrieverFactory
 				.getSelectionRetriever(ILocatable.class).getSelection();
 		if (InformationControlManagerUtils.getCurrentInput() instanceof ILocatable) {
 			ILocatable input = (ILocatable) InformationControlManagerUtils
 					.getCurrentInput();
-			if (!codeables.contains(input)) {
-				codeables.add(input);
+			if (!locatables.contains(input)) {
+				locatables.add(input);
 			}
 		}
 
-		if (codeables.size() > 0) {
-			WizardUtils.openAddCodeWizard(codeables, Utils.getFancyCodeColor());
+		if (locatables.size() > 0) {
+			WizardUtils.openAddCodeWizard(locatables, Utils.getFancyCodeColor());
 		}
 
 		return null;

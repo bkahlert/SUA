@@ -39,7 +39,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
 			for (ICode code : codes)
 				ViewerUtils.refresh(viewer, code, true);
 		}
@@ -55,7 +55,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
 			ViewerUtils.refresh(viewer, true);
 		}
 
@@ -88,8 +88,8 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
-			ViewerUtils.update(viewer, codeable, null);
+		public void memoAdded(ILocatable locatable) {
+			ViewerUtils.update(viewer, locatable, null);
 		}
 
 		@Override
@@ -101,7 +101,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ILocatable codeable) {
+		public void memoModified(ILocatable locatable) {
 		}
 
 		@Override
@@ -115,8 +115,8 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
-			ViewerUtils.update(viewer, codeable, null);
+		public void memoRemoved(ILocatable locatable) {
+			ViewerUtils.update(viewer, locatable, null);
 		}
 
 		@Override

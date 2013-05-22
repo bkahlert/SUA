@@ -997,7 +997,7 @@
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
       <LocatorProvider
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeCodeableProvider">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.EpisodeLocatorProvider">
       </LocatorProvider>
    </extension>
    <extension

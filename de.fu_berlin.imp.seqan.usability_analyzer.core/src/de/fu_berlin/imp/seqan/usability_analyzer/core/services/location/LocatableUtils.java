@@ -21,8 +21,8 @@ public class LocatableUtils {
 	 */
 	public static Set<IIdentifier> getIdentifiers(final ILocatable[] locatables) {
 		Set<IIdentifier> ids = new HashSet<IIdentifier>();
-		for (ILocatable codeable : locatables) {
-			String[] uri = codeable.getUri().getRawPath().split("/");
+		for (ILocatable locatable : locatables) {
+			String[] uri = locatable.getUri().getRawPath().split("/");
 
 			if (uri.length > 1) {
 				IIdentifier identifier = IdentifierFactory.createFrom(uri[1]);

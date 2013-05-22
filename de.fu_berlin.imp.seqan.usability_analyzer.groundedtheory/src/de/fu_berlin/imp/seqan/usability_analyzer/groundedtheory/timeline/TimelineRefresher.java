@@ -71,7 +71,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
+	public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
 		this.scheduleRefresh();
 	}
 
@@ -87,7 +87,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 
 	@Override
 	public void codesRemoved(List<ICode> removedCodes,
-			List<ILocatable> codeables) {
+			List<ILocatable> locatables) {
 		this.scheduleRefresh();
 	}
 
@@ -107,7 +107,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoAdded(ILocatable codeable) {
+	public void memoAdded(ILocatable locatable) {
 		this.scheduleRefresh();
 	}
 
@@ -116,7 +116,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoModified(ILocatable codeable) {
+	public void memoModified(ILocatable locatable) {
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoRemoved(ILocatable codeable) {
+	public void memoRemoved(ILocatable locatable) {
 		this.scheduleRefresh();
 	}
 

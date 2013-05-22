@@ -34,12 +34,12 @@ public class LocatorService implements ILocatorService {
 				.getExtensionRegistry()
 				.getConfigurationElementsFor(
 						"de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider");
-		List<ILocatorProvider> registeredCodeableProviders = new ArrayList<ILocatorProvider>();
+		List<ILocatorProvider> registeredLocatableProviders = new ArrayList<ILocatorProvider>();
 		for (IConfigurationElement e : config) {
 			try {
 				Object o = e.createExecutableExtension("class");
 				if (o instanceof ILocatorProvider) {
-					registeredCodeableProviders.add((ILocatorProvider) o);
+					registeredLocatableProviders.add((ILocatorProvider) o);
 				}
 			} catch (CoreException e1) {
 				LOGGER.error("Error retrieving a currently registered "
@@ -47,7 +47,7 @@ public class LocatorService implements ILocatorService {
 				return null;
 			}
 		}
-		return registeredCodeableProviders.toArray(new ILocatorProvider[0]);
+		return registeredLocatableProviders.toArray(new ILocatorProvider[0]);
 	}
 
 	private ExecutorService executorService = new ExecutorService();
@@ -119,7 +119,7 @@ public class LocatorService implements ILocatorService {
 	public Future<ILocatable> resolve(final URI uri,
 			final IProgressMonitor monitor) {
 		Assert.isLegal(uri != null);
-		return this.executorService.asyncExec(new Callable<ILocatable>() {
+		return this.executorService.nonUIAsyncExec(new Callable<ILocatable>() {
 			@Override
 			public ILocatable call() throws Exception {
 				return LocatorService.this.uriCache.getPayload(uri, monitor);

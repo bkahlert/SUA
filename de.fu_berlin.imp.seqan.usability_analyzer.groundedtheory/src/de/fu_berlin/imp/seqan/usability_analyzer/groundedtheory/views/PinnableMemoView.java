@@ -55,7 +55,7 @@ public class PinnableMemoView extends AbstractMemoView {
 				ICode.class);
 		final List<ICodeInstance> codeInstances = SelectionUtils
 				.getAdaptableObjects(selection, ICodeInstance.class);
-		final List<ILocatable> codeables = SelectionUtils.getAdaptableObjects(
+		final List<ILocatable> locatables = SelectionUtils.getAdaptableObjects(
 				selection, ILocatable.class);
 		final List<Object> objects = SelectionUtils.getAdaptableObjects(
 				selection, Object.class);
@@ -64,8 +64,8 @@ public class PinnableMemoView extends AbstractMemoView {
 			PinnableMemoView.this.loadAndClearHistory(codes.get(0));
 		} else if (codeInstances.size() > 0) {
 			PinnableMemoView.this.loadAndClearHistory(codeInstances.get(0));
-		} else if (codeables.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(codeables.get(0));
+		} else if (locatables.size() > 0) {
+			PinnableMemoView.this.loadAndClearHistory(locatables.get(0));
 		} else if (objects.size() > 0) {
 			PinnableMemoView.this.loadAndClearHistory(null);
 		}

@@ -105,10 +105,10 @@ public class DoclogLocatorProvider implements ILocatorProvider {
 								.getDoclogFilesViewer();
 						viewer.setSelection(
 								new StructuredSelection(locatables), true);
-						List<ILocatable> selectedCodeables = SelectionUtils
+						List<ILocatable> selectedLocatables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
 										ILocatable.class);
-						return selectedCodeables.toArray(new ILocatable[0]);
+						return selectedLocatables.toArray(new ILocatable[0]);
 					}
 				});
 		try {

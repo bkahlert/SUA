@@ -34,8 +34,8 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 		if (codeInstanceView == null)
 			return null;
 
-		ILocatable codeable = getIndirectlySelectedCodeable(codeInstanceView);
-		if (codeable == null)
+		ILocatable locatable = getIndirectlySelectedLocatable(codeInstanceView);
+		if (locatable == null)
 			return null;
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
@@ -43,7 +43,7 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 
 		for (ICode code : codes) {
 			try {
-				codeService.removeCodes(Arrays.asList(code), codeable);
+				codeService.removeCodes(Arrays.asList(code), locatable);
 			} catch (Exception e) {
 				LOGGER.error("Error removing code", e);
 			}
@@ -78,16 +78,16 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 		return (CodeInstancesView) part;
 	}
 
-	private ILocatable getIndirectlySelectedCodeable(
+	private ILocatable getIndirectlySelectedLocatable(
 			CodeInstancesView codeInstanceView) {
-		ILocatable codeable = codeInstanceView.getCodeable();
-		if (codeable == null) {
+		ILocatable locatable = codeInstanceView.getLocatable();
+		if (locatable == null) {
 			LOGGER.error(RemoveCodeHandlerCodeBased.class.getSimpleName()
 					+ " was activated but the sending "
 					+ CodeInstancesView.class.getSimpleName()
 					+ " has no selected " + ILocatable.class.getSimpleName());
 			return null;
 		}
-		return codeable;
+		return locatable;
 	}
 }

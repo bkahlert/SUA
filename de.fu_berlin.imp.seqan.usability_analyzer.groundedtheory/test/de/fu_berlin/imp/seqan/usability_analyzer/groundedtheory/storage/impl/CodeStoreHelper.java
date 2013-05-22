@@ -49,9 +49,9 @@ public class CodeStoreHelper {
 
 	protected ICode code1;
 	protected ICode code2;
-	protected ILocatable codeable1;
-	protected ILocatable codeable2;
-	protected ILocatable codeable3;
+	protected ILocatable locatable1;
+	protected ILocatable locatable2;
+	protected ILocatable locatable3;
 	protected ICodeInstance codeInstance1;
 	protected ICodeInstance codeInstance2;
 	protected ICodeInstance codeInstance3;
@@ -79,7 +79,7 @@ public class CodeStoreHelper {
 
 		this.codes = new ICode[] { this.code1, this.code2 };
 
-		this.codeable1 = new ILocatable() {
+		this.locatable1 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -91,7 +91,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		this.codeable2 = new ILocatable() {
+		this.locatable2 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -103,7 +103,7 @@ public class CodeStoreHelper {
 				}
 			}
 		};
-		this.codeable3 = new ILocatable() {
+		this.locatable3 = new ILocatable() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -117,13 +117,13 @@ public class CodeStoreHelper {
 		};
 
 		this.codeInstance1 = new CodeInstance(this.code2,
-				this.codeable1.getUri(), new TimeZoneDate(
+				this.locatable1.getUri(), new TimeZoneDate(
 						"1984-05-15T14:30:00+02:00"));
 		this.codeInstance2 = new CodeInstance(this.code1,
-				this.codeable2.getUri(), new TimeZoneDate(
+				this.locatable2.getUri(), new TimeZoneDate(
 						"2011-11-11T11:11:11+11:00"));
 		this.codeInstance3 = new CodeInstance(this.code2,
-				this.codeable3.getUri(), new TimeZoneDate(
+				this.locatable3.getUri(), new TimeZoneDate(
 						"2002-09-23T23:08:01-04:30"));
 
 		this.codeInstances = new ICodeInstance[] { this.codeInstance1,

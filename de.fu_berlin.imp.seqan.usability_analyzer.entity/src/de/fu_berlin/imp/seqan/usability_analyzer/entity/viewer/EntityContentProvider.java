@@ -35,7 +35,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> code, List<ILocatable> codeables) {
+		public void codesAssigned(List<ICode> code, List<ILocatable> locatables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -50,7 +50,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -71,7 +71,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
+		public void memoAdded(ILocatable locatable) {
 			ViewerUtils.refresh(viewer);
 		}
 
@@ -80,7 +80,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ILocatable codeable) {
+		public void memoModified(ILocatable locatable) {
 		}
 
 		@Override
@@ -89,7 +89,7 @@ public class EntityContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
+		public void memoRemoved(ILocatable locatable) {
 			ViewerUtils.refresh(viewer);
 		}
 

@@ -66,7 +66,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 		this.initColumns(dateFormat, timeDifferenceFormat);
 
-		final ISelectionRetriever<ILocatable> codeableRetriever = SelectionRetrieverFactory
+		final ISelectionRetriever<ILocatable> locatableRetriever = SelectionRetrieverFactory
 				.getSelectionRetriever(ILocatable.class);
 
 		int operations = DND.DROP_LINK;
@@ -80,7 +80,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 								.getControl().getData(
 										EpisodeRenderer.CONTROL_DATA_STRING) != null;
 						if (!episodeRendererActive
-								&& codeableRetriever.getSelection().size() > 0) {
+								&& locatableRetriever.getSelection().size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
 									DiffListsViewer.this.getSelection());
 							LocalSelectionTransfer.getTransfer()

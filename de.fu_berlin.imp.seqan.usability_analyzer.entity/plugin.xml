@@ -155,8 +155,8 @@ name="com.ibm.example.myannotation" markerType="com.ibm.mymarkers.mymarker"/>
 </extension>
 <extension
       point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
-   <CodeableProviderFactory
+   <LocatorProviderFactory
          class="de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProviderFactory">
-   </CodeableProviderFactory>
+   </LocatorProviderFactory>
 </extension>
 </plugin>

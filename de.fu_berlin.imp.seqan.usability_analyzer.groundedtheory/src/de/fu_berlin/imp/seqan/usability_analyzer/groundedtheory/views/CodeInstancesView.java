@@ -23,17 +23,17 @@ public class CodeInstancesView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView";
 	private CodeInstanceViewer codeInstanceViewer;
 
-	private ISelectionRetriever<ILocatable> codeableRetriever = SelectionRetrieverFactory
+	private ISelectionRetriever<ILocatable> locatableRetriever = SelectionRetrieverFactory
 			.getSelectionRetriever(ILocatable.class);
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<ILocatable> codeables = codeableRetriever.getSelection();
-			if (codeables.size() > 0) {
+			List<ILocatable> locatables = locatableRetriever.getSelection();
+			if (locatables.size() > 0) {
 				if (codeInstanceViewer != null
 						&& !codeInstanceViewer.isDisposed()) {
-					codeInstanceViewer.setInput(codeables);
+					codeInstanceViewer.setInput(locatables);
 				}
 			}
 		}
@@ -70,10 +70,10 @@ public class CodeInstancesView extends ViewPart {
 		this.codeInstanceViewer.setFocus();
 	}
 
-	public ILocatable getCodeable() {
+	public ILocatable getLocatable() {
 		if (this.codeInstanceViewer == null)
 			return null;
-		return this.codeInstanceViewer.getCodeable();
+		return this.codeInstanceViewer.getLocatable();
 	}
 
 }

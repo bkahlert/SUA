@@ -63,9 +63,9 @@ public abstract class InformationPresentingEditorView<T> extends EditorView<T> {
 								public void uriHovered(URI uri, boolean entered) {
 									if (entered) {
 										try {
-											ILocatable codeable = InformationPresentingEditorView.this.locatorService
+											ILocatable locatable = InformationPresentingEditorView.this.locatorService
 													.resolve(uri, null).get();
-											hoveredLocatable = codeable;
+											hoveredLocatable = locatable;
 										} catch (InterruptedException e) {
 											LOGGER.error(e);
 										} catch (ExecutionException e) {

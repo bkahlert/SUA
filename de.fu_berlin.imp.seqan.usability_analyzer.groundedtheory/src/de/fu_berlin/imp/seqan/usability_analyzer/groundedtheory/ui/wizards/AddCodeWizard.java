@@ -28,13 +28,13 @@ public class AddCodeWizard extends Wizard {
 
 	protected List<ICode> affectedCodes;
 
-	private List<ILocatable> codeables;
+	private List<ILocatable> locatables;
 
-	public AddCodeWizard(List<ILocatable> codeables, RGB initialRGB) {
+	public AddCodeWizard(List<ILocatable> locatables, RGB initialRGB) {
 		this.setWindowTitle(TITLE);
 		this.setDefaultPageImageDescriptor(IMAGE);
 		this.setNeedsProgressMonitor(false);
-		this.codeables = codeables;
+		this.locatables = locatables;
 		this.addCodeWizardPage = new AddCodeWizardPage(initialRGB);
 	}
 
@@ -53,34 +53,34 @@ public class AddCodeWizard extends Wizard {
 			String codeCaption = this.addCodeWizardPage.getNewCodeCaption();
 			RGB rgb = this.addCodeWizardPage.getNewCodeRGB();
 			ICode createdCode = null;
-			for (ILocatable codeable : codeables) {
+			for (ILocatable locatable : locatables) {
 				try {
 					if (createdCode == null) {
 						createdCode = codeService.addCode(codeCaption, rgb,
-								codeable);
+								locatable);
 						affectedCodes.add(createdCode);
 					} else {
-						codeService.addCode(createdCode, codeable);
+						codeService.addCode(createdCode, locatable);
 					}
-					LOGGER.info("Code " + createdCode + " added to " + codeable);
+					LOGGER.info("Code " + createdCode + " added to " + locatable);
 				} catch (CodeServiceException e) {
 					LOGGER.error("Code " + codeCaption
-							+ " couldn't be added to " + codeable, e);
+							+ " couldn't be added to " + locatable, e);
 				}
 			}
 		} else {
 			List<ICode> codes = this.addCodeWizardPage.getExistingCodes();
 			try {
-				codeService.addCodes(codes, codeables);
+				codeService.addCodes(codes, locatables);
 				LOGGER.info(ICode.class.getSimpleName() + "s \""
 						+ StringUtils.join(codes, "\", \"") + "\" added to \""
-						+ StringUtils.join(codeables, "\", \"") + "\"");
+						+ StringUtils.join(locatables, "\", \"") + "\"");
 			} catch (CodeServiceException e) {
 				LOGGER.error(
 						ICode.class.getSimpleName() + "s \""
 								+ StringUtils.join(codes, "\", \"")
 								+ "\" could not be added to \""
-								+ StringUtils.join(codeables, "\", \"") + "\"",
+								+ StringUtils.join(locatables, "\", \"") + "\"",
 						e);
 			}
 			affectedCodes.addAll(codes);

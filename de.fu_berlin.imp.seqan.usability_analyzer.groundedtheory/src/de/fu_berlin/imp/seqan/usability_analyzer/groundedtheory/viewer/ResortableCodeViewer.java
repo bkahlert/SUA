@@ -98,13 +98,13 @@ public class ResortableCodeViewer extends CodeViewer {
 						List<ICodeInstance> sourceCodeInstances = SelectionUtils
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
-						List<ILocatable> sourceCodeables = SelectionUtils
+						List<ILocatable> sourceLocatables = SelectionUtils
 								.getAdaptableObjects(selection,
 										ILocatable.class);
 
 						if (event.item != null
 								&& (sourceCodes.size() != 0
-										^ sourceCodeInstances.size() != 0 ^ sourceCodeables
+										^ sourceCodeInstances.size() != 0 ^ sourceLocatables
 										.size() != 0)) {
 							event.feedback = DND.FEEDBACK_EXPAND
 									| DND.FEEDBACK_SCROLL;
@@ -183,7 +183,7 @@ public class ResortableCodeViewer extends CodeViewer {
 						List<ICodeInstance> sourceCodeInstances = SelectionUtils
 								.getAdaptableObjects(selection,
 										ICodeInstance.class);
-						List<ILocatable> sourceCodeables = SelectionUtils
+						List<ILocatable> sourceLocatables = SelectionUtils
 								.getAdaptableObjects(selection,
 										ILocatable.class);
 
@@ -228,17 +228,17 @@ public class ResortableCodeViewer extends CodeViewer {
 										LOGGER.error(e);
 									}
 								}
-							} else if (sourceCodeables.size() > 0) {
-								for (ILocatable sourceCodeable : sourceCodeables) {
+							} else if (sourceLocatables.size() > 0) {
+								for (ILocatable sourceLocatable : sourceLocatables) {
 									try {
 										codeService.addCode(targetCode,
-												sourceCodeable);
+												sourceLocatable);
 										LOGGER.info("[CODE][ASSIGN] "
-												+ sourceCodeable
+												+ sourceLocatable
 												+ " assigned to " + targetCode);
 									} catch (CodeServiceException e) {
 										LOGGER.error("Coud not assign "
-												+ sourceCodeable + " to "
+												+ sourceLocatable + " to "
 												+ targetCode);
 									}
 								}

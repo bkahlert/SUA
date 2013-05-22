@@ -14,7 +14,7 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView";
 	private IPartListener partListener = new IPartListener() {
 
-		private ILocatable getCodeable(IWorkbenchPart part) {
+		private ILocatable getLocatable(IWorkbenchPart part) {
 			ISelection selection = SelectionUtils.getSelection(part.getSite()
 					.getWorkbenchWindow());
 			if (selection == null) {
@@ -33,9 +33,9 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 			if (part.getClass() == EditorOnlyMemoView.class) {
 				return;
 			}
-			ILocatable codeable = this.getCodeable(part);
-			if (codeable != null) {
-				EditorOnlyMemoView.this.loadAndClearHistory(codeable);
+			ILocatable locatable = this.getLocatable(part);
+			if (locatable != null) {
+				EditorOnlyMemoView.this.loadAndClearHistory(locatable);
 			}
 		}
 

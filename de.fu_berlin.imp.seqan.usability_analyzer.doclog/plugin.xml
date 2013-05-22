@@ -129,9 +129,9 @@
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
-      <CodeableProviderFactory
+      <LocatorProviderFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProviderFactory">
-      </CodeableProviderFactory>
+      </LocatorProviderFactory>
    </extension>
    <extension
          point="org.eclipse.core.expressions.definitions">

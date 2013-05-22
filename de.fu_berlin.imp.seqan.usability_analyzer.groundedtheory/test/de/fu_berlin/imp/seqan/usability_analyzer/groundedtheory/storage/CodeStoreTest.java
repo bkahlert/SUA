@@ -361,13 +361,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testNonExistingCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(code).getId();
 				this.will(returnValue(CodeStoreTest.this.code1.getId()));
 
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue("my_id"));
 			}
 		});
@@ -377,20 +377,20 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
-				new ILocatable[] { codeable });
+				new ILocatable[] { locatable });
 	}
 
 	@Test(expected = InvalidParameterException.class)
 	public void testEmptyCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
 				this.allowing(code).getId();
 				this.will(returnValue(CodeStoreTest.this.code1.getId()));
 
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue("my_id"));
 			}
 		});
@@ -400,17 +400,17 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(0, codeStore.loadInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
-				new ILocatable[] { codeable });
+				new ILocatable[] { locatable });
 	}
 
 	@Test
 	public void testSmallCreateCodeInstance() throws IOException,
 			InvalidParameterException, DuplicateCodeInstanceException,
 			URISyntaxException {
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue(new URI("sua://new_id")));
 			}
 		});
@@ -420,7 +420,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		this.testCodeInstances(codeStore, this.codeInstances);
 
 		final ICodeInstance codeInstance = codeStore.createCodeInstances(
-				new ICode[] { this.code1 }, new ILocatable[] { codeable })[0];
+				new ICode[] { this.code1 }, new ILocatable[] { locatable })[0];
 		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance });
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
@@ -592,13 +592,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals("abc", codeStore.getMemo(this.codeInstance2));
 		codeStore.setMemo(this.code1, "äöü´ß ^°∞ 和平");
 		assertEquals("äöü´ß ^°∞ 和平", codeStore.getMemo(this.code1));
-		codeStore.setMemo(this.codeable2, "line1\nline2\nline3");
-		assertEquals("line1\nline2\nline3", codeStore.getMemo(this.codeable2));
+		codeStore.setMemo(this.locatable2, "line1\nline2\nline3");
+		assertEquals("line1\nline2\nline3", codeStore.getMemo(this.locatable2));
 
 		ICodeStore codeStore2 = this.loadFromCodeStore(codeStore);
 		assertEquals("abc", codeStore2.getMemo(this.codeInstance2));
 		assertEquals("äöü´ß ^°∞ 和平", codeStore2.getMemo(this.code1));
-		assertEquals("line1\nline2\nline3", codeStore2.getMemo(this.codeable2));
+		assertEquals("line1\nline2\nline3", codeStore2.getMemo(this.locatable2));
 
 		// TODO ???
 		// System.err.println(this.getTextFromStyledTextWidget("äöü´ß ^°∞ 和平"));
@@ -606,10 +606,10 @@ public class CodeStoreTest extends CodeStoreHelper {
 		codeStore.removeAndSaveCode(this.code1, true);
 		assertNull(codeStore.getMemo(this.code1));
 		assertNull(codeStore.getMemo(this.codeInstance2));
-		assertEquals("line1\nline2\nline3", codeStore2.getMemo(this.codeable2));
+		assertEquals("line1\nline2\nline3", codeStore2.getMemo(this.locatable2));
 
-		codeStore.setMemo(this.codeable2, null);
-		assertNull(codeStore2.getMemo(this.codeable2));
+		codeStore.setMemo(this.locatable2, null);
+		assertNull(codeStore2.getMemo(this.locatable2));
 	}
 
 	public void testSaveEpisode() throws IOException {

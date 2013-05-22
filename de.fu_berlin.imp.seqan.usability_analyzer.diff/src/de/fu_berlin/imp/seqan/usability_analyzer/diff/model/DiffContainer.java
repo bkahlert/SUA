@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
@@ -56,8 +55,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
-	private static final ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(1);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
@@ -159,9 +157,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		}
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
-		List<Future<Integer>> futures = ExecutorUtil
+		List<Future<Integer>> futures = EXECUTOR_SERVICE
 				.nonUIAsyncExec(
-						LOADER_POOL,
 						this.dataLists.keySet(),
 						new com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable<ID, Integer>() {
 							@Override

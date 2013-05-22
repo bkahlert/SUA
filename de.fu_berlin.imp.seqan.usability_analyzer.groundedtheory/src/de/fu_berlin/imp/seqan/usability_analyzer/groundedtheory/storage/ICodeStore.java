@@ -37,7 +37,7 @@ public interface ICodeStore {
 			throws CodeStoreFullException;
 
 	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ILocatable[] codeables) throws InvalidParameterException,
+			ILocatable[] locatables) throws InvalidParameterException,
 			CodeStoreReadException, DuplicateCodeInstanceException;
 
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
@@ -79,14 +79,14 @@ public interface ICodeStore {
 
 	public String getMemo(ICodeInstance codeInstance);
 
-	public String getMemo(ILocatable codeable);
+	public String getMemo(ILocatable locatable);
 
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException;
 
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException;
 
-	public void setMemo(ILocatable codeable, String html)
+	public void setMemo(ILocatable locatable, String html)
 			throws CodeStoreWriteException;
 
 	public Set<IEpisode> getEpisodes();

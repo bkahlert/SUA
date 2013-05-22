@@ -40,139 +40,139 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testGetCodes() throws IOException {
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 			}
 		});
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(codeable).size());
+		Assert.assertEquals(0, emptyCodeService.getCodes(locatable).size());
 
 		ICodeService smallCodeService = this.getSmallCodeService();
-		Assert.assertEquals(1, smallCodeService.getCodes(codeable).size());
-		Assert.assertEquals(9908372l, smallCodeService.getCodes(codeable)
+		Assert.assertEquals(1, smallCodeService.getCodes(locatable).size());
+		Assert.assertEquals(9908372l, smallCodeService.getCodes(locatable)
 				.get(0).getId());
 	}
 
 	@Test
 	public void testAddCode() throws IOException, URISyntaxException {
-		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+		final ILocatable locatable1 = this.context.mock(ILocatable.class,
 				"ILocatable #1");
-		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+		final ILocatable locatable2 = this.context.mock(ILocatable.class,
 				"ILocatable #2");
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable1).getUri();
+				this.allowing(locatable1).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 
-				this.allowing(codeable2).getUri();
+				this.allowing(locatable2).getUri();
 				this.will(returnValue(new URI("invalid://id")));
 			}
 		});
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(codeable1).size());
-		Assert.assertEquals(0, emptyCodeService.getCodes(codeable2).size());
+		Assert.assertEquals(0, emptyCodeService.getCodes(locatable1).size());
+		Assert.assertEquals(0, emptyCodeService.getCodes(locatable2).size());
 		emptyCodeService.addCode(this.code1.getCaption(),
-				new RGB(1.0, 1.0, 1.0), codeable1);
-		Assert.assertEquals(1, emptyCodeService.getCodes(codeable1).size());
+				new RGB(1.0, 1.0, 1.0), locatable1);
+		Assert.assertEquals(1, emptyCodeService.getCodes(locatable1).size());
 		Assert.assertEquals(this.code1.getCaption(),
-				emptyCodeService.getCodes(codeable1).get(0).getCaption());
-		emptyCodeService.addCode(this.code1, codeable2);
-		Assert.assertEquals(1, emptyCodeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, emptyCodeService.getCodes(codeable2)
+				emptyCodeService.getCodes(locatable1).get(0).getCaption());
+		emptyCodeService.addCode(this.code1, locatable2);
+		Assert.assertEquals(1, emptyCodeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, emptyCodeService.getCodes(locatable2)
 				.get(0));
-		Assert.assertFalse(emptyCodeService.getCodes(codeable1).get(0)
-				.equals(emptyCodeService.getCodes(codeable2).get(0)));
+		Assert.assertFalse(emptyCodeService.getCodes(locatable1).get(0)
+				.equals(emptyCodeService.getCodes(locatable2).get(0)));
 
 		ICodeService smallCodeService = this.getSmallCodeService();
-		Assert.assertEquals(1, smallCodeService.getCodes(codeable1).size());
+		Assert.assertEquals(1, smallCodeService.getCodes(locatable1).size());
 		Assert.assertEquals(this.code2.getId(),
-				smallCodeService.getCodes(codeable1).get(0).getId());
-		Assert.assertEquals(0, smallCodeService.getCodes(codeable2).size());
-		smallCodeService.addCode(this.code1, codeable2);
-		Assert.assertEquals(1, smallCodeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, smallCodeService.getCodes(codeable2)
+				smallCodeService.getCodes(locatable1).get(0).getId());
+		Assert.assertEquals(0, smallCodeService.getCodes(locatable2).size());
+		smallCodeService.addCode(this.code1, locatable2);
+		Assert.assertEquals(1, smallCodeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, smallCodeService.getCodes(locatable2)
 				.get(0));
-		smallCodeService.addCode(this.code2, codeable2);
-		Assert.assertEquals(2, smallCodeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, smallCodeService.getCodes(codeable2)
+		smallCodeService.addCode(this.code2, locatable2);
+		Assert.assertEquals(2, smallCodeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, smallCodeService.getCodes(locatable2)
 				.get(0));
-		Assert.assertEquals(this.code2, smallCodeService.getCodes(codeable2)
+		Assert.assertEquals(this.code2, smallCodeService.getCodes(locatable2)
 				.get(1));
 	}
 
 	@Test(expected = CodeServiceException.class)
 	public void testDuplicateAddCode() throws IOException {
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 			}
 		});
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(codeable).size());
-		emptyCodeService.addCode(this.code2, codeable);
-		emptyCodeService.addCode(this.code2, codeable);
+		Assert.assertEquals(0, emptyCodeService.getCodes(locatable).size());
+		emptyCodeService.addCode(this.code2, locatable);
+		emptyCodeService.addCode(this.code2, locatable);
 	}
 
 	@Test(expected = CodeServiceException.class)
 	public void testEmptyRemoveCode() throws IOException {
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 			}
 		});
 
 		ICodeService codeService = this.getEmptyCodeService();
-		codeService.removeCodes(Arrays.asList(this.code1), codeable);
+		codeService.removeCodes(Arrays.asList(this.code1), locatable);
 	}
 
 	@Test(expected = CodeServiceException.class)
 	public void testSmallRemoveCodeNonExisting() throws IOException {
-		final ILocatable codeable = this.context.mock(ILocatable.class);
+		final ILocatable locatable = this.context.mock(ILocatable.class);
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable).getUri();
+				this.allowing(locatable).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 			}
 		});
 
 		ICodeService codeService = this.getSmallCodeService();
-		codeService.removeCodes(Arrays.asList(this.code1), codeable);
+		codeService.removeCodes(Arrays.asList(this.code1), locatable);
 	}
 
 	@Test
 	public void testSmallRemoveCodeExisting() throws IOException {
-		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+		final ILocatable locatable1 = this.context.mock(ILocatable.class,
 				"ILocatable #1");
-		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+		final ILocatable locatable2 = this.context.mock(ILocatable.class,
 				"ILocatable #2");
-		final ILocatable codeable3 = this.context.mock(ILocatable.class,
+		final ILocatable locatable3 = this.context.mock(ILocatable.class,
 				"ILocatable #3");
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable1).getUri();
+				this.allowing(locatable1).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 
-				this.allowing(codeable2).getUri();
+				this.allowing(locatable2).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance2
 						.getId()));
 
-				this.allowing(codeable3).getUri();
+				this.allowing(locatable3).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance3
 						.getId()));
 			}
@@ -180,20 +180,20 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 		ICodeService codeService = this.getSmallCodeService();
 
-		Assert.assertEquals(1, codeService.getCodes(codeable1).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(codeable1).get(0));
-		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(codeable2).get(0));
-		Assert.assertEquals(1, codeService.getCodes(codeable3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(codeable3).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable1).size());
+		Assert.assertEquals(this.code2, codeService.getCodes(locatable1).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, codeService.getCodes(locatable2).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable3).size());
+		Assert.assertEquals(this.code2, codeService.getCodes(locatable3).get(0));
 
-		codeService.removeCodes(Arrays.asList(this.code2), codeable1);
+		codeService.removeCodes(Arrays.asList(this.code2), locatable1);
 
-		Assert.assertEquals(0, codeService.getCodes(codeable1).size());
-		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(codeable2).get(0));
-		Assert.assertEquals(1, codeService.getCodes(codeable3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(codeable3).get(0));
+		Assert.assertEquals(0, codeService.getCodes(locatable1).size());
+		Assert.assertEquals(1, codeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, codeService.getCodes(locatable2).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable3).size());
+		Assert.assertEquals(this.code2, codeService.getCodes(locatable3).get(0));
 	}
 
 	@Test(expected = CodeServiceException.class)
@@ -219,23 +219,23 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 	@Test
 	public void testDeleteCodeExisting() throws IOException {
-		final ILocatable codeable1 = this.context.mock(ILocatable.class,
+		final ILocatable locatable1 = this.context.mock(ILocatable.class,
 				"ILocatable #1");
-		final ILocatable codeable2 = this.context.mock(ILocatable.class,
+		final ILocatable locatable2 = this.context.mock(ILocatable.class,
 				"ILocatable #2");
-		final ILocatable codeable3 = this.context.mock(ILocatable.class,
+		final ILocatable locatable3 = this.context.mock(ILocatable.class,
 				"ILocatable #3");
 		this.context.checking(new Expectations() {
 			{
-				this.allowing(codeable1).getUri();
+				this.allowing(locatable1).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance1
 						.getId()));
 
-				this.allowing(codeable2).getUri();
+				this.allowing(locatable2).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance2
 						.getId()));
 
-				this.allowing(codeable3).getUri();
+				this.allowing(locatable3).getUri();
 				this.will(returnValue(CodeServiceTest.this.codeInstance3
 						.getId()));
 			}
@@ -243,19 +243,19 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 		ICodeService codeService = this.getSmallCodeService();
 
-		Assert.assertEquals(1, codeService.getCodes(codeable1).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(codeable1).get(0));
-		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(codeable2).get(0));
-		Assert.assertEquals(1, codeService.getCodes(codeable3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(codeable3).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable1).size());
+		Assert.assertEquals(this.code2, codeService.getCodes(locatable1).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, codeService.getCodes(locatable2).get(0));
+		Assert.assertEquals(1, codeService.getCodes(locatable3).size());
+		Assert.assertEquals(this.code2, codeService.getCodes(locatable3).get(0));
 
 		codeService.deleteCode(this.code2, true);
 
-		Assert.assertEquals(0, codeService.getCodes(codeable1).size());
-		Assert.assertEquals(1, codeService.getCodes(codeable2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(codeable2).get(0));
-		Assert.assertEquals(0, codeService.getCodes(codeable3).size());
+		Assert.assertEquals(0, codeService.getCodes(locatable1).size());
+		Assert.assertEquals(1, codeService.getCodes(locatable2).size());
+		Assert.assertEquals(this.code1, codeService.getCodes(locatable2).get(0));
+		Assert.assertEquals(0, codeService.getCodes(locatable3).size());
 
 		Assert.assertNull(codeService.getCode(this.code2.getId()));
 	}

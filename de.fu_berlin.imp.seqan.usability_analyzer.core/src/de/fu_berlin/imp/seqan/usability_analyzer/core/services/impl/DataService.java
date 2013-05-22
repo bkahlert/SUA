@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,8 +14,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
@@ -32,8 +31,7 @@ public class DataService implements IDataService {
 
 	private static final Logger LOGGER = Logger.getLogger(DataService.class);
 
-	private static final ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(2);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	public static List<IBaseDataContainer> loadFromPreferences() {
 		List<IBaseDataContainer> containers = new ArrayList<IBaseDataContainer>();
@@ -133,45 +131,45 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getLoadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecutorUtil.nonUIAsyncExec(
-							LOADER_POOL, sources,
-							new ParametrizedCallable<String, Job>() {
-								@Override
-								public Job call(final String source)
-										throws Exception {
-									final IDataLoadProvider dataLoadProvider = dataLoaderManager
-											.getDataLoadProvider(source);
-									Job loader = new Job(
-											dataLoadProvider
-													.getUnloaderJobName(baseDataContainers)) {
+					List<Future<Job>> futures = EXECUTOR_SERVICE
+							.nonUIAsyncExec(sources,
+									new ParametrizedCallable<String, Job>() {
 										@Override
-										protected IStatus run(
-												IProgressMonitor monitor) {
-											final SubMonitor subMonitor = SubMonitor
-													.convert(monitor);
+										public Job call(final String source)
+												throws Exception {
+											final IDataLoadProvider dataLoadProvider = dataLoaderManager
+													.getDataLoadProvider(source);
+											Job loader = new Job(
+													dataLoadProvider
+															.getUnloaderJobName(baseDataContainers)) {
+												@Override
+												protected IStatus run(
+														IProgressMonitor monitor) {
+													final SubMonitor subMonitor = SubMonitor
+															.convert(monitor);
 
-											long start = System
-													.currentTimeMillis();
-											dataLoadProvider.load(
-													baseDataContainers,
-													subMonitor);
-											LOGGER.info("---- loaded "
-													+ source
-													+ " within "
-													+ (System
-															.currentTimeMillis() - start)
-													+ "ms");
+													long start = System
+															.currentTimeMillis();
+													dataLoadProvider.load(
+															baseDataContainers,
+															subMonitor);
+													LOGGER.info("---- loaded "
+															+ source
+															+ " within "
+															+ (System
+																	.currentTimeMillis() - start)
+															+ "ms");
 
-											subMonitor.done();
-											return Status.OK_STATUS;
+													subMonitor.done();
+													return Status.OK_STATUS;
+												}
+											};
+											loader.setProgressGroup(monitor, 1);
+											loader.setSystem(true);
+											loader.schedule();
+											return loader;
 										}
-									};
-									loader.setProgressGroup(monitor, 1);
-									loader.setSystem(true);
-									loader.schedule();
-									return loader;
-								}
-							});
+									});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();
@@ -210,43 +208,44 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getUnloadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecutorUtil.nonUIAsyncExec(
-							LOADER_POOL, sources,
-							new ParametrizedCallable<String, Job>() {
-								@Override
-								public Job call(final String source)
-										throws Exception {
-									final IDataLoadProvider dataLoadProvider = dataLoaderManager
-											.getDataLoadProvider(source);
-									Job loader = new Job(
-											dataLoadProvider
-													.getLoaderJobName(baseDataContainers)) {
+					List<Future<Job>> futures = EXECUTOR_SERVICE
+							.nonUIAsyncExec(sources,
+									new ParametrizedCallable<String, Job>() {
 										@Override
-										protected IStatus run(
-												IProgressMonitor monitor) {
-											final SubMonitor subMonitor = SubMonitor
-													.convert(monitor);
+										public Job call(final String source)
+												throws Exception {
+											final IDataLoadProvider dataLoadProvider = dataLoaderManager
+													.getDataLoadProvider(source);
+											Job loader = new Job(
+													dataLoadProvider
+															.getLoaderJobName(baseDataContainers)) {
+												@Override
+												protected IStatus run(
+														IProgressMonitor monitor) {
+													final SubMonitor subMonitor = SubMonitor
+															.convert(monitor);
 
-											long start = System
-													.currentTimeMillis();
-											dataLoadProvider.unload(subMonitor);
-											LOGGER.info("---- unloaded "
-													+ source
-													+ " within "
-													+ (System
-															.currentTimeMillis() - start)
-													+ "ms");
+													long start = System
+															.currentTimeMillis();
+													dataLoadProvider
+															.unload(subMonitor);
+													LOGGER.info("---- unloaded "
+															+ source
+															+ " within "
+															+ (System
+																	.currentTimeMillis() - start)
+															+ "ms");
 
-											subMonitor.done();
-											return Status.OK_STATUS;
+													subMonitor.done();
+													return Status.OK_STATUS;
+												}
+											};
+											loader.setProgressGroup(monitor, 1);
+											loader.setSystem(true);
+											loader.schedule();
+											return loader;
 										}
-									};
-									loader.setProgressGroup(monitor, 1);
-									loader.setSystem(true);
-									loader.schedule();
-									return loader;
-								}
-							});
+									});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();

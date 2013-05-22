@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -43,6 +42,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
@@ -179,8 +179,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private ExecutorService LOADER_POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(1);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
 	public DiffExplorerView() {
@@ -348,8 +347,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<Job>> loaders = ExecutorUtil.nonUIAsyncExec(
-				this.LOADER_POOL, ids,
+		final List<Future<Job>> loaders = EXECUTOR_SERVICE.nonUIAsyncExec(ids,
 				new ParametrizedCallable<IIdentifier, Job>() {
 					@Override
 					public Job call(final IIdentifier identifier)

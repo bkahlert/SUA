@@ -90,9 +90,9 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 */
-	public static AddCodeWizard openAddCodeWizard(List<ILocatable> codeables,
+	public static AddCodeWizard openAddCodeWizard(List<ILocatable> locatables,
 			RGB initialRGB) {
-		return openWizardSuccessfully(new AddCodeWizard(codeables, initialRGB),
+		return openWizardSuccessfully(new AddCodeWizard(locatables, initialRGB),
 				new Point(800, 600));
 	}
 
@@ -100,16 +100,16 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 * 
-	 * @param codeable
+	 * @param locatable
 	 * @return
 	 */
 	@SuppressWarnings("serial")
-	public static AddCodeWizard openAddCodeWizard(final ILocatable codeable,
+	public static AddCodeWizard openAddCodeWizard(final ILocatable locatable,
 			RGB initialRGB) {
 		return openWizardSuccessfully(new AddCodeWizard(
 				new ArrayList<ILocatable>() {
 					{
-						this.add(codeable);
+						this.add(locatable);
 					}
 				}, initialRGB), new Point(800, 600));
 	}

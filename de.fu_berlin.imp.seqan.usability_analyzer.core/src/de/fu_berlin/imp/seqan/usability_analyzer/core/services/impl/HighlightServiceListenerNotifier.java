@@ -3,10 +3,9 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -14,8 +13,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService
 
 public class HighlightServiceListenerNotifier {
 	private List<IHighlightServiceListener> highlightServiceListeners = new ArrayList<IHighlightServiceListener>();
-	private static final ExecutorService POOL = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(1);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	public void addHighlightServiceListener(
 			IHighlightServiceListener highlightServiceListener) {
@@ -29,7 +27,7 @@ public class HighlightServiceListenerNotifier {
 
 	public void highlight(final Object sender,
 			final TimeZoneDateRange[] ranges, final boolean moveInsideViewport) {
-		ExecutorUtil.nonUIAsyncExec(POOL, this.highlightServiceListeners,
+		EXECUTOR_SERVICE.nonUIAsyncExec(this.highlightServiceListeners,
 				new ParametrizedCallable<IHighlightServiceListener, Void>() {
 					@Override
 					public Void call(
@@ -45,7 +43,7 @@ public class HighlightServiceListenerNotifier {
 	public void highlight(final Object sender,
 			final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
 			final boolean moveInsideViewport) {
-		ExecutorUtil.nonUIAsyncExec(POOL, this.highlightServiceListeners,
+		EXECUTOR_SERVICE.nonUIAsyncExec(this.highlightServiceListeners,
 				new ParametrizedCallable<IHighlightServiceListener, Void>() {
 					@Override
 					public Void call(

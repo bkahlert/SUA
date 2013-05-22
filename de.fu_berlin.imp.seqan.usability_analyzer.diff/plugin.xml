@@ -222,9 +222,9 @@
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
-      <CodeableProviderFactory
+      <LocatorProviderFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProviderFactory">
-      </CodeableProviderFactory>
+      </LocatorProviderFactory>
    </extension>
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.timeline">

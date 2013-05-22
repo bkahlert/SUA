@@ -26,11 +26,11 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 	public static final int COPY_AND_CLOSE_ID = IDialogConstants.OK_ID + 1;
 	public static final String COPY_AND_CLOSE_STRING = "Copy and Close";
 
-	private ILocatable codeable;
+	private ILocatable locatable;
 
-	public ShowArtefactIDDialog(Shell parentShell, ILocatable codeable) {
+	public ShowArtefactIDDialog(Shell parentShell, ILocatable locatable) {
 		super(parentShell);
-		this.codeable = codeable;
+		this.locatable = locatable;
 	}
 
 	@Override
@@ -69,10 +69,10 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 				.getWorkbench().getService(ILabelProviderService.class);
 		if (labelProviderService != null) {
 			ILabelProvider labelProvider = labelProviderService
-					.getLabelProvider(this.codeable);
+					.getLabelProvider(this.locatable);
 			if (labelProvider != null) {
-				image = labelProvider.getImage(this.codeable);
-				label = labelProvider.getText(this.codeable);
+				image = labelProvider.getImage(this.locatable);
+				label = labelProvider.getText(this.locatable);
 			}
 		}
 
@@ -89,7 +89,7 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 
 		Label uriLabel = new Label(composite, SWT.NONE);
 		uriLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-		uriLabel.setText(this.codeable.getUri().toString());
+		uriLabel.setText(this.locatable.getUri().toString());
 		FontUtils.changeFontSizeBy(uriLabel, 2);
 
 		parent.pack();

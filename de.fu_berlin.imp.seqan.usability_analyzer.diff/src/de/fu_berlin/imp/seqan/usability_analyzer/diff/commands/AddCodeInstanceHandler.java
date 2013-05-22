@@ -53,10 +53,10 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = SelectionUtils.getSelection();
-		ILocatable codeable = (ILocatable) Platform.getAdapterManager()
+		ILocatable locatable = (ILocatable) Platform.getAdapterManager()
 				.getAdapter(selection, ILocatable.class);
-		if (codeable != null) {
-			WizardUtils.openAddCodeWizard(codeable, null); // TODO null
+		if (locatable != null) {
+			WizardUtils.openAddCodeWizard(locatable, null); // TODO null
 															// durch
 															// Farbe
 															// setzen

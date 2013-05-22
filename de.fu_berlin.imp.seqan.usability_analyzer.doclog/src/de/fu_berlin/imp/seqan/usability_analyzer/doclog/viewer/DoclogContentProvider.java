@@ -29,9 +29,9 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
-		private boolean isResponsible(List<ILocatable> codeables) {
-			for (ILocatable codeable : codeables) {
-				if (codeable.getUri().getHost().equals("doclog")) {
+		private boolean isResponsible(List<ILocatable> locatables) {
+			for (ILocatable locatable : locatables) {
+				if (locatable.getUri().getHost().equals("doclog")) {
 					return true;
 				}
 			}
@@ -43,8 +43,8 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> codeables) {
-			if (this.isResponsible(codeables)) {
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+			if (this.isResponsible(locatables)) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -61,8 +61,8 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> codeables) {
-			if (this.isResponsible(codeables)) {
+		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
+			if (this.isResponsible(locatables)) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -84,9 +84,9 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ILocatable codeable) {
+		public void memoAdded(ILocatable locatable) {
 			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
-					.asList(codeable)))) {
+					.asList(locatable)))) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -97,7 +97,7 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoModified(ILocatable codeable) {
+		public void memoModified(ILocatable locatable) {
 		}
 
 		@Override
@@ -105,9 +105,9 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoRemoved(ILocatable codeable) {
+		public void memoRemoved(ILocatable locatable) {
 			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
-					.asList(codeable)))) {
+					.asList(locatable)))) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}

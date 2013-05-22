@@ -22,21 +22,21 @@ public interface ICodeService {
 	/**
 	 * Returns all {@link ICode}s associated with the given {@link ILocatable} .
 	 * 
-	 * @param codeable
+	 * @param locatable
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 * @throws CodeServiceException
 	 */
-	public List<ICode> getCodes(ILocatable codeable)
+	public List<ICode> getCodes(ILocatable locatable)
 			throws CodeServiceException;
 
 	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
 	 * 
-	 * @param codeableId
+	 * @param locatableId
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 * @throws CodeServiceException
 	 */
-	public List<ICode> getCodes(URI codeableId) throws CodeServiceException;
+	public List<ICode> getCodes(URI locatableId) throws CodeServiceException;
 
 	/**
 	 * Registers a {@link ICodeServiceListener}
@@ -79,11 +79,11 @@ public interface ICodeService {
 	 * 
 	 * @param codeCaption
 	 * @param rgb
-	 * @param codeable
+	 * @param locatable
 	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode addCode(String codeCaption, RGB rgb, ILocatable codeable)
+	public ICode addCode(String codeCaption, RGB rgb, ILocatable locatable)
 			throws CodeServiceException;
 
 	/**
@@ -92,13 +92,13 @@ public interface ICodeService {
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param code
-	 * @param codeable
+	 * @param locatable
 	 * @throws CodeServiceException
 	 */
-	public void addCode(ICode code, ILocatable codeable)
+	public void addCode(ICode code, ILocatable locatable)
 			throws CodeServiceException;
 
-	public void addCodes(List<ICode> codes, List<ILocatable> codeables)
+	public void addCodes(List<ICode> codes, List<ILocatable> locatables)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
@@ -188,10 +188,10 @@ public interface ICodeService {
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param codes
-	 * @param codeable
+	 * @param locatable
 	 * @throws CodeServiceException
 	 */
-	public void removeCodes(List<ICode> codes, ILocatable codeable)
+	public void removeCodes(List<ICode> codes, ILocatable locatable)
 			throws CodeServiceException;
 
 	/**
@@ -268,7 +268,7 @@ public interface ICodeService {
 	 * @param html
 	 * @throws CodeServiceException
 	 */
-	public void setMemo(ILocatable codeable, String html)
+	public void setMemo(ILocatable locatable, String html)
 			throws CodeServiceException;
 
 	/**
@@ -293,7 +293,7 @@ public interface ICodeService {
 	 * @param code
 	 * @param html
 	 */
-	public String loadMemo(ILocatable codeable);
+	public String loadMemo(ILocatable locatable);
 
 	/**
 	 * Returns true if the given {@link ICode} has a memo.
@@ -317,7 +317,7 @@ public interface ICodeService {
 	 * @param code
 	 * @param html
 	 */
-	public boolean isMemo(ILocatable codeable);
+	public boolean isMemo(ILocatable locatable);
 
 	/**
 	 * Returns the {@link IIdentifier}s that have at least one {@link IEpisode}.
