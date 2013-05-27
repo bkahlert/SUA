@@ -14,6 +14,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -29,6 +30,10 @@ public class RecolorCodeHandler extends AbstractHandler {
 
 		List<ICode> codes = SelectionRetrieverFactory.getSelectionRetriever(
 				ICode.class).getSelection();
+
+		if (InformationControlManagerUtils.getCurrentInput() instanceof ICode) {
+			codes.add((ICode) InformationControlManagerUtils.getCurrentInput());
+		}
 
 		if (codes.size() == 1) {
 			ICode code = codes.get(0);

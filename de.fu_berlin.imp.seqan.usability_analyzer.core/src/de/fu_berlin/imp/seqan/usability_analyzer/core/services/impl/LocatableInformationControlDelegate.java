@@ -30,6 +30,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderSer
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
 
+/**
+ * Instances of this class are created by {@link LocatableInformationControl}
+ * and creates the controls needed to display the loaded data.
+ * 
+ * @author bkahlert
+ * 
+ * @param <T>
+ */
 public class LocatableInformationControlDelegate<T extends ILocatable>
 		implements Delegate<T> {
 	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
@@ -66,7 +74,7 @@ public class LocatableInformationControlDelegate<T extends ILocatable>
 		this.addSeparator();
 
 		this.l2CustomComposite = new Composite(this.l0, SWT.NONE);
-		this.l2CustomComposite.setLayoutData(GridDataFactory.swtDefaults()
+		this.l2CustomComposite.setLayoutData(GridDataFactory.fillDefaults()
 				.create());
 		this.l2CustomComposite.setLayout(new FillLayout());
 

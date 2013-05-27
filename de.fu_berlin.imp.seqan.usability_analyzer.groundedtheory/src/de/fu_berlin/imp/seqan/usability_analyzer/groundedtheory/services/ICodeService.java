@@ -32,11 +32,11 @@ public interface ICodeService {
 	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
 	 * 
-	 * @param locatableId
+	 * @param uri
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 * @throws CodeServiceException
 	 */
-	public List<ICode> getCodes(URI locatableId) throws CodeServiceException;
+	public List<ICode> getCodes(URI uri) throws CodeServiceException;
 
 	/**
 	 * Registers a {@link ICodeServiceListener}

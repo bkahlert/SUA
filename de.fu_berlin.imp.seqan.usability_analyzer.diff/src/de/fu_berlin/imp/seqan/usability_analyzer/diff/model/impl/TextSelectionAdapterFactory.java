@@ -12,19 +12,22 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileRecordCompareEditorInput;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class TextSelectionAdapterFactory implements IAdapterFactory {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(TextSelectionAdapterFactory.class);
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return new Class[] { ILocatable.class, DiffRecordSegment.class };
+		return new Class[] { ILocatable.class, ICompilable.class,
+				DiffRecordSegment.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -33,10 +36,14 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof ITextSelection) {
 			final ITextSelection textSelection = (ITextSelection) adaptableObject;
 			if (adapterType == ILocatable.class) {
-				IDiffRecord diffRecord = getDiffRecord(textSelection);
-				return diffRecord;
+				ILocatable locatable = this.getDiffRecord(textSelection);
+				return locatable;
+			}
+			if (adapterType == ICompilable.class) {
+				ICompilable compilable = this.getDiffRecord(textSelection);
+				return compilable;
 			} else if (adaptableObject == DiffRecordSegment.class) {
-				IDiffRecord diffRecord = getDiffRecord(textSelection);
+				IDiffRecord diffRecord = this.getDiffRecord(textSelection);
 
 				Control focusControl = Display.getCurrent().getFocusControl();
 				IDiffRecord focusedDiffFileRecord = null;
@@ -45,10 +52,11 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 					String text = ((StyledText) focusControl).getText();
 					String left = diffRecord.getPredecessor().getSource();
 					String right = diffRecord.getSource();
-					if (text.equals(left))
+					if (text.equals(left)) {
 						focusedDiffFileRecord = diffRecord.getPredecessor();
-					else if (text.equals(right))
+					} else if (text.equals(right)) {
 						focusedDiffFileRecord = diffRecord;
+					}
 				} else {
 					LOGGER.warn("The control in focus was not of type "
 							+ StyledText.class.getSimpleName()
@@ -73,14 +81,16 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 	}
 
 	private IDiffRecord getDiffRecord(ITextSelection textSelection) {
-		IEditorPart editor = getResponsibleEditor(textSelection);
+		IEditorPart editor = this.getResponsibleEditor(textSelection);
 
-		if (editor == null)
+		if (editor == null) {
 			return null;
+		}
 
 		IEditorInput editorInput = editor.getEditorInput();
-		if (!(editorInput instanceof DiffFileRecordCompareEditorInput))
+		if (!(editorInput instanceof DiffFileRecordCompareEditorInput)) {
 			return null;
+		}
 
 		DiffFileRecordCompareEditorInput diffFileRecordCompareEditorInput = (DiffFileRecordCompareEditorInput) editorInput;
 		IDiffRecord diffRecord = diffFileRecordCompareEditorInput
@@ -99,13 +109,15 @@ public class TextSelectionAdapterFactory implements IAdapterFactory {
 	 * @return
 	 */
 	private IEditorPart getResponsibleEditor(ITextSelection textSelection) {
-		if (textSelection == null)
+		if (textSelection == null) {
 			return null;
+		}
 		for (IWorkbenchWindow workbenchWindow : PlatformUI.getWorkbench()
 				.getWorkbenchWindows()) {
 			if (textSelection.equals(workbenchWindow.getSelectionService()
-					.getSelection()))
+					.getSelection())) {
 				return workbenchWindow.getActivePage().getActiveEditor();
+			}
 		}
 		return null;
 	}

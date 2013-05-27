@@ -82,6 +82,7 @@ public interface ILabelProviderService {
 			}
 		}
 
+		// TODO move to LocatableUtils
 		private List<String> getSegments(ILocatable locatable) {
 			URI uri = locatable.getUri();
 			String host = uri.getHost();
@@ -100,7 +101,7 @@ public interface ILabelProviderService {
 		protected abstract ILabelProvider create();
 	}
 
-/**
+	/**
 	 * Adds a {@link ILabelProviderFactory} that is consulted when
 	 * {@link #getLabelProvider(ILocatable)} is called.
 	 * 

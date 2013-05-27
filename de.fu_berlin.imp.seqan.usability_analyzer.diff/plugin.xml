@@ -28,6 +28,22 @@
             name="Execution Output"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.EditorOnlyCompilerOutputView"
+            icon="icons/view16/compileroutput_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.EditorOnlyCompilerOutputView"
+            name="Compiler Output (Editor Only)"
+            restorable="true">
+      </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.EditorOnlyExecutionOutputView"
+            icon="icons/view16/compileroutput_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.EditorOnlyExecutionOutputView"
+            name="Execution Output (Editor Only)"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -183,6 +199,9 @@
          </adapter>
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable">
          </adapter>
       </factory>
    </extension>

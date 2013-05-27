@@ -175,9 +175,14 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RecolorCodeHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode">
            <activeWhen>
-              <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
-              </reference>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICode">
+                 </reference>
+              </or>
            </activeWhen>
         </handler>
         <handler
@@ -281,9 +286,14 @@
                style="push">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodes">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICode">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICode">
+                  </reference>
+               </or>
             </visibleWhen>
          </command>
          <command
@@ -762,6 +772,15 @@
          </with>
       </definition>
       <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsIEpisode">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
+            </instanceof>
+         </with>
+      </definition>
+      <definition
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
          <with
                variable="selection">
@@ -1010,6 +1029,10 @@
          point="com.bkahlert.nebula.information">
       <extender
             extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.MemoInformationControlExtender"
+            informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+      </extender>
+      <extender
+            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.CodeInformationControlExtender"
             informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
       </extender>
    </extension>

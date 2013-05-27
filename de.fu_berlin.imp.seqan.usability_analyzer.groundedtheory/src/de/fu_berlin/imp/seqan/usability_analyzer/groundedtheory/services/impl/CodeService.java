@@ -105,10 +105,10 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public List<ICode> getCodes(URI locatableId) throws CodeServiceException {
+	public List<ICode> getCodes(URI uri) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
 		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
-			if (codeInstance.getId().equals(locatableId)) {
+			if (codeInstance.getId().equals(uri)) {
 				codes.add(codeInstance.getCode());
 			}
 		}

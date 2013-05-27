@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -17,13 +16,14 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.nebula.utils.CompletedFuture;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.LocatableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.CompletedFuture;
 
 public class LocatorService implements ILocatorService {
 
@@ -68,22 +68,14 @@ public class LocatorService implements ILocatorService {
 					final SubMonitor subMonitor = SubMonitor.convert(monitor,
 							locatorProviders.length);
 					List<Future<ILocatable>> locatables = new ArrayList<Future<ILocatable>>();
-					for (final ILocatorProvider locatorProvider : locatorProviders) {
+					for (final ILocatorProvider locatorProvider : LocatableUtils
+							.filterResponsibleLocators(uri, locatorProviders)) {
 						Future<ILocatable> locatable = LocatorService.this.executorService
 								.nonUIAsyncExec(new Callable<ILocatable>() {
 									@Override
 									public ILocatable call() throws Exception {
-										String[] allowedNamespaces = locatorProvider
-												.getAllowedNamespaces();
-										if (allowedNamespaces == null
-												|| ArrayUtils.contains(
-														allowedNamespaces,
-														uri.getHost())) {
-											return locatorProvider.getObject(
-													uri, subMonitor.newChild(1));
-										} else {
-											return null;
-										}
+										return locatorProvider.getObject(uri,
+												subMonitor.newChild(1));
 									}
 								});
 						locatables.add(locatable);
@@ -227,8 +219,15 @@ public class LocatorService implements ILocatorService {
 							.nonUIAsyncExec(new Callable<Boolean>() {
 								@Override
 								public Boolean call() throws Exception {
+									ILocatable[] suitableLocatables = LocatableUtils
+											.filterSuitableLocatators(
+													locatorProvider, locatables);
+									if (suitableLocatables.length == 0) {
+										return true;
+									}
+
 									return locatorProvider.showInWorkspace(
-											locatables, open,
+											suitableLocatables, open,
 											subMonitor.newChild(1));
 								}
 							});
@@ -251,5 +250,4 @@ public class LocatorService implements ILocatorService {
 			}
 		});
 	}
-
 }

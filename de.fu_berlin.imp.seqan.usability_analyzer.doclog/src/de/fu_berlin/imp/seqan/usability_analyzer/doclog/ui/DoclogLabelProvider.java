@@ -262,8 +262,8 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 			Rectangle monitorBounds = Display.getCurrent().getPrimaryMonitor()
 					.getBounds();
 			Point maxSize = new Point(
-					(int) Math.round(monitorBounds.width * 0.7),
-					(int) Math.round(monitorBounds.height * 0.7));
+					(int) Math.round(monitorBounds.width * 0.5),
+					(int) Math.round(monitorBounds.height * 0.5));
 			Point size = Geometry.getSize(image.getBounds());
 			if (size.x > maxSize.x || size.y > maxSize.y) {
 				size = ImageUtils.resizeWithinArea(
@@ -271,12 +271,12 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 			}
 
 			if (!this.images.containsKey(composite)) {
-				this.images.put(composite,
-						new com.bkahlert.nebula.widgets.image.Image(composite,
-								SWT.NONE, size));
-				this.images.get(composite).setBackground(
-						Display.getCurrent().getSystemColor(
-								SWT.COLOR_INFO_BACKGROUND));
+				com.bkahlert.nebula.widgets.image.Image img = new com.bkahlert.nebula.widgets.image.Image(
+						composite, SWT.NONE, size);
+				this.images.put(composite, img);
+				img.setBackground(Display.getCurrent().getSystemColor(
+						SWT.COLOR_INFO_BACKGROUND));
+				img.limitToOriginalSize();
 			}
 			this.images.get(composite).load(image, new Runnable() {
 				@Override

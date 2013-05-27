@@ -83,9 +83,10 @@ public class DoclogLocatorProvider implements ILocatorProvider {
 	public boolean showInWorkspace(ILocatable[] locatables, boolean open,
 			IProgressMonitor monitor) {
 		if (locatables.length > 0) {
-			return this.openAndSelectFilesInExplorer(locatables,
-					(DoclogExplorerView) WorkbenchUtils
-							.getView(DoclogExplorerView.ID)).length == locatables.length;
+			ILocatable[] selected = this.openAndSelectFilesInExplorer(
+					locatables, (DoclogExplorerView) WorkbenchUtils
+							.getView(DoclogExplorerView.ID));
+			return selected.length == locatables.length;
 		}
 		return true;
 	}

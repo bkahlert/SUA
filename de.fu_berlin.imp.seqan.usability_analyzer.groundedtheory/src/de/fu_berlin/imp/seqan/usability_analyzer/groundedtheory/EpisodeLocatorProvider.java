@@ -3,11 +3,14 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -22,6 +25,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeVie
 public class EpisodeLocatorProvider implements ILocatorProvider {
 
 	public static final String EPISODE_NAMESPACE = "episode";
+	private static final Logger LOGGER = Logger
+			.getLogger(EpisodeLocatorProvider.class);
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
 	@Override
 	public String[] getAllowedNamespaces() {
@@ -50,20 +56,30 @@ public class EpisodeLocatorProvider implements ILocatorProvider {
 	}
 
 	@Override
-	public boolean showInWorkspace(ILocatable[] locatables, boolean open,
+	public boolean showInWorkspace(final ILocatable[] locatables, boolean open,
 			IProgressMonitor monitor) {
 		if (locatables.length > 0) {
-			EpisodeView episodeView = (EpisodeView) WorkbenchUtils
-					.getView(EpisodeView.ID);
-			if (episodeView == null) {
-				return true;
-			}
+			try {
+				return EXECUTOR_SERVICE.syncExec(new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						EpisodeView episodeView = (EpisodeView) WorkbenchUtils
+								.getView(EpisodeView.ID);
+						if (episodeView == null) {
+							return true;
+						}
 
-			EpisodeViewer viewer = episodeView.getEpisodeViewer();
-			viewer.setSelection(new StructuredSelection(locatables));
-			List<ILocatable> selected = SelectionUtils.getAdaptableObjects(
-					viewer.getSelection(), ILocatable.class);
-			return selected.size() == locatables.length;
+						EpisodeViewer viewer = episodeView.getEpisodeViewer();
+						viewer.setSelection(new StructuredSelection(locatables));
+						List<ILocatable> selected = SelectionUtils
+								.getAdaptableObjects(viewer.getSelection(),
+										ILocatable.class);
+						return selected.size() == locatables.length;
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		}
 		return true;
 	}
