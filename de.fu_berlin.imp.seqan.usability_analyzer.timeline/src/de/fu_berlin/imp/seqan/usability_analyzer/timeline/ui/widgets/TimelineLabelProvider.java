@@ -11,6 +11,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.HotZone;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.ZoomStep;
@@ -19,11 +20,11 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 import com.bkahlert.devel.nebula.widgets.timeline.model.Unit;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataSetInfo;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
+import de.fu_berlin.imp.seqan.usability_analyzer.timeline.preferences.SUATimelinePreferenceUtil;
 
 public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 		ITimelineLabelProvider<TIMELINE> {
@@ -31,25 +32,27 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	private static final Logger LOGGER = Logger
 			.getLogger(TimelineLabelProvider.class);
 
-	private int zoomIndex;
-
-	public TimelineLabelProvider(int zoomIndex) {
-		this.zoomIndex = zoomIndex;
+	public TimelineLabelProvider() {
 	}
 
 	private static <TIMELINE extends IBaseTimeline> IIdentifier getIdentifier(
 			final TIMELINE timeline) {
+		IIdentifier identifier = null;
 		try {
-			return ExecutorUtil.syncExec(new Callable<IIdentifier>() {
+			identifier = ExecutorUtil.syncExec(new Callable<IIdentifier>() {
 				@Override
 				public IIdentifier call() throws Exception {
-					return (IIdentifier) timeline.getData();
+					Object identifier = timeline.getData();
+					return identifier instanceof IIdentifier ? (IIdentifier) identifier
+							: null;
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.error("Error retrieving the timeline's key", e);
+			LOGGER.error(
+					"Can't determine the " + ITimeline.class.getSimpleName()
+							+ "'s " + IIdentifier.class.getSimpleName(), e);
 		}
-		return null;
+		return identifier;
 	}
 
 	private static IDataSetInfo getDataSetInfo() {
@@ -71,10 +74,22 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 
 	@Override
 	public Calendar getCenterStart(TIMELINE timeline) {
-		IDataSetInfo dataSetInfo = getDataSetInfo();
-		TimeZoneDate centerStartDate = dataSetInfo.getDateRange() != null ? dataSetInfo
-				.getDateRange().getStartDate() : null;
-		return centerStartDate != null ? centerStartDate.getCalendar() : null;
+		Calendar centerVisibleDate = null;
+		IIdentifier identifier = getIdentifier(timeline);
+		if (identifier != null) {
+			centerVisibleDate = new SUATimelinePreferenceUtil()
+					.getCenterStartDate(identifier);
+		}
+
+		if (centerVisibleDate == null) {
+			IDataSetInfo dataSetInfo = getDataSetInfo();
+			centerVisibleDate = dataSetInfo.getDateRange() != null
+					&& dataSetInfo.getDateRange().getStartDate() != null ? dataSetInfo
+					.getDateRange().getStartDate().getCalendar()
+					: null;
+		}
+
+		return centerVisibleDate;
 	}
 
 	@Override
@@ -165,8 +180,16 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	};
 
 	@Override
-	public Integer getZoomIndex() {
-		return this.zoomIndex;
+	public Integer getZoomIndex(final TIMELINE timeline) {
+		int zoomIndex;
+		IIdentifier identifier = getIdentifier(timeline);
+		if (identifier != null) {
+			zoomIndex = new SUATimelinePreferenceUtil()
+					.getZoomIndex(identifier);
+		} else {
+			zoomIndex = this.getZoomSteps(timeline).length / 2;
+		}
+		return zoomIndex;
 	}
 
 	@Override

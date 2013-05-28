@@ -10,8 +10,8 @@ public class SUATimelinePreferenceInitializer extends
 
 	@Override
 	public void initializeDefaultPreferences() {
+		@SuppressWarnings("unused")
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-		store.setDefault(SUATimelinePreferenceConstants.ZOOM_LEVEL, 26);
 	}
 }
