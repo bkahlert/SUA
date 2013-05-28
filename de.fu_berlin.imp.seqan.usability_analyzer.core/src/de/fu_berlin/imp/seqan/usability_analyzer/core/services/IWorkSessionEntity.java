@@ -1,16 +1,22 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
+import java.io.Serializable;
+import java.net.URI;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+
 /**
  * Instances of this class can be part of an {@link IWorkSession}.
  * 
  * @author bkahlert
  * 
  */
-public interface IWorkSessionEntity {
+public interface IWorkSessionEntity extends Serializable, ILocatable {
 	/**
-	 * Returns the ID that identifies the entity in focus.
+	 * Returns the {@link URI} that identifies the entity in focus.
 	 * 
 	 * @return
 	 */
-	public String getWorkSessionEntityID();
+	@Override
+	public URI getUri();
 }

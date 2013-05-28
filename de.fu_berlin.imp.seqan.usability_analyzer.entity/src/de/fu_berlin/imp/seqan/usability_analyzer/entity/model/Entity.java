@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
@@ -23,7 +24,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContaine
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
@@ -63,11 +63,6 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 					e);
 		}
 		return null;
-	}
-
-	@Override
-	public String getWorkSessionEntityID() {
-		return this.getInternalId();
 	}
 
 	@Override

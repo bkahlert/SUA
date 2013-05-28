@@ -7,12 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -68,17 +65,6 @@ public class TimelineView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView";
 	public static final Logger LOGGER = Logger.getLogger(TimelineView.class);
 
-	private static class TimelineState {
-		private Calendar centerVisibleDate;
-		private int zoomIndex;
-
-		public TimelineState(Calendar centerVisibleDate, int zoomIndex) {
-			Assert.isLegal(centerVisibleDate != null);
-			this.centerVisibleDate = centerVisibleDate;
-			this.zoomIndex = zoomIndex;
-		}
-	}
-
 	private Job timelineLoader = null;
 
 	private IWorkSessionService workSessionService;
@@ -102,8 +88,8 @@ public class TimelineView extends ViewPart {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
 			final Set<IIdentifier> keys = new HashSet<IIdentifier>();
-			keys.addAll(ArrayUtils.getAdaptableObjects(workSession
-					.getEntities().toArray(), IIdentifier.class));
+			keys.addAll(ArrayUtils.getAdaptableObjects(
+					workSession.getEntities(), IIdentifier.class));
 			final Set<IIdentifier> filteredKeys = this
 					.filterValidIdentifiers(keys);
 			TimelineView.this.open(filteredKeys);
@@ -258,49 +244,39 @@ public class TimelineView extends ViewPart {
 	}
 
 	private void saveStates() {
-		if (this.timelineGroup != null && !this.timelineGroup.isDisposed()) {
-			final Set<IIdentifier> inputs = this.timelineGroup
-					.getTimelineKeys();
-			for (final IIdentifier identifier : inputs) {
-				try {
-					final Future<TimelineState> state = ExecutorUtil
-							.asyncExec(new Callable<TimelineState>() {
-								@Override
-								public TimelineState call() throws Exception {
-									ITimeline timeline = TimelineView.this.timelineGroup
-											.getTimeline(identifier);
-									if (timeline != null) {
-										return new TimelineState(timeline
-												.getCenterVisibleDate().get(),
-												timeline.getZoomIndex().get());
-									} else {
-										return null;
-									}
-								}
-							});
-					ExecutorUtil.nonUIAsyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								if (state != null && state.get() != null) {
-									SUATimelinePreferenceUtil util = new SUATimelinePreferenceUtil();
-									if (state.get().centerVisibleDate != null) {
-										util.setCenterStartDate(identifier,
-												state.get().centerVisibleDate);
-									}
-									util.setZoomIndex(identifier,
-											state.get().zoomIndex);
-								}
-							} catch (Exception e) {
-								LOGGER.error("Error saving zoom index", e);
+		// must be called synchronously; switching to another thread
+		// would allow Eclipse to close completely before we
+		// accessed the widgets
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (TimelineView.this.timelineGroup != null
+						&& !TimelineView.this.timelineGroup.isDisposed()) {
+					final Set<IIdentifier> inputs = TimelineView.this.timelineGroup
+							.getTimelineKeys();
+					for (final IIdentifier identifier : inputs) {
+						try {
+							ITimeline timeline = TimelineView.this.timelineGroup
+									.getTimeline(identifier);
+							Calendar centerVisibleDate = timeline
+									.getCenterVisibleDate().get();
+							int zoomIndex = timeline.getZoomIndex().get();
+
+							SUATimelinePreferenceUtil util = new SUATimelinePreferenceUtil();
+							if (centerVisibleDate != null) {
+								util.setCenterStartDate(identifier,
+										centerVisibleDate);
 							}
+							util.setZoomIndex(identifier, zoomIndex);
+						} catch (Exception e) {
+							LOGGER.error("Error saving state of "
+									+ ITimeline.class.getSimpleName() + " "
+									+ identifier, e);
 						}
-					});
-				} catch (Exception e) {
-					LOGGER.error("Error saving zoom index", e);
+					}
 				}
 			}
-		}
+		});
 	}
 
 	@Override

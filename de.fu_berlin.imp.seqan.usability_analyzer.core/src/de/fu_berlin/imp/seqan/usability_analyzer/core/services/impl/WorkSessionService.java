@@ -1,11 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
@@ -18,7 +17,7 @@ class WorkSessionService implements IWorkSessionService {
 
 	private WorkSessionListenerNotifier workSessionListenerNotifier = new WorkSessionListenerNotifier();
 
-	private WorkSession currentWorkSession = null;
+	private IWorkSession currentWorkSession = null;
 
 	public WorkSessionService() throws IOException {
 		this.workSessionListenerNotifier = new WorkSessionListenerNotifier();
@@ -40,16 +39,21 @@ class WorkSessionService implements IWorkSessionService {
 
 	@Override
 	public void startWorkSession(final IWorkSessionEntity entity) {
-		this.startWorkSession(Arrays.asList(entity));
+		this.startWorkSession(new IWorkSessionEntity[] { entity });
 	}
 
 	@Override
-	public void startWorkSession(final List<IWorkSessionEntity> entities) {
-		this.currentWorkSession = new WorkSession(entities);
+	public void startWorkSession(final IWorkSessionEntity[] entities) {
+		this.startWorkSession(new WorkSession(entities));
+	}
+
+	private void startWorkSession(final IWorkSession workSession) {
+		this.currentWorkSession = workSession;
 		LOGGER.info(IWorkSession.class.getSimpleName() + " started: "
 				+ this.currentWorkSession);
 		this.workSessionListenerNotifier
 				.workSessionStarted(this.currentWorkSession);
+		new SUACorePreferenceUtil().setLastWorkSession(this.currentWorkSession);
 	}
 
 	@Override
@@ -57,4 +61,15 @@ class WorkSessionService implements IWorkSessionService {
 		return this.currentWorkSession;
 	}
 
+	@Override
+	public void restoreLastWorkSession() {
+		IWorkSession lastWorkSession = new SUACorePreferenceUtil()
+				.getLastWorkSession();
+		if (lastWorkSession != null) {
+			this.startWorkSession(lastWorkSession);
+		} else {
+			LOGGER.info("There is no lastly opened "
+					+ IWorkSession.class.getSimpleName() + ". Doing nothing.");
+		}
+	}
 }

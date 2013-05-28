@@ -83,6 +83,7 @@ public class DataService implements IDataService {
 
 	private DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
 	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
+	// TODO move to new method restoreFromLastSession
 	private List<? extends IBaseDataContainer> activeBaseDataDirectories = loadActiveFromPreferences();
 
 	public DataService() {

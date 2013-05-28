@@ -39,10 +39,12 @@ public class StartWorkSessionHandler extends AbstractHandler {
 					IBoldViewer boldViewer = (IBoldViewer) selectionProvider;
 					boldViewer.setBold(workSessionEntities);
 				}
-				workSessionService.startWorkSession(workSessionEntities);
+				workSessionService.startWorkSession(workSessionEntities
+						.toArray(new IWorkSessionEntity[0]));
 			}
 		}
 
 		return null;
 	}
+
 }

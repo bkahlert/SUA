@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -10,31 +12,41 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.WorkSession;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 
 public class SUACorePreferenceUtil extends PreferenceUtil {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(SUACorePreferenceUtil.class);
 
 	public SUACorePreferenceUtil() {
 		super(Activator.getDefault());
 	}
 
 	public String getDataDirectory() {
-		String dataDirectory = getPreferenceStore().getString(
+		String dataDirectory = this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATA_DIRECTORY);
 		return (dataDirectory != null && !dataDirectory.isEmpty()) ? Normalizer
 				.normalize(dataDirectory, Form.NFC) : null;
 	}
 
 	public void setDataDirectory(String dataDirectory) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATA_DIRECTORY, dataDirectory);
 	}
 
@@ -44,16 +56,17 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public List<String> getDataDirectories() {
-		String[] dataDirectories = StringUtils.split(getPreferenceStore()
+		String[] dataDirectories = StringUtils.split(this.getPreferenceStore()
 				.getString(SUACorePreferenceConstants.DATA_DIRECTORIES), ";");
-		if (dataDirectories == null)
+		if (dataDirectories == null) {
 			return new ArrayList<String>();
+		}
 		return new ArrayList<String>(Arrays.asList(dataDirectories));
 	}
 
 	public void setDataDirectories(List<String> dataDirectories) {
 		Assert.isNotNull(dataDirectories);
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATA_DIRECTORIES,
 				StringUtils.join(dataDirectories, ";"));
 	}
@@ -64,12 +77,12 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public TimeZone getDefaultTimeZone() {
-		return TimeZone.getTimeZone(getPreferenceStore().getString(
+		return TimeZone.getTimeZone(this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DEFAULT_TIME_ZONE));
 	}
 
 	public void setDefaultTimeZone(TimeZone timeZone) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DEFAULT_TIME_ZONE, timeZone.getID());
 	}
 
@@ -79,13 +92,13 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public TimeZoneDate getDateRangeStart() {
-		String rangeStart = getPreferenceStore().getString(
+		String rangeStart = this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_START);
 		return (rangeStart.isEmpty()) ? null : new TimeZoneDate(rangeStart);
 	}
 
 	public void setDateRangeStart(TimeZoneDate rangeStart) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_START,
 				rangeStart.toISO8601());
 	}
@@ -96,13 +109,13 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public TimeZoneDate getDateRangeEnd() {
-		String rangeEnd = getPreferenceStore().getString(
+		String rangeEnd = this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATE_RANGE_END);
 		return (rangeEnd.isEmpty()) ? null : new TimeZoneDate(rangeEnd);
 	}
 
 	public void setDateRangeEnd(TimeZoneDate rangeEnd) {
-		getPreferenceStore()
+		this.getPreferenceStore()
 				.setValue(SUACorePreferenceConstants.DATE_RANGE_END,
 						rangeEnd.toISO8601());
 	}
@@ -113,12 +126,12 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public boolean getDateRangeStartEnabled() {
-		return getPreferenceStore().getBoolean(
+		return this.getPreferenceStore().getBoolean(
 				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED);
 	}
 
 	public void setDateRangeStartEnabled(boolean rangeStartEnabled) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_START_ENABLED,
 				rangeStartEnabled);
 	}
@@ -129,12 +142,12 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public boolean getDateRangeEndEnabled() {
-		return getPreferenceStore().getBoolean(
+		return this.getPreferenceStore().getBoolean(
 				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED);
 	}
 
 	public void setDateRangeEndEnabled(boolean rangeEndEnabled) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUACorePreferenceConstants.DATE_RANGE_END_ENABLED,
 				rangeEndEnabled);
 	}
@@ -146,27 +159,28 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 
 	public TimeZoneDateRange getDateRange() {
 		return new TimeZoneDateRange(
-				this.getDateRangeStartEnabled() ? getDateRangeStart() : null,
+				this.getDateRangeStartEnabled() ? this.getDateRangeStart()
+						: null,
 				this.getDateRangeEndEnabled() ? this.getDateRangeEnd() : null);
 	}
 
 	public DateFormat getDateFormat() {
-		return new SimpleDateFormat(getPreferenceStore().getString(
+		return new SimpleDateFormat(this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATEFORMAT));
 	}
 
 	public String getDateFormatString() {
-		return getPreferenceStore().getString(
+		return this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.DATEFORMAT);
 	}
 
 	public String getTimeDifferenceFormat() {
-		return getPreferenceStore().getString(
+		return this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.TIMEDIFFERENCEFORMAT);
 	}
 
 	public RGB getColorOk() {
-		return PreferenceConverter.getColor(getPreferenceStore(),
+		return PreferenceConverter.getColor(this.getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_OK);
 	}
 
@@ -175,7 +189,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public RGB getColorDirty() {
-		return PreferenceConverter.getColor(getPreferenceStore(),
+		return PreferenceConverter.getColor(this.getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_DIRTY);
 	}
 
@@ -185,7 +199,7 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public RGB getColorError() {
-		return PreferenceConverter.getColor(getPreferenceStore(),
+		return PreferenceConverter.getColor(this.getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_ERROR);
 	}
 
@@ -195,12 +209,51 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 	}
 
 	public RGB getColorMissing() {
-		return PreferenceConverter.getColor(getPreferenceStore(),
+		return PreferenceConverter.getColor(this.getPreferenceStore(),
 				SUACorePreferenceConstants.COLOR_MISSING);
 	}
 
 	public boolean colorMissingChanged(PropertyChangeEvent event) {
 		return event.getProperty().equals(
 				SUACorePreferenceConstants.COLOR_MISSING);
+	}
+
+	public void setLastWorkSession(IWorkSession workSession) {
+		List<URI> uris = new ArrayList<URI>();
+		if (workSession != null) {
+			for (IWorkSessionEntity entity : workSession.getEntities()) {
+				uris.add(entity.getUri());
+			}
+		}
+
+		String config = StringUtils.join(uris, "%%");
+		this.getPreferenceStore().setValue(
+				SUACorePreferenceConstants.LAST_WORKSESSION, config);
+	}
+
+	public IWorkSession getLastWorkSession() {
+		ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
+		String[] uriStrings = this.getPreferenceStore()
+				.getString(SUACorePreferenceConstants.LAST_WORKSESSION)
+				.split("%%");
+		List<IWorkSessionEntity> entities = new ArrayList<IWorkSessionEntity>();
+		for (String uriString : uriStrings) {
+			try {
+				final URI uri = new URI(uriString);
+				ILocatable locatable = locatorService.resolve(uri, null).get();
+				if (locatable instanceof IWorkSessionEntity) {
+					entities.add((IWorkSessionEntity) locatable);
+				}
+			} catch (URISyntaxException e) {
+				LOGGER.error(
+						"Could not deserialze " + URI.class.getSimpleName()
+								+ " " + uriStrings, e);
+			} catch (Exception e) {
+				LOGGER.error("Could not resolve the corresponding object of "
+						+ URI.class.getSimpleName() + " " + uriStrings, e);
+			}
+		}
+		return new WorkSession(entities.toArray(new IWorkSessionEntity[0]));
 	}
 }

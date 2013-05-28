@@ -1,13 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
-import java.util.List;
+import java.io.Serializable;
 
-public interface IWorkSession {
+public interface IWorkSession extends Serializable {
 	/**
 	 * Returns the {@link IWorkSessionEntity} the {@link IWorkSession} is
 	 * focused on.
 	 * 
 	 * @return
 	 */
-	public List<IWorkSessionEntity> getEntities();
+	public IWorkSessionEntity[] getEntities();
 }

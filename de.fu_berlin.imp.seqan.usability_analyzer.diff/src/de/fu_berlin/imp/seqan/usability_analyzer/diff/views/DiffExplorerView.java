@@ -470,7 +470,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	 */
 	public void load(IWorkSession workSession) {
 		final List<IIdentifier> ids = ArrayUtils.getAdaptableObjects(
-				workSession.getEntities().toArray(), IIdentifier.class);
+				workSession.getEntities(), IIdentifier.class);
 		DiffExplorerView.this.open(new HashSet<IIdentifier>(ids), null);
 	}
 

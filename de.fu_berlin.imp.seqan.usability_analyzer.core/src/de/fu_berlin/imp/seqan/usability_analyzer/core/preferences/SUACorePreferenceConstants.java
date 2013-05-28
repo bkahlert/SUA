@@ -5,6 +5,8 @@ public class SUACorePreferenceConstants {
 
 	public static final String DATA_DIRECTORIES = "data_directories";
 
+	public static final String LAST_WORKSESSION = "last_worksession";
+
 	public static final String DEFAULT_TIME_ZONE = "default_timezone";
 
 	public static final String DATE_RANGE_START = "range_start";

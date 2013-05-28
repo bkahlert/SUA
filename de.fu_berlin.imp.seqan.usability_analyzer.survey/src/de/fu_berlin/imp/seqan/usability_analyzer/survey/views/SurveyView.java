@@ -104,8 +104,8 @@ public class SurveyView extends ViewPart {
 	 */
 	public void load(IWorkSession workSession) {
 		HashSet<IIdentifier> idsOrTokens = new HashSet<IIdentifier>();
-		idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(workSession
-				.getEntities().toArray(), IIdentifier.class));
+		idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(
+				workSession.getEntities(), IIdentifier.class));
 		SurveyView.this.open(idsOrTokens, null);
 	}
 

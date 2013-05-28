@@ -412,8 +412,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	 */
 	public void load(IWorkSession workSession) {
 		final Set<IIdentifier> identifiers = new HashSet<IIdentifier>();
-		identifiers.addAll(ArrayUtils.getAdaptableObjects(workSession
-				.getEntities().toArray(), IIdentifier.class));
+		identifiers.addAll(ArrayUtils.getAdaptableObjects(
+				workSession.getEntities(), IIdentifier.class));
 		DoclogExplorerView.this.open(identifiers, null);
 	}
 }
