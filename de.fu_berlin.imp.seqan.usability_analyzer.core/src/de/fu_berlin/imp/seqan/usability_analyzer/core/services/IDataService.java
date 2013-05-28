@@ -12,8 +12,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
  */
 public interface IDataService {
 
-	public void addDataServiceListener(
-			IDataServiceListener dataServiceListener);
+	public void addDataServiceListener(IDataServiceListener dataServiceListener);
 
 	public void removeDataServiceListener(
 			IDataServiceListener dataServiceListener);
@@ -63,5 +62,10 @@ public interface IDataService {
 	 * everything up.
 	 */
 	public void unloadData();
+
+	/**
+	 * Reopens the lastly active {@link IBaseDataContainer}.
+	 */
+	void restoreLastDataDirectories();
 
 }

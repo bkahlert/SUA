@@ -83,8 +83,7 @@ public class DataService implements IDataService {
 
 	private DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
 	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
-	// TODO move to new method restoreFromLastSession
-	private List<? extends IBaseDataContainer> activeBaseDataDirectories = loadActiveFromPreferences();
+	private List<? extends IBaseDataContainer> activeBaseDataDirectories = null;
 
 	public DataService() {
 	}
@@ -108,8 +107,11 @@ public class DataService implements IDataService {
 	@Override
 	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
-		this.notifier.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
+		if (this.activeBaseDataDirectories != null) {
+			unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
+			this.notifier
+					.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
+		}
 
 		saveActiveToPreferences(baseDataContainers);
 		loadData(this.dataLoaderManager, baseDataContainers);
@@ -309,5 +311,11 @@ public class DataService implements IDataService {
 	@Override
 	public void unloadData() {
 		this.dataLoaderManager.unload();
+	}
+
+	@Override
+	public void restoreLastDataDirectories() {
+		List<IBaseDataContainer> baseDataContainers = loadActiveFromPreferences();
+		this.loadDataDirectories(baseDataContainers);
 	}
 }

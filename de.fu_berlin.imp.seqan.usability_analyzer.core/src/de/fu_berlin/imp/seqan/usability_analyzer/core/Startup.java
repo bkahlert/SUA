@@ -10,10 +10,16 @@ public class Startup implements IStartup {
 
 	@Override
 	public void earlyStartup() {
+		/*
+		 * Re-open data directories.
+		 */
 		IDataService dataService = (IDataService) PlatformUI.getWorkbench()
 				.getService(IDataService.class);
-		dataService.loadDataDirectories(dataService.getActiveDataDirectories());
+		dataService.restoreLastDataDirectories();
 
+		/*
+		 * Re-open work session.
+		 */
 		IWorkSessionService workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
 		workSessionService.restoreLastWorkSession();
