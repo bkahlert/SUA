@@ -14,6 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
@@ -33,26 +34,26 @@ public class CompilationService implements ICompilationService, IDisposable {
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
 			if (dataContainers != null && dataContainers.size() > 0) {
-				baseDataContainers = dataContainers
+				CompilationService.this.baseDataContainers = dataContainers
 						.toArray(new IBaseDataContainer[0]);
 				try {
-					compilationStates = CompilationServiceUtils
-							.getCompilationStates(baseDataContainers);
+					CompilationService.this.compilationStates = CompilationServiceUtils
+							.getCompilationStates(CompilationService.this.baseDataContainers);
 				} catch (IOException e) {
 					LOGGER.error("Error reading compulation states", e);
-					compilationStates = null;
+					CompilationService.this.compilationStates = null;
 				}
 			} else {
-				baseDataContainers = null;
-				compilationStates = null;
+				CompilationService.this.baseDataContainers = null;
+				CompilationService.this.compilationStates = null;
 			}
 		}
 
 		@Override
 		public void dataDirectoriesUnloaded(
 				List<? extends IBaseDataContainer> dataContainers) {
-			baseDataContainers = null;
-			compilationStates = null;
+			CompilationService.this.baseDataContainers = null;
+			CompilationService.this.compilationStates = null;
 		}
 	};
 
@@ -63,11 +64,18 @@ public class CompilationService implements ICompilationService, IDisposable {
 	public CompilationService() {
 		this.dataService = (IDataService) PlatformUI.getWorkbench().getService(
 				IDataService.class);
-		this.dataService.addDataServiceListener(dataServiceListener);
+		this.dataService.addDataServiceListener(this.dataServiceListener);
+		this.baseDataContainers = this.dataService.getActiveDataDirectories()
+				.toArray(new IBaseDataContainer[0]);
 	}
 
-	public CompilationService(IBaseDataContainer baseDataContainer)
-			throws IOException {
+	/**
+	 * For testing purposes only!
+	 * 
+	 * @param baseDataContainer
+	 * @throws IOException
+	 */
+	CompilationService(IBaseDataContainer baseDataContainer) throws IOException {
 		this.baseDataContainers = new IBaseDataContainer[] { baseDataContainer };
 		this.compilationStates = CompilationServiceUtils
 				.getCompilationStates(this.baseDataContainers);
@@ -88,24 +96,27 @@ public class CompilationService implements ICompilationService, IDisposable {
 
 	@Override
 	public Boolean compiles(ICompilable compilable) {
-		if (compilationStates == null)
+		if (this.compilationStates == null) {
 			return null;
+		}
 		URI uri = compilable.getUri();
-		if (!compilationStates.containsKey(uri))
+		if (!this.compilationStates.containsKey(uri)) {
 			return null;
-		return compilationStates.get(uri);
+		}
+		return this.compilationStates.get(uri);
 	}
 
 	@Override
 	public boolean compiles(ICompilable[] compilables, Boolean state) {
-		if (this.compilationStates == null)
+		if (this.compilationStates == null) {
 			return false;
+		}
 		for (ICompilable compilable : compilables) {
 			this.compilationStates.put(compilable.getUri(), state);
 		}
 		try {
-			CompilationServiceUtils.setCompilationStates(baseDataContainers,
-					compilationStates);
+			CompilationServiceUtils.setCompilationStates(
+					this.baseDataContainers, this.compilationStates);
 		} catch (IOException e) {
 			LOGGER.error("Error setting the compilation state", e);
 		}
@@ -118,7 +129,7 @@ public class CompilationService implements ICompilationService, IDisposable {
 		Assert.isNotNull(compilable);
 		try {
 			return CompilationServiceUtils.getCompilerOutput(
-					baseDataContainers, compilable.getUri());
+					this.baseDataContainers, compilable.getUri());
 		} catch (IOException e) {
 			LOGGER.error("Error reading the compiler output", e);
 		}
@@ -128,12 +139,14 @@ public class CompilationService implements ICompilationService, IDisposable {
 	@Override
 	public void compilerOutput(ICompilable compilable, String html) {
 		Assert.isNotNull(compilable);
-		if (html == null)
+		if (html == null) {
 			html = "";
-		if (compilerOutput(compilable).equals(html))
+		}
+		if (this.compilerOutput(compilable).equals(html)) {
 			return;
+		}
 		try {
-			CompilationServiceUtils.setCompilerOutput(baseDataContainers,
+			CompilationServiceUtils.setCompilerOutput(this.baseDataContainers,
 					compilable.getUri(), html);
 		} catch (IOException e) {
 			LOGGER.error("Error reading the compiler output", e);
@@ -146,7 +159,7 @@ public class CompilationService implements ICompilationService, IDisposable {
 		Assert.isNotNull(compilable);
 		try {
 			return CompilationServiceUtils.getExecutionOutput(
-					baseDataContainers, compilable.getUri());
+					this.baseDataContainers, compilable.getUri());
 		} catch (IOException e) {
 			LOGGER.error("Error reading the execution output", e);
 		}
@@ -156,12 +169,14 @@ public class CompilationService implements ICompilationService, IDisposable {
 	@Override
 	public void executionOutput(ICompilable compilable, String html) {
 		Assert.isNotNull(compilable);
-		if (html == null)
+		if (html == null) {
 			html = "";
-		if (executionOutput(compilable).equals(html))
+		}
+		if (this.executionOutput(compilable).equals(html)) {
 			return;
+		}
 		try {
-			CompilationServiceUtils.setExecutionOutput(baseDataContainers,
+			CompilationServiceUtils.setExecutionOutput(this.baseDataContainers,
 					compilable.getUri(), html);
 		} catch (IOException e) {
 			LOGGER.error("Error reading the execution output", e);
@@ -171,7 +186,9 @@ public class CompilationService implements ICompilationService, IDisposable {
 
 	@Override
 	public void dispose() {
-		if (this.dataService != null)
-			this.dataService.removeDataServiceListener(dataServiceListener);
+		if (this.dataService != null) {
+			this.dataService
+					.removeDataServiceListener(this.dataServiceListener);
+		}
 	}
 }
