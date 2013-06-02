@@ -23,9 +23,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.bkahlert.devel.nebula.utils.ImageUtils;
 import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;

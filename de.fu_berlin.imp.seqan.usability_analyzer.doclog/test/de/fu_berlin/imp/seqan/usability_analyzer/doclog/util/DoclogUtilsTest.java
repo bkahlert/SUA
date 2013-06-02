@@ -7,34 +7,34 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.screenshots.impl.webpage.FuzzyFormFiller.IFieldFill;
+
 public class DoclogUtilsTest {
+
+	private void testFieldFill(String expectedName, String expectedValue,
+			IFieldFill fieldFill) {
+		String expectedSelector = new ISelector.FieldSelector(expectedName)
+				.toString();
+		assertEquals(expectedSelector, fieldFill.getFieldSelector().toString());
+		assertEquals(expectedValue, fieldFill.getFieldValue());
+	}
 
 	@Test
 	public void testGetPossibleFieldNames() throws Exception {
 		String param = "abc-def-hij--klmnop-";
 
-		List<String> possibleFieldNames = new ArrayList<String>();
-		for (String possibleFieldName : DoclogUtils
-				.getPossibleFieldNames(param)) {
-			possibleFieldNames.add(possibleFieldName);
+		List<IFieldFill> possibleFieldFills = new ArrayList<IFieldFill>();
+		for (IFieldFill possibleFieldFill : DoclogUtils
+				.getPossibleFields(param)) {
+			possibleFieldFills.add(possibleFieldFill);
 		}
 
-		assertEquals(possibleFieldNames.size(), 5);
-		assertEquals("abc", possibleFieldNames.get(0));
-		assertEquals("abc-def", possibleFieldNames.get(1));
-		assertEquals("abc-def-hij", possibleFieldNames.get(2));
-		assertEquals("abc-def-hij-", possibleFieldNames.get(3));
-		assertEquals("abc-def-hij--klmnop", possibleFieldNames.get(4));
-
-		assertEquals("def-hij--klmnop-",
-				DoclogUtils.getFieldContent("abc", param));
-		assertEquals("hij--klmnop-",
-				DoclogUtils.getFieldContent("abc-def", param));
-		assertEquals("-klmnop-",
-				DoclogUtils.getFieldContent("abc-def-hij", param));
-		assertEquals("klmnop-",
-				DoclogUtils.getFieldContent("abc-def-hij-", param));
-		assertEquals("",
-				DoclogUtils.getFieldContent("abc-def-hij--klmnop", param));
+		assertEquals(possibleFieldFills.size(), 5);
+		this.testFieldFill("abc", "def-hij--klmnop-", possibleFieldFills.get(0));
+		this.testFieldFill("abc-def", "hij--klmnop-", possibleFieldFills.get(1));
+		this.testFieldFill("abc-def-hij", "-klmnop-", possibleFieldFills.get(2));
+		this.testFieldFill("abc-def-hij-", "klmnop-", possibleFieldFills.get(3));
+		this.testFieldFill("abc-def-hij--klmnop", "", possibleFieldFills.get(4));
 	}
 }

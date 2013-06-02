@@ -14,7 +14,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-import com.bkahlert.devel.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -54,7 +54,7 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 		}
 	}
 
-	public static final String FORMAT = "png";
+	public static final com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT FORMAT = com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT.PNG;
 	public static final String RELFILE = "%s-%d,%d-%d,%d-%s-%s";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
@@ -80,7 +80,8 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 				scrollX, scrollY, action, param);
 
 		// Use md5 if filename to long
-		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length()) {
+		if (relFile.length() > MAX_FILENAME_LENGTH - 1
+				- FORMAT.getName().length()) {
 			relFile = DigestUtils.md5Hex(relFile);
 		}
 		this.filename = relFile + "." + FORMAT;

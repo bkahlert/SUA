@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs;
 
-import java.awt.AWTException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,22 +18,15 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
-import com.bkahlert.nebula.dialogs.BrowserException;
-import com.bkahlert.nebula.screenshots.ScreenshotInfo;
-import com.bkahlert.nebula.screenshots.ScreenshotTaker;
-import com.bkahlert.nebula.screenshots.ScreenshotTaker.ScreenshotProcessor;
+import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences.SUADoclogPreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.util.DoclogUtils;
 
 public class TakeScreenshotsJob extends Job {
 
@@ -59,7 +51,8 @@ public class TakeScreenshotsJob extends Job {
 		monitor.beginTask("Capturing", filteredDoclogRecords.length * 11);
 		HashSet<String> handledScreenshots = new HashSet<String>();
 		try {
-			ScreenshotTaker screenshotTaker = new ScreenshotTaker();
+			WebpageScreenshotTaker screenshotTaker = new WebpageScreenshotTaker(
+					Runtime.getRuntime().availableProcessors() * 5, null);
 			for (final DoclogRecord doclogRecord : filteredDoclogRecords) {
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
@@ -80,69 +73,10 @@ public class TakeScreenshotsJob extends Job {
 						continue;
 					}
 
-					ScreenshotInfo screenshotInfo = new ScreenshotInfo(
-							doclogRecord.getUrl(),
-							doclogRecord.getScrollPosition(),
-							doclogRecord.getWindowDimensions());
 					try {
 						Future<File> screenshotFile = screenshotTaker
-								.takeScreenshot(screenshotInfo,
-										DoclogScreenshot.FORMAT, timeout,
-										new ScreenshotProcessor() {
-											@Override
-											public void beforeScreenshot(
-													JQueryEnabledBrowserComposite browserComposite) {
-												if (doclogRecord.getAction() == DoclogAction.TYPING) {
-													String param = doclogRecord
-															.getActionParameter();
-													for (String fieldName : DoclogUtils
-															.getPossibleFieldNames(param)) {
-														System.err
-																.println(fieldName);
-														try {
-															boolean matched = false;
-															if (browserComposite
-																	.containsElementWithID(
-																			fieldName)
-																	.get()) {
-																browserComposite
-																		.val("#"
-																				+ fieldName,
-																				DoclogUtils
-																						.getFieldContent(
-																								fieldName,
-																								param))
-																		.get();
-																matched = true;
-															}
-															if (browserComposite
-																	.containsElementsWithName(
-																			fieldName)
-																	.get()) {
-																browserComposite
-																		.val("*[name="
-																				+ fieldName
-																				+ "]",
-																				DoclogUtils
-																						.getFieldContent(
-																								fieldName,
-																								param))
-																		.get();
-																matched = true;
-															}
-															if (matched) {
-																break;
-															}
-														} catch (Exception e) {
-															LOGGER.error(
-																	"Error filling field "
-																			+ fieldName,
-																	e);
-														}
-													}
-												}
-											}
-										});
+								.submitOrder(new DoclogScreenshotRequest(
+										doclogRecord, timeout));
 						doclogRecord.setScreenshot(screenshotFile.get());
 						handledScreenshots.add(filename);
 					} catch (IOException e) {
@@ -154,9 +88,6 @@ public class TakeScreenshotsJob extends Job {
 					} catch (ExecutionException e) {
 						LOGGER.error("Could not create screenshot for "
 								+ doclogRecord, e);
-					} catch (BrowserException e) {
-						LOGGER.error("Could not create screenshot for "
-								+ doclogRecord, e);
 					}
 				} else {
 					LOGGER.info("Screenshot already created in " + filename);
@@ -164,11 +95,7 @@ public class TakeScreenshotsJob extends Job {
 
 				monitor.worked(10);
 			}
-			screenshotTaker.close();
-		} catch (PartInitException e) {
-			LOGGER.fatal("Error creating screenshots", e);
-		} catch (AWTException e) {
-			LOGGER.fatal("Error creating screenshots", e);
+			screenshotTaker.dispose();
 		} catch (CancellationException e) {
 			monitor.setCanceled(true);
 			return Status.CANCEL_STATUS;

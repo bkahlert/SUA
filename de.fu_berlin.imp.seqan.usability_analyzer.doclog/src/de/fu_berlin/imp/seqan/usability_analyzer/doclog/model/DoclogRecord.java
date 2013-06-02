@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
@@ -101,6 +102,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	private TimeZoneDate date;
 	private Point scrollPosition;
 	private Point windowDimensions;
+	private Rectangle bounds; // made up from scrollPos and windowDimensions
 
 	private DoclogScreenshot screenshot;
 	private Long millisecondsPassed;
@@ -129,6 +131,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 					Integer.parseInt(matcher.group(18)));
 			this.windowDimensions = new Point(Integer.parseInt(matcher
 					.group(19)), Integer.parseInt(matcher.group(20)));
+
+			this.bounds = new Rectangle(this.scrollPosition.x,
+					this.scrollPosition.y, this.windowDimensions.x,
+					this.windowDimensions.y);
 
 			try {
 				if (doclog != null) {
@@ -244,6 +250,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	public Point getWindowDimensions() {
 		return this.windowDimensions;
+	}
+
+	public Rectangle getBounds() {
+		return this.bounds;
 	}
 
 	public void setScreenshot(File screenshotFile) throws IOException {

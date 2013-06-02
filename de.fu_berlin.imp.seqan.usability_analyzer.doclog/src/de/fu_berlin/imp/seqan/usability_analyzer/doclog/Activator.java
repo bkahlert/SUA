@@ -15,7 +15,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.nebula.screenshots.ScreenshotTaker;
+import com.bkahlert.nebula.dialogs.BrowserDialog;
+import com.bkahlert.nebula.utils.ShellUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
@@ -74,7 +75,14 @@ public class Activator extends AbstractUIPlugin {
 					.syncExec(new Callable<Rectangle>() {
 						@Override
 						public Rectangle call() throws Exception {
-							return new ScreenshotTaker().getMaxCaptureArea();
+							BrowserDialog dialog = new BrowserDialog(null);
+							dialog.setBlockOnOpen(false);
+							dialog.open();
+							dialog.getShell().setSize(Integer.MAX_VALUE,
+									Integer.MAX_VALUE);
+							org.eclipse.swt.graphics.Rectangle maxCaptureArea = ShellUtils.getInnerArea(dialog.getShell());
+							dialog.close();
+							return maxCaptureArea;
 						}
 					});
 		} catch (PartInitException e) {
