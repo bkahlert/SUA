@@ -83,7 +83,7 @@ public class DataService implements IDataService {
 
 	private DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
 	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
-	private List<? extends IBaseDataContainer> activeBaseDataDirectories = null;
+	private List<? extends IBaseDataContainer> activeBaseDataDirectories = new ArrayList<IBaseDataContainer>();
 
 	public DataService() {
 	}
@@ -107,11 +107,12 @@ public class DataService implements IDataService {
 	@Override
 	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		if (this.activeBaseDataDirectories != null) {
-			unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
-			this.notifier
-					.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
+		if (baseDataContainers == null) {
+			baseDataContainers = new ArrayList<IBaseDataContainer>();
 		}
+
+		unloadData(this.dataLoaderManager, this.activeBaseDataDirectories);
+		this.notifier.dataDirectoriesUnloaded(this.activeBaseDataDirectories);
 
 		saveActiveToPreferences(baseDataContainers);
 		loadData(this.dataLoaderManager, baseDataContainers);
@@ -311,6 +312,7 @@ public class DataService implements IDataService {
 	@Override
 	public void unloadData() {
 		this.dataLoaderManager.unload();
+		this.activeBaseDataDirectories = new ArrayList<IBaseDataContainer>();
 	}
 
 	@Override

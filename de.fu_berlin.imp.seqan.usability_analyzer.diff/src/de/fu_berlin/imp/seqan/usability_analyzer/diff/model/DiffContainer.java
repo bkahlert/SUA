@@ -129,7 +129,11 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	public DiffContainer(List<? extends IBaseDataContainer> baseDataContainers) {
 		super(baseDataContainers);
 		this.diffContainer = this.getSubContainer("diff");
-		this.trunk = new Trunk(this.getSubContainer("trunk"));
+		try {
+			this.trunk = new Trunk(this.getSubContainer("trunk"));
+		} catch (Exception e) {
+			LOGGER.error("Could not access sub directory \"trunk\"", e);
+		}
 		this.sourceCache = new SourceCache(this);
 
 		this.diffCache = new DiffCache(this, DIFF_CACHE_SIZE);

@@ -15,7 +15,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.web.screenshots.ScreenshotTaker;
+import com.bkahlert.nebula.screenshots.ScreenshotTaker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;

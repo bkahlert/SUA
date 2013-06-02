@@ -99,6 +99,10 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 									throws Exception {
 								final IData data = DoclogDataContainer.this.datas
 										.get(identifier);
+								long length = data.getLength();
+								if (length == 0l) {
+									return null;
+								}
 								try {
 									TimeZoneDateRange dateRange = Doclog
 											.getDateRange(data);
@@ -114,7 +118,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 								} catch (Exception e) {
 									LOGGER.error(e);
 								}
-								return (int) (data.getLength() / 1000l);
+								return (int) (length / 1000l);
 							}
 						});
 		for (Future<Integer> future : futures) {
@@ -208,7 +212,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		TimeZoneDateRange dateRange = this.fileDateRanges.get(identifier);
 		Token token = this.fileToken.get(identifier);
 		progressMonitor.worked(1);
-		Doclog doclog = new Doclog(data, identifier, dateRange, token, 2000);
+		Doclog doclog = new Doclog(data, identifier, dateRange, token, null);
 		progressMonitor.worked(1);
 		progressMonitor.done();
 		return doclog;

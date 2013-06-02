@@ -24,8 +24,9 @@ public class FileDataContainer implements IDataContainer {
 		Assert.isNotNull(parentDataContainer);
 
 		IDataContainer tmp = parentDataContainer;
-		while (tmp.getParentDataContainer() != null)
+		while (tmp.getParentDataContainer() != null) {
 			tmp = tmp.getParentDataContainer();
+		}
 		Assert.isTrue(tmp == baseDataContainer);
 
 		this.baseDataContainer = baseDataContainer;
@@ -34,6 +35,10 @@ public class FileDataContainer implements IDataContainer {
 
 	protected FileDataContainer(File file) {
 		Assert.isNotNull(file);
+		// FIXME
+		if (!file.isDirectory()) {
+			System.err.println("fuck");
+		}
 		Assert.isTrue(file.isDirectory());
 		this.file = file;
 	}
@@ -62,38 +67,40 @@ public class FileDataContainer implements IDataContainer {
 	}
 
 	public File getFile() {
-		return file;
+		return this.file;
 	}
 
 	@Override
 	public IData getResource(String name) {
-		return new FileData(getBaseDataContainer(), this, new File(this.file,
-				name));
+		return new FileData(this.getBaseDataContainer(), this, new File(
+				this.file, name));
 	}
 
 	@Override
 	public List<IData> getResources() {
 		List<IData> datas = new ArrayList<IData>();
 		for (File file : this.file.listFiles()) {
-			if (file.isFile())
-				datas.add(new FileData(getBaseDataContainer(), this, file));
+			if (file.isFile()) {
+				datas.add(new FileData(this.getBaseDataContainer(), this, file));
+			}
 		}
 		return datas;
 	}
 
 	@Override
 	public IDataContainer getSubContainer(String name) {
-		return new FileDataContainer(getBaseDataContainer(), this, new File(
-				this.file, name));
+		return new FileDataContainer(this.getBaseDataContainer(), this,
+				new File(this.file, name));
 	}
 
 	@Override
 	public List<IDataContainer> getSubContainers() {
 		List<IDataContainer> dataContainers = new ArrayList<IDataContainer>();
 		for (File file : this.file.listFiles()) {
-			if (file.isDirectory())
-				dataContainers.add(new FileDataContainer(
-						getBaseDataContainer(), this, file));
+			if (file.isDirectory()) {
+				dataContainers.add(new FileDataContainer(this
+						.getBaseDataContainer(), this, file));
+			}
 		}
 		return dataContainers;
 	}
@@ -107,7 +114,8 @@ public class FileDataContainer implements IDataContainer {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((file == null) ? 0 : file.hashCode());
+		result = prime * result
+				+ ((this.file == null) ? 0 : this.file.hashCode());
 		return result;
 	}
 
@@ -118,18 +126,23 @@ public class FileDataContainer implements IDataContainer {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof FileDataContainer))
+		}
+		if (!(obj instanceof FileDataContainer)) {
 			return false;
+		}
 		FileDataContainer other = (FileDataContainer) obj;
-		if (file == null) {
-			if (other.file != null)
+		if (this.file == null) {
+			if (other.file != null) {
 				return false;
-		} else if (!file.equals(other.file))
+			}
+		} else if (!this.file.equals(other.file)) {
 			return false;
+		}
 		return true;
 	}
 

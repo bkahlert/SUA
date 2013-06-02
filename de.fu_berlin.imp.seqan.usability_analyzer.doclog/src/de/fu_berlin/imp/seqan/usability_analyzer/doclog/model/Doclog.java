@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
@@ -18,7 +19,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class Doclog extends WrappingData implements IData, HasDateRange,
 		ILocatable, HasIdentifier {

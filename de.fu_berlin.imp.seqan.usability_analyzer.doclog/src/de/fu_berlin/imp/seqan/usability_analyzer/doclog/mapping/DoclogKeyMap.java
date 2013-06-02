@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -50,8 +49,9 @@ public class DoclogKeyMap {
 		public List<DoclogKeyMapWrapperEntry> entry = new ArrayList<DoclogKeyMapWrapperEntry>();
 
 		public DoclogKeyMapWrapper(ConcurrentHashMap<Fingerprint, ID> v) {
-			for (Map.Entry<Fingerprint, ID> e : v.entrySet())
-				entry.add(new DoclogKeyMapWrapperEntry(e));
+			for (Map.Entry<Fingerprint, ID> e : v.entrySet()) {
+				this.entry.add(new DoclogKeyMapWrapperEntry(e));
+			}
 		}
 
 		public DoclogKeyMapWrapper() {
@@ -59,8 +59,9 @@ public class DoclogKeyMap {
 
 		public ConcurrentHashMap<Fingerprint, ID> getDoclogKeyMap() {
 			ConcurrentHashMap<Fingerprint, ID> map = new ConcurrentHashMap<Fingerprint, ID>();
-			for (DoclogKeyMapWrapperEntry e : entry)
+			for (DoclogKeyMapWrapperEntry e : this.entry) {
 				map.put(e.key, e.value);
+			}
 			return map;
 		}
 	}
@@ -76,8 +77,8 @@ public class DoclogKeyMap {
 		}
 
 		public DoclogKeyMapWrapperEntry(Entry<Fingerprint, ID> e) {
-			key = e.getKey();
-			value = e.getValue();
+			this.key = e.getKey();
+			this.value = e.getValue();
 		}
 	}
 
@@ -85,7 +86,7 @@ public class DoclogKeyMap {
 		try {
 			getReadLock(data).lock();
 			return JAXBUtils.unmarshall(DoclogKeyMap.class, data.read());
-		} catch (JAXBException e) {
+		} catch (Exception e) {
 			LOGGER.error(e);
 			return null;
 		} finally {
@@ -108,7 +109,7 @@ public class DoclogKeyMap {
 	private ConcurrentHashMap<Fingerprint, ID> map = new ConcurrentHashMap<Fingerprint, ID>();
 
 	public DoclogKeyMapWrapper getMappings() {
-		return new DoclogKeyMapWrapper(map);
+		return new DoclogKeyMapWrapper(this.map);
 	}
 
 	public void setMappings(DoclogKeyMapWrapper map) {
@@ -135,8 +136,9 @@ public class DoclogKeyMap {
 	synchronized public List<Fingerprint> getFingerprints(ID id) {
 		List<Fingerprint> fingerprints = new LinkedList<Fingerprint>();
 		for (Entry<Fingerprint, ID> entry : this.map.entrySet()) {
-			if (entry.getValue().equals(id))
+			if (entry.getValue().equals(id)) {
 				fingerprints.add(entry.getKey());
+			}
 		}
 		return fingerprints;
 	}
@@ -145,24 +147,30 @@ public class DoclogKeyMap {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((map == null) ? 0 : map.hashCode());
+		result = prime * result
+				+ ((this.map == null) ? 0 : this.map.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		DoclogKeyMap other = (DoclogKeyMap) obj;
-		if (map == null) {
-			if (other.map != null)
+		if (this.map == null) {
+			if (other.map != null) {
 				return false;
-		} else if (!map.equals(other.map))
+			}
+		} else if (!this.map.equals(other.map)) {
 			return false;
+		}
 		return true;
 	}
 

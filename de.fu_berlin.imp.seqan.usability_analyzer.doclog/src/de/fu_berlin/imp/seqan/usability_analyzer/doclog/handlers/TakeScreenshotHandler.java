@@ -19,7 +19,8 @@ public class TakeScreenshotHandler extends AbstractHandler {
 		final List<DoclogRecord> doclogRecords = SelectionRetrieverFactory
 				.getSelectionRetriever(DoclogRecord.class).getSelection();
 
-		Job job = new TakeScreenshotsJob(doclogRecords);
+		Job job = new TakeScreenshotsJob(
+				doclogRecords.toArray(new DoclogRecord[0]));
 		job.setPriority(Job.SHORT);
 		job.schedule();
 

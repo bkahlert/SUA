@@ -17,13 +17,13 @@ import org.olat.core.util.URIHelper;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		ILocatable, HasIdentifier {
@@ -141,7 +141,8 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 			}
 		} else {
 			throw new DataSourceInvalidException(
-					"The doclog line did not match to the expected format.");
+					"The doclog line did not match to the expected format:\n"
+							+ line);
 		}
 	}
 

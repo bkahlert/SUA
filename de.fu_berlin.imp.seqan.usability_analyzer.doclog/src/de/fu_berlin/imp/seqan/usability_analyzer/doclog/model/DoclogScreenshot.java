@@ -55,7 +55,7 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 	}
 
 	public static final String FORMAT = "png";
-	public static final String RELFILE = "%s-%d,%d-%d,%d";
+	public static final String RELFILE = "%s-%d,%d-%d,%d-%s-%s";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
 	private DoclogRecord doclogRecord;
@@ -73,8 +73,11 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 		int windowHeight = this.doclogRecord.getWindowDimensions().y;
 		int scrollX = this.doclogRecord.getScrollPosition().x;
 		int scrollY = this.doclogRecord.getScrollPosition().y;
+		String action = this.doclogRecord.getAction().toString();
+		String param = this.doclogRecord.getActionParameter() != null ? URLEncoder
+				.encode(this.doclogRecord.getActionParameter(), "UTF-8") : "";
 		String relFile = String.format(RELFILE, url, windowWidth, windowHeight,
-				scrollX, scrollY);
+				scrollX, scrollY, action, param);
 
 		// Use md5 if filename to long
 		if (relFile.length() > MAX_FILENAME_LENGTH - 1 - FORMAT.length()) {

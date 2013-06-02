@@ -19,6 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
 public class TakeAllScreenshotHandler extends AbstractHandler {
@@ -31,6 +32,7 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 		messageBox.setText("Screenshots");
 		messageBox
 				.setMessage("Do you really want to take all screenshots?\nThis can take some time and will overwrite dirty existing screenshots.");
+
 		if (messageBox.open() == SWT.YES) {
 			final DoclogRecordList doclogRecords = new DoclogRecordList();
 			Job job = new Job("Parsing " + Doclog.class.getSimpleName() + "s") {
@@ -56,7 +58,8 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 			job.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					Job job = new TakeScreenshotsJob(doclogRecords);
+					Job job = new TakeScreenshotsJob(doclogRecords
+							.toArray(new DoclogRecord[0]));
 					job.setPriority(Job.SHORT);
 					job.schedule();
 				}

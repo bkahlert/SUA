@@ -19,6 +19,8 @@ public interface IDataService {
 
 	/**
 	 * Returns the currently active {@link IBaseDataContainer}s.
+	 * <p>
+	 * Never returns <code>null</code>.
 	 * 
 	 * @return
 	 */
