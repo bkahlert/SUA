@@ -637,6 +637,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		this.getSmallCodeStore().getEpisodes().add(null);
 	}
 
+	@SuppressWarnings("unused")
 	private String getTextFromStyledTextWidget(String text) {
 		Display display = new Display();
 		final Shell shell = new Shell(display);

@@ -8,7 +8,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerpri
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 public class EntityAdapterFactory implements IAdapterFactory {
 
@@ -16,7 +16,7 @@ public class EntityAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
 		return new Class[] { IIdentifier.class, ID.class, Fingerprint.class,
-				SurveyRecord.class };
+				CSVSurveyRecord.class };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -37,7 +37,7 @@ public class EntityAdapterFactory implements IAdapterFactory {
 			if (adapterType == Token.class) {
 				return entity.getToken();
 			}
-			if (adapterType == SurveyRecord.class) {
+			if (adapterType == CSVSurveyRecord.class) {
 				return entity.getSurveyRecord();
 			}
 			return null;

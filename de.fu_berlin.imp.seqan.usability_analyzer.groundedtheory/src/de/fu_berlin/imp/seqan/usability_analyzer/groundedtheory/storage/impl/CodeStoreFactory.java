@@ -27,11 +27,12 @@ public class CodeStoreFactory {
 	public File getCodeStoreFile() {
 		File codeServiceFile = preferenceUtil.getCodeStoreFile();
 		String errorMessage = null;
-		if (codeServiceFile == null)
+		if (codeServiceFile == null) {
 			errorMessage = "The location of the grounded theory file is not defined.";
-		else if (!codeServiceFile.canRead())
+		} else if (!codeServiceFile.canRead()) {
 			errorMessage = "The grounded theory file \""
 					+ codeServiceFile.getPath() + "\" can not be read.";
+		}
 		if (errorMessage != null) {
 			MessageDialog messageDialog = new MessageDialog(shell,
 					"Grounded Theory File", null, errorMessage
@@ -56,9 +57,10 @@ public class CodeStoreFactory {
 				String filename = Utils.chooseGTFileLocation();
 				if (filename != null) {
 					codeServiceFile = new File(filename);
-					if (codeServiceFile.isDirectory())
+					if (codeServiceFile.isDirectory()) {
 						codeServiceFile = new File(filename + File.separator
 								+ "CodeStore.xml");
+					}
 				}
 			}
 			preferenceUtil.setCodeStoreFile(codeServiceFile);
@@ -71,7 +73,7 @@ public class CodeStoreFactory {
 
 	public ICodeStore getCodeStore() {
 		while (CODE_STORE == null) {
-			File codeServiceFile = getCodeStoreFile();
+			File codeServiceFile = this.getCodeStoreFile();
 			try {
 				CODE_STORE = CodeStore.load(codeServiceFile);
 			} catch (CodeStoreReadException e) {
@@ -85,9 +87,10 @@ public class CodeStoreFactory {
 				String filename = Utils.chooseGTFileLocation();
 				if (filename != null) {
 					codeServiceFile = new File(filename);
-					if (codeServiceFile.isDirectory())
+					if (codeServiceFile.isDirectory()) {
 						codeServiceFile = new File(filename + File.separator
 								+ "CodeStore.xml");
+					}
 					try {
 						codeServiceFile.createNewFile();
 					} catch (IOException e1) {

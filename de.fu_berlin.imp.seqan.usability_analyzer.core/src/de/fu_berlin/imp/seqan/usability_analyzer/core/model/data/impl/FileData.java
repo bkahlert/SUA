@@ -37,8 +37,9 @@ public class FileData implements IData {
 		Assert.isNotNull(parentDataContainer);
 
 		IDataContainer tmp = parentDataContainer;
-		while (tmp.getParentDataContainer() != null)
+		while (tmp.getParentDataContainer() != null) {
 			tmp = tmp.getParentDataContainer();
+		}
 		Assert.isTrue(tmp == baseDataContainer);
 
 		this.baseDataContainer = baseDataContainer;
@@ -102,7 +103,7 @@ public class FileData implements IData {
 	public String readLastLines(int numLines) {
 		try {
 			RandomAccessFile fileHandler = new RandomAccessFile(this.file, "r");
-			long fileLength = file.length() - 1;
+			long fileLength = this.file.length() - 1;
 			StringBuilder sb = new StringBuilder();
 			int line = 0;
 
@@ -147,8 +148,8 @@ public class FileData implements IData {
 				{
 					this.fstream = new FileInputStream(FileData.this.file);
 					this.br = new BufferedReader(new InputStreamReader(
-							new DataInputStream(fstream)));
-					next();
+							new DataInputStream(this.fstream)));
+					this.next();
 				}
 
 				@Override
@@ -160,21 +161,23 @@ public class FileData implements IData {
 				public String next() {
 					String rt = this.line;
 					try {
-						this.line = br.readLine();
+						this.line = this.br.readLine();
 					} catch (IOException e) {
-						if (fstream != null)
+						if (this.fstream != null) {
 							try {
-								fstream.close();
+								this.fstream.close();
 							} catch (IOException e1) {
 							}
+						}
 						throw new RuntimeException(e);
 					}
 					if (this.line == null) {
-						if (fstream != null)
+						if (this.fstream != null) {
 							try {
-								fstream.close();
+								this.fstream.close();
 							} catch (IOException e1) {
 							}
+						}
 					}
 					return rt;
 				}
@@ -198,7 +201,7 @@ public class FileData implements IData {
 	@Override
 	public File getStaticFile() throws IOException {
 		List<String> path = new LinkedList<String>();
-		path.add(getName());
+		path.add(this.getName());
 		IDataContainer container = this.getParentDataContainer();
 		while (container != null) {
 			path.add(container.getName());
@@ -207,7 +210,7 @@ public class FileData implements IData {
 		// remove base
 		path.remove(path.size() - 1);
 
-		String scope = path.remove(path.size() - 1);
+		String scope = path.size() > 1 ? path.remove(path.size() - 1) : null;
 		String name = StringUtils.join(new ReverseListIterator(path),
 				File.separator);
 		return this.getBaseDataContainer().getStaticFile(scope, name);

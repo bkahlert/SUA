@@ -4,6 +4,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 
 public class WorkSession implements IWorkSession {
+	private static final long serialVersionUID = 1L;
 	public IWorkSessionEntity[] entities;
 
 	public WorkSession(IWorkSessionEntity[] entities) {

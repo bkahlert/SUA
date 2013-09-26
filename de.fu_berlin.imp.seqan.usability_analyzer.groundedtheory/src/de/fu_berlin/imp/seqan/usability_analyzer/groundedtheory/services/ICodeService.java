@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -111,8 +110,8 @@ public interface ICodeService {
 	List<ICodeInstance> getInstances();
 
 	/**
-	 * Returns all {@link ICodeInstance}s belonging to {@link ILocatable}s of the
-	 * given {@link IIdentifier}.
+	 * Returns all {@link ICodeInstance}s belonging to {@link ILocatable}s of
+	 * the given {@link IIdentifier}.
 	 * <p>
 	 * E.g. {@link ILocatable} belonging to ID 20x13b2.
 	 * 
@@ -346,5 +345,16 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	public void deleteEpisodeAndSave(List<IEpisode> episodes)
+			throws CodeServiceException;
+
+	/**
+	 * Reattaches all resources (codes and memos) from one to another
+	 * {@link ILocatable}.
+	 * 
+	 * @param src
+	 * @param dest
+	 * @throws CodeServiceException
+	 */
+	public void reattachAndSave(ILocatable src, ILocatable dest)
 			throws CodeServiceException;
 }

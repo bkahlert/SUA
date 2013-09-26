@@ -1,15 +1,15 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 /**
- * Denotes an item of a {@link SurveyRecord}.
+ * Denotes an item of a {@link CSVSurveyRecord}.
  * <p>
- * The 5th element of an {@link SurveyRecord}Êis the the {@link SurveyRecord}
+ * The 5th element of an {@link CSVSurveyRecord}Êis the the {@link CSVSurveyRecord}
  * itself + the column with the value 4.
  */
 public interface ISurveyRecordItem {
-	public SurveyRecord getSurveyRecord();
+	public CSVSurveyRecord getSurveyRecord();
 
 	public String getKey();
 

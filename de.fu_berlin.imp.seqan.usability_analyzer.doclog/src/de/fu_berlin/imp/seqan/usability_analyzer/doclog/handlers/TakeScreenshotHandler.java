@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.ScreenshotsJobGroup;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 
 public class TakeScreenshotHandler extends AbstractHandler {
@@ -19,8 +19,7 @@ public class TakeScreenshotHandler extends AbstractHandler {
 		final List<DoclogRecord> doclogRecords = SelectionRetrieverFactory
 				.getSelectionRetriever(DoclogRecord.class).getSelection();
 
-		Job job = new TakeScreenshotsJob(
-				doclogRecords.toArray(new DoclogRecord[0]));
+		Job job = new ScreenshotsJobGroup(doclogRecords);
 		job.setPriority(Job.SHORT);
 		job.schedule();
 

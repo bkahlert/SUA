@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SurveyRecordManagerTest.class })
+@SuiteClasses({ CSVSurveyRecordManagerTest.class,
+		CognitiveDimensionsDocumentTest.class })
 public class AllTests {
 
 }

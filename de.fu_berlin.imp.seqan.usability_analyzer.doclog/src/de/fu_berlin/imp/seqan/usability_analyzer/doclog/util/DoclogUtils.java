@@ -3,7 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.util;
 import java.util.Iterator;
 
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
-import com.bkahlert.nebula.screenshots.impl.webpage.FuzzyFormFiller.IFieldFill;
+import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage.IFieldFill;
 
 public class DoclogUtils {
 

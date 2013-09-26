@@ -12,12 +12,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 /**
  * Encapsulates multiple {@link IBaseDataContainer}s containing surveys.
  * <p>
- * Each survey is managed by a {@link SurveyManager}.
+ * Each survey is managed by a {@link XMLSurveyManager}.
  * 
  * @author bkahlert
  * 
@@ -29,7 +30,7 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 	private List<? extends IBaseDataContainer> baseContainers;
 
-	private List<SurveyManager> surveyManagers;
+	private List<CSVSurveyManager> cSVSurveyManagers;
 
 	public SurveyContainer(List<? extends IBaseDataContainer> baseContainers) {
 		super(baseContainers);
@@ -53,19 +54,19 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 		SubMonitor monitor = SubMonitor.convert(subMonitor,
 				this.baseContainers.size());
 
-		List<SurveyManager> surveyManagers = new ArrayList<SurveyManager>();
+		List<CSVSurveyManager> cSVSurveyManagers = new ArrayList<CSVSurveyManager>();
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			IData surveyData = this.getSurveyData(baseDataContainer);
 			if (surveyData == null) {
 				LOGGER.error("Could not load survey data");
 			} else {
-				SurveyManager surveyManager = new SurveyManager(surveyData);
-				surveyManager.scanRecords(monitor.newChild(1));
-				surveyManagers.add(surveyManager);
+				CSVSurveyManager cSVSurveyManager = new CSVSurveyManager(surveyData);
+				cSVSurveyManager.scanRecords(monitor.newChild(1));
+				cSVSurveyManagers.add(cSVSurveyManager);
 			}
 		}
 
-		this.surveyManagers = surveyManagers;
+		this.cSVSurveyManagers = cSVSurveyManagers;
 		monitor.done();
 	}
 
@@ -75,12 +76,12 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 	 * @param identifier
 	 * @return
 	 */
-	public SurveyRecord getSurveyRecord(IIdentifier identifier) {
-		for (SurveyManager surveyManager : this.surveyManagers) {
-			SurveyRecord surveyRecord = surveyManager
+	public CSVSurveyRecord getSurveyRecord(IIdentifier identifier) {
+		for (CSVSurveyManager cSVSurveyManager : this.cSVSurveyManagers) {
+			CSVSurveyRecord cSVSurveyRecord = cSVSurveyManager
 					.getSurveyRecord(identifier);
-			if (surveyRecord != null) {
-				return surveyRecord;
+			if (cSVSurveyRecord != null) {
+				return cSVSurveyRecord;
 			}
 		}
 		return null;
@@ -88,8 +89,8 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 	public List<Token> getTokens() {
 		List<Token> tokens = new ArrayList<Token>();
-		for (SurveyManager surveyManager : this.surveyManagers) {
-			List<Token> currentTokens = surveyManager.getTokens();
+		for (CSVSurveyManager cSVSurveyManager : this.cSVSurveyManagers) {
+			List<Token> currentTokens = cSVSurveyManager.getTokens();
 			if (currentTokens != null) {
 				tokens.addAll(currentTokens);
 			}

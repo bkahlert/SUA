@@ -772,7 +772,7 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsIEpisode">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICode">
          <with
                variable="com.bkahlert.nebula.information.input">
             <instanceof

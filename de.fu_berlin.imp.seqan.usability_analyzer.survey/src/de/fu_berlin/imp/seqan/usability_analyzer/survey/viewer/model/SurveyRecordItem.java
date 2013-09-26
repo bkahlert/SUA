@@ -1,21 +1,21 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 public class SurveyRecordItem implements ISurveyRecordItem {
 
-	private SurveyRecord surveyRecord;
+	private CSVSurveyRecord cSVSurveyRecord;
 	private String key;
 
-	public SurveyRecordItem(SurveyRecord surveyRecord, String column) {
+	public SurveyRecordItem(CSVSurveyRecord cSVSurveyRecord, String column) {
 		super();
-		this.surveyRecord = surveyRecord;
+		this.cSVSurveyRecord = cSVSurveyRecord;
 		this.key = column;
 	}
 
 	@Override
-	public SurveyRecord getSurveyRecord() {
-		return this.surveyRecord;
+	public CSVSurveyRecord getSurveyRecord() {
+		return this.cSVSurveyRecord;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class SurveyRecordItem implements ISurveyRecordItem {
 
 	@Override
 	public String getValue() {
-		return this.surveyRecord.getField(this.key);
+		return this.cSVSurveyRecord.getField(this.key);
 	}
 
 }

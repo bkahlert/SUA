@@ -25,7 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.SurveyContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.SurveyViewer;
 
@@ -43,7 +43,7 @@ public class SurveyView extends ViewPart {
 	};
 
 	private SurveyViewer surveyViewer;
-	private HashMap<IIdentifier, SurveyRecord> openedSurveyRecords = new HashMap<IIdentifier, SurveyRecord>();
+	private HashMap<IIdentifier, CSVSurveyRecord> openedSurveyRecords = new HashMap<IIdentifier, CSVSurveyRecord>();
 
 	public SurveyView() {
 	}
@@ -111,7 +111,7 @@ public class SurveyView extends ViewPart {
 
 	/**
 	 * Opens the given {@link IIdentifier}s. If the corresponding
-	 * {@link SurveyRecord}s could be successfully opened a caller defined
+	 * {@link CSVSurveyRecord}s could be successfully opened a caller defined
 	 * {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
@@ -123,7 +123,7 @@ public class SurveyView extends ViewPart {
 	 */
 	public <T> Future<T> open(final HashSet<IIdentifier> identifiers,
 			final Callable<T> success) {
-		final HashMap<IIdentifier, SurveyRecord> newOpenedSurveyRecords = new HashMap<IIdentifier, SurveyRecord>();
+		final HashMap<IIdentifier, CSVSurveyRecord> newOpenedSurveyRecords = new HashMap<IIdentifier, CSVSurveyRecord>();
 
 		// do not load already opened survey records
 		for (IIdentifier identifier : this.openedSurveyRecords.keySet()) {
@@ -145,12 +145,12 @@ public class SurveyView extends ViewPart {
 
 		// Case 2: multiple IDs
 		for (IIdentifier identifier : identifiers) {
-			SurveyRecord surveyRecord = Activator.getDefault()
+			CSVSurveyRecord cSVSurveyRecord = Activator.getDefault()
 					.getSurveyContainer().getSurveyRecord(identifier);
-			if (surveyRecord != null
-					&& !this.openedSurveyRecords.containsValue(surveyRecord)
-					&& !newOpenedSurveyRecords.containsValue(surveyRecord)) {
-				newOpenedSurveyRecords.put(identifier, surveyRecord);
+			if (cSVSurveyRecord != null
+					&& !this.openedSurveyRecords.containsValue(cSVSurveyRecord)
+					&& !newOpenedSurveyRecords.containsValue(cSVSurveyRecord)) {
+				newOpenedSurveyRecords.put(identifier, cSVSurveyRecord);
 			}
 		}
 

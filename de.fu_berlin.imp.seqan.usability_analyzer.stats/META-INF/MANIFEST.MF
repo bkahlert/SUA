@@ -10,8 +10,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.7.0",
  org.apache.commons.io;bundle-version="2.0.1",
  org.apache.commons.lang;bundle-version="2.4.0",
  org.apache.log4j;bundle-version="1.2.15",
- org.codehaus.jackson.core;bundle-version="1.6.0",
- org.codehaus.jackson.mapper;bundle-version="1.6.0",
+ org.codehaus.jackson.core,
+ org.codehaus.jackson.mapper,
  de.fu_berlin.imp.seqan.usability_analyzer.core;bundle-version="1.0.0",
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,22 +1,14 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog;
 
-import java.awt.AWTException;
 import java.net.URL;
-import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.nebula.dialogs.BrowserDialog;
-import com.bkahlert.nebula.utils.ShellUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
@@ -29,6 +21,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 public class Activator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog"; //$NON-NLS-1$
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 
 	private static Activator plugin;
@@ -41,8 +34,6 @@ public class Activator extends AbstractUIPlugin {
 			return new DoclogLabelProvider();
 		}
 	};
-
-	private Rectangle maxCaptureArea;
 
 	private DoclogDataContainer doclogDataContainer = null;
 
@@ -69,27 +60,6 @@ public class Activator extends AbstractUIPlugin {
 		URL confURL = this.getBundle().getEntry("log4j.properties");
 		PropertyConfigurator
 				.configure(FileLocator.toFileURL(confURL).getFile());
-
-		try {
-			this.maxCaptureArea = ExecutorUtil
-					.syncExec(new Callable<Rectangle>() {
-						@Override
-						public Rectangle call() throws Exception {
-							BrowserDialog dialog = new BrowserDialog(null);
-							dialog.setBlockOnOpen(false);
-							dialog.open();
-							dialog.getShell().setSize(Integer.MAX_VALUE,
-									Integer.MAX_VALUE);
-							org.eclipse.swt.graphics.Rectangle maxCaptureArea = ShellUtils.getInnerArea(dialog.getShell());
-							dialog.close();
-							return maxCaptureArea;
-						}
-					});
-		} catch (PartInitException e) {
-			LOGGER.fatal(e);
-		} catch (AWTException e) {
-			LOGGER.fatal(e);
-		}
 	}
 
 	/*
@@ -115,10 +85,6 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
-	}
-
-	public Rectangle getMaxCaptureArea() {
-		return this.maxCaptureArea;
 	}
 
 	public DoclogDataContainer getDoclogContainer() {

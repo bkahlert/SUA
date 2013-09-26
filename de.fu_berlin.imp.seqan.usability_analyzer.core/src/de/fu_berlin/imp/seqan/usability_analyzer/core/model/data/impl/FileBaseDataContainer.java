@@ -63,6 +63,9 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	}
 
 	protected File getScope(String scope) {
+		if (scope == null || scope.isEmpty()) {
+			return this.getFile();
+		}
 		File scopeDir = new File(this.getFile(), scope);
 		scopeDir.mkdirs();
 		return scopeDir;

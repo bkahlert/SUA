@@ -24,7 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.CMakeCacheFileManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.StatsFileManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 public class EntityManager {
 	private static Logger LOGGER = Logger.getLogger(EntityManager.class);
@@ -172,9 +172,9 @@ public class EntityManager {
 
 			Token token = this.doclogDataContainer.getToken(id);
 			if (token != null) {
-				SurveyRecord surveyRecord = this.surveyContainer
+				CSVSurveyRecord cSVSurveyRecord = this.surveyContainer
 						.getSurveyRecord(token);
-				entity.setSurveyRecord(surveyRecord);
+				entity.setSurveyRecord(cSVSurveyRecord);
 
 				if (this.mapper.getFingerprints(token).size() > 0) {
 					this.logIdBasedSurveyHasFingerprints();
@@ -187,9 +187,9 @@ public class EntityManager {
 			}
 
 			if (entity.getId() != null && entity.getSurveyRecord() == null) {
-				SurveyRecord surveyRecord = this.surveyContainer
+				CSVSurveyRecord cSVSurveyRecord = this.surveyContainer
 						.getSurveyRecord(entity.getId());
-				entity.setSurveyRecord(surveyRecord);
+				entity.setSurveyRecord(cSVSurveyRecord);
 			}
 
 			if (entity.isValid()) {
@@ -263,9 +263,9 @@ public class EntityManager {
 			}
 
 			if (entity.getId() != null && entity.getSurveyRecord() == null) {
-				SurveyRecord surveyRecord = this.surveyContainer
+				CSVSurveyRecord cSVSurveyRecord = this.surveyContainer
 						.getSurveyRecord(entity.getId());
-				entity.setSurveyRecord(surveyRecord);
+				entity.setSurveyRecord(cSVSurveyRecord);
 			}
 
 			if (entity.isValid()) {
@@ -284,9 +284,9 @@ public class EntityManager {
 		List<Token> tokens = this.surveyContainer.getTokens();
 		for (Token token : tokens) {
 			Entity entity = new Entity(this.mapper);
-			SurveyRecord surveyRecord = this.surveyContainer
+			CSVSurveyRecord cSVSurveyRecord = this.surveyContainer
 					.getSurveyRecord(token);
-			entity.setSurveyRecord(surveyRecord);
+			entity.setSurveyRecord(cSVSurveyRecord);
 
 			List<Fingerprint> fingerprints = this.mapper.getFingerprints(token);
 			if (fingerprints.size() > 1) {

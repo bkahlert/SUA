@@ -16,14 +16,14 @@ public class SurveyLoader implements IDataLoadProvider {
 	@Override
 	public String getLoaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
-		return "Loading survey from "
+		return "Loading surveys from "
 				+ StringUtils.join(dataResourceContainers, ", ") + "...";
 	}
 
 	@Override
 	public String getUnloaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
-		return "Unloading survey from "
+		return "Unloading surveys from "
 				+ StringUtils.join(dataResourceContainers, ", ") + "...";
 	}
 

@@ -2,12 +2,27 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.perspectives.CognitiveDimensionsPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.survey.perspectives.CognitiveDimensionsPerspective"
+            name="name">
+      </perspective>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView"
             id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView"
             name="Survey">
+      </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CdView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CdView"
+            name="Cognitive Dimensions"
+            restorable="true">
       </view>
    </extension>
    <extension
@@ -16,6 +31,9 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyLoader"
             source="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.ISurveyLoadDependency">
       </DataLoadProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertiesView">
    </extension>
 
 </plugin>

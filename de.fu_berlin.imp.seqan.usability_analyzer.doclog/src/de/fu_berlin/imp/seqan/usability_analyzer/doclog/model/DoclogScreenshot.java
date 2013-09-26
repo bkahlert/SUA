@@ -22,7 +22,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
 public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 
@@ -54,7 +53,7 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 		}
 	}
 
-	public static final com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT FORMAT = com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT.PNG;
+	public static final com.bkahlert.nebula.screenshots.IScreenshotTaker.Format Format = com.bkahlert.nebula.screenshots.IScreenshotTaker.Format.PNG;
 	public static final String RELFILE = "%s-%d,%d-%d,%d-%s-%s";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
@@ -81,10 +80,10 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 
 		// Use md5 if filename to long
 		if (relFile.length() > MAX_FILENAME_LENGTH - 1
-				- FORMAT.getName().length()) {
+				- Format.getName().length()) {
 			relFile = DigestUtils.md5Hex(relFile);
 		}
-		this.filename = relFile + "." + FORMAT;
+		this.filename = relFile + "." + Format;
 	}
 
 	@Override
@@ -134,21 +133,6 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 
 				boolean correctWidth = imageSize.width == windowDimensions.x;
 				boolean correctHeight = imageSize.height == windowDimensions.y;
-
-				/*
-				 * We are not 100% interested in the navigation frame of the
-				 * seqan.de documentation. If this computer can't produce the
-				 * screenshots the screenshots height demands that's ok.
-				 */
-				if (this.doclogRecord.getUrl().contains("/INDEX_")
-						&& Activator.getDefault() != null) {
-					int maxHeight = Activator.getDefault().getMaxCaptureArea().height;
-
-					if (windowDimensions.y > maxHeight
-							&& imageSize.height >= maxHeight) {
-						correctHeight = true;
-					}
-				}
 
 				if (correctWidth && correctHeight) {
 					return Status.OK;

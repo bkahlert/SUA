@@ -59,9 +59,10 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 			.getService(ICodeService.class);
 
 	IDataServiceListener dataServiceListener = new DataServiceAdapter() {
+		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> baseDataContainers) {
-			setBold(null);
+			EntityViewer.this.setBold(null);
 		};
 	};
 
@@ -89,15 +90,15 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 			}
 		};
 
-		createColumns();
-		sort(0);
+		this.createColumns();
+		this.sort(0);
 
-		dataService.addDataServiceListener(dataServiceListener);
+		this.dataService.addDataServiceListener(this.dataServiceListener);
 		table.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				dataService
-						.removeDataServiceListener(dataServiceListener);
+				EntityViewer.this.dataService
+						.removeDataServiceListener(EntityViewer.this.dataServiceListener);
 			}
 		});
 	}
@@ -113,9 +114,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 								ID id = entity.getId();
 								StyledString styledString = new StyledString(
 										(id != null) ? id.toString() : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -124,21 +125,25 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 							public Image getImage(Object element) {
 								Entity entity = (Entity) element;
 								try {
-									if (codeService.getCodes(entity).size() > 0) {
-										return codeService.isMemo(entity) ? ImageManager.ENTITY_CODED_MEMO
+									if (EntityViewer.this.codeService.getCodes(
+											entity).size() > 0) {
+										return EntityViewer.this.codeService
+												.isMemo(entity) ? ImageManager.ENTITY_CODED_MEMO
 												: ImageManager.ENTITY_CODED;
 									} else {
-										for (URI id : codeService.getCodedIDs()) {
+										for (URI id : EntityViewer.this.codeService
+												.getCodedIDs()) {
 											String[] parts = id.getPath()
 													.split("/");
-											if (parts.length > 0) {
+											if (parts.length > 1) {
 												String key = parts[1];
 												if (ID.isValid(key)
 														&& entity.getId() != null
-														&& entity.getId()
+														&& entity
+																.getId()
 																.equals(IdentifierFactory
 																		.createFrom(key))) {
-													return codeService
+													return EntityViewer.this.codeService
 															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
@@ -148,14 +153,15 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 																.contains(
 																		IdentifierFactory
 																				.createFrom(key))) {
-													return codeService
+													return EntityViewer.this.codeService
 															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
 															: ImageManager.ENTITY_PARTIALLY_CODED;
 												}
 											}
 										}
 
-										return codeService.isMemo(entity) ? ImageManager.ENTITY_MEMO
+										return EntityViewer.this.codeService
+												.isMemo(entity) ? ImageManager.ENTITY_MEMO
 												: ImageManager.ENTITY;
 									}
 								} catch (CodeServiceException e) {
@@ -179,9 +185,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 										(secondaryFingerprints != null) ? StringUtils
 												.join(secondaryFingerprints,
 														", ") : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -196,9 +202,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 								Token token = entity.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -214,9 +220,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -233,9 +239,9 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 								StyledString styledString = new StyledString(
 										(cMakeCacheFile != null) ? cMakeCacheFile
 												.getGenerator() : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -251,11 +257,12 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 										.getEarliestEntryDate();
 								StyledString styledString = new StyledString(
 										(earliestDate != null) ? earliestDate
-												.format(preferenceUtil
-														.getDateFormat()) : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+												.format(EntityViewer.this.preferenceUtil
+														.getDateFormat())
+												: "",
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -271,28 +278,33 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 										.getLatestEntryDate();
 								StyledString styledString = new StyledString(
 										(lastestDate != null) ? lastestDate
-												.format(preferenceUtil
-														.getDateFormat()) : "",
-										(boldObjects != null
-												&& boldObjects
-														.contains(element) ? boldStyler
+												.format(EntityViewer.this.preferenceUtil
+														.getDateFormat())
+												: "",
+										(EntityViewer.this.boldObjects != null
+												&& EntityViewer.this.boldObjects
+														.contains(element) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
 						}));
 	}
 
+	@Override
 	public void setBold(Object boldObject) {
 		this.setBold(Arrays.asList(boldObject));
 	}
 
+	@Override
 	public void setBold(Collection<?> boldObjects) {
 		if (this.boldObjects != boldObjects) {
 			List<Object> update = new ArrayList<Object>();
-			if (this.boldObjects != null)
+			if (this.boldObjects != null) {
 				update.addAll(this.boldObjects);
-			if (boldObjects != null)
+			}
+			if (boldObjects != null) {
 				update.addAll(boldObjects);
+			}
 
 			this.boldObjects = boldObjects;
 			this.update(update.toArray(), null);

@@ -16,10 +16,9 @@ import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.TakeScreenshotsJob;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs.ScreenshotsJobGroup;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 
 public class TakeAllScreenshotHandler extends AbstractHandler {
@@ -58,8 +57,7 @@ public class TakeAllScreenshotHandler extends AbstractHandler {
 			job.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					Job job = new TakeScreenshotsJob(doclogRecords
-							.toArray(new DoclogRecord[0]));
+					Job job = new ScreenshotsJobGroup(doclogRecords);
 					job.setPriority(Job.SHORT);
 					job.schedule();
 				}

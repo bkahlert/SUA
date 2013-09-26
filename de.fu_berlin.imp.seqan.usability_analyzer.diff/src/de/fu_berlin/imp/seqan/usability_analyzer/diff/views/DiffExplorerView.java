@@ -313,7 +313,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	}
 
 	/**
-	 * Opens the given {@link IIdentifier}s in the {@link DiffListsViewer}. If
+	 * Opens the given {@link IIdentifier}s in the {@link UriViewer}. If
 	 * the corresponding {@link IDiff}s could be successfully opened a caller
 	 * defined {@link Runnable} gets executed.
 	 * <p>

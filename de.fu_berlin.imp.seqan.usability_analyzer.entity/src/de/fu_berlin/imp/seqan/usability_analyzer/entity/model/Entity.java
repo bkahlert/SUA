@@ -26,7 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProvider
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 
 public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 		HasIdentifier {
@@ -37,7 +37,7 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 
 	private ID id;
 	private Fingerprint fingerprint;
-	private SurveyRecord surveyRecord;
+	private CSVSurveyRecord cSVSurveyRecord;
 
 	private StatsFile statsFile;
 	private CMakeCacheFile cMakeCacheFile;
@@ -159,23 +159,23 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 	}
 
 	public Token getToken() {
-		if (this.surveyRecord != null) {
-			return this.surveyRecord.getToken();
+		if (this.cSVSurveyRecord != null) {
+			return this.cSVSurveyRecord.getToken();
 		} else {
 			return null;
 		}
 	}
 
-	public SurveyRecord getSurveyRecord() {
-		return this.surveyRecord;
+	public CSVSurveyRecord getSurveyRecord() {
+		return this.cSVSurveyRecord;
 	}
 
-	public void setSurveyRecord(SurveyRecord surveyRecord) {
-		if (surveyRecord != null) {
-			this.updateEarliestEntryDate(surveyRecord.getDate());
-			this.updateLatestEntryDate(surveyRecord.getDate());
+	public void setSurveyRecord(CSVSurveyRecord cSVSurveyRecord) {
+		if (cSVSurveyRecord != null) {
+			this.updateEarliestEntryDate(cSVSurveyRecord.getDate());
+			this.updateLatestEntryDate(cSVSurveyRecord.getDate());
 		}
-		this.surveyRecord = surveyRecord;
+		this.cSVSurveyRecord = cSVSurveyRecord;
 	}
 
 	public StatsFile getStatsFile() {

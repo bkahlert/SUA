@@ -11,7 +11,7 @@ import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model.SurveyRecordItem;
 
 public class SurveyViewer extends SortableTreeViewer {
@@ -38,11 +38,11 @@ public class SurveyViewer extends SortableTreeViewer {
 				new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SurveyRecord) {
-							SurveyRecord surveyRecord = (SurveyRecord) element;
-							IIdentifier identifier = surveyRecord
+						if (element instanceof CSVSurveyRecord) {
+							CSVSurveyRecord cSVSurveyRecord = (CSVSurveyRecord) element;
+							IIdentifier identifier = cSVSurveyRecord
 									.getID();
-							Token token = surveyRecord.getToken();
+							Token token = cSVSurveyRecord.getToken();
 							return IIdentifier.class.getSimpleName()
 									+ ": "
 									+ ((identifier != null) ? identifier

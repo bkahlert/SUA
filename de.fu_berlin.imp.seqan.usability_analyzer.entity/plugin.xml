@@ -74,7 +74,7 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token">
          </adapter>
          <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord">
          </adapter>
       </factory>
    </extension>

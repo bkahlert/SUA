@@ -8,12 +8,13 @@ public class AllViewsPerspective implements IPerspectiveFactory {
 	/**
 	 * Creates the initial layout for a page.
 	 */
+	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		@SuppressWarnings("unused")
 		String editorArea = layout.getEditorArea();
-		addFastViews(layout);
-		addViewShortcuts(layout);
-		addPerspectiveShortcuts(layout);
+		this.addFastViews(layout);
+		this.addViewShortcuts(layout);
+		this.addPerspectiveShortcuts(layout);
 
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView",
@@ -42,6 +43,10 @@ public class AllViewsPerspective implements IPerspectiveFactory {
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.survey.views.SurveyView",
 				IPageLayout.TOP, 0.43f,
+				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView");
+		layout.addView(
+				"de.fu_berlin.imp.seqan.usability_analyzer.uri.views.UriView",
+				IPageLayout.BOTTOM, 0.5f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView",

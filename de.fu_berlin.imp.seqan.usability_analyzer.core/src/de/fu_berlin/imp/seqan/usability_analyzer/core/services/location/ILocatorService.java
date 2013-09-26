@@ -50,7 +50,7 @@ public interface ILocatorService {
 	 * 
 	 * @param uri
 	 */
-	public void unresolve(URI uri);
+	public void uncache(URI uri);
 
 	/**
 	 * Removes an eventually cached resolve attempt.
@@ -60,7 +60,7 @@ public interface ILocatorService {
 	 * 
 	 * @param uris
 	 */
-	public void unresolve(URI[] uris);
+	public void uncache(URI[] uris);
 
 	/**
 	 * Shows the object associated with the given {@link URI} in the active

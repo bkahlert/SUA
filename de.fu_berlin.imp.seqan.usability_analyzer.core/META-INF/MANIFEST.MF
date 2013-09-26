@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SeqAn Usability Analyzer Core
+Bundle-Name: SeqAn Usability Analyzer - Core
 Bundle-SymbolicName: de.fu_berlin.imp.seqan.usability_analyzer.core;singleton:=true
 Bundle-Version: 1.0.0.0
 Bundle-Activator: de.fu_berlin.imp.seqan.usability_analyzer.core.Activator

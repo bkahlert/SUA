@@ -149,12 +149,12 @@ public class LocatorService implements ILocatorService {
 	}
 
 	@Override
-	public void unresolve(URI uri) {
-		this.unresolve(new URI[] { uri });
+	public void uncache(URI uri) {
+		this.uncache(new URI[] { uri });
 	}
 
 	@Override
-	public void unresolve(URI[] uris) {
+	public void uncache(URI[] uris) {
 		for (URI uri : uris) {
 			this.uriCache.removeKey(uri);
 		}
@@ -171,7 +171,7 @@ public class LocatorService implements ILocatorService {
 			final boolean open, IProgressMonitor monitor) {
 		final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
 		if (locatorProviders == null || locatorProviders.length == 0) {
-			return new CompletedFuture<Boolean>(true);
+			return new CompletedFuture<Boolean>(true, null);
 		}
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
@@ -205,7 +205,7 @@ public class LocatorService implements ILocatorService {
 			final boolean open, IProgressMonitor monitor) {
 		final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
 		if (locatorProviders == null || locatorProviders.length == 0) {
-			return new CompletedFuture<Boolean>(true);
+			return new CompletedFuture<Boolean>(true, null);
 		}
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,

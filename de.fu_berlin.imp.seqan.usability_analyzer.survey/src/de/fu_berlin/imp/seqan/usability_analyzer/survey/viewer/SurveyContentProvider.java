@@ -8,7 +8,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model.ISurveyRecordItem;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.model.SurveyRecordItem;
 
@@ -37,12 +37,12 @@ public class SurveyContentProvider implements IStructuredContentProvider,
 
 	@Override
 	public boolean hasChildren(Object element) {
-		return element instanceof SurveyRecord;
+		return element instanceof CSVSurveyRecord;
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof SurveyRecord) {
+		if (parentElement instanceof CSVSurveyRecord) {
 			return getElements(parentElement);
 		}
 		return new Object[0];
@@ -57,16 +57,16 @@ public class SurveyContentProvider implements IStructuredContentProvider,
 			 * return the mentioned child list. This way we save one hierarchy
 			 * level (= ID level).
 			 */
-			if (objects.length == 1 && objects[0] instanceof SurveyRecord) {
-				return getElements((SurveyRecord) objects[0]);
+			if (objects.length == 1 && objects[0] instanceof CSVSurveyRecord) {
+				return getElements((CSVSurveyRecord) objects[0]);
 			}
 			return objects;
 		}
-		if (inputElement instanceof SurveyRecord) {
+		if (inputElement instanceof CSVSurveyRecord) {
 			List<ISurveyRecordItem> surveyRecordItems = new ArrayList<ISurveyRecordItem>();
-			SurveyRecord surveyRecord = (SurveyRecord) inputElement;
-			for (String key : surveyRecord.getKeys()) {
-				surveyRecordItems.add(new SurveyRecordItem(surveyRecord, key));
+			CSVSurveyRecord cSVSurveyRecord = (CSVSurveyRecord) inputElement;
+			for (String key : cSVSurveyRecord.getKeys()) {
+				surveyRecordItems.add(new SurveyRecordItem(cSVSurveyRecord, key));
 			}
 			return surveyRecordItems.toArray();
 		}

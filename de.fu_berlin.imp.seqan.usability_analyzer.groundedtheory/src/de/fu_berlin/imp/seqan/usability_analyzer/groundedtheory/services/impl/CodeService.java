@@ -529,25 +529,14 @@ public class CodeService implements ICodeService {
 		}
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
-			this.locatorService.unresolve(oldEpisode.getUri());
+			this.locatorService.uncache(oldEpisode.getUri());
 			episodes.remove(oldEpisode);
 			episodes.add(newEpisode);
 
-			List<ICode> codes = this.getCodes(oldEpisode);
-			this.removeCodes(codes, oldEpisode);
-			this.addCodes(codes,
-					new LinkedList<ILocatable>(Arrays.asList(newEpisode)));
+			this.reattachAndSave(oldEpisode, newEpisode);
 
-			String memo = this.loadMemo(oldEpisode);
-			this.setMemo(oldEpisode, null);
-			this.setMemo(newEpisode, memo);
-			try {
-				this.codeStore.save();
-				this.codeServiceListenerNotifier.episodeReplaced(oldEpisode,
-						newEpisode);
-			} catch (CodeStoreWriteException e) {
-				throw new CodeServiceException(e);
-			}
+			this.codeServiceListenerNotifier.episodeReplaced(oldEpisode,
+					newEpisode);
 		} else {
 			throw new EpisodeDoesNotExistException(oldEpisode);
 		}
@@ -560,7 +549,7 @@ public class CodeService implements ICodeService {
 		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
-				this.locatorService.unresolve(episodeToDelete.getUri());
+				this.locatorService.uncache(episodeToDelete.getUri());
 				episodes.remove(episodeToDelete);
 				this.removeCodes(this.getCodes(episodeToDelete),
 						episodeToDelete);
@@ -580,6 +569,30 @@ public class CodeService implements ICodeService {
 				episodesToDelete, deletedEpisodes);
 		if (notDeletedEpisodes.size() > 0) {
 			throw new EpisodeDoesNotExistException(notDeletedEpisodes);
+		}
+	}
+
+	@Override
+	public void reattachAndSave(ILocatable src, ILocatable dest)
+			throws CodeServiceException {
+		if (src == null || dest == null) {
+			throw new CodeServiceException(new IllegalArgumentException(
+					"Arguments must not be null"));
+		}
+
+		this.locatorService.uncache(src.getUri());
+
+		List<ICode> codes = this.getCodes(src);
+		this.removeCodes(codes, src);
+		this.addCodes(codes, new LinkedList<ILocatable>(Arrays.asList(dest)));
+
+		String memo = this.loadMemo(src);
+		this.setMemo(src, null);
+		this.setMemo(dest, memo);
+		try {
+			this.codeStore.save();
+		} catch (CodeStoreWriteException e) {
+			throw new CodeServiceException(e);
 		}
 	}
 }
