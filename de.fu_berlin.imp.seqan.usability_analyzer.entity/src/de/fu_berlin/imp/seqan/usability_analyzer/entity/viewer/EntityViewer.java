@@ -104,7 +104,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 	}
 
 	private void createColumns() {
-		this.createColumn("ID", 150).setLabelProvider(
+		this.createColumn("DateId", 150).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new StyledColumnLabelProvider() {
 							@Override

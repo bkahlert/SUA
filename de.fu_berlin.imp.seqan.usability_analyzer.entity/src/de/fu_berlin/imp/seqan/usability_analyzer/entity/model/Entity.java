@@ -59,7 +59,7 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 					+ "/" + this.getInternalId());
 		} catch (Exception e) {
 			LOGGER.error(
-					"Could not create ID for a " + IDiff.class.getSimpleName(),
+					"Could not create DateId for a " + IDiff.class.getSimpleName(),
 					e);
 		}
 		return null;

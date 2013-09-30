@@ -36,8 +36,8 @@ public class Mapper {
 	 * {@link Doclog}s belonging to the given {@link Token}.
 	 * <p>
 	 * If you are interested in <b>all</b> {@link Doclog}s you also need to
-	 * check {@link #getIDs(Token)} as this method only returns an {@link ID} if
-	 * an <b>{@link ID} based</b> {@link Doclog} exists.
+	 * check {@link #getIDs(Token)} as this method only returns an {@link DateId} if
+	 * an <b>{@link DateId} based</b> {@link Doclog} exists.
 	 * 
 	 * @param token
 	 * @return

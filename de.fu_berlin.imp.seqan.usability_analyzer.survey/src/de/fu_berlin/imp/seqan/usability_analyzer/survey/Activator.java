@@ -4,9 +4,13 @@ import java.net.URL;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 
 /**
@@ -14,11 +18,20 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
  */
 public class Activator extends AbstractUIPlugin {
 
-	// The plug-in ID
+	// The plug-in DateId
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.seqan.usability_analyzer.survey.data"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
+
+	private ILabelProviderService labelProviderService = null;
+	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
+			0, "survey") {
+		@Override
+		protected ILabelProvider create() {
+			return new SurveyLabelProvider();
+		}
+	};
 
 	private SurveyContainer surveyContainer = null;
 
@@ -35,11 +48,17 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 
-		URL confURL = getBundle().getEntry("log4j.properties");
+		this.labelProviderService = (ILabelProviderService) PlatformUI
+				.getWorkbench().getService(ILabelProviderService.class);
+		this.labelProviderService
+				.addLabelProviderFactory(this.labelProviderFactory);
+
+		URL confURL = this.getBundle().getEntry("log4j.properties");
 		PropertyConfigurator
 				.configure(FileLocator.toFileURL(confURL).getFile());
 	}
@@ -51,7 +70,11 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
+		this.labelProviderService
+				.removeLabelProviderFactory(this.labelProviderFactory);
+
 		plugin = null;
 		super.stop(context);
 	}
@@ -70,7 +93,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	public SurveyContainer getSurveyContainer() {
-		return surveyContainer;
+		return this.surveyContainer;
 	}
 
 }

@@ -19,8 +19,8 @@
       </view>
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CdView"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CdView"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CDView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CDView"
             name="Cognitive Dimensions"
             restorable="true">
       </view>
@@ -34,6 +34,12 @@
    </extension>
    <extension
          point="org.eclipse.ui.propertiesView">
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.survey.SurveyLocatorProvider">
+      </LocatorProvider>
    </extension>
 
 </plugin>

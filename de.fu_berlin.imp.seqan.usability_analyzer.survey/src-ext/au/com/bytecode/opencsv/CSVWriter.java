@@ -168,7 +168,7 @@ public class CSVWriter implements Closeable {
      * String[]
      *
      * @param allLines
-     *            a List of String[], with each String[] representing a line of
+     *            a BootstrapBrowser of String[], with each String[] representing a line of
      *            the file.
      */
     public void writeAll(List<String[]> allLines)  {

@@ -1,12 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 
 public class DateUtil {
 
@@ -36,23 +34,11 @@ public class DateUtil {
 	}
 
 	public static String toISO8601(Calendar calendar) {
-		SimpleDateFormat iso8601 = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss.SZ");
-		iso8601.setTimeZone(calendar.getTimeZone());
-		String missingDots = iso8601.format(calendar.getTime()).replace("GMT",
-				"");
-		return missingDots.substring(0, missingDots.length() - 2) + ":"
-				+ missingDots.substring(missingDots.length() - 2);
+		return CalendarUtils.toISO8601(calendar);
 	}
 
 	public static Calendar fromISO8601(String lexicalRepresentation)
 			throws IllegalArgumentException {
-		try {
-			return DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(lexicalRepresentation)
-					.toGregorianCalendar();
-		} catch (DatatypeConfigurationException e) {
-			return null;
-		}
+		return CalendarUtils.fromISO8601(lexicalRepresentation);
 	}
 }

@@ -10,7 +10,7 @@ public class CognitiveDimensionsPerspective implements IPerspectiveFactory {
 		layout.setEditorAreaVisible(false);
 
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CdView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CDView",
 				IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView",

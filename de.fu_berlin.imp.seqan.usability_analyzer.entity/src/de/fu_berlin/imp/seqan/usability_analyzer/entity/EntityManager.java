@@ -314,24 +314,24 @@ public class EntityManager {
 	// TODO: survey nach IDs durchsuchen und damit beginnen
 
 	private void logDoclogRewriteError(IIdentifier id, IData data) {
-		LOGGER.error("Although the ID is known a fingerprint based doclog was found:\nID: "
+		LOGGER.error("Although the DateId is known a fingerprint based doclog was found:\nID: "
 				+ id + ((data != null) ? "\n:Fingerprint: " + data : ""));
 	}
 
 	private void logIdBasedSurveyHasFingerprints() {
-		LOGGER.error("Although the survey record could be mapped via an ID "
+		LOGGER.error("Although the survey record could be mapped via an DateId "
 				+ "based doclog other fingerprint based doclogs could be found");
 	}
 
 	private void logIdTokenNotBijective(IIdentifier id, Token token,
 			IIdentifier id2) {
-		LOGGER.error("ID-token-mapping not bijective:\nID " + id + " -> "
+		LOGGER.error("DateId-token-mapping not bijective:\nID " + id + " -> "
 				+ token + " -> " + id2);
 	}
 
 	private void logFingerprintTokenNotBijective(IIdentifier fingerprint,
 			Token token, IIdentifier fingerprint2) {
-		LOGGER.error("ID-token-mapping not bijective:\nID " + fingerprint
+		LOGGER.error("DateId-token-mapping not bijective:\nID " + fingerprint
 				+ " -> " + token + " -> " + fingerprint2);
 	}
 
@@ -342,7 +342,7 @@ public class EntityManager {
 	}
 
 	private void logNoDiffFilesButDoclog(IIdentifier id) {
-		LOGGER.error("A user never uploaded diff files although he accessed the online documentation with the successfully generated ID:\nID: "
+		LOGGER.error("A user never uploaded diff files although he accessed the online documentation with the successfully generated DateId:\nID: "
 				+ id);
 	}
 

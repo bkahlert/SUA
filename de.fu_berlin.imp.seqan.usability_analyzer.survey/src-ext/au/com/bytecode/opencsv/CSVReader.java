@@ -196,10 +196,10 @@ public class CSVReader implements Closeable {
     }
 
    /**
-     * Reads the entire file into a List with each element being a String[] of
+     * Reads the entire file into a BootstrapBrowser with each element being a String[] of
      * tokens.
      * 
-     * @return a List of String[], with each String[] representing a line of the
+     * @return a BootstrapBrowser of String[], with each String[] representing a line of the
      *         file.
      * 
      * @throws IOException

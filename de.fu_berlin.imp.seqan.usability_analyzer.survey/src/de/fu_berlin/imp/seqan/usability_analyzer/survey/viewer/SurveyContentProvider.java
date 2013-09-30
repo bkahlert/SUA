@@ -55,7 +55,7 @@ public class SurveyContentProvider implements IStructuredContentProvider,
 			/*
 			 * If the list contains only one element and this element is a list
 			 * return the mentioned child list. This way we save one hierarchy
-			 * level (= ID level).
+			 * level (= DateId level).
 			 */
 			if (objects.length == 1 && objects[0] instanceof CSVSurveyRecord) {
 				return getElements((CSVSurveyRecord) objects[0]);
