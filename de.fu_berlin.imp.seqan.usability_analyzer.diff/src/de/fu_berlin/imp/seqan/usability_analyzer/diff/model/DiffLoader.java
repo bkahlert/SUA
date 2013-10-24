@@ -16,14 +16,14 @@ public class DiffLoader implements IDataLoadProvider {
 	@Override
 	public String getLoaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
-		return "Loading diffs from "
+		return "Loading diff files from "
 				+ StringUtils.join(dataResourceContainers, ", ") + "...";
 	}
 
 	@Override
 	public String getUnloaderJobName(
 			List<? extends IBaseDataContainer> dataResourceContainers) {
-		return "Unloading diffs from "
+		return "Unloading diff files from "
 				+ StringUtils.join(dataResourceContainers, ", ") + "...";
 	}
 

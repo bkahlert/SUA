@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -39,8 +40,9 @@ public class AggregatedDataContainer implements IDataContainer {
 		for (IDataContainer dataContainer : this.containers) {
 			IBaseDataContainer baseDataContainer = dataContainer
 					.getBaseDataContainer();
-			if (baseDataContainer != null)
+			if (baseDataContainer != null) {
 				baseDataContainers.add(baseDataContainer);
+			}
 		}
 		return new AggregatedBaseDataContainer(baseDataContainers);
 	}
@@ -51,23 +53,25 @@ public class AggregatedDataContainer implements IDataContainer {
 		for (IDataContainer dataContainer : this.containers) {
 			IDataContainer parentDataContainer = dataContainer
 					.getParentDataContainer();
-			if (parentDataContainer != null)
+			if (parentDataContainer != null) {
 				parentDataContainers.add(parentDataContainer);
+			}
 		}
 		return new AggregatedDataContainer(parentDataContainers);
 	}
 
 	@Override
 	public String getName() {
-		return toString();
+		return this.toString();
 	}
 
 	@Override
 	public IData getResource(String name) {
 		for (IDataContainer container : this.containers) {
 			IData resource = container.getResource(name);
-			if (resource != null)
+			if (resource != null) {
 				return resource;
+			}
 		}
 		return null;
 	}
@@ -97,6 +101,29 @@ public class AggregatedDataContainer implements IDataContainer {
 			containers.addAll(container.getSubContainers());
 		}
 		return containers;
+	}
+
+	@Override
+	public Iterator<IDataContainer> listSubContainersDeep() {
+		final List<IDataContainer> subContainers = new ArrayList<IDataContainer>();
+		for (IDataContainer container : this.containers) {
+			for (Iterator<IDataContainer> it = container
+					.listSubContainersDeep(); it.hasNext();) {
+				subContainers.add(it.next());
+			}
+		}
+		return subContainers.iterator();
+	}
+
+	@Override
+	public Iterator<IData> listDatasDeep() {
+		final List<IData> datas = new ArrayList<IData>();
+		for (IDataContainer container : this.containers) {
+			for (Iterator<IData> it = container.listDatasDeep(); it.hasNext();) {
+				datas.add(it.next());
+			}
+		}
+		return datas.iterator();
 	}
 
 }

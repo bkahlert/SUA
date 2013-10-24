@@ -2,7 +2,10 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -35,6 +38,9 @@ public class FileDataContainer implements IDataContainer {
 
 	protected FileDataContainer(File file) {
 		Assert.isNotNull(file);
+		if (!file.isDirectory()) {
+			System.err.println(file);
+		}
 		Assert.isTrue(file.isDirectory());
 		this.file = file;
 	}
@@ -99,6 +105,33 @@ public class FileDataContainer implements IDataContainer {
 			}
 		}
 		return dataContainers;
+	}
+
+	@Override
+	public Iterator<IDataContainer> listSubContainersDeep() {
+		List<IDataContainer> containers = new ArrayList<IDataContainer>();
+
+		Queue<IDataContainer> queue = new LinkedList<IDataContainer>();
+		queue.offer(this);
+		while (!queue.isEmpty()) {
+			IDataContainer subContainer = queue.poll();
+			List<IDataContainer> subSubContainers = subContainer
+					.getSubContainers();
+			containers.addAll(subSubContainers);
+			queue.addAll(subSubContainers);
+		}
+
+		return containers.iterator();
+	}
+
+	@Override
+	public Iterator<IData> listDatasDeep() {
+		List<IData> datas = new ArrayList<IData>();
+		for (Iterator<IDataContainer> it = this.listSubContainersDeep(); it
+				.hasNext();) {
+			datas.addAll(it.next().getResources());
+		}
+		return datas.iterator();
 	}
 
 	/*

@@ -78,4 +78,9 @@ public abstract class WrappingData implements IData {
 		return this.data.getStaticFile();
 	}
 
+	@Override
+	public String toString() {
+		return this.data.toString();
+	}
+
 }

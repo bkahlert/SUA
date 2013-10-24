@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model.data;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -79,5 +80,20 @@ public interface IDataContainer {
 	 * @return
 	 */
 	public List<IDataContainer> getSubContainers();
+
+	/**
+	 * Iterates through this and all nested {@link IDataContainers}s.
+	 * 
+	 * @return
+	 */
+	public Iterator<IDataContainer> listSubContainersDeep();
+
+	/**
+	 * Iterates through all {@link IData}s by looking in all nested sub
+	 * containers.
+	 * 
+	 * @return
+	 */
+	public Iterator<IData> listDatasDeep();
 
 }
