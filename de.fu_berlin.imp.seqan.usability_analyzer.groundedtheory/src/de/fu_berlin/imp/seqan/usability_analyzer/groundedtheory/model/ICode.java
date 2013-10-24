@@ -2,9 +2,10 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 
-public interface ICode {
+public interface ICode extends ILocatable {
 	public long getId();
 
 	public String getCaption();

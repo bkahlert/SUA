@@ -33,7 +33,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 
 public class EpisodeViewer extends Composite implements ISelectionProvider {
 
@@ -112,7 +112,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				"Episode", 150);
 		episodeColumn.setLabelProvider(new ColumnLabelProvider() {
 
-			ILabelProvider labelProvider = new EpisodeLabelProvider();
+			ILabelProvider labelProvider = new GTLabelProvider();
 
 			@Override
 			public String getText(Object element) {

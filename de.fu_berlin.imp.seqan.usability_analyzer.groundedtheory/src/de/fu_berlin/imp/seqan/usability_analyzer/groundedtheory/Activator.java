@@ -7,7 +7,7 @@ import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 
 public class Activator extends AbstractUIPlugin {
 
@@ -16,10 +16,10 @@ public class Activator extends AbstractUIPlugin {
 
 	private ILabelProviderService labelProviderService = null;
 	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
-			0, "episode") {
+			0, new String[] { "code", "codeInstance", "episode" }) {
 		@Override
 		protected ILabelProvider create() {
-			return new EpisodeLabelProvider();
+			return new GTLabelProvider();
 		}
 	};
 

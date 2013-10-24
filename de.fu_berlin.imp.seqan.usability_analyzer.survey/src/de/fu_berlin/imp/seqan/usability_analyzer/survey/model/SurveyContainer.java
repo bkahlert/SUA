@@ -78,7 +78,7 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 			IDataContainer cdContainer = baseDataContainer
 					.getSubContainer("cd");
 			if (cdContainer == null) {
-				LOGGER.error("Could not load survey' CD data");
+				LOGGER.warn("Could not load survey's CD data");
 			} else {
 				CDDocumentManager cdDocumentManager = new CDDocumentManager(
 						cdContainer, "en");

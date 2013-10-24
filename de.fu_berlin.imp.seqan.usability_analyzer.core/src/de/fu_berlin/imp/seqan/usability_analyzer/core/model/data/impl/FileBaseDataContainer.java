@@ -51,7 +51,11 @@ public class FileBaseDataContainer extends FileDataContainer implements
 
 	@Override
 	public IDataContainer getSubContainer(String name) {
-		return new FileDataContainer(this, this, new File(this.getFile(), name));
+		File directory = new File(this.getFile(), name);
+		if (!directory.isDirectory()) {
+			return null;
+		}
+		return new FileDataContainer(this, this, directory);
 	}
 
 	protected File getTempDirectory() {

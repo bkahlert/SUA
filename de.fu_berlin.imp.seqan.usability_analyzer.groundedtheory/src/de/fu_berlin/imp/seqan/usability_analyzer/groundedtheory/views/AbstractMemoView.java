@@ -21,7 +21,7 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.KeyboardUtils;
 import com.bkahlert.devel.nebula.utils.history.History;
 import com.bkahlert.devel.nebula.utils.history.IHistory;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.BrowserOpeningAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;

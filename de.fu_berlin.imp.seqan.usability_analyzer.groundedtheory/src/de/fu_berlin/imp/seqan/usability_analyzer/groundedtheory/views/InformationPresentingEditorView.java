@@ -8,7 +8,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.views.EditorView;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.listener.URIAdapter;

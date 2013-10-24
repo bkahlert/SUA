@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -22,6 +24,7 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 	private static final Logger LOGGER = Logger
 			.getLogger(RemoveCodeHandlerInstanceBased.class);
 
+	@SuppressWarnings("serial")
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
@@ -50,13 +53,20 @@ public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 					.getService(ICodeService.class);
 
-			for (ICodeInstance codeInstance : codeInstances) {
+			for (final ICodeInstance codeInstance : codeInstances) {
 				try {
-					codeService.removeCodes(Arrays.asList(codeInstance
-							.getCode()),
-							locatorService
-									.resolve(codeInstance.getId(), null)
-									.get());
+					ILocatable locatable = locatorService.resolve(
+							codeInstance.getId(), null).get();
+					if (locatable == null) {
+						locatable = new ILocatable() {
+							@Override
+							public URI getUri() {
+								return codeInstance.getId();
+							}
+						};
+					}
+					codeService.removeCodes(
+							Arrays.asList(codeInstance.getCode()), locatable);
 				} catch (Exception e) {
 					LOGGER.error("Error removing code", e);
 				}

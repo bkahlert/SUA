@@ -49,8 +49,8 @@ public class LocatableUtils {
 		List<ILocatorProvider> responsibleLocators = new ArrayList<ILocatorProvider>();
 		for (ILocatorProvider locatorProvider : locatorProviders) {
 			String[] allowedNamespaces = locatorProvider.getAllowedNamespaces();
-			if (allowedNamespaces == null
-					|| ArrayUtils.contains(allowedNamespaces, uri.getHost())) {
+			if (allowedNamespaces != null
+					&& ArrayUtils.contains(allowedNamespaces, uri.getHost())) {
 				responsibleLocators.add(locatorProvider);
 			}
 		}

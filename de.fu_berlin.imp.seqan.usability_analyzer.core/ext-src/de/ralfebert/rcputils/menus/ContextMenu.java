@@ -7,6 +7,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -32,7 +33,7 @@ public abstract class ContextMenu {
 
 	private final Menu menu;
 	private final IWorkbenchPartSite site;
-	private final StructuredViewer viewer;
+	private final Viewer viewer;
 	private final boolean defaultItemHandling = false;
 
 	/**
@@ -41,7 +42,7 @@ public abstract class ContextMenu {
 	 * filled using contributions to "org.eclipse.ui.menus" with locationURI
 	 * "popup:<viewid>". If defaultItemHandling = true,
 	 */
-	public ContextMenu(StructuredViewer viewer, final IWorkbenchPartSite site) {
+	public ContextMenu(Viewer viewer, final IWorkbenchPartSite site) {
 		this.viewer = viewer;
 		this.site = site;
 
@@ -49,12 +50,12 @@ public abstract class ContextMenu {
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
 		this.menu = menuManager.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
+		viewer.getControl().setMenu(this.menu);
 
 		site.registerContextMenu(menuManager, viewer);
 		site.setSelectionProvider(viewer);
 
-		setDefaultItemHandling(true);
+		this.setDefaultItemHandling(true);
 	}
 
 	/**
@@ -66,21 +67,28 @@ public abstract class ContextMenu {
 	public void setDefaultItemHandling(boolean defaultItemHandling) {
 		if (this.defaultItemHandling != defaultItemHandling) {
 			if (defaultItemHandling) {
-				menu.addMenuListener(listenerSetDefaultItem);
-				viewer.addDoubleClickListener(listenerExecuteDefaultCommand);
+				this.menu.addMenuListener(this.listenerSetDefaultItem);
+				if (this.viewer instanceof StructuredViewer) {
+					((StructuredViewer) this.viewer)
+							.addDoubleClickListener(this.listenerExecuteDefaultCommand);
+				}
 			} else {
-				menu.removeMenuListener(listenerSetDefaultItem);
-				viewer.removeDoubleClickListener(listenerExecuteDefaultCommand);
+				this.menu.removeMenuListener(this.listenerSetDefaultItem);
+				if (this.viewer instanceof StructuredViewer) {
+					((StructuredViewer) this.viewer)
+							.removeDoubleClickListener(this.listenerExecuteDefaultCommand);
+				}
 			}
 		}
 	}
 
 	private MenuItem getDefaultMenuItem() {
-		String defaultId = getDefaultCommandID();
-		if (defaultId == null)
+		String defaultId = this.getDefaultCommandID();
+		if (defaultId == null) {
 			return null;
+		}
 
-		for (MenuItem menuItem : menu.getItems()) {
+		for (MenuItem menuItem : this.menu.getItems()) {
 			if (menuItem.getData() instanceof CommandContributionItem) {
 				CommandContributionItem contributionItem = (CommandContributionItem) menuItem
 						.getData();
@@ -98,18 +106,20 @@ public abstract class ContextMenu {
 	private final MenuListener listenerSetDefaultItem = new MenuAdapter() {
 		@Override
 		public void menuShown(MenuEvent event) {
-			menu.setDefaultItem(getDefaultMenuItem());
+			ContextMenu.this.menu.setDefaultItem(ContextMenu.this
+					.getDefaultMenuItem());
 		}
 	};
 
 	private final IDoubleClickListener listenerExecuteDefaultCommand = new IDoubleClickListener() {
+		@Override
 		public void doubleClick(DoubleClickEvent event) {
-			menu.notifyListeners(SWT.Show, new Event());
-			MenuItem defaultItem = getDefaultMenuItem();
+			ContextMenu.this.menu.notifyListeners(SWT.Show, new Event());
+			MenuItem defaultItem = ContextMenu.this.getDefaultMenuItem();
 			if (defaultItem != null) {
 				CommandContributionItem contribution = (CommandContributionItem) defaultItem
 						.getData();
-				IHandlerService handlerService = (IHandlerService) site
+				IHandlerService handlerService = (IHandlerService) ContextMenu.this.site
 						.getService(IHandlerService.class);
 				try {
 					handlerService.executeCommand(contribution.getCommand(),

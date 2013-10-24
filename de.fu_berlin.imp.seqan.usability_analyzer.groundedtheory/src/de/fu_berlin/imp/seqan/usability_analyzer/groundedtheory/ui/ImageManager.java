@@ -50,6 +50,7 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
+	public static final Image MEMO = OVERLAY_MEMO.createImage();
 	public static final Image CODE = getImage("icons/obj16/code_obj.png"); //$NON-NLS-1$
 	public static final Image CODE_MEMO = new DecorationOverlayIcon(CODE,
 			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();

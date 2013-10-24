@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ILabelProvider;
 
@@ -45,7 +46,7 @@ public interface ILabelProviderService {
 	public static abstract class LocatablePathLabelProviderFactory implements
 			ILabelProviderFactory {
 		private int pathSegmentIndex;
-		private String pathSegmentValue;
+		private String[] pathSegmentValues;
 
 		/**
 		 * Constructs an instance that checks the i-th segment of the
@@ -61,10 +62,28 @@ public interface ILabelProviderService {
 		 */
 		public LocatablePathLabelProviderFactory(int pathSegmentIndex,
 				String pathSegmentValue) {
+			this(pathSegmentIndex, new String[] { pathSegmentValue });
+		}
+
+		/**
+		 * Constructs an instance that checks the i-th segment of the
+		 * {@link URI}s path (including the host) for a specific value.
+		 * <p>
+		 * e.g. a {@link LocatablePathLabelProviderFactory} will return a
+		 * {@link ILabelProvider} for sua://foo/bar if it check
+		 * <code>pathSegmentIndex
+		 * = 1</code> and <code>pathSegmentValue = bar</code>.
+		 * 
+		 * @param pathSegmentIndex
+		 * @param pathSegmentValue
+		 */
+		public LocatablePathLabelProviderFactory(int pathSegmentIndex,
+				String[] pathSegmentValues) {
 			Assert.isTrue(pathSegmentIndex >= 0);
-			Assert.isNotNull(pathSegmentValue);
+			Assert.isNotNull(pathSegmentValues);
+			Assert.isTrue(pathSegmentValues.length > 0);
 			this.pathSegmentIndex = pathSegmentIndex;
-			this.pathSegmentValue = pathSegmentValue;
+			this.pathSegmentValues = pathSegmentValues;
 		}
 
 		@Override
@@ -74,8 +93,8 @@ public interface ILabelProviderService {
 			if (segments.size() <= this.pathSegmentIndex) {
 				return null;
 			}
-			if (segments.get(this.pathSegmentIndex).equals(
-					this.pathSegmentValue)) {
+			if (ArrayUtils.contains(this.pathSegmentValues,
+					segments.get(this.pathSegmentIndex))) {
 				return create();
 			} else {
 				return null;

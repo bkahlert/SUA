@@ -22,8 +22,8 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -33,7 +33,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
 public class AnalysisTimelineBandProvider
@@ -200,7 +200,7 @@ public class AnalysisTimelineBandProvider
 			private ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
-			private ILabelProvider episodeLabelProvider = new EpisodeLabelProvider();
+			private ILabelProvider episodeLabelProvider = new GTLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {
@@ -216,7 +216,7 @@ public class AnalysisTimelineBandProvider
 			public URI getIcon(Object event) {
 				Image image = this.episodeLabelProvider.getImage(event);
 				if (image != null) {
-					return TimelineHelper.createUriFromImage(image);
+					return ImageUtils.createUriFromImage(image);
 				}
 				return null;
 			}

@@ -2,23 +2,28 @@ package de.fu_berlin.imp.seqan.usability_analyzer.survey.views;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -26,16 +31,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.Activator;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocument;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocumentField;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.BootstrapBuilder;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.BootstrapBuilder.NavigationElement;
-import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.FormBuilder;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.CDViewer;
+import de.ralfebert.rcputils.menus.ContextMenu;
 
 public class CDView extends ViewPart {
 
@@ -53,24 +57,118 @@ public class CDView extends ViewPart {
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					CDView.this.load(Activator.getDefault()
+					CDView.this.viewer.setInput(Activator.getDefault()
 							.getSurveyContainer());
 				}
 			});
 		}
 	};
 
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
+
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
+	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
-	private BootstrapEnabledBrowserComposite view = null;
+		@Override
+		public void memoRemoved(ILocatable locatable) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void memoRemoved(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void memoModified(ILocatable locatable) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void memoModified(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void memoAdded(ILocatable locatable) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void memoAdded(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void episodesDeleted(Set<IEpisode> deletedEpisodes) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codesRemoved(List<ICode> removedCodes,
+				List<ILocatable> locatables) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codesAdded(List<ICode> codes) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codeMoved(ICode code, ICode oldParentCode,
+				ICode newParentCode) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void codeDeleted(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+	};
+
+	private CDViewer viewer = null;
+	private BootstrapEnabledBrowserComposite browser = null;
+
+	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
+			.getWorkbench().getService(IInformationPresenterService.class);
 
 	public CDView() {
 		this.dataService.addDataServiceListener(this.dataServiceListener);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
 	public void dispose() {
+		this.informationPresenterService.disable(this.browser);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}
@@ -79,93 +177,93 @@ public class CDView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.view = new BootstrapEnabledBrowserComposite(parent, SWT.NONE);
-		this.view.deactivateNativeMenu();
-		this.view.setAllowLocationChange(true);
-		this.view.openAboutBlank();
+		this.browser = new BootstrapEnabledBrowserComposite(parent, SWT.NONE);
+		this.browser.deactivateNativeMenu();
+		this.browser.setAllowLocationChange(true);
+		this.browser.openAboutBlank();
 
-		this.view.addAnkerListener(new IAnkerListener() {
-			@Override
-			public void ankerHovered(IAnker anker, boolean entered) {
-				System.err.println(anker);
-			}
+		this.informationPresenterService.enable(this.browser,
+				new ISubjectInformationProvider<Control, ILocatable>() {
+					private ILocatable hovered = null;
 
-			@SuppressWarnings("serial")
-			@Override
-			public void ankerClicked(IAnker anker) {
-				if (anker.getHref().startsWith("about:blank")) {
-					return;
-				}
+					private IAnkerListener ankerListener = new AnkerAdapter() {
+						@Override
+						public void ankerHovered(IAnker anker, boolean entered) {
+							// TODO: kein hover bei "addCode"
+							if (entered) {
+								try {
+									hovered = CDView.this.locatorService
+											.resolve(new URI(anker.getHref()),
+													null).get();
+								} catch (URISyntaxException e) {
+								} catch (Exception e) {
+									LOGGER.error(e);
+								}
+							} else {
+								hovered = null;
+							}
+						}
+					};
 
-				final AtomicReference<URI> uri = new AtomicReference<URI>();
-				try {
-					uri.set(new URI(anker.getHref()));
-				} catch (URISyntaxException e) {
-					LOGGER.error("Can't create URI to code from "
-							+ anker.getHref());
-					return;
-				}
-				WizardUtils.openAddCodeWizard(new ILocatable() {
 					@Override
-					public URI getUri() {
-						return uri.get();
+					public void register(Control subject) {
+						CDView.this.browser
+								.addAnkerListener(this.ankerListener);
 					}
-				}, Utils.getFancyCodeColor());
+
+					@Override
+					public void unregister(Control subject) {
+						CDView.this.browser
+								.removeAnkerListener(this.ankerListener);
+					}
+
+					@Override
+					public Point getHoverArea() {
+						return new Point(20, 10);
+					}
+
+					@Override
+					public ILocatable getInformation() {
+						return this.hovered;
+					}
+				});
+
+		this.viewer = new CDViewer(this.browser);
+		new ContextMenu(this.viewer, this.getSite()) {
+			@Override
+			protected String getDefaultCommandID() {
+				return null;
 			}
-		});
-	}
-
-	protected void load(SurveyContainer surveyContainer) {
-
-		List<NavigationElement> navigationElements = new ArrayList<NavigationElement>();
-
-		FormBuilder form = new FormBuilder();
-		for (CDDocument cdDocument : surveyContainer.getCDDocuments()) {
-			String caption = cdDocument.getIdentifier().toString();
-
-			navigationElements.add(new NavigationElement(caption, "#"
-					+ cdDocument.getUri()));
-
-			form.addRaw("<h2><a name=\""
-					+ cdDocument.getUri()
-					+ "\">"
-					+ caption
-					+ "</a> <a href=\""
-					+ cdDocument.getUri()
-					+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a></h2>");
-			for (CDDocumentField field : cdDocument) {
-				form.addStaticField(
-						field.getUri().toString(),
-						field.getQuestion()
-								+ " <a href=\""
-								+ field.getUri()
-								+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>",
-						field.getAnswer());
-			}
-		}
-
-		StringBuilder html = new StringBuilder();
-		BootstrapBuilder bootstrapBuilder = new BootstrapBuilder();
-		bootstrapBuilder.addHeaderNavigation(navigationElements, 0);
-		html.append(bootstrapBuilder.toString());
-		html.append("<br><br>");
-		html.append("<div class=\"container\">");
-		html.append(form.toString());
-		html.append("</div>");
-
-		this.view.setBodyHtml(html.toString());
+		};
 	}
 
 	@Override
 	public void setFocus() {
-		this.view.setFocus();
+		this.browser.setFocus();
 	}
 
+	/**
+	 * Scrolls to the first {@link ILocatable} given.
+	 * 
+	 * @param locatables
+	 * @param callable
+	 * @return
+	 */
+	// TODO auf Viewer setSelection aufrufen
 	public Future<ILocatable[]> open(ILocatable[] locatables,
 			Callable<ILocatable[]> callable) {
 		if (locatables.length > 0) {
-			ILocatable locatable = locatables[0];
-			this.view.openAnker(locatable.getUri().toString());
+			final ILocatable locatable = locatables[0];
+			final Future<Boolean> pos = this.browser
+					.scrollTo(new ISelector.NameSelector(locatable.getUri()
+							.toString()));
+			return ExecutorUtil.nonUIAsyncExec(new Callable<ILocatable[]>() {
+				@Override
+				public ILocatable[] call() throws Exception {
+					pos.get();
+					return new ILocatable[] { locatable };
+				}
+			});
 		}
 		return new CompletedFuture<ILocatable[]>(new ILocatable[0], null);
 	}

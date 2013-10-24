@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Image;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 
 public class CodeViewerUtils {
 
@@ -19,7 +19,7 @@ public class CodeViewerUtils {
 			final ICodeService codeService) {
 		TreeViewerColumn codeColumn = treeViewer.createColumn("Code", 220);
 
-		final ILabelProvider labelProvider = new EpisodeLabelProvider();
+		final ILabelProvider labelProvider = new GTLabelProvider();
 
 		codeColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override

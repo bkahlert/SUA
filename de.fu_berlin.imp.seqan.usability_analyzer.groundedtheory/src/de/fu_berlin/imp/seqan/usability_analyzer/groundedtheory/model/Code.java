@@ -1,13 +1,20 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
+import java.net.URI;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class Code implements ICode {
+
+	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(Code.class);
 
 	/**
 	 * Calculates a unique {@link IIdentifier} based on given
@@ -34,6 +41,19 @@ public class Code implements ICode {
 		this.caption = caption;
 		this.color = color;
 		this.creation = creation;
+	}
+
+	@Override
+	public URI getUri() {
+		try {
+			return new URI("sua://" + CodeLocatorProvider.CODE_NAMESPACE + "/"
+					+ this.id);
+		} catch (Exception e) {
+			LOGGER.error(
+					"Could not create URI for a " + ICode.class.getSimpleName(),
+					e);
+		}
+		return null;
 	}
 
 	@Override

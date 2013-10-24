@@ -31,10 +31,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
-public final class EpisodeLabelProvider extends InformationLabelProvider {
+public final class GTLabelProvider extends InformationLabelProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(EpisodeLabelProvider.class);
+			.getLogger(GTLabelProvider.class);
 
 	private ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
@@ -79,8 +79,8 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 			ICodeInstance codeInstance = (ICodeInstance) element;
 			try {
 				ILocatable codedObject;
-				codedObject = this.locatorService.resolve(
-						codeInstance.getId(), null).get();
+				codedObject = this.locatorService.resolve(codeInstance.getId(),
+						null).get();
 				if (codedObject != null) {
 					ILabelProvider labelProvider = this.labelProviderService
 							.getLabelProvider(codedObject);
@@ -180,15 +180,24 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 
 	@Override
 	public boolean hasInformation(Object element) {
-		return element instanceof IEpisode;
+		return element instanceof ICode || element instanceof ICodeInstance
+				|| element instanceof IEpisode;
 	}
 
 	@Override
 	public List<IllustratedText> getMetaInformation(Object element) {
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
+		if (element instanceof ICode) {
+			metaEntries.add(new IllustratedText(ImageManager.CODE, ICode.class
+					.getSimpleName().substring(1)));
+		}
+		if (element instanceof ICodeInstance) {
+			metaEntries.add(new IllustratedText(ICodeInstance.class
+					.getSimpleName().substring(1)));
+		}
 		if (element instanceof IEpisode) {
 			metaEntries.add(new IllustratedText(ImageManager.EPISODE,
-					IEpisode.class.getSimpleName()));
+					IEpisode.class.getSimpleName().substring(1)));
 		}
 		return metaEntries;
 	}
@@ -196,6 +205,15 @@ public final class EpisodeLabelProvider extends InformationLabelProvider {
 	@Override
 	public List<IDetailEntry> getDetailInformation(Object element) {
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
+		if (element instanceof ICode) {
+			ICode code = (ICode) element;
+			detailEntries.add(new DetailEntry("URI", code.getUri().toString()));
+			detailEntries.add(new DetailEntry("Caption", code.getCaption()));
+			detailEntries.add(new DetailEntry("Color", code.getColor()
+					.toHexString()));
+			detailEntries.add(new DetailEntry("Created", code.getCreation()
+					.toISO8601()));
+		}
 		if (element instanceof IEpisode) {
 			IEpisode episode = (IEpisode) element;
 			detailEntries.add(new DetailEntry("Owner",

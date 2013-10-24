@@ -19,7 +19,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineConten
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineHelper;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -214,7 +214,7 @@ public class DoclogTimelineBandProvider
 				// }
 				Image image = this.doclogLabelProvider.getImage(event);
 				if (image != null) {
-					return TimelineHelper.createUriFromImage(image);
+					return ImageUtils.createUriFromImage(image);
 				}
 				return null;
 			}

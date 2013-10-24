@@ -35,10 +35,6 @@ public class FileDataContainer implements IDataContainer {
 
 	protected FileDataContainer(File file) {
 		Assert.isNotNull(file);
-		// FIXME
-		if (!file.isDirectory()) {
-			System.err.println("fuck");
-		}
 		Assert.isTrue(file.isDirectory());
 		this.file = file;
 	}
