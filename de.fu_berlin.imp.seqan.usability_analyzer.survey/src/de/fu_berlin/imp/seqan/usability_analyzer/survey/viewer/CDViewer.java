@@ -70,7 +70,7 @@ public class CDViewer extends Viewer {
 		this.browser.addAnkerListener(new AnkerAdapter() {
 			@Override
 			public void ankerClicked(IAnker anker) {
-				if (anker.getHref().startsWith("addCode-")) {
+				if (!anker.getHref().startsWith("addCode-")) {
 					return;
 				}
 
@@ -86,9 +86,7 @@ public class CDViewer extends Viewer {
 				ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						ILocatable locatable = CDViewer.this.locatorService
-								.resolve(uri.get(), null).get();
-						WizardUtils.openAddCodeWizard(locatable,
+						WizardUtils.openAddCodeWizard(uri.get(),
 								Utils.getFancyCodeColor());
 						return null;
 					}
@@ -155,13 +153,14 @@ public class CDViewer extends Viewer {
 
 				List<ICode> documentCodes = new ArrayList<ICode>();
 				try {
-					documentCodes.addAll(this.codeService.getCodes(cdDocument));
+					documentCodes.addAll(this.codeService.getCodes(cdDocument
+							.getUri()));
 				} catch (CodeServiceException e) {
 					LOGGER.warn(e);
 				}
 
-				boolean documentMemoExists = this.codeService
-						.isMemo(cdDocument);
+				boolean documentMemoExists = this.codeService.isMemo(cdDocument
+						.getUri());
 				form.addRaw("<h2 tabindex=\"0\" data-focus-id=\""
 						+ cdDocument.getUri()
 						+ "\"><a name=\""
@@ -181,12 +180,14 @@ public class CDViewer extends Viewer {
 				for (CDDocumentField field : cdDocument) {
 					List<ICode> fieldCodes = new ArrayList<ICode>();
 					try {
-						fieldCodes.addAll(this.codeService.getCodes(field));
+						fieldCodes.addAll(this.codeService.getCodes(field
+								.getUri()));
 					} catch (CodeServiceException e) {
 						LOGGER.warn(e);
 					}
 
-					boolean fieldMemoExists = this.codeService.isMemo(field);
+					boolean fieldMemoExists = this.codeService.isMemo(field
+							.getUri());
 
 					form.addStaticField(
 							field.getUri().toString(),

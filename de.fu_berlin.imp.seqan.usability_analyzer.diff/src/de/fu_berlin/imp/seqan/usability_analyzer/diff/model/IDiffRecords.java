@@ -1,9 +1,19 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecords;
 
 public interface IDiffRecords extends Iterable<IDiffRecord> {
+
+	/**
+	 * Creates a {@link DiffRecord} and add it to this {@link DiffRecords}
+	 * 
+	 * @param filename
+	 * @param date
+	 */
+	public IDiffRecord createAndAddRecord(String filename, TimeZoneDate dtae);
+
 	/**
 	 * Creates a {@link DiffRecord} and add it to this {@link DiffRecords}
 	 * 
@@ -22,4 +32,5 @@ public interface IDiffRecords extends Iterable<IDiffRecord> {
 	public int size();
 
 	public Object[] toArray();
+
 }

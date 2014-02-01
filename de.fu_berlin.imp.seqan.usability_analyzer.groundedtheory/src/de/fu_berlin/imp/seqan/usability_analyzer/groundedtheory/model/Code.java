@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +23,7 @@ public class Code implements ICode {
 	 * @param existingIds
 	 * @return
 	 */
-	public static long calculateId(List<Long> existingIds) {
+	public static long calculateId(Set<Long> existingIds) {
 		long id = Long.MIN_VALUE;
 		for (Long existingId : existingIds) {
 			id = Math.max(id, existingId + 1);

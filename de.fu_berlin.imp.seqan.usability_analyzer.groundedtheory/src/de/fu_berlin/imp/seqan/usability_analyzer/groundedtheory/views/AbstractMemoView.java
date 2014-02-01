@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
@@ -34,7 +32,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -43,7 +43,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 
-public class AbstractMemoView extends InformationPresentingEditorView<Object> {
+public class AbstractMemoView extends UriPresentingEditorView {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
@@ -58,64 +58,49 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
-			if (locatables.contains(AbstractMemoView.this.getLoadedObject())) {
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
+			if (uris.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
-			if (locatables.contains(AbstractMemoView.this.getLoadedObject())) {
+		public void codesRemoved(List<ICode> codes, List<URI> uris) {
+			if (uris.contains(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		};
 
-		private void reloadIfNecessary(Object object) {
-			if (object.equals(AbstractMemoView.this.getLoadedObject())) {
+		private void reloadIfNecessary(URI uri) {
+			if (uri.equals(AbstractMemoView.this.getLoadedObject())) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
-			this.reloadIfNecessary(code);
+		public void memoAdded(URI uri) {
+			this.reloadIfNecessary(uri);
 		};
 
 		@Override
-		public void memoAdded(ILocatable locatable) {
-			this.reloadIfNecessary(locatable);
+		public void memoModified(URI uri) {
+			this.reloadIfNecessary(uri);
 		};
 
 		@Override
-		public void memoModified(ICode code) {
-			this.reloadIfNecessary(code);
-		};
-
-		@Override
-		public void memoModified(ILocatable locatable) {
-			this.reloadIfNecessary(locatable);
-		};
-
-		@Override
-		public void memoRemoved(ICode code) {
-			this.reloadIfNecessary(code);
-		};
-
-		@Override
-		public void memoRemoved(ILocatable locatable) {
-			this.reloadIfNecessary(locatable);
+		public void memoRemoved(URI uri) {
+			this.reloadIfNecessary(uri);
 		};
 	};
 
 	private IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
 
-	private IHistory<Object> history;
+	private IHistory<URI> history;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
-		this.history = new History<Object>();
+		this.history = new History<URI>();
 	}
 
 	@Override
@@ -160,12 +145,10 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 				if (anker.getHref() != null) {
 					try {
 						URI uri = new URI(anker.getHref());
-						ILocatable locatable = AbstractMemoView.this.locatorService
-								.resolve(uri, null).get();
 						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-								.getLabelProvider(locatable);
-						if (locatable != null && labelProvider != null) {
-							return labelProvider.getText(locatable);
+								.getLabelProvider(uri);
+						if (labelProvider != null) {
+							return labelProvider.getText(uri);
 						}
 					} catch (URISyntaxException e) {
 
@@ -184,14 +167,15 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 			@Override
 			public void uriClicked(final URI uri) {
 				try {
-					final ILocatable locatable = AbstractMemoView.this.locatorService
-							.resolve(uri, null).get();
 					if (!KeyboardUtils.isMetaKeyPressed()) {
 						// treat link as a typical link that opens a resource
-						AbstractMemoView.this.history.add(locatable);
+						AbstractMemoView.this.history.add(uri);
 						AbstractMemoView.this.updateNavigation();
-						AbstractMemoView.this.load(locatable);
+						AbstractMemoView.this.load(uri);
 					} else {
+						final ILocatable locatable = AbstractMemoView.this.locatorService
+								.resolve(uri, null).get();
+
 						// do not follow the link but make Eclipse open the
 						// resource
 						TimeZoneDateRange range = (TimeZoneDateRange) Platform
@@ -244,39 +228,33 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 	}
 
 	@Override
-	public PartInfo getPartInfo(Object loadedObject) {
-		if (loadedObject instanceof ICode) {
-			return new PartInfo(((ICode) loadedObject).getCaption(),
-					ImageManager.CODE);
-		} else if (loadedObject instanceof ICodeInstance) {
-			try {
-				ICodeInstance codeInstance = (ICodeInstance) loadedObject;
-				ILocatable coded = this.locatorService.resolve(
-						codeInstance.getId(), null).get();
-				if (coded != null) {
-					ILabelProvider lp = this.labelProviderService
-							.getLabelProvider(coded);
-					return new PartInfo(lp.getText(coded) + " (coded with "
-							+ codeInstance.getCode().getCaption() + ")",
-							lp.getImage(coded));
-				} else {
-					return new PartInfo(codeInstance.getId().toString(),
-							PlatformUI.getWorkbench().getSharedImages()
-									.getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-				}
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			} catch (ExecutionException e) {
-				LOGGER.error(e);
-			}
-			return new PartInfo("ERROR", null);
-		} else if (loadedObject instanceof ILocatable) {
-			ILocatable locatable = (ILocatable) loadedObject;
-			ILabelProvider lp = this.labelProviderService
-					.getLabelProvider(locatable);
-			return new PartInfo(lp.getText(locatable), lp.getImage(locatable));
-		} else {
+	public PartInfo getPartInfo(URI uri) throws Exception {
+		ILocatable locatable;
+		try {
+			locatable = this.locatorService.resolve(uri, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving " + PartInfo.class.getSimpleName()
+					+ " for " + uri);
 			return this.getDefaultPartInfo();
+		}
+
+		if (locatable instanceof ICode) {
+			ICode code = (ICode) locatable;
+			return new PartInfo(code.getCaption(), ImageManager.CODE);
+		} else if (locatable instanceof ICodeInstance) {
+			ICodeInstance codeInstance = (ICodeInstance) locatable;
+			ILabelProvider lp = this.labelProviderService
+					.getLabelProvider(codeInstance.getUri());
+			if (lp != null) {
+				return new PartInfo(lp.getText(uri) + " (coded with "
+						+ codeInstance.getCode().getCaption() + ")",
+						lp.getImage(uri));
+			} else {
+				return null;
+			}
+		} else {
+			ILabelProvider lp = this.labelProviderService.getLabelProvider(uri);
+			return new PartInfo(lp.getText(uri), lp.getImage(locatable));
 		}
 	}
 
@@ -294,39 +272,24 @@ public class AbstractMemoView extends InformationPresentingEditorView<Object> {
 	}
 
 	@Override
-	public String getHtml(Object objectToLoad, IProgressMonitor monitor) {
-		if (objectToLoad instanceof ICode) {
-			return this.codeService.loadMemo((ICode) objectToLoad);
-		} else if (objectToLoad instanceof ICodeInstance) {
-			return this.codeService.loadMemo((ICodeInstance) objectToLoad);
-		} else if (objectToLoad instanceof ILocatable) {
-			return this.codeService.loadMemo((ILocatable) objectToLoad);
-		} else {
-			return null;
-		}
+	public String getHtml(URI uri, IProgressMonitor monitor) {
+		return this.codeService.loadMemo(uri);
 	}
 
 	@Override
-	public void setHtml(Object loadedObject, String html,
-			IProgressMonitor monitor) {
+	public void setHtml(URI uri, String html, IProgressMonitor monitor) {
 		try {
-			if (loadedObject instanceof ICode) {
-				this.codeService.setMemo((ICode) loadedObject, html);
-			} else if (loadedObject instanceof ICodeInstance) {
-				this.codeService.setMemo((ICodeInstance) loadedObject, html);
-			} else if (loadedObject instanceof ILocatable) {
-				this.codeService.setMemo((ILocatable) loadedObject, html);
-			}
+			this.codeService.setMemo(uri, html);
 		} catch (CodeServiceException e) {
-			LOGGER.error("Can't save memo for " + loadedObject, e);
+			LOGGER.error("Can't save memo for " + uri, e);
 		}
 	}
 
-	public void loadAndClearHistory(Object objectToLoad) {
+	public void loadAndClearHistory(URI uri) {
 		this.history.clear();
-		this.history.add(objectToLoad);
+		this.history.add(uri);
 		this.updateNavigation();
-		this.load(objectToLoad);
+		this.load(uri);
 	}
 
 	protected void updateNavigation() {

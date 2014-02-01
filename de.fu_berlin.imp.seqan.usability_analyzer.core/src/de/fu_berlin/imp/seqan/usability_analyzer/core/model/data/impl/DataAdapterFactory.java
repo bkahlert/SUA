@@ -10,6 +10,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 
 public class DataAdapterFactory implements IAdapterFactory {
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
 		return new Class[] { IRevealableInOS.class };

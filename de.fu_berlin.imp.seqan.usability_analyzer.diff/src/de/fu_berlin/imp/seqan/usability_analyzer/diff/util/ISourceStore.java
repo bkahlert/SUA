@@ -7,11 +7,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 
 public interface ISourceStore {
 
-	public File getSourceFile(IIdentifier id, long revision, String filename)
+	public File getSourceFile(IIdentifier id, String revision, String filename)
 			throws IOException;
 
-	public void setSourceFile(IIdentifier id, long revision, String filename, File file)
-			throws IOException;
+	public void setSourceFile(IIdentifier id, String revision, String filename,
+			File file) throws IOException;
 
 	public void clear();
 

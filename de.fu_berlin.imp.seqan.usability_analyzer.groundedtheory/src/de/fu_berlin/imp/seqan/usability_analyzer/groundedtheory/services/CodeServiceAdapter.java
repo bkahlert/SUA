@@ -1,12 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 
 public class CodeServiceAdapter implements ICodeServiceListener {
@@ -16,7 +16,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+	public void codesAssigned(List<ICode> codes, List<URI> uris) {
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
+	public void codesRemoved(List<ICode> codes, List<URI> uris) {
 	}
 
 	@Override
@@ -40,27 +40,15 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoAdded(ICode code) {
+	public void memoAdded(URI uri) {
 	}
 
 	@Override
-	public void memoAdded(ILocatable locatable) {
+	public void memoModified(URI uri) {
 	}
 
 	@Override
-	public void memoModified(ICode code) {
-	}
-
-	@Override
-	public void memoModified(ILocatable locatable) {
-	}
-
-	@Override
-	public void memoRemoved(ICode code) {
-	}
-
-	@Override
-	public void memoRemoved(ILocatable locatable) {
+	public void memoRemoved(URI uri) {
 	}
 
 	@Override

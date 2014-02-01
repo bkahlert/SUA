@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -7,10 +8,6 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
-
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class PinnableMemoView extends AbstractMemoView {
 
@@ -51,23 +48,11 @@ public class PinnableMemoView extends AbstractMemoView {
 	}
 
 	public void load(ISelection selection) {
-		final List<ICode> codes = SelectionUtils.getAdaptableObjects(selection,
-				ICode.class);
-		final List<ICodeInstance> codeInstances = SelectionUtils
-				.getAdaptableObjects(selection, ICodeInstance.class);
-		final List<ILocatable> locatables = SelectionUtils.getAdaptableObjects(
-				selection, ILocatable.class);
-		final List<Object> objects = SelectionUtils.getAdaptableObjects(
-				selection, Object.class);
+		final List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
+				URI.class);
 
-		if (codes.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(codes.get(0));
-		} else if (codeInstances.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(codeInstances.get(0));
-		} else if (locatables.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(locatables.get(0));
-		} else if (objects.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(null);
+		if (uris.size() > 0) {
+			PinnableMemoView.this.loadAndClearHistory(uris.get(0));
 		}
 	}
 

@@ -13,7 +13,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
@@ -42,18 +41,14 @@ public class RemoveCodeHandler extends AbstractHandler {
 								+ StringUtils.join(codeInstances.toArray()));
 
 		if (delete) {
-			ILocatorService locatorService = (ILocatorService) PlatformUI
-					.getWorkbench().getService(ILocatorService.class);
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 					.getService(ICodeService.class);
 
 			for (ICodeInstance codeInstance : codeInstances) {
 				try {
-					codeService.removeCodes(Arrays.asList(codeInstance
-							.getCode()),
-							locatorService
-									.resolve(codeInstance.getId(), null)
-									.get());
+					codeService.removeCodes(
+							Arrays.asList(codeInstance.getCode()),
+							codeInstance.getId());
 				} catch (Exception e) {
 					LOGGER.error("Error removing code", e);
 				}

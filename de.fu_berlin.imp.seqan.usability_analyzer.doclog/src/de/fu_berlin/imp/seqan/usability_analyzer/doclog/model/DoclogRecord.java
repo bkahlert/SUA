@@ -40,8 +40,10 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 					+ "\\t([^\\t]+?)(-([^\\t]+?))?" // action + param
 					+ "\\t([^\\t]+)" // url
 					+ "\\t([^\\t]+)\\t([^\\t]+)" // ip + proxy ip
-					+ "\\t(\\d+)\\t(\\d+)\\t(\\d+)\\t(\\d+)"); // scroll x,y +
-																// window w,h
+					+ "\\t(-?\\d+)\\t(-?\\d+)\\t(-?\\d+)\\t(-?\\d+)"); // scroll
+																		// x,y +
+
+	// window w,h
 
 	public static TimeZoneDate getDate(String line) {
 		TimeZoneDate date = null;

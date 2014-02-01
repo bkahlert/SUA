@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.mapping.DoclogKeyMap;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper;
@@ -94,14 +95,9 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 		try {
 			this.mapper = new Mapper(this.doclogDataContainer);
 		} catch (FileNotFoundException e) {
-			// TODO
-			try {
-				throw new EntityDataException("Could not instantiate "
-						+ Mapper.class.getSimpleName(), e);
-			} catch (EntityDataException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			LOGGER.warn("No valid " + DoclogKeyMap.class.getSimpleName()
+					+ " was found.");
+			this.mapper = null;
 		}
 		monitor.worked(10);
 

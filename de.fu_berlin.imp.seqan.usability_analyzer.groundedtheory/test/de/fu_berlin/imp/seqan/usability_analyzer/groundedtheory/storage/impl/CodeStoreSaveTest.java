@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
 
@@ -11,7 +12,6 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
@@ -20,7 +20,7 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 	@Rule
 	public JUnitRuleMockery context = new JUnitRuleMockery() {
 		{
-			setThreadingPolicy(new Synchroniser());
+			this.setThreadingPolicy(new Synchroniser());
 		}
 	};
 
@@ -40,7 +40,7 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 
 	@Test(expected = InvalidParameterException.class)
 	public void getInvalidBasenameLocatable() {
-		CodeStore.getMemoBasename((ILocatable) null);
+		CodeStore.getMemoBasename((URI) null);
 	}
 
 	@Test
@@ -48,11 +48,11 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 		assertEquals("code_234233209", CodeStore.getMemoBasename(this.code1));
 		assertEquals("code_9908372", CodeStore.getMemoBasename(this.code2));
 		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance1",
-				CodeStore.getMemoBasename(this.locatable1));
+				CodeStore.getMemoBasename(this.locatable1.getUri()));
 		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance2",
-				CodeStore.getMemoBasename(this.locatable2));
+				CodeStore.getMemoBasename(this.locatable2.getUri()));
 		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance3",
-				CodeStore.getMemoBasename(this.locatable3));
+				CodeStore.getMemoBasename(this.locatable3.getUri()));
 		assertEquals("codeInstance_9908372_sua%3A%2F%2FcodeInstance1",
 				CodeStore.getMemoBasename(this.codeInstance1));
 		assertEquals("codeInstance_234233209_sua%3A%2F%2FcodeInstance2",
@@ -63,40 +63,73 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 
 	@Test
 	public void testSaveMemo() throws Exception {
-		CodeStore codeStore = (CodeStore) getSmallCodeStore();
-		codeStore.saveMemo(CodeStore.getMemoBasename(this.code1),
-				"Code: Lorem ipsum");
-		assertEquals("Code: Lorem ipsum",
+		final String codeMemo = "Code: Lorem ipsum";
+		final String codeInstanceMemo = "Code Instance:\nLorem ipsum";
+		final String locatableMemo = "Locatable:\nĽốґểм ĭрŝũო";
+
+		CodeStore codeStore = (CodeStore) this.getSmallCodeStore();
+
+		// sanity check
+		// assertEquals(codeStore.getCode(this.code1.getId()), this.code1);
+		// codeStore.getCodeInstance(this.codeInstance2.getCodeInstanceID());
+
+		/*
+		 * store in code store #1
+		 */
+		// save memo for code
+		codeStore.saveMemo(CodeStore.getMemoBasename(this.code1), codeMemo);
+		assertEquals(codeMemo,
 				codeStore.loadMemo(CodeStore.getMemoBasename(this.code1)));
+
+		// save memo for code instance
 		codeStore.saveMemo(CodeStore.getMemoBasename(this.codeInstance2),
-				"Code Instance:\nLorem ipsum");
-		assertEquals("Code Instance:\nLorem ipsum",
-				codeStore.loadMemo(CodeStore
-						.getMemoBasename(this.codeInstance2)));
-		codeStore.saveMemo(CodeStore.getMemoBasename(this.locatable2),
-				"Locatable:\nĽốґểм ĭрŝũო");
-		assertEquals("Locatable:\nĽốґểм ĭрŝũო",
-				codeStore.loadMemo(CodeStore.getMemoBasename(this.locatable2)));
+				codeInstanceMemo);
+		assertEquals(codeInstanceMemo, codeStore.loadMemo(CodeStore
+				.getMemoBasename(this.codeInstance2)));
 
-		CodeStore codeStore2 = (CodeStore) loadFromCodeStore(codeStore);
-		assertEquals("Code: Lorem ipsum",
+		// save memo for URI
+		codeStore.saveMemo(CodeStore.getMemoBasename(this.locatable2.getUri()),
+				locatableMemo);
+		assertEquals(locatableMemo, codeStore.loadMemo(CodeStore
+				.getMemoBasename(this.locatable2.getUri())));
+
+		/*
+		 * load code store #1 as a new one (#2)
+		 */
+		CodeStore codeStore2 = (CodeStore) this.loadFromCodeStore(codeStore);
+
+		// check code memo
+		assertEquals(codeMemo,
 				codeStore2.loadMemo(CodeStore.getMemoBasename(this.code1)));
-		assertEquals("Code Instance:\nLorem ipsum",
-				codeStore2.loadMemo(CodeStore
-						.getMemoBasename(this.codeInstance2)));
-		assertEquals("Locatable:\nĽốґểм ĭрŝũო",
-				codeStore2.loadMemo(CodeStore.getMemoBasename(this.locatable2)));
 
-		codeStore.removeAndSaveCode(code1, true);
+		// check code instance memo
+		assertEquals(codeInstanceMemo, codeStore2.loadMemo(CodeStore
+				.getMemoBasename(this.codeInstance2)));
+
+		// check URI memo
+		assertEquals(locatableMemo, codeStore2.loadMemo(CodeStore
+				.getMemoBasename(this.locatable2.getUri())));
+
+		/*
+		 * remove code from code store #1 and check #2
+		 */
+		codeStore.removeAndSaveCode(this.code1, true);
+
+		// code memo no more in #1
 		assertNull(codeStore.loadMemo(CodeStore.getMemoBasename(this.code1)));
+
+		// code instance memo no more in #1
 		assertNull(codeStore.loadMemo(CodeStore
 				.getMemoBasename(this.codeInstance2)));
-		assertEquals("Locatable:\nĽốґểм ĭрŝũო",
-				codeStore2.loadMemo(CodeStore.getMemoBasename(this.locatable2)));
 
-		codeStore.saveMemo(CodeStore.getMemoBasename(this.locatable2), null);
+		// URI memo still in #1
+		assertEquals(locatableMemo, codeStore2.loadMemo(CodeStore
+				.getMemoBasename(this.locatable2.getUri())));
+
+		// manually delete URI memo
+		codeStore.saveMemo(CodeStore.getMemoBasename(this.locatable2.getUri()),
+				null);
 		assertNull(codeStore2.loadMemo(CodeStore
-				.getMemoBasename(this.locatable2)));
+				.getMemoBasename(this.locatable2.getUri())));
 	}
-
 }

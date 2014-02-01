@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,8 +24,6 @@ import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
@@ -55,41 +54,24 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	private void createColumns() {
-		final ICodeService codeService = (ICodeService) PlatformUI
-				.getWorkbench().getService(ICodeService.class);
 		this.treeViewer.createColumn("ID", 180).setLabelProvider(
-				new ColumnLabelProvider() {
+				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
-					public String getText(Object element) {
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							return code.getCaption();
-						}
-						if (ILocatable.class.isInstance(element)) {
-							ILocatable codedObject = (ILocatable) element;
-							return CodeInstanceViewer.this.labelProviderService
-									.getLabelProvider(codedObject).getText(
-											codedObject);
-						}
-						if (NoCodesNode.class.isInstance(element)) {
+					public String getText(URI uri) throws Exception {
+						if (uri.equals(NoCodesNode.Uri)) {
 							return "no codes";
 						}
-						return "ERROR";
+						return CodeInstanceViewer.this.labelProviderService
+								.getLabelProvider(uri).getText(uri);
 					}
 
 					@Override
-					public Image getImage(Object element) {
-						if (ICode.class.isInstance(element)) {
-							return codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
-									: ImageManager.CODE;
+					public Image getImage(URI uri) throws Exception {
+						if (uri.equals(NoCodesNode.Uri)) {
+							return null;
 						}
-						if (ILocatable.class.isInstance(element)) {
-							ILocatable codedObject = (ILocatable) element;
-							return CodeInstanceViewer.this.labelProviderService
-									.getLabelProvider(codedObject).getImage(
-											codedObject);
-						}
-						return null;
+						return CodeInstanceViewer.this.labelProviderService
+								.getLabelProvider(uri).getImage(uri);
 					}
 				});
 		this.treeViewer.createColumn("", 16).setLabelProvider(
@@ -100,21 +82,13 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 					}
 				});
 		this.treeViewer.createColumn("URI", 300).setLabelProvider(
-				new ColumnLabelProvider() {
+				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
-					public String getText(Object element) {
-						if (ILocatable.class.isInstance(element)) {
-							ILocatable locatable = (ILocatable) element;
-							return locatable.getUri().toString();
-						}
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							return new Long(code.getId()).toString();
-						}
-						if (NoCodesNode.class.isInstance(element)) {
+					public String getText(URI uri) {
+						if (uri.equals(NoCodesNode.Uri)) {
 							return "";
 						}
-						return "ERROR";
+						return uri.toString();
 					}
 				});
 	}
@@ -140,8 +114,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		this.treeViewer.setSelection(selection);
 	}
 
-	public void setInput(List<ILocatable> locatables) {
-		this.treeViewer.setInput(locatables);
+	public void setInput(List<URI> uris) {
+		this.treeViewer.setInput(uris.toArray(new URI[uris.size()]));
 	}
 
 	public StructuredViewer getViewer() {
@@ -154,16 +128,16 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * 
 	 * @return
 	 */
-	public ILocatable getLocatable() {
-		List<ILocatable> locatables = new LinkedList<ILocatable>();
+	public URI getUri() {
+		List<URI> uris = new LinkedList<URI>();
 		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
 		for (TreeItem treeItem : treeItems) {
-			ILocatable locatable = this.getLocatable(treeItem);
-			if (!locatables.contains(locatable)) {
-				locatables.add(locatable);
+			URI locatable = this.getURI(treeItem);
+			if (!uris.contains(locatable)) {
+				uris.add(locatable);
 			}
 		}
-		return locatables.size() == 1 ? locatables.get(0) : null;
+		return uris.size() == 1 ? uris.get(0) : null;
 	}
 
 	/**
@@ -176,12 +150,12 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * @param treeItem
 	 * @return
 	 */
-	public ILocatable getLocatable(TreeItem treeItem) {
-		if (treeItem.getData() instanceof ILocatable) {
-			return (ILocatable) treeItem.getData();
+	public URI getURI(TreeItem treeItem) {
+		if (treeItem.getData() instanceof URI) {
+			return (URI) treeItem.getData();
 		}
 		if (treeItem.getParentItem() != null) {
-			return this.getLocatable(treeItem.getParentItem());
+			return this.getURI(treeItem.getParentItem());
 		}
 		return null;
 	}

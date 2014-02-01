@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -7,12 +9,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
 public class MemoInformationControlExtender extends
-		EditorInformationControlExtender<ILocatable> {
+		EditorInformationControlExtender<URI> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(MemoInformationControlExtender.class);
@@ -26,14 +27,13 @@ public class MemoInformationControlExtender extends
 	}
 
 	@Override
-	public String getHtml(ILocatable objectToLoad, IProgressMonitor monitor) {
+	public String getHtml(URI objectToLoad, IProgressMonitor monitor) {
 		return MemoInformationControlExtender.this.codeService
 				.loadMemo(objectToLoad);
 	}
 
 	@Override
-	public void setHtml(ILocatable loadedObject, String html,
-			IProgressMonitor monitor) {
+	public void setHtml(URI loadedObject, String html, IProgressMonitor monitor) {
 		try {
 			MemoInformationControlExtender.this.codeService.setMemo(
 					loadedObject, html);

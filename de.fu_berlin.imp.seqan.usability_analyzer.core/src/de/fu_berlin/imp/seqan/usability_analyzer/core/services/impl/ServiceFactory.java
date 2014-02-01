@@ -11,8 +11,8 @@ import org.osgi.framework.BundleListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.impl.LocatorService;
@@ -25,7 +25,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static IDataService DATA_DIRECTORIES_SERVICE;
 	private static IHighlightService HIGHLIGHT_SERVICE;
 	private static ILabelProviderService LABELPROVIDER_SERVICE;
-	private static IInformationPresenterService DETAILPOPUP_SERVICE;
+	private static IUriPresenterService URIPRESENTER_SERVICE;
 	private static ILocatorService LOCATOR_SERVICE;
 
 	public ServiceFactory() {
@@ -78,11 +78,11 @@ public class ServiceFactory extends AbstractServiceFactory {
 			return LABELPROVIDER_SERVICE;
 		}
 
-		if (serviceInterface == IInformationPresenterService.class) {
-			if (DETAILPOPUP_SERVICE == null) {
-				DETAILPOPUP_SERVICE = new InformationPresenterService();
+		if (serviceInterface == IUriPresenterService.class) {
+			if (URIPRESENTER_SERVICE == null) {
+				URIPRESENTER_SERVICE = new UriPresenterService();
 			}
-			return DETAILPOPUP_SERVICE;
+			return URIPRESENTER_SERVICE;
 		}
 
 		if (serviceInterface == ILocatorService.class) {

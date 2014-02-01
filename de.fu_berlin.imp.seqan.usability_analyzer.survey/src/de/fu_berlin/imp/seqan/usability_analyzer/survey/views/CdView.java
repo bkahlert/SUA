@@ -31,7 +31,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -64,6 +64,7 @@ public class CDView extends ViewPart {
 		}
 	};
 
+	@SuppressWarnings("unused")
 	private ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
@@ -72,32 +73,17 @@ public class CDView extends ViewPart {
 	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
-		public void memoRemoved(ILocatable locatable) {
+		public void memoRemoved(URI uri) {
 			CDView.this.viewer.refresh();
 		}
 
 		@Override
-		public void memoRemoved(ICode code) {
+		public void memoModified(URI uri) {
 			CDView.this.viewer.refresh();
 		}
 
 		@Override
-		public void memoModified(ILocatable locatable) {
-			CDView.this.viewer.refresh();
-		}
-
-		@Override
-		public void memoModified(ICode code) {
-			CDView.this.viewer.refresh();
-		}
-
-		@Override
-		public void memoAdded(ILocatable locatable) {
-			CDView.this.viewer.refresh();
-		}
-
-		@Override
-		public void memoAdded(ICode code) {
+		public void memoAdded(URI uri) {
 			CDView.this.viewer.refresh();
 		}
 
@@ -117,13 +103,12 @@ public class CDView extends ViewPart {
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> removedCodes,
-				List<ILocatable> locatables) {
+		public void codesRemoved(List<ICode> removedCodes, List<URI> uris) {
 			CDView.this.viewer.refresh();
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
 			CDView.this.viewer.refresh();
 		}
 
@@ -157,8 +142,8 @@ public class CDView extends ViewPart {
 	private CDViewer viewer = null;
 	private BootstrapEnabledBrowserComposite browser = null;
 
-	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
-			.getWorkbench().getService(IInformationPresenterService.class);
+	private IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
+			.getWorkbench().getService(IUriPresenterService.class);
 
 	public CDView() {
 		this.dataService.addDataServiceListener(this.dataServiceListener);
@@ -183,19 +168,27 @@ public class CDView extends ViewPart {
 		this.browser.openAboutBlank();
 
 		this.informationPresenterService.enable(this.browser,
-				new ISubjectInformationProvider<Control, ILocatable>() {
-					private ILocatable hovered = null;
+				new ISubjectInformationProvider<Control, URI>() {
+					private URI hovered = null;
 
 					private IAnkerListener ankerListener = new AnkerAdapter() {
 						@Override
 						public void ankerHovered(IAnker anker, boolean entered) {
-							// TODO: kein hover bei "addCode"
-							if (entered) {
+							URI uri;
+							try {
+								uri = new URI(anker.getHref());
+							} catch (URISyntaxException e1) {
+								hovered = null;
+								return;
+							}
+
+							System.err.println(anker);
+
+							if (uri.getScheme() != null
+									&& !uri.getScheme().contains("-")
+									&& entered) {
 								try {
-									hovered = CDView.this.locatorService
-											.resolve(new URI(anker.getHref()),
-													null).get();
-								} catch (URISyntaxException e) {
+									hovered = uri;
 								} catch (Exception e) {
 									LOGGER.error(e);
 								}
@@ -223,7 +216,7 @@ public class CDView extends ViewPart {
 					}
 
 					@Override
-					public ILocatable getInformation() {
+					public URI getInformation() {
 						return this.hovered;
 					}
 				});
@@ -245,7 +238,7 @@ public class CDView extends ViewPart {
 	/**
 	 * Scrolls to the first {@link ILocatable} given.
 	 * 
-	 * @param locatables
+	 * @param URIS
 	 * @param callable
 	 * @return
 	 */

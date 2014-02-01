@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
@@ -15,24 +17,42 @@ public class DiffDataUtils {
 
 	public static ID getId(IData diffFile) {
 		ID id = null;
-		Matcher matcher = Diff.PATTERN.matcher(diffFile.getName());
-		if (matcher.find()) {
-			id = new ID(matcher.group(1));
+		if (Diff.PATTERN.matcher(diffFile.getName()).matches()) {
+			Matcher matcher = Diff.PATTERN.matcher(diffFile.getName());
+			if (matcher.find()) {
+				id = new ID(matcher.group(1));
+			}
+		} else if (Diff.ZIPPED_PATTERN.matcher(diffFile.getName()).matches()) {
+			Matcher matcher = Diff.ZIPPED_PATTERN.matcher(diffFile.getName());
+			if (matcher.find()) {
+				id = new ID(matcher.group(1));
+			}
 		}
 		return id;
 	}
 
-	public static Long getRevision(IData data) {
-		String revision = null;
-		Matcher matcher = Diff.PATTERN.matcher(data.getName());
-		if (matcher.find()) {
-			revision = matcher.group(2);
+	/**
+	 * Returns the deprecated revision if available. If new file format found,
+	 * uses the ISO8601 date.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public static String getRevision(IData data) {
+		String revision = "-";
+		if (Diff.PATTERN.matcher(data.getName()).matches()) {
+			Matcher matcher = Diff.PATTERN.matcher(data.getName());
+			if (matcher.find()) {
+				revision = matcher.group(2);
+			}
+		} else if (Diff.ZIPPED_PATTERN.matcher(data.getName()).matches()) {
+			Matcher matcher = Diff.ZIPPED_PATTERN.matcher(data.getName());
+			if (matcher.find()) {
+				return CalendarUtils.toISO8601FileSystemCompatible(getDate(
+						data, null).getCalendar());
+			}
 		}
-		try {
-			return Long.parseLong(revision);
-		} catch (NumberFormatException e) {
-			return null;
-		}
+		return revision;
 	}
 
 	/**
@@ -49,42 +69,93 @@ public class DiffDataUtils {
 	 */
 	public static TimeZoneDate getDate(IData data, TimeZone defaultTimeZone) {
 		TimeZoneDate date = null;
-		Matcher matcher = Diff.PATTERN.matcher(data.getName());
-		if (matcher.find()) {
-			if (matcher.group(9) != null) {
-				// Date contains time zone
-				date = new TimeZoneDate(matcher.group(3) + "-"
-						+ matcher.group(4) + "-" + matcher.group(5) + "T"
-						+ matcher.group(6) + ":" + matcher.group(7) + ":"
-						+ matcher.group(8) + matcher.group(10) + ":"
-						+ matcher.group(11));
-			} else {
-				// Date does not contain a time zone
-				Date rawDate = DateUtil.getDate(
-						Integer.valueOf(matcher.group(3)),
-						Integer.valueOf(matcher.group(4)) - 1,
-						Integer.valueOf(matcher.group(5)),
-						Integer.valueOf(matcher.group(6)),
-						Integer.valueOf(matcher.group(7)),
-						Integer.valueOf(matcher.group(8)));
-
-				TimeZone timeZone;
-				if (defaultTimeZone != null) {
-					timeZone = defaultTimeZone;
+		if (Diff.PATTERN.matcher(data.getName()).matches()) {
+			Matcher matcher = Diff.PATTERN.matcher(data.getName());
+			if (matcher.find()) {
+				if (matcher.group(9) != null) {
+					// Date contains time zone
+					date = new TimeZoneDate(matcher.group(3) + "-"
+							+ matcher.group(4) + "-" + matcher.group(5) + "T"
+							+ matcher.group(6) + ":" + matcher.group(7) + ":"
+							+ matcher.group(8) + matcher.group(10) + ":"
+							+ matcher.group(11));
 				} else {
-					try {
-						timeZone = new SUACorePreferenceUtil()
-								.getDefaultTimeZone();
-					} catch (Throwable e) {
-						timeZone = TimeZone.getDefault();
+					// Date does not contain a time zone
+					Date rawDate = DateUtil.getDate(
+							Integer.valueOf(matcher.group(3)),
+							Integer.valueOf(matcher.group(4)) - 1,
+							Integer.valueOf(matcher.group(5)),
+							Integer.valueOf(matcher.group(6)),
+							Integer.valueOf(matcher.group(7)),
+							Integer.valueOf(matcher.group(8)));
+
+					TimeZone timeZone;
+					if (defaultTimeZone != null) {
+						timeZone = defaultTimeZone;
+					} else {
+						try {
+							timeZone = new SUACorePreferenceUtil()
+									.getDefaultTimeZone();
+						} catch (Throwable e) {
+							timeZone = TimeZone.getDefault();
+						}
 					}
+					rawDate.setTime(rawDate.getTime()
+							- timeZone.getOffset(rawDate.getTime()));
+					date = new TimeZoneDate(rawDate, timeZone);
 				}
-				rawDate.setTime(rawDate.getTime()
-						- timeZone.getOffset(rawDate.getTime()));
-				date = new TimeZoneDate(rawDate, timeZone);
+			}
+		} else if (Diff.ZIPPED_PATTERN.matcher(data.getName()).matches()) {
+			Matcher matcher = Diff.ZIPPED_PATTERN.matcher(data.getName());
+			if (matcher.find()) {
+				if (matcher.group(10) != null) {
+					// Date contains time zone
+					date = new TimeZoneDate(matcher.group(3) + "-"
+							+ matcher.group(4) + "-" + matcher.group(5) + "T"
+							+ matcher.group(6) + ":" + matcher.group(7) + ":"
+							+ matcher.group(8) + "." + matcher.group(9)
+							+ matcher.group(11) + ":" + matcher.group(12));
+				} else {
+					// Date does not contain a time zone
+					Date rawDate = DateUtil.getDate(
+							Integer.valueOf(matcher.group(3)),
+							Integer.valueOf(matcher.group(4)) - 1,
+							Integer.valueOf(matcher.group(5)),
+							Integer.valueOf(matcher.group(6)),
+							Integer.valueOf(matcher.group(7)),
+							Integer.valueOf(matcher.group(8)),
+							Integer.valueOf(matcher.group(9)));
+
+					TimeZone timeZone;
+					if (defaultTimeZone != null) {
+						timeZone = defaultTimeZone;
+					} else {
+						try {
+							timeZone = new SUACorePreferenceUtil()
+									.getDefaultTimeZone();
+						} catch (Throwable e) {
+							timeZone = TimeZone.getDefault();
+						}
+					}
+					rawDate.setTime(rawDate.getTime()
+							- timeZone.getOffset(rawDate.getTime()));
+					date = new TimeZoneDate(rawDate, timeZone);
+				}
 			}
 		}
+
 		return date;
+	}
+
+	public static String getLocationHash(IData data) {
+		String revision = "0000";
+		if (Diff.ZIPPED_PATTERN.matcher(data.getName()).matches()) {
+			Matcher matcher = Diff.ZIPPED_PATTERN.matcher(data.getName());
+			if (matcher.find()) {
+				revision = matcher.group(2);
+			}
+		}
+		return revision;
 	}
 
 }

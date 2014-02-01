@@ -28,7 +28,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 /**
  * Instances of this class denote diffs or more precisely are a container for
  * {@link DiffRecord}s. Classically the underlying resource is a file with the
- * <code>.diff</code> extension in unified diff format.
+ * <code>.diff</code> extension in unified diff format or a <code>.zip</code>
+ * file containing all changed files.
  */
 public class Diff extends WrappingData implements IDiff {
 
@@ -37,6 +38,8 @@ public class Diff extends WrappingData implements IDiff {
 	private static final long serialVersionUID = 5159431028889474742L;
 	public static final Pattern PATTERN = Pattern
 			.compile("([A-Za-z\\d]+)_r([\\d]{8})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff");
+	public static final Pattern ZIPPED_PATTERN = Pattern
+			.compile("([A-Za-z\\d]+)_([\\w]{4})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})\\.([\\d]+)(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff\\.zip");
 
 	@Override
 	public URI getUri() {
@@ -55,7 +58,9 @@ public class Diff extends WrappingData implements IDiff {
 	private IDiff prevDiffFile;
 
 	private IIdentifier identifier;
-	private long revision;
+	private String locationHash;
+	private String revision;
+	private int calculatedRevision;
 	private TimeZoneDateRange dateRange;
 
 	private DiffRecords diffFileRecords = null;
@@ -68,10 +73,13 @@ public class Diff extends WrappingData implements IDiff {
 		Assert.isNotNull(sourceCache);
 
 		this.identifier = DiffDataUtils.getId(data);
+		this.locationHash = DiffDataUtils.getLocationHash(data);
 		this.revision = DiffDataUtils.getRevision(data);
 		TimeZoneDate prevDate = prevDiffFile != null
 				&& prevDiffFile.getDateRange() != null ? prevDiffFile
 				.getDateRange().getEndDate() : null;
+		this.calculatedRevision = prevDiffFile != null ? prevDiffFile
+				.getCalculatedRevision() + 1 : 0;
 		this.diffFileRecords = DiffRecordUtils.readRecords(this, trunk,
 				sourceCache, progressMonitor);
 
@@ -112,6 +120,11 @@ public class Diff extends WrappingData implements IDiff {
 		return this.identifier;
 	}
 
+	@Override
+	public String getLocationHash() {
+		return this.locationHash;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -119,8 +132,13 @@ public class Diff extends WrappingData implements IDiff {
 	 * de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff#getRevision ()
 	 */
 	@Override
-	public long getRevision() {
+	public String getRevision() {
 		return this.revision;
+	}
+
+	@Override
+	public int getCalculatedRevision() {
+		return this.calculatedRevision;
 	}
 
 	@Override
@@ -199,8 +217,9 @@ public class Diff extends WrappingData implements IDiff {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + ": " + this.getRevision()
-				+ "@" + this.getIdentifier().toString();
+		return this.getClass().getSimpleName() + ": "
+				+ this.getCalculatedRevision() + "@"
+				+ this.getIdentifier().toString();
 	}
 
 }

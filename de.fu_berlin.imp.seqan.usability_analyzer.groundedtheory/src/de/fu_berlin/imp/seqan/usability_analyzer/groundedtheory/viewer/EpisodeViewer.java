@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
@@ -27,10 +29,13 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
@@ -40,6 +45,9 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(EpisodeViewer.class);
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	private SortableTreeViewer treeViewer;
 
@@ -120,10 +128,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 					IIdentifier identifier = (IIdentifier) element;
 					return identifier.toString();
 				}
-				if (IEpisode.class.isInstance(element)) {
-					return this.labelProvider.getText(element);
-				}
-				return "ERROR";
+				return this.labelProvider.getText(element);
 			}
 
 			@Override
@@ -134,10 +139,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				if (Fingerprint.class.isInstance(element)) {
 					return de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ImageManager.FINGERPRINT;
 				}
-				if (IEpisode.class.isInstance(element)) {
-					return this.labelProvider.getImage(element);
-				}
-				return null;
+				return this.labelProvider.getImage(element);
 			}
 		});
 		episodeColumn.setEditingSupport(new EpisodeEditingSupport(
@@ -145,43 +147,52 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 
 		TreeViewerColumn startColumn = this.treeViewer.createColumn("Start",
 				170);
-		startColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				if (IEpisode.class.isInstance(element)) {
-					IEpisode episode = (IEpisode) element;
-					return episode.getStart() != null ? EpisodeViewer.this.preferenceUtil
-							.getDateFormat().format(
-									episode.getStart().getDate()) : "-∞";
-				}
-				return "";
-			}
-		});
+		startColumn
+				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
+					@Override
+					public String getText(URI uri) throws Exception {
+						ILocatable locatable = EpisodeViewer.this.locatorService
+								.resolve(uri, null).get();
+						if (IEpisode.class.isInstance(locatable)) {
+							IEpisode episode = (IEpisode) locatable;
+							return episode.getStart() != null ? EpisodeViewer.this.preferenceUtil
+									.getDateFormat().format(
+											episode.getStart().getDate())
+									: "-∞";
+						}
+						return "";
+					}
+				});
 		startColumn.setEditingSupport(new EpisodeEditingSupport(
 				this.treeViewer, EpisodeEditingSupport.Field.STARTDATE));
 
 		TreeViewerColumn endColumn = this.treeViewer.createColumn("End", 170);
-		endColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				if (IEpisode.class.isInstance(element)) {
-					IEpisode episode = (IEpisode) element;
-					return episode.getEnd() != null ? EpisodeViewer.this.preferenceUtil
-							.getDateFormat().format(episode.getEnd().getDate())
-							: "+∞";
-				}
-				return "";
-			}
-		});
+		endColumn
+				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
+					@Override
+					public String getText(URI uri) throws Exception {
+						ILocatable locatable = EpisodeViewer.this.locatorService
+								.resolve(uri, null).get();
+						if (IEpisode.class.isInstance(locatable)) {
+							IEpisode episode = (IEpisode) locatable;
+							return episode.getEnd() != null ? EpisodeViewer.this.preferenceUtil
+									.getDateFormat().format(
+											episode.getEnd().getDate()) : "+∞";
+						}
+						return "";
+					}
+				});
 		endColumn.setEditingSupport(new EpisodeEditingSupport(this.treeViewer,
 				EpisodeEditingSupport.Field.ENDDATE));
 
 		this.treeViewer.createColumn("Date Created", 170).setLabelProvider(
-				new ColumnLabelProvider() {
+				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
-					public String getText(Object element) {
-						if (IEpisode.class.isInstance(element)) {
-							IEpisode episode = (IEpisode) element;
+					public String getText(URI uri) throws Exception {
+						ILocatable locatable = EpisodeViewer.this.locatorService
+								.resolve(uri, null).get();
+						if (IEpisode.class.isInstance(locatable)) {
+							IEpisode episode = (IEpisode) locatable;
 							return EpisodeViewer.this.preferenceUtil
 									.getDateFormat().format(
 											episode.getCreation().getDate());

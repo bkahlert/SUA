@@ -250,7 +250,8 @@ public class AnalysisTimelineBandProvider
 				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
 					try {
-						for (ICode code : this.codeService.getCodes(episode)) {
+						for (ICode code : this.codeService.getCodes(episode
+								.getUri())) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

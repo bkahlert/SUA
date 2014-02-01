@@ -33,43 +33,51 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 
 	@Override
 	public String getName() {
-		return diffRecord != null ? diffRecord.getFilename() : "EMPTY";
+		return this.diffRecord != null ? this.diffRecord.getFilename()
+				: "EMPTY";
 	}
 
 	@Override
 	public String getTitle() {
-		return diffRecord != null ? diffRecord.getDiffFile().getIdentifier() + ": "
-				+ diffRecord.getFilename() + "@"
-				+ diffRecord.getDiffFile().getRevision() : "EMPTY";
+		return this.diffRecord != null ? this.diffRecord.getDiffFile()
+				.getIdentifier()
+				+ ": "
+				+ this.diffRecord.getFilename()
+				+ "@"
+				+ this.diffRecord.getDiffFile().getRevision() : "EMPTY";
 	}
 
 	@Override
 	public String getToolTipText() {
-		if (diffRecord == null)
+		if (this.diffRecord == null) {
 			return "";
-		long predRevision = diffRecord.getPredecessor() != null ? diffRecord
-				.getPredecessor().getDiffFile().getRevision() : -1;
-		long revision = diffRecord.getDiffFile().getRevision();
-		return "ID: " + diffRecord.getDiffFile().getIdentifier() + "\nFile:"
-				+ diffRecord.getFilename() + "\nRevisions: " + predRevision
-				+ " and " + revision;
+		}
+		String predRevision = this.diffRecord.getPredecessor() != null ? this.diffRecord
+				.getPredecessor().getDiffFile().getRevision()
+				: "-";
+		String revision = this.diffRecord.getDiffFile().getRevision();
+		return "ID: " + this.diffRecord.getDiffFile().getIdentifier()
+				+ "\nFile:" + this.diffRecord.getFilename() + "\nRevisions: "
+				+ predRevision + " and " + revision;
 	}
 
 	@Override
 	public Image getTitleImage() {
-		if (titleImage == null) {
-			titleImage = PlatformUI.getWorkbench().getEditorRegistry()
-					.getImageDescriptor(diffRecord.getFilename()).createImage();
-			CompareUI.disposeOnShutdown(titleImage);
+		if (this.titleImage == null) {
+			this.titleImage = PlatformUI.getWorkbench().getEditorRegistry()
+					.getImageDescriptor(this.diffRecord.getFilename())
+					.createImage();
+			CompareUI.disposeOnShutdown(this.titleImage);
 		}
-		return titleImage;
+		return this.titleImage;
 	}
 
+	@Override
 	protected Object prepareInput(IProgressMonitor pm) {
 		DiffFileRecordCompareItem left = new DiffFileRecordCompareItem(
-				diffRecord.getPredecessor(), getTitleImage());
+				this.diffRecord.getPredecessor(), this.getTitleImage());
 		DiffFileRecordCompareItem right = new DiffFileRecordCompareItem(
-				diffRecord, getTitleImage());
+				this.diffRecord, this.getTitleImage());
 
 		this.compareInput = new DiffNode(null, Differencer.ADDITION
 				| Differencer.CHANGE | Differencer.DELETION, null, left, right);
@@ -86,24 +94,29 @@ public class DiffFileRecordCompareEditorInput extends CompareEditorInput {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((diffRecord == null) ? 0 : diffRecord.hashCode());
+				+ ((this.diffRecord == null) ? 0 : this.diffRecord.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		DiffFileRecordCompareEditorInput other = (DiffFileRecordCompareEditorInput) obj;
-		if (diffRecord == null) {
-			if (other.diffRecord != null)
+		if (this.diffRecord == null) {
+			if (other.diffRecord != null) {
 				return false;
-		} else if (!diffRecord.equals(other.diffRecord))
+			}
+		} else if (!this.diffRecord.equals(other.diffRecord)) {
 			return false;
+		}
 		return true;
 	}
 }

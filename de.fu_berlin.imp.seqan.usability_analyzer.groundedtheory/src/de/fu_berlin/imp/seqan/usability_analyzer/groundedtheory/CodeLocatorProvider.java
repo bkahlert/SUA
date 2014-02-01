@@ -10,24 +10,44 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.ExecutorService;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class CodeLocatorProvider implements ILocatorProvider {
+public class CodeLocatorProvider extends AdaptingLocatorProvider {
 
 	public static final String CODE_NAMESPACE = "code";
+
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeLocatorProvider.class);
 	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
+	@SuppressWarnings("unchecked")
+	public CodeLocatorProvider() {
+		super(ICode.class);
+	}
+
 	@Override
-	public String[] getAllowedNamespaces() {
-		return new String[] { CODE_NAMESPACE };
+	public boolean isResolvabilityImpossible(URI uri) {
+		return !"sua".equalsIgnoreCase(uri.getScheme())
+				|| !CODE_NAMESPACE.equals(uri.getHost());
+	}
+
+	@Override
+	public Class<? extends ILocatable> getType(URI uri) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
+
+		return ICode.class;
 	}
 
 	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
+
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 
@@ -39,9 +59,9 @@ public class CodeLocatorProvider implements ILocatorProvider {
 	}
 
 	@Override
-	public boolean showInWorkspace(final ILocatable[] locatables, boolean open,
+	public boolean showInWorkspace(final URI[] uris, boolean open,
 			IProgressMonitor monitor) {
-		if (locatables.length > 0) {
+		if (uris.length > 0) {
 			try {
 				return EXECUTOR_SERVICE.syncExec(new Callable<Boolean>() {
 					@Override
@@ -56,11 +76,11 @@ public class CodeLocatorProvider implements ILocatorProvider {
 						// EpisodeViewer viewer =
 						// episodeView.getEpisodeViewer();
 						// viewer.setSelection(new
-						// StructuredSelection(locatables));
+						// StructuredSelection(URIS));
 						// List<ILocatable> selected = SelectionUtils
 						// .getAdaptableObjects(viewer.getSelection(),
 						// ILocatable.class);
-						// return selected.size() == locatables.length;
+						// return selected.size() == URIS.length;
 						return false;
 					}
 				});

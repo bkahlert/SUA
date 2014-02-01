@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
@@ -17,8 +19,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationBackgroundProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -34,8 +36,8 @@ public class InformationPresentingTimeline extends Timeline {
 			.getLogger(InformationPresentingTimeline.class);
 
 	// TODO move everything related to HighlightableTimelineGroupViewer
-	private IInformationPresenterService informationPresenterService = (IInformationPresenterService) PlatformUI
-			.getWorkbench().getService(IInformationPresenterService.class);
+	private IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
+			.getWorkbench().getService(IUriPresenterService.class);
 
 	private IInformationBackgroundProvider informationBackgroundProvider = new IInformationBackgroundProvider() {
 		@Override
@@ -68,7 +70,7 @@ public class InformationPresentingTimeline extends Timeline {
 		}
 	};
 
-	ILocatable hoveredLocatable;
+	private URI hoveredUri;
 
 	public InformationPresentingTimeline(Composite parent, int style) {
 
@@ -85,22 +87,22 @@ public class InformationPresentingTimeline extends Timeline {
 
 		this.informationPresenterService
 				.enable(this,
-						new ISubjectInformationProvider<InformationPresentingTimeline, ILocatable>() {
+						new ISubjectInformationProvider<InformationPresentingTimeline, URI>() {
 							private ITimelineListener timelineListener = new TimelineAdapter() {
 								@Override
 								public void hoveredIn(TimelineEvent event) {
 									if (ILocatable.class.isInstance(event
 											.getSource())) {
-										InformationPresentingTimeline.this.hoveredLocatable = (ILocatable) event
-												.getSource();
+										InformationPresentingTimeline.this.hoveredUri = ((ILocatable) event
+												.getSource()).getUri();
 									} else {
-										InformationPresentingTimeline.this.hoveredLocatable = null;
+										InformationPresentingTimeline.this.hoveredUri = null;
 									}
 								}
 
 								@Override
 								public void hoveredOut(TimelineEvent event) {
-									InformationPresentingTimeline.this.hoveredLocatable = null;
+									InformationPresentingTimeline.this.hoveredUri = null;
 								}
 							};
 
@@ -122,8 +124,8 @@ public class InformationPresentingTimeline extends Timeline {
 							}
 
 							@Override
-							public ILocatable getInformation() {
-								return InformationPresentingTimeline.this.hoveredLocatable;
+							public URI getInformation() {
+								return InformationPresentingTimeline.this.hoveredUri;
 							}
 						});
 	}

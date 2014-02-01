@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 
 import junit.framework.Assert;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +94,8 @@ public class DiffFileDirectoryTest {
 
 		for (int i = 0; i < diffFiles.length(); i++) {
 			IDiff diff = diffFiles.get(i);
-			Assert.assertEquals(i, diff.getRevision());
+			Assert.assertEquals(StringUtils.leftPad(i + "", 8, "0"),
+					diff.getRevision());
 		}
 	}
 

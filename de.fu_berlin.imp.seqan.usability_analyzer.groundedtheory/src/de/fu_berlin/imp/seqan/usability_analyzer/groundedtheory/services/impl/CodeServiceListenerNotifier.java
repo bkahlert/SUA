@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,12 +11,9 @@ import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
 public class CodeServiceListenerNotifier {
 
@@ -55,12 +53,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void codeAssigned(final List<ICode> codes, final List<ILocatable> locatables) {
+	void codeAssigned(final List<ICode> codes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.codesAssigned(codes, locatables);
+					codeServiceListener.codesAssigned(codes, uris);
 					return null;
 				}
 			});
@@ -94,13 +92,12 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void codesRemoved(final List<ICode> removedCodes,
-			final List<ILocatable> locatables) {
+	void codesRemoved(final List<ICode> removedCodes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.codesRemoved(removedCodes, locatables);
+					codeServiceListener.codesRemoved(removedCodes, uris);
 					return null;
 				}
 			});
@@ -133,117 +130,36 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	void memoAdded(final ICode code, String html) {
+	void memoAdded(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.memoAdded(code);
+					codeServiceListener.memoAdded(uri);
 					return null;
 				}
 			});
 		}
 	}
 
-	void memoAdded(final ICodeInstance codeInstance, String html) {
+	void memoModified(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2) {
-						((ICodeServiceListener2) codeServiceListener)
-								.memoAdded(codeInstance);
-					}
+					codeServiceListener.memoModified(uri);
 					return null;
 				}
 			});
 		}
 	}
 
-	void memoAdded(final ILocatable locatable, String html) {
+	void memoRemoved(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			this.notifierPool.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
-					codeServiceListener.memoAdded(locatable);
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoModified(final ICode code, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					codeServiceListener.memoModified(code);
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoModified(final ICodeInstance codeInstance, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2) {
-						((ICodeServiceListener2) codeServiceListener)
-								.memoModified(codeInstance);
-					}
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoModified(final ILocatable locatable, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					codeServiceListener.memoModified(locatable);
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoRemoved(final ICode code, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					codeServiceListener.memoRemoved(code);
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoRemoved(final ICodeInstance codeInstance, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					if (codeServiceListener instanceof ICodeServiceListener2) {
-						((ICodeServiceListener2) codeServiceListener)
-								.memoRemoved(codeInstance);
-					}
-					return null;
-				}
-			});
-		}
-	}
-
-	void memoRemoved(final ILocatable locatable, String html) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					codeServiceListener.memoRemoved(locatable);
+					codeServiceListener.memoRemoved(uri);
 					return null;
 				}
 			});

@@ -42,7 +42,8 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 
 			@Override
 			public String getName() {
-				return StringUtils.join(names, ", ");
+				return names.size() > 0 ? StringUtils.join(names, ", ")
+						: "[EMPTY]";
 			}
 
 			@Override
@@ -72,8 +73,9 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	public File getStaticFile(String scope, String name) throws IOException {
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			File staticFile = baseDataContainer.getStaticFile(scope, name);
-			if (staticFile != null && staticFile.exists())
+			if (staticFile != null && staticFile.exists()) {
 				return staticFile;
+			}
 		}
 		return this.baseContainers.get(0).getStaticFile(scope, name);
 	}
@@ -89,8 +91,9 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	public File getFile(String scope, String name) throws IOException {
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			File file = baseDataContainer.getFile(scope, name);
-			if (file.exists())
+			if (file.exists()) {
 				return file;
+			}
 		}
 		return this.baseContainers.get(0).getFile(scope, name);
 	}
@@ -112,8 +115,9 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 		List<File> files = new ArrayList<File>();
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			File file = baseDataContainer.getFile(scope, name);
-			if (file.exists())
+			if (file.exists()) {
 				files.add(file);
+			}
 		}
 		return files.size() > 0 ? files : null;
 	}

@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -7,16 +8,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.log4j.Logger;
+
 import com.bkahlert.devel.nebula.utils.StringUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 
 public class Diffs implements IDiffs {
+
+	private static final long serialVersionUID = -5222696612334796830L;
+
+	private static final Logger LOGGER = Logger.getLogger(Diffs.class);
 
 	private IDiff[] diffs;
 	private IIdentifier identifier;
@@ -43,6 +51,19 @@ public class Diffs implements IDiffs {
 			}
 		}
 		this.diffs = diffs;
+	}
+
+	@Override
+	public URI getUri() {
+		try {
+			return new URI("sua://" + DiffLocatorProvider.DIFF_NAMESPACE + "/"
+					+ this.getIdentifier().toString());
+		} catch (Exception e) {
+			LOGGER.error(
+					"Could not create ID for a " + Diff.class.getSimpleName(),
+					e);
+		}
+		return null;
 	}
 
 	@Override

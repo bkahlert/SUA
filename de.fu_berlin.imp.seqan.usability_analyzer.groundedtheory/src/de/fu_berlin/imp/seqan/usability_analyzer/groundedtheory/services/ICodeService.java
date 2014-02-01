@@ -19,16 +19,6 @@ public interface ICodeService {
 	public ICodeStore getCodeStore();
 
 	/**
-	 * Returns all {@link ICode}s associated with the given {@link ILocatable} .
-	 * 
-	 * @param locatable
-	 * @return an empty list if no {@link ICode}s were found; never returns null
-	 * @throws CodeServiceException
-	 */
-	public List<ICode> getCodes(ILocatable locatable)
-			throws CodeServiceException;
-
-	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
 	 * 
 	 * @param uri
@@ -78,11 +68,11 @@ public interface ICodeService {
 	 * 
 	 * @param codeCaption
 	 * @param rgb
-	 * @param locatable
+	 * @param uri
 	 * @return
 	 * @throws CodeServiceException
 	 */
-	public ICode addCode(String codeCaption, RGB rgb, ILocatable locatable)
+	public ICode addCode(String codeCaption, RGB rgb, URI uri)
 			throws CodeServiceException;
 
 	/**
@@ -91,13 +81,12 @@ public interface ICodeService {
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param code
-	 * @param locatable
+	 * @param uri
 	 * @throws CodeServiceException
 	 */
-	public void addCode(ICode code, ILocatable locatable)
-			throws CodeServiceException;
+	public void addCode(ICode code, URI uri) throws CodeServiceException;
 
-	public void addCodes(List<ICode> codes, List<ILocatable> locatables)
+	public void addCodes(List<ICode> codes, List<URI> uris)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
@@ -143,7 +132,7 @@ public interface ICodeService {
 	 */
 	public Collection<? extends ICodeInstance> getAllInstances(ICode code);
 
-	public void putInstances(ICode code, List<ILocatable> instances);
+	public void putInstances(ICode code, List<URI> uris);
 
 	/**
 	 * Renames a {@link ICode}
@@ -187,10 +176,10 @@ public interface ICodeService {
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
 	 * @param codes
-	 * @param locatable
+	 * @param uri
 	 * @throws CodeServiceException
 	 */
-	public void removeCodes(List<ICode> codes, ILocatable locatable)
+	public void removeCodes(List<ICode> codes, URI uri)
 			throws CodeServiceException;
 
 	/**
@@ -242,81 +231,27 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * Sets the memo for the given {@link ICode}.
+	 * Sets the memo for the given {@link URI}.
 	 * 
-	 * @param code
+	 * @param uri
 	 * @param html
 	 * @throws CodeServiceException
 	 */
-	public void setMemo(ICode code, String html) throws CodeServiceException;
+	public void setMemo(URI uri, String html) throws CodeServiceException;
 
 	/**
-	 * Sets the memo for the given {@link ICodeInstance}.
+	 * Returns the memo for the given {@link URI}.
 	 * 
-	 * @param code
-	 * @param html
-	 * @throws CodeServiceException
+	 * @param uri
 	 */
-	public void setMemo(ICodeInstance codeInstance, String html)
-			throws CodeServiceException;
+	public String loadMemo(URI uri);
 
 	/**
-	 * Sets the memo for the given {@link ILocatable}.
+	 * Returns true if the given {@link URI} has a memo.
 	 * 
-	 * @param code
-	 * @param html
-	 * @throws CodeServiceException
+	 * @param uri
 	 */
-	public void setMemo(ILocatable locatable, String html)
-			throws CodeServiceException;
-
-	/**
-	 * Returns the memo for the given {@link ICode}.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public String loadMemo(ICode code);
-
-	/**
-	 * Returns the memo for the given {@link ICodeInstance}.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public String loadMemo(ICodeInstance codeInstance);
-
-	/**
-	 * Returns the memo for the given {@link ILocatable}.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public String loadMemo(ILocatable locatable);
-
-	/**
-	 * Returns true if the given {@link ICode} has a memo.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public boolean isMemo(ICode code);
-
-	/**
-	 * Returns true if the given {@link ICodeInstance} has a memo.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public boolean isMemo(ICodeInstance codeInstance);
-
-	/**
-	 * Returns true if the given {@link ILocatable} has a memo.
-	 * 
-	 * @param code
-	 * @param html
-	 */
-	public boolean isMemo(ILocatable locatable);
+	public boolean isMemo(URI uri);
 
 	/**
 	 * Returns the {@link IIdentifier}s that have at least one {@link IEpisode}.
@@ -355,6 +290,5 @@ public interface ICodeService {
 	 * @param dest
 	 * @throws CodeServiceException
 	 */
-	public void reattachAndSave(ILocatable src, ILocatable dest)
-			throws CodeServiceException;
+	public void reattachAndSave(URI src, URI dest) throws CodeServiceException;
 }

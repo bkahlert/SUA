@@ -31,7 +31,7 @@ public class DiffFileTest {
 			+ DiffFileDirectoryTest.class.getPackage().getName()
 					.replace('.', '/') + "/..";
 
-	private static IDiff getDiffFile(String diffFileName, IIdentifier id,
+	public static IDiff getDiffFile(String diffFileName, IIdentifier id,
 			long revision, TimeZoneDateRange dateRange)
 			throws URISyntaxException {
 
@@ -72,7 +72,7 @@ public class DiffFileTest {
 										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
-				new Long(48),
+				"00000048",
 				DiffDataUtils
 						.getRevision(new FileData(
 								baseContainer,
@@ -80,7 +80,7 @@ public class DiffFileTest {
 								new File(
 										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
-				new Long(48),
+				"00000048",
 				DiffDataUtils
 						.getRevision(new FileData(
 								baseContainer,
@@ -210,6 +210,7 @@ public class DiffFileTest {
 						"5lpcjqhy0b9yfech/5/sandbox/my_sandbox/tests/CMakeLists.txt" });
 	}
 
+	@SuppressWarnings("deprecation")
 	private void testDiffFileRecordsCountRun(IDiff diff, int[] numContentLines,
 			Long[] timeDifferences, String[] sourceFiles) throws IOException {
 		DiffRecords diffFileRecords = diff.getDiffFileRecords();

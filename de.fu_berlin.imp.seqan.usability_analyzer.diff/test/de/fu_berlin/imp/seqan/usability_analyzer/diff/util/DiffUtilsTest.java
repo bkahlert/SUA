@@ -45,7 +45,7 @@ public class DiffUtilsTest {
 				this.will(returnValue(IdentifierFactory.createFrom("theID")));
 
 				this.allowing(diff).getRevision();
-				this.will(returnValue(27837l));
+				this.will(returnValue("27837"));
 
 				this.allowing(diffRecord).getDiffFile();
 				this.will(returnValue(diff));

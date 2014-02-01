@@ -134,12 +134,24 @@
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance">
            <activeWhen>
               <or>
-                 <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsILocatable">
-                 </reference>
-                 <reference
-                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatables">
-                 </reference>
+                 <and>
+                    <reference
+                          definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfURIs">
+                    </reference>
+                    <not>
+                       <reference
+                             definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeInstances">
+                       </reference>
+                    </not></and>
+                 <and>
+                    <reference
+                          definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsURI">
+                    </reference>
+                    <not>
+                       <reference
+                             definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeInstance">
+                       </reference>
+                    </not></and>
               </or>
            </activeWhen>
         </handler>
@@ -829,6 +841,15 @@
          </with>
       </definition>
       <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.informationIsICodeInstance">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance">
+            </instanceof>
+         </with>
+      </definition>
+      <definition
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodeInstances">
          <with
                variable="selection">
@@ -1023,6 +1044,12 @@
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
       <LocatorProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeLocatorProvider">
+      </LocatorProvider>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider">
       </LocatorProvider>
    </extension>
    <extension

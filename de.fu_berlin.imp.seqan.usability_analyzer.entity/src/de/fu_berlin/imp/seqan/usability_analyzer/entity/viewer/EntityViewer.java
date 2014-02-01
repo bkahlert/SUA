@@ -27,6 +27,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -37,18 +38,20 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.StyledColumnLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FontUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
-public class EntityViewer extends SortableTableViewer implements IBoldViewer {
+public class EntityViewer extends SortableTableViewer implements
+		IBoldViewer<URI> {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(EntityViewer.class);
 
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
@@ -62,12 +65,12 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> baseDataContainers) {
-			EntityViewer.this.setBold(null);
+			EntityViewer.this.setBold((URI) null);
 		};
 	};
 
 	private Styler boldStyler = null;
-	private Collection<?> boldObjects = new LinkedList<Object>();
+	private Collection<URI> boldObjects = new LinkedList<URI>();
 
 	public EntityViewer(Table table) {
 		super(table);
@@ -104,81 +107,90 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 	}
 
 	private void createColumns() {
+		final ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
+
 		this.createColumn("DateId", 150).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
+
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 
 								ID id = entity.getId();
 								StyledString styledString = new StyledString(
-										(id != null) ? id.toString() : "",
+										id.toString(),
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
 
 							@Override
-							public Image getImage(Object element) {
-								Entity entity = (Entity) element;
-								try {
-									if (EntityViewer.this.codeService.getCodes(
-											entity).size() > 0) {
-										return EntityViewer.this.codeService
-												.isMemo(entity) ? ImageManager.ENTITY_CODED_MEMO
-												: ImageManager.ENTITY_CODED;
-									} else {
-										for (URI id : EntityViewer.this.codeService
-												.getCodedIDs()) {
-											String[] parts = id.getPath()
-													.split("/");
-											if (parts.length > 1) {
-												String key = parts[1];
-												if (ID.isValid(key)
-														&& entity.getId() != null
-														&& entity
-																.getId()
-																.equals(IdentifierFactory
-																		.createFrom(key))) {
-													return EntityViewer.this.codeService
-															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
-															: ImageManager.ENTITY_PARTIALLY_CODED;
-												}
-												if (Fingerprint.isValid(key)
-														&& entity
-																.getFingerprints()
-																.contains(
-																		IdentifierFactory
-																				.createFrom(key))) {
-													return EntityViewer.this.codeService
-															.isMemo(entity) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
-															: ImageManager.ENTITY_PARTIALLY_CODED;
-												}
+							public Image getImage(URI uri) throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
+
+								if (EntityViewer.this.codeService.getCodes(
+										entity.getUri()).size() > 0) {
+									return EntityViewer.this.codeService
+											.isMemo(entity.getUri()) ? ImageManager.ENTITY_CODED_MEMO
+											: ImageManager.ENTITY_CODED;
+								} else {
+									for (URI id : EntityViewer.this.codeService
+											.getCodedIDs()) {
+										String[] parts = id.getPath()
+												.split("/");
+										if (parts.length > 1) {
+											String key = parts[1];
+											if (ID.isValid(key)
+													&& entity.getId() != null
+													&& entity
+															.getId()
+															.equals(IdentifierFactory
+																	.createFrom(key))) {
+												return EntityViewer.this.codeService
+														.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+														: ImageManager.ENTITY_PARTIALLY_CODED;
+											}
+											if (Fingerprint.isValid(key)
+													&& entity
+															.getFingerprints()
+															.contains(
+																	IdentifierFactory
+																			.createFrom(key))) {
+												return EntityViewer.this.codeService
+														.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+														: ImageManager.ENTITY_PARTIALLY_CODED;
 											}
 										}
-
-										return EntityViewer.this.codeService
-												.isMemo(entity) ? ImageManager.ENTITY_MEMO
-												: ImageManager.ENTITY;
 									}
-								} catch (CodeServiceException e) {
-									LOGGER.error("Can't access "
-											+ ICodeService.class
-													.getSimpleName());
+
+									return EntityViewer.this.codeService
+											.isMemo(entity.getUri()) ? ImageManager.ENTITY_MEMO
+											: ImageManager.ENTITY;
 								}
-								return ImageManager.ENTITY;
 							}
 						}));
 
 		this.createColumn("Fingerprints", 300).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								List<Fingerprint> secondaryFingerprints = entity
 										.getFingerprints();
 								StyledString styledString = new StyledString(
@@ -187,7 +199,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 														", ") : "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -195,16 +207,20 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 		this.createColumn("Token", 45).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								Token token = entity.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -212,17 +228,21 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 		this.createColumn("OS", 100).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								StatsFile statsFile = entity.getStatsFile();
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -230,10 +250,14 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 		this.createColumn("Generator", 100).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								CMakeCacheFile cMakeCacheFile = entity
 										.getCMakeCacheFile();
 								StyledString styledString = new StyledString(
@@ -241,7 +265,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 												.getGenerator() : "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -249,10 +273,14 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 		this.createColumn("Earliest Entry", 180).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								TimeZoneDate earliestDate = entity
 										.getEarliestEntryDate();
 								StyledString styledString = new StyledString(
@@ -262,7 +290,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 												: "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -270,10 +298,14 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 
 		this.createColumn("Latest Entry", 180).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledColumnLabelProvider() {
 							@Override
-							public StyledString getStyledText(Object element) {
-								Entity entity = (Entity) element;
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								ILocatable locatable = locatorService.resolve(
+										uri, null).get();
+
+								Entity entity = (Entity) locatable;
 								TimeZoneDate lastestDate = entity
 										.getLatestEntryDate();
 								StyledString styledString = new StyledString(
@@ -283,7 +315,7 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 												: "",
 										(EntityViewer.this.boldObjects != null
 												&& EntityViewer.this.boldObjects
-														.contains(element) ? EntityViewer.this.boldStyler
+														.contains(uri) ? EntityViewer.this.boldStyler
 												: null));
 								return styledString;
 							}
@@ -291,12 +323,12 @@ public class EntityViewer extends SortableTableViewer implements IBoldViewer {
 	}
 
 	@Override
-	public void setBold(Object boldObject) {
+	public void setBold(URI boldObject) {
 		this.setBold(Arrays.asList(boldObject));
 	}
 
 	@Override
-	public void setBold(Collection<?> boldObjects) {
+	public void setBold(Collection<URI> boldObjects) {
 		if (this.boldObjects != boldObjects) {
 			List<Object> update = new ArrayList<Object>();
 			if (this.boldObjects != null) {

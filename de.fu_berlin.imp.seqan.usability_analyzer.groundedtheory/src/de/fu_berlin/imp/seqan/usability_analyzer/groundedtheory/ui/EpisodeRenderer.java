@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
+import java.net.URI;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -419,7 +420,8 @@ public class EpisodeRenderer implements IDisposable {
 				// color with different color)
 				if (this.renderingColors.containsKey(episode)) {
 					try {
-						List<ICode> codes = this.codeService.getCodes(episode);
+						List<ICode> codes = this.codeService.getCodes(episode
+								.getUri());
 						CodeColors renderingColor = this.renderingColors
 								.get(episode);
 						if (codes.size() == 0
@@ -440,7 +442,8 @@ public class EpisodeRenderer implements IDisposable {
 				// create all missing colors
 				if (!this.renderingColors.containsKey(episode)) {
 					try {
-						List<ICode> codes = this.codeService.getCodes(episode);
+						List<ICode> codes = this.codeService.getCodes(episode
+								.getUri());
 						if (codes.size() > 0) {
 							this.renderingColors.put(episode, new CodeColors(
 									codes.get(0).getColor()));
@@ -468,7 +471,7 @@ public class EpisodeRenderer implements IDisposable {
 
 				// draw overlay icons
 				try {
-					if (this.codeService.getCodes(episode).size() > 0) {
+					if (this.codeService.getCodes(episode.getUri()).size() > 0) {
 						Image overlay = ImageManager.OVERLAY_CODED_IMG;
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
@@ -487,7 +490,7 @@ public class EpisodeRenderer implements IDisposable {
 										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
 												: -3));
 					}
-					if (this.codeService.isMemo(episode)) {
+					if (this.codeService.isMemo(episode.getUri())) {
 						Image overlay = ImageManager.OVERLAY_MEMO_IMG;
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
@@ -663,8 +666,7 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		@Override
-		public void memoModified(
-				de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable locatable) {
+		public void memoModified(URI uri) {
 			this.redraw();
 		};
 

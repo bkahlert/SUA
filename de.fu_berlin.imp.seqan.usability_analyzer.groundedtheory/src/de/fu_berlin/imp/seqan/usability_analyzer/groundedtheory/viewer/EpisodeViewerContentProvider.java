@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +14,6 @@ import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -31,7 +32,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -46,8 +47,7 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> removedCodes,
-				List<ILocatable> locatables) {
+		public void codesRemoved(List<ICode> removedCodes, List<URI> uris) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -63,30 +63,16 @@ public class EpisodeViewerContentProvider implements
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
+		public void memoAdded(URI uri) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
-		public void memoAdded(ILocatable locatable) {
-			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
-		}
-
-		@Override
-		public void memoModified(ICode code) {
-		}
-
-		@Override
-		public void memoModified(ILocatable locatable) {
+		public void memoModified(URI uri) {
 		};
 
 		@Override
-		public void memoRemoved(ICode code) {
-			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
-		}
-
-		@Override
-		public void memoRemoved(ILocatable locatable) {
+		public void memoRemoved(URI uri) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -153,6 +139,17 @@ public class EpisodeViewerContentProvider implements
 	}
 
 	@Override
+	public Object[] getElements(Object inputElement) {
+		if (!(inputElement instanceof ICodeService)) {
+			return new Object[0];
+		}
+	
+		List<IIdentifier> identifiers = ((ICodeService) inputElement)
+				.getEpisodedIdentifiers();
+		return identifiers.toArray();
+	}
+
+	@Override
 	public Object getParent(Object element) {
 		if (IEpisode.class.isInstance(element)) {
 			return ((IEpisode) element).getIdentifier();
@@ -171,22 +168,15 @@ public class EpisodeViewerContentProvider implements
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (IIdentifier.class.isInstance(parentElement)) {
-			Set<IEpisode> episodes = this.codeService
-					.getEpisodes((IIdentifier) parentElement);
-			return episodes.size() > 0 ? episodes.toArray() : null;
+			List<IEpisode> episodes = new ArrayList<IEpisode>(
+					this.codeService.getEpisodes((IIdentifier) parentElement));
+			URI[] uris = new URI[episodes.size()];
+			for (int i = 0; i < episodes.size(); i++) {
+				uris[i] = episodes.get(i).getUri();
+			}
+			return uris;
 		}
-		return null;
-	}
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		if (!(inputElement instanceof ICodeService)) {
-			return new Object[0];
-		}
-
-		List<IIdentifier> identifiers = ((ICodeService) inputElement)
-				.getEpisodedIdentifiers();
-		return identifiers.toArray();
+		return new URI[0];
 	}
 
 }

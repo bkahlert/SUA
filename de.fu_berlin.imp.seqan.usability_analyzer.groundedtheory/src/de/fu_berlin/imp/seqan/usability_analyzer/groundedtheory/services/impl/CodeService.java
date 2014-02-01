@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -19,7 +19,6 @@ import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -44,8 +43,8 @@ public class CodeService implements ICodeService {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
+
+	private ILocatorService locatorService;
 
 	@SuppressWarnings("unused")
 	private ComponentContext context;
@@ -54,6 +53,13 @@ public class CodeService implements ICodeService {
 
 	public CodeService() throws IOException {
 		this(new CodeStoreFactory().getCodeStore());
+		try {
+			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
+					.getService(ILocatorService.class);
+		} catch (IllegalStateException e) {
+			this.locatorService = null;
+		}
+
 	}
 
 	public CodeService(ICodeStore codeStore) throws IOException {
@@ -99,12 +105,6 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public List<ICode> getCodes(ILocatable locatable)
-			throws CodeServiceException {
-		return this.getCodes(locatable.getUri());
-	}
-
-	@Override
 	public List<ICode> getCodes(URI uri) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
 		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
@@ -116,21 +116,20 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public ICode addCode(String codeCaption, RGB color, ILocatable locatable)
+	public ICode addCode(String codeCaption, RGB color, URI uri)
 			throws CodeServiceException {
 		ICode code = this.createCode(codeCaption, color);
-		this.addCode(code, locatable);
+		this.addCode(code, uri);
 		return code;
 	}
 
 	@Override
-	public void addCode(ICode code, final ILocatable locatable)
-			throws CodeServiceException {
-		this.addCodes(Arrays.asList(code), Arrays.asList(locatable));
+	public void addCode(ICode code, final URI uri) throws CodeServiceException {
+		this.addCodes(Arrays.asList(code), Arrays.asList(uri));
 	}
 
 	@Override
-	public void addCodes(List<ICode> codes, List<ILocatable> locatables)
+	public void addCodes(List<ICode> codes, List<URI> uris)
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {
@@ -140,15 +139,18 @@ public class CodeService implements ICodeService {
 				}
 			}
 			ICodeInstance[] codeInstances = this.codeStore.createCodeInstances(
-					codes.toArray(new ICode[0]),
-					locatables.toArray(new ILocatable[0]));
+					codes.toArray(new ICode[0]), uris.toArray(new URI[0]));
 			this.codeStore.addAndSaveCodeInstances(codeInstances);
-			this.codeServiceListenerNotifier.codeAssigned(codes, locatables);
+			this.codeServiceListenerNotifier.codeAssigned(codes, uris);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeStoreReadException e) {
 			throw new CodeServiceException(e);
 		} catch (DuplicateCodeInstanceException e) {
+			throw new CodeServiceException(e);
+		} catch (InvalidParameterException e) {
+			throw new CodeServiceException(e);
+		} catch (CodeStoreFullException e) {
 			throw new CodeServiceException(e);
 		}
 	}
@@ -207,7 +209,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void putInstances(ICode code, List<ILocatable> instances) {
+	public void putInstances(ICode code, List<URI> uris) {
 		// TODO Auto-generated method stub
 
 	}
@@ -274,7 +276,7 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void removeCodes(List<ICode> codes, final ILocatable locatable)
+	public void removeCodes(List<ICode> codes, final URI uri)
 			throws CodeServiceException {
 		if (codes.size() == 0) {
 			return;
@@ -283,7 +285,7 @@ public class CodeService implements ICodeService {
 			List<ICode> removedCodes = new LinkedList<ICode>();
 			for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
 				if (codes.contains(codeInstance.getCode())
-						&& codeInstance.getId().equals(locatable.getUri())) {
+						&& codeInstance.getId().equals(uri)) {
 					this.codeStore.deleteCodeInstance(codeInstance);
 					removedCodes.add(codeInstance.getCode());
 				}
@@ -293,7 +295,7 @@ public class CodeService implements ICodeService {
 			}
 
 			this.codeServiceListenerNotifier.codesRemoved(removedCodes,
-					Arrays.asList(locatable));
+					Arrays.asList(uri));
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
@@ -339,39 +341,23 @@ public class CodeService implements ICodeService {
 		try {
 			this.codeStore.deleteCodeInstance(codeInstance);
 			ICode code = codeInstance.getCode();
-			List<ILocatable> locatables = Arrays.asList(this.locatorService
-					.resolve(codeInstance.getId(), null).get());
 			this.codeServiceListenerNotifier.codesRemoved(Arrays.asList(code),
-					locatables);
+					Arrays.asList(codeInstance.getId()));
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeInstanceDoesNotExistException e) {
 			throw new CodeServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CodeServiceException(e);
-		} catch (ExecutionException e) {
-			throw new CodeServiceException(e);
 		}
 	}
 
 	@Override
-	public String loadMemo(ICode code) {
-		return this.codeStore.getMemo(code);
+	public String loadMemo(URI uri) {
+		return this.codeStore.getMemo(uri);
 	}
 
 	@Override
-	public String loadMemo(ICodeInstance codeInstance) {
-		return this.codeStore.getMemo(codeInstance);
-	}
-
-	@Override
-	public String loadMemo(ILocatable locatable) {
-		return this.codeStore.getMemo(locatable);
-	}
-
-	@Override
-	public void setMemo(ICode code, String html) throws CodeServiceException {
-		String oldHtml = this.codeStore.getMemo(code);
+	public void setMemo(URI uri, String html) throws CodeServiceException {
+		String oldHtml = this.codeStore.getMemo(uri);
 
 		if (oldHtml == null || oldHtml.trim().isEmpty()) {
 			oldHtml = "";
@@ -384,13 +370,13 @@ public class CodeService implements ICodeService {
 		}
 
 		try {
-			this.codeStore.setMemo(code, html);
+			this.codeStore.setMemo(uri, html);
 			if (oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoAdded(code, html);
+				this.codeServiceListenerNotifier.memoAdded(uri, html);
 			} else if (!oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoModified(code, html);
+				this.codeServiceListenerNotifier.memoModified(uri, html);
 			} else if (!oldHtml.equals("") && html.equals("")) {
-				this.codeServiceListenerNotifier.memoRemoved(code, html);
+				this.codeServiceListenerNotifier.memoRemoved(uri, html);
 			} else {
 				throw new CodeStoreWriteException("STATE ERROR");
 			}
@@ -400,84 +386,8 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void setMemo(ICodeInstance codeInstance, String html)
-			throws CodeServiceException {
-		String oldHtml = this.codeStore.getMemo(codeInstance);
-
-		if (oldHtml == null || oldHtml.trim().isEmpty()) {
-			oldHtml = "";
-		}
-		if (html == null || html.trim().isEmpty()) {
-			html = "";
-		}
-		if (oldHtml.equals(html)) {
-			return;
-		}
-
-		try {
-			this.codeStore.setMemo(codeInstance, html);
-			if (oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoAdded(codeInstance, html);
-			} else if (!oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoModified(codeInstance,
-						html);
-			} else if (!oldHtml.equals("") && html.equals("")) {
-				this.codeServiceListenerNotifier
-						.memoRemoved(codeInstance, html);
-			} else {
-				throw new CodeStoreWriteException("STATE ERROR");
-			}
-		} catch (CodeStoreWriteException e) {
-			throw new CodeServiceException(e);
-		}
-	}
-
-	@Override
-	public void setMemo(ILocatable locatable, String html)
-			throws CodeServiceException {
-		String oldHtml = this.codeStore.getMemo(locatable);
-
-		if (oldHtml == null || oldHtml.trim().isEmpty()) {
-			oldHtml = "";
-		}
-		if (html == null || html.trim().isEmpty()) {
-			html = "";
-		}
-		if (oldHtml.equals(html)) {
-			return;
-		}
-
-		try {
-			this.codeStore.setMemo(locatable, html);
-			if (oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoAdded(locatable, html);
-			} else if (!oldHtml.equals("") && !html.equals("")) {
-				this.codeServiceListenerNotifier.memoModified(locatable, html);
-			} else if (!oldHtml.equals("") && html.equals("")) {
-				this.codeServiceListenerNotifier.memoRemoved(locatable, html);
-			} else {
-				throw new CodeStoreWriteException("STATE ERROR");
-			}
-		} catch (CodeStoreWriteException e) {
-			throw new CodeServiceException(e);
-		}
-	}
-
-	@Override
-	public boolean isMemo(ICode code) {
-		String html = this.codeStore.getMemo(code);
-		return html != null && !html.trim().isEmpty();
-	}
-
-	@Override
-	public boolean isMemo(ILocatable locatable) {
-		String html = this.codeStore.getMemo(locatable);
-		return html != null && !html.trim().isEmpty();
-	}
-
-	@Override
-	public boolean isMemo(ICodeInstance codeInstance) {
-		String html = this.codeStore.getMemo(codeInstance);
+	public boolean isMemo(URI uri) {
+		String html = this.codeStore.getMemo(uri);
 		return html != null && !html.trim().isEmpty();
 	}
 
@@ -529,11 +439,13 @@ public class CodeService implements ICodeService {
 		}
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
-			this.locatorService.uncache(oldEpisode.getUri());
+			if (this.locatorService != null) {
+				this.locatorService.uncache(oldEpisode.getUri());
+			}
 			episodes.remove(oldEpisode);
 			episodes.add(newEpisode);
 
-			this.reattachAndSave(oldEpisode, newEpisode);
+			this.reattachAndSave(oldEpisode.getUri(), newEpisode.getUri());
 
 			this.codeServiceListenerNotifier.episodeReplaced(oldEpisode,
 					newEpisode);
@@ -549,10 +461,12 @@ public class CodeService implements ICodeService {
 		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
-				this.locatorService.uncache(episodeToDelete.getUri());
+				if (this.locatorService != null) {
+					this.locatorService.uncache(episodeToDelete.getUri());
+				}
 				episodes.remove(episodeToDelete);
-				this.removeCodes(this.getCodes(episodeToDelete),
-						episodeToDelete);
+				this.removeCodes(this.getCodes(episodeToDelete.getUri()),
+						episodeToDelete.getUri());
 				deletedEpisodes.add(episodeToDelete);
 			}
 		}
@@ -573,18 +487,19 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void reattachAndSave(ILocatable src, ILocatable dest)
-			throws CodeServiceException {
+	public void reattachAndSave(URI src, URI dest) throws CodeServiceException {
 		if (src == null || dest == null) {
 			throw new CodeServiceException(new IllegalArgumentException(
 					"Arguments must not be null"));
 		}
 
-		this.locatorService.uncache(src.getUri());
+		if (this.locatorService != null) {
+			this.locatorService.uncache(src);
+		}
 
 		List<ICode> codes = this.getCodes(src);
 		this.removeCodes(codes, src);
-		this.addCodes(codes, new LinkedList<ILocatable>(Arrays.asList(dest)));
+		this.addCodes(codes, new LinkedList<URI>(Arrays.asList(dest)));
 
 		String memo = this.loadMemo(src);
 		this.setMemo(src, null);

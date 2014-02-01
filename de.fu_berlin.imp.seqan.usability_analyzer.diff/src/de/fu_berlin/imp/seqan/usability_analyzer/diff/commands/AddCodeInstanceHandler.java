@@ -56,10 +56,11 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 		ILocatable locatable = (ILocatable) Platform.getAdapterManager()
 				.getAdapter(selection, ILocatable.class);
 		if (locatable != null) {
-			WizardUtils.openAddCodeWizard(locatable, null); // TODO null
-															// durch
-															// Farbe
-															// setzen
+			WizardUtils.openAddCodeWizard(locatable.getUri(), null); // TODO
+																		// null
+			// durch
+			// Farbe
+			// setzen
 		}
 		return null;
 	}

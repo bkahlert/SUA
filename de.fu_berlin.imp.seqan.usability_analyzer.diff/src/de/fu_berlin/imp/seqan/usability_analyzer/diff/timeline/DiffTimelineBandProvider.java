@@ -251,7 +251,8 @@ public class DiffTimelineBandProvider
 				if (event instanceof IDiff) {
 					IDiff diff = (IDiff) event;
 					try {
-						for (ICode code : this.codeService.getCodes(diff)) {
+						for (ICode code : this.codeService.getCodes(diff
+								.getUri())) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {
@@ -261,7 +262,8 @@ public class DiffTimelineBandProvider
 				if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
 					try {
-						for (ICode code : this.codeService.getCodes(diffRecord)) {
+						for (ICode code : this.codeService.getCodes(diffRecord
+								.getUri())) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

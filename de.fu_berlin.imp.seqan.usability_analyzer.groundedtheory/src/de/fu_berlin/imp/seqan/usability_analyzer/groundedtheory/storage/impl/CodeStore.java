@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.TreeSet;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.data.TreeNode;
@@ -55,6 +57,9 @@ class CodeStore implements ICodeStore {
 
 	@XStreamAlias("createdIDs")
 	private Set<Long> createdIds = null;
+
+	@XStreamAlias("createdCodeInstanceIDs")
+	private Set<Long> createdCodeInstanceIds = null;
 
 	@XStreamAlias("codeTrees")
 	private LinkedList<TreeNode<ICode>> codeTrees = null;
@@ -97,6 +102,9 @@ class CodeStore implements ICodeStore {
 			if (codeStore.codeTrees == null) {
 				codeStore.codeTrees = new LinkedList<TreeNode<ICode>>();
 			}
+			if (codeStore.createdCodeInstanceIds == null) {
+				codeStore.createdCodeInstanceIds = new HashSet<Long>();
+			}
 			if (codeStore.codeInstances == null) {
 				codeStore.codeInstances = new HashSet<ICodeInstance>();
 			}
@@ -107,6 +115,9 @@ class CodeStore implements ICodeStore {
 				codeStore.episodes = new NoNullSet<IEpisode>();
 			}
 
+			sanityCheckCodeIds(codeStore);
+			sanityCheckCodeInstanceIds(codeStore);
+
 			return codeStore;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return new CodeStore(codeStoreFile);
@@ -116,9 +127,53 @@ class CodeStore implements ICodeStore {
 		}
 	}
 
+	private static Set<Long> sanityCheckCodeIds(CodeStore codeStore)
+			throws CodeStoreReadException {
+		Set<Long> codeIds = new HashSet<Long>();
+		for (ICode code : codeStore.getCodes()) {
+			if (!codeIds.contains(code.getId())) {
+				codeIds.add(code.getId());
+			} else {
+				throw new CodeStoreReadException(new Throwable("Duplicate "
+						+ ICode.class.getSimpleName() + " ID found: "
+						+ code.getId()));
+			}
+		}
+		if (!codeStore.createdIds.containsAll(codeIds)) {
+			logger.error(CodeStore.class.getSimpleName()
+					+ " contains "
+					+ ICode.class.getSimpleName()
+					+ " whose IDs are not part of the set of created IDs. There must be an implementation error. Unknown ID will be automatically added now.");
+			codeStore.createdIds.addAll(codeIds);
+		}
+		return codeIds;
+	}
+
+	private static void sanityCheckCodeInstanceIds(CodeStore codeStore)
+			throws CodeStoreReadException {
+		Set<Long> codeInstanceIds = new HashSet<Long>();
+		for (ICodeInstance codeInstance : codeStore.codeInstances) {
+			if (!codeInstanceIds.contains(codeInstance.getCodeInstanceID())) {
+				codeInstanceIds.add(codeInstance.getCodeInstanceID());
+			} else {
+				throw new CodeStoreReadException(new Throwable("Duplicate "
+						+ ICodeInstance.class.getSimpleName() + " ID found: "
+						+ codeInstance.getId()));
+			}
+		}
+		if (!codeStore.createdCodeInstanceIds.containsAll(codeInstanceIds)) {
+			logger.error(CodeStore.class.getSimpleName()
+					+ " contains "
+					+ ICodeInstance.class.getSimpleName()
+					+ " whose IDs are not part of the set of created IDs. There must be an implementation error. Unknown ID will be automatically added now.");
+			codeStore.createdCodeInstanceIds.addAll(codeInstanceIds);
+		}
+	}
+
 	private CodeStore(File codeStoreFile) {
 		this.codeStoreFile = codeStoreFile;
 		this.createdIds = new TreeSet<Long>();
+		this.createdCodeInstanceIds = new HashSet<Long>();
 		this.codeTrees = new LinkedList<TreeNode<ICode>>();
 		this.codeInstances = new HashSet<ICodeInstance>();
 		this.episodes = new NoNullSet<IEpisode>();
@@ -131,6 +186,16 @@ class CodeStore implements ICodeStore {
 				if (code.getId() == id) {
 					return code;
 				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public ICodeInstance getCodeInstance(long id) {
+		for (ICodeInstance codeInstance : this.codeInstances) {
+			if (codeInstance.getCodeInstanceID() == id) {
+				return codeInstance;
 			}
 		}
 		return null;
@@ -213,18 +278,14 @@ class CodeStore implements ICodeStore {
 	@Override
 	public ICode createCode(String caption, RGB color)
 			throws CodeStoreFullException {
-		Long id = Long.MAX_VALUE;
-		ArrayList<Long> ids = new ArrayList<Long>(this.codeTrees.size());
 		for (TreeNode<ICode> codeTree : this.codeTrees) {
 			for (ICode code : codeTree) {
 				if (code.getId() == Long.MAX_VALUE) {
 					throw new CodeStoreFullException();
 				}
-				ids.add(code.getId());
 			}
 		}
-		ids.addAll(this.createdIds);
-		id = Code.calculateId(ids);
+		long id = Code.calculateId(this.createdIds);
 		this.createdIds.add(id);
 
 		ICode code = new Code(id, caption, color, new TimeZoneDate());
@@ -233,20 +294,47 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ILocatable[] locatables) throws InvalidParameterException,
-			CodeStoreReadException, DuplicateCodeInstanceException {
+	public ICodeInstance[] createCodeInstances(ICode[] codes, URI[] uris)
+			throws InvalidParameterException, CodeStoreReadException,
+			DuplicateCodeInstanceException, CodeStoreFullException {
+		for (ICode code : codes) {
+			Assert.isNotNull(code);
+		}
+		for (URI uri : uris) {
+			Assert.isNotNull(uri);
+		}
+
+		for (ICodeInstance codeInstance : this.codeInstances) {
+			if (codeInstance.getCodeInstanceID() == Long.MAX_VALUE) {
+				throw new CodeStoreFullException();
+			}
+		}
+
 		List<ICodeInstance> duplicateCodeInstances = new LinkedList<ICodeInstance>();
 		List<ICodeInstance> generatedCodeInstances = new LinkedList<ICodeInstance>();
 		for (ICode code : codes) {
 			if (this.assertiveFind(code) != null) {
-				for (ILocatable locatable : locatables) {
-					ICodeInstance codeInstance = new CodeInstance(code,
-							locatable.getUri(), new TimeZoneDate(new Date(),
-									TimeZone.getDefault()));
-					if (this.codeInstances.contains(codeInstance)) {
-						duplicateCodeInstances.add(codeInstance);
-					} else {
+				for (URI uri : uris) {
+					long codeInstanceID = Code
+							.calculateId(this.createdCodeInstanceIds);
+					this.createdIds.add(codeInstanceID);
+
+					ICodeInstance codeInstance = new CodeInstance(
+							codeInstanceID, code, uri, new TimeZoneDate(
+									new Date(), TimeZone.getDefault()));
+
+					boolean successful = true;
+					for (ICodeInstance existing : this.codeInstances) {
+						if (existing.getCode().equals(codeInstance.getCode())
+								&& existing.getId()
+										.equals(codeInstance.getId())) {
+							duplicateCodeInstances.add(existing);
+							duplicateCodeInstances.add(codeInstance);
+							successful = false;
+						}
+					}
+
+					if (successful) {
 						generatedCodeInstances.add(codeInstance);
 					}
 				}
@@ -267,6 +355,7 @@ class CodeStore implements ICodeStore {
 	@Override
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException {
+		this.createdIds.add(code.getId());
 		this.codeTrees.add(new TreeNode<ICode>(code));
 		this.save();
 	}
@@ -280,12 +369,14 @@ class CodeStore implements ICodeStore {
 				abandondedCodeInstances.add(codeInstance);
 			}
 		}
+
 		if (abandondedCodeInstances.size() > 0) {
 			throw new CodeStoreWriteAbandonedCodeInstancesException(
 					abandondedCodeInstances);
 		}
 
 		for (ICodeInstance codeInstance : codeInstances) {
+			this.createdCodeInstanceIds.add(codeInstance.getCodeInstanceID());
 			this.codeInstances.add(codeInstance);
 		}
 
@@ -521,16 +612,15 @@ class CodeStore implements ICodeStore {
 	 * Returns the basename for the given {@link ILocatable} for use in
 	 * conjunction {@link #getMemoLocation(String)}.
 	 * 
-	 * @param locatable
+	 * @param uri
 	 * @return
 	 */
-	protected static String getMemoBasename(ILocatable locatable) {
-		if (locatable == null) {
+	protected static String getMemoBasename(URI uri) {
+		if (uri == null) {
 			throw new InvalidParameterException();
 		}
 		try {
-			return "codeInstance_"
-					+ URLEncoder.encode(locatable.getUri().toString(), "UTF-8");
+			return "codeInstance_" + URLEncoder.encode(uri.toString(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
@@ -608,16 +698,15 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public String getMemo(ILocatable locatable) {
+	public String getMemo(URI uri) {
 		String memo = null;
 		try {
-			memo = this.loadMemo(getMemoBasename(locatable));
+			memo = this.loadMemo(getMemoBasename(uri));
 		} catch (IOException e) {
-			logger.error("Error reading memo for " + locatable);
+			logger.error("Error reading memo for " + uri);
 		}
 		if (memo == null) {
-			return this.memos != null ? this.memos.get(locatable.getUri())
-					: null;
+			return this.memos != null ? this.memos.get(uri) : null;
 		} else {
 			return memo;
 		}
@@ -651,15 +740,14 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void setMemo(ILocatable locatable, String html)
-			throws CodeStoreWriteException {
+	public void setMemo(URI uri, String html) throws CodeStoreWriteException {
 		try {
-			this.saveMemo(getMemoBasename(locatable), html);
+			this.saveMemo(getMemoBasename(uri), html);
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
 		if (this.memos != null) {
-			this.memos.remove(locatable.getUri());
+			this.memos.remove(uri);
 		}
 		this.save();
 	}
@@ -667,5 +755,25 @@ class CodeStore implements ICodeStore {
 	@Override
 	public Set<IEpisode> getEpisodes() {
 		return this.episodes;
+	}
+
+	@Override
+	public String toString() {
+		ICode[] codes = this.getCodes();
+
+		StringBuilder sb = new StringBuilder("Code Store - #codes: "
+				+ codes.length + ", #instances: " + this.codeInstances.size());
+		sb.append("\n");
+		sb.append("- Codes IDs:");
+		for (ICode code : codes) {
+			sb.append(" " + code.getId());
+		}
+		sb.append("\n");
+		sb.append("- Instance IDs:");
+		for (ICodeInstance codeInstance : this.codeInstances) {
+			sb.append(" " + codeInstance.getCodeInstanceID());
+		}
+
+		return sb.toString();
 	}
 }

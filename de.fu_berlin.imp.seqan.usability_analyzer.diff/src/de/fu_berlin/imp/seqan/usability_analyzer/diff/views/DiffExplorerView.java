@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -313,8 +314,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	}
 
 	/**
-	 * Opens the given {@link IIdentifier}s in the {@link UriViewer}. If
-	 * the corresponding {@link IDiff}s could be successfully opened a caller
+	 * Opens the given {@link IIdentifier}s in the {@link UriViewer}. If the
+	 * corresponding {@link IDiff}s could be successfully opened a caller
 	 * defined {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
@@ -405,7 +406,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						public void run() {
 							DiffExplorerView.this.setPartName(partName);
 							DiffExplorerView.this.diffListsViewer
-									.setInput(newOpenedDiffFileLists.values());
+									.setInput(new ArrayList<IDiffs>(
+											newOpenedDiffFileLists.values()));
 							DiffExplorerView.this.diffListsViewer.expandAll();
 						}
 					});
@@ -469,8 +471,9 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	 * @param workSession
 	 */
 	public void load(IWorkSession workSession) {
-		final List<IIdentifier> ids = ArrayUtils.getAdaptableObjects(
-				workSession.getEntities(), IIdentifier.class);
+		final List<IIdentifier> ids = workSession != null ? ArrayUtils
+				.getAdaptableObjects(workSession.getEntities(),
+						IIdentifier.class) : new LinkedList<IIdentifier>();
 		DiffExplorerView.this.open(new HashSet<IIdentifier>(ids), null);
 	}
 

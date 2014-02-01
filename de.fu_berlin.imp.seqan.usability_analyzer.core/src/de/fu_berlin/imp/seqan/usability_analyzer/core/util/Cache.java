@@ -21,7 +21,7 @@ public class Cache<KEY, PAYLOAD> {
 		}
 
 		public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
-			if (this.payload == null) {
+			if (this.usedCount == 0) {
 				if (Cache.this.cacheFetcher != null && key != null) {
 					this.payload = Cache.this.cacheFetcher.fetch(key,
 							progressMonitor);

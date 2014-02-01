@@ -78,7 +78,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 			}
 
 			for (IData diffFile : diffFileDir.getResources()) {
-				if (!Diff.PATTERN.matcher(diffFile.getName()).matches()) {
+				if (!Diff.PATTERN.matcher(diffFile.getName()).matches()
+						&& !Diff.ZIPPED_PATTERN.matcher(diffFile.getName())
+								.matches()) {
 					continue;
 				}
 				ID id = DiffDataUtils.getId(diffFile);
@@ -254,9 +256,15 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	public IDiffs createDiffFiles(IIdentifier identifier,
 			IProgressMonitor progressMonitor) {
 		this.scanIfNecessary(SubMonitor.convert(progressMonitor));
-		IDiffs diffFiles = DiffRecords.create(this.dataLists.get(identifier),
-				this.trunk, this.sourceCache, progressMonitor);
-		return diffFiles;
+		DataList dataList = this.dataLists.get(identifier);
+		if (dataList != null) {
+			IDiffs diffFiles = DiffRecords.create(
+					this.dataLists.get(identifier), this.trunk,
+					this.sourceCache, progressMonitor);
+			return diffFiles;
+		} else {
+			return null;
+		}
 	}
 
 	public void scanIfNecessary(SubMonitor monitor) {

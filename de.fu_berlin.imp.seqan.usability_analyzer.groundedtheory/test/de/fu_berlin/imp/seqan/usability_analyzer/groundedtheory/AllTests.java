@@ -12,7 +12,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.CodeStor
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.AllTests.class,
-		CodeTest.class, CodeStoreTest.class, LocatorUtilsTest.class })
+		CodeTest.class, CodeStoreTest.class, URIUtilsTest.class })
 public class AllTests {
 
 }

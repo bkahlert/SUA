@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,7 +20,6 @@ import com.bkahlert.devel.nebula.wizards.dialogs.CenteredWizardDialog;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 /**
  * Utility class for {@link IWizard}s
@@ -90,9 +90,8 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 */
-	public static AddCodeWizard openAddCodeWizard(List<ILocatable> locatables,
-			RGB initialRGB) {
-		return openWizardSuccessfully(new AddCodeWizard(locatables, initialRGB),
+	public static AddCodeWizard openAddCodeWizard(List<URI> uris, RGB initialRGB) {
+		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB),
 				new Point(800, 600));
 	}
 
@@ -100,18 +99,16 @@ public class WizardUtils {
 	 * Opens a {@link AddCodeWizard} in the SWT thread and returns the displayed
 	 * instance in case of success.
 	 * 
-	 * @param locatable
+	 * @param uri
 	 * @return
 	 */
 	@SuppressWarnings("serial")
-	public static AddCodeWizard openAddCodeWizard(final ILocatable locatable,
-			RGB initialRGB) {
-		return openWizardSuccessfully(new AddCodeWizard(
-				new ArrayList<ILocatable>() {
-					{
-						this.add(locatable);
-					}
-				}, initialRGB), new Point(800, 600));
+	public static AddCodeWizard openAddCodeWizard(final URI uri, RGB initialRGB) {
+		return openWizardSuccessfully(new AddCodeWizard(new ArrayList<URI>() {
+			{
+				this.add(uri);
+			}
+		}, initialRGB), new Point(800, 600));
 	}
 
 	/**

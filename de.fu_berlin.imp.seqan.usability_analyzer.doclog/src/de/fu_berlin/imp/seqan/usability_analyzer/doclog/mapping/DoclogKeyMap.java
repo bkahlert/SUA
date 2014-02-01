@@ -83,6 +83,10 @@ public class DoclogKeyMap {
 	}
 
 	public static DoclogKeyMap load(IData data) throws FileNotFoundException {
+		if (data == null) {
+			throw new FileNotFoundException("null instead of valid "
+					+ DoclogKeyMap.class.getSimpleName() + " file was given");
+		}
 		try {
 			getReadLock(data).lock();
 			return JAXBUtils.unmarshall(DoclogKeyMap.class, data.read());

@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
+import java.net.URI;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IPartListener;
@@ -7,21 +9,19 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-
 public class EditorOnlyMemoView extends AbstractMemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView";
 	private IPartListener partListener = new IPartListener() {
 
-		private ILocatable getLocatable(IWorkbenchPart part) {
+		private URI getLocatable(IWorkbenchPart part) {
 			ISelection selection = SelectionUtils.getSelection(part.getSite()
 					.getWorkbenchWindow());
 			if (selection == null) {
 				return null;
 			}
-			return (ILocatable) Platform.getAdapterManager().getAdapter(
-					selection, ILocatable.class);
+			return (URI) Platform.getAdapterManager().getAdapter(selection,
+					URI.class);
 		}
 
 		@Override
@@ -33,9 +33,9 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 			if (part.getClass() == EditorOnlyMemoView.class) {
 				return;
 			}
-			ILocatable locatable = this.getLocatable(part);
-			if (locatable != null) {
-				EditorOnlyMemoView.this.loadAndClearHistory(locatable);
+			URI uri = this.getLocatable(part);
+			if (uri != null) {
+				EditorOnlyMemoView.this.loadAndClearHistory(uri);
 			}
 		}
 

@@ -116,13 +116,13 @@ public class CodeStoreHelper {
 			}
 		};
 
-		this.codeInstance1 = new CodeInstance(this.code2,
+		this.codeInstance1 = new CodeInstance(1l, this.code2,
 				this.locatable1.getUri(), new TimeZoneDate(
 						"1984-05-15T14:30:00+02:00"));
-		this.codeInstance2 = new CodeInstance(this.code1,
+		this.codeInstance2 = new CodeInstance(2l, this.code1,
 				this.locatable2.getUri(), new TimeZoneDate(
 						"2011-11-11T11:11:11+11:00"));
-		this.codeInstance3 = new CodeInstance(this.code2,
+		this.codeInstance3 = new CodeInstance(3l, this.code2,
 				this.locatable3.getUri(), new TimeZoneDate(
 						"2002-09-23T23:08:01-04:30"));
 
@@ -187,7 +187,11 @@ public class CodeStoreHelper {
 
 		for (ICodeInstance loadedInstance : actualCodeInstances) {
 			for (ICodeInstance instance : expectedCodeInstances) {
-				if (loadedInstance.getId().equals(instance.getId())) {
+				if (loadedInstance.equals(instance)) {
+					Assert.assertEquals(instance.getCodeInstanceID(),
+							loadedInstance.getCodeInstanceID());
+					Assert.assertEquals(instance.getUri(),
+							loadedInstance.getUri());
 					Assert.assertEquals(instance.getCode(),
 							loadedInstance.getCode());
 					Assert.assertEquals(instance.getId(),

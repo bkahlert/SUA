@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
+import java.net.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,8 +14,8 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
@@ -24,7 +25,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EditorOnlyMemoView;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.InformationPresentingEditorView;
 
 /**
  * TODO document
@@ -32,8 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.Informatio
  * @author bkahlert
  * 
  */
-public abstract class AbstractOutputView extends
-		InformationPresentingEditorView<ICompilable> {
+public abstract class AbstractOutputView extends UriPresentingEditorView {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -48,7 +47,7 @@ public abstract class AbstractOutputView extends
 			List<ICompilable> compilables = SelectionUtils.getAdaptableObjects(
 					selection, ICompilable.class);
 			if (compilables.size() > 0) {
-				AbstractOutputView.this.load(compilables.get(0));
+				AbstractOutputView.this.load(compilables.get(0).getUri());
 			}
 		}
 	};
@@ -76,7 +75,7 @@ public abstract class AbstractOutputView extends
 			}
 			ICompilable compilable = this.getCompilable(part);
 			if (compilable != null) {
-				AbstractOutputView.this.load(compilable);
+				AbstractOutputView.this.load(compilable.getUri());
 			}
 		}
 
@@ -100,33 +99,22 @@ public abstract class AbstractOutputView extends
 			.getService(ICodeService.class);
 	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
-		public void memoRemoved(ILocatable locatable) {
+		public void memoRemoved(URI uri) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
-		public void memoRemoved(ICode code) {
+		public void memoAdded(URI uri) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
-		public void memoAdded(ILocatable locatable) {
+		public void codesRemoved(List<ICode> removedCodes, List<URI> uris) {
 			AbstractOutputView.this.refreshHeader();
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
-			AbstractOutputView.this.refreshHeader();
-		}
-
-		@Override
-		public void codesRemoved(List<ICode> removedCodes,
-				List<ILocatable> locatables) {
-			AbstractOutputView.this.refreshHeader();
-		}
-
-		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
 			AbstractOutputView.this.refreshHeader();
 		}
 

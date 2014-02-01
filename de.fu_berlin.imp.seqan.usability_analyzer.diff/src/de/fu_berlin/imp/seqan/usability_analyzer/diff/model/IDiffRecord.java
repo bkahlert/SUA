@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.List;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 /**
  * Instances of this class describe a record within a {@link IDiff}.
@@ -15,8 +15,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
  * @author bkahlert
  * 
  */
-public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier, IOpenable,
-		ICompilable {
+public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier,
+		IOpenable, ICompilable {
+
+	/**
+	 * Flags that may apply to an instance of {@link IDiffRecord}
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
+	public static enum FLAGS {
+		RESTORED;
+	}
 
 	/**
 	 * Returns the {@link IDiff} this {@link IDiffRecord} belongs to.
@@ -26,18 +36,19 @@ public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier, IO
 	public IDiff getDiffFile();
 
 	/**
-	 * Returns the call that was used to generate this {@link IDiffRecord}.
-	 * 
-	 * @return
-	 */
-	public String getCommandLine();
-
-	/**
 	 * Returns the name of the file this {@link IDiffRecord} symbolizes.
 	 * 
 	 * @return
 	 */
 	public String getFilename();
+
+	/**
+	 * Returns the call that was used to generate this {@link IDiffRecord}.
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	public String getCommandLine();
 
 	/**
 	 * Returns the complete patch
@@ -65,6 +76,7 @@ public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier, IO
 	 * 
 	 * @return list of patch lines
 	 */
+	@Deprecated
 	public List<String> getPatchLines();
 
 	/**
@@ -104,5 +116,9 @@ public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier, IO
 	 * @return
 	 */
 	public IDiffRecord getPredecessor();
+
+	public FLAGS[] getFlags();
+
+	public boolean hasFlag(FLAGS flag);
 
 }

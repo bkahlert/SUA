@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +11,6 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorService.DelayableThread;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -71,7 +71,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
+	public void codesAssigned(List<ICode> codes, List<URI> uris) {
 		this.scheduleRefresh();
 	}
 
@@ -86,8 +86,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codesRemoved(List<ICode> removedCodes,
-			List<ILocatable> locatables) {
+	public void codesRemoved(List<ICode> removedCodes, List<URI> uris) {
 		this.scheduleRefresh();
 	}
 
@@ -102,30 +101,16 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void memoAdded(ICode code) {
+	public void memoAdded(URI uri) {
 		this.scheduleRefresh();
 	}
 
 	@Override
-	public void memoAdded(ILocatable locatable) {
-		this.scheduleRefresh();
+	public void memoModified(URI uri) {
 	}
 
 	@Override
-	public void memoModified(ICode code) {
-	}
-
-	@Override
-	public void memoModified(ILocatable locatable) {
-	}
-
-	@Override
-	public void memoRemoved(ICode code) {
-		this.scheduleRefresh();
-	}
-
-	@Override
-	public void memoRemoved(ILocatable locatable) {
+	public void memoRemoved(URI uri) {
 		this.scheduleRefresh();
 	}
 

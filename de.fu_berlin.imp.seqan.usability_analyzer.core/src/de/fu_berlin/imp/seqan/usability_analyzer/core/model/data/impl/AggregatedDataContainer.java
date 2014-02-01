@@ -30,7 +30,9 @@ public class AggregatedDataContainer implements IDataContainer {
 			builder.append(container.toString());
 			builder.append(", ");
 		}
-		builder.setLength(builder.length() - 2);
+		if (builder.length() >= 2) {
+			builder.setLength(builder.length() - 2);
+		}
 		return builder.toString();
 	}
 

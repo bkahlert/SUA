@@ -32,8 +32,13 @@ public class SourceCache implements ISourceStore {
 	 * java.lang.String)
 	 */
 	@Override
-	public File getSourceFile(IIdentifier id, long revision, String filename)
+	public File getSourceFile(IIdentifier id, String revision, String filename)
 			throws IOException {
+		try {
+			revision = Long.parseLong(revision) + "";
+		} catch (NumberFormatException e) {
+			// just wanted to try to remove the leading zeros
+		}
 		return this.baseDataContainer.getStaticFile(this.scope, id + "/"
 				+ revision + "/" + filename);
 	}
@@ -47,8 +52,8 @@ public class SourceCache implements ISourceStore {
 	 * java.lang.String, java.io.File)
 	 */
 	@Override
-	public void setSourceFile(IIdentifier id, long revision, String filename, File file)
-			throws IOException {
+	public void setSourceFile(IIdentifier id, String revision, String filename,
+			File file) throws IOException {
 
 		this.baseDataContainer.putFile(this.scope, id + "/" + revision + "/"
 				+ filename, file);

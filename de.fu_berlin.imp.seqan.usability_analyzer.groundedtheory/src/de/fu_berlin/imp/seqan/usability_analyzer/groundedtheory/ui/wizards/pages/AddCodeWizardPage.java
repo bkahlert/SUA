@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.pages;
 
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -20,7 +21,6 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.widgets.ColorPicker;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
 
 /**
@@ -47,15 +47,15 @@ public class AddCodeWizardPage extends ORWizardPage {
 
 	public AddCodeWizardPage(RGB rgb) {
 		super(AddCodeWizardPage.class.getName(), 2);
-		setTitle("Add Code");
-		setDescription(DESCRIPTION);
+		this.setTitle("Add Code");
+		this.setDescription(DESCRIPTION);
 		this.initialRGB = rgb;
 	}
 
 	@Override
 	public void fillContent(Composite... contentComposites) {
-		fillLeftColumn(contentComposites[0]);
-		fillRightColumn(contentComposites[1]);
+		this.fillLeftColumn(contentComposites[0]);
+		this.fillRightColumn(contentComposites[1]);
 	}
 
 	protected void fillLeftColumn(Composite composite) {
@@ -75,14 +75,16 @@ public class AddCodeWizardPage extends ORWizardPage {
 		this.newCodeCaption.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				updateCompletion(newCodeCaption.getText());
+				AddCodeWizardPage.this
+						.updateCompletion(AddCodeWizardPage.this.newCodeCaption
+								.getText());
 			}
 		});
 
-		colorPicker = new ColorPicker(centerWrapper,
+		this.colorPicker = new ColorPicker(centerWrapper,
 				this.initialRGB.toClassicRGB());
-		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
-				false));
+		this.colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER,
+				false, false));
 	}
 
 	protected void fillRightColumn(Composite composite) {
@@ -98,9 +100,9 @@ public class AddCodeWizardPage extends ORWizardPage {
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override
 					public void selectionChanged(SelectionChangedEvent event) {
-						updatePageCompletion(SelectionUtils
+						AddCodeWizardPage.this.updatePageCompletion(SelectionUtils
 								.getAdaptableObjects(event.getSelection(),
-										ICode.class));
+										URI.class));
 					}
 				});
 		this.codeViewer.getViewer().expandAll();
@@ -110,20 +112,20 @@ public class AddCodeWizardPage extends ORWizardPage {
 		if (!newCodeCaption.isEmpty()) {
 			this.setMessage(DESCRIPTION);
 			this.setErrorMessage(null);
-			createCode = true;
-			setPageComplete(true);
+			this.createCode = true;
+			this.setPageComplete(true);
 		} else {
 			this.setErrorMessage("A new code must not be empty!");
 			this.setPageComplete(false);
 		}
 	}
 
-	private void updatePageCompletion(List<ICode> newCodes) {
+	private void updatePageCompletion(List<URI> newCodes) {
 		if (newCodes.size() > 0) {
 			this.setMessage(DESCRIPTION);
 			this.setErrorMessage(null);
-			createCode = false;
-			setPageComplete(true);
+			this.createCode = false;
+			this.setPageComplete(true);
 		} else {
 			this.setErrorMessage("You must select at least one code!");
 			this.setPageComplete(false);
@@ -142,8 +144,8 @@ public class AddCodeWizardPage extends ORWizardPage {
 		return new RGB(this.colorPicker.getRGB());
 	}
 
-	public List<ICode> getExistingCodes() {
+	public List<URI> getExistingCodes() {
 		return SelectionUtils.getAdaptableObjects(
-				this.codeViewer.getSelection(), ICode.class);
+				this.codeViewer.getSelection(), URI.class);
 	}
 }

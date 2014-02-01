@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 
@@ -19,28 +20,46 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.LocatableUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
 
-public class DoclogLocatorProvider implements ILocatorProvider {
+public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogLocatorProvider.class);
 
 	public static final String DOCLOG_NAMESPACE = "doclog";
 
+	@SuppressWarnings("unchecked")
+	public DoclogLocatorProvider() {
+		super(Doclog.class);
+	}
+
 	@Override
-	public String[] getAllowedNamespaces() {
-		return new String[] { DOCLOG_NAMESPACE };
+	public boolean isResolvabilityImpossible(URI uri) {
+		return !"sua".equalsIgnoreCase(uri.getScheme())
+				|| !DOCLOG_NAMESPACE.equals(uri.getHost());
+	}
+
+	@Override
+	public Class<? extends ILocatable> getType(URI uri) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
+
+		return Doclog.class;
 	}
 
 	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
 		String[] path = uri.getRawPath().substring(1).split("/");
 
 		// 0: ID / Fingerprint
@@ -80,36 +99,36 @@ public class DoclogLocatorProvider implements ILocatorProvider {
 	}
 
 	@Override
-	public boolean showInWorkspace(ILocatable[] locatables, boolean open,
+	public boolean showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor) {
-		if (locatables.length > 0) {
-			ILocatable[] selected = this.openAndSelectFilesInExplorer(
-					locatables, (DoclogExplorerView) WorkbenchUtils
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		if (uris.length > 0) {
+			URI[] selected = this.openAndSelectFilesInExplorer(uris,
+					(DoclogExplorerView) WorkbenchUtils
 							.getView(DoclogExplorerView.ID));
-			return selected.length == locatables.length;
+			return selected.length == uris.length;
 		}
+		subMonitor.done();
+
 		return true;
 	}
 
-	public ILocatable[] openAndSelectFilesInExplorer(
-			final ILocatable[] locatables,
+	public URI[] openAndSelectFilesInExplorer(final URI[] uris,
 			final DoclogExplorerView doclogExplorerView) {
-		Set<IIdentifier> identifiers = LocatableUtils
-				.getIdentifiers(locatables);
+		Set<IIdentifier> identifiers = URIUtils.getIdentifiers(uris);
 
 		// open
-		Future<ILocatable[]> rt = doclogExplorerView.open(identifiers,
-				new Callable<ILocatable[]>() {
+		Future<URI[]> rt = doclogExplorerView.open(identifiers,
+				new Callable<URI[]>() {
 					@Override
-					public ILocatable[] call() {
+					public URI[] call() {
 						TreeViewer viewer = doclogExplorerView
 								.getDoclogFilesViewer();
-						viewer.setSelection(
-								new StructuredSelection(locatables), true);
-						List<ILocatable> selectedLocatables = SelectionUtils
+						viewer.setSelection(new StructuredSelection(uris), true);
+						List<URI> selectedLocatables = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
-										ILocatable.class);
-						return selectedLocatables.toArray(new ILocatable[0]);
+										URI.class);
+						return selectedLocatables.toArray(new URI[0]);
 					}
 				});
 		try {

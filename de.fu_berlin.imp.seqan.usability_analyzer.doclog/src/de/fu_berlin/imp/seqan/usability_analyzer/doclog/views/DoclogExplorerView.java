@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,16 +91,16 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 	private Map<Object, Doclog> openedDoclogFiles = new HashMap<Object, Doclog>();
 
-	private IWorkSessionService workSessionService;
-	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+	private final IWorkSessionService workSessionService;
+	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
 			DoclogExplorerView.this.load(workSession);
 		}
 	};
 
-	private IHighlightService highlightService;
-	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
+	private final IHighlightService highlightService;
+	private final IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
 		public void highlight(Object sender, TimeZoneDateRange[] ranges,
 				boolean moveInsideViewport) {
@@ -158,7 +159,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		}
 	};
 
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private TreeViewer treeViewer;
 
 	private DateRangeFilter dateRangeFilter = null;
@@ -385,7 +386,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 						public void run() {
 							DoclogExplorerView.this.setPartName(partName);
 							DoclogExplorerView.this.treeViewer
-									.setInput(newOpenedDoclogFiles.values());
+									.setInput(new LinkedList<Doclog>(
+											newOpenedDoclogFiles.values()));
 							DoclogExplorerView.this.treeViewer.expandAll();
 						}
 					});

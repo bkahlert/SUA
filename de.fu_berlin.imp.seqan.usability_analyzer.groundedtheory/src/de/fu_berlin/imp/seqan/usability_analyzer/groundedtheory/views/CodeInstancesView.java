@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -14,7 +15,6 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeInstanceViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -23,17 +23,20 @@ public class CodeInstancesView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView";
 	private CodeInstanceViewer codeInstanceViewer;
 
-	private ISelectionRetriever<ILocatable> locatableRetriever = SelectionRetrieverFactory
-			.getSelectionRetriever(ILocatable.class);
+	private final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
+			.getSelectionRetriever(URI.class);
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
+	private final ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<ILocatable> locatables = locatableRetriever.getSelection();
-			if (locatables.size() > 0) {
+			if (part == CodeInstancesView.this) {
+				return;
+			}
+			List<URI> uris = CodeInstancesView.this.uriRetriever.getSelection();
+			if (uris.size() > 0) {
 				if (codeInstanceViewer != null
 						&& !codeInstanceViewer.isDisposed()) {
-					codeInstanceViewer.setInput(locatables);
+					CodeInstancesView.this.codeInstanceViewer.setInput(uris);
 				}
 			}
 		}
@@ -41,13 +44,13 @@ public class CodeInstancesView extends ViewPart {
 
 	public CodeInstancesView() {
 		SelectionUtils.getSelectionService().addSelectionListener(
-				selectionListener);
+				this.selectionListener);
 	}
 
 	@Override
 	public void dispose() {
 		SelectionUtils.getSelectionService().removeSelectionListener(
-				selectionListener);
+				this.selectionListener);
 		super.dispose();
 	}
 
@@ -56,7 +59,7 @@ public class CodeInstancesView extends ViewPart {
 		parent.setLayout(new FillLayout());
 		this.codeInstanceViewer = new CodeInstanceViewer(parent, SWT.NONE);
 		this.getSite().setSelectionProvider(this.codeInstanceViewer);
-		new ContextMenu(this.codeInstanceViewer.getViewer(), getSite()) {
+		new ContextMenu(this.codeInstanceViewer.getViewer(), this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
 				// TODO Auto-generated method stub
@@ -70,10 +73,11 @@ public class CodeInstancesView extends ViewPart {
 		this.codeInstanceViewer.setFocus();
 	}
 
-	public ILocatable getLocatable() {
-		if (this.codeInstanceViewer == null)
+	public URI getLocatable() {
+		if (this.codeInstanceViewer == null) {
 			return null;
-		return this.codeInstanceViewer.getLocatable();
+		}
+		return this.codeInstanceViewer.getUri();
 	}
 
 }

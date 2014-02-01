@@ -1,39 +1,70 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey;
 
+import java.net.URI;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.DateId;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocument;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocumentField;
 
-public class SurveyLabelProvider extends InformationLabelProvider {
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+public class SurveyLabelProvider extends UriLabelProvider {
+
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger
+			.getLogger(SurveyLabelProvider.class);
+
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+
+	private static String hash(String text) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] hash = md.digest(text.getBytes("UTF-8"));
+			StringBuilder sb = new StringBuilder(2 * hash.length);
+			for (byte b : hash) {
+				sb.append(String.format("%02x", b & 0xff));
+			}
+			return sb.toString().substring(0, 4);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
-	public String getText(Object element) {
-		if (element instanceof CDDocument) {
-			CDDocument cdDocument = (CDDocument) element;
-			return "CD of " + cdDocument.getIdentifier().toString();
+	public String getText(URI uri) throws Exception {
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == CDDocument.class) {
+			List<String> trail = URIUtils.getTrail(uri);
+			IIdentifier identifier = new DateId(trail.get(0));
+			return hash(identifier.toString());
 		}
-		if (element instanceof CDDocumentField) {
-			CDDocumentField cdDocumentField = (CDDocumentField) element;
-			return "CD field "
-					+ cdDocumentField.getKey()
-					+ " of "
-					+ cdDocumentField.getCdDocument().getIdentifier()
-							.toString();
+		if (type == CDDocumentField.class) {
+			List<String> trail = URIUtils.getTrail(uri);
+			IIdentifier identifier = new DateId(trail.get(0));
+			return hash(identifier.toString()) + " - " + trail.get(1);
 		}
-		return "";
+		return uri.toString();
 	}
 
 	// private boolean hasCodedChildren(IDiff diff) {
@@ -49,67 +80,95 @@ public class SurveyLabelProvider extends InformationLabelProvider {
 	// }
 
 	@Override
-	public Image getImage(Object element) {
-		if (element instanceof CDDocument) {
-			CDDocument cdDocument = (CDDocument) element;
-			return null;
+	public Image getImage(URI uri) throws Exception {
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == CDDocument.class) {
+			try {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_CODED_MEMO
+							: ImageManager.CDDOCUMENT_CODED;
+				} else {
+					return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_MEMO
+							: ImageManager.CDDOCUMENT);
+				}
+			} catch (CodeServiceException e) {
+				return ImageManager.CDDOCUMENT;
+			}
 		}
-		return super.getImage(element);
+		if (type == CDDocumentField.class) {
+			try {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_CODED_MEMO
+							: ImageManager.CDDOCUMENTFIELD_CODED;
+				} else {
+					return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_MEMO
+							: ImageManager.CDDOCUMENTFIELD);
+				}
+			} catch (CodeServiceException e) {
+				return ImageManager.CDDOCUMENTFIELD;
+			}
+		}
+		return PlatformUI.getWorkbench().getSharedImages()
+				.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 	}
 
 	@Override
-	public boolean hasInformation(Object element) {
-		return element instanceof CDDocument
-				|| element instanceof CDDocumentField;
+	public boolean hasInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		return locatable instanceof CDDocument
+				|| locatable instanceof CDDocumentField;
 	}
 
 	@Override
-	public List<IllustratedText> getMetaInformation(Object element) {
+	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		// if (element instanceof IDiff) {
-		// metaEntries.add(new IllustratedText(ImageManager.DIFF, IDiff.class
-		// .getSimpleName()));
-		// }
-		// if (element instanceof IDiffRecord) {
-		// metaEntries.add(new IllustratedText(ImageManager.DIFFRECORD,
-		// DiffRecord.class.getSimpleName()));
-		// }
+		if (locatable instanceof CDDocument) {
+			metaEntries.add(new IllustratedText(getImage(uri), CDDocument.class
+					.getSimpleName()));
+		}
+		if (locatable instanceof CDDocumentField) {
+			metaEntries.add(new IllustratedText(getImage(uri),
+					CDDocumentField.class.getSimpleName()));
+		}
 		return metaEntries;
 	}
 
 	@Override
-	public List<IDetailEntry> getDetailInformation(Object element) {
+	public List<IDetailEntry> getDetailInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
-		// if (element instanceof IDiffRecord) {
-		// IDiffRecord diffRecord = (IDiffRecord) element;
-		// detailEntries.add(new DetailEntry("Filename", diffRecord
-		// .getFilename() != null ? diffRecord.getFilename() : "-"));
-		// detailEntries.add(new DetailEntry("Is Temporary", diffRecord
-		// .isTemporary() ? "Yes" : "No"));
-		// detailEntries.add(new DetailEntry("Source Exists", diffRecord
-		// .sourceExists() ? "Yes" : "No"));
-		//
-		// detailEntries.add(new DetailEntry("Date", (diffRecord
-		// .getDateRange() != null && diffRecord.getDateRange()
-		// .getStartDate() != null) ? diffRecord.getDateRange()
-		// .getStartDate().toISO8601() : "-"));
-		//
-		// Long milliSecondsPassed = diffRecord.getDateRange() != null ?
-		// diffRecord
-		// .getDateRange().getDifference() : null;
-		// detailEntries.add(new DetailEntry("Time Passed",
-		// (milliSecondsPassed != null) ? DurationFormatUtils
-		// .formatDuration(milliSecondsPassed,
-		// new SUACorePreferenceUtil()
-		// .getTimeDifferenceFormat(), true)
-		// : "unknown"));
-		// }
+		if (locatable instanceof CDDocument) {
+			CDDocument cdDocument = (CDDocument) locatable;
+			detailEntries.add(new DetailEntry("Identifier", cdDocument
+					.getIdentifier() != null ? cdDocument.getIdentifier()
+					.toString() : "-"));
+			detailEntries.add(new DetailEntry("Size", Integer
+					.toString(cdDocument.getSize())));
+			detailEntries.add(new DetailEntry("Source Exists", CalendarUtils
+					.toISO8601(cdDocument.getCompleted())));
+
+			for (CDDocumentField field : cdDocument) {
+				detailEntries.add(new DetailEntry(field.getKey(), field
+						.getAnswer()));
+			}
+		}
+		if (locatable instanceof CDDocumentField) {
+			CDDocumentField field = (CDDocumentField) locatable;
+			detailEntries.add(new DetailEntry("Identifier", field
+					.getCdDocument().getIdentifier() != null ? field
+					.getCdDocument().getIdentifier().toString() : "-"));
+			detailEntries.add(new DetailEntry("Key", field.getKey()));
+			detailEntries.add(new DetailEntry("Question", field.getQuestion()));
+			detailEntries.add(new DetailEntry("Answer", field.getAnswer()));
+		}
 		return detailEntries;
 	}
 
 	@Override
-	public Control fillInformation(Object element, Composite composite) {
-		return super.fillInformation(element, composite);
+	public Control fillInformation(URI uri, Composite composite)
+			throws Exception {
+		return super.fillInformation(uri, composite);
 	}
 
 }

@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,10 @@ import org.eclipse.ui.menus.IMenuService;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeInstanceViewer;
 
 public class CodeInformationControlExtender implements
-		IInformationControlExtender<ILocatable> {
+		IInformationControlExtender<URI> {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -35,11 +35,11 @@ public class CodeInformationControlExtender implements
 	}
 
 	@Override
-	public void extend(InformationControl<ILocatable> informationControl,
+	public void extend(InformationControl<URI> informationControl,
 			Composite parent) {
 		this.codeInstanceViewer = new CodeInstanceViewer(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).hint(450, 350)
-				.minSize(450, 300).applyTo(this.codeInstanceViewer);
+		GridDataFactory.fillDefaults().grab(true, true).hint(350, 350)
+				.minSize(350, 300).applyTo(this.codeInstanceViewer);
 
 		final MenuManager menuManager = new MenuManager();
 		Menu popupMenu = menuManager.createContextMenu(this.codeInstanceViewer);
@@ -61,11 +61,11 @@ public class CodeInformationControlExtender implements
 	}
 
 	@Override
-	public void extend(InformationControl<ILocatable> informationControl,
-			ILocatable information) {
-		List<ILocatable> locatables = new ArrayList<ILocatable>();
-		locatables.add(information);
-		this.codeInstanceViewer.setInput(locatables);
+	public void extend(InformationControl<URI> informationControl,
+			URI information) {
+		List<URI> uris = new ArrayList<URI>();
+		uris.add(information);
+		this.codeInstanceViewer.setInput(uris);
 	}
 
 }

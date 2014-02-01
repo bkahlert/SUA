@@ -26,19 +26,18 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		List<ILocatable> locatables = SelectionRetrieverFactory
-				.getSelectionRetriever(ILocatable.class).getSelection();
-		if (InformationControlManagerUtils.getCurrentInput() instanceof ILocatable) {
-			ILocatable input = (ILocatable) InformationControlManagerUtils
-					.getCurrentInput();
-			if (!locatables.contains(input)) {
-				locatables.add(input);
+		List<URI> uris = SelectionRetrieverFactory.getSelectionRetriever(
+				URI.class).getSelection();
+		if (InformationControlManagerUtils.getCurrentInput() instanceof URI) {
+			URI input = (URI) InformationControlManagerUtils.getCurrentInput();
+			if (!uris.contains(input)) {
+				uris.add(input);
 			}
 		}
 
-		if (locatables.size() != 1) {
+		if (uris.size() != 1) {
 			LOGGER.warn(ShowArtifactIDHandler.class.getSimpleName()
-					+ " called with " + locatables.size() + " "
+					+ " called with " + uris.size() + " "
 					+ ILocatable.class.getSimpleName() + "s. Should be 1");
 			return null;
 		}
@@ -49,12 +48,12 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 				.getParameter("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy");
 		if (justCopy == null || !justCopy.equalsIgnoreCase("true")) {
 			ShowArtefactIDDialog artefactIDDialog = new ShowArtefactIDDialog(
-					HandlerUtil.getActiveShell(event), locatables.get(0));
+					HandlerUtil.getActiveShell(event), uris.get(0));
 			doCopy = artefactIDDialog.open() == ShowArtefactIDDialog.COPY_AND_CLOSE_ID;
 		}
 
 		if (doCopy) {
-			URI id = locatables.get(0).getUri();
+			URI id = uris.get(0);
 
 			final Clipboard cb = new Clipboard(HandlerUtil
 					.getActiveShell(event).getDisplay());

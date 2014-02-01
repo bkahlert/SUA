@@ -9,15 +9,16 @@ import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.FileFilterUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
@@ -38,7 +39,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private ILabelProviderService labelProviderService = null;
 	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
-			0, "diff") {
+			0, DiffLocatorProvider.DIFF_NAMESPACE) {
 		@Override
 		protected ILabelProvider create() {
 			return new DiffLabelProvider();

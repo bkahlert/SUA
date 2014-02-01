@@ -1,9 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -14,15 +14,14 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -31,18 +30,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
-public final class GTLabelProvider extends InformationLabelProvider {
+public final class GTLabelProvider extends UriLabelProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(GTLabelProvider.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
-	ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
-	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
 
 	protected Image getMemoAnnotatedImage(Image image) {
 		if (image == null) {
@@ -70,42 +69,31 @@ public final class GTLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public String getText(Object element) {
-		if (ICode.class.isInstance(element)) {
-			ICode code = (ICode) element;
-			return code.getCaption();
-		}
-		if (ICodeInstance.class.isInstance(element)) {
-			ICodeInstance codeInstance = (ICodeInstance) element;
-			try {
-				ILocatable codedObject;
-				codedObject = this.locatorService.resolve(codeInstance.getId(),
-						null).get();
-				if (codedObject != null) {
-					ILabelProvider labelProvider = this.labelProviderService
-							.getLabelProvider(codedObject);
-					return (labelProvider != null) ? labelProvider
-							.getText(codedObject) : "[UNKNOWN ORIGIN]";
-				} else {
-					return codeInstance.getId().toString();
-				}
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			} catch (ExecutionException e) {
-				LOGGER.error(e);
-			}
-			return "ERROR";
-		}
-		if (NoCodesNode.class.isInstance(element)) {
+	public String getText(URI uri) throws Exception {
+		if (NoCodesNode.Uri.equals(uri)) {
 			return "no code";
 		}
-		if (element instanceof IEpisode) {
-			IEpisode episode = (IEpisode) element;
+
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
+		if (ICode.class.isInstance(locatable)) {
+			ICode code = (ICode) locatable;
+			return code.getCaption();
+		}
+		if (ICodeInstance.class.isInstance(locatable)) {
+			ICodeInstance codeInstance = (ICodeInstance) locatable;
+			ILabelProvider labelProvider = this.labelProviderService
+					.getLabelProvider(codeInstance.getId());
+			return (labelProvider != null) ? labelProvider.getText(codeInstance
+					.getId()) : "[UNKNOWN ORIGIN]";
+		}
+		if (locatable instanceof IEpisode) {
+			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
 				List<ICode> codes;
 				try {
-					codes = this.codeService.getCodes(episode);
+					codes = this.codeService.getCodes(episode.getUri());
 					List<String> codeNames = new ArrayList<String>();
 					for (ICode code : codes) {
 						codeNames.add(code.getCaption());
@@ -117,48 +105,37 @@ public final class GTLabelProvider extends InformationLabelProvider {
 			}
 			return name;
 		}
-		return "";
+
+		ILabelProvider labelProvider = this.labelProviderService
+				.getLabelProvider(uri);
+		return (labelProvider != null) ? labelProvider.getText(uri) : "-";
 	}
 
 	@Override
-	public Image getImage(Object element) {
-		if (ICode.class.isInstance(element)) {
-			return this.codeService.isMemo((ICode) element) ? ImageManager.CODE_MEMO
+	public Image getImage(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (ICode.class.isInstance(locatable)) {
+			return this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
 					: ImageManager.CODE;
 		}
-		if (ICodeInstance.class.isInstance(element)) {
-			ICodeInstance codeInstance = (ICodeInstance) element;
-			try {
-				ILocatable codedObject = this.locatorService.resolve(
-						codeInstance.getId(), null).get();
-
-				Image image;
-				if (codedObject != null) {
-					ILabelProvider labelProvider = this.labelProviderService
-							.getLabelProvider(codedObject);
-					image = (labelProvider != null) ? labelProvider
-							.getImage(codedObject) : null;
-				} else {
-					image = PlatformUI.getWorkbench().getSharedImages()
-							.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-				}
-				return (this.codeService.isMemo(codeInstance)) ? this
-						.getMemoAnnotatedImage(image) : image;
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			} catch (ExecutionException e) {
-				LOGGER.error(e);
-			}
+		if (ICodeInstance.class.isInstance(locatable)) {
+			ICodeInstance codeInstance = (ICodeInstance) locatable;
+			ILabelProvider labelProvider = this.labelProviderService
+					.getLabelProvider(codeInstance.getId());
+			Image image = (labelProvider != null) ? labelProvider
+					.getImage(codeInstance.getId()) : null;
+			return (this.codeService.isMemo(uri)) ? this
+					.getMemoAnnotatedImage(image) : image;
 		}
-		if (element instanceof IEpisode) {
-			IEpisode episode = (IEpisode) element;
+		if (locatable instanceof IEpisode) {
+			IEpisode episode = (IEpisode) locatable;
 			Image overlay;
 			try {
-				overlay = (this.codeService.getCodes(episode).size() > 0) ? (this.codeService
-						.isMemo(episode) ? ImageManager.EPISODE_CODED_MEMO
-						: ImageManager.EPISODE_CODED) : (this.codeService
-						.isMemo(episode) ? ImageManager.EPISODE_MEMO
-						: ImageManager.EPISODE);
+				overlay = (this.codeService.getCodes(episode.getUri()).size() > 0) ? (this.codeService
+						.isMemo(episode.getUri()) ? ImageManager.EPISODE_CODED_MEMO
+						: ImageManager.EPISODE_CODED)
+						: (this.codeService.isMemo(episode.getUri()) ? ImageManager.EPISODE_MEMO
+								: ImageManager.EPISODE);
 			} catch (CodeServiceException e) {
 				overlay = ImageManager.EPISODE;
 			}
@@ -175,27 +152,33 @@ public final class GTLabelProvider extends InformationLabelProvider {
 			// gc.copyArea(overlay, 0, 0);
 			// return image;
 		}
-		return super.getImage(element);
+
+		ILabelProvider labelProvider = this.labelProviderService
+				.getLabelProvider(uri);
+		return (labelProvider != null) ? labelProvider.getImage(uri) : null;
 	}
 
 	@Override
-	public boolean hasInformation(Object element) {
-		return element instanceof ICode || element instanceof ICodeInstance
-				|| element instanceof IEpisode;
+	public boolean hasInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		return locatable instanceof ICode || locatable instanceof ICodeInstance
+				|| locatable instanceof IEpisode;
 	}
 
 	@Override
-	public List<IllustratedText> getMetaInformation(Object element) {
+	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		if (element instanceof ICode) {
+		if (locatable instanceof ICode) {
 			metaEntries.add(new IllustratedText(ImageManager.CODE, ICode.class
 					.getSimpleName().substring(1)));
 		}
-		if (element instanceof ICodeInstance) {
+		if (locatable instanceof ICodeInstance) {
 			metaEntries.add(new IllustratedText(ICodeInstance.class
 					.getSimpleName().substring(1)));
 		}
-		if (element instanceof IEpisode) {
+		if (locatable instanceof IEpisode) {
 			metaEntries.add(new IllustratedText(ImageManager.EPISODE,
 					IEpisode.class.getSimpleName().substring(1)));
 		}
@@ -203,10 +186,12 @@ public final class GTLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<IDetailEntry> getDetailInformation(Object element) {
+	public List<IDetailEntry> getDetailInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
-		if (element instanceof ICode) {
-			ICode code = (ICode) element;
+		if (locatable instanceof ICode) {
+			ICode code = (ICode) locatable;
 			detailEntries.add(new DetailEntry("URI", code.getUri().toString()));
 			detailEntries.add(new DetailEntry("Caption", code.getCaption()));
 			detailEntries.add(new DetailEntry("Color", code.getColor()
@@ -214,8 +199,8 @@ public final class GTLabelProvider extends InformationLabelProvider {
 			detailEntries.add(new DetailEntry("Created", code.getCreation()
 					.toISO8601()));
 		}
-		if (element instanceof IEpisode) {
-			IEpisode episode = (IEpisode) element;
+		if (locatable instanceof IEpisode) {
+			IEpisode episode = (IEpisode) locatable;
 			detailEntries.add(new DetailEntry("Owner",
 					episode.getIdentifier() != null ? episode.getIdentifier()
 							.getIdentifier() : ""));
@@ -248,7 +233,8 @@ public final class GTLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public Control fillInformation(Object element, Composite composite) {
-		return super.fillInformation(element, composite);
+	public Control fillInformation(URI uri, Composite composite)
+			throws Exception {
+		return super.fillInformation(uri, composite);
 	}
 }

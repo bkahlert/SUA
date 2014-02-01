@@ -5,13 +5,14 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProviderFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 
@@ -28,7 +29,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private ILabelProviderService labelProviderService = null;
 	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
-			0, "doclog") {
+			0, DoclogLocatorProvider.DOCLOG_NAMESPACE) {
 		@Override
 		protected ILabelProvider create() {
 			return new DoclogLabelProvider();

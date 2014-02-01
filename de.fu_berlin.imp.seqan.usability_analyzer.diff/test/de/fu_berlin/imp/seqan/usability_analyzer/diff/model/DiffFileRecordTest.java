@@ -187,13 +187,13 @@ public class DiffFileRecordTest {
 		};
 		final ISourceStore sourceCache = new ISourceStore() {
 			@Override
-			public void setSourceFile(IIdentifier id, long revision,
+			public void setSourceFile(IIdentifier id, String revision,
 					String filename, File file) throws IOException {
 				return;
 			}
 
 			@Override
-			public File getSourceFile(IIdentifier id, long revision,
+			public File getSourceFile(IIdentifier id, String revision,
 					String filename) throws IOException {
 				return null;
 			}

@@ -86,10 +86,11 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						if (element instanceof Doclog) {
 							Doclog doclog = (Doclog) element;
 							try {
-								return (codeService.getCodes(doclog).size() > 0) ? (codeService
-										.isMemo(doclog) ? ImageManager.DOCLOGFILE_CODED_MEMO
+								return (codeService.getCodes(doclog.getUri())
+										.size() > 0) ? (codeService
+										.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_CODED_MEMO
 										: ImageManager.DOCLOGFILE_CODED)
-										: (codeService.isMemo(doclog) ? ImageManager.DOCLOGFILE_MEMO
+										: (codeService.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_MEMO
 												: ImageManager.DOCLOGFILE);
 							} catch (CodeServiceException e) {
 								return ImageManager.DOCLOGRECORD;
@@ -98,11 +99,12 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						if (element instanceof DoclogRecord) {
 							DoclogRecord doclogRecord = (DoclogRecord) element;
 							try {
-								return (codeService.getCodes(doclogRecord)
-										.size() > 0) ? (codeService
-										.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_CODED_MEMO
+								return (codeService.getCodes(
+										doclogRecord.getUri()).size() > 0) ? (codeService
+										.isMemo(doclogRecord.getUri()) ? ImageManager.DOCLOGRECORD_CODED_MEMO
 										: ImageManager.DOCLOGRECORD_CODED)
-										: (codeService.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_MEMO
+										: (codeService.isMemo(doclogRecord
+												.getUri()) ? ImageManager.DOCLOGRECORD_MEMO
 												: ImageManager.DOCLOGRECORD);
 							} catch (CodeServiceException e) {
 								return ImageManager.DOCLOGRECORD;

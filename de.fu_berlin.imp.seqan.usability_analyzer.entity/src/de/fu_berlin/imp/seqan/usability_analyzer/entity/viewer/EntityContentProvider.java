@@ -1,26 +1,25 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.entity.EntityManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
-public class EntityContentProvider implements IStructuredContentProvider,
-		ITreeContentProvider {
+public class EntityContentProvider extends
+		URIContentProvider<EntityDataContainer> {
 
 	private Viewer viewer;
 
@@ -31,122 +30,108 @@ public class EntityContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void codesAdded(List<ICode> code) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> code, List<ILocatable> locatables) {
-			ViewerUtils.refresh(viewer);
+		public void codesAssigned(List<ICode> code, List<URI> uris) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
-			ViewerUtils.refresh(viewer);
+		public void codesRemoved(List<ICode> codes, List<URI> uris) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
-			ViewerUtils.refresh(viewer);
+		public void memoAdded(URI uri) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
-		public void memoAdded(ILocatable locatable) {
-			ViewerUtils.refresh(viewer);
+		public void memoModified(URI uri) {
 		}
 
 		@Override
-		public void memoModified(ICode code) {
-		}
-
-		@Override
-		public void memoModified(ILocatable locatable) {
-		}
-
-		@Override
-		public void memoRemoved(ICode code) {
-			ViewerUtils.refresh(viewer);
-		}
-
-		@Override
-		public void memoRemoved(ILocatable locatable) {
-			ViewerUtils.refresh(viewer);
+		public void memoRemoved(URI uri) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			ViewerUtils.refresh(viewer);
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 	};
 
 	public EntityContentProvider() {
-		codeService.addCodeServiceListener(codeServiceListener);
+		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	public void inputChanged(Viewer viewer, EntityDataContainer oldInput,
+			EntityDataContainer newInput, Object ignore) {
 		this.viewer = viewer;
 	}
 
 	@Override
 	public void dispose() {
-		codeService.removeCodeServiceListener(codeServiceListener);
+		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
-	public Object getParent(Object element) {
+	public URI[] getTopLevelElements(EntityDataContainer input) {
+		List<Entity> entities = ((EntityDataContainer) input)
+				.getEntityManager().getPersons();
+		URI[] uris = new URI[entities.size()];
+		for (int i = 0; i < uris.length; i++) {
+			uris[i] = entities.get(i).getUri();
+		}
+		return uris;
+	}
+
+	@Override
+	public URI getParent(URI uri) {
 		return null;
 	}
 
 	@Override
-	public boolean hasChildren(Object element) {
+	public boolean hasChildren(URI uri) {
 		return false;
 	}
 
 	@Override
-	public Object[] getChildren(Object parentElement) {
-		return null;
+	public URI[] getChildren(URI parentUri) {
+		return new URI[0];
 	}
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof EntityDataContainer) {
-			return ((EntityDataContainer) inputElement).getEntityManager()
-					.getPersons().toArray();
-		}
-
-		throw new RuntimeException("Invalid Input. Expected "
-				+ EntityManager.class);
-	}
-
 }

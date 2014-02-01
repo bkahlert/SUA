@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -32,9 +34,13 @@ public class AddCodeInstanceHandler extends AbstractHandler {
 				locatables.add(input);
 			}
 		}
+		List<URI> uris = new ArrayList<URI>();
+		for (ILocatable locatable : locatables) {
+			uris.add(locatable.getUri());
+		}
 
 		if (locatables.size() > 0) {
-			WizardUtils.openAddCodeWizard(locatables, Utils.getFancyCodeColor());
+			WizardUtils.openAddCodeWizard(uris, Utils.getFancyCodeColor());
 		}
 
 		return null;

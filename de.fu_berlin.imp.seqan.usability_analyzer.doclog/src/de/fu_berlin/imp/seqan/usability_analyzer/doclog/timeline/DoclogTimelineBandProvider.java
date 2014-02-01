@@ -253,7 +253,7 @@ public class DoclogTimelineBandProvider
 					DoclogRecord doclogRecord = (DoclogRecord) event;
 					try {
 						for (ICode code : this.codeService
-								.getCodes(doclogRecord)) {
+								.getCodes(doclogRecord.getUri())) {
 							colors.add(code.getColor());
 						}
 					} catch (CodeServiceException e) {

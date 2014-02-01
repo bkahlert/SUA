@@ -5,16 +5,28 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileTest;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils.DiffRecordDescriptor;
 
 public class DiffRecordUtilsTest {
@@ -57,9 +69,51 @@ public class DiffRecordUtilsTest {
 
 		// check num descriptors
 		int numRecords = 0;
-		for (String line : data)
-			if (line.startsWith("diff -u -r -N -x"))
+		for (String line : data) {
+			if (line.startsWith("diff -u -r -N -x")) {
 				++numRecords;
+			}
+		}
 		assertEquals(numRecords, descriptors.size());
+	}
+
+	@Test
+	public void testGetRecordsFromSegments() throws IllegalArgumentException,
+			URISyntaxException {
+		IDiff diff = DiffFileTest
+				.getDiffFile(
+						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
+						IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"), 48l,
+						new TimeZoneDateRange(new TimeZoneDate(
+								"2011-09-13T12:11:02+02:00"), null));
+		IDiffRecord diffRecord = diff.getDiffFileRecords().get(2);
+		IDiffRecordSegment diffRecordSegment = new DiffRecordSegment(
+				diffRecord, 25, 134);
+		System.err.println(diffRecordSegment.getUri());
+
+		// sanity check
+		assertEquals(diffRecord, diffRecordSegment.getDiffFileRecord());
+		assertEquals(diffRecord.getUri(), diffRecordSegment.getDiffFileRecord()
+				.getUri());
+
+		// check functionality
+		assertEquals(Arrays.asList(diffRecord.getUri()),
+				DiffRecordUtils
+						.getRecordsFromSegments(new URI[] { diffRecordSegment
+								.getUri() }));
+
+		// check empty list
+		assertEquals(new ArrayList<URI>(),
+				DiffRecordUtils.getRecordsFromSegments(new URI[] {}));
+
+		// check just DiffRecord instead of segment
+		assertEquals(Arrays.asList(diffRecord.getUri()),
+				DiffRecordUtils.getRecordsFromSegments(new URI[] { diffRecord
+						.getUri() }));
+
+		// check non segment URI
+		assertEquals(new ArrayList<URI>(),
+				DiffRecordUtils.getRecordsFromSegments(new URI[] { new URI(
+						"sua://abc") }));
 	}
 }

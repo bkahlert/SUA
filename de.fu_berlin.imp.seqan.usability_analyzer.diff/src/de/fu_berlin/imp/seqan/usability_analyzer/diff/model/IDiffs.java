@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model;
 import java.util.Iterator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
@@ -16,7 +17,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
  * @author bkahlert
  * 
  */
-public interface IDiffs extends HasIdentifier, Iterable<IDiff>, HasDateRange {
+public interface IDiffs extends ILocatable, HasIdentifier, Iterable<IDiff>,
+		HasDateRange {
 
 	@Override
 	public TimeZoneDateRange getDateRange();

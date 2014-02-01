@@ -15,27 +15,46 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.EpisodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView;
 
-public class EpisodeLocatorProvider implements ILocatorProvider {
+public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 
 	public static final String EPISODE_NAMESPACE = "episode";
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLocatorProvider.class);
 	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
 
+	@SuppressWarnings("unchecked")
+	public EpisodeLocatorProvider() {
+		super(IEpisode.class);
+	}
+
 	@Override
-	public String[] getAllowedNamespaces() {
-		return new String[] { EPISODE_NAMESPACE };
+	public boolean isResolvabilityImpossible(URI uri) {
+		return !"sua".equalsIgnoreCase(uri.getScheme())
+				|| !EPISODE_NAMESPACE.equals(uri.getHost());
+	}
+
+	@Override
+	public Class<? extends ILocatable> getType(URI uri) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
+
+		return IEpisode.class;
 	}
 
 	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
+		if (this.isResolvabilityImpossible(uri)) {
+			return null;
+		}
+
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 
@@ -56,9 +75,9 @@ public class EpisodeLocatorProvider implements ILocatorProvider {
 	}
 
 	@Override
-	public boolean showInWorkspace(final ILocatable[] locatables, boolean open,
+	public boolean showInWorkspace(final URI[] uris, boolean open,
 			IProgressMonitor monitor) {
-		if (locatables.length > 0) {
+		if (uris.length > 0) {
 			try {
 				return EXECUTOR_SERVICE.syncExec(new Callable<Boolean>() {
 					@Override
@@ -70,11 +89,11 @@ public class EpisodeLocatorProvider implements ILocatorProvider {
 						}
 
 						EpisodeViewer viewer = episodeView.getEpisodeViewer();
-						viewer.setSelection(new StructuredSelection(locatables));
-						List<ILocatable> selected = SelectionUtils
+						viewer.setSelection(new StructuredSelection(uris));
+						List<URI> selected = SelectionUtils
 								.getAdaptableObjects(viewer.getSelection(),
-										ILocatable.class);
-						return selected.size() == locatables.length;
+										URI.class);
+						return selected.size() == uris.length;
 					}
 				});
 			} catch (Exception e) {

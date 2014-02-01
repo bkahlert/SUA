@@ -9,26 +9,37 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 public interface ILocatorProvider {
 
 	/**
-	 * Returns a list of allowed namespaces.
+	 * Returns <code>true</code> is the given {@link URI} definitely can't be
+	 * resolved.
 	 * <p>
-	 * <ul>
-	 * <li>If an empty list is returned no namespaces are allowed.</li>
-	 * <li>If <code>null</code> is returned all namespaces are allowed.</li>
-	 * </ul>
+	 * This method is useful if you plan to call the costly method
+	 * {@link #getObject(URI, IProgressMonitor)}.
+	 * 
+	 * @param uri
+	 *            to be checked
 	 * 
 	 * @return
 	 */
-	public String[] getAllowedNamespaces();
+	public boolean isResolvabilityImpossible(URI uri);
+
+	/**
+	 * Returns the type of the object that is addressed by the given URI.
+	 * 
+	 * @param uri
+	 * @param monitor
+	 * 
+	 * @return
+	 */
+	public Class<? extends ILocatable> getType(URI uri);
 
 	/**
 	 * Returns the {@link ILocatable} that is addressed by the given URI.
 	 * <p>
-	 * This method is always called in a separate {@link Thread} and is allowed
-	 * to be long running.
+	 * Avoid calling this method in the UI thread since it may be be long
+	 * running.
 	 * 
+	 * @param uri
 	 * @param monitor
-	 *            TODO
-	 * @param locatable
 	 * 
 	 * @return
 	 */
@@ -47,7 +58,7 @@ public interface ILocatorProvider {
 	 * @return true if all {@link URI}s could be resolved and displayed in the
 	 *         workbench.
 	 */
-	public boolean showInWorkspace(ILocatable[] locatables, boolean open,
+	public boolean showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor);
 
 }

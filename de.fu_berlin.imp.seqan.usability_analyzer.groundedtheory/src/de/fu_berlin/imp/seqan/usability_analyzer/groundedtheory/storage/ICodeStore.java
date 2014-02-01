@@ -1,12 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
+import java.net.URI;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Set;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -31,14 +31,16 @@ public interface ICodeStore {
 	 */
 	public ICode getCode(long id);
 
+	public ICodeInstance getCodeInstance(long id);
+
 	public ICode[] getCodes();
 
 	public ICode createCode(String caption, RGB color)
 			throws CodeStoreFullException;
 
-	public ICodeInstance[] createCodeInstances(ICode[] codes,
-			ILocatable[] locatables) throws InvalidParameterException,
-			CodeStoreReadException, DuplicateCodeInstanceException;
+	public ICodeInstance[] createCodeInstances(ICode[] codes, URI[] uris)
+			throws InvalidParameterException, CodeStoreReadException,
+			DuplicateCodeInstanceException, CodeStoreFullException;
 
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
 			CodeStoreReadException;
@@ -79,15 +81,14 @@ public interface ICodeStore {
 
 	public String getMemo(ICodeInstance codeInstance);
 
-	public String getMemo(ILocatable locatable);
+	public String getMemo(URI uri);
 
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException;
 
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException;
 
-	public void setMemo(ILocatable locatable, String html)
-			throws CodeStoreWriteException;
+	public void setMemo(URI uri, String html) throws CodeStoreWriteException;
 
 	public Set<IEpisode> getEpisodes();
 }

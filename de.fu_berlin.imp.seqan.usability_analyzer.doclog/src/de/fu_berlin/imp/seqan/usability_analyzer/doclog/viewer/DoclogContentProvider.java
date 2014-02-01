@@ -1,41 +1,48 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
-public class DoclogContentProvider implements IStructuredContentProvider,
-		ITreeContentProvider {
+public class DoclogContentProvider extends URIContentProvider<List<Doclog>> {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(DoclogContentProvider.class);
 
 	private Viewer viewer;
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
-		private boolean isResponsible(List<ILocatable> locatables) {
-			for (ILocatable locatable : locatables) {
-				if (locatable.getUri().getHost().equals("doclog")) {
-					return true;
-				}
-			}
-			return false;
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+
+		private boolean isResponsible(List<URI> uris) {
+			return URIUtils.filterByResource(uris,
+					DoclogLocatorProvider.DOCLOG_NAMESPACE).size() > 0;
 		}
 
 		@Override
@@ -43,8 +50,8 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
-			if (this.isResponsible(locatables)) {
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
+			if (this.isResponsible(uris)) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -61,8 +68,8 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
-			if (this.isResponsible(locatables)) {
+		public void codesRemoved(List<ICode> codes, List<URI> uris) {
+			if (this.isResponsible(uris)) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -80,34 +87,20 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
-		}
-
-		@Override
-		public void memoAdded(ILocatable locatable) {
-			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
-					.asList(locatable)))) {
+		public void memoAdded(URI uri) {
+			if (this.isResponsible(new ArrayList<URI>(Arrays.asList(uri)))) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
 		}
 
 		@Override
-		public void memoModified(ICode code) {
+		public void memoModified(URI uri) {
 		}
 
 		@Override
-		public void memoModified(ILocatable locatable) {
-		}
-
-		@Override
-		public void memoRemoved(ICode code) {
-		}
-
-		@Override
-		public void memoRemoved(ILocatable locatable) {
-			if (this.isResponsible(new ArrayList<ILocatable>(Arrays
-					.asList(locatable)))) {
+		public void memoRemoved(URI uri) {
+			if (this.isResponsible(new ArrayList<URI>(Arrays.asList(uri)))) {
 				com.bkahlert.devel.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
@@ -147,30 +140,6 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 	}
 
 	@Override
-	public Object getParent(Object element) {
-		if (element instanceof DoclogRecord) {
-			return ((DoclogRecord) element).getDoclog();
-		}
-		return null;
-	}
-
-	@Override
-	public boolean hasChildren(Object element) {
-		if (element instanceof Doclog) {
-			return ((Doclog) element).getDoclogRecords().size() > 0;
-		}
-		return false;
-	}
-
-	@Override
-	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof Doclog) {
-			return ((Doclog) parentElement).getDoclogRecords().toArray();
-		}
-		return new Object[0];
-	}
-
-	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof Collection<?>) {
 			Object[] objects = ((Collection<?>) inputElement).toArray();
@@ -180,9 +149,73 @@ public class DoclogContentProvider implements IStructuredContentProvider,
 			 * level (= ID level).
 			 */
 			if (objects.length == 1 && objects[0] instanceof Doclog) {
-				return ((Doclog) objects[0]).getDoclogRecords().toArray();
+				objects = ((Doclog) objects[0]).getDoclogRecords().toArray();
+			}
+
+			for (int i = 0; i < objects.length; i++) {
+				URI uri = (URI) Platform.getAdapterManager().getAdapter(
+						objects[i], URI.class);
+				if (uri != null) {
+					objects[i] = uri;
+				}
 			}
 			return objects;
+		}
+		return new Object[0];
+	}
+
+	@Override
+	public Object getParent(Object element) {
+		ILocatable locatable = null;
+		try {
+			locatable = this.locatorService.resolve((URI) element, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error getting parent of " + element);
+		}
+
+		if (locatable instanceof DoclogRecord) {
+			return ((DoclogRecord) locatable).getDoclog().getUri();
+		}
+		return null;
+	}
+
+	@Override
+	public boolean hasChildren(Object uri) {
+		ILocatable locatable = null;
+		try {
+			locatable = this.locatorService.resolve((URI) uri, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error getting parent of " + locatable);
+		}
+
+		if (locatable instanceof Doclog) {
+			return ((Doclog) locatable).getDoclogRecords().size() > 0;
+		}
+		return false;
+	}
+
+	@Override
+	public Object[] getChildren(Object parentElement) {
+		ILocatable locatable = null;
+		try {
+			locatable = this.locatorService.resolve((URI) parentElement, null)
+					.get();
+		} catch (Exception e) {
+			LOGGER.error("Error getting parent of " + parentElement);
+		}
+
+		if (locatable instanceof Doclog) {
+			DoclogRecordList doclogRecords = ((Doclog) locatable)
+					.getDoclogRecords();
+			if (doclogRecords != null) {
+				URI[] uris = new URI[doclogRecords.size()];
+				for (int i = 0; i < doclogRecords.size(); i++) {
+					uris[i] = doclogRecords.get(i).getUri();
+				}
+				return uris;
+			} else {
+				return new Object[0];
+			}
 		}
 		return new Object[0];
 	}

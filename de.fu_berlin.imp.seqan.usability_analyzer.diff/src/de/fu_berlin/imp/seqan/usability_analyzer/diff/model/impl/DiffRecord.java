@@ -33,31 +33,52 @@ public class DiffRecord implements IDiffRecord {
 	private IData originalSource;
 	private ISourceStore sourceCache;
 
+	private String filename;
+	private TimeZoneDateRange dateRange;
+
+	private FLAGS[] flags;
+
+	@Deprecated
 	private String commandLine;
+	@Deprecated
 	private IDiffRecordMeta meta;
 
 	/**
 	 * Contains the byte position within the parent {@link Diff} where the patch
 	 * starts
 	 */
+	@Deprecated
 	private long patchStart;
 
 	/**
 	 * Contains the byte position within the parent {@link Diff} where the patch
 	 * end
 	 */
+	@Deprecated
 	private long patchEnd;
 
 	private IDiffRecord predecessor = null;
 
+	@Deprecated
 	private static List<IDiffRecord> patchFailed = new ArrayList<IDiffRecord>();
 
 	public DiffRecord(IDiff diff, IData originalSource,
-			ISourceStore sourceCache, String commandLine, IDiffRecordMeta meta,
-			long contentStart, long contentEnd) {
+			ISourceStore sourceCache, String filename,
+			TimeZoneDateRange dateRange, List<FLAGS> flags) {
 		this.diff = diff;
 		this.originalSource = originalSource;
 		this.sourceCache = sourceCache;
+
+		this.filename = filename;
+		this.dateRange = dateRange;
+		this.flags = flags != null ? flags.toArray(new FLAGS[0]) : new FLAGS[0];
+	}
+
+	public DiffRecord(IDiff diff, IData originalSource,
+			ISourceStore sourceCache, String commandLine, IDiffRecordMeta meta,
+			long contentStart, long contentEnd, List<FLAGS> flags) {
+		this(diff, originalSource, sourceCache, meta.getToFileName(), meta
+				.getDateRange(), flags);
 
 		this.commandLine = commandLine;
 		this.meta = meta;
@@ -81,7 +102,7 @@ public class DiffRecord implements IDiffRecord {
 	public URI getUri() {
 		try {
 			return new URI(this.getDiffFile().getUri().toString() + "/"
-					+ URLEncoder.encode(this.meta.getToFileName(), "UTF-8"));
+					+ URLEncoder.encode(this.getFilename(), "UTF-8"));
 		} catch (Exception e) {
 			LOGGER.error(
 					"Could not create ID for a "
@@ -120,6 +141,7 @@ public class DiffRecord implements IDiffRecord {
 	 * getCommandLine()
 	 */
 	@Override
+	@Deprecated
 	public String getCommandLine() {
 		return this.commandLine;
 	}
@@ -133,7 +155,7 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public String getFilename() {
-		return this.meta.getToFileName();
+		return this.filename;
 	}
 
 	/*
@@ -143,6 +165,7 @@ public class DiffRecord implements IDiffRecord {
 	 * getPatchLines()
 	 */
 	@Override
+	@Deprecated
 	public List<String> getPatchLines() {
 		return this.getDiffFile().getContent(this.patchStart, this.patchEnd);
 	}
@@ -150,7 +173,7 @@ public class DiffRecord implements IDiffRecord {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": " + this.getFilename()
-				+ "@" + this.diff.getRevision();
+				+ " @ " + this.diff.getRevision();
 	}
 
 	/*
@@ -162,7 +185,7 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public TimeZoneDateRange getDateRange() {
-		return this.meta.getDateRange();
+		return this.dateRange;
 	}
 
 	/*
@@ -186,7 +209,7 @@ public class DiffRecord implements IDiffRecord {
 	@Override
 	public File getSourceFile() throws IOException {
 		return this.sourceCache.getSourceFile(this.diff.getIdentifier(),
-				this.diff.getRevision(), this.meta.getToFileName());
+				this.diff.getRevision(), this.getFilename());
 	}
 
 	/*
@@ -216,6 +239,21 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public String getSource() {
+		// zip file, no patching needed
+		if (this.meta == null) {
+			if (this.sourceExists()) {
+				try {
+					return FileUtils.readFileToString(this.getSourceFile());
+				} catch (IOException e) {
+					LOGGER.debug("Could not find source file for "
+							+ DiffRecord.class.getSimpleName() + ": " + this, e);
+					return null;
+				}
+			} else {
+				return null;
+			}
+		}
+
 		if (patchFailed.contains(this)) {
 			return null;
 		}
@@ -272,6 +310,7 @@ public class DiffRecord implements IDiffRecord {
 		}
 	}
 
+	@Deprecated
 	void setAndPersistSource(String sourceString) {
 		// this method consumes much space
 		Runtime.getRuntime().gc();
@@ -322,6 +361,21 @@ public class DiffRecord implements IDiffRecord {
 	public void open() {
 		DiffFileEditorUtils.closeCompareEditors(this);
 		DiffFileEditorUtils.openCompareEditor(this);
+	}
+
+	@Override
+	public FLAGS[] getFlags() {
+		return this.flags;
+	}
+
+	@Override
+	public boolean hasFlag(FLAGS flag) {
+		for (FLAGS currFlag : this.flags) {
+			if (currFlag == flag) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

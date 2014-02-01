@@ -1,12 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import java.util.LinkedList;
+import java.net.URI;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
@@ -26,8 +24,10 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -44,25 +44,22 @@ public class ResortableCodeViewer extends CodeViewer {
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
 				.getTransfer() };
 
+		final ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
+		final ICodeService codeService = (ICodeService) PlatformUI
+				.getWorkbench().getService(ICodeService.class);
+
 		this.getViewer().addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
-					final ISelectionRetriever<ICode> codeRetriever = SelectionRetrieverFactory
-							.getSelectionRetriever(ICode.class);
-					final ISelectionRetriever<ICodeInstance> instanceRetriever = SelectionRetrieverFactory
-							.getSelectionRetriever(ICodeInstance.class);
+					final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
+							.getSelectionRetriever(URI.class);
 
 					@Override
 					public void dragStart(DragSourceEvent event) {
-						List<ICode> codes = this.codeRetriever.getSelection();
-						List<ICodeInstance> instances = this.instanceRetriever
-								.getSelection();
-						if (this.codeRetriever.getSelection().size() > 0
-								|| this.instanceRetriever.getSelection().size() > 0) {
-							List<Object> elements = new LinkedList<Object>();
-							elements.addAll(codes);
-							elements.addAll(instances);
+						List<URI> uris = uriRetriever.getSelection();
+						if (uris.size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
-									new StructuredSelection(elements));
+									new StructuredSelection(uris));
 							LocalSelectionTransfer.getTransfer()
 									.setSelectionSetTime(
 											event.time & 0xFFFFFFFFL);
@@ -91,74 +88,100 @@ public class ResortableCodeViewer extends CodeViewer {
 				new DropTargetAdapter() {
 					@Override
 					public void dragOver(DropTargetEvent event) {
-						ISelection selection = LocalSelectionTransfer
-								.getTransfer().getSelection();
-						List<ICode> sourceCodes = SelectionUtils
-								.getAdaptableObjects(selection, ICode.class);
-						List<ICodeInstance> sourceCodeInstances = SelectionUtils
-								.getAdaptableObjects(selection,
-										ICodeInstance.class);
-						List<ILocatable> sourceLocatables = SelectionUtils
-								.getAdaptableObjects(selection,
-										ILocatable.class);
+						List<URI> sourceUris = SelectionUtils
+								.getAdaptableObjects(LocalSelectionTransfer
+										.getTransfer().getSelection(),
+										URI.class);
+						List<URI> sourceCodeUris = URIUtils.filterByResource(
+								sourceUris, CodeLocatorProvider.CODE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeUris);
+						List<URI> sourceCodeInstanceUris = URIUtils
+								.filterByResource(
+										sourceUris,
+										CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeInstanceUris);
 
-						if (event.item != null
-								&& (sourceCodes.size() != 0
-										^ sourceCodeInstances.size() != 0 ^ sourceLocatables
-										.size() != 0)) {
-							event.feedback = DND.FEEDBACK_EXPAND
-									| DND.FEEDBACK_SCROLL;
+						URI destUri = event.item != null
+								&& event.item.getData() instanceof URI ? (URI) event.item
+								.getData() : null;
 
-							Point point = Display.getCurrent().map(
-									null,
-									ResortableCodeViewer.this.getViewer()
-											.getControl(), event.x, event.y);
-
-							Rectangle bounds = null;
-							if (event.item instanceof TreeItem) {
-								bounds = ((TreeItem) event.item).getBounds();
+						event.feedback = DND.FEEDBACK_SCROLL;
+						event.detail = DND.DROP_NONE;
+						if (!(sourceCodeUris.size() != 0
+								^ sourceCodeInstanceUris.size() != 0 ^ sourceUris
+								.size() != 0)) {
+						} else if (destUri == null) {
+							// target: nothing
+							if (sourceCodeUris.size() > 0) {
+								event.feedback = DND.FEEDBACK_SELECT
+										| DND.FEEDBACK_EXPAND
+										| DND.FEEDBACK_SCROLL;
+								event.detail = DND.DROP_MOVE;
 							}
-							if (event.item instanceof TableItem) {
-								bounds = ((TableItem) event.item).getBounds();
-							}
+						} else if (CodeLocatorProvider.CODE_NAMESPACE
+								.equals(URIUtils.getResource(destUri))) {
+							// target: Code
 
-							if (event.item.getData() instanceof ICode) {
-								if (sourceCodes.size() != 0
-										|| sourceCodeInstances.size() != 0) {
-									if (bounds != null) {
-										if (point.y < bounds.y + bounds.height
-												/ 3) {
-											event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-										} else if (point.y > bounds.y + 2
-												* bounds.height / 3) {
-											event.feedback |= DND.FEEDBACK_INSERT_AFTER;
-										} else {
-											event.feedback |= DND.FEEDBACK_SELECT;
-										}
+							if (sourceCodeUris.size() > 0) {
+								// TODO sortierung von Codes erlauben
+								Rectangle bounds = event.item instanceof TreeItem ? ((TreeItem) event.item)
+										.getBounds()
+										: event.item instanceof TableItem ? ((TableItem) event.item)
+												.getBounds() : null;
+								if (bounds != null) {
+									Point point = Display.getCurrent().map(
+											null,
+											ResortableCodeViewer.this
+													.getViewer().getControl(),
+											event.x, event.y);
+									event.feedback = DND.FEEDBACK_EXPAND
+											| DND.FEEDBACK_SCROLL;
+									if (point.y < bounds.y + bounds.height / 3) {
+										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+									} else if (point.y > bounds.y + 2
+											* bounds.height / 3) {
+										event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 									} else {
 										event.feedback |= DND.FEEDBACK_SELECT;
 									}
-								} else {
-									event.feedback |= DND.FEEDBACK_SELECT;
-									event.detail = DND.DROP_LINK;
 								}
-							} else if (event.item.getData() instanceof ICodeInstance) {
-								if (sourceCodes.size() != 0
-										|| sourceCodeInstances.size() != 0) {
-									if (bounds != null) {
-										if (point.y < bounds.y + bounds.height
-												/ 2) {
-											event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-										} else {
-											event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+
+								event.feedback = DND.FEEDBACK_SELECT
+										| DND.FEEDBACK_EXPAND
+										| DND.FEEDBACK_SCROLL;
+								event.detail = DND.DROP_MOVE;
+							} else if (sourceCodeInstanceUris.size() > 0) {
+								try {
+									for (ICodeInstance sourceCodeInstance : locatorService
+											.resolve(sourceCodeInstanceUris,
+													ICodeInstance.class, null)
+											.get()) {
+										for (ICodeInstance x : codeService
+												.getAllInstances(sourceCodeInstance
+														.getCode())) {
+											if (x.getId().equals(
+													sourceCodeInstance.getId())) {
+												event.feedback = DND.FEEDBACK_EXPAND;
+												event.detail = DND.DROP_NONE;
+												return;
+											}
 										}
-									} else {
-										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
 									}
-								} else {
-									event.feedback = DND.FEEDBACK_NONE;
-									event.detail = DND.DROP_NONE;
+								} catch (Exception e) {
+									LOGGER.error("Could not check if moving "
+											+ sourceCodeInstanceUris
+											+ " would lead to duplicates", e);
 								}
+
+								event.feedback = DND.FEEDBACK_SELECT
+										| DND.FEEDBACK_EXPAND
+										| DND.FEEDBACK_SCROLL;
+								event.detail = DND.DROP_MOVE;
+							} else {
+								event.feedback = DND.FEEDBACK_SELECT
+										| DND.FEEDBACK_EXPAND
+										| DND.FEEDBACK_SCROLL;
+								event.detail = DND.DROP_LINK;
 							}
 						}
 					}
@@ -170,92 +193,114 @@ public class ResortableCodeViewer extends CodeViewer {
 							return;
 						}
 
-						ICodeService codeService = (ICodeService) PlatformUI
-								.getWorkbench().getService(ICodeService.class);
-						if (codeService == null) {
-							return;
-						}
+						List<URI> sourceUris = SelectionUtils
+								.getAdaptableObjects(LocalSelectionTransfer
+										.getTransfer().getSelection(),
+										URI.class);
+						List<URI> sourceCodeUris = URIUtils.filterByResource(
+								sourceUris, CodeLocatorProvider.CODE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeUris);
+						List<URI> sourceCodeInstanceUris = URIUtils
+								.filterByResource(
+										sourceUris,
+										CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeInstanceUris);
 
-						ISelection selection = LocalSelectionTransfer
-								.getTransfer().getSelection();
-						List<ICode> sourceCodes = SelectionUtils
-								.getAdaptableObjects(selection, ICode.class);
-						List<ICodeInstance> sourceCodeInstances = SelectionUtils
-								.getAdaptableObjects(selection,
-										ICodeInstance.class);
-						List<ILocatable> sourceLocatables = SelectionUtils
-								.getAdaptableObjects(selection,
-										ILocatable.class);
+						URI destUri = event.item != null
+								&& event.item.getData() instanceof URI ? (URI) event.item
+								.getData() : null;
 
-						if (event.item != null
-								&& event.item.getData() instanceof ICode) {
-							ICode targetCode = (ICode) event.item.getData();
+						try {
+							List<ICode> sourceCodes = locatorService.resolve(
+									sourceCodeUris, ICode.class, null).get();
+							List<ICodeInstance> sourceCodeInstances = locatorService
+									.resolve(sourceCodeInstanceUris,
+											ICodeInstance.class, null).get();
+							if (!(sourceCodeUris.size() != 0
+									^ sourceCodeInstanceUris.size() != 0 ^ sourceUris
+									.size() != 0)) {
+							} else if (destUri == null) {
+								// target: nothing
 
-							if (sourceCodes.size() > 0) {
 								for (ICode sourceCode : sourceCodes) {
 									try {
-										codeService.setParent(sourceCode,
-												targetCode);
-										LOGGER.info("[CODE][HIERARCHY] Moved "
-												+ sourceCodes + " to "
-												+ targetCode);
+										codeService.setParent(sourceCode, null);
+										LOGGER.info("[CODE][HIERARCHY] Made "
+												+ sourceCodes + " top level");
 									} catch (CodeServiceException e) {
 										LOGGER.error("Coud not make "
-												+ targetCode
-												+ " the parent of "
-												+ sourceCodes);
+												+ sourceCodes + " a top level "
+												+ ICode.class.getSimpleName());
 									}
 								}
-							} else if (sourceCodeInstances.size() > 0) {
-								for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
-									try {
-										ILocatorService locatorService = (ILocatorService) PlatformUI
-												.getWorkbench().getService(
-														ILocatorService.class);
-										ILocatable coded = locatorService
-												.resolve(
-														sourceCodeInstance
-																.getId(), null)
-												.get();
-										codeService
-												.deleteCodeInstance(sourceCodeInstance);
-										codeService.addCode(targetCode, coded);
-									} catch (CodeServiceException e) {
-										LOGGER.error(e);
-									} catch (InterruptedException e) {
-										LOGGER.error(e);
-									} catch (ExecutionException e) {
-										LOGGER.error(e);
+							} else if (CodeLocatorProvider.CODE_NAMESPACE
+									.equals(URIUtils.getResource(destUri))) {
+								// target: Code
+
+								ICode targetCode = locatorService.resolve(
+										destUri, ICode.class, null).get();
+								if (sourceCodeUris.size() > 0) {
+									for (ICode sourceCode : sourceCodes) {
+										try {
+											codeService.setParent(sourceCode,
+													targetCode);
+											LOGGER.info("[CODE][HIERARCHY] Moved "
+													+ sourceCodes
+													+ " to "
+													+ targetCode);
+										} catch (CodeServiceException e) {
+											LOGGER.error("Coud not make "
+													+ targetCode
+													+ " the parent of "
+													+ sourceCodes);
+										}
 									}
-								}
-							} else if (sourceLocatables.size() > 0) {
-								for (ILocatable sourceLocatable : sourceLocatables) {
-									try {
-										codeService.addCode(targetCode,
-												sourceLocatable);
-										LOGGER.info("[CODE][ASSIGN] "
-												+ sourceLocatable
-												+ " assigned to " + targetCode);
-									} catch (CodeServiceException e) {
-										LOGGER.error("Coud not assign "
-												+ sourceLocatable + " to "
-												+ targetCode);
+								} else if (sourceCodeInstanceUris.size() > 0) {
+									outer: for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
+										if (sourceCodeInstance.getCode()
+												.equals(targetCode)) {
+											continue;
+										}
+										for (ICodeInstance x : codeService
+												.getAllInstances(sourceCodeInstance
+														.getCode())) {
+											if (x.getId().equals(
+													sourceCodeInstance.getId())) {
+												continue outer;
+											}
+										}
+										try {
+											URI coded = sourceCodeInstance
+													.getId();
+											codeService
+													.deleteCodeInstance(sourceCodeInstance);
+											codeService.addCode(targetCode,
+													coded);
+										} catch (CodeServiceException e) {
+											LOGGER.error(e);
+										}
+									}
+								} else {
+									for (URI sourceUri : sourceUris) {
+										try {
+											codeService.addCode(targetCode,
+													sourceUri);
+											LOGGER.info("[CODE][ASSIGN] "
+													+ sourceUri
+													+ " assigned to "
+													+ targetCode);
+										} catch (CodeServiceException e) {
+											LOGGER.error("Coud not assign "
+													+ sourceUri + " to "
+													+ targetCode);
+										}
 									}
 								}
 							}
-						} else {
-							for (ICode sourceCode : sourceCodes) {
-								try {
-									codeService.setParent(sourceCode, null);
-									LOGGER.info("[CODE][HIERARCHY] Made "
-											+ sourceCodes + " top level");
-								} catch (CodeServiceException e) {
-									LOGGER.error("Coud not make " + sourceCodes
-											+ " a top level "
-											+ ICode.class.getSimpleName());
-								}
-							}
+						} catch (Exception e) {
+							LOGGER.error("Couln't complete drop action", e);
 						}
+
 					}
 				});
 	}

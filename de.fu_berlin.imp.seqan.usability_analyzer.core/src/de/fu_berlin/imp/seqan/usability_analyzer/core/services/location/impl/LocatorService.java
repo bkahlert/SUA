@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.impl;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +22,6 @@ import com.bkahlert.nebula.utils.CompletedFuture;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.LocatableUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 
@@ -50,10 +50,10 @@ public class LocatorService implements ILocatorService {
 		return registeredLocatableProviders.toArray(new ILocatorProvider[0]);
 	}
 
-	private ExecutorService executorService = new ExecutorService();
+	private final ExecutorService executorService = new ExecutorService();
 
 	// TODO use cache
-	private Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
+	private final Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
 			new CacheFetcher<URI, ILocatable>() {
 				@Override
 				public ILocatable fetch(final URI uri, IProgressMonitor monitor) {
@@ -68,8 +68,11 @@ public class LocatorService implements ILocatorService {
 					final SubMonitor subMonitor = SubMonitor.convert(monitor,
 							locatorProviders.length);
 					List<Future<ILocatable>> locatables = new ArrayList<Future<ILocatable>>();
-					for (final ILocatorProvider locatorProvider : LocatableUtils
-							.filterResponsibleLocators(uri, locatorProviders)) {
+					for (final ILocatorProvider locatorProvider : locatorProviders) {
+						if (locatorProvider.isResolvabilityImpossible(uri)) {
+							continue;
+						}
+
 						Future<ILocatable> locatable = LocatorService.this.executorService
 								.nonUIAsyncExec(new Callable<ILocatable>() {
 									@Override
@@ -108,15 +111,74 @@ public class LocatorService implements ILocatorService {
 			}, 200);
 
 	@Override
+	public Class<? extends ILocatable> getType(URI uri) {
+		Assert.isLegal(uri != null);
+
+		final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
+		if (locatorProviders == null || locatorProviders.length == 0) {
+			return null;
+		}
+
+		List<Class<? extends ILocatable>> types = new ArrayList<Class<? extends ILocatable>>();
+		for (final ILocatorProvider locatorProvider : locatorProviders) {
+			if (locatorProvider.isResolvabilityImpossible(uri)) {
+				continue;
+			}
+
+			Class<? extends ILocatable> type = locatorProvider.getType(uri);
+			if (type != null) {
+				types.add(type);
+			}
+		}
+
+		if (types.size() > 1) {
+			LOGGER.warn(types.size() + " possible types found for " + uri);
+		}
+		return types.size() == 0 ? null : types.get(0);
+	}
+
+	@Override
 	public Future<ILocatable> resolve(final URI uri,
 			final IProgressMonitor monitor) {
+		return resolve(uri, ILocatable.class, monitor);
+	}
+
+	@Override
+	public <T extends ILocatable> Future<T> resolve(final URI uri,
+			final Class<T> clazz, final IProgressMonitor monitor) {
 		Assert.isLegal(uri != null);
-		return this.executorService.nonUIAsyncExec(new Callable<ILocatable>() {
+		Assert.isLegal(clazz != null);
+		return this.executorService.nonUIAsyncExec(new Callable<T>() {
+			@SuppressWarnings("unchecked")
 			@Override
-			public ILocatable call() throws Exception {
-				return LocatorService.this.uriCache.getPayload(uri, monitor);
+			public T call() throws Exception {
+				ILocatable locatable = LocatorService.this.uriCache.getPayload(
+						uri, monitor);
+				if (clazz.isInstance(locatable)) {
+					return (T) locatable;
+				}
+				return null;
 			}
 		});
+	}
+
+	private <T extends ILocatable> List<T> resolveList(final List<URI> uris,
+			Class<T> clazz, SubMonitor subMonitor) throws Exception {
+		List<Future<T>> locatables = new ArrayList<Future<T>>();
+		for (final URI uri : uris) {
+			Future<T> locatable = LocatorService.this.resolve(uri, clazz,
+					subMonitor.newChild(1));
+			locatables.add(locatable);
+		}
+
+		List<T> findings = new ArrayList<T>();
+		for (Future<T> locatable : locatables) {
+			T finding = locatable.get();
+			if (finding != null) {
+				findings.add(finding);
+			}
+		}
+		return findings;
 	}
 
 	@Override
@@ -129,23 +191,31 @@ public class LocatorService implements ILocatorService {
 				.nonUIAsyncExec(new Callable<ILocatable[]>() {
 					@Override
 					public ILocatable[] call() throws Exception {
-						List<Future<ILocatable>> locatables = new ArrayList<Future<ILocatable>>();
-						for (final URI uri : uris) {
-							Future<ILocatable> locatable = LocatorService.this
-									.resolve(uri, subMonitor.newChild(1));
-							locatables.add(locatable);
-						}
-
-						List<ILocatable> findings = new ArrayList<ILocatable>();
-						for (Future<ILocatable> locatable : locatables) {
-							ILocatable finding = locatable.get();
-							if (finding != null) {
-								findings.add(finding);
-							}
-						}
-						return findings.toArray(new ILocatable[0]);
+						return resolveList(Arrays.asList(uris),
+								ILocatable.class, subMonitor).toArray(
+								new ILocatable[0]);
 					}
 				});
+	}
+
+	@Override
+	public Future<List<ILocatable>> resolve(final List<URI> uris,
+			IProgressMonitor monitor) {
+		return resolve(uris, ILocatable.class, monitor);
+	}
+
+	@Override
+	public <T extends ILocatable> Future<List<T>> resolve(final List<URI> uris,
+			final Class<T> clazz, IProgressMonitor monitor) {
+		Assert.isLegal(uris != null);
+
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, uris.size());
+		return this.executorService.nonUIAsyncExec(new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				return resolveList(uris, clazz, subMonitor);
+			}
+		});
 	}
 
 	@Override
@@ -174,79 +244,28 @@ public class LocatorService implements ILocatorService {
 			return new CompletedFuture<Boolean>(true, null);
 		}
 
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		return this.executorService.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				ILocatable[] locatables = LocatorService.this.resolve(uris,
-						subMonitor.newChild(1)).get();
-				boolean convertedAll = locatables.length == uris.length;
-				if (locatables.length > 0) {
-					boolean showedAll = LocatorService.this.showInWorkspace(
-							locatables, open, subMonitor.newChild(1)).get();
-					return showedAll && convertedAll;
-				} else {
-					subMonitor.worked(1);
-					return convertedAll;
-				}
-			}
-		});
-	}
-
-	@Override
-	public Future<Boolean> showInWorkspace(ILocatable locatable, boolean open,
-			IProgressMonitor monitor) {
-		return this.showInWorkspace(new ILocatable[] { locatable }, open,
-				monitor);
-	}
-
-	@Override
-	public Future<Boolean> showInWorkspace(final ILocatable[] locatables,
-			final boolean open, IProgressMonitor monitor) {
-		final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
-		if (locatorProviders == null || locatorProviders.length == 0) {
-			return new CompletedFuture<Boolean>(true, null);
-		}
-
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				locatorProviders.length);
 		return this.executorService.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				List<Future<Boolean>> rs = new ArrayList<Future<Boolean>>();
-				for (final ILocatorProvider locatorProvider : locatorProviders) {
-					Future<Boolean> future = LocatorService.this.executorService
-							.nonUIAsyncExec(new Callable<Boolean>() {
-								@Override
-								public Boolean call() throws Exception {
-									ILocatable[] suitableLocatables = LocatableUtils
-											.filterSuitableLocatators(
-													locatorProvider, locatables);
-									if (suitableLocatables.length == 0) {
-										return true;
-									}
-
-									return locatorProvider.showInWorkspace(
-											suitableLocatables, open,
-											subMonitor.newChild(1));
-								}
-							});
-					rs.add(future);
-				}
-				for (Future<Boolean> r : rs) {
-					try {
-						if (!r.get()) {
-							return false;
+				boolean success = true;
+				for (ILocatorProvider locatorProvider : locatorProviders) {
+					List<URI> filtered = new ArrayList<URI>();
+					for (URI uri : uris) {
+						if (!locatorProvider.isResolvabilityImpossible(uri)) {
+							filtered.add(uri);
 						}
-					} catch (InterruptedException e) {
-						LOGGER.error("Error while showing coded objects", e);
-						return false;
-					} catch (ExecutionException e) {
-						LOGGER.error("Error while showing coded objects", e);
-						return false;
+					}
+					if (filtered.size() == 0) {
+						subMonitor.worked(1);
+					} else if (!locatorProvider.showInWorkspace(
+							filtered.toArray(new URI[0]), open,
+							subMonitor.newChild(1))) {
+						success = false;
 					}
 				}
-				return true;
+				return success;
 			}
 		});
 	}

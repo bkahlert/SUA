@@ -1,122 +1,122 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener2;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
-public class CodeViewerContentProvider implements IStructuredContentProvider,
-		ITreeContentProvider {
+public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
+		implements IStructuredContentProvider, ITreeContentProvider {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(CodeViewerContentProvider.class);
 
 	private Viewer viewer;
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 	private ICodeService codeService;
 
 	/**
 	 * If false no {@link ICodeInstance}s are shown.
 	 */
-	private boolean showInstances;
+	private final boolean showInstances;
 
-	private ICodeServiceListener2 codeServiceListener = new ICodeServiceListener2() {
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
-			ViewerUtils.refresh(viewer, false);
-			for (ICode code : codes)
-				ViewerUtils.expandAll(viewer, code);
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, false);
+			for (ICode code : codes) {
+				ViewerUtils.expandAll(CodeViewerContentProvider.this.viewer,
+						code.getUri());
+			}
 		}
 
 		@Override
-		public void codesAssigned(List<ICode> codes, List<ILocatable> locatables) {
-			for (ICode code : codes)
-				ViewerUtils.refresh(viewer, code, true);
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
+			for (ICode code : codes) {
+				ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
+						code.getUri(), true);
+			}
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.update(viewer, code, null);
+			ViewerUtils.update(CodeViewerContentProvider.this.viewer,
+					code.getUri(), null);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(viewer, true); // TODO check if update is enough
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true); // TODO
+																				// check
+																				// if
+																				// update
+																				// is
+																				// enough
 		}
 
 		@Override
-		public void codesRemoved(List<ICode> codes, List<ILocatable> locatables) {
-			ViewerUtils.refresh(viewer, true);
+		public void codesRemoved(List<ICode> codes, List<URI> uris) {
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
 			if (oldParentCode == null || newParentCode == null) {
-				ViewerUtils.refresh(viewer, false);
+				ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
+						false);
 			} else {
-				if (oldParentCode != null)
-					ViewerUtils.refresh(viewer, oldParentCode, true);
-				if (newParentCode != null)
-					ViewerUtils.refresh(viewer, newParentCode, true);
+				if (oldParentCode != null) {
+					ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
+							oldParentCode.getUri(), true);
+				}
+				if (newParentCode != null) {
+					ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
+							newParentCode.getUri(), true);
+				}
 			}
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.remove(viewer, code);
+			ViewerUtils.remove(CodeViewerContentProvider.this.viewer,
+					code.getUri());
 		}
 
 		@Override
-		public void memoAdded(ICode code) {
-			ViewerUtils.update(viewer, code, null);
+		public void memoAdded(URI uri) {
+			ViewerUtils
+					.update(CodeViewerContentProvider.this.viewer, uri, null);
 		}
 
 		@Override
-		public void memoAdded(ICodeInstance codeInstance) {
-			ViewerUtils.update(viewer, codeInstance, null);
+		public void memoModified(URI uri) {
 		}
 
 		@Override
-		public void memoAdded(ILocatable locatable) {
-			ViewerUtils.update(viewer, locatable, null);
-		}
-
-		@Override
-		public void memoModified(ICode code) {
-		}
-
-		@Override
-		public void memoModified(ICodeInstance codeInstance) {
-		}
-
-		@Override
-		public void memoModified(ILocatable locatable) {
-		}
-
-		@Override
-		public void memoRemoved(ICode code) {
-			ViewerUtils.update(viewer, code, null);
-		}
-
-		@Override
-		public void memoRemoved(ICodeInstance codeInstance) {
-			ViewerUtils.update(viewer, codeInstance, null);
-		}
-
-		@Override
-		public void memoRemoved(ILocatable locatable) {
-			ViewerUtils.update(viewer, locatable, null);
+		public void memoRemoved(URI uri) {
+			ViewerUtils
+					.update(CodeViewerContentProvider.this.viewer, uri, null);
 		}
 
 		@Override
@@ -125,7 +125,7 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(viewer, true);
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
@@ -145,20 +145,23 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	}
 
 	@Override
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	public void inputChanged(Viewer viewer, ICodeService oldInput,
+			ICodeService newInput, Object ignore) {
 		this.viewer = viewer;
 
 		if (this.codeService != null) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 		this.codeService = null;
 
-		if (ICodeService.class.isInstance(newInput)) {
-			this.codeService = (ICodeService) newInput;
-			this.codeService.addCodeServiceListener(codeServiceListener);
+		if (newInput != null) {
+			this.codeService = newInput;
+			this.codeService.addCodeServiceListener(this.codeServiceListener);
 		} else {
 			if (this.codeService != null) {
-				this.codeService.removeCodeServiceListener(codeServiceListener);
+				this.codeService
+						.removeCodeServiceListener(this.codeServiceListener);
 				this.codeService = null;
 			}
 		}
@@ -167,67 +170,98 @@ public class CodeViewerContentProvider implements IStructuredContentProvider,
 	@Override
 	public void dispose() {
 		if (this.codeService != null) {
-			this.codeService.removeCodeServiceListener(codeServiceListener);
+			this.codeService
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 	}
 
 	@Override
-	public Object getParent(Object element) {
-		if (ICode.class.isInstance(element)) {
-			ICode code = (ICode) element;
-			if (this.codeService != null) {
-				ICode parent = this.codeService.getParent(code);
-				return parent;
-			}
-			return null;
+	public URI[] getTopLevelElements(ICodeService input) {
+		if (input == null) {
+			return new URI[0];
 		}
-		if (ICodeInstance.class.isInstance(element)) {
-			return ((ICodeInstance) element).getCode();
+
+		List<ICode> codes = input.getTopLevelCodes();
+		if (codes.size() > 0) {
+			URI[] uris = new URI[codes.size()];
+			for (int i = 0; i < uris.length; i++) {
+				uris[i] = codes.get(i).getUri();
+			}
+			return uris;
+		} else {
+			return new URI[] { NoCodesNode.Uri };
+		}
+	}
+
+	@Override
+	public URI getParent(URI uri) {
+		try {
+			ILocatable locatable = this.locatorService.resolve(uri, null).get();
+			if (ICode.class.isInstance(locatable)) {
+				ICode code = (ICode) locatable;
+				if (this.codeService != null) {
+					ICode parent = this.codeService.getParent(code);
+					if (parent != null) {
+						return parent.getUri();
+					}
+				}
+				return null;
+			}
+			if (ICodeInstance.class.isInstance(locatable)) {
+				ICodeInstance codeInstance = (ICodeInstance) locatable;
+				return codeInstance.getCode().getUri();
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error resolving " + uri);
 		}
 		return null;
 	}
 
 	@Override
-	public boolean hasChildren(Object element) {
-		if (ICode.class.isInstance(element)) {
-			ICode code = (ICode) element;
-			if (this.codeService.getChildren(code).size() > 0)
-				return true;
-			if (this.showInstances
-					&& this.codeService.getInstances(code).size() > 0)
-				return true;
+	public boolean hasChildren(URI uri) {
+		try {
+			ILocatable locatable = this.locatorService.resolve(uri, null).get();
+			if (ICode.class.isInstance(locatable)) {
+				ICode code = (ICode) locatable;
+				if (this.codeService.getChildren(code).size() > 0) {
+					return true;
+				}
+				if (this.showInstances
+						&& this.codeService.getInstances(code).size() > 0) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error resolving " + uri);
 		}
 		return false;
 	}
 
 	@Override
-	public Object[] getChildren(Object parentElement) {
-		if (ICode.class.isInstance(parentElement)) {
-			ICode code = (ICode) parentElement;
-			if (code.getCaption().equals("Hey2")) {
-				System.err.println("hey2");
+	public URI[] getChildren(URI parentUri) {
+		try {
+			ILocatable locatable = this.locatorService.resolve(parentUri, null)
+					.get();
+			if (ICode.class.isInstance(locatable)) {
+				ICode code = (ICode) locatable;
+
+				ArrayList<ILocatable> childNodes = new ArrayList<ILocatable>();
+				childNodes.addAll(this.codeService.getChildren(code));
+				if (this.showInstances) {
+					childNodes.addAll(this.codeService.getInstances(code));
+				}
+
+				URI[] childUris = new URI[childNodes.size()];
+				for (int i = 0; i < childUris.length; i++) {
+					childUris[i] = childNodes.get(i).getUri();
+				}
+
+				return childUris;
 			}
-
-			ArrayList<Object> childNodes = new ArrayList<Object>();
-			childNodes.addAll(this.codeService.getChildren(code));
-			if (this.showInstances)
-				childNodes.addAll(this.codeService.getInstances(code));
-
-			return childNodes.toArray();
+		} catch (Exception e) {
+			LOGGER.error("Error resolving " + parentUri);
 		}
-		return null;
-	}
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		if (!(inputElement instanceof ICodeService))
-			return new Object[0];
-
-		List<ICode> codes = ((ICodeService) inputElement).getTopLevelCodes();
-		if (codes.size() > 0)
-			return codes.toArray();
-		else
-			return new Object[] { new NoCodesNode() };
+		return new URI[0];
 	}
 
 }

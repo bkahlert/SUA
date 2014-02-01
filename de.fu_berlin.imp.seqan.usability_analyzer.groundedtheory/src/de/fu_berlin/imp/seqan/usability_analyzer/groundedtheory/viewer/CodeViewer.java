@@ -23,7 +23,9 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -34,6 +36,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 	private static Logger LOGGER = Logger.getLogger(CodeViewer.class);
 	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	private SortableTreeViewer treeViewer;
 
@@ -90,22 +95,33 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				});
 		TreeViewerColumn countColumn = this.treeViewer.createColumn("# ph", 60);
 		countColumn.getColumn().setAlignment(SWT.RIGHT);
-		countColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				if (ICode.class.isInstance(element)) {
-					ICode code = (ICode) element;
-					int all = codeService.getAllInstances(code).size();
-					int here = codeService.getInstances(code).size();
-					return (all != here) ? all + " (" + here + ")" : all + "";
-				}
-				return "";
-			}
-		});
-		this.treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
-				new ColumnLabelProvider() {
+		countColumn
+				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
-					public String getText(Object element) {
+					public String getText(URI uri) throws Exception {
+						ILocatable element = CodeViewer.this.locatorService
+								.resolve(uri, null).get();
+
+						if (ICode.class.isInstance(element)) {
+							ICode code = (ICode) element;
+							int all = codeService.getAllInstances(code).size();
+							int here = codeService.getInstances(code).size();
+							return (all != here) ? all + " (" + here + ")"
+									: all + "";
+						}
+						return "";
+					}
+				});
+		this.treeViewer.createColumn("ID", 0/* 150 */).setLabelProvider(
+				new ILabelProviderService.StyledColumnLabelProvider() {
+					@Override
+					public String getText(URI uri) throws Exception {
+						if (NoCodesNode.Uri.equals(uri)) {
+							return "";
+						}
+						ILocatable element = CodeViewer.this.locatorService
+								.resolve(uri, null).get();
+
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
 							return new Long(code.getId()).toString();
@@ -115,35 +131,37 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							return codeInstance.getId().toString();
 
 						}
-						if (NoCodesNode.class.isInstance(element)) {
-							return "";
-						}
 						return "ERROR";
 					}
 				});
 		this.treeViewer.createColumn("Date Created", 0/* 170 */)
-				.setLabelProvider(new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							return CodeViewer.this.preferenceUtil
-									.getDateFormat().format(
-											code.getCreation().getDate());
-						}
-						if (ICodeInstance.class.isInstance(element)) {
-							ICodeInstance codeInstance = (ICodeInstance) element;
-							return CodeViewer.this.preferenceUtil
-									.getDateFormat().format(
-											codeInstance.getCreation()
-													.getDate());
-						}
-						if (NoCodesNode.class.isInstance(element)) {
-							return "";
-						}
-						return "ERROR";
-					}
-				});
+				.setLabelProvider(
+						new ILabelProviderService.StyledColumnLabelProvider() {
+							@Override
+							public String getText(URI uri) throws Exception {
+								if (NoCodesNode.Uri.equals(uri)) {
+									return "";
+								}
+								ILocatable element = CodeViewer.this.locatorService
+										.resolve(uri, null).get();
+
+								if (ICode.class.isInstance(element)) {
+									ICode code = (ICode) element;
+									return CodeViewer.this.preferenceUtil
+											.getDateFormat().format(
+													code.getCreation()
+															.getDate());
+								}
+								if (ICodeInstance.class.isInstance(element)) {
+									ICodeInstance codeInstance = (ICodeInstance) element;
+									return CodeViewer.this.preferenceUtil
+											.getDateFormat().format(
+													codeInstance.getCreation()
+															.getDate());
+								}
+								return "ERROR";
+							}
+						});
 	}
 
 	public Control getControl() {

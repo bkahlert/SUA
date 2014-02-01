@@ -1,19 +1,24 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.ui;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
@@ -25,35 +30,47 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DiffLabelProvider extends InformationLabelProvider {
+public class DiffLabelProvider extends UriLabelProvider {
+	private static final Logger LOGGER = Logger
+			.getLogger(DiffLabelProvider.class);
+
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 	private ICompilationService compilationService = (ICompilationService) PlatformUI
 			.getWorkbench().getService(ICompilationService.class);
 
 	@Override
-	public String getText(Object element) {
-		if (element instanceof IDiffs) {
-			IDiffs diffList = (IDiffs) element;
+	public String getText(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
+		if (locatable == null) {
+			return uri.toString();
+		}
+
+		if (locatable instanceof IDiffs) {
+			IDiffs diffList = (IDiffs) locatable;
 			IIdentifier identifier = null;
 			if (diffList.length() > 0) {
 				identifier = diffList.get(0).getIdentifier();
 			}
 			return (identifier != null) ? identifier.toString() : "";
 		}
-		if (element instanceof IDiff) {
-			IDiff diff = (IDiff) element;
+		if (locatable instanceof IDiff) {
+			IDiff diff = (IDiff) locatable;
 			Long milliSecondsPassed = diff.getDateRange().getDifference();
 			String duration = (milliSecondsPassed != null) ? DurationFormatUtils
 					.formatDuration(milliSecondsPassed,
 							new SUACorePreferenceUtil()
 									.getTimeDifferenceFormat(), true)
 					: "unknown";
-			return "Iteration #" + diff.getRevision() + " - " + duration;
-		} else if (element instanceof IDiffRecord
-				|| element instanceof IDiffRecordSegment) {
-			IDiffRecord diffRecord = element instanceof DiffRecord ? (DiffRecord) element
-					: ((DiffRecordSegment) element).getDiffFileRecord();
+			return "Iteration #" + diff.getCalculatedRevision() + " - "
+					+ duration;
+		} else if (locatable instanceof IDiffRecord
+				|| locatable instanceof IDiffRecordSegment) {
+			IDiffRecord diffRecord = locatable instanceof DiffRecord ? (DiffRecord) locatable
+					: ((DiffRecordSegment) locatable).getDiffFileRecord();
 			String prefix = Activator.getDefault().getDiffDataContainer()
 					.getDiffFiles(diffRecord.getIdentifier(), null)
 					.getLongestCommonPrefix();
@@ -62,20 +79,22 @@ public class DiffLabelProvider extends InformationLabelProvider {
 					.substring(prefix.length()) : filename;
 
 			String revisionShortenedFilename = shortenedFilename + "@"
-					+ diffRecord.getDiffFile().getRevision();
-			return element instanceof DiffRecord ? revisionShortenedFilename
-					: revisionShortenedFilename + ": "
-							+ ((DiffRecordSegment) element).getSegmentStart()
+					+ diffRecord.getDiffFile().getCalculatedRevision();
+			return locatable instanceof DiffRecord ? revisionShortenedFilename
+					: revisionShortenedFilename
+							+ ": "
+							+ ((DiffRecordSegment) locatable).getSegmentStart()
 							+ "+"
-							+ ((DiffRecordSegment) element).getSegmentLength();
+							+ ((DiffRecordSegment) locatable)
+									.getSegmentLength();
 		}
-		return "";
+		return super.getText(locatable);
 	}
 
 	private boolean hasCodedChildren(IDiff diff) {
 		for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
 			try {
-				if (this.codeService.getCodes(diffRecord).size() > 0) {
+				if (this.codeService.getCodes(diffRecord.getUri()).size() > 0) {
 					return true;
 				}
 			} catch (CodeServiceException e) {
@@ -91,50 +110,57 @@ public class DiffLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public Image getImage(Object element) {
-		if (element instanceof IDiffs) {
+	public Image getImage(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
+		if (locatable == null) {
+			return PlatformUI.getWorkbench().getSharedImages()
+					.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+		}
+
+		if (locatable instanceof IDiffs) {
 			return ImageManager.DIFFS;
 		}
-		if (element instanceof IDiff) {
-			IDiff diff = (IDiff) element;
+		if (locatable instanceof IDiff) {
+			IDiff diff = (IDiff) locatable;
 			try {
 				Boolean compiles = this.compilationService.compiles(diff);
 				if (compiles == null) {
-					if (this.codeService.getCodes(diff).size() > 0) {
-						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO
 								: ImageManager.DIFF_CODED;
 					} else {
 						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
+							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
 									: ImageManager.DIFF_PARTIALLY_CODED;
 						} else {
-							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO
 									: ImageManager.DIFF);
 						}
 					}
 				} else if (compiles == true) {
-					if (this.codeService.getCodes(diff).size() > 0) {
-						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_WORKING
 								: ImageManager.DIFF_CODED_WORKING;
 					} else {
 						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
+							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
 									: ImageManager.DIFF_PARTIALLY_CODED_WORKING;
 						} else {
-							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_WORKING
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_WORKING
 									: ImageManager.DIFF_WORKING);
 						}
 					}
 				} else {
-					if (this.codeService.getCodes(diff).size() > 0) {
-						return this.codeService.isMemo(diff) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFF_CODED_NOTWORKING;
 					} else {
 						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(diff) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
+							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
 									: ImageManager.DIFF_PARTIALLY_CODED_NOTWORKING;
 						} else {
-							return (this.codeService.isMemo(diff) ? ImageManager.DIFF_MEMO_NOTWORKING
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_NOTWORKING
 									: ImageManager.DIFF_NOTWORKING);
 						}
 					}
@@ -143,46 +169,46 @@ public class DiffLabelProvider extends InformationLabelProvider {
 				return ImageManager.DIFF;
 			}
 		}
-		if (element instanceof IDiffRecord) {
-			IDiffRecord diffRecord = (IDiffRecord) element;
+		if (locatable instanceof IDiffRecord) {
+			IDiffRecord diffRecord = (IDiffRecord) locatable;
 			try {
 				Boolean compiles = this.compilationService.compiles(diffRecord);
 				if (compiles == null) {
-					if (this.codeService.getCodes(diffRecord).size() > 0) {
-						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO
 								: ImageManager.DIFFRECORD_CODED;
 					} else {
 						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
+							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED;
 						} else {
-							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO
 									: ImageManager.DIFFRECORD);
 						}
 					}
 				} else if (compiles == true) {
-					if (this.codeService.getCodes(diffRecord).size() > 0) {
-						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
 								: ImageManager.DIFFRECORD_CODED_WORKING;
 					} else {
 						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
+							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED_WORKING;
 						} else {
-							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_WORKING
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_WORKING
 									: ImageManager.DIFFRECORD_WORKING);
 						}
 					}
 				} else {
-					if (this.codeService.getCodes(diffRecord).size() > 0) {
-						return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORD_CODED_NOTWORKING;
 					} else {
 						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
+							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
 									: ImageManager.DIFFRECORD_PARTIALLY_CODED_NOTWORKING;
 						} else {
-							return (this.codeService.isMemo(diffRecord) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
+							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
 									: ImageManager.DIFFRECORD_NOTWORKING);
 						}
 					}
@@ -191,33 +217,33 @@ public class DiffLabelProvider extends InformationLabelProvider {
 				return ImageManager.DIFFRECORD;
 			}
 		}
-		if (element instanceof IDiffRecordSegment) {
-			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) element;
+		if (locatable instanceof IDiffRecordSegment) {
+			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) locatable;
 			try {
 				Boolean compiles = this.compilationService
 						.compiles(diffRecordSegment);
 				if (compiles == null) {
-					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
 								: ImageManager.DIFFRECORDSEGMENT_CODED;
 					} else {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO
 								: ImageManager.DIFFRECORDSEGMENT;
 					}
 				} else if (compiles == true) {
-					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
 								: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
 					} else {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
 								: ImageManager.DIFFRECORDSEGMENT_WORKING;
 					}
 				} else {
-					if (this.codeService.getCodes(diffRecordSegment).size() > 0) {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
+					if (this.codeService.getCodes(uri).size() > 0) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
 					} else {
-						return this.codeService.isMemo(diffRecordSegment) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
 								: ImageManager.DIFFRECORDSEGMENT_NOTWORKING;
 					}
 				}
@@ -225,22 +251,32 @@ public class DiffLabelProvider extends InformationLabelProvider {
 				return ImageManager.DIFFRECORDSEGMENT;
 			}
 		}
-		return super.getImage(element);
+		return super.getImage(locatable);
 	}
 
 	@Override
-	public boolean hasInformation(Object element) {
-		return element instanceof IDiff || element instanceof IDiffRecord;
+	public boolean hasInformation(URI uri) {
+		ILocatable locatable;
+		try {
+			locatable = this.locatorService.resolve(uri, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error checking information for " + uri);
+			return false;
+		}
+
+		return locatable instanceof IDiff || locatable instanceof IDiffRecord;
 	}
 
 	@Override
-	public List<IllustratedText> getMetaInformation(Object element) {
+	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		if (element instanceof IDiff) {
+		if (locatable instanceof IDiff) {
 			metaEntries.add(new IllustratedText(ImageManager.DIFF, IDiff.class
 					.getSimpleName()));
 		}
-		if (element instanceof IDiffRecord) {
+		if (locatable instanceof IDiffRecord) {
 			metaEntries.add(new IllustratedText(ImageManager.DIFFRECORD,
 					DiffRecord.class.getSimpleName()));
 		}
@@ -248,14 +284,18 @@ public class DiffLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<IDetailEntry> getDetailInformation(Object element) {
+	public List<IDetailEntry> getDetailInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
-		if (element instanceof IDiff) {
-			IDiff diff = (IDiff) element;
+		if (locatable instanceof IDiff) {
+			IDiff diff = (IDiff) locatable;
 			detailEntries.add(new DetailEntry("Name",
 					diff.getName() != null ? diff.getName() : "-"));
 			detailEntries.add(new DetailEntry("Revision", diff.getRevision()
 					+ ""));
+			detailEntries.add(new DetailEntry("Calculated Revision", diff
+					.getCalculatedRevision() + ""));
 			detailEntries.add(new DetailEntry("File Size", diff.getLength()
 					+ " Bytes"));
 
@@ -273,8 +313,8 @@ public class DiffLabelProvider extends InformationLabelProvider {
 											.getTimeDifferenceFormat(), true)
 							: "unknown"));
 		}
-		if (element instanceof IDiffRecord) {
-			IDiffRecord diffRecord = (IDiffRecord) element;
+		if (locatable instanceof IDiffRecord) {
+			IDiffRecord diffRecord = (IDiffRecord) locatable;
 			detailEntries.add(new DetailEntry("Filename", diffRecord
 					.getFilename() != null ? diffRecord.getFilename() : "-"));
 			detailEntries.add(new DetailEntry("Is Temporary", diffRecord
@@ -300,8 +340,9 @@ public class DiffLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public Control fillInformation(Object element, Composite composite) {
-		return super.fillInformation(element, composite);
+	public Control fillInformation(URI uri, Composite composite)
+			throws Exception {
+		return super.fillInformation(uri, composite);
 	}
 
 }

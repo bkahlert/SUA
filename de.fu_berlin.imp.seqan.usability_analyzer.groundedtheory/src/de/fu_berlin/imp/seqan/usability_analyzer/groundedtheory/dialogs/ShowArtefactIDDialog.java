@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.dialogs;
 
+import java.net.URI;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -19,18 +21,17 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 
 public class ShowArtefactIDDialog extends TitleAreaDialog {
 
 	public static final int COPY_AND_CLOSE_ID = IDialogConstants.OK_ID + 1;
 	public static final String COPY_AND_CLOSE_STRING = "Copy and Close";
 
-	private ILocatable locatable;
+	private URI uri;
 
-	public ShowArtefactIDDialog(Shell parentShell, ILocatable locatable) {
+	public ShowArtefactIDDialog(Shell parentShell, URI uri) {
 		super(parentShell);
-		this.locatable = locatable;
+		this.uri = uri;
 	}
 
 	@Override
@@ -69,10 +70,10 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 				.getWorkbench().getService(ILabelProviderService.class);
 		if (labelProviderService != null) {
 			ILabelProvider labelProvider = labelProviderService
-					.getLabelProvider(this.locatable);
+					.getLabelProvider(this.uri);
 			if (labelProvider != null) {
-				image = labelProvider.getImage(this.locatable);
-				label = labelProvider.getText(this.locatable);
+				image = labelProvider.getImage(this.uri);
+				label = labelProvider.getText(this.uri);
 			}
 		}
 
@@ -89,7 +90,7 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 
 		Label uriLabel = new Label(composite, SWT.NONE);
 		uriLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-		uriLabel.setText(this.locatable.getUri().toString());
+		uriLabel.setText(this.uri.toString());
 		FontUtils.changeFontSizeBy(uriLabel, 2);
 
 		parent.pack();

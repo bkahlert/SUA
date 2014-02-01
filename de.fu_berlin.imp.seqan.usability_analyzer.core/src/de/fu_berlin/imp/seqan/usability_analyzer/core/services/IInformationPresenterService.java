@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.PopupDialog;
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -18,7 +17,8 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControlManager;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.LabelProvider;
 
 /**
  * This service can display {@link PopupDialog}s that show detailed information
@@ -26,7 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
  * 
  * @author bkahlert
  */
-public interface IInformationPresenterService {
+public interface IInformationPresenterService<INFORMATION> {
 
 	/**
 	 * Instances of this class provide a background color for the popup
@@ -40,10 +40,11 @@ public interface IInformationPresenterService {
 
 /**
 	 * Instances of this class can provide callers of
-	 * {@link ILabelProviderService#getLabelProvider(ILocatable) with further information.
+	 * {@link ILabelProviderService#getLabelProvider(URI) with further information.
 	 * @author bkahlert
 	 */
-	public static interface IInformationLabelProvider extends ILabelProvider {
+	public static interface IInformationLabelProvider<INFORMATION> extends
+			ILabelProvider {
 
 		public static interface IDetailEntry extends Map.Entry<String, String> {
 		}
@@ -80,32 +81,36 @@ public interface IInformationPresenterService {
 		 * Returns true if this {@link IInformationLabelProvider} can provide
 		 * further information for the given element.
 		 * 
-		 * @param element
+		 * @param object
 		 * @return
 		 */
-		public boolean hasInformation(Object element);
+		public boolean hasInformation(INFORMATION object) throws Exception;
 
-		public List<IllustratedText> getMetaInformation(Object element);
+		public List<IllustratedText> getMetaInformation(INFORMATION object)
+				throws Exception;
 
-		public List<IDetailEntry> getDetailInformation(Object element);
+		public List<IDetailEntry> getDetailInformation(INFORMATION object)
+				throws Exception;
 
 		/**
 		 * Fills the given {@link Composite} with detailed information.
 		 * 
-		 * @param element
+		 * @param uri
 		 * @param composite
 		 * @return the main control; null if no popup should be displayed.
 		 */
-		public Control fillInformation(Object element, Composite composite);
+		public Control fillInformation(INFORMATION object, Composite composite)
+				throws Exception;
 
 		/**
 		 * Fills the given {@link ToolBarManager} with custom
 		 * {@link IContributionItem}s and {@link IAction}s.
 		 * 
-		 * @param element
+		 * @param uri
 		 * @param toolBarManager
 		 */
-		public void fill(Object element, ToolBarManager toolBarManager);
+		public void fill(INFORMATION object, ToolBarManager toolBarManager)
+				throws Exception;
 
 	}
 
@@ -115,31 +120,35 @@ public interface IInformationPresenterService {
 	 * @author bkahlert
 	 * 
 	 */
-	public static class InformationLabelProvider extends LabelProvider
-			implements IInformationLabelProvider {
+	public static class InformationLabelProvider<INFORMATION> extends
+			LabelProvider implements IInformationLabelProvider<INFORMATION> {
 
 		@Override
-		public boolean hasInformation(Object element) {
+		public boolean hasInformation(INFORMATION uri) throws Exception {
 			return false;
 		}
 
 		@Override
-		public Control fillInformation(Object element, Composite composite) {
+		public Control fillInformation(INFORMATION uri, Composite composite)
+				throws Exception {
 			return null;
 		}
 
 		@Override
-		public List<IllustratedText> getMetaInformation(Object element) {
+		public List<IllustratedText> getMetaInformation(INFORMATION uri)
+				throws Exception {
 			return new ArrayList<IllustratedText>();
 		}
 
 		@Override
-		public List<IDetailEntry> getDetailInformation(Object element) {
+		public List<IDetailEntry> getDetailInformation(INFORMATION uri)
+				throws Exception {
 			return new ArrayList<IDetailEntry>();
 		}
 
 		@Override
-		public void fill(Object element, ToolBarManager toolBarManager) {
+		public void fill(INFORMATION uri, ToolBarManager toolBarManager)
+				throws Exception {
 			return;
 		}
 
@@ -173,22 +182,23 @@ public interface IInformationPresenterService {
 	 * Every time the mouse stops moving the following steps are done:
 	 * <ol>
 	 * <li>the given {@link ISubjectInformationProvider} is requested to provide
-	 * a {@link ILocatable}</li>
-	 * <li>if a {@link ILocatable} is returned the
-	 * {@link IInformationPresenterService} uses the
-	 * {@link ILabelProviderService} to retrieve a {@link ILabelProvider} that
-	 * can provide the corresponding information</li>
+	 * an object</li>
+	 * <li>if an object is returned the {@link IInformationPresenterService}
+	 * uses the {@link ILabelProviderService} to retrieve a
+	 * {@link ILabelProvider} that can provide the corresponding information</li>
 	 * <li>if a responsible {@link ILabelProvider} can provide information a
 	 * popup displaying these information is shown</li>
 	 * </ol>
 	 * 
 	 * @param control
+	 * @param informationClass
 	 * @param subjectInformationProvider
 	 * @return the generated {@link InformationControlManager}
 	 */
-	public <CONTROL extends Control> InformationControlManager<CONTROL, ILocatable> enable(
+	public <CONTROL extends Control> InformationControlManager<CONTROL, INFORMATION> enable(
 			CONTROL control,
-			ISubjectInformationProvider<CONTROL, ILocatable> subjectInformationProvider);
+			Class<INFORMATION> informationClass,
+			ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider);
 
 	/**
 	 * Deinstalls an the installed {@link InformationControlManager} from the

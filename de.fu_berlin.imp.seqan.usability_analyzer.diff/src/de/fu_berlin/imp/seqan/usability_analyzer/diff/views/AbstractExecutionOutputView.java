@@ -1,16 +1,25 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
 
 public abstract class AbstractExecutionOutputView extends AbstractOutputView {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractExecutionOutputView.class);
+
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	public AbstractExecutionOutputView(boolean selectionSensitive,
 			boolean editorSensitive) {
@@ -24,27 +33,33 @@ public abstract class AbstractExecutionOutputView extends AbstractOutputView {
 	}
 
 	@Override
-	public PartInfo getPartInfo(ICompilable compilable) {
+	public PartInfo getPartInfo(URI uri) {
 		ILabelProvider labelProvider = this.getLabelProviderService()
-				.getLabelProvider(compilable);
-		if (labelProvider != null) {
-			return new PartInfo("Execution Output - "
-					+ labelProvider.getText(compilable),
-					labelProvider.getImage(compilable));
+				.getLabelProvider(uri);
+		return new PartInfo("Execution Output - " + labelProvider.getText(uri),
+				labelProvider.getImage(uri));
+	}
+
+	@Override
+	public String getHtml(URI uri, IProgressMonitor monitor) throws Exception {
+		ILocatable compilable = this.locatorService.resolve(uri, monitor).get();
+		if (compilable instanceof ICompilable) {
+			return this.getCompilationService().executionOutput(
+					(ICompilable) compilable);
 		} else {
-			LOGGER.warn("No label provider found for " + compilable);
-			return this.getDefaultPartInfo();
+			return "";
 		}
 	}
 
 	@Override
-	public String getHtml(ICompilable compilable, IProgressMonitor monitor) {
-		return this.getCompilationService().executionOutput(compilable);
-	}
+	public void setHtml(URI uri, String html, IProgressMonitor monitor)
+			throws Exception {
+		ILocatable compilable = this.locatorService.resolve(uri, monitor).get();
+		if (compilable instanceof ICompilable) {
+			this.getCompilationService().executionOutput(
+					(ICompilable) compilable);
+		} else {
 
-	@Override
-	public void setHtml(ICompilable compilable, String html,
-			IProgressMonitor monitor) {
-		this.getCompilationService().executionOutput(compilable, html);
+		}
 	}
 }

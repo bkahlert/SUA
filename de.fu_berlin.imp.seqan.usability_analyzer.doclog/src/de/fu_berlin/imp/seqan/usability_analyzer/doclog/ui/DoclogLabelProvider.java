@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,31 +27,37 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.InformationLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DoclogLabelProvider extends InformationLabelProvider {
+public class DoclogLabelProvider extends UriLabelProvider {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogLabelProvider.class);
 
+	private ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 
 	@Override
-	public String getText(Object element) {
-		if (element instanceof Doclog) {
-			Doclog doclog = (Doclog) element;
+	public String getText(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable instanceof Doclog) {
+			Doclog doclog = (Doclog) locatable;
 			return doclog.getIdentifier().toString();
 		}
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 			String url = doclogRecord.getUrl();
 			if (url != null) {
 				url = url.replaceAll(".*://", "");
@@ -60,51 +67,54 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 			return url != null ? (scrollY != null ? url + " ⇅" + scrollY : url)
 					: "ERROR";
 		}
-		return super.getText(element);
+		return super.getText(locatable);
 	}
 
 	@Override
-	public Image getImage(Object element) {
-		if (element instanceof Doclog) {
-			Doclog doclog = (Doclog) element;
+	public Image getImage(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable instanceof Doclog) {
+			Doclog doclog = (Doclog) locatable;
 			try {
-				return (this.codeService.getCodes(doclog).size() > 0) ? (this.codeService
-						.isMemo(doclog) ? ImageManager.DOCLOGFILE_CODED_MEMO
-						: ImageManager.DOCLOGFILE_CODED) : (this.codeService
-						.isMemo(doclog) ? ImageManager.DOCLOGFILE_MEMO
-						: ImageManager.DOCLOGFILE);
+				return (this.codeService.getCodes(doclog.getUri()).size() > 0) ? (this.codeService
+						.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_CODED_MEMO
+						: ImageManager.DOCLOGFILE_CODED)
+						: (this.codeService.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_MEMO
+								: ImageManager.DOCLOGFILE);
 			} catch (CodeServiceException e) {
 				return ImageManager.DOCLOGFILE;
 			}
 		}
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 			try {
-				return (this.codeService.getCodes(doclogRecord).size() > 0) ? (this.codeService
-						.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_CODED_MEMO
+				return (this.codeService.getCodes(doclogRecord.getUri()).size() > 0) ? (this.codeService
+						.isMemo(doclogRecord.getUri()) ? ImageManager.DOCLOGRECORD_CODED_MEMO
 						: ImageManager.DOCLOGRECORD_CODED)
-						: (this.codeService.isMemo(doclogRecord) ? ImageManager.DOCLOGRECORD_MEMO
+						: (this.codeService.isMemo(doclogRecord.getUri()) ? ImageManager.DOCLOGRECORD_MEMO
 								: ImageManager.DOCLOGRECORD);
 			} catch (CodeServiceException e) {
 				return ImageManager.DOCLOGRECORD;
 			}
 		}
-		return super.getImage(element);
+		return super.getImage(locatable);
 	}
 
 	@Override
-	public boolean hasInformation(Object element) {
-		if (element instanceof DoclogRecord) {
+	public boolean hasInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable instanceof DoclogRecord) {
 			return true;
 		}
-		return super.hasInformation(element);
+		return super.hasInformation(uri);
 	}
 
 	@Override
-	public List<IllustratedText> getMetaInformation(Object element) {
+	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 			metaEntries
 					.add(new IllustratedText(
 							de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.ImageManager.DOCLOGRECORD,
@@ -174,10 +184,11 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public List<IDetailEntry> getDetailInformation(Object element) {
+	public List<IDetailEntry> getDetailInformation(URI uri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 			detailEntries.add(new DetailEntry("URL",
 					doclogRecord.getShortUrl() != null ? doclogRecord
 							.getShortUrl() : "-"));
@@ -221,9 +232,11 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 	private Map<Composite, com.bkahlert.nebula.widgets.image.Image> images = new HashMap<Composite, com.bkahlert.nebula.widgets.image.Image>();
 
 	@Override
-	public Control fillInformation(Object element, final Composite composite) {
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+	public Control fillInformation(URI uri, final Composite composite)
+			throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 
 			ImageData imageData = doclogRecord.getScreenshot().getImageData();
 			if (imageData == null) {
@@ -263,7 +276,7 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 					.getBounds();
 			Point maxSize = new Point(
 					(int) Math.round(monitorBounds.width * 0.5),
-					(int) Math.round(monitorBounds.height * 0.5));
+					(int) Math.round(monitorBounds.height * 0.45));
 			Point size = Geometry.getSize(image.getBounds());
 			if (size.x > maxSize.x || size.y > maxSize.y) {
 				size = ImageUtils.resizeWithinArea(
@@ -272,7 +285,7 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 
 			if (!this.images.containsKey(composite)) {
 				com.bkahlert.nebula.widgets.image.Image img = new com.bkahlert.nebula.widgets.image.Image(
-						composite, SWT.NONE, size);
+						composite, SWT.NONE, size, FILL_MODE.INNER_FILL);
 				this.images.put(composite, img);
 				img.setBackground(Display.getCurrent().getSystemColor(
 						SWT.COLOR_INFO_BACKGROUND));
@@ -351,9 +364,10 @@ public class DoclogLabelProvider extends InformationLabelProvider {
 	}
 
 	@Override
-	public void fill(Object element, ToolBarManager toolBarManager) {
-		if (element instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) element;
+	public void fill(URI uri, ToolBarManager toolBarManager) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable instanceof DoclogRecord) {
+			DoclogRecord doclogRecord = (DoclogRecord) locatable;
 
 			if (doclogRecord.getUrl() != null) {
 				final String url = doclogRecord.getUrl();
