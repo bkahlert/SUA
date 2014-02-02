@@ -30,7 +30,8 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DoclogDataContainer.class, 1);
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
@@ -53,7 +54,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	private final IDataContainer doclogDirectory;
 	private final IData mappingFile;
-	private DoclogCache doclogCache;
+	private final DoclogCache doclogCache;
 
 	public DoclogDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers) {
@@ -176,6 +177,10 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	public IData getFile(IIdentifier identifier) {
 		return this.datas.get(identifier);
+	}
+
+	public boolean doclogFileLoaded(IIdentifier identifier) {
+		return doclogCache.getCachedKeys().contains(identifier);
 	}
 
 	/**

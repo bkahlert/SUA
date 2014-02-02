@@ -54,12 +54,14 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 	}
 
 	public static final com.bkahlert.nebula.screenshots.IScreenshotTaker.Format Format = com.bkahlert.nebula.screenshots.IScreenshotTaker.Format.PNG;
-	public static final String RELFILE = "%s-%d,%d-%d,%d-%s-%s";
+	public static final String OLD_RELFILE = "%s-%d,%d-%d,%d";
+	public static final String NEW_RELFILE = "%s-%d,%d-%d,%d-%s-%s";
 	public static final int MAX_FILENAME_LENGTH = 255;
 
-	private DoclogRecord doclogRecord;
+	private final DoclogRecord doclogRecord;
 
-	private String filename;
+	private final String old_filename;
+	private final String new_filename;
 	private ImageData imageData;
 	private Status status;
 
@@ -75,15 +77,22 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 		String action = this.doclogRecord.getAction().toString();
 		String param = this.doclogRecord.getActionParameter() != null ? URLEncoder
 				.encode(this.doclogRecord.getActionParameter(), "UTF-8") : "";
-		String relFile = String.format(RELFILE, url, windowWidth, windowHeight,
-				scrollX, scrollY, action, param);
+		String oldRelFile = String.format(OLD_RELFILE, url, windowWidth,
+				windowHeight, scrollX, scrollY);
+		String newRelFile = String.format(NEW_RELFILE, url, windowWidth,
+				windowHeight, scrollX, scrollY, action, param);
 
 		// Use md5 if filename to long
-		if (relFile.length() > MAX_FILENAME_LENGTH - 1
+		if (oldRelFile.length() > MAX_FILENAME_LENGTH - 1
 				- Format.getName().length()) {
-			relFile = DigestUtils.md5Hex(relFile);
+			oldRelFile = DigestUtils.md5Hex(oldRelFile);
 		}
-		this.filename = relFile + "." + Format;
+		if (newRelFile.length() > MAX_FILENAME_LENGTH - 1
+				- Format.getName().length()) {
+			newRelFile = DigestUtils.md5Hex(newRelFile);
+		}
+		this.old_filename = oldRelFile + "." + Format;
+		this.new_filename = newRelFile + "." + Format;
 	}
 
 	@Override
@@ -98,7 +107,13 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 	public File getFile() throws IOException {
 		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
 				.getBaseDataContainer();
-		return baseDataContainer.getStaticFile("screenshots", this.filename);
+		File file = baseDataContainer.getStaticFile("screenshots",
+				this.new_filename);
+		if (file == null) {
+			file = baseDataContainer.getStaticFile("screenshots",
+					this.old_filename);
+		}
+		return file;
 	}
 
 	public ImageData calculateImageData() {
@@ -154,7 +169,7 @@ public class DoclogScreenshot implements HasDateRange, HasIdentifier {
 
 		IBaseDataContainer baseDataContainer = this.doclogRecord.getDoclog()
 				.getBaseDataContainer();
-		baseDataContainer.putFile("screenshots", this.filename,
+		baseDataContainer.putFile("screenshots", this.new_filename,
 				tempScreenshotFile);
 		if (this.imageData != null) {
 			this.imageData = this.calculateImageData();

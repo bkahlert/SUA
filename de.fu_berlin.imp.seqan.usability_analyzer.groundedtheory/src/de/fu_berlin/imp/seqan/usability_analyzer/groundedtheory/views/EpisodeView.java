@@ -17,7 +17,7 @@ public class EpisodeView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView";
 	private EpisodeViewer episodeViewer;
 
-	private IHighlightService highlightService = (IHighlightService) PlatformUI
+	private final IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
 
 	public EpisodeView() {
@@ -45,7 +45,6 @@ public class EpisodeView extends ViewPart {
 		new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};

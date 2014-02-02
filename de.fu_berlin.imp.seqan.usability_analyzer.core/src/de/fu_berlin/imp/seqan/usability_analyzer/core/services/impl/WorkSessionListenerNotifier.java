@@ -10,8 +10,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 
 public class WorkSessionListenerNotifier {
-	private List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private final List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			WorkSessionListenerNotifier.class, 1);
 
 	void addWorkSessionListener(IWorkSessionListener workSessionListener) {
 		this.workSessionListeners.add(workSessionListener);

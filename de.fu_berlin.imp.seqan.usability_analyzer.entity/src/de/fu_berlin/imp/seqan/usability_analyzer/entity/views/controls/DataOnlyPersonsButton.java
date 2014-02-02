@@ -9,12 +9,10 @@ abstract public class DataOnlyPersonsButton extends
 		WorkbenchWindowControlContribution {
 
 	public DataOnlyPersonsButton() {
-
 	}
 
 	public DataOnlyPersonsButton(String id) {
 		super(id);
-
 	}
 
 	public void setDataSourceFilter(DataSource dataSource, boolean isOn) {

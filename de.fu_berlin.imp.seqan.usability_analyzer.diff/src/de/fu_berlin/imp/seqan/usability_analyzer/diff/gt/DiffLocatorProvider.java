@@ -84,6 +84,14 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		IIdentifier id = URIUtils.getIdentifier(uri);
+		return Activator.getDefault().getDiffDataContainer() != null
+				&& Activator.getDefault().getDiffDataContainer()
+						.diffsLoaded(id);
+	}
+
+	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
 		if (this.isResolvabilityImpossible(uri)) {
 			return null;

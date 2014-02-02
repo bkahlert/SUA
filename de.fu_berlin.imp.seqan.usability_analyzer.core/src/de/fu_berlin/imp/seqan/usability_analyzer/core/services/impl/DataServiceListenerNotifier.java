@@ -10,8 +10,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 
 public class DataServiceListenerNotifier {
-	private List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private final List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DataServiceListenerNotifier.class, 1);
 
 	public void addDataDirectoryServiceListener(
 			IDataServiceListener dataServiceListener) {

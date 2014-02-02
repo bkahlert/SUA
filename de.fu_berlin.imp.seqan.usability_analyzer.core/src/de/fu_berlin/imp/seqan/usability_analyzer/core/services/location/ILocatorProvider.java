@@ -33,10 +33,22 @@ public interface ILocatorProvider {
 	public Class<? extends ILocatable> getType(URI uri);
 
 	/**
+	 * Returns <code>true</code> iff {@link #getObject(URI, IProgressMonitor)}
+	 * is short running. Otherwise <code>false</code> is returned which means
+	 * calling {@link #getObject(URI, IProgressMonitor)} is expensive and should
+	 * be done in a separate thread.
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	public boolean getObjectIsShortRunning(URI uri);
+
+	/**
 	 * Returns the {@link ILocatable} that is addressed by the given URI.
 	 * <p>
-	 * Avoid calling this method in the UI thread since it may be be long
-	 * running.
+	 * Avoid calling this method in the UI thread if
+	 * {@link #getObjectIsShortRunning(URI)} returned
+	 * <code>false</false> since getting the object may take some time.
 	 * 
 	 * @param uri
 	 * @param monitor

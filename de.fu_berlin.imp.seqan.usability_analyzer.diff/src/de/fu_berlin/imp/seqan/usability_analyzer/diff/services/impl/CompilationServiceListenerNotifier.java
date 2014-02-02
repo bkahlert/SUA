@@ -10,8 +10,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 
 public class CompilationServiceListenerNotifier {
-	private List<ICompilationServiceListener> compilationServiceListeners = new ArrayList<ICompilationServiceListener>();
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private final List<ICompilationServiceListener> compilationServiceListeners = new ArrayList<ICompilationServiceListener>();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			CompilationServiceListenerNotifier.class, 1);
 
 	public void addCompilationServiceListener(
 			ICompilationServiceListener compilationServiceListener) {

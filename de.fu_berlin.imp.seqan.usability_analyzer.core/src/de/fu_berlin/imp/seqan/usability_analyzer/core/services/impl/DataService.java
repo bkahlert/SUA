@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -14,8 +15,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.bkahlert.devel.nebula.utils.CollectionUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDataLoadProvider;
@@ -31,7 +34,8 @@ public class DataService implements IDataService {
 
 	private static final Logger LOGGER = Logger.getLogger(DataService.class);
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DataService.class, 1);
 
 	public static List<IBaseDataContainer> loadFromPreferences() {
 		List<IBaseDataContainer> containers = new ArrayList<IBaseDataContainer>();
@@ -109,9 +113,6 @@ public class DataService implements IDataService {
 	@Override
 	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
-		if (true) {
-			return;
-		}
 		if (baseDataContainers == null) {
 			baseDataContainers = new ArrayList<IBaseDataContainer>();
 		}
@@ -128,10 +129,18 @@ public class DataService implements IDataService {
 
 	private static void loadData(final DataLoaderManager dataLoaderManager,
 			final List<? extends IBaseDataContainer> baseDataContainers) {
-		LOGGER.info("Loading " + StringUtils.join(baseDataContainers, ", ")
-				+ "...");
-		final Job loader = new Job("Loading "
-				+ StringUtils.join(baseDataContainers, ", ") + "...") {
+		CollectionUtils.apply(baseDataContainers,
+				new IConverter<IBaseDataContainer, String>() {
+					@Override
+					public String convert(IBaseDataContainer container) {
+						String name = FilenameUtils.getName(container.getName());
+						return name;
+					}
+				});
+
+		String jobName = "Loading " + StringUtils.join(null, ", ") + "...";
+		LOGGER.info(jobName);
+		final Job loader = new Job(jobName) {
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
 				long loadStart = System.currentTimeMillis();

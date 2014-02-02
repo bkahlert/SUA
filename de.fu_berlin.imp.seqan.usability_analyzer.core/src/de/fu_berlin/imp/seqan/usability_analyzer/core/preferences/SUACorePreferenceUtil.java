@@ -239,6 +239,9 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				.split("%%");
 		List<IWorkSessionEntity> entities = new ArrayList<IWorkSessionEntity>();
 		for (String uriString : uriStrings) {
+			if (uriString == null || uriString.isEmpty()) {
+				continue;
+			}
 			try {
 				final URI uri = new URI(uriString);
 				ILocatable locatable = locatorService.resolve(uri, null).get();

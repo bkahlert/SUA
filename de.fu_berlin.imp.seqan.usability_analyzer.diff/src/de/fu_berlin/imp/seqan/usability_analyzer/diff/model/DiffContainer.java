@@ -55,7 +55,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DiffContainer.class, 1);
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
@@ -109,13 +110,13 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		return new TimeZoneDateRange(start, end);
 	}
 
-	private IDataContainer diffContainer;
+	private final IDataContainer diffContainer;
 	private ITrunk trunk;
-	private ISourceStore sourceCache;
+	private final ISourceStore sourceCache;
 	private Map<ID, DataList> dataLists;
 	private Map<ID, TimeZoneDateRange> fileDateRanges;
 
-	private DiffCache diffCache;
+	private final DiffCache diffCache;
 
 	/**
 	 * Returns a {@link DiffContainer} instance that can handle contained
@@ -223,6 +224,10 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public IDataContainer getDiffFileDirectory() {
 		return this.diffContainer;
+	}
+
+	public boolean diffsLoaded(IIdentifier id) {
+		return this.diffCache.getCachedKeys().contains(id);
 	}
 
 	/**

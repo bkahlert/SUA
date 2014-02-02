@@ -14,10 +14,13 @@ import com.bkahlert.devel.nebula.utils.ExecutorService;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.EpisodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.EpisodeView;
@@ -27,11 +30,14 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 	public static final String EPISODE_NAMESPACE = "episode";
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLocatorProvider.class);
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			EpisodeLocatorProvider.class, 1);
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	@SuppressWarnings("unchecked")
 	public EpisodeLocatorProvider() {
-		super(IEpisode.class);
+		super(IEpisodes.class, IEpisode.class);
 	}
 
 	@Override
@@ -46,7 +52,21 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		return IEpisode.class;
+		List<String> trail = URIUtils.getTrail(uri);
+		switch (trail.size()) {
+		case 0:
+			return IEpisodes.class;
+		case 1:
+			return IEpisode.class;
+		}
+
+		LOGGER.error("Unknown " + URI.class.getSimpleName() + " format: " + uri);
+		return null;
+	}
+
+	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		return true;
 	}
 
 	@Override
@@ -55,22 +75,19 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-				.getService(ICodeService.class);
-
-		String[] path = uri.getRawPath().substring(1).split("/");
-
-		// 0: Key
-		Set<IEpisode> episodes = codeService.getEpisodes(IdentifierFactory
-				.createFrom(path[0]));
-
-		// 1: Compare URI
-		for (IEpisode episode : episodes) {
-			if (episode.getUri().equals(uri)) {
-				return episode;
+		IIdentifier identifier = URIUtils.getIdentifier(uri);
+		List<String> trail = URIUtils.getTrail(uri);
+		switch (trail.size()) {
+		case 0:
+			return new Episodes(identifier);
+		case 1:
+			Set<IEpisode> episodes = CODE_SERVICE.getEpisodes(identifier);
+			for (IEpisode episode : episodes) {
+				if (episode.getUri().equals(uri)) {
+					return episode;
+				}
 			}
 		}
-
 		return null;
 	}
 

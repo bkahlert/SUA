@@ -20,7 +20,8 @@ public class CodeLocatorProvider extends AdaptingLocatorProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeLocatorProvider.class);
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			CodeLocatorProvider.class, 1);
 
 	@SuppressWarnings("unchecked")
 	public CodeLocatorProvider() {
@@ -40,6 +41,11 @@ public class CodeLocatorProvider extends AdaptingLocatorProvider {
 		}
 
 		return ICode.class;
+	}
+
+	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		return true;
 	}
 
 	@Override

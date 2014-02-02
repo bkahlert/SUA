@@ -47,6 +47,11 @@ public class EntityLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		return true;
+	}
+
+	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
 		if (this.isResolvabilityImpossible(uri)) {
 			return null;

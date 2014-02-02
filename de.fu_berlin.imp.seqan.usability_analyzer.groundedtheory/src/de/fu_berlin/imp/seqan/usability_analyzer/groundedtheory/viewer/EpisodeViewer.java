@@ -44,9 +44,9 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 
 	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(EpisodeViewer.class);
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
 	private SortableTreeViewer treeViewer;

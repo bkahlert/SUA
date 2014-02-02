@@ -182,7 +182,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DiffExplorerView.class.getSimpleName());
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
 	public DiffExplorerView() {

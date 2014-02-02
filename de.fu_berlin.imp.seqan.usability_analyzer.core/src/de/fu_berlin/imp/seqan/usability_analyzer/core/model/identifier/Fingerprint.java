@@ -14,11 +14,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.adapters.Fingerprint
 public class Fingerprint implements IIdentifier {
 	public static final Pattern PATTERN = Pattern.compile("^![A-Za-z\\d]+$");
 
-	public static final boolean isValid(String id) {
-		if (id == null) {
+	public static final boolean isValid(String fingerprint) {
+		if (fingerprint == null) {
 			return false;
 		}
-		return PATTERN.matcher(id).find();
+		return PATTERN.matcher(fingerprint).find();
 	}
 
 	private static final NullComparator COMPARATOR = new NullComparator(

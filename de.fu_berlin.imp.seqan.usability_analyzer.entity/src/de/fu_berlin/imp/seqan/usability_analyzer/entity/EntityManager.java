@@ -29,14 +29,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecor
 public class EntityManager {
 	private static Logger LOGGER = Logger.getLogger(EntityManager.class);
 
-	private DiffContainer diffContainer;
-	private DoclogDataContainer doclogDataContainer;
-	private SurveyContainer surveyContainer;
+	private final DiffContainer diffContainer;
+	private final DoclogDataContainer doclogDataContainer;
+	private final SurveyContainer surveyContainer;
 
-	private StatsFileManager statsFileManager;
-	private CMakeCacheFileManager cMakeCacheFileManager;
+	private final StatsFileManager statsFileManager;
+	private final CMakeCacheFileManager cMakeCacheFileManager;
 
-	private Mapper mapper;
+	private final Mapper mapper;
 
 	private List<Entity> persons = new ArrayList<Entity>();
 

@@ -138,7 +138,7 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public URI[] getTopLevelElements(URI[] uris) {
-		if (uris.length == 1) {
+		if (uris.length == 1 && locatorService.getType(uris[0]) == Doclog.class) {
 			return getChildren(uris[0]);
 		} else {
 			return uris;

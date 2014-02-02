@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -28,6 +30,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 public class LocatorService implements ILocatorService {
 
 	private static final Logger LOGGER = Logger.getLogger(LocatorService.class);
+	private static final boolean LOG_RUNTIME = true;
 
 	private static ILocatorProvider[] getRegisteredLocatorProviders() {
 		IConfigurationElement[] config = Platform
@@ -50,43 +53,93 @@ public class LocatorService implements ILocatorService {
 		return registeredLocatableProviders.toArray(new ILocatorProvider[0]);
 	}
 
-	private final ExecutorService executorService = new ExecutorService();
+	private final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
 
-	// TODO use cache
+	private List<ILocatorProvider> getFastLocatorProviders(URI uri) {
+		List<ILocatorProvider> fastLocatorProviders = new ArrayList<ILocatorProvider>(
+				locatorProviders.length);
+		for (final ILocatorProvider locatorProvider : locatorProviders) {
+			if (locatorProvider.isResolvabilityImpossible(uri)) {
+				continue;
+			}
+			if (locatorProvider.getObjectIsShortRunning(uri)) {
+				fastLocatorProviders.add(locatorProvider);
+			}
+		}
+		return fastLocatorProviders;
+	}
+
+	private List<ILocatorProvider> getSlowLocatorProviders(URI uri) {
+		List<ILocatorProvider> slowLocatorProviders = new ArrayList<ILocatorProvider>(
+				locatorProviders.length);
+		for (final ILocatorProvider locatorProvider : locatorProviders) {
+			if (locatorProvider.isResolvabilityImpossible(uri)) {
+				continue;
+			}
+			if (!locatorProvider.getObjectIsShortRunning(uri)) {
+				slowLocatorProviders.add(locatorProvider);
+			}
+		}
+		return slowLocatorProviders;
+	}
+
+	private final ExecutorService executorService = new ExecutorService(
+			Executors.newFixedThreadPool(2, new ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					return new Thread(r, LocatorService.class.getSimpleName());
+				}
+			}));
+
 	private final Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
 			new CacheFetcher<URI, ILocatable>() {
+
 				@Override
 				public ILocatable fetch(final URI uri, IProgressMonitor monitor) {
 					Assert.isLegal(uri != null);
 
-					final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
 					if (locatorProviders == null
 							|| locatorProviders.length == 0) {
 						return null;
 					}
 
-					final SubMonitor subMonitor = SubMonitor.convert(monitor,
-							locatorProviders.length);
-					List<Future<ILocatable>> locatables = new ArrayList<Future<ILocatable>>();
-					for (final ILocatorProvider locatorProvider : locatorProviders) {
-						if (locatorProvider.isResolvabilityImpossible(uri)) {
-							continue;
-						}
+					List<ILocatorProvider> fastLocatorProviders = getFastLocatorProviders(uri);
 
-						Future<ILocatable> locatable = LocatorService.this.executorService
+					for (final ILocatorProvider fastLocatorProvider : fastLocatorProviders) {
+						ILocatable locatable = fastLocatorProvider.getObject(
+								uri, null);
+						if (locatable != null) {
+							return locatable;
+						}
+					}
+
+					List<ILocatorProvider> slowLocatorProviders = getSlowLocatorProviders(uri);
+					if (slowLocatorProviders.size() > 0
+							&& ExecutorService.isUIThread()) {
+						LOGGER.fatal("Implementation Error - Slow "
+								+ URI.class.getSimpleName()
+								+ " resolution in the UI thread detected!");
+					}
+
+					final SubMonitor subMonitor = SubMonitor.convert(monitor,
+							slowLocatorProviders.size());
+					List<Future<ILocatable>> futureLocatables = new ArrayList<Future<ILocatable>>(
+							slowLocatorProviders.size());
+					for (final ILocatorProvider slowLocatorProvider : slowLocatorProviders) {
+						Future<ILocatable> futureLocatable = LocatorService.this.executorService
 								.nonUIAsyncExec(new Callable<ILocatable>() {
 									@Override
 									public ILocatable call() throws Exception {
-										return locatorProvider.getObject(uri,
-												subMonitor.newChild(1));
+										return slowLocatorProvider.getObject(
+												uri, subMonitor.newChild(1));
 									}
 								});
-						locatables.add(locatable);
+						futureLocatables.add(futureLocatable);
 					}
-					for (Future<ILocatable> locatable : locatables) {
+					for (Future<ILocatable> futureLocatable : futureLocatables) {
 						ILocatable finding = null;
 						try {
-							finding = locatable.get();
+							finding = futureLocatable.get();
 						} catch (InterruptedException e) {
 							LOGGER.error(
 									"Error while resolving "
@@ -114,7 +167,6 @@ public class LocatorService implements ILocatorService {
 	public Class<? extends ILocatable> getType(URI uri) {
 		Assert.isLegal(uri != null);
 
-		final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
 		if (locatorProviders == null || locatorProviders.length == 0) {
 			return null;
 		}
@@ -143,42 +195,61 @@ public class LocatorService implements ILocatorService {
 		return resolve(uri, ILocatable.class, monitor);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends ILocatable> Future<T> resolve(final URI uri,
 			final Class<T> clazz, final IProgressMonitor monitor) {
 		Assert.isLegal(uri != null);
 		Assert.isLegal(clazz != null);
-		return this.executorService.nonUIAsyncExec(new Callable<T>() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public T call() throws Exception {
-				ILocatable locatable = LocatorService.this.uriCache.getPayload(
-						uri, monitor);
-				if (clazz.isInstance(locatable)) {
+
+		final long start = LOG_RUNTIME ? System.currentTimeMillis() : 0l;
+		if (getSlowLocatorProviders(uri).size() == 0) {
+			ILocatable locatable = LocatorService.this.uriCache.getPayload(uri,
+					monitor);
+			if (!clazz.isInstance(locatable)) {
+				locatable = null;
+			}
+			if (LOG_RUNTIME) {
+				System.out.println("Sync-Fetched " + uri + " within "
+						+ (System.currentTimeMillis() - start) + "ms");
+			}
+			return new CompletedFuture<T>((T) locatable, null);
+		} else {
+			return this.executorService.nonUIAsyncExec(new Callable<T>() {
+				@Override
+				public T call() throws Exception {
+					ILocatable locatable = LocatorService.this.uriCache
+							.getPayload(uri, monitor);
+					if (!clazz.isInstance(locatable)) {
+						locatable = null;
+					}
+					if (LOG_RUNTIME) {
+						System.out.println("Async-Fetched " + uri + " within "
+								+ (System.currentTimeMillis() - start) + "ms");
+					}
 					return (T) locatable;
 				}
-				return null;
-			}
-		});
+			});
+		}
 	}
 
 	private <T extends ILocatable> List<T> resolveList(final List<URI> uris,
 			Class<T> clazz, SubMonitor subMonitor) throws Exception {
-		List<Future<T>> locatables = new ArrayList<Future<T>>();
+		List<Future<T>> futureLocatables = new ArrayList<Future<T>>();
 		for (final URI uri : uris) {
-			Future<T> locatable = LocatorService.this.resolve(uri, clazz,
-					subMonitor.newChild(1));
-			locatables.add(locatable);
+			Future<T> futureLocatable = resolve(uri, clazz,
+					subMonitor != null ? subMonitor.newChild(1) : null);
+			futureLocatables.add(futureLocatable);
 		}
 
-		List<T> findings = new ArrayList<T>();
-		for (Future<T> locatable : locatables) {
-			T finding = locatable.get();
-			if (finding != null) {
-				findings.add(finding);
+		List<T> locatables = new ArrayList<T>();
+		for (Future<T> fututeLocatable : futureLocatables) {
+			T locatable = fututeLocatable.get();
+			if (locatable != null) {
+				locatables.add(locatable);
 			}
 		}
-		return findings;
+		return locatables;
 	}
 
 	@Override
@@ -186,16 +257,35 @@ public class LocatorService implements ILocatorService {
 			IProgressMonitor monitor) {
 		Assert.isLegal(uris != null);
 
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, uris.length);
-		return this.executorService
-				.nonUIAsyncExec(new Callable<ILocatable[]>() {
-					@Override
-					public ILocatable[] call() throws Exception {
-						return resolveList(Arrays.asList(uris),
-								ILocatable.class, subMonitor).toArray(
-								new ILocatable[0]);
-					}
-				});
+		boolean runFast = true;
+		for (URI uri : uris) {
+			if (getSlowLocatorProviders(uri).size() > 0) {
+				runFast = false;
+				break;
+			}
+		}
+
+		if (runFast) {
+			try {
+				return new CompletedFuture<ILocatable[]>(resolveList(
+						Arrays.asList(uris), ILocatable.class, null).toArray(
+						new ILocatable[0]), null);
+			} catch (Exception e) {
+				return new CompletedFuture<ILocatable[]>(null, e);
+			}
+		} else {
+			final SubMonitor subMonitor = SubMonitor.convert(monitor,
+					uris.length);
+			return this.executorService
+					.nonUIAsyncExec(new Callable<ILocatable[]>() {
+						@Override
+						public ILocatable[] call() throws Exception {
+							return resolveList(Arrays.asList(uris),
+									ILocatable.class, subMonitor).toArray(
+									new ILocatable[0]);
+						}
+					});
+		}
 	}
 
 	@Override
@@ -209,13 +299,31 @@ public class LocatorService implements ILocatorService {
 			final Class<T> clazz, IProgressMonitor monitor) {
 		Assert.isLegal(uris != null);
 
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, uris.size());
-		return this.executorService.nonUIAsyncExec(new Callable<List<T>>() {
-			@Override
-			public List<T> call() throws Exception {
-				return resolveList(uris, clazz, subMonitor);
+		boolean runFast = true;
+		for (URI uri : uris) {
+			if (getSlowLocatorProviders(uri).size() > 0) {
+				runFast = false;
+				break;
 			}
-		});
+		}
+
+		if (runFast) {
+			try {
+				return new CompletedFuture<List<T>>(resolveList(uris, clazz,
+						null), null);
+			} catch (Exception e) {
+				return new CompletedFuture<List<T>>(null, e);
+			}
+		} else {
+			final SubMonitor subMonitor = SubMonitor.convert(monitor,
+					uris.size());
+			return this.executorService.nonUIAsyncExec(new Callable<List<T>>() {
+				@Override
+				public List<T> call() throws Exception {
+					return resolveList(uris, clazz, subMonitor);
+				}
+			});
+		}
 	}
 
 	@Override

@@ -65,6 +65,14 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		IIdentifier identifier = URIUtils.getIdentifier(uri);
+		return Activator.getDefault().getDoclogContainer() != null
+				&& Activator.getDefault().getDoclogContainer()
+						.doclogFileLoaded(identifier);
+	}
+
+	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
 		if (this.isResolvabilityImpossible(uri)) {
 			return null;

@@ -42,7 +42,7 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 	private StatsFile statsFile;
 	private CMakeCacheFile cMakeCacheFile;
 
-	private de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper mapper;
+	private final de.fu_berlin.imp.seqan.usability_analyzer.entity.mapping.Mapper mapper;
 
 	/* cached fields for performance reasons */
 	private TimeZoneDate earliestEntryDate;
@@ -59,8 +59,8 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 					+ "/" + this.getInternalId());
 		} catch (Exception e) {
 			LOGGER.error(
-					"Could not create DateId for a " + IDiff.class.getSimpleName(),
-					e);
+					"Could not create DateId for a "
+							+ IDiff.class.getSimpleName(), e);
 		}
 		return null;
 	}
@@ -91,7 +91,7 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 
 		List<Fingerprint> fingerprints = this.getFingerprints();
 		if (fingerprints != null && fingerprints.size() > 0) {
-			return "!" + StringUtils.join(fingerprints, "!,");
+			return StringUtils.join(fingerprints, ",");
 		}
 
 		throw new NoInternalIdentifierException(this);

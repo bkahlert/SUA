@@ -170,7 +170,8 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			DoclogExplorerView.class, 1);
 	private Set<IIdentifier> loadedIdentifiers;
 
 	public DoclogExplorerView() {
@@ -392,9 +393,9 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 								Doclog doclog = iterator.next();
 								uris.add(doclog.getUri());
 							}
-							// DoclogExplorerView.this.treeViewer.setInput(uris
-							// .toArray(new URI[uris.size()]));
-							// DoclogExplorerView.this.treeViewer.expandAll();
+							DoclogExplorerView.this.treeViewer.setInput(uris
+									.toArray(new URI[uris.size()]));
+							DoclogExplorerView.this.treeViewer.expandAll();
 						}
 					});
 				}

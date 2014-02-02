@@ -35,7 +35,7 @@ public class SurveyView extends ViewPart {
 	public static final Logger LOGGER = Logger.getLogger(SurveyView.class);
 
 	private IWorkSessionService workSessionService;
-	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
 			SurveyView.this.load(workSession);
@@ -104,8 +104,10 @@ public class SurveyView extends ViewPart {
 	 */
 	public void load(IWorkSession workSession) {
 		HashSet<IIdentifier> idsOrTokens = new HashSet<IIdentifier>();
-		idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(
-				workSession.getEntities(), IIdentifier.class));
+		if (workSession != null) {
+			idsOrTokens.addAll(ArrayUtils.getAdaptableObjects(
+					workSession.getEntities(), IIdentifier.class));
+		}
 		SurveyView.this.open(idsOrTokens, null);
 	}
 

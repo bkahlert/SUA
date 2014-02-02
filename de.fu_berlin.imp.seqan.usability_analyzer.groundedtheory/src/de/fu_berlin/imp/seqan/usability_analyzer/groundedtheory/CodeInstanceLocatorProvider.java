@@ -22,11 +22,12 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeLocatorProvider.class);
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			CodeInstanceLocatorProvider.class, 1);
 
 	@SuppressWarnings("unchecked")
 	public CodeInstanceLocatorProvider() {
-		super(ICodeInstance.class, ICodeInstance.class);
+		super(ICodeInstance.class);
 	}
 
 	@Override
@@ -42,6 +43,11 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 		}
 
 		return ICodeInstance.class;
+	}
+
+	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		return true;
 	}
 
 	@Override

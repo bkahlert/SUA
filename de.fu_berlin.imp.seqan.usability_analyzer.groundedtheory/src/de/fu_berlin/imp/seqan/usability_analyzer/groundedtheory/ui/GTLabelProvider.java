@@ -23,8 +23,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -74,6 +76,8 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return "no code";
 		}
 
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
 		if (ICode.class.isInstance(locatable)) {
@@ -87,7 +91,10 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return (labelProvider != null) ? labelProvider.getText(codeInstance
 					.getId()) : "[UNKNOWN ORIGIN]";
 		}
-		if (locatable instanceof IEpisode) {
+		if (type == IEpisodes.class) {
+			return URIUtils.getIdentifier(uri).toString();
+		}
+		if (type == IEpisode.class) {
 			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
@@ -113,12 +120,13 @@ public final class GTLabelProvider extends UriLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
-		if (ICode.class.isInstance(locatable)) {
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == ICode.class) {
 			return this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
 					: ImageManager.CODE;
 		}
-		if (ICodeInstance.class.isInstance(locatable)) {
+		if (type == ICodeInstance.class) {
+			ILocatable locatable = this.locatorService.resolve(uri, null).get();
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
@@ -127,15 +135,27 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return (this.codeService.isMemo(uri)) ? this
 					.getMemoAnnotatedImage(image) : image;
 		}
-		if (locatable instanceof IEpisode) {
-			IEpisode episode = (IEpisode) locatable;
+		if (type == IEpisodes.class) {
 			Image overlay;
 			try {
-				overlay = (this.codeService.getCodes(episode.getUri()).size() > 0) ? (this.codeService
-						.isMemo(episode.getUri()) ? ImageManager.EPISODE_CODED_MEMO
-						: ImageManager.EPISODE_CODED)
-						: (this.codeService.isMemo(episode.getUri()) ? ImageManager.EPISODE_MEMO
-								: ImageManager.EPISODE);
+				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
+						: ImageManager.EPISODE_CODED) : (this.codeService
+						.isMemo(uri) ? ImageManager.EPISODE_MEMO
+						: ImageManager.EPISODE);
+			} catch (CodeServiceException e) {
+				overlay = ImageManager.EPISODE;
+			}
+			return overlay;
+		}
+		if (type == IEpisode.class) {
+			Image overlay;
+			try {
+				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
+						: ImageManager.EPISODE_CODED) : (this.codeService
+						.isMemo(uri) ? ImageManager.EPISODE_MEMO
+						: ImageManager.EPISODE);
 			} catch (CodeServiceException e) {
 				overlay = ImageManager.EPISODE;
 			}

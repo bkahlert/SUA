@@ -5,26 +5,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
-public class EpisodeViewerContentProvider implements
-		IStructuredContentProvider, ITreeContentProvider {
+public class EpisodeViewerContentProvider extends
+		URIContentProvider<ICodeService> {
+
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	private Viewer viewer;
 	private ICodeService codeService;
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
@@ -109,7 +116,8 @@ public class EpisodeViewerContentProvider implements
 	}
 
 	@Override
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	public void inputChanged(Viewer viewer, ICodeService oldInput,
+			ICodeService newInput, Object ignore) {
 		this.viewer = viewer;
 
 		if (this.codeService != null) {
@@ -118,8 +126,8 @@ public class EpisodeViewerContentProvider implements
 		}
 		this.codeService = null;
 
-		if (ICodeService.class.isInstance(newInput)) {
-			this.codeService = (ICodeService) newInput;
+		if (newInput != null) {
+			this.codeService = newInput;
 			this.codeService.addCodeServiceListener(this.codeServiceListener);
 		} else {
 			if (this.codeService != null) {
@@ -139,37 +147,33 @@ public class EpisodeViewerContentProvider implements
 	}
 
 	@Override
-	public Object[] getElements(Object inputElement) {
-		if (!(inputElement instanceof ICodeService)) {
-			return new Object[0];
+	public URI[] getTopLevelElements(ICodeService input) {
+		List<IIdentifier> identifiers = input.getEpisodedIdentifiers();
+		URI[] uris = new URI[identifiers.size()];
+		for (int i = 0, m = uris.length; i < m; i++) {
+			uris[i] = new Episodes(identifiers.get(i)).getUri();
 		}
-	
-		List<IIdentifier> identifiers = ((ICodeService) inputElement)
-				.getEpisodedIdentifiers();
-		return identifiers.toArray();
+		return uris;
 	}
 
 	@Override
-	public Object getParent(Object element) {
-		if (IEpisode.class.isInstance(element)) {
-			return ((IEpisode) element).getIdentifier();
+	public URI getParent(URI uri) {
+		if (locatorService.getType(uri) == IEpisode.class) {
+			new Episodes(URIUtils.getIdentifier(uri)).getUri();
 		}
 		return null;
 	}
 
 	@Override
-	public boolean hasChildren(Object element) {
-		if (IIdentifier.class.isInstance(element)) {
-			return this.codeService.getEpisodes((IIdentifier) element).size() > 0;
-		}
-		return false;
+	public boolean hasChildren(URI uri) {
+		return locatorService.getType(uri) == IEpisodes.class;
 	}
 
 	@Override
-	public Object[] getChildren(Object parentElement) {
-		if (IIdentifier.class.isInstance(parentElement)) {
+	public URI[] getChildren(URI uri) {
+		if (locatorService.getType(uri) == IEpisodes.class) {
 			List<IEpisode> episodes = new ArrayList<IEpisode>(
-					this.codeService.getEpisodes((IIdentifier) parentElement));
+					this.codeService.getEpisodes(URIUtils.getIdentifier(uri)));
 			URI[] uris = new URI[episodes.size()];
 			for (int i = 0; i < episodes.size(); i++) {
 				uris[i] = episodes.get(i).getUri();

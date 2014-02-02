@@ -28,6 +28,10 @@
                id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.ChangeDataDirectories"
                style="pulldown">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="backup-toolbar:de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView">
          <control
                class="de.fu_berlin.imp.seqan.usability_analyzer.entity.views.controls.DiffOnlyPersonsButton">
          </control>

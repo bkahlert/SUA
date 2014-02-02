@@ -60,6 +60,11 @@ public class SurveyLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	@Override
+	public boolean getObjectIsShortRunning(URI uri) {
+		return Activator.getDefault().getSurveyContainer() != null;
+	}
+
+	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
 		if (this.isResolvabilityImpossible(uri)) {
 			return null;

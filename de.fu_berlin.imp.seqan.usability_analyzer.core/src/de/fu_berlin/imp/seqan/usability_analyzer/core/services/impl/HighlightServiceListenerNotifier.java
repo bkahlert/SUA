@@ -12,8 +12,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
 
 public class HighlightServiceListenerNotifier {
-	private List<IHighlightServiceListener> highlightServiceListeners = new ArrayList<IHighlightServiceListener>();
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService();
+	private final List<IHighlightServiceListener> highlightServiceListeners = new ArrayList<IHighlightServiceListener>();
+	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
+			HighlightServiceListenerNotifier.class, 1);
 
 	public void addHighlightServiceListener(
 			IHighlightServiceListener highlightServiceListener) {
