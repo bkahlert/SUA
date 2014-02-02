@@ -24,7 +24,7 @@ public interface IDataService {
 	 * 
 	 * @return
 	 */
-	public List<? extends IBaseDataContainer> getActiveDataDirectories();
+	public List<IBaseDataContainer> getActiveDataDirectories();
 
 	/**
 	 * Closes the currently active {@link IBaseDataContainer}s and opens the
@@ -32,30 +32,28 @@ public interface IDataService {
 	 * 
 	 * @param list
 	 */
-	public void loadDataDirectories(List<? extends IBaseDataContainer> list);
+	public void loadDataDirectories(List<IBaseDataContainer> list);
 
 	/**
 	 * Returns the currently registered {@link IBaseDataContainer}s.
 	 * 
 	 * @return
 	 */
-	public List<? extends IBaseDataContainer> getDataDirectories();
+	public List<IBaseDataContainer> getDataDirectories();
 
 	/**
 	 * Adds a new {@link IBaseDataContainer} to the registered ones.
 	 * 
 	 * @param dataContainers
 	 */
-	public void addDataDirectories(
-			List<? extends IBaseDataContainer> dataContainers);
+	public void addDataDirectories(List<IBaseDataContainer> dataContainers);
 
 	/**
 	 * Removes a {@link IBaseDataContainer} from the registered ones.
 	 * 
 	 * @param dataContainers
 	 */
-	public void removeDataDirectories(
-			List<? extends IBaseDataContainer> dataContainers);
+	public void removeDataDirectories(List<IBaseDataContainer> dataContainers);
 
 	/**
 	 * This method is called when the whole workbench is shutdown.

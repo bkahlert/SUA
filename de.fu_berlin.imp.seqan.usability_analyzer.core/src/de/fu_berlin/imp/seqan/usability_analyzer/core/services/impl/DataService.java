@@ -89,7 +89,7 @@ public class DataService implements IDataService {
 
 	private final DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
 	private final DataLoaderManager dataLoaderManager = new DataLoaderManager();
-	private List<? extends IBaseDataContainer> activeBaseDataDirectories = new ArrayList<IBaseDataContainer>();
+	private List<IBaseDataContainer> activeBaseDataDirectories = new ArrayList<IBaseDataContainer>();
 
 	public DataService() {
 	}
@@ -106,13 +106,12 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public List<? extends IBaseDataContainer> getActiveDataDirectories() {
+	public List<IBaseDataContainer> getActiveDataDirectories() {
 		return this.activeBaseDataDirectories;
 	}
 
 	@Override
-	public void loadDataDirectories(
-			List<? extends IBaseDataContainer> baseDataContainers) {
+	public void loadDataDirectories(List<IBaseDataContainer> baseDataContainers) {
 		if (baseDataContainers == null) {
 			baseDataContainers = new ArrayList<IBaseDataContainer>();
 		}
@@ -128,17 +127,17 @@ public class DataService implements IDataService {
 	}
 
 	private static void loadData(final DataLoaderManager dataLoaderManager,
-			final List<? extends IBaseDataContainer> baseDataContainers) {
-		CollectionUtils.apply(baseDataContainers,
-				new IConverter<IBaseDataContainer, String>() {
-					@Override
-					public String convert(IBaseDataContainer container) {
-						String name = FilenameUtils.getName(container.getName());
-						return name;
-					}
-				});
-
-		String jobName = "Loading " + StringUtils.join(null, ", ") + "...";
+			final List<IBaseDataContainer> baseDataContainers) {
+		String jobName = "Loading "
+				+ StringUtils.join(CollectionUtils.apply(baseDataContainers,
+						new IConverter<IBaseDataContainer, String>() {
+							@Override
+							public String convert(IBaseDataContainer container) {
+								String name = FilenameUtils.getName(container
+										.getName());
+								return name;
+							}
+						}), ", ") + " ...";
 		LOGGER.info(jobName);
 		final Job loader = new Job(jobName) {
 			@Override
@@ -289,13 +288,12 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public List<? extends IBaseDataContainer> getDataDirectories() {
+	public List<IBaseDataContainer> getDataDirectories() {
 		return loadFromPreferences();
 	}
 
 	@Override
-	public void addDataDirectories(
-			List<? extends IBaseDataContainer> dataContainers) {
+	public void addDataDirectories(List<IBaseDataContainer> dataContainers) {
 		if (dataContainers.size() == 0) {
 			return;
 		}
@@ -310,8 +308,7 @@ public class DataService implements IDataService {
 	}
 
 	@Override
-	public void removeDataDirectories(
-			List<? extends IBaseDataContainer> dataContainers) {
+	public void removeDataDirectories(List<IBaseDataContainer> dataContainers) {
 		if (dataContainers.size() == 0) {
 			return;
 		}
