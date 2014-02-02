@@ -29,7 +29,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -50,7 +49,8 @@ public class DoclogTimelineBandProvider
 	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
 		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
 
-			private DoclogContentProvider doclogContentProvider = new DoclogContentProvider();
+			// private DoclogContentProvider doclogContentProvider = new
+			// DoclogContentProvider();
 			private IIdentifier input = null;
 
 			@Override
@@ -58,8 +58,8 @@ public class DoclogTimelineBandProvider
 					TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
-				this.doclogContentProvider.inputChanged(viewer, oldInput,
-						newInput);
+				// this.doclogContentProvider.inputChanged(viewer, oldInput,
+				// newInput);
 			}
 
 			@Override
@@ -82,10 +82,8 @@ public class DoclogTimelineBandProvider
 				}
 
 				final Doclog doclog = (this.input instanceof IIdentifier) ? Activator
-						.getDefault()
-						.getDoclogContainer()
-						.getDoclogFile((IIdentifier) this.input,
-								subMonitor.newChild(1))
+						.getDefault().getDoclogContainer()
+						.getDoclogFile(this.input, subMonitor.newChild(1))
 						: null;
 
 				if (doclog == null) {
@@ -157,9 +155,9 @@ public class DoclogTimelineBandProvider
 	public ITimelineEventLabelProvider getEventLabelProvider() {
 		return new ITimelineEventLabelProvider() {
 
-			private ICodeService codeService = (ICodeService) PlatformUI
+			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
-			private DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
+			private final DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {

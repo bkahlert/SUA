@@ -1,8 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,11 +43,12 @@ import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -78,7 +79,7 @@ public class EpisodeRenderer implements IDisposable {
 			Display.getCurrent(), new org.eclipse.swt.graphics.RGB(85, 85, 85));
 
 	public static class CodeColors {
-		private RGB backgroundRGB;
+		private final RGB backgroundRGB;
 		private Color backgroundColor = null;
 		private Color borderColor = null;
 
@@ -152,17 +153,20 @@ public class EpisodeRenderer implements IDisposable {
 			return null;
 		}
 
-		private int direction;
-		private IEpisode episode;
+		private final ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
+
+		private final int direction;
+		private final IEpisode episode;
 		private IEpisode newEpisode;
-		private HasDateRange hoveredItem;
+		private URI hoveredUri;
 
 		public ResizeInfo(int direction, IEpisode episode) {
 			super();
 			this.direction = direction;
 			this.episode = episode;
 			this.newEpisode = null;
-			this.hoveredItem = null;
+			this.hoveredUri = null;
 		}
 
 		/**
@@ -183,33 +187,38 @@ public class EpisodeRenderer implements IDisposable {
 			return this.newEpisode;
 		}
 
-		public HasDateRange getHoveredItem() {
-			return this.hoveredItem;
+		public URI getHoveredUri() {
+			return this.hoveredUri;
 		}
 
-		public void setHoveredItem(HasDateRange hoveredItem) {
-			TimeZoneDateRange newRange;
+		public void setHoveredItem(URI uri) {
 			try {
-				TimeZoneDate start;
-				TimeZoneDate end;
-				if (this.direction < 0) {
-					start = hoveredItem.getDateRange().getStartDate();
-					end = this.episode.getEnd();
-				} else {
-					start = this.episode.getStart();
-					end = hoveredItem.getDateRange().getEndDate();
+				ILocatable hoveredItem = locatorService.resolve(uri, null)
+						.get();
+				if (hoveredItem instanceof HasDateRange) {
+					TimeZoneDateRange newRange;
+					TimeZoneDate start;
+					TimeZoneDate end;
+					if (this.direction < 0) {
+						start = ((HasDateRange) hoveredItem).getDateRange()
+								.getStartDate();
+						end = this.episode.getEnd();
+					} else {
+						start = this.episode.getStart();
+						end = ((HasDateRange) hoveredItem).getDateRange()
+								.getEndDate();
+					}
+					newRange = new TimeZoneDateRange(start, end);
+					if (this.episode.getDateRange().equals(newRange)) {
+						return;
+					}
+
+					this.newEpisode = this.episode.changeRange(newRange);
 				}
-				newRange = new TimeZoneDateRange(start, end);
-			} catch (InvalidParameterException e) {
-				return;
+				this.hoveredUri = uri;
+			} catch (Exception e) {
+				LOGGER.error("Error setting hovered item to " + uri, e);
 			}
-			if (this.episode.getDateRange().equals(newRange)) {
-				return;
-			}
-
-			this.newEpisode = this.episode.changeRange(newRange);
-
-			this.hoveredItem = hoveredItem;
 		}
 	}
 
@@ -228,17 +237,17 @@ public class EpisodeRenderer implements IDisposable {
 	private static class Renderer implements PaintListener, Listener,
 			IDisposable {
 
-		private Map<IEpisode, CodeColors> renderingColors = new HashMap<IEpisode, CodeColors>();
+		private final Map<IEpisode, CodeColors> renderingColors = new HashMap<IEpisode, CodeColors>();
 
-		private ILocatorService locatorService = (ILocatorService) PlatformUI
+		private final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
-		private ICodeService codeService = (ICodeService) PlatformUI
+		private final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 
 		/**
 		 * Used to display information to the currently hovered item.
 		 */
-		private ToolTip hoveredItemTooltip;
+		private final ToolTip hoveredItemTooltip;
 
 		/**
 		 * Area in which all {@link IEpisode}s must be painted.
@@ -268,7 +277,7 @@ public class EpisodeRenderer implements IDisposable {
 				SWT.CURSOR_HAND);
 
 		@SuppressWarnings("unused")
-		private int hShift = 100;
+		private final int hShift = 100;
 
 		public Renderer(ViewerColumn column, int trackSpace) {
 			this.hoveredItemTooltip = new ToolTip(column.getViewer()
@@ -353,8 +362,7 @@ public class EpisodeRenderer implements IDisposable {
 					}
 
 					if (item != null && item.getData() instanceof HasDateRange) {
-						this.resizeInfo.setHoveredItem((HasDateRange) item
-								.getData());
+						this.resizeInfo.setHoveredItem((URI) item.getData());
 
 						Point pt = ((Tree) event.widget).toDisplay(
 								event.x + 10, event.y);
@@ -387,8 +395,8 @@ public class EpisodeRenderer implements IDisposable {
 				return;
 			}
 
-			Object key = getIdentifier(items);
-			if (key == null) {
+			Set<IIdentifier> identifiers = getIdentifiers(items);
+			if (identifiers.size() != 1) {
 				LOGGER.error(IEpisode.class.getSimpleName()
 						+ "s can currently only be rendered in "
 						+ Viewer.class.getSimpleName()
@@ -399,9 +407,9 @@ public class EpisodeRenderer implements IDisposable {
 
 			// Highlight hovered item
 			if (this.resizeInfo != null
-					&& this.resizeInfo.getHoveredItem() != null) {
+					&& this.resizeInfo.getHoveredUri() != null) {
 				for (Item item : items) {
-					if (item.getData() == this.resizeInfo.getHoveredItem()) {
+					if (item.getData() == this.resizeInfo.getHoveredUri()) {
 						PaintUtils.drawRoundedBorder(
 								e.gc,
 								getBounds(item),
@@ -413,8 +421,8 @@ public class EpisodeRenderer implements IDisposable {
 			}
 
 			// Draw episodes
-			this.renderingBounds = this.getEpisodeBounds(this.getEpisodes(key),
-					items);
+			this.renderingBounds = this.getEpisodeBounds(
+					this.getEpisodes(identifiers.iterator().next()), items);
 			for (IEpisode episode : this.renderingBounds.keySet()) {
 				// remove all outdated colors (e.g. because episode got a new
 				// color with different color)
@@ -515,31 +523,28 @@ public class EpisodeRenderer implements IDisposable {
 
 		/**
 		 * Returns the key ({@link IIdentifier} contained in the given
-		 * {@link Item}.
+		 * {@link Item}s.
 		 * 
 		 * @param items
 		 * @return null if no or more than one keys are contained
 		 */
-		public static Object getIdentifier(List<Item> items) {
-			IIdentifier identifier = null;
+		public static Set<IIdentifier> getIdentifiers(List<Item> items) {
+			Set<IIdentifier> identifiers = new HashSet<IIdentifier>();
 			for (Item item : items) {
-				if (item.getData() instanceof HasIdentifier) {
-					IIdentifier currentIdentifier = item.getData() instanceof HasIdentifier ? ((HasIdentifier) item
-							.getData()).getIdentifier() : null;
-					if (identifier == null) {
-						identifier = currentIdentifier;
-					} else if (!identifier.equals(currentIdentifier)) {
-						return null;
+				if (item.getData() instanceof URI) {
+					IIdentifier currentIdentifier = URIUtils
+							.getIdentifier((URI) item.getData());
+					if (currentIdentifier != null
+							&& !identifiers.contains(currentIdentifier)) {
+						identifiers.add(currentIdentifier);
 					}
-				} else {
-					return null;
 				}
 			}
-			return identifier;
+			return identifiers;
 		}
 
-		private Set<IEpisode> getEpisodes(Object key) {
-			return this.codeService.getEpisodes((IIdentifier) key);
+		private Set<IEpisode> getEpisodes(IIdentifier key) {
+			return this.codeService.getEpisodes(key);
 		}
 
 		/**
@@ -651,7 +656,7 @@ public class EpisodeRenderer implements IDisposable {
 		}
 	}
 
-	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		private void redraw() {
 			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
@@ -686,10 +691,10 @@ public class EpisodeRenderer implements IDisposable {
 		};
 	};
 
-	private Renderer renderer;
-	private ColumnViewer viewer;
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final Renderer renderer;
+	private final ColumnViewer viewer;
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	private EpisodeRenderer(ColumnViewer viewer, ViewerColumn column,
 			int trackSpace) {

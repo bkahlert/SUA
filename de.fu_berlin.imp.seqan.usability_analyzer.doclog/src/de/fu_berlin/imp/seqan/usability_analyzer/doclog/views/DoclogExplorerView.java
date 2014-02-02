@@ -1,10 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.views;
 
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -385,10 +386,15 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 						@Override
 						public void run() {
 							DoclogExplorerView.this.setPartName(partName);
-							DoclogExplorerView.this.treeViewer
-									.setInput(new LinkedList<Doclog>(
-											newOpenedDoclogFiles.values()));
-							DoclogExplorerView.this.treeViewer.expandAll();
+							List<URI> uris = new ArrayList<URI>();
+							for (Iterator<Doclog> iterator = newOpenedDoclogFiles
+									.values().iterator(); iterator.hasNext();) {
+								Doclog doclog = iterator.next();
+								uris.add(doclog.getUri());
+							}
+							// DoclogExplorerView.this.treeViewer.setInput(uris
+							// .toArray(new URI[uris.size()]));
+							// DoclogExplorerView.this.treeViewer.expandAll();
 						}
 					});
 				}

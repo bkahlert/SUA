@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.wb.swt.SWTResourceManager;
 
@@ -33,6 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -44,20 +46,19 @@ public class DoclogLabelProvider extends UriLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogLabelProvider.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	@Override
 	public String getText(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
-		if (locatable instanceof Doclog) {
-			Doclog doclog = (Doclog) locatable;
-			return doclog.getIdentifier().toString();
+		if (locatorService.getType(uri) == Doclog.class) {
+			return URIUtils.getIdentifier(uri).toString();
 		}
-		if (locatable instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) locatable;
+		if (locatorService.getType(uri) == DoclogRecord.class) {
+			DoclogRecord doclogRecord = locatorService.resolve(uri,
+					DoclogRecord.class, null).get();
 			String url = doclogRecord.getUrl();
 			if (url != null) {
 				url = url.replaceAll(".*://", "");
@@ -67,37 +68,35 @@ public class DoclogLabelProvider extends UriLabelProvider {
 			return url != null ? (scrollY != null ? url + " ⇅" + scrollY : url)
 					: "ERROR";
 		}
-		return super.getText(locatable);
+		return "ERROR";
 	}
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
-		if (locatable instanceof Doclog) {
-			Doclog doclog = (Doclog) locatable;
+		if (locatorService.getType(uri) == Doclog.class) {
 			try {
-				return (this.codeService.getCodes(doclog.getUri()).size() > 0) ? (this.codeService
-						.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_CODED_MEMO
-						: ImageManager.DOCLOGFILE_CODED)
-						: (this.codeService.isMemo(doclog.getUri()) ? ImageManager.DOCLOGFILE_MEMO
-								: ImageManager.DOCLOGFILE);
+				return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.DOCLOGFILE_CODED_MEMO
+						: ImageManager.DOCLOGFILE_CODED) : (this.codeService
+						.isMemo(uri) ? ImageManager.DOCLOGFILE_MEMO
+						: ImageManager.DOCLOGFILE);
 			} catch (CodeServiceException e) {
 				return ImageManager.DOCLOGFILE;
 			}
 		}
-		if (locatable instanceof DoclogRecord) {
-			DoclogRecord doclogRecord = (DoclogRecord) locatable;
+		if (locatorService.getType(uri) == DoclogRecord.class) {
 			try {
-				return (this.codeService.getCodes(doclogRecord.getUri()).size() > 0) ? (this.codeService
-						.isMemo(doclogRecord.getUri()) ? ImageManager.DOCLOGRECORD_CODED_MEMO
-						: ImageManager.DOCLOGRECORD_CODED)
-						: (this.codeService.isMemo(doclogRecord.getUri()) ? ImageManager.DOCLOGRECORD_MEMO
-								: ImageManager.DOCLOGRECORD);
+				return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.DOCLOGRECORD_CODED_MEMO
+						: ImageManager.DOCLOGRECORD_CODED) : (this.codeService
+						.isMemo(uri) ? ImageManager.DOCLOGRECORD_MEMO
+						: ImageManager.DOCLOGRECORD);
 			} catch (CodeServiceException e) {
 				return ImageManager.DOCLOGRECORD;
 			}
 		}
-		return super.getImage(locatable);
+		return PlatformUI.getWorkbench().getSharedImages()
+				.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 	}
 
 	@Override
@@ -229,7 +228,7 @@ public class DoclogLabelProvider extends UriLabelProvider {
 		return detailEntries;
 	}
 
-	private Map<Composite, com.bkahlert.nebula.widgets.image.Image> images = new HashMap<Composite, com.bkahlert.nebula.widgets.image.Image>();
+	private final Map<Composite, com.bkahlert.nebula.widgets.image.Image> images = new HashMap<Composite, com.bkahlert.nebula.widgets.image.Image>();
 
 	@Override
 	public Control fillInformation(URI uri, final Composite composite)
@@ -270,6 +269,12 @@ public class DoclogLabelProvider extends UriLabelProvider {
 				drawOverlay(doclogRecord, image,
 						ImageManager.CLOSE_DETAIL_OVERLAY);
 				break;
+			case UNKNOWN:
+				drawOverlay(
+						doclogRecord,
+						PlatformUI.getWorkbench().getSharedImages()
+								.getImage(ISharedImages.IMG_OBJS_WARN_TSK),
+						ImageManager.CREATE_DETAIL_OVERLAY);
 			}
 
 			Rectangle monitorBounds = Display.getCurrent().getPrimaryMonitor()

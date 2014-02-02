@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.gt.DiffLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecords;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServiceAdapter;
@@ -31,7 +31,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
-public class DiffContentProvider extends URIContentProvider<Set<IDiffs>> {
+public class DiffContentProvider extends URIContentProvider<URI[]> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffContentProvider.class);
@@ -147,8 +147,8 @@ public class DiffContentProvider extends URIContentProvider<Set<IDiffs>> {
 	}
 
 	@Override
-	public void inputChanged(Viewer viewer, Set<IDiffs> oldInput,
-			Set<IDiffs> newInput, Object ignore) {
+	public void inputChanged(Viewer viewer, URI[] oldInput, URI[] newInput,
+			Object ignore) {
 		this.viewer = viewer;
 	}
 
@@ -160,87 +160,86 @@ public class DiffContentProvider extends URIContentProvider<Set<IDiffs>> {
 	}
 
 	@Override
-	public URI[] getTopLevelElements(Set<IDiffs> input) {
-		List<URI> uris = new ArrayList<URI>();
-
-		/*
-		 * If the list contains only one element and this element is a list
-		 * return the mentioned child list. This way we save one hierarchy level
-		 * (= ID level).
-		 */
-		if (input.size() == 1) {
-			IDiff[] diffs = input.toArray(new IDiffs[1])[0].toArray();
-			for (int i = 0; i < diffs.length; i++) {
-				uris.add(diffs[i].getUri());
-			}
+	public URI[] getTopLevelElements(URI[] uris) {
+		if (uris.length == 1) {
+			return getChildren(uris[0]);
 		} else {
-			for (Iterator<IDiffs> it = input.iterator(); it.hasNext();) {
-				IDiffs diffs = it.next();
-				uris.add(diffs.getUri());
-			}
+			return uris;
 		}
-
-		return uris.toArray(new URI[uris.size()]);
 	}
 
 	@Override
 	public URI getParent(URI uri) {
-		ILocatable locatable = null;
-		try {
-			locatable = this.locatorService.resolve(uri, null).get();
-		} catch (Exception e) {
-			LOGGER.error("Error getting parent of " + uri);
-		}
-
-		if (locatable instanceof IDiffs) {
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == IDiffs.class) {
 			return null;
-		}
-		if (locatable instanceof IDiff) {
+		} else if (type == IDiff.class) {
 			return null;
+		} else if (type == IDiffRecord.class) {
+			try {
+				IDiffRecord diffRecord = locatorService.resolve(uri,
+						IDiffRecord.class, null).get();
+				return diffRecord.getDiffFile().getUri();
+			} catch (Exception e) {
+				LOGGER.error("Error getting parent of " + uri, e);
+			}
+		} else if (type == IDiffRecordSegment.class) {
+			try {
+				IDiffRecordSegment diffRecordSegment = locatorService.resolve(
+						uri, IDiffRecordSegment.class, null).get();
+				return diffRecordSegment.getDiffFileRecord().getUri();
+			} catch (Exception e) {
+				LOGGER.error("Error getting parent of " + uri, e);
+			}
 		}
-		if (locatable instanceof IDiffRecord) {
-			return ((IDiffRecord) locatable).getDiffFile().getUri();
-		}
-		// TODO return DiffRecordSegments
 		return null;
 	}
 
 	@Override
 	public boolean hasChildren(URI uri) {
-		return this.getChildren(uri).length > 0;
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == IDiffRecord.class || type == IDiffRecordSegment.class) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
-	public URI[] getChildren(URI parentUri) {
-		ILocatable locatable = null;
-		try {
-			locatable = this.locatorService.resolve(parentUri, null).get();
-		} catch (Exception e) {
-			LOGGER.error("Error getting children of " + parentUri);
-		}
-
-		if (locatable instanceof IDiffs) {
-			IDiff[] diffs = ((IDiffs) locatable).toArray();
-			URI[] uris = new URI[diffs.length];
-			for (int i = 0; i < diffs.length; i++) {
-				uris[i] = diffs[i].getUri();
-			}
-			return uris;
-		}
-
-		if (locatable instanceof IDiff) {
-			IDiffRecords diffRecords = ((IDiff) locatable).getDiffFileRecords();
-			if (diffRecords != null) {
-				URI[] uris = new URI[diffRecords.size()];
-				for (int i = 0; i < diffRecords.size(); i++) {
-					uris[i] = diffRecords.get(i).getUri();
+	public URI[] getChildren(URI uri) {
+		Class<? extends ILocatable> type = locatorService.getType(uri);
+		if (type == IDiffs.class) {
+			try {
+				IDiff[] diffs = locatorService.resolve(uri, IDiffs.class, null)
+						.get().toArray();
+				URI[] uris = new URI[diffs.length];
+				for (int i = 0; i < diffs.length; i++) {
+					uris[i] = diffs[i].getUri();
 				}
 				return uris;
-			} else {
-				return new URI[0];
+			} catch (Exception e) {
+				LOGGER.error("Could not get children for " + uri, e);
 			}
+		} else if (type == IDiff.class) {
+			try {
+				IDiffRecords diffRecords = locatorService
+						.resolve(uri, IDiff.class, null).get()
+						.getDiffFileRecords();
+				if (diffRecords != null) {
+					URI[] uris = new URI[diffRecords.size()];
+					for (int i = 0; i < diffRecords.size(); i++) {
+						uris[i] = diffRecords.get(i).getUri();
+					}
+					return uris;
+				} else {
+					return new URI[0];
+				}
+			} catch (Exception e) {
+				LOGGER.error("Could not get children for " + uri, e);
+			}
+		} else if (type == IDiffRecord.class) {
+		} else if (type == IDiffRecordSegment.class) {
 		}
-
 		return new URI[0];
 	}
+
 }

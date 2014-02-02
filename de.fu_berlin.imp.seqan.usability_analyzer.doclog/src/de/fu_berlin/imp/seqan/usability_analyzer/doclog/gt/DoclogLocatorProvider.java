@@ -37,7 +37,7 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 
 	@SuppressWarnings("unchecked")
 	public DoclogLocatorProvider() {
-		super(Doclog.class);
+		super(Doclog.class, DoclogRecord.class);
 	}
 
 	@Override
@@ -52,7 +52,16 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		return Doclog.class;
+		List<String> trail = URIUtils.getTrail(uri);
+		switch (trail.size()) {
+		case 0:
+			return Doclog.class;
+		case 1:
+			return DoclogRecord.class;
+		}
+
+		LOGGER.error("Unknown " + URI.class.getSimpleName() + " format: " + uri);
+		return null;
 	}
 
 	@Override

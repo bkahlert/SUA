@@ -33,7 +33,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -54,7 +53,7 @@ public class DiffTimelineBandProvider
 	public ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
 		return new ITimelineContentProvider<TimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
 
-			private ITimelineListener timelineListener = new TimelineAdapter() {
+			private final ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
 				public void clicked(TimelineEvent event) {
 					if (!(event.getSource() instanceof IOpenable)) {
@@ -67,7 +66,9 @@ public class DiffTimelineBandProvider
 
 			private IIdentifier input = null;
 			private TimelineGroup<ITimeline, IIdentifier> timelineGroup = null;
-			private DiffContentProvider diffContentProvider = new DiffContentProvider();
+
+			// private final DiffContentProvider diffContentProvider = new
+			// DiffContentProvider();
 
 			@Override
 			public void inputChanged(
@@ -75,8 +76,15 @@ public class DiffTimelineBandProvider
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 
-				this.diffContentProvider.inputChanged(viewer, oldInput,
-						newInput);
+				// try {
+				// URI oldInputUri = oldInput != null ? new URI("sua://"
+				// + DiffLocatorProvider.DIFF_NAMESPACE + "/"
+				// + oldInput) : null;
+				// URI newInputUri = newInput != null ? new URI("sua://"
+				// + DiffLocatorProvider.DIFF_NAMESPACE + "/"
+				// + newInput) : null;
+				// this.diffContentProvider.inputChanged(viewer, oldInputUri,
+				// newInputUri);
 
 				if (this.timelineGroup != null) {
 					this.timelineGroup
@@ -87,6 +95,9 @@ public class DiffTimelineBandProvider
 					this.timelineGroup
 							.addTimelineListener(this.timelineListener);
 				}
+				// } catch (URISyntaxException e) {
+				// throw new RuntimeException(e);
+				// }
 			}
 
 			@Override
@@ -109,10 +120,8 @@ public class DiffTimelineBandProvider
 				}
 
 				final IDiffs diffList = (this.input instanceof IIdentifier) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
-						.getDefault()
-						.getDiffDataContainer()
-						.getDiffFiles((IIdentifier) this.input,
-								subMonitor.newChild(1))
+						.getDefault().getDiffDataContainer()
+						.getDiffFiles(this.input, subMonitor.newChild(1))
 						: null;
 
 				switch ((BANDS) band) {
@@ -185,9 +194,9 @@ public class DiffTimelineBandProvider
 	public ITimelineEventLabelProvider getEventLabelProvider() {
 		return new ITimelineEventLabelProvider() {
 
-			private ICodeService codeService = (ICodeService) PlatformUI
+			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
-			private DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
+			private final DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {

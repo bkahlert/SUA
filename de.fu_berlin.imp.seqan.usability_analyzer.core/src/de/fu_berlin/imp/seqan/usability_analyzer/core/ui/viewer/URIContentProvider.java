@@ -36,7 +36,7 @@ public abstract class URIContentProvider<INPUT> implements
 			this.inputChanged(viewer, (INPUT) oldInput, (INPUT) newInput, null);
 		} catch (ClassCastException e) {
 			LOGGER.error("Unsupported input type passed as input for "
-					+ this.getClass().getSimpleName());
+					+ this.getClass().getSimpleName(), e);
 		}
 	}
 

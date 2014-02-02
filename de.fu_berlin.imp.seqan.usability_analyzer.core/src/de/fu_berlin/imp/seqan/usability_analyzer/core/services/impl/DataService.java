@@ -83,8 +83,8 @@ public class DataService implements IDataService {
 		new SUACorePreferenceUtil().setDataDirectory(sb.toString());
 	}
 
-	private DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
-	private DataLoaderManager dataLoaderManager = new DataLoaderManager();
+	private final DataServiceListenerNotifier notifier = new DataServiceListenerNotifier();
+	private final DataLoaderManager dataLoaderManager = new DataLoaderManager();
 	private List<? extends IBaseDataContainer> activeBaseDataDirectories = new ArrayList<IBaseDataContainer>();
 
 	public DataService() {
@@ -109,6 +109,9 @@ public class DataService implements IDataService {
 	@Override
 	public void loadDataDirectories(
 			List<? extends IBaseDataContainer> baseDataContainers) {
+		if (true) {
+			return;
+		}
 		if (baseDataContainers == null) {
 			baseDataContainers = new ArrayList<IBaseDataContainer>();
 		}

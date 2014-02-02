@@ -9,16 +9,11 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.handlers.IHandlerService;
-import org.eclipse.ui.menus.CommandContributionItem;
 
 /**
  * ContextMenu creates a context menu for a structured viewer and registers it
@@ -67,13 +62,11 @@ public abstract class ContextMenu {
 	public void setDefaultItemHandling(boolean defaultItemHandling) {
 		if (this.defaultItemHandling != defaultItemHandling) {
 			if (defaultItemHandling) {
-				this.menu.addMenuListener(this.listenerSetDefaultItem);
 				if (this.viewer instanceof StructuredViewer) {
 					((StructuredViewer) this.viewer)
 							.addDoubleClickListener(this.listenerExecuteDefaultCommand);
 				}
 			} else {
-				this.menu.removeMenuListener(this.listenerSetDefaultItem);
 				if (this.viewer instanceof StructuredViewer) {
 					((StructuredViewer) this.viewer)
 							.removeDoubleClickListener(this.listenerExecuteDefaultCommand);
@@ -82,51 +75,21 @@ public abstract class ContextMenu {
 		}
 	}
 
-	private MenuItem getDefaultMenuItem() {
-		String defaultId = this.getDefaultCommandID();
-		if (defaultId == null) {
-			return null;
-		}
-
-		for (MenuItem menuItem : this.menu.getItems()) {
-			if (menuItem.getData() instanceof CommandContributionItem) {
-				CommandContributionItem contributionItem = (CommandContributionItem) menuItem
-						.getData();
-				String id = contributionItem.getId();
-				if (id != null && id.equals(defaultId)) {
-					return menuItem;
-				}
-			}
-		}
-		return null;
-	}
-
 	protected abstract String getDefaultCommandID();
-
-	private final MenuListener listenerSetDefaultItem = new MenuAdapter() {
-		@Override
-		public void menuShown(MenuEvent event) {
-			ContextMenu.this.menu.setDefaultItem(ContextMenu.this
-					.getDefaultMenuItem());
-		}
-	};
 
 	private final IDoubleClickListener listenerExecuteDefaultCommand = new IDoubleClickListener() {
 		@Override
 		public void doubleClick(DoubleClickEvent event) {
 			ContextMenu.this.menu.notifyListeners(SWT.Show, new Event());
-			MenuItem defaultItem = ContextMenu.this.getDefaultMenuItem();
-			if (defaultItem != null) {
-				CommandContributionItem contribution = (CommandContributionItem) defaultItem
-						.getData();
-				IHandlerService handlerService = (IHandlerService) ContextMenu.this.site
-						.getService(IHandlerService.class);
-				try {
-					handlerService.executeCommand(contribution.getCommand(),
-							null);
-				} catch (CommandException e) {
-					LOGGER.error("Could not execute command", e);
+			IHandlerService handlerService = (IHandlerService) ContextMenu.this.site
+					.getService(IHandlerService.class);
+			try {
+				String defaultCommandID = getDefaultCommandID();
+				if (defaultCommandID != null) {
+					handlerService.executeCommand(getDefaultCommandID(), null);
 				}
+			} catch (CommandException e) {
+				LOGGER.error("Could not execute command", e);
 			}
 		}
 	};

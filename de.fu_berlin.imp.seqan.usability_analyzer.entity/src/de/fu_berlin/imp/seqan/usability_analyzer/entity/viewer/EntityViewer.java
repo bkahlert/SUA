@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,18 +53,18 @@ public class EntityViewer extends SortableTableViewer implements
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(EntityViewer.class);
 
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
-	private IDataService dataService = (IDataService) PlatformUI.getWorkbench()
-			.getService(IDataService.class);
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final IDataService dataService = (IDataService) PlatformUI
+			.getWorkbench().getService(IDataService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	IDataServiceListener dataServiceListener = new DataServiceAdapter() {
 		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> baseDataContainers) {
-			EntityViewer.this.setBold((URI) null);
+			EntityViewer.this.setBold(null);
 		};
 	};
 
@@ -123,11 +122,9 @@ public class EntityViewer extends SortableTableViewer implements
 								Entity entity = (Entity) locatable;
 
 								ID id = entity.getId();
-								StyledString styledString = new StyledString(
-										id.toString(),
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
+								StyledString styledString = new StyledString(id
+										.toString(),
+										(boldObjects.contains(uri) ? boldStyler
 												: null));
 								return styledString;
 							}
@@ -196,11 +193,9 @@ public class EntityViewer extends SortableTableViewer implements
 								StyledString styledString = new StyledString(
 										(secondaryFingerprints != null) ? StringUtils
 												.join(secondaryFingerprints,
-														", ") : "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+														", ") : "", boldObjects
+												.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
@@ -218,10 +213,8 @@ public class EntityViewer extends SortableTableViewer implements
 								Token token = entity.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+										boldObjects.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
@@ -240,10 +233,8 @@ public class EntityViewer extends SortableTableViewer implements
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+										boldObjects.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
@@ -263,10 +254,8 @@ public class EntityViewer extends SortableTableViewer implements
 								StyledString styledString = new StyledString(
 										(cMakeCacheFile != null) ? cMakeCacheFile
 												.getGenerator() : "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+										boldObjects.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
@@ -288,10 +277,8 @@ public class EntityViewer extends SortableTableViewer implements
 												.format(EntityViewer.this.preferenceUtil
 														.getDateFormat())
 												: "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+										boldObjects.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
@@ -313,33 +300,25 @@ public class EntityViewer extends SortableTableViewer implements
 												.format(EntityViewer.this.preferenceUtil
 														.getDateFormat())
 												: "",
-										(EntityViewer.this.boldObjects != null
-												&& EntityViewer.this.boldObjects
-														.contains(uri) ? EntityViewer.this.boldStyler
-												: null));
+										boldObjects.contains(uri) ? boldStyler
+												: null);
 								return styledString;
 							}
 						}));
 	}
 
 	@Override
-	public void setBold(URI boldObject) {
-		this.setBold(Arrays.asList(boldObject));
-	}
-
-	@Override
 	public void setBold(Collection<URI> boldObjects) {
-		if (this.boldObjects != boldObjects) {
-			List<Object> update = new ArrayList<Object>();
-			if (this.boldObjects != null) {
-				update.addAll(this.boldObjects);
-			}
-			if (boldObjects != null) {
-				update.addAll(boldObjects);
-			}
+		if (boldObjects == null) {
+			boldObjects = new LinkedList<URI>();
+		}
+		if (!this.boldObjects.equals(boldObjects)) {
+			List<Object> objectsToBeUpdated = new ArrayList<Object>();
+			objectsToBeUpdated.addAll(this.boldObjects);
+			objectsToBeUpdated.addAll(boldObjects);
 
 			this.boldObjects = boldObjects;
-			this.update(update.toArray(), null);
+			this.update(objectsToBeUpdated.toArray(), null);
 		}
 	}
 }

@@ -115,7 +115,7 @@ public class URIUtils {
 		if (uri == null) {
 			return new LinkedList<String>();
 		}
-		return Arrays.asList((String[]) ArrayUtils.subarray(uri.getPath()
+		return Arrays.asList((String[]) ArrayUtils.subarray(uri.getRawPath()
 				.split("/"), 2, Integer.MAX_VALUE));
 	}
 

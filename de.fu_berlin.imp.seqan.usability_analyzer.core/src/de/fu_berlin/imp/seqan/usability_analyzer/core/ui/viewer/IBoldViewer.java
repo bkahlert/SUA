@@ -9,7 +9,5 @@ import java.util.Collection;
  * 
  */
 public interface IBoldViewer<T> {
-	public void setBold(T boldObject);
-
 	public void setBold(Collection<T> boldObjects);
 }

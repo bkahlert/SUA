@@ -1,10 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
 import java.io.FileFilter;
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -98,12 +100,12 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		}
 	}
 
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
-	private SUADiffPreferenceUtil diffPreferenceUtil = new SUADiffPreferenceUtil();
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final SUADiffPreferenceUtil diffPreferenceUtil = new SUADiffPreferenceUtil();
 	private DiffListsViewer diffListsViewer;
 
 	private IWorkSessionService workSessionService;
-	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
 			DiffExplorerView.this.load(workSession);
@@ -111,7 +113,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	};
 
 	private IHighlightService highlightService;
-	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
+	private final IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
 		public void highlight(Object sender, TimeZoneDateRange[] ranges,
 				boolean moveInsideViewport) {
@@ -172,7 +174,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	};
 
 	private DateRangeFilter dateRangeFilter = null;
-	private HashMap<FileFilter, DiffFileListsViewerFileFilter> diffFileListsViewerFileFilters = new HashMap<FileFilter, DiffFileListsViewerFileFilter>();
+	private final HashMap<FileFilter, DiffFileListsViewerFileFilter> diffFileListsViewerFileFilters = new HashMap<FileFilter, DiffFileListsViewerFileFilter>();
 
 	protected static final DateFormat dateFormat = new SUACorePreferenceUtil()
 			.getDateFormat();
@@ -405,10 +407,15 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						@Override
 						public void run() {
 							DiffExplorerView.this.setPartName(partName);
-							DiffExplorerView.this.diffListsViewer
-									.setInput(new ArrayList<IDiffs>(
-											newOpenedDiffFileLists.values()));
-							DiffExplorerView.this.diffListsViewer.expandAll();
+							List<URI> uris = new ArrayList<URI>();
+							for (Iterator<IDiffs> iterator = newOpenedDiffFileLists
+									.values().iterator(); iterator.hasNext();) {
+								IDiffs diffs = iterator.next();
+								uris.add(diffs.getUri());
+							}
+							// DiffExplorerView.this.diffListsViewer.setInput(uris
+							// .toArray(new URI[uris.size()]));
+							// DiffExplorerView.this.diffListsViewer.expandAll();
 						}
 					});
 				}

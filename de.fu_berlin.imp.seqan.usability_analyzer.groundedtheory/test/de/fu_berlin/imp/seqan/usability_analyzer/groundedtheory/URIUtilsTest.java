@@ -27,6 +27,8 @@ public class URIUtilsTest {
 				this.add(new URI("abc:///!iuz/aaa/lll"));
 				this.add(new URI("sksjkskjsklskljlk://resource"));
 				this.add(new URI("sua://resource/!hhh/aaa/lll#hash"));
+				this.add(new URI(
+						"sua://doclog/0meio6dzt3eo1wj7/2011-09-10T10-20-59%2B02%3A00%09ready%09http%3A%2F%2Fwww.seqan.de%2F%0985.179.79.188%09-%090%090%091263%09607"));
 			} catch (Exception e) {
 				System.err.println("ERROR");
 			}
@@ -41,6 +43,7 @@ public class URIUtilsTest {
 		assertEquals(null, URIUtils.getResource(URIS.get(3)));
 		assertEquals("resource", URIUtils.getResource(URIS.get(4)));
 		assertEquals("resource", URIUtils.getResource(URIS.get(5)));
+		assertEquals("doclog", URIUtils.getResource(URIS.get(6)));
 
 		assertEquals(null, URIUtils.getResource(null));
 	}
@@ -48,10 +51,11 @@ public class URIUtilsTest {
 	@Test
 	public void testGetResources() {
 		Set<String> resources = URIUtils.getResources(URIS.toArray(new URI[0]));
-		assertEquals(3, resources.size());
+		assertEquals(4, resources.size());
 		assertTrue(resources.contains("diff"));
 		assertTrue(resources.contains("xyz"));
 		assertTrue(resources.contains("resource"));
+		assertTrue(resources.contains("doclog"));
 
 		assertEquals(new HashSet<String>(), URIUtils.getResources(null));
 	}
@@ -67,6 +71,10 @@ public class URIUtilsTest {
 		assertEquals(IdentifierFactory.createFrom("!iuz"),
 				URIUtils.getIdentifier(URIS.get(3)));
 		assertEquals(null, URIUtils.getIdentifier(URIS.get(4)));
+		assertEquals(IdentifierFactory.createFrom("!hhh"),
+				URIUtils.getIdentifier(URIS.get(5)));
+		assertEquals(IdentifierFactory.createFrom("0meio6dzt3eo1wj7"),
+				URIUtils.getIdentifier(URIS.get(6)));
 
 		assertEquals(null, URIUtils.getIdentifier(null));
 	}
@@ -75,11 +83,13 @@ public class URIUtilsTest {
 	public void testGetIdentifiers() {
 		Set<IIdentifier> identifiers = URIUtils.getIdentifiers(URIS
 				.toArray(new URI[0]));
-		assertEquals(4, identifiers.size());
+		assertEquals(5, identifiers.size());
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("jkl")));
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("2gh")));
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("!iuz")));
 		assertTrue(identifiers.contains(IdentifierFactory.createFrom("!hhh")));
+		assertTrue(identifiers.contains(IdentifierFactory
+				.createFrom("0meio6dzt3eo1wj7")));
 
 		assertEquals(new HashSet<IIdentifier>(), URIUtils.getIdentifiers(null));
 	}
@@ -97,6 +107,9 @@ public class URIUtilsTest {
 		assertEquals(Arrays.asList(), URIUtils.getTrail(URIS.get(4)));
 		assertEquals(Arrays.asList("aaa", "lll"),
 				URIUtils.getTrail(URIS.get(5)));
+		assertEquals(
+				Arrays.asList("2011-09-10T10-20-59%2B02%3A00%09ready%09http%3A%2F%2Fwww.seqan.de%2F%0985.179.79.188%09-%090%090%091263%09607"),
+				URIUtils.getTrail(URIS.get(6)));
 
 		assertEquals(Arrays.asList(), URIUtils.getTrail(null));
 	}
@@ -104,8 +117,11 @@ public class URIUtilsTest {
 	@Test
 	public void testGetTrails() {
 		Set<List<String>> trails = URIUtils.getTrails(URIS.toArray(new URI[0]));
-		assertEquals(1, trails.size());
+		assertEquals(2, trails.size());
 		assertTrue(trails.contains(Arrays.asList("aaa", "lll")));
+		assertTrue(trails
+				.contains(Arrays
+						.asList("2011-09-10T10-20-59%2B02%3A00%09ready%09http%3A%2F%2Fwww.seqan.de%2F%0985.179.79.188%09-%090%090%091263%09607")));
 
 		assertEquals(new HashSet<List<String>>(), URIUtils.getTrails(null));
 	}

@@ -5,6 +5,7 @@ import java.net.URI;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdapterFactory;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -18,6 +19,16 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 
 	private final Class<? extends ILocatable>[] classes;
 
+	/**
+	 * 
+	 * @param classes
+	 *            that can be returned by {@link #getType(URI)} and all possible
+	 *            types of the objects returned by
+	 *            {@link #getObject(URI, IProgressMonitor)}. All given types may
+	 *            be used by Eclipse's adapter facility to adapt {@link URI} to
+	 *            one of the types using
+	 *            {@link #getObject(URI, IProgressMonitor)}.
+	 */
 	public AdaptingLocatorProvider(Class<? extends ILocatable>... classes) {
 		this.classes = classes;
 		Platform.getAdapterManager().registerAdapters(this, URI.class);
