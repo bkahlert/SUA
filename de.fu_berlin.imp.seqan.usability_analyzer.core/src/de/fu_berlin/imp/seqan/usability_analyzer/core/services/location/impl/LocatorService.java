@@ -30,7 +30,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 public class LocatorService implements ILocatorService {
 
 	private static final Logger LOGGER = Logger.getLogger(LocatorService.class);
-	private static final boolean LOG_RUNTIME = true;
+	private static final boolean LOG_FAST_RUNTIME = false;
+	private static final boolean LOG_SLOW_RUNTIME = true;
 
 	private static ILocatorProvider[] getRegisteredLocatorProviders() {
 		IConfigurationElement[] config = Platform
@@ -202,14 +203,16 @@ public class LocatorService implements ILocatorService {
 		Assert.isLegal(uri != null);
 		Assert.isLegal(clazz != null);
 
-		final long start = LOG_RUNTIME ? System.currentTimeMillis() : 0l;
+		@SuppressWarnings("unused")
+		final long start = LOG_FAST_RUNTIME || LOG_SLOW_RUNTIME ? System
+				.currentTimeMillis() : 0l;
 		if (getSlowLocatorProviders(uri).size() == 0) {
 			ILocatable locatable = LocatorService.this.uriCache.getPayload(uri,
 					monitor);
 			if (!clazz.isInstance(locatable)) {
 				locatable = null;
 			}
-			if (LOG_RUNTIME) {
+			if (LOG_FAST_RUNTIME) {
 				System.out.println("Sync-Fetched " + uri + " within "
 						+ (System.currentTimeMillis() - start) + "ms");
 			}
@@ -223,7 +226,7 @@ public class LocatorService implements ILocatorService {
 					if (!clazz.isInstance(locatable)) {
 						locatable = null;
 					}
-					if (LOG_RUNTIME) {
+					if (LOG_FAST_RUNTIME) {
 						System.out.println("Async-Fetched " + uri + " within "
 								+ (System.currentTimeMillis() - start) + "ms");
 					}
