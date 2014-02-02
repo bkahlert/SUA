@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -42,22 +43,25 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord.FLAGS;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffListsViewer extends SortableTreeViewer {
-	private LocalResourceManager resources;
+	private static final Logger LOGGER = Logger
+			.getLogger(DiffListsViewer.class);
 
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final LocalResourceManager resources;
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
 	public DiffListsViewer(final Composite parent, int style,

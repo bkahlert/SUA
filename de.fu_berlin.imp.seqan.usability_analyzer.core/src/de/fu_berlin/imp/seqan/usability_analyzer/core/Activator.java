@@ -40,7 +40,7 @@ public class Activator extends AbstractUIPlugin {
 	private TimeZoneDate oldDateRangeEnd;
 	private boolean oldDateRangeStartEnabled;
 	private boolean oldDateRangeEndEnabled;
-	private IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
+	private final IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
 			TimeZoneDateRange oldDateRange = new TimeZoneDateRange(

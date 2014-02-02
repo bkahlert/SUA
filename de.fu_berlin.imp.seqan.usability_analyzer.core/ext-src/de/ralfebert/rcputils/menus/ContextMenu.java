@@ -41,16 +41,22 @@ public abstract class ContextMenu {
 		this.viewer = viewer;
 		this.site = site;
 
+		long start = System.currentTimeMillis();
 		MenuManager menuManager = new MenuManager();
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
 		this.menu = menuManager.createContextMenu(viewer.getControl());
+
 		viewer.getControl().setMenu(this.menu);
 
 		site.registerContextMenu(menuManager, viewer);
 		site.setSelectionProvider(viewer);
 
 		this.setDefaultItemHandling(true);
+
+		LOGGER.debug(ContextMenu.class.getSimpleName() + " for "
+				+ viewer.getClass().getSimpleName() + " initialized within "
+				+ (System.currentTimeMillis() - start) + "ms");
 	}
 
 	/**
