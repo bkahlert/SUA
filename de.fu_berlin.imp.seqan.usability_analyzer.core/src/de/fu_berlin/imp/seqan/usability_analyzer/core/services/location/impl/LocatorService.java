@@ -33,33 +33,37 @@ public class LocatorService implements ILocatorService {
 	private static final boolean LOG_FAST_RUNTIME = false;
 	private static final boolean LOG_SLOW_RUNTIME = true;
 
-	private static ILocatorProvider[] getRegisteredLocatorProviders() {
-		IConfigurationElement[] config = Platform
-				.getExtensionRegistry()
-				.getConfigurationElementsFor(
-						"de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider");
-		List<ILocatorProvider> registeredLocatableProviders = new ArrayList<ILocatorProvider>();
-		for (IConfigurationElement e : config) {
-			try {
-				Object o = e.createExecutableExtension("class");
-				if (o instanceof ILocatorProvider) {
-					registeredLocatableProviders.add((ILocatorProvider) o);
-				}
-			} catch (CoreException e1) {
-				LOGGER.error("Error retrieving a currently registered "
-						+ ILocatorProvider.class.getSimpleName(), e1);
-				return null;
-			}
-		}
-		return registeredLocatableProviders.toArray(new ILocatorProvider[0]);
-	}
+	private static ILocatorProvider[] locatorProviders = null;
 
-	private final ILocatorProvider[] locatorProviders = getRegisteredLocatorProviders();
+	private static ILocatorProvider[] getRegisteredLocatorProviders() {
+		if (locatorProviders == null) {
+			IConfigurationElement[] config = Platform
+					.getExtensionRegistry()
+					.getConfigurationElementsFor(
+							"de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider");
+			List<ILocatorProvider> registeredLocatableProviders = new ArrayList<ILocatorProvider>();
+			for (IConfigurationElement e : config) {
+				try {
+					Object o = e.createExecutableExtension("class");
+					if (o instanceof ILocatorProvider) {
+						registeredLocatableProviders.add((ILocatorProvider) o);
+					}
+				} catch (CoreException e1) {
+					LOGGER.error("Error retrieving a currently registered "
+							+ ILocatorProvider.class.getSimpleName(), e1);
+					return null;
+				}
+			}
+			locatorProviders = registeredLocatableProviders
+					.toArray(new ILocatorProvider[0]);
+		}
+		return locatorProviders;
+	}
 
 	private List<ILocatorProvider> getFastLocatorProviders(URI uri) {
 		List<ILocatorProvider> fastLocatorProviders = new ArrayList<ILocatorProvider>(
-				locatorProviders.length);
-		for (final ILocatorProvider locatorProvider : locatorProviders) {
+				getRegisteredLocatorProviders().length);
+		for (final ILocatorProvider locatorProvider : getRegisteredLocatorProviders()) {
 			if (locatorProvider.isResolvabilityImpossible(uri)) {
 				continue;
 			}
@@ -72,8 +76,8 @@ public class LocatorService implements ILocatorService {
 
 	private List<ILocatorProvider> getSlowLocatorProviders(URI uri) {
 		List<ILocatorProvider> slowLocatorProviders = new ArrayList<ILocatorProvider>(
-				locatorProviders.length);
-		for (final ILocatorProvider locatorProvider : locatorProviders) {
+				getRegisteredLocatorProviders().length);
+		for (final ILocatorProvider locatorProvider : getRegisteredLocatorProviders()) {
 			if (locatorProvider.isResolvabilityImpossible(uri)) {
 				continue;
 			}
@@ -99,8 +103,8 @@ public class LocatorService implements ILocatorService {
 				public ILocatable fetch(final URI uri, IProgressMonitor monitor) {
 					Assert.isLegal(uri != null);
 
-					if (locatorProviders == null
-							|| locatorProviders.length == 0) {
+					if (getRegisteredLocatorProviders() == null
+							|| getRegisteredLocatorProviders().length == 0) {
 						return null;
 					}
 
@@ -168,12 +172,13 @@ public class LocatorService implements ILocatorService {
 	public Class<? extends ILocatable> getType(URI uri) {
 		Assert.isLegal(uri != null);
 
-		if (locatorProviders == null || locatorProviders.length == 0) {
+		if (getRegisteredLocatorProviders() == null
+				|| getRegisteredLocatorProviders().length == 0) {
 			return null;
 		}
 
 		List<Class<? extends ILocatable>> types = new ArrayList<Class<? extends ILocatable>>();
-		for (final ILocatorProvider locatorProvider : locatorProviders) {
+		for (final ILocatorProvider locatorProvider : getRegisteredLocatorProviders()) {
 			if (locatorProvider.isResolvabilityImpossible(uri)) {
 				continue;
 			}

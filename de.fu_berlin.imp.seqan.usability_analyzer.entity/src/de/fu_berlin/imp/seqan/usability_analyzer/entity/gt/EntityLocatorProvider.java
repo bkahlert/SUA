@@ -57,16 +57,10 @@ public class EntityLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		if (Activator.getDefault() == null) {
-			System.err.println("ERROR");
-		}
-
-		if (Activator.getDefault().getLoadedData() == null) {
-			System.err.println("ERROR");
-		}
-
-		if (Activator.getDefault().getLoadedData().getEntityManager() == null) {
-			System.err.println("ERROR");
+		if (Activator.getDefault() == null
+				|| Activator.getDefault().getLoadedData() == null
+				|| Activator.getDefault().getLoadedData().getEntityManager() == null) {
+			return null;
 		}
 
 		for (Entity entity : Activator.getDefault().getLoadedData()

@@ -33,7 +33,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
-import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -79,9 +78,6 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 		this.initColumns(dateFormat, timeDifferenceFormat);
 
-		final ISelectionRetriever<ILocatable> locatableRetriever = SelectionRetrieverFactory
-				.getSelectionRetriever(ILocatable.class);
-
 		int operations = DND.DROP_LINK;
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
 				.getTransfer() };
@@ -93,7 +89,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 								.getControl().getData(
 										EpisodeRenderer.CONTROL_DATA_STRING) != null;
 						if (!episodeRendererActive
-								&& locatableRetriever.getSelection().size() > 0) {
+								&& SelectionRetrieverFactory
+										.getSelectionRetriever(URI.class)
+										.getSelection().size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
 									DiffListsViewer.this.getSelection());
 							LocalSelectionTransfer.getTransfer()
@@ -130,37 +128,34 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 		this.createColumn("Date", 350).setLabelProvider(
 				new ILabelProviderService.StyledColumnLabelProvider() {
-					private DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
+					private final DiffLabelProvider diffLabelProvider = new DiffLabelProvider();
 
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
 						// we do not use diffLabelProvider here because we want
 						// to provide more detailed information
-						if (element instanceof IDiffs) {
-							IDiffs diffList = (IDiffs) element;
-							IIdentifier identifier = null;
-							if (diffList.length() > 0) {
-								identifier = diffList.get(0).getIdentifier();
-							}
-							return (identifier != null) ? identifier.toString()
-									: "";
+						if (type == IDiffs.class) {
+							return URIUtils.getIdentifier(uri).toString();
 						}
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							TimeZoneDate date = diff.getDateRange()
 									.getEndDate();
 							return (date != null) ? date.format(dateFormat)
 									: "";
 						}
-						if (element instanceof IDiffRecord) {
-							IDiffRecord diffRecord = (IDiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							String name = diffRecord.getFilename();
 							return (name != null) ? name : "";
 						}
-						return "";
+						return "ERROR";
 					}
 
 					@Override
@@ -181,17 +176,21 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
-						if (element instanceof IDiff) {
-							IDiff diff = (IDiff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							return diff.getLocationHash();
 						}
-						if (element instanceof IDiffRecord) {
-							IDiffRecord diffRecord = (IDiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							return diffRecord.getDiffFile().getLocationHash();
 						}
+
 						return "";
 					}
 				});
@@ -200,17 +199,20 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
-						if (element instanceof IDiffRecord) {
-							IDiffRecord diffRecord = (IDiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							List<String> flags = new LinkedList<String>();
 							if (diffRecord.hasFlag(FLAGS.RESTORED)) {
 								flags.add("R");
 							}
 							return StringUtils.join(flags, " ");
 						}
+
 						return "";
 					}
 				});
@@ -232,11 +234,12 @@ public class DiffListsViewer extends SortableTreeViewer {
 				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							Long milliSecondsPassed = diff.getDateRange()
 									.getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
@@ -244,8 +247,10 @@ public class DiffListsViewer extends SortableTreeViewer {
 											timeDifferenceFormat, true)
 									: "unknown";
 						}
-						if (element instanceof IDiffRecord) {
-							DiffRecord diffRecord = (DiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							Long milliSecondsPassed = diffRecord.getDateRange()
 									.getDifference();
 							return (milliSecondsPassed != null) ? DurationFormatUtils
@@ -253,6 +258,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 											timeDifferenceFormat, true)
 									: "unknown";
 						}
+
 						return "";
 					}
 				});
@@ -263,20 +269,20 @@ public class DiffListsViewer extends SortableTreeViewer {
 				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
-						if (element instanceof IDiffs) {
-							IDiffs diffList = (IDiffs) element;
-							return "# " + diffList.length();
+						if (type == IDiffs.class) {
+							IDiffs diffs = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffs.class, null).get();
+							return "#" + diffs.length();
 						}
-						if (element instanceof IDiff) {
-							IDiff diff = (IDiff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							return diff.getCalculatedRevision() + "";
 						}
-						if (element instanceof IDiffRecord) {
-							return "";
-						}
+
 						return "";
 					}
 				});
@@ -284,20 +290,37 @@ public class DiffListsViewer extends SortableTreeViewer {
 		this.createColumn("", 10, false, new Comparator<Object>() {
 			@Override
 			public int compare(Object o1, Object o2) {
-				if (o1 instanceof IDiff && o2 instanceof IDiff) {
-					IDiff diffFile1 = (IDiff) o1;
-					IDiff diffFile2 = (IDiff) o2;
-					String revision1 = diffFile1.getRevision();
-					String revision2 = diffFile2.getRevision();
-					return revision1.compareTo(revision2);
-				} else if (o1 instanceof IDiffRecord
-						&& o2 instanceof IDiffRecord) {
-					IDiffRecord diffFileRecord1 = (IDiffRecord) o1;
-					IDiffRecord diffFileRecord2 = (IDiffRecord) o2;
-					Boolean sourceExists1 = diffFileRecord1.sourceExists();
-					Boolean sourceExists2 = diffFileRecord2.sourceExists();
-					return sourceExists1.compareTo(sourceExists2);
+				if (!(o1 instanceof URI) || !(o2 instanceof URI)) {
+					return 0;
 				}
+
+				URI uri1 = (URI) o1;
+				URI uri2 = (URI) o2;
+				Class<? extends ILocatable> type1 = locatorService
+						.getType(uri1);
+				Class<? extends ILocatable> type2 = locatorService
+						.getType(uri2);
+
+				if (type1 == IDiff.class && type2 == IDiff.class) {
+					String revision1 = URIUtils.getTrail(uri1).get(0);
+					String revision2 = URIUtils.getTrail(uri2).get(0);
+					return revision1.compareTo(revision2);
+				} else if (type1 == IDiffRecord.class
+						&& type2 == IDiffRecord.class) {
+					try {
+						IDiffRecord diffRecord1 = DiffListsViewer.this.locatorService
+								.resolve(uri1, IDiffRecord.class, null).get();
+						IDiffRecord diffRecord2 = DiffListsViewer.this.locatorService
+								.resolve(uri2, IDiffRecord.class, null).get();
+						Boolean sourceExists1 = diffRecord1.sourceExists();
+						Boolean sourceExists2 = diffRecord2.sourceExists();
+						return sourceExists1.compareTo(sourceExists2);
+					} catch (Exception e) {
+						LOGGER.error(
+								"Error comparing " + uri1 + " and " + uri2, e);
+					}
+				}
+
 				return 0;
 			}
 		}, new Class<?>[] { Diff.class, DiffRecord.class }).setLabelProvider(
@@ -311,25 +334,29 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Color getBackground(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
-						if (element instanceof IDiff) {
-							IDiff diff = (IDiff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							RGB backgroundRgb = diff.sourcesExist() ? this.preferenceUtil
 									.getColorOk() : this.preferenceUtil
 									.getColorMissing();
 							return DiffListsViewer.this.resources
 									.createColor(backgroundRgb);
 						}
-						if (element instanceof IDiffRecord) {
-							IDiffRecord diffRecord = (IDiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							RGB backgroundRgb = diffRecord.sourceExists() ? this.preferenceUtil
 									.getColorOk() : this.preferenceUtil
 									.getColorMissing();
 							return DiffListsViewer.this.resources
 									.createColor(backgroundRgb);
 						}
+
 						return null;
 					}
 				});
@@ -338,22 +365,27 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
 						TimeZoneDateRange range = null;
-						if (element instanceof IDiffs) {
-							Diffs diffs = (Diffs) element;
+						if (type == IDiffs.class) {
+							IDiffs diffs = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffs.class, null).get();
 							range = diffs.getDateRange();
 						}
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							range = diff.getDateRange();
 						}
-						if (element instanceof IDiffRecord) {
-							DiffRecord diffRecord = (DiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							range = diffRecord.getDateRange();
 						}
+
 						TimeZoneDate date = range != null ? range
 								.getStartDate() : null;
 						return date != null ? date
@@ -365,22 +397,27 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						ILocatable element = DiffListsViewer.this.locatorService
-								.resolve(uri, null).get();
+						Class<? extends ILocatable> type = locatorService
+								.getType(uri);
 
 						TimeZoneDateRange range = null;
-						if (element instanceof IDiffs) {
-							Diffs diffs = (Diffs) element;
+						if (type == IDiffs.class) {
+							IDiffs diffs = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffs.class, null).get();
 							range = diffs.getDateRange();
 						}
-						if (element instanceof IDiff) {
-							Diff diff = (Diff) element;
+						if (type == IDiff.class) {
+							IDiff diff = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiff.class, null).get();
 							range = diff.getDateRange();
 						}
-						if (element instanceof IDiffRecord) {
-							DiffRecord diffRecord = (DiffRecord) element;
+						if (type == IDiffRecord.class) {
+							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
+									.resolve(uri, IDiffRecord.class, null)
+									.get();
 							range = diffRecord.getDateRange();
 						}
+
 						TimeZoneDate date = range != null ? range.getEndDate()
 								: null;
 						return date != null ? date
