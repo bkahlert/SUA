@@ -7,14 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
@@ -55,8 +53,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			DiffContainer.class, 1);
+	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+			DiffContainer.class);
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
@@ -164,10 +162,10 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		}
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
-		List<Future<Integer>> futures = EXECUTOR_SERVICE
-				.nonUIAsyncExec(
+		for (Integer worked : EXECUTOR_UTIL
+				.nonUIAsyncExecMerged(
 						this.dataLists.keySet(),
-						new com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable<ID, Integer>() {
+						new com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable<ID, Integer>() {
 							@Override
 							public Integer call(ID id) throws Exception {
 								final DataList dataList = DiffContainer.this.dataLists
@@ -185,16 +183,8 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 								return (int) (sizes.get(id) / 1000l);
 							}
-						});
-		for (Future<Integer> future : futures) {
-			try {
-				int worked = future.get();
-				monitor.worked(worked);
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			} catch (ExecutionException e) {
-				LOGGER.error(e);
-			}
+						})) {
+			monitor.worked(worked);
 		}
 		monitor.done();
 	}
@@ -260,6 +250,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public IDiffs createDiffFiles(IIdentifier identifier,
 			IProgressMonitor progressMonitor) {
+		if (ExecutorUtil.isUIThread()) {
+			System.err.println("NO NO");
+		}
 		this.scanIfNecessary(SubMonitor.convert(progressMonitor));
 		DataList dataList = this.dataLists.get(identifier);
 		if (dataList != null) {

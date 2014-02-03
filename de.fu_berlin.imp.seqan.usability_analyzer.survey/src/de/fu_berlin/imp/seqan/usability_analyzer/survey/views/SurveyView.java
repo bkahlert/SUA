@@ -156,7 +156,7 @@ public class SurveyView extends ViewPart {
 			}
 		}
 
-		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+		return ExecutorUtil.nonUISyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 				if (SurveyView.this.surveyViewer != null

@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.bkahlert.devel.nebula.utils.CollectionUtils;
-import com.bkahlert.devel.nebula.utils.ExecutorService;
-import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
@@ -34,8 +33,8 @@ public class DataService implements IDataService {
 
 	private static final Logger LOGGER = Logger.getLogger(DataService.class);
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			DataService.class, 1);
+	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+			DataService.class);
 
 	public static List<IBaseDataContainer> loadFromPreferences() {
 		List<IBaseDataContainer> containers = new ArrayList<IBaseDataContainer>();
@@ -148,9 +147,10 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getLoadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = EXECUTOR_SERVICE
-							.nonUIAsyncExec(sources,
-									new ParametrizedCallable<String, Job>() {
+					List<Future<Job>> futures = EXECUTOR_UTIL
+							.nonUIAsyncExec(
+									sources,
+									new ExecutorUtil.ParametrizedCallable<String, Job>() {
 										@Override
 										public Job call(final String source)
 												throws Exception {
@@ -225,9 +225,10 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getUnloadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = EXECUTOR_SERVICE
-							.nonUIAsyncExec(sources,
-									new ParametrizedCallable<String, Job>() {
+					List<Future<Job>> futures = EXECUTOR_UTIL
+							.nonUIAsyncExec(
+									sources,
+									new ExecutorUtil.ParametrizedCallable<String, Job>() {
 										@Override
 										public Job call(final String source)
 												throws Exception {

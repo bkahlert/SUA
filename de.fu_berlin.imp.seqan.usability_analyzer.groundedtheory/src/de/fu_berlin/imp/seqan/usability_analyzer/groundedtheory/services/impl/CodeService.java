@@ -48,8 +48,8 @@ public class CodeService implements ICodeService {
 
 	@SuppressWarnings("unused")
 	private ComponentContext context;
-	private ICodeStore codeStore;
-	private CodeServiceListenerNotifier codeServiceListenerNotifier;
+	private final ICodeStore codeStore;
+	private final CodeServiceListenerNotifier codeServiceListenerNotifier;
 
 	public CodeService() throws IOException {
 		this(new CodeStoreFactory().getCodeStore());
@@ -124,12 +124,12 @@ public class CodeService implements ICodeService {
 	}
 
 	@Override
-	public void addCode(ICode code, final URI uri) throws CodeServiceException {
-		this.addCodes(Arrays.asList(code), Arrays.asList(uri));
+	public URI addCode(ICode code, final URI uri) throws CodeServiceException {
+		return this.addCodes(Arrays.asList(code), Arrays.asList(uri))[0];
 	}
 
 	@Override
-	public void addCodes(List<ICode> codes, List<URI> uris)
+	public URI[] addCodes(List<ICode> codes, List<URI> uris)
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {

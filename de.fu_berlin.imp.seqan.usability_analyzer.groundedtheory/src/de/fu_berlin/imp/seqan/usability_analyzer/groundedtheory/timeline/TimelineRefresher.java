@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorService.DelayableThread;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil.DelayableThread;
 import com.bkahlert.devel.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -36,8 +36,8 @@ public class TimelineRefresher implements ICodeServiceListener {
 		}
 	}
 
-	private Viewer viewer;
-	private long delay;
+	private final Viewer viewer;
+	private final long delay;
 
 	private DelayedRefresher delayedRefresher = null;
 

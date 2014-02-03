@@ -45,8 +45,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
-import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
@@ -64,9 +62,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRang
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.extensionProviders.IFileFilterListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffContentProvider;
@@ -182,8 +180,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			DiffExplorerView.class.getSimpleName());
+	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+			DiffExplorerView.class);
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
 	public DiffExplorerView() {
@@ -279,10 +277,10 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 						diff.open();
 					}
 				} else {
-					List<DiffRecord> diffRecords = SelectionUtils
+					List<IDiffRecord> diffRecords = SelectionUtils
 							.getAdaptableObjects(event.getSelection(),
-									DiffRecord.class);
-					for (DiffRecord diffRecord : diffRecords) {
+									IDiffRecord.class);
+					for (IDiffRecord diffRecord : diffRecords) {
 						diffRecord.open();
 					}
 				}
@@ -351,8 +349,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<Job>> loaders = EXECUTOR_SERVICE.nonUIAsyncExec(ids,
-				new ParametrizedCallable<IIdentifier, Job>() {
+		final List<Future<Job>> loaders = EXECUTOR_UTIL.nonUIAsyncExec(ids,
+				new ExecutorUtil.ParametrizedCallable<IIdentifier, Job>() {
 					@Override
 					public Job call(final IIdentifier identifier)
 							throws Exception {
@@ -380,7 +378,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					}
 				});
 
-		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+		return EXECUTOR_UTIL.nonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 				for (Future<Job> loader : loaders) {
@@ -414,9 +412,9 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 								IDiffs diffs = iterator.next();
 								uris.add(diffs.getUri());
 							}
-							// DiffExplorerView.this.diffListsViewer.setInput(uris
-							// .toArray(new URI[uris.size()]));
-							// DiffExplorerView.this.diffListsViewer.expandAll();
+							DiffExplorerView.this.diffListsViewer.setInput(uris
+									.toArray(new URI[uris.size()]));
+							DiffExplorerView.this.diffListsViewer.expandAll();
 						}
 					});
 				}

@@ -3,16 +3,15 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
-import com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 
 public class WorkSessionListenerNotifier {
 	private final List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			WorkSessionListenerNotifier.class, 1);
+	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+			WorkSessionListenerNotifier.class);
 
 	void addWorkSessionListener(IWorkSessionListener workSessionListener) {
 		this.workSessionListeners.add(workSessionListener);
@@ -23,14 +22,18 @@ public class WorkSessionListenerNotifier {
 	}
 
 	void workSessionStarted(final IWorkSession workSession) {
-		EXECUTOR_SERVICE.nonUIAsyncExec(this.workSessionListeners,
-				new ParametrizedCallable<IWorkSessionListener, Void>() {
-					@Override
-					public Void call(IWorkSessionListener workSessionListener)
-							throws Exception {
-						workSessionListener.workSessionStarted(workSession);
-						return null;
-					}
-				});
+		EXECUTOR_UTIL
+				.nonUIAsyncExec(
+						this.workSessionListeners,
+						new ExecutorUtil.ParametrizedCallable<IWorkSessionListener, Void>() {
+							@Override
+							public Void call(
+									IWorkSessionListener workSessionListener)
+									throws Exception {
+								workSessionListener
+										.workSessionStarted(workSession);
+								return null;
+							}
+						});
 	}
 }

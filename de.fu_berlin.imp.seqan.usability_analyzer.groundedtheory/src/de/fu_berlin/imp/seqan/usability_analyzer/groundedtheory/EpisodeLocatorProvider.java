@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -30,8 +30,6 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 	public static final String EPISODE_NAMESPACE = "episode";
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeLocatorProvider.class);
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			EpisodeLocatorProvider.class, 1);
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
@@ -96,7 +94,7 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
 			try {
-				return EXECUTOR_SERVICE.syncExec(new Callable<Boolean>() {
+				return ExecutorUtil.syncExec(new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
 						EpisodeView episodeView = (EpisodeView) WorkbenchUtils

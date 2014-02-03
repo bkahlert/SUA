@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -30,8 +28,8 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
 
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			DoclogDataContainer.class, 1);
+	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+			DoclogDataContainer.class);
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
@@ -91,10 +89,10 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		// force class loading since DoclogRecord is used in the Callable
 		DoclogAction.class.getClass();
 		DoclogRecord.class.getClass();
-		List<Future<Integer>> futures = EXECUTOR_SERVICE
-				.nonUIAsyncExec(
+		for (int worked : EXECUTOR_UTIL
+				.nonUIAsyncExecMerged(
 						this.datas.keySet(),
-						new com.bkahlert.devel.nebula.utils.ExecutorService.ParametrizedCallable<IIdentifier, Integer>() {
+						new com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable<IIdentifier, Integer>() {
 							@Override
 							public Integer call(IIdentifier identifier)
 									throws Exception {
@@ -121,17 +119,10 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 								}
 								return (int) (length / 1000l);
 							}
-						});
-		for (Future<Integer> future : futures) {
-			try {
-				int worked = future.get();
-				monitor.worked(worked);
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			} catch (ExecutionException e) {
-				LOGGER.error(e);
-			}
+						})) {
+			monitor.worked(worked);
 		}
+		monitor.done();
 	}
 
 	/**

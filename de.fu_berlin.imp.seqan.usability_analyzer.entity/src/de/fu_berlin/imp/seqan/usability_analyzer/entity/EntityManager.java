@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -59,8 +60,9 @@ public class EntityManager {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
 		final ArrayList<Entity> entities = new ArrayList<Entity>();
 
-		ExecutorService executorService = com.bkahlert.devel.nebula.utils.ExecutorService
-				.newFixedMultipleOfProcessorsThreadPool(2);
+		ExecutorService executorService = Executors
+				.newFixedThreadPool(2 * Runtime.getRuntime()
+						.availableProcessors());
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		// force class loading since they are used in the Callable
 		Entity.class.getClass();

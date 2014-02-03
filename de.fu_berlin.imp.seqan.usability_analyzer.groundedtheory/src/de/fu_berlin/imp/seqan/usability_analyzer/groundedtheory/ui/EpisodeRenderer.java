@@ -312,7 +312,7 @@ public class EpisodeRenderer implements IDisposable {
 					final IEpisode oldEpisode = this.resizeInfo.getEpisode();
 					final IEpisode newEpisode = this.resizeInfo.getNewEpisode();
 					if (oldEpisode != null && newEpisode != null) {
-						ExecutorUtil.asyncRun(new Runnable() {
+						ExecutorUtil.nonUISyncExec(new Runnable() {
 							@Override
 							public void run() {
 								try {

@@ -29,8 +29,8 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 	}
 
 	private void init() {
-		this.dataService = (IDataService) PlatformUI
-				.getWorkbench().getService(IDataService.class);
+		this.dataService = (IDataService) PlatformUI.getWorkbench().getService(
+				IDataService.class);
 	}
 
 	@Override
@@ -40,13 +40,13 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 			MenuItem menuItem = new MenuItem(menu, SWT.CHECK, index);
 			menuItem.setText(dataResourceContainer.toString());
 			menuItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
-					ExecutorUtil.nonUIAsyncExec(new Runnable() {
+					ExecutorUtil.nonUISyncExec(new Runnable() {
 						@Override
 						public void run() {
-							dataService
-									.loadDataDirectories(Arrays
-											.asList(dataResourceContainer));
+							dataService.loadDataDirectories(Arrays
+									.asList(dataResourceContainer));
 						}
 					});
 				}

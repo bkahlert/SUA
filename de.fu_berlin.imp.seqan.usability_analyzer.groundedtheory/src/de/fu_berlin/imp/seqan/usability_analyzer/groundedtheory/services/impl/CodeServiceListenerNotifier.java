@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -20,9 +20,9 @@ public class CodeServiceListenerNotifier {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeServiceListenerNotifier.class);
 
-	private ExecutorService notifierPool = com.bkahlert.devel.nebula.utils.ExecutorService
-			.newFixedMultipleOfProcessorsThreadPool(2);
-	private List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
+	private final ExecutorUtil notifierPool = new ExecutorUtil(
+			CodeServiceListenerNotifier.class);
+	private final List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
 
 	void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
 		if (this.codeServiceListeners.contains(codeServiceListener)) {
@@ -43,7 +43,7 @@ public class CodeServiceListenerNotifier {
 
 	void codesCreated(final List<ICode> codes) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesAdded(codes);
@@ -55,7 +55,7 @@ public class CodeServiceListenerNotifier {
 
 	void codeAssigned(final List<ICode> codes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesAssigned(codes, uris);
@@ -68,7 +68,7 @@ public class CodeServiceListenerNotifier {
 	public void codeRenamed(final ICode code, final String oldCaption,
 			final String newCaption) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeRenamed(code, oldCaption,
@@ -82,7 +82,7 @@ public class CodeServiceListenerNotifier {
 	public void codeRecolored(final ICode code, final RGB oldColor,
 			final RGB newColor) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeRecolored(code, oldColor, newColor);
@@ -94,7 +94,7 @@ public class CodeServiceListenerNotifier {
 
 	void codesRemoved(final List<ICode> removedCodes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codesRemoved(removedCodes, uris);
@@ -107,7 +107,7 @@ public class CodeServiceListenerNotifier {
 	public void codeMoved(final ICode code, final ICode oldParentCode,
 			final ICode newParentCode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeMoved(code, oldParentCode,
@@ -120,7 +120,7 @@ public class CodeServiceListenerNotifier {
 
 	void codeDeleted(final ICode code) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.codeDeleted(code);
@@ -132,7 +132,7 @@ public class CodeServiceListenerNotifier {
 
 	void memoAdded(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoAdded(uri);
@@ -144,7 +144,7 @@ public class CodeServiceListenerNotifier {
 
 	void memoModified(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoModified(uri);
@@ -156,7 +156,7 @@ public class CodeServiceListenerNotifier {
 
 	void memoRemoved(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.memoRemoved(uri);
@@ -168,7 +168,7 @@ public class CodeServiceListenerNotifier {
 
 	public void episodeAdded(final IEpisode episode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodeAdded(episode);
@@ -181,7 +181,7 @@ public class CodeServiceListenerNotifier {
 	public void episodeReplaced(final IEpisode oldEpisode,
 			final IEpisode newEpisode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodeReplaced(oldEpisode, newEpisode);
@@ -193,7 +193,7 @@ public class CodeServiceListenerNotifier {
 
 	public void episodesDeleted(final Set<IEpisode> deletedEpisodes) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			this.notifierPool.submit(new Callable<Void>() {
+			this.notifierPool.nonUIAsyncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					codeServiceListener.episodesDeleted(deletedEpisodes);

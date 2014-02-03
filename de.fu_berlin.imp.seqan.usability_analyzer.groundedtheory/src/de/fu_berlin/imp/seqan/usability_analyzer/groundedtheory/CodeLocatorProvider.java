@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
@@ -20,8 +20,6 @@ public class CodeLocatorProvider extends AdaptingLocatorProvider {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeLocatorProvider.class);
-	private static final ExecutorService EXECUTOR_SERVICE = new ExecutorService(
-			CodeLocatorProvider.class, 1);
 
 	@SuppressWarnings("unchecked")
 	public CodeLocatorProvider() {
@@ -69,7 +67,7 @@ public class CodeLocatorProvider extends AdaptingLocatorProvider {
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
 			try {
-				return EXECUTOR_SERVICE.syncExec(new Callable<Boolean>() {
+				return ExecutorUtil.syncExec(new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
 						// EpisodeView episodeView = (EpisodeView)

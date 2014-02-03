@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
@@ -26,7 +27,7 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 	private static final Logger LOGGER = Logger
 			.getLogger(EntityDataContainer.class);
 
-	private SurveyContainer surveyContainer;
+	private final SurveyContainer surveyContainer;
 	private StatsFileManager statsFileManager;
 	private CMakeCacheFileManager cMakeCacheFileManager;
 
@@ -34,9 +35,9 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	private EntityManager entityManager;
 
-	private DiffContainer diffContainer;
+	private final DiffContainer diffContainer;
 
-	private DoclogDataContainer doclogDataContainer;
+	private final DoclogDataContainer doclogDataContainer;
 
 	public EntityDataContainer(
 			List<? extends IBaseDataContainer> baseDataContainers,
@@ -59,8 +60,9 @@ public class EntityDataContainer extends AggregatedBaseDataContainer {
 
 	public void scan(final SubMonitor monitor) throws EntityDataException {
 		monitor.setWorkRemaining(100);
-		ExecutorService executorService = com.bkahlert.devel.nebula.utils.ExecutorService
-				.newFixedMultipleOfProcessorsThreadPool(2);
+		ExecutorService executorService = Executors
+				.newFixedThreadPool(2 * Runtime.getRuntime()
+						.availableProcessors());
 		Set<Callable<Void>> callables = new HashSet<Callable<Void>>();
 		callables.add(new Callable<Void>() {
 			@Override

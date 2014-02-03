@@ -6,9 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -18,7 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -88,13 +86,8 @@ public class LocatorService implements ILocatorService {
 		return slowLocatorProviders;
 	}
 
-	private final ExecutorService executorService = new ExecutorService(
-			Executors.newFixedThreadPool(2, new ThreadFactory() {
-				@Override
-				public Thread newThread(Runnable r) {
-					return new Thread(r, LocatorService.class.getSimpleName());
-				}
-			}));
+	private final ExecutorUtil executorUtil = new ExecutorUtil(
+			LocatorService.class);
 
 	private final Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
 			new CacheFetcher<URI, ILocatable>() {
@@ -120,7 +113,7 @@ public class LocatorService implements ILocatorService {
 
 					List<ILocatorProvider> slowLocatorProviders = getSlowLocatorProviders(uri);
 					if (slowLocatorProviders.size() > 0
-							&& ExecutorService.isUIThread()) {
+							&& ExecutorUtil.isUIThread()) {
 						LOGGER.fatal("Implementation Error - Slow "
 								+ URI.class.getSimpleName()
 								+ " resolution in the UI thread detected!");
@@ -131,7 +124,7 @@ public class LocatorService implements ILocatorService {
 					List<Future<ILocatable>> futureLocatables = new ArrayList<Future<ILocatable>>(
 							slowLocatorProviders.size());
 					for (final ILocatorProvider slowLocatorProvider : slowLocatorProviders) {
-						Future<ILocatable> futureLocatable = LocatorService.this.executorService
+						Future<ILocatable> futureLocatable = LocatorService.this.executorUtil
 								.nonUIAsyncExec(new Callable<ILocatable>() {
 									@Override
 									public ILocatable call() throws Exception {
@@ -223,7 +216,7 @@ public class LocatorService implements ILocatorService {
 			}
 			return new CompletedFuture<T>((T) locatable, null);
 		} else {
-			return this.executorService.nonUIAsyncExec(new Callable<T>() {
+			return this.executorUtil.nonUIAsyncExec(new Callable<T>() {
 				@Override
 				public T call() throws Exception {
 					ILocatable locatable = LocatorService.this.uriCache
@@ -284,7 +277,7 @@ public class LocatorService implements ILocatorService {
 		} else {
 			final SubMonitor subMonitor = SubMonitor.convert(monitor,
 					uris.length);
-			return this.executorService
+			return this.executorUtil
 					.nonUIAsyncExec(new Callable<ILocatable[]>() {
 						@Override
 						public ILocatable[] call() throws Exception {
@@ -325,7 +318,7 @@ public class LocatorService implements ILocatorService {
 		} else {
 			final SubMonitor subMonitor = SubMonitor.convert(monitor,
 					uris.size());
-			return this.executorService.nonUIAsyncExec(new Callable<List<T>>() {
+			return this.executorUtil.nonUIAsyncExec(new Callable<List<T>>() {
 				@Override
 				public List<T> call() throws Exception {
 					return resolveList(uris, clazz, subMonitor);
@@ -362,7 +355,7 @@ public class LocatorService implements ILocatorService {
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				locatorProviders.length);
-		return this.executorService.nonUIAsyncExec(new Callable<Boolean>() {
+		return this.executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
 				boolean success = true;

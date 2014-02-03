@@ -76,7 +76,9 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
-	 * TODO
+	 * Associates the {@link ILocatable} behind the given {@link URI} with the
+	 * given {@link ICode}. Internally an {@link ICodeInstance} object is
+	 * creates whose {@link URI} is returned.
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
 	 * 
@@ -84,9 +86,9 @@ public interface ICodeService {
 	 * @param uri
 	 * @throws CodeServiceException
 	 */
-	public void addCode(ICode code, URI uri) throws CodeServiceException;
+	public URI addCode(ICode code, URI uri) throws CodeServiceException;
 
-	public void addCodes(List<ICode> codes, List<URI> uris)
+	public URI[] addCodes(List<ICode> codes, List<URI> uris)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
