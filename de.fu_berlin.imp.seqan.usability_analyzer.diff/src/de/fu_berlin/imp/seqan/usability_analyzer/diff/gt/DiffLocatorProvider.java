@@ -121,12 +121,11 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 				break;
 			}
 		}
-		if (trail.size() <= 2) {
+		if (trail.size() < 2) {
 			return diff;
 		}
 		String diffFileRecordName;
 		try {
-
 			diffFileRecordName = URLDecoder.decode(trail.get(1), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.error("Could no decode name of "
