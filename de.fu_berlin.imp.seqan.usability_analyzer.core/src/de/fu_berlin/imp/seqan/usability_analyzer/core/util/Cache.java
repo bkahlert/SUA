@@ -36,9 +36,9 @@ public class Cache<KEY, PAYLOAD> {
 		}
 	}
 
-	private CacheFetcher<KEY, PAYLOAD> cacheFetcher;
-	private int cacheSize;
-	private HashMap<KEY, DiffCacheEntry> cache;
+	private final CacheFetcher<KEY, PAYLOAD> cacheFetcher;
+	private final int cacheSize;
+	private final HashMap<KEY, DiffCacheEntry> cache;
 
 	public Cache(CacheFetcher<KEY, PAYLOAD> cacheFetcher, int cacheSize) {
 		this.cacheFetcher = cacheFetcher;

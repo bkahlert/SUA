@@ -46,7 +46,10 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 		if (adaptableObject instanceof URI) {
 			final URI uri = (URI) adaptableObject;
 			if (ArrayUtils.contains(classes, adapterType)) {
-				return getObject(uri, null);
+				ILocatable locatable = getObject(uri, null);
+				if (adapterType.isInstance(locatable)) {
+					return locatable;
+				}
 			}
 			return null;
 		}

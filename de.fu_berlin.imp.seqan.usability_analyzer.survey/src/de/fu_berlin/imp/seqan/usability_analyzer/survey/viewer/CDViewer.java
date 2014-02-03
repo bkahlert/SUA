@@ -51,10 +51,10 @@ public class CDViewer extends Viewer {
 
 	private static final Logger LOGGER = Logger.getLogger(CDViewer.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	private BootstrapEnabledBrowserComposite browser;
 	private SurveyContainer surveyContainer;
@@ -83,7 +83,7 @@ public class CDViewer extends Viewer {
 							+ anker.getHref());
 					return;
 				}
-				ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
+				ExecutorUtil.nonUISyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
 						WizardUtils.openAddCodeWizard(uri.get(),
@@ -101,7 +101,7 @@ public class CDViewer extends Viewer {
 
 			@Override
 			public void focusGained(final IElement element) {
-				ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
+				ExecutorUtil.nonUISyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
 						URI uri = new URI(element.getAttribute("data-focus-id"));
@@ -236,7 +236,7 @@ public class CDViewer extends Viewer {
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
 	}
 
-	private Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
+	private final Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
 
 	private URI getCodeImage(ICode code) {
 		if (!this.codeImages.containsKey(code)) {
@@ -264,7 +264,7 @@ public class CDViewer extends Viewer {
 
 	@Override
 	public void refresh() {
-		ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
+		ExecutorUtil.nonUISyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				Point pos = CDViewer.this.browser.getScrollPosition().get();

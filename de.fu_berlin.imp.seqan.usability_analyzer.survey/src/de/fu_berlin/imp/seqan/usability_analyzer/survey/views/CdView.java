@@ -47,9 +47,9 @@ public class CDView extends ViewPart {
 
 	public static final Logger LOGGER = Logger.getLogger(CDView.class);
 
-	private IDataService dataService = (IDataService) PlatformUI.getWorkbench()
-			.getService(IDataService.class);
-	private IDataServiceListener dataServiceListener = new DataServiceAdapter() {
+	private final IDataService dataService = (IDataService) PlatformUI
+			.getWorkbench().getService(IDataService.class);
+	private final IDataServiceListener dataServiceListener = new DataServiceAdapter() {
 		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
@@ -65,12 +65,12 @@ public class CDView extends ViewPart {
 	};
 
 	@SuppressWarnings("unused")
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void memoRemoved(URI uri) {
@@ -142,7 +142,7 @@ public class CDView extends ViewPart {
 	private CDViewer viewer = null;
 	private BootstrapEnabledBrowserComposite browser = null;
 
-	private IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
+	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
 	public CDView() {
@@ -171,7 +171,7 @@ public class CDView extends ViewPart {
 				new ISubjectInformationProvider<Control, URI>() {
 					private URI hovered = null;
 
-					private IAnkerListener ankerListener = new AnkerAdapter() {
+					private final IAnkerListener ankerListener = new AnkerAdapter() {
 						@Override
 						public void ankerHovered(IAnker anker, boolean entered) {
 							URI uri;
@@ -250,7 +250,7 @@ public class CDView extends ViewPart {
 			final Future<Boolean> pos = this.browser
 					.scrollTo(new ISelector.NameSelector(locatable.getUri()
 							.toString()));
-			return ExecutorUtil.nonUIAsyncExec(new Callable<ILocatable[]>() {
+			return ExecutorUtil.nonUISyncExec(new Callable<ILocatable[]>() {
 				@Override
 				public ILocatable[] call() throws Exception {
 					pos.get();
