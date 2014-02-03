@@ -156,15 +156,11 @@ public class ResortableCodeViewer extends CodeViewer {
 											.resolve(sourceCodeInstanceUris,
 													ICodeInstance.class, null)
 											.get()) {
-										for (ICodeInstance x : codeService
-												.getAllInstances(sourceCodeInstance
-														.getCode())) {
-											if (x.getId().equals(
-													sourceCodeInstance.getId())) {
-												event.feedback = DND.FEEDBACK_EXPAND;
-												event.detail = DND.DROP_NONE;
-												return;
-											}
+										if (destUri.equals(sourceCodeInstance
+												.getCode().getUri())) {
+											event.feedback = DND.FEEDBACK_EXPAND;
+											event.detail = DND.DROP_NONE;
+											return;
 										}
 									}
 								} catch (Exception e) {
@@ -256,26 +252,29 @@ public class ResortableCodeViewer extends CodeViewer {
 										}
 									}
 								} else if (sourceCodeInstanceUris.size() > 0) {
-									outer: for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
+									for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
 										if (sourceCodeInstance.getCode()
 												.equals(targetCode)) {
 											continue;
 										}
-										for (ICodeInstance x : codeService
-												.getAllInstances(sourceCodeInstance
-														.getCode())) {
-											if (x.getId().equals(
-													sourceCodeInstance.getId())) {
-												continue outer;
-											}
-										}
+
 										try {
+											URI oldCodeInstanceUri = sourceCodeInstance
+													.getUri();
+											String memo = codeService
+													.loadMemo(oldCodeInstanceUri);
+
 											URI coded = sourceCodeInstance
 													.getId();
 											codeService
 													.deleteCodeInstance(sourceCodeInstance);
-											codeService.addCode(targetCode,
-													coded);
+
+											URI newCodeInstanceUri = codeService
+													.addCode(targetCode, coded);
+											codeService.setMemo(
+													newCodeInstanceUri, memo);
+											codeService.setMemo(
+													oldCodeInstanceUri, null);
 										} catch (CodeServiceException e) {
 											LOGGER.error(e);
 										}
