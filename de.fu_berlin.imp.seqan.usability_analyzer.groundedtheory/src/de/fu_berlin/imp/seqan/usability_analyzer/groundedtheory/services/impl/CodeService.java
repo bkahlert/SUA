@@ -142,6 +142,11 @@ public class CodeService implements ICodeService {
 					codes.toArray(new ICode[0]), uris.toArray(new URI[0]));
 			this.codeStore.addAndSaveCodeInstances(codeInstances);
 			this.codeServiceListenerNotifier.codeAssigned(codes, uris);
+			URI[] codeInstanceUris = new URI[codeInstances.length];
+			for (int i = 0; i < codeInstanceUris.length; i++) {
+				codeInstanceUris[i] = codeInstances[i].getUri();
+			}
+			return codeInstanceUris;
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		} catch (CodeStoreReadException e) {
