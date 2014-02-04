@@ -249,7 +249,6 @@ public interface ILabelProviderService {
 			}
 			return super.getBackground(element);
 		}
-
 	}
 
 	/**
@@ -260,8 +259,8 @@ public interface ILabelProviderService {
 	 */
 	public static abstract class LocatablePathLabelProviderFactory implements
 			ILabelProviderFactory {
-		private int pathSegmentIndex;
-		private String[] pathSegmentValues;
+		private final int pathSegmentIndex;
+		private final String[] pathSegmentValues;
 
 		/**
 		 * Constructs an instance that checks the i-th segment of the

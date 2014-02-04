@@ -27,11 +27,11 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Token;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
@@ -39,6 +39,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FontUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
@@ -148,30 +149,22 @@ public class EntityViewer extends SortableTableViewer implements
 								} else {
 									for (URI id : EntityViewer.this.codeService
 											.getCodedIDs()) {
-										String[] parts = id.getPath()
-												.split("/");
-										if (parts.length > 1) {
-											String key = parts[1];
-											if (ID.isValid(key)
-													&& entity.getId() != null
-													&& entity
-															.getId()
-															.equals(IdentifierFactory
-																	.createFrom(key))) {
-												return EntityViewer.this.codeService
-														.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
-														: ImageManager.ENTITY_PARTIALLY_CODED;
-											}
-											if (Fingerprint.isValid(key)
-													&& entity
-															.getFingerprints()
-															.contains(
-																	IdentifierFactory
-																			.createFrom(key))) {
-												return EntityViewer.this.codeService
-														.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
-														: ImageManager.ENTITY_PARTIALLY_CODED;
-											}
+										IIdentifier identifier = URIUtils
+												.getIdentifier(id);
+										if (identifier instanceof ID
+												&& entity.getId() != null
+												&& entity.getId().equals(
+														identifier)) {
+											return EntityViewer.this.codeService
+													.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+													: ImageManager.ENTITY_PARTIALLY_CODED;
+										}
+										if (identifier instanceof Fingerprint
+												&& entity.getFingerprints()
+														.contains(identifier)) {
+											return EntityViewer.this.codeService
+													.isMemo(entity.getUri()) ? ImageManager.ENTITY_PARTIALLY_CODED_MEMO
+													: ImageManager.ENTITY_PARTIALLY_CODED;
 										}
 									}
 
