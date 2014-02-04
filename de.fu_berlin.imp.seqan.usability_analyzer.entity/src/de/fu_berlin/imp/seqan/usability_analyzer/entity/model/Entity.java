@@ -19,7 +19,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntit
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffContainer;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.NoInternalIdentifierException;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.gt.EntityLocatorProvider;
@@ -31,10 +30,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.csv.CSVSurveyRecor
 public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 		HasIdentifier {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Entity.class);
 
 	private static final long serialVersionUID = 1969965491590110977L;
 
+	private URI uri = null;
 	private ID id;
 	private Fingerprint fingerprint;
 	private CSVSurveyRecord cSVSurveyRecord;
@@ -54,15 +55,17 @@ public class Entity implements HasDateRange, ILocatable, IWorkSessionEntity,
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://" + EntityLocatorProvider.ENTITY_NAMESPACE
-					+ "/" + this.getInternalId());
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create DateId for a "
-							+ IDiff.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ EntityLocatorProvider.ENTITY_NAMESPACE + "/"
+						+ this.getInternalId());
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Entity.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

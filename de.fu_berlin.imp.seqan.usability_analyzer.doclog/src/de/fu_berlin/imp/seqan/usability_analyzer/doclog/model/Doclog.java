@@ -70,9 +70,10 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 		return null;
 	}
 
-	private IIdentifier identifier;
-	private TimeZoneDateRange dateRange;
-	private Token token;
+	private URI uri;
+	private final IIdentifier identifier;
+	private final TimeZoneDateRange dateRange;
+	private final Token token;
 
 	private DoclogRecordList doclogRecords;
 
@@ -100,15 +101,17 @@ public class Doclog extends WrappingData implements IData, HasDateRange,
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://" + DoclogLocatorProvider.DOCLOG_NAMESPACE
-					+ "/" + this.getIdentifier().toString());
-		} catch (Exception e) {
-			this.logger
-					.error("Could not create ID for a "
-							+ Doclog.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ DoclogLocatorProvider.DOCLOG_NAMESPACE + "/"
+						+ this.getIdentifier().toString());
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Doclog.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	public void scanRecords() {

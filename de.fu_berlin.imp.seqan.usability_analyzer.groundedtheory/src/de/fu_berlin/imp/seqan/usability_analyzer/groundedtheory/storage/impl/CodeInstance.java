@@ -13,8 +13,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 class CodeInstance implements ICodeInstance {
 
 	private static final long serialVersionUID = 7683462895079284073L;
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeInstance.class);
 
+	private URI uri;
 	private final long codeInstanceId;
 	private final ICode code;
 	private final URI id;
@@ -40,16 +42,17 @@ class CodeInstance implements ICodeInstance {
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://"
-					+ CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE + "/"
-					+ this.codeInstanceId);
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create URI for a " + ICode.class.getSimpleName(),
-					e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE
+						+ "/" + this.codeInstanceId);
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + CodeInstance.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

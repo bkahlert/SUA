@@ -10,12 +10,15 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifi
 
 public class Episode implements IEpisode {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Episode.class);
 	private static final long serialVersionUID = 1L;
+
+	private URI uri;
 	private IIdentifier identifier = null;
 	private TimeZoneDateRange range;
 	private String caption;
-	private TimeZoneDate creation;
+	private final TimeZoneDate creation;
 
 	public Episode(IIdentifier identifier, TimeZoneDate start,
 			TimeZoneDate end, String name) {
@@ -54,20 +57,21 @@ public class Episode implements IEpisode {
 
 	@Override
 	public URI getUri() {
-		StringBuilder sb = new StringBuilder("sua://episode/" + this.identifier);
+		if (this.uri == null) {
+			StringBuilder sb = new StringBuilder("sua://episode/"
+					+ this.identifier);
 
-		sb.append("/");
+			sb.append("/");
 
-		sb.append(this.getCreation().toISO8601());
-
-		try {
-			return new URI(sb.toString());
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create ID for an "
-							+ Episode.class.getSimpleName(), e);
+			sb.append(this.getCreation().toISO8601());
+			try {
+				this.uri = new URI(sb.toString());
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Episode.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

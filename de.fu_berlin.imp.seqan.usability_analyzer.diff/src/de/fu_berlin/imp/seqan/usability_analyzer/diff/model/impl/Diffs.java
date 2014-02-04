@@ -24,10 +24,12 @@ public class Diffs implements IDiffs {
 
 	private static final long serialVersionUID = -5222696612334796830L;
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Diffs.class);
 
-	private IDiff[] diffs;
-	private IIdentifier identifier;
+	private URI uri;
+	private final IDiff[] diffs;
+	private final IIdentifier identifier;
 	private TimeZoneDateRange dateRange = null;
 	private String longestPrefix;
 
@@ -55,15 +57,17 @@ public class Diffs implements IDiffs {
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://" + DiffLocatorProvider.DIFF_NAMESPACE + "/"
-					+ this.getIdentifier().toString());
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create ID for a " + Diff.class.getSimpleName(),
-					e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ DiffLocatorProvider.DIFF_NAMESPACE + "/"
+						+ this.getIdentifier().toString());
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Diffs.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

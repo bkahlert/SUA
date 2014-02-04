@@ -14,6 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 public class Code implements ICode {
 
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Code.class);
 
 	/**
@@ -31,10 +32,11 @@ public class Code implements ICode {
 		return id;
 	}
 
+	private URI uri;
 	private final long id;
 	private String caption;
 	private RGB color;
-	private TimeZoneDate creation;
+	private final TimeZoneDate creation;
 
 	public Code(long id, String caption, RGB color, TimeZoneDate creation) {
 		this.id = id;
@@ -45,15 +47,16 @@ public class Code implements ICode {
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://" + CodeLocatorProvider.CODE_NAMESPACE + "/"
-					+ this.id);
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create URI for a " + ICode.class.getSimpleName(),
-					e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ CodeLocatorProvider.CODE_NAMESPACE + "/" + this.id);
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Code.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

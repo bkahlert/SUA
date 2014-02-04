@@ -7,8 +7,11 @@ import org.apache.log4j.Logger;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class Episodes implements IEpisodes {
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Episodes.class);
 	private static final long serialVersionUID = 1L;
+
+	private URI uri;
 	private IIdentifier identifier = null;
 
 	public Episodes(IIdentifier identifier) {
@@ -18,14 +21,15 @@ public class Episodes implements IEpisodes {
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://episode/" + this.identifier);
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create ID for an "
-							+ Episodes.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://episode/" + this.identifier);
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Episodes.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

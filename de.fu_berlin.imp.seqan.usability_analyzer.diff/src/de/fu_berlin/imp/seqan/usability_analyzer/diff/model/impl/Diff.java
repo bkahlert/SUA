@@ -33,6 +33,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
  */
 public class Diff extends WrappingData implements IDiff {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Diff.class);
 
 	private static final long serialVersionUID = 5159431028889474742L;
@@ -41,27 +42,15 @@ public class Diff extends WrappingData implements IDiff {
 	public static final Pattern ZIPPED_PATTERN = Pattern
 			.compile("([A-Za-z\\d]+)_([\\w]{4})_([\\d]{4})-([\\d]{2})-([\\d]{2})T([\\d]{2})-([\\d]{2})-([\\d]{2})\\.([\\d]+)(([\\+-][\\d]{2})([\\d]{2}))?(_manual)?\\.diff\\.zip");
 
-	@Override
-	public URI getUri() {
-		try {
-			return new URI("sua://" + DiffLocatorProvider.DIFF_NAMESPACE + "/"
-					+ this.getIdentifier().toString() + "/"
-					+ this.getRevision());
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create ID for a " + Diff.class.getSimpleName(),
-					e);
-		}
-		return null;
-	}
+	private URI uri;
 
-	private IDiff prevDiffFile;
+	private final IDiff prevDiffFile;
 
-	private IIdentifier identifier;
-	private String locationHash;
-	private String revision;
-	private int calculatedRevision;
-	private TimeZoneDateRange dateRange;
+	private final IIdentifier identifier;
+	private final String locationHash;
+	private final String revision;
+	private final int calculatedRevision;
+	private final TimeZoneDateRange dateRange;
 
 	private DiffRecords diffFileRecords = null;
 
@@ -102,6 +91,22 @@ public class Diff extends WrappingData implements IDiff {
 
 		this.dateRange = new TimeZoneDateRange(prevDate, DiffDataUtils.getDate(
 				data, defaultTimeZone));
+	}
+
+	@Override
+	public URI getUri() {
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ DiffLocatorProvider.DIFF_NAMESPACE + "/"
+						+ this.getIdentifier().toString() + "/"
+						+ this.getRevision());
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + Diff.class, e);
+			}
+		}
+		return this.uri;
 	}
 
 	/*

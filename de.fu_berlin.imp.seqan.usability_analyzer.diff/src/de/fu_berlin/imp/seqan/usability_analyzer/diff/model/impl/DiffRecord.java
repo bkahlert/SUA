@@ -29,14 +29,16 @@ public class DiffRecord implements IDiffRecord {
 
 	private static Logger LOGGER = Logger.getLogger(DiffRecord.class);
 
-	private IDiff diff;
-	private IData originalSource;
-	private ISourceStore sourceCache;
+	private URI uri;
 
-	private String filename;
-	private TimeZoneDateRange dateRange;
+	private final IDiff diff;
+	private final IData originalSource;
+	private final ISourceStore sourceCache;
 
-	private FLAGS[] flags;
+	private final String filename;
+	private final TimeZoneDateRange dateRange;
+
+	private final FLAGS[] flags;
 
 	@Deprecated
 	private String commandLine;
@@ -100,15 +102,16 @@ public class DiffRecord implements IDiffRecord {
 	 */
 	@Override
 	public URI getUri() {
-		try {
-			return new URI(this.getDiffFile().getUri().toString() + "/"
-					+ URLEncoder.encode(this.getFilename(), "UTF-8"));
-		} catch (Exception e) {
-			LOGGER.error(
-					"Could not create ID for a "
-							+ DiffRecord.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI(this.getDiffFile().getUri().toString() + "/"
+						+ URLEncoder.encode(this.getFilename(), "UTF-8"));
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + DiffRecord.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	/*

@@ -32,9 +32,11 @@ public class CDDocument implements ILocatable, HasIdentifier,
 
 	private static final long serialVersionUID = 7435885316236930663L;
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CDDocument.class);
 
-	private List<CDDocumentField> fields;
+	private URI uri;
+	private final List<CDDocumentField> fields;
 	private DateId identifier;
 
 	public CDDocument(IData data, String lang) throws IOException {
@@ -54,14 +56,17 @@ public class CDDocument implements ILocatable, HasIdentifier,
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI("sua://" + SurveyLocatorProvider.SURVEY_NAMESPACE
-					+ "/cd/" + this.identifier);
-		} catch (Exception e) {
-			LOGGER.error("Could not create DateId for a "
-					+ XMLSurveyDocument.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI("sua://"
+						+ SurveyLocatorProvider.SURVEY_NAMESPACE + "/cd/"
+						+ this.identifier);
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + CDDocument.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	@Override

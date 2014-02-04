@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 
@@ -14,12 +13,14 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 
 	private static final long serialVersionUID = 3956746799123197525L;
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffRecordSegment.class);
 
-	private IDiffRecord diffRecord;
-	private long segmentStart;
-	private long segmentEnd;
+	private URI uri;
+	private final IDiffRecord diffRecord;
+	private final long segmentStart;
+	private final long segmentEnd;
 
 	public DiffRecordSegment(IDiffRecord diffRecord, long segmentStart,
 			long segmentEnd) {
@@ -62,15 +63,16 @@ public class DiffRecordSegment implements IDiffRecordSegment {
 	 */
 	@Override
 	public URI getUri() {
-		try {
-			return new URI(this.diffRecord.getUri().toString() + "#"
-					+ this.segmentStart + "+" + this.segmentEnd);
-		} catch (URISyntaxException e) {
-			LOGGER.fatal(
-					"Could not create ID for a "
-							+ DiffRecordSegment.class.getSimpleName(), e);
-			return null;
+		if (this.uri == null) {
+			try {
+				this.uri = new URI(this.diffRecord.getUri().toString() + "#"
+						+ this.segmentStart + "+" + this.segmentEnd);
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + DiffRecordSegment.class, e);
+			}
 		}
+		return this.uri;
 	}
 
 	/*

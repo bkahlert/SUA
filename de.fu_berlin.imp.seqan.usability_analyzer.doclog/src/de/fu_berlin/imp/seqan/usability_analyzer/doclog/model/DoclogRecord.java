@@ -31,7 +31,8 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	private static final long serialVersionUID = -8279575943640177616L;
 
-	private Logger logger = Logger.getLogger(DoclogRecord.class);
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(DoclogRecord.class);
 
 	// [^\\t] selects everything but a tabulator
 	// line #1: date + optional milliseconds + optional time zone
@@ -93,8 +94,9 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 	private static int MAX_SHORT_URL_LENGTH = 30;
 	private static String SHORT_URL_SHORTENER = "...";
 
-	private Doclog doclog;
-	private String rawContent;
+	private URI uri;
+	private final Doclog doclog;
+	private final String rawContent;
 
 	private String url;
 	private String ip;
@@ -161,15 +163,16 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 
 	@Override
 	public URI getUri() {
-		try {
-			return new URI(this.getDoclog().getUri().toString() + "/"
-					+ URLEncoder.encode(this.getRawContent(), "UTF-8"));
-		} catch (Exception e) {
-			this.logger.error(
-					"Could not create ID for a "
-							+ DoclogRecord.class.getSimpleName(), e);
+		if (this.uri == null) {
+			try {
+				this.uri = new URI(this.getDoclog().getUri().toString() + "/"
+						+ URLEncoder.encode(this.rawContent, "UTF-8"));
+			} catch (Exception e) {
+				throw new RuntimeException("Error calculating " + URI.class
+						+ " for " + DoclogRecord.class, e);
+			}
 		}
-		return null;
+		return this.uri;
 	}
 
 	public String getRawContent() {
