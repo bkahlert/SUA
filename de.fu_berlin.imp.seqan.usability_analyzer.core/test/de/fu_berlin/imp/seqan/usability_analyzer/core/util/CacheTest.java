@@ -1,9 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import junit.framework.Assert;
 
@@ -11,6 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
@@ -168,6 +174,126 @@ public class CacheTest {
 			}
 			assertEquals(numCacheEntries, cache.getCachedKeys().size());
 		}
+		passed.tell("finished");
+	}
+
+	private static class CacheRunner<KEY, PAYLOAD> {
+		private final Cache<KEY, PAYLOAD> cache;
+		private final IConverter<Integer, KEY> runToKeyConverter;
+		private final IConverter<KEY, PAYLOAD> keyToPayloadConverter;
+		int numRuns = 5;
+
+		public CacheRunner(Cache<KEY, PAYLOAD> cache,
+				IConverter<Integer, KEY> runToKeyConverter,
+				IConverter<KEY, PAYLOAD> keyToPayloadConverter, int numRuns) {
+			super();
+			this.cache = cache;
+			this.runToKeyConverter = runToKeyConverter;
+			this.keyToPayloadConverter = keyToPayloadConverter;
+			this.numRuns = numRuns;
+		}
+
+		public Future<Long> run() {
+			return ExecutorUtil.nonUISyncExec(new Callable<Long>() {
+				@Override
+				public Long call() throws Exception {
+					TimePassed passed = new TimePassed();
+					for (int i = 0; i < numRuns; i++) {
+						KEY key = runToKeyConverter.convert(i);
+						assertEquals(keyToPayloadConverter.convert(key),
+								cache.getPayload(key, null));
+					}
+					return passed.getTimePassed();
+				}
+			});
+		}
+	}
+
+	@Test
+	public void testThreadSpeedup() throws Exception {
+		final double minConsecutiveSpeedUp = 0.5;
+		final double maxParallelSlowDown = 1.1;
+
+		final int cacheSize = 500;
+		final int numRuns = 200;
+
+		IConverter<Integer, String> runToKeyConverter = new IConverter<Integer, String>() {
+			@Override
+			public String convert(Integer run) {
+				int rand = (int) (Math.random() * numRuns);
+				return "key/" + rand;
+			}
+		};
+
+		final IConverter<String, URI> keyToPayloadConverter = new IConverter<String, URI>() {
+			@Override
+			public URI convert(String key) {
+				try {
+					URI uri = new URI("fake://" + key);
+					return uri;
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+
+		final CacheFetcher<String, URI> cacheFetcher = new CacheFetcher<String, URI>() {
+			@Override
+			public URI fetch(String key, IProgressMonitor progressMonitor) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+				return keyToPayloadConverter.convert(key);
+			}
+		};
+
+		long time1;
+		long time2;
+		TimePassed passed = new TimePassed("SPEED TEST");
+		{
+			final Cache<String, URI> cache = new Cache<String, URI>(
+					cacheFetcher, cacheSize);
+			passed.tell("start single runs");
+			time1 = new CacheRunner<String, URI>(cache, runToKeyConverter,
+					keyToPayloadConverter, numRuns).run().get();
+			passed.tell("single run #1");
+			time2 = new CacheRunner<String, URI>(cache, runToKeyConverter,
+					keyToPayloadConverter, numRuns).run().get();
+			passed.tell("single run #2");
+		}
+		long sum1 = time1 + time2;
+		passed.tell("single run #1 + #2 is " + sum1 + "ms");
+
+		assertTrue(
+				"The consecutive run was only "
+						+ Math.round(((time2 / (double) time1) - 1) * 100)
+						+ "% (" + (time2 - time1)
+						+ "ms) slower than the first run! Max "
+						+ (time2 * minConsecutiveSpeedUp) + "ms expected.",
+				time1 * minConsecutiveSpeedUp > time2);
+
+		Future<Long> time1_;
+		Future<Long> time2_;
+		{
+			final Cache<String, URI> cache = new Cache<String, URI>(
+					cacheFetcher, cacheSize);
+			passed.tell("start parallel");
+			time1_ = new CacheRunner<String, URI>(cache, runToKeyConverter,
+					keyToPayloadConverter, numRuns).run();
+			time2_ = new CacheRunner<String, URI>(cache, runToKeyConverter,
+					keyToPayloadConverter, numRuns).run();
+		}
+		long sum2 = time1_.get() + time2_.get();
+		passed.tell("parallel run #1 + #2 is " + sum2 + "ms");
+
+		assertTrue(
+				"The parallel run was "
+						+ Math.round(((sum2 / (double) sum1) - 1) * 100)
+						+ "% (" + (sum2 - sum1)
+						+ "ms) slower than the single runs!", sum1
+						* maxParallelSlowDown > sum2);
 		passed.tell("finished");
 	}
 }

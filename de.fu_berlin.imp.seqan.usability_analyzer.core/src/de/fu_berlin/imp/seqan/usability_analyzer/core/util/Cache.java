@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -10,7 +11,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 
-// TODO improve parallelization
+/**
+ * Thread-safe {@link Cache} that retrieves elements using a provided
+ * {@link CacheFetcher}. The results are cached. Accessing a cached result a
+ * further time results in a speed-up since it does not need to be recalculated.
+ * 
+ * @author bkahlert
+ * 
+ * @param <KEY>
+ * @param <PAYLOAD>
+ */
 public class Cache<KEY, PAYLOAD> {
 
 	private static final boolean DISABLE_CACHE = false;
@@ -29,11 +39,13 @@ public class Cache<KEY, PAYLOAD> {
 		}
 
 		public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
-			if (this.usedCount == 0) {
-				this.payload = Cache.this.cacheFetcher.fetch(key,
-						progressMonitor);
+			synchronized (this) {
+				if (this.usedCount == 0) {
+					this.payload = Cache.this.cacheFetcher.fetch(key,
+							progressMonitor);
+				}
+				this.usedCount++;
 			}
-			this.usedCount++;
 			return this.payload;
 		}
 
@@ -53,8 +65,7 @@ public class Cache<KEY, PAYLOAD> {
 		this.cache = new HashMap<KEY, CacheEntry>(cacheSize);
 	}
 
-	public synchronized PAYLOAD getPayload(KEY key,
-			IProgressMonitor progressMonitor) {
+	public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
 		// TODO insert following line if debugging diffs - makes the diffs be
 		// created on every try
 		// new DiffCacheEntry(id).getPayload(id, progressMonitor);
@@ -65,26 +76,32 @@ public class Cache<KEY, PAYLOAD> {
 			return this.cacheFetcher.fetch(key, progressMonitor);
 		}
 
-		if (!this.cache.containsKey(key)) {
-			this.shrinkCache();
-			CacheEntry cacheEntry = new CacheEntry(key);
-			this.cache.put(key, cacheEntry);
+		CacheEntry cacheEntry;
+		synchronized (this.cache) {
+			if (!this.cache.containsKey(key)) {
+				this.shrinkCache();
+				this.cache.put(key, new CacheEntry(key));
+			}
+			cacheEntry = this.cache.get(key);
 		}
 
-		CacheEntry cacheEntry = this.cache.get(key);
 		return cacheEntry.getPayload(key, progressMonitor);
 	}
 
-	public synchronized Set<KEY> getCachedKeys() {
-		return this.cache.keySet();
+	public Set<KEY> getCachedKeys() {
+		return Collections.unmodifiableSet(this.cache.keySet());
 	}
 
-	public synchronized boolean isCached(KEY key) {
+	public boolean isCached(KEY key) {
 		return this.cache.containsKey(key);
 	}
 
-	synchronized private void shrinkCache() {
-		if (this.cache.size() >= this.cacheSize) {
+	private void shrinkCache() {
+		synchronized (this.cache) {
+			if (this.cache.size() < this.cacheSize) {
+				return;
+			}
+
 			TimePassed passed = new TimePassed(true, "cache shrink");
 
 			int numDelete = cacheSize > 10 ? (int) (cacheSize * SHRINK_BY) : 1;
@@ -133,9 +150,11 @@ public class Cache<KEY, PAYLOAD> {
 		}
 	}
 
-	public synchronized void removeKey(KEY key) {
-		if (this.cache.containsKey(key)) {
-			this.cache.remove(key);
+	public void removeKey(KEY key) {
+		synchronized (this.cache) {
+			if (this.cache.containsKey(key)) {
+				this.cache.remove(key);
+			}
 		}
 	}
 }
