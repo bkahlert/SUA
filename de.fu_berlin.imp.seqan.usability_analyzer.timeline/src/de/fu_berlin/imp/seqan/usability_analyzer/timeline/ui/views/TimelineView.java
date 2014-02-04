@@ -167,26 +167,30 @@ public class TimelineView extends ViewPart {
 				TimelineView.this.timelineLoader.cancel();
 			}
 
-			TimelineView.this.timelineLoader = new Job("Updating "
-					+ ITimeline.class.getSimpleName()) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-					if (!groupedRanges.isEmpty()) {
-						if (moveInsideViewport) {
-							TimelineView.this.timelineGroupViewer.highlight(
-									groupedRanges, subMonitor.newChild(1));
-							TimelineView.this.timelineGroupViewer.center(
-									centeredDates, subMonitor.newChild(1));
-						} else {
-							TimelineView.this.timelineGroupViewer.highlight(
-									groupedRanges, subMonitor.newChild(2));
+			if (timelineGroupViewer != null) {
+				TimelineView.this.timelineLoader = new Job("Updating "
+						+ ITimeline.class.getSimpleName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+						if (!groupedRanges.isEmpty()) {
+							if (moveInsideViewport) {
+								TimelineView.this.timelineGroupViewer
+										.highlight(groupedRanges,
+												subMonitor.newChild(1));
+								TimelineView.this.timelineGroupViewer.center(
+										centeredDates, subMonitor.newChild(1));
+							} else {
+								TimelineView.this.timelineGroupViewer
+										.highlight(groupedRanges,
+												subMonitor.newChild(2));
+							}
 						}
+						subMonitor.done();
+						return Status.OK_STATUS;
 					}
-					subMonitor.done();
-					return Status.OK_STATUS;
-				}
-			};
+				};
+			}
 			TimelineView.this.timelineLoader.schedule();
 		}
 	};
@@ -230,17 +234,19 @@ public class TimelineView extends ViewPart {
 
 		this.saveStates();
 
-		this.timelineLoader = new Job("Loading "
-				+ ITimeline.class.getSimpleName()) {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				TimelineView.this.timelineGroupViewer.setInput(identifiers);
-				TimelineView.this.timelineGroupViewer.refresh(monitor);
-				monitor.done();
-				return Status.OK_STATUS;
-			}
-		};
-		this.timelineLoader.schedule();
+		if (timelineGroupViewer != null) {
+			this.timelineLoader = new Job("Loading "
+					+ ITimeline.class.getSimpleName()) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					TimelineView.this.timelineGroupViewer.setInput(identifiers);
+					TimelineView.this.timelineGroupViewer.refresh(monitor);
+					monitor.done();
+					return Status.OK_STATUS;
+				}
+			};
+			this.timelineLoader.schedule();
+		}
 	}
 
 	private void saveStates() {
@@ -372,7 +378,9 @@ public class TimelineView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		this.timelineGroup.setFocus();
+		if (this.timelineGroup != null) {
+			this.timelineGroup.setFocus();
+		}
 	}
 
 	/**
