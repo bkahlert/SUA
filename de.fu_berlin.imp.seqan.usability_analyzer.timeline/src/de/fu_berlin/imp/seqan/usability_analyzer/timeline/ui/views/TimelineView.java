@@ -260,14 +260,16 @@ public class TimelineView extends ViewPart {
 									.getTimeline(identifier);
 							Calendar centerVisibleDate = timeline
 									.getCenterVisibleDate().get();
-							int zoomIndex = timeline.getZoomIndex().get();
+							Integer zoomIndex = timeline.getZoomIndex().get();
 
 							SUATimelinePreferenceUtil util = new SUATimelinePreferenceUtil();
 							if (centerVisibleDate != null) {
 								util.setCenterStartDate(identifier,
 										centerVisibleDate);
 							}
-							util.setZoomIndex(identifier, zoomIndex);
+							if (zoomIndex != null) {
+								util.setZoomIndex(identifier, zoomIndex);
+							}
 						} catch (Exception e) {
 							LOGGER.error("Error saving state of "
 									+ ITimeline.class.getSimpleName() + " "
