@@ -204,7 +204,8 @@ public class LocatorService implements ILocatorService {
 		@SuppressWarnings("unused")
 		final long start = LOG_FAST_RUNTIME || LOG_SLOW_RUNTIME ? System
 				.currentTimeMillis() : 0l;
-		if (getSlowLocatorProviders(uri).size() == 0) {
+		if (this.uriCache.isCached(uri)
+				|| getSlowLocatorProviders(uri).size() == 0) {
 			ILocatable locatable = LocatorService.this.uriCache.getPayload(uri,
 					monitor);
 			if (!clazz.isInstance(locatable)) {

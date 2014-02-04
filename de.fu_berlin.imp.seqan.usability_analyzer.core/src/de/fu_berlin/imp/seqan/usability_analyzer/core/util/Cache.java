@@ -79,6 +79,10 @@ public class Cache<KEY, PAYLOAD> {
 		return this.cache.keySet();
 	}
 
+	public synchronized boolean isCached(KEY key) {
+		return this.cache.containsKey(key);
+	}
+
 	synchronized private void shrinkCache() {
 		if (this.cache.size() >= this.cacheSize) {
 			TimePassed passed = new TimePassed("cache shrink");
