@@ -85,7 +85,7 @@ public class Cache<KEY, PAYLOAD> {
 
 	synchronized private void shrinkCache() {
 		if (this.cache.size() >= this.cacheSize) {
-			TimePassed passed = new TimePassed("cache shrink");
+			TimePassed passed = new TimePassed(true, "cache shrink");
 
 			int numDelete = cacheSize > 10 ? (int) (cacheSize * SHRINK_BY) : 1;
 			if (numDelete == 1) {
