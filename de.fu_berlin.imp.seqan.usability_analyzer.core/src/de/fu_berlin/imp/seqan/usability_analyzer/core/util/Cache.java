@@ -5,18 +5,22 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
+
 // TODO improve parallelization
 public class Cache<KEY, PAYLOAD> {
+
+	private static final boolean DISABLE_CACHE = false;
 
 	public static interface CacheFetcher<KEY, PAYLOAD> {
 		public PAYLOAD fetch(KEY key, IProgressMonitor progressMonitor);
 	}
 
-	private class DiffCacheEntry {
+	private class CacheEntry {
 		private int usedCount;
 		private PAYLOAD payload;
 
-		public DiffCacheEntry(KEY key) {
+		public CacheEntry(KEY key) {
 			this.usedCount = 0;
 		}
 
@@ -38,28 +42,32 @@ public class Cache<KEY, PAYLOAD> {
 
 	private final CacheFetcher<KEY, PAYLOAD> cacheFetcher;
 	private final int cacheSize;
-	private final HashMap<KEY, DiffCacheEntry> cache;
+	private final HashMap<KEY, CacheEntry> cache;
 
 	public Cache(CacheFetcher<KEY, PAYLOAD> cacheFetcher, int cacheSize) {
 		this.cacheFetcher = cacheFetcher;
 		this.cacheSize = cacheSize;
-		this.cache = new HashMap<KEY, DiffCacheEntry>();
+		this.cache = new HashMap<KEY, CacheEntry>(cacheSize);
 	}
 
-	public synchronized PAYLOAD getPayload(KEY id,
+	public synchronized PAYLOAD getPayload(KEY key,
 			IProgressMonitor progressMonitor) {
 		// TODO insert following line if debugging diffs - makes the diffs be
 		// created on every try
 		// new DiffCacheEntry(id).getPayload(id, progressMonitor);
 
-		if (!this.cache.containsKey(id)) {
-			this.shrinkCache();
-			DiffCacheEntry cacheEntry = new DiffCacheEntry(id);
-			this.cache.put(id, cacheEntry);
+		if (DISABLE_CACHE || cacheSize == 0) {
+			return this.cacheFetcher.fetch(key, progressMonitor);
 		}
 
-		DiffCacheEntry cacheEntry = this.cache.get(id);
-		return cacheEntry.getPayload(id, progressMonitor);
+		if (!this.cache.containsKey(key)) {
+			this.shrinkCache();
+			CacheEntry cacheEntry = new CacheEntry(key);
+			this.cache.put(key, cacheEntry);
+		}
+
+		CacheEntry cacheEntry = this.cache.get(key);
+		return cacheEntry.getPayload(key, progressMonitor);
 	}
 
 	public synchronized Set<KEY> getCachedKeys() {
