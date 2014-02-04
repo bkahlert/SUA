@@ -182,8 +182,6 @@ public class CDView extends ViewPart {
 								return;
 							}
 
-							System.err.println(anker);
-
 							if (uri.getScheme() != null
 									&& !uri.getScheme().contains("-")
 									&& entered) {

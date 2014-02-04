@@ -31,8 +31,8 @@ public class CSVSurveyRecordManagerTest {
 
 	private IData getNumbersCsvExport() throws URISyntaxException {
 		return new FileData(baseDataContainer, baseDataContainer,
-				FileUtils.getFile(CSVSurveyRecordManagerTest.class, dataDirectory
-						+ "/workshop12-Data.csv"));
+				FileUtils.getFile(CSVSurveyRecordManagerTest.class,
+						dataDirectory + "/workshop12-Data.csv"));
 	}
 
 	@Test
@@ -53,6 +53,7 @@ public class CSVSurveyRecordManagerTest {
 			}
 			numLines++;
 		}
+		csvReader.close();
 		assertEquals(65, numLines);
 	}
 
@@ -75,14 +76,14 @@ public class CSVSurveyRecordManagerTest {
 			}
 			line++;
 		}
+		csvReader.close();
 	}
 
 	@Test
 	public void testSurveyRecordManager() throws URISyntaxException {
 		IData survey12 = getNumbersCsvExport();
 
-		CSVSurveyManager cSVSurveyManager = new CSVSurveyManager(
-				survey12);
+		CSVSurveyManager cSVSurveyManager = new CSVSurveyManager(survey12);
 
 		CSVSurveyRecordList records = cSVSurveyManager.getSurveyRecords();
 		assertNull(records);

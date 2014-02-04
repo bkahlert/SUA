@@ -67,8 +67,8 @@ public class TimelineView extends ViewPart {
 
 	private Job timelineLoader = null;
 
-	private IWorkSessionService workSessionService;
-	private IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+	private final IWorkSessionService workSessionService;
+	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 
 		private Set<IIdentifier> filterValidIdentifiers(
 				Set<IIdentifier> identifiers) {
@@ -103,8 +103,8 @@ public class TimelineView extends ViewPart {
 		}
 	};
 
-	private IHighlightService highlightService;
-	private IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
+	private final IHighlightService highlightService;
+	private final IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
 		public void highlight(Object sender, TimeZoneDateRange[] ranges,
 				boolean moveInsideViewport) {

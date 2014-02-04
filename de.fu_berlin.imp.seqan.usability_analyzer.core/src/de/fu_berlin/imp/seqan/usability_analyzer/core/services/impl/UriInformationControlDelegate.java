@@ -32,7 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPrese
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.IUriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.UriInformationControl.IPostProcessor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
@@ -50,7 +50,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	private static final Logger LOGGER = Logger
 			.getLogger(UriInformationControlDelegate.class);
 
-	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
 	/** top-level element of the information control */
@@ -129,15 +129,11 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	public boolean load(URI uri, ToolBarManager toolBarManager) {
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(uri);
-		if (labelProvider == null) {
+		if (!UriLabelProvider.class.isInstance(labelProvider)) {
 			return false;
 		}
 
-		if (!IUriLabelProvider.class.isInstance(labelProvider)) {
-			return false;
-		}
-
-		final IUriLabelProvider uriLabelProvider = (IUriLabelProvider) labelProvider;
+		final UriLabelProvider uriLabelProvider = (UriLabelProvider) labelProvider;
 		try {
 			if (!uriLabelProvider.hasInformation(uri)) {
 				return false;

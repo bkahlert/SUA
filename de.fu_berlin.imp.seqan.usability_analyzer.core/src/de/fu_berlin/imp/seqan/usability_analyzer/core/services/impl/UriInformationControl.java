@@ -17,7 +17,8 @@ public class UriInformationControl extends
 	static final int borderWidth = 5;
 
 	public UriInformationControl(Shell parentShell) {
-		super(URI.class, parentShell,
+		super(UriInformationControl.class.getClassLoader(), URI.class,
+				parentShell,
 				new DelegateFactory<UriInformationControlDelegate>() {
 					@Override
 					public UriInformationControlDelegate create() {

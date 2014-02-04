@@ -275,6 +275,7 @@ public class DoclogLabelProvider extends UriLabelProvider {
 						PlatformUI.getWorkbench().getSharedImages()
 								.getImage(ISharedImages.IMG_OBJS_WARN_TSK),
 						ImageManager.CREATE_DETAIL_OVERLAY);
+			default:
 			}
 
 			Rectangle monitorBounds = Display.getCurrent().getPrimaryMonitor()

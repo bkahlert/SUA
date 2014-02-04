@@ -109,7 +109,7 @@ public class EntityViewer extends SortableTableViewer implements
 		final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
 
-		this.createColumn("DateId", 150).setLabelProvider(
+		this.createColumn("ID", 150).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new ILabelProviderService.StyledColumnLabelProvider() {
 
@@ -122,6 +122,10 @@ public class EntityViewer extends SortableTableViewer implements
 								Entity entity = (Entity) locatable;
 
 								ID id = entity.getId();
+								if (id == null) {
+									return new StyledString("");
+								}
+
 								StyledString styledString = new StyledString(id
 										.toString(),
 										(boldObjects.contains(uri) ? boldStyler

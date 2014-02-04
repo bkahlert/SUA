@@ -23,10 +23,10 @@ public class EntityContentProvider extends
 
 	private Viewer viewer;
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codesAdded(List<ICode> code) {

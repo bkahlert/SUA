@@ -176,6 +176,7 @@ public class DoclogTimelineBandProvider
 						title.append("<br/>typing &quot;"
 								+ doclogRecord.getActionParameter() + "&quot;");
 						break;
+					default:
 					}
 
 					return title.toString();

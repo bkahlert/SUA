@@ -24,8 +24,8 @@ public class DataSourceFilter extends ViewerFilter {
 	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
-	private DataSource dataSource;
-	private DoclogDataContainer doclogDataContainer;
+	private final DataSource dataSource;
+	private final DoclogDataContainer doclogDataContainer;
 
 	public DataSourceFilter(DataSource dataSource) {
 		this.dataSource = dataSource;
