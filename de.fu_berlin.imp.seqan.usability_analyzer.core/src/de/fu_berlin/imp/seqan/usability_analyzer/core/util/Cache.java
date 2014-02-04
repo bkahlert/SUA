@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
@@ -26,10 +27,8 @@ public class Cache<KEY, PAYLOAD> {
 
 		public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
 			if (this.usedCount == 0) {
-				if (Cache.this.cacheFetcher != null && key != null) {
-					this.payload = Cache.this.cacheFetcher.fetch(key,
-							progressMonitor);
-				}
+				this.payload = Cache.this.cacheFetcher.fetch(key,
+						progressMonitor);
 			}
 			this.usedCount++;
 			return this.payload;
@@ -45,6 +44,7 @@ public class Cache<KEY, PAYLOAD> {
 	private final HashMap<KEY, CacheEntry> cache;
 
 	public Cache(CacheFetcher<KEY, PAYLOAD> cacheFetcher, int cacheSize) {
+		Assert.isNotNull(cacheFetcher);
 		this.cacheFetcher = cacheFetcher;
 		this.cacheSize = cacheSize;
 		this.cache = new HashMap<KEY, CacheEntry>(cacheSize);
@@ -55,6 +55,8 @@ public class Cache<KEY, PAYLOAD> {
 		// TODO insert following line if debugging diffs - makes the diffs be
 		// created on every try
 		// new DiffCacheEntry(id).getPayload(id, progressMonitor);
+
+		Assert.isNotNull(key);
 
 		if (DISABLE_CACHE || cacheSize == 0) {
 			return this.cacheFetcher.fetch(key, progressMonitor);
