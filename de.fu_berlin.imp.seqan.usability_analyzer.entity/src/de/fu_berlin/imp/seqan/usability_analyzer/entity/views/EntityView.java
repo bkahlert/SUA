@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.views;
 
+import java.net.URI;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -17,10 +19,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
@@ -30,6 +35,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePrefere
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.extensionProviders.IDataSourceFilterListener;
@@ -82,7 +90,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		}
 	}
 
-	private IDataServiceListener dataServiceListener = new DataServiceAdapter() {
+	private final IDataServiceListener dataServiceListener = new DataServiceAdapter() {
 		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
@@ -97,14 +105,25 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		}
 	};
 
-	private SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
+	private final IWorkSessionService workSessionService;
+	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
+		@Override
+		public void workSessionStarted(IWorkSession workSession) {
+			final List<URI> uris = workSession != null ? ArrayUtils
+					.getAdaptableObjects(workSession.getEntities(), URI.class)
+					: new LinkedList<URI>();
+			entityViewer.setBold(uris);
+		}
+	};
+
+	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private EntityViewer entityViewer;
 	private Label status;
 
-	private Map<DataSource, DataSourceFilter> dataSourceFilters;
+	private final Map<DataSource, DataSourceFilter> dataSourceFilters;
 	private DateRangeFilter dateRangeFilter = null;
-	private IDataService dataService = (IDataService) PlatformUI.getWorkbench()
-			.getService(IDataService.class);
+	private final IDataService dataService = (IDataService) PlatformUI
+			.getWorkbench().getService(IDataService.class);
 
 	public EntityView() {
 		this.dataSourceFilters = new HashMap<DataSource, DataSourceFilter>();
@@ -115,11 +134,24 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		this.dataSourceFilters.put(DataSource.SURVEYRECORD,
 				new DataSourceFilter(DataSource.SURVEYRECORD));
 
+		this.workSessionService = (IWorkSessionService) PlatformUI
+				.getWorkbench().getService(IWorkSessionService.class);
+		if (this.workSessionService == null) {
+			LOGGER.warn("Could not get "
+					+ IWorkSessionService.class.getSimpleName());
+		}
+	}
+
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		super.init(site);
 		this.dataService.addDataServiceListener(this.dataServiceListener);
+		this.workSessionService.addWorkSessionListener(workSessionListener);
 	}
 
 	@Override
 	public void dispose() {
+		this.workSessionService.removeWorkSessionListener(workSessionListener);
 		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}
