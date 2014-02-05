@@ -30,6 +30,7 @@ public class LocatorService implements ILocatorService {
 	private static final Logger LOGGER = Logger.getLogger(LocatorService.class);
 	private static final boolean LOG_FAST_RUNTIME = false;
 	private static final boolean LOG_SLOW_RUNTIME = true;
+	private static final int CACHE_SIZE = 500;
 
 	private static ILocatorProvider[] locatorProviders = null;
 
@@ -159,7 +160,7 @@ public class LocatorService implements ILocatorService {
 					}
 					return null;
 				}
-			}, 200);
+			}, CACHE_SIZE);
 
 	@Override
 	public Class<? extends ILocatable> getType(URI uri) {
