@@ -124,7 +124,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 			// TODO implement moveInsideViewport support
 
-			ExecutorUtil.syncExec(new Runnable() {
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
@@ -268,7 +268,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	@Override
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			final TimeZoneDateRange newDateRange) {
-		ExecutorUtil.syncExec(new Runnable() {
+		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (DoclogExplorerView.this.dateRangeFilter != null) {
@@ -382,7 +382,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					final String partName = "Doclogs - "
 							+ StringUtils.join(newOpenedDoclogFiles.keySet(),
 									", ");
-					ExecutorUtil.syncExec(new Runnable() {
+					ExecutorUtil.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							DoclogExplorerView.this.setPartName(partName);

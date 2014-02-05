@@ -107,7 +107,7 @@ public class CDViewer extends Viewer {
 						URI uri = new URI(element.getAttribute("data-focus-id"));
 						final ILocatable locatable = CDViewer.this.locatorService
 								.resolve(uri, null).get();
-						ExecutorUtil.syncExec(new Runnable() {
+						ExecutorUtil.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								CDViewer.this

@@ -36,10 +36,10 @@ public class InformationPresentingTimeline extends Timeline {
 			.getLogger(InformationPresentingTimeline.class);
 
 	// TODO move everything related to HighlightableTimelineGroupViewer
-	private IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
+	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
-	private IInformationBackgroundProvider informationBackgroundProvider = new IInformationBackgroundProvider() {
+	private final IInformationBackgroundProvider informationBackgroundProvider = new IInformationBackgroundProvider() {
 		@Override
 		public Color getBackground(Object element) {
 			if (element instanceof HasDateRange) {

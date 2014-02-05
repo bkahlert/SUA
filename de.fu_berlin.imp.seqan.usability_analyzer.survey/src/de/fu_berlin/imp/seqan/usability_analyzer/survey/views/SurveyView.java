@@ -166,7 +166,7 @@ public class SurveyView extends ViewPart {
 					final String partName = "Survey - "
 							+ StringUtils.join(newOpenedSurveyRecords.keySet(),
 									", ");
-					ExecutorUtil.syncExec(new Runnable() {
+					ExecutorUtil.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							SurveyView.this.setPartName(partName);

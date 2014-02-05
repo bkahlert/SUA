@@ -137,7 +137,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 			// TODO implement moveInsideViewport support
 
-			ExecutorUtil.syncExec(new Runnable() {
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
@@ -402,7 +402,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					final String partName = "Diffs - "
 							+ StringUtils.join(newOpenedDiffFileLists.keySet(),
 									", ");
-					ExecutorUtil.syncExec(new Runnable() {
+					ExecutorUtil.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							DiffExplorerView.this.setPartName(partName);

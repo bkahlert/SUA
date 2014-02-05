@@ -198,7 +198,7 @@ public class TimelineView extends ViewPart {
 	private TimelineGroup<InformationPresentingTimeline, IIdentifier> timelineGroup;
 	private HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineGroupViewer;
 
-	private Set<IIdentifier> openedIdentifiers = null;
+	private final Set<IIdentifier> openedIdentifiers = null;
 
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI

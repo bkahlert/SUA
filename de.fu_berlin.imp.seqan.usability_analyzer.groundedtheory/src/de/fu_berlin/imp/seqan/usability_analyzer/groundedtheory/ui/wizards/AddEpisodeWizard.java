@@ -32,8 +32,8 @@ public class AddEpisodeWizard extends Wizard {
 
 	protected AddEpisodeWizardPage addCodeWizardPage;
 
-	private IIdentifier identifier;
-	private TimeZoneDateRange range;
+	private final IIdentifier identifier;
+	private final TimeZoneDateRange range;
 
 	public AddEpisodeWizard(IIdentifier identifier, TimeZoneDateRange range) {
 		this.setWindowTitle(TITLE);
@@ -61,7 +61,7 @@ public class AddEpisodeWizard extends Wizard {
 			WorkbenchUtils.getView(EpisodeView.ID);
 			return true;
 		} catch (final CodeServiceException e) {
-			ExecutorUtil.syncExec(new Runnable() {
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					IStatus status = new Status(IStatus.ERROR,

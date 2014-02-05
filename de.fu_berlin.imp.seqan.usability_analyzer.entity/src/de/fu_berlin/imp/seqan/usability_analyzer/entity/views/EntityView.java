@@ -231,7 +231,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			final TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null) {
-			ExecutorUtil.syncExec(new Runnable() {
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					EntityView.this.entityViewer
