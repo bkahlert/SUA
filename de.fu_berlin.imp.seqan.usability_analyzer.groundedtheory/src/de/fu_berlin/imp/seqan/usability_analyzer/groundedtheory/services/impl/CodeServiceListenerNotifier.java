@@ -36,6 +36,7 @@ public class CodeServiceListenerNotifier {
 		if (this.codeServiceListeners.contains(codeServiceListener)) {
 			this.codeServiceListeners.remove(codeServiceListener);
 		} else {
+			Thread.dumpStack();
 			LOGGER.warn("Tried to remove unregistered listener");
 		}
 

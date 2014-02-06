@@ -129,11 +129,7 @@ public class CodeInstanceViewerContentProvider extends
 			this.uris = newInput;
 			this.codeService.addCodeServiceListener(this.codeServiceListener);
 		} else {
-			if (this.uris != null) {
-				this.codeService
-						.removeCodeServiceListener(this.codeServiceListener);
-				this.uris = null;
-			}
+			this.uris = null;
 		}
 	}
 
@@ -148,7 +144,7 @@ public class CodeInstanceViewerContentProvider extends
 	@Override
 	public URI[] getTopLevelElements(URI[] uris) {
 		if (uris.length == 1) {
-			return getChildren(uris[0]);
+			return this.getChildren(uris[0]);
 		} else {
 			return uris;
 		}
