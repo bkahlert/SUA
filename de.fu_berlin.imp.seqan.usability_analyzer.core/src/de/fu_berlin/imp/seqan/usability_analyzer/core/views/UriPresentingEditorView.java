@@ -39,7 +39,7 @@ public abstract class UriPresentingEditorView extends EditorView<URI> {
 	private static final Logger LOGGER = Logger
 			.getLogger(UriPresentingEditorView.class);
 
-	private IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
+	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
 	public UriPresentingEditorView(long delayChangeEventUpTo,

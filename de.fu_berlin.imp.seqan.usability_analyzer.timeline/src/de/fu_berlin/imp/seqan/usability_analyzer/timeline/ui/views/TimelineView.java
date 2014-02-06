@@ -167,7 +167,7 @@ public class TimelineView extends ViewPart {
 				TimelineView.this.timelineLoader.cancel();
 			}
 
-			if (timelineGroupViewer != null) {
+			if (TimelineView.this.timelineGroupViewer != null) {
 				TimelineView.this.timelineLoader = new Job("Updating "
 						+ ITimeline.class.getSimpleName()) {
 					@Override
@@ -198,7 +198,7 @@ public class TimelineView extends ViewPart {
 	private TimelineGroup<InformationPresentingTimeline, IIdentifier> timelineGroup;
 	private HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineGroupViewer;
 
-	private final Set<IIdentifier> openedIdentifiers = null;
+	private Set<IIdentifier> openedIdentifiers = null;
 
 	public TimelineView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
@@ -223,7 +223,7 @@ public class TimelineView extends ViewPart {
 	 * {@link DecoratableTimeline} s will be created if necessary. If free
 	 * {@link DecoratableTimeline}s stay unused they will be disposed.
 	 * 
-	 * @param openedIdentifiers
+	 * @param identifiers
 	 */
 	public void open(final Set<IIdentifier> identifiers) {
 		if (this.timelineLoader != null) {
@@ -234,7 +234,7 @@ public class TimelineView extends ViewPart {
 
 		this.saveStates();
 
-		if (timelineGroupViewer != null) {
+		if (this.timelineGroupViewer != null) {
 			this.timelineLoader = new Job("Loading "
 					+ ITimeline.class.getSimpleName()) {
 				@Override
