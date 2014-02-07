@@ -112,7 +112,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			final List<URI> uris = workSession != null ? ArrayUtils
 					.getAdaptableObjects(workSession.getEntities(), URI.class)
 					: new LinkedList<URI>();
-			entityViewer.setBold(uris);
+			EntityView.this.entityViewer.setBold(uris);
 		}
 	};
 
@@ -146,12 +146,14 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		this.dataService.addDataServiceListener(this.dataServiceListener);
-		this.workSessionService.addWorkSessionListener(workSessionListener);
+		this.workSessionService
+				.addWorkSessionListener(this.workSessionListener);
 	}
 
 	@Override
 	public void dispose() {
-		this.workSessionService.removeWorkSessionListener(workSessionListener);
+		this.workSessionService
+				.removeWorkSessionListener(this.workSessionListener);
 		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}

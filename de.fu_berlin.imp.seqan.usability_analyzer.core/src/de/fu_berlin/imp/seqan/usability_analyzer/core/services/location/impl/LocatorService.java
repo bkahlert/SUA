@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -16,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -87,9 +88,6 @@ public class LocatorService implements ILocatorService {
 		return slowLocatorProviders;
 	}
 
-	private final ExecutorUtil executorUtil = new ExecutorUtil(
-			LocatorService.class);
-
 	private final Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
 			new CacheFetcher<URI, ILocatable>() {
 
@@ -102,7 +100,8 @@ public class LocatorService implements ILocatorService {
 						return null;
 					}
 
-					List<ILocatorProvider> fastLocatorProviders = getFastLocatorProviders(uri);
+					List<ILocatorProvider> fastLocatorProviders = LocatorService.this
+							.getFastLocatorProviders(uri);
 
 					for (final ILocatorProvider fastLocatorProvider : fastLocatorProviders) {
 						ILocatable locatable = fastLocatorProvider.getObject(
@@ -112,9 +111,10 @@ public class LocatorService implements ILocatorService {
 						}
 					}
 
-					List<ILocatorProvider> slowLocatorProviders = getSlowLocatorProviders(uri);
+					List<ILocatorProvider> slowLocatorProviders = LocatorService.this
+							.getSlowLocatorProviders(uri);
 					if (slowLocatorProviders.size() > 0
-							&& ExecutorUtil.isUIThread()) {
+							&& ExecUtils.isUIThread()) {
 						LOGGER.fatal("Implementation Error - Slow "
 								+ URI.class.getSimpleName()
 								+ " resolution in the UI thread detected!");
@@ -125,14 +125,20 @@ public class LocatorService implements ILocatorService {
 					List<Future<ILocatable>> futureLocatables = new ArrayList<Future<ILocatable>>(
 							slowLocatorProviders.size());
 					for (final ILocatorProvider slowLocatorProvider : slowLocatorProviders) {
-						Future<ILocatable> futureLocatable = LocatorService.this.executorUtil
-								.nonUIAsyncExec(new Callable<ILocatable>() {
-									@Override
-									public ILocatable call() throws Exception {
-										return slowLocatorProvider.getObject(
-												uri, subMonitor.newChild(1));
-									}
-								});
+						Future<ILocatable> futureLocatable = ExecUtils
+								.nonUIAsyncExec(LocatorService.class,
+										"Resolving " + uri,
+										new Callable<ILocatable>() {
+											@Override
+											public ILocatable call()
+													throws Exception {
+												return slowLocatorProvider
+														.getObject(
+																uri,
+																subMonitor
+																		.newChild(1));
+											}
+										});
 						futureLocatables.add(futureLocatable);
 					}
 					for (Future<ILocatable> futureLocatable : futureLocatables) {
@@ -192,7 +198,7 @@ public class LocatorService implements ILocatorService {
 	@Override
 	public Future<ILocatable> resolve(final URI uri,
 			final IProgressMonitor monitor) {
-		return resolve(uri, ILocatable.class, monitor);
+		return this.resolve(uri, ILocatable.class, monitor);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -206,7 +212,7 @@ public class LocatorService implements ILocatorService {
 		final long start = LOG_FAST_RUNTIME || LOG_SLOW_RUNTIME ? System
 				.currentTimeMillis() : 0l;
 		if (this.uriCache.isCached(uri)
-				|| getSlowLocatorProviders(uri).size() == 0) {
+				|| this.getSlowLocatorProviders(uri).size() == 0) {
 			ILocatable locatable = LocatorService.this.uriCache.getPayload(uri,
 					monitor);
 			if (!clazz.isInstance(locatable)) {
@@ -218,7 +224,8 @@ public class LocatorService implements ILocatorService {
 			}
 			return new CompletedFuture<T>((T) locatable, null);
 		} else {
-			return this.executorUtil.nonUIAsyncExec(new Callable<T>() {
+			return ExecUtils.nonUIAsyncExec(LocatorService.class, "Resolving "
+					+ uri, new Callable<T>() {
 				@Override
 				public T call() throws Exception {
 					ILocatable locatable = LocatorService.this.uriCache
@@ -240,7 +247,7 @@ public class LocatorService implements ILocatorService {
 			Class<T> clazz, SubMonitor subMonitor) throws Exception {
 		List<Future<T>> futureLocatables = new ArrayList<Future<T>>();
 		for (final URI uri : uris) {
-			Future<T> futureLocatable = resolve(uri, clazz,
+			Future<T> futureLocatable = this.resolve(uri, clazz,
 					subMonitor != null ? subMonitor.newChild(1) : null);
 			futureLocatables.add(futureLocatable);
 		}
@@ -262,7 +269,7 @@ public class LocatorService implements ILocatorService {
 
 		boolean runFast = true;
 		for (URI uri : uris) {
-			if (getSlowLocatorProviders(uri).size() > 0) {
+			if (this.getSlowLocatorProviders(uri).size() > 0) {
 				runFast = false;
 				break;
 			}
@@ -270,7 +277,7 @@ public class LocatorService implements ILocatorService {
 
 		if (runFast) {
 			try {
-				return new CompletedFuture<ILocatable[]>(resolveList(
+				return new CompletedFuture<ILocatable[]>(this.resolveList(
 						Arrays.asList(uris), ILocatable.class, null).toArray(
 						new ILocatable[0]), null);
 			} catch (Exception e) {
@@ -279,13 +286,14 @@ public class LocatorService implements ILocatorService {
 		} else {
 			final SubMonitor subMonitor = SubMonitor.convert(monitor,
 					uris.length);
-			return this.executorUtil
-					.nonUIAsyncExec(new Callable<ILocatable[]>() {
+			return ExecUtils.nonUIAsyncExec(LocatorService.class, "Resolving "
+					+ StringUtils.join(uris, ", "),
+					new Callable<ILocatable[]>() {
 						@Override
 						public ILocatable[] call() throws Exception {
-							return resolveList(Arrays.asList(uris),
-									ILocatable.class, subMonitor).toArray(
-									new ILocatable[0]);
+							return LocatorService.this.resolveList(
+									Arrays.asList(uris), ILocatable.class,
+									subMonitor).toArray(new ILocatable[0]);
 						}
 					});
 		}
@@ -294,7 +302,7 @@ public class LocatorService implements ILocatorService {
 	@Override
 	public Future<List<ILocatable>> resolve(final List<URI> uris,
 			IProgressMonitor monitor) {
-		return resolve(uris, ILocatable.class, monitor);
+		return this.resolve(uris, ILocatable.class, monitor);
 	}
 
 	@Override
@@ -304,7 +312,7 @@ public class LocatorService implements ILocatorService {
 
 		boolean runFast = true;
 		for (URI uri : uris) {
-			if (getSlowLocatorProviders(uri).size() > 0) {
+			if (this.getSlowLocatorProviders(uri).size() > 0) {
 				runFast = false;
 				break;
 			}
@@ -312,18 +320,20 @@ public class LocatorService implements ILocatorService {
 
 		if (runFast) {
 			try {
-				return new CompletedFuture<List<T>>(resolveList(uris, clazz,
-						null), null);
+				return new CompletedFuture<List<T>>(this.resolveList(uris,
+						clazz, null), null);
 			} catch (Exception e) {
 				return new CompletedFuture<List<T>>(null, e);
 			}
 		} else {
 			final SubMonitor subMonitor = SubMonitor.convert(monitor,
 					uris.size());
-			return this.executorUtil.nonUIAsyncExec(new Callable<List<T>>() {
+			return ExecUtils.nonUIAsyncExec(LocatorService.class, "Resolving "
+					+ StringUtils.join(uris, ", "), new Callable<List<T>>() {
 				@Override
 				public List<T> call() throws Exception {
-					return resolveList(uris, clazz, subMonitor);
+					return LocatorService.this.resolveList(uris, clazz,
+							subMonitor);
 				}
 			});
 		}
@@ -357,27 +367,30 @@ public class LocatorService implements ILocatorService {
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				locatorProviders.length);
-		return this.executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				boolean success = true;
-				for (ILocatorProvider locatorProvider : locatorProviders) {
-					List<URI> filtered = new ArrayList<URI>();
-					for (URI uri : uris) {
-						if (!locatorProvider.isResolvabilityImpossible(uri)) {
-							filtered.add(uri);
+		return ExecUtils.nonUIAsyncExec(LocatorService.class,
+				"Showing in workspace :: " + StringUtils.join(uris, ", "),
+				new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						boolean success = true;
+						for (ILocatorProvider locatorProvider : locatorProviders) {
+							List<URI> filtered = new ArrayList<URI>();
+							for (URI uri : uris) {
+								if (!locatorProvider
+										.isResolvabilityImpossible(uri)) {
+									filtered.add(uri);
+								}
+							}
+							if (filtered.size() == 0) {
+								subMonitor.worked(1);
+							} else if (!locatorProvider.showInWorkspace(
+									filtered.toArray(new URI[0]), open,
+									subMonitor.newChild(1))) {
+								success = false;
+							}
 						}
+						return success;
 					}
-					if (filtered.size() == 0) {
-						subMonitor.worked(1);
-					} else if (!locatorProvider.showInWorkspace(
-							filtered.toArray(new URI[0]), open,
-							subMonitor.newChild(1))) {
-						success = false;
-					}
-				}
-				return success;
-			}
-		});
+				});
 	}
 }

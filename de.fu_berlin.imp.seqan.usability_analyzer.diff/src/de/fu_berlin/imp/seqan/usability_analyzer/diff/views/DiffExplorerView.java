@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -46,6 +45,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
@@ -349,15 +349,17 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<Job>> loaders = EXECUTOR_UTIL.nonUIAsyncExec(ids,
-				new ExecutorUtil.ParametrizedCallable<IIdentifier, Job>() {
+		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL.nonUIAsyncExec(
+				ids,
+				new ExecutorUtil.ParametrizedCallable<IIdentifier, NamedJob>() {
 					@Override
-					public Job call(final IIdentifier identifier)
+					public NamedJob call(final IIdentifier identifier)
 							throws Exception {
-						Job diffFileLoader = new Job("Loading "
-								+ Diff.class.getSimpleName() + "s ...") {
+						NamedJob diffFileLoader = new NamedJob(
+								DiffExplorerView.class, "Loading "
+										+ Diff.class.getSimpleName() + "s ...") {
 							@Override
-							protected IStatus run(
+							protected IStatus runNamed(
 									IProgressMonitor progressMonitor) {
 								SubMonitor monitor = SubMonitor
 										.convert(progressMonitor);
@@ -381,7 +383,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		return EXECUTOR_UTIL.nonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				for (Future<Job> loader : loaders) {
+				for (Future<NamedJob> loader : loaders) {
 					try {
 						loader.get().join();
 					} catch (InterruptedException e) {

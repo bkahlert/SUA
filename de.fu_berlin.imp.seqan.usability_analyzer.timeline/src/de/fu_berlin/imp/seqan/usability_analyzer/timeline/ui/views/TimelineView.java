@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -33,6 +32,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
@@ -65,7 +65,7 @@ public class TimelineView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView";
 	public static final Logger LOGGER = Logger.getLogger(TimelineView.class);
 
-	private Job timelineLoader = null;
+	private NamedJob timelineLoader = null;
 
 	private final IWorkSessionService workSessionService;
 	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
@@ -168,10 +168,11 @@ public class TimelineView extends ViewPart {
 			}
 
 			if (TimelineView.this.timelineGroupViewer != null) {
-				TimelineView.this.timelineLoader = new Job("Updating "
-						+ ITimeline.class.getSimpleName()) {
+				TimelineView.this.timelineLoader = new NamedJob(
+						TimelineView.class, "Updating "
+								+ ITimeline.class.getSimpleName()) {
 					@Override
-					protected IStatus run(IProgressMonitor monitor) {
+					protected IStatus runNamed(IProgressMonitor monitor) {
 						SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 						if (!groupedRanges.isEmpty()) {
 							if (moveInsideViewport) {
@@ -235,10 +236,10 @@ public class TimelineView extends ViewPart {
 		this.saveStates();
 
 		if (this.timelineGroupViewer != null) {
-			this.timelineLoader = new Job("Loading "
+			this.timelineLoader = new NamedJob(TimelineView.class, "Loading "
 					+ ITimeline.class.getSimpleName()) {
 				@Override
-				protected IStatus run(IProgressMonitor monitor) {
+				protected IStatus runNamed(IProgressMonitor monitor) {
 					TimelineView.this.timelineGroupViewer.setInput(identifiers);
 					TimelineView.this.timelineGroupViewer.refresh(monitor);
 					monitor.done();
