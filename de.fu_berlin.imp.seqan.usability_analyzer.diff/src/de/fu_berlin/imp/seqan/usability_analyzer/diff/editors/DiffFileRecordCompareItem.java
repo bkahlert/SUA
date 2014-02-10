@@ -22,46 +22,53 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
  * @author bkahlert
  * 
  */
+@SuppressWarnings("restriction")
 public class DiffFileRecordCompareItem implements ITypedElement,
 		IModificationDate, IStreamContentAccessor {
-	private IDiffRecord diffRecord;
-	private Image image;
+	private final IDiffRecord diffRecord;
+	private final Image image;
 
 	public DiffFileRecordCompareItem(IDiffRecord diffRecord, Image image) {
 		this.diffRecord = diffRecord;
 		this.image = image;
 	}
 
+	@Override
 	public String getName() {
-		if (diffRecord == null)
+		if (this.diffRecord == null) {
 			return "";
-		return diffRecord.getFilename();
+		}
+		return this.diffRecord.getFilename();
 	}
 
+	@Override
 	public Image getImage() {
 		return this.image;
 	}
 
+	@Override
 	public String getType() {
-		if (diffRecord == null)
+		if (this.diffRecord == null) {
 			return ITypedElement.UNKNOWN_TYPE;
-		return FilenameUtils.getExtension(diffRecord.getFilename());
+		}
+		return FilenameUtils.getExtension(this.diffRecord.getFilename());
 	}
 
+	@Override
 	public long getModificationDate() {
 		try {
-			return this.diffRecord.getDiffFile().getDateRange()
-					.getStartDate().getTime();
+			return this.diffRecord.getDiffFile().getDateRange().getStartDate()
+					.getTime();
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
+	@Override
 	public InputStream getContents() throws CoreException {
-		if (this.diffRecord == null
-				|| this.diffRecord.getSource() == null)
+		if (this.diffRecord == null || this.diffRecord.getSource() == null) {
 			return null;
-		return new ByteArrayInputStream(this.diffRecord.getSource()
-				.getBytes());
+		}
+		return new ByteArrayInputStream(this.diffRecord.getSource().getBytes());
 	}
 }

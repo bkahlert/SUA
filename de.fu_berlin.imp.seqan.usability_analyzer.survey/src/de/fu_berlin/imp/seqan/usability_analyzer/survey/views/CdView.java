@@ -17,7 +17,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
@@ -54,7 +54,7 @@ public class CDView extends ViewPart {
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
 			LOGGER.info("Refreshing " + CDView.class.getSimpleName());
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					CDView.this.viewer.setInput(Activator.getDefault()
@@ -248,7 +248,7 @@ public class CDView extends ViewPart {
 			final Future<Boolean> pos = this.browser
 					.scrollTo(new ISelector.NameSelector(locatable.getUri()
 							.toString()));
-			return ExecutorUtil.nonUISyncExec(new Callable<ILocatable[]>() {
+			return ExecUtils.nonUISyncExec(new Callable<ILocatable[]>() {
 				@Override
 				public ILocatable[] call() throws Exception {
 					pos.get();

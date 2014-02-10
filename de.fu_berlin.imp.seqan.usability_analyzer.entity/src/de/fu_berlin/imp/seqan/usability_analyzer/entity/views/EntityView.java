@@ -24,7 +24,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
@@ -57,15 +58,14 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		public Object create() throws CoreException {
 			IViewReference[] allViews;
 			try {
-				allViews = ExecutorUtil
-						.syncExec(new Callable<IViewReference[]>() {
-							@Override
-							public IViewReference[] call() throws Exception {
-								return PlatformUI.getWorkbench()
-										.getActiveWorkbenchWindow()
-										.getActivePage().getViewReferences();
-							}
-						});
+				allViews = ExecUtils.syncExec(new Callable<IViewReference[]>() {
+					@Override
+					public IViewReference[] call() throws Exception {
+						return PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow().getActivePage()
+								.getViewReferences();
+					}
+				});
 			} catch (Exception e) {
 				LOGGER.error("Error enumerating present views");
 				return null;
@@ -74,7 +74,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 			for (final IViewReference viewReference : allViews) {
 				if (viewReference.getId().equals(ID)) {
 					try {
-						return ExecutorUtil.syncExec(new Callable<IViewPart>() {
+						return ExecUtils.syncExec(new Callable<IViewPart>() {
 							@Override
 							public IViewPart call() throws Exception {
 								return viewReference.getView(true);
@@ -95,7 +95,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
 			LOGGER.info("Refreshing " + EntityViewer.class.getSimpleName());
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					EntityView.this.entityViewer.setInput(Activator
@@ -233,7 +233,7 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			final TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null) {
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					EntityView.this.entityViewer

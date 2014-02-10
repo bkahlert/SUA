@@ -2,7 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
 import java.util.Map;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -20,7 +20,7 @@ public interface IHighlightServiceListener {
 	 * highlighted.
 	 * <p>
 	 * This method is called from a non-UI thread. You will have to use
-	 * {@link ExecutorUtil#asyncExec(Runnable)} or something similar to interact
+	 * {@link ExecUtils#asyncExec(Runnable)} or something similar to interact
 	 * with the UI.
 	 * 
 	 * @param sender
@@ -37,7 +37,7 @@ public interface IHighlightServiceListener {
 	 * to be highlighted.
 	 * <p>
 	 * This method is called from a non-UI thread. You will have to use
-	 * {@link ExecutorUtil#asyncExec(Runnable)} or something similar to interact
+	 * {@link ExecUtils#asyncExec(Runnable)} or something similar to interact
 	 * with the UI.
 	 * 
 	 * @param sender

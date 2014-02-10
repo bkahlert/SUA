@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -189,7 +189,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 							final DiffListsViewer viewer = diffExplorerView
 									.getDiffFileListsViewer();
 							try {
-								List<URI> selectedLocatables = ExecutorUtil
+								List<URI> selectedLocatables = ExecUtils
 										.syncExec(new Callable<List<URI>>() {
 											@Override
 											public List<URI> call()

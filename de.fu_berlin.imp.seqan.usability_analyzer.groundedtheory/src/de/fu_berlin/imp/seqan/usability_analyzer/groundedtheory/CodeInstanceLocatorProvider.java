@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
@@ -72,7 +72,7 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
 			try {
-				return ExecutorUtil.syncExec(new Callable<Boolean>() {
+				return ExecUtils.syncExec(new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
 						// EpisodeView episodeView = (EpisodeView)

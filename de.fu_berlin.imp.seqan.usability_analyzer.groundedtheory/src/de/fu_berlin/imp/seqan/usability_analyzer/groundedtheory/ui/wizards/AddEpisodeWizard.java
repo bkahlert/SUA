@@ -8,7 +8,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -61,7 +61,7 @@ public class AddEpisodeWizard extends Wizard {
 			WorkbenchUtils.getView(EpisodeView.ID);
 			return true;
 		} catch (final CodeServiceException e) {
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					IStatus status = new Status(IStatus.ERROR,

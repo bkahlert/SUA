@@ -3,14 +3,14 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 
 public class WorkSessionListenerNotifier {
 	private final List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
-	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
 			WorkSessionListenerNotifier.class);
 
 	void addWorkSessionListener(IWorkSessionListener workSessionListener) {
@@ -23,9 +23,11 @@ public class WorkSessionListenerNotifier {
 
 	void workSessionStarted(final IWorkSession workSession) {
 		EXECUTOR_UTIL
-				.nonUIAsyncExec(
+				.customNonUIAsyncExec(
+						DataServiceListenerNotifier.class,
+						"Work Session Started Notification",
 						this.workSessionListeners,
-						new ExecutorUtil.ParametrizedCallable<IWorkSessionListener, Void>() {
+						new ExecUtils.ParametrizedCallable<IWorkSessionListener, Void>() {
 							@Override
 							public Void call(
 									IWorkSessionListener workSessionListener)

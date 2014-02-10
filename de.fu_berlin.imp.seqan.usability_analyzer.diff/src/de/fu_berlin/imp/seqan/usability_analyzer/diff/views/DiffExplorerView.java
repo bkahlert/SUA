@@ -44,7 +44,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
@@ -137,7 +137,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 			// TODO implement moveInsideViewport support
 
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
@@ -180,7 +180,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
 			DiffExplorerView.class);
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
@@ -342,45 +342,50 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		// Case 1: no IDs
 		if (ids.size() == 0) {
 			if (success != null) {
-				return ExecutorUtil.asyncExec(success);
+				return ExecUtils.asyncExec(success);
 			} else {
 				return null;
 			}
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL.nonUIAsyncExec(
-				ids,
-				new ExecutorUtil.ParametrizedCallable<IIdentifier, NamedJob>() {
-					@Override
-					public NamedJob call(final IIdentifier identifier)
-							throws Exception {
-						NamedJob diffFileLoader = new NamedJob(
-								DiffExplorerView.class, "Loading "
-										+ Diff.class.getSimpleName() + "s ...") {
+		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL
+				.customNonUIAsyncExec(
+						ids,
+						new ExecUtils.ParametrizedCallable<IIdentifier, NamedJob>() {
 							@Override
-							protected IStatus runNamed(
-									IProgressMonitor progressMonitor) {
-								SubMonitor monitor = SubMonitor
-										.convert(progressMonitor);
-								monitor.beginTask("... for" + identifier, 1);
-								IDiffs diffs = Activator.getDefault()
-										.getDiffDataContainer()
-										.getDiffFiles(identifier, monitor);
-								synchronized (newOpenedDiffFileLists) {
-									newOpenedDiffFileLists.put(identifier,
-											diffs);
-								}
-								monitor.done();
-								return Status.OK_STATUS;
+							public NamedJob call(final IIdentifier identifier)
+									throws Exception {
+								NamedJob diffFileLoader = new NamedJob(
+										DiffExplorerView.class, "Loading "
+												+ Diff.class.getSimpleName()
+												+ "s ...") {
+									@Override
+									protected IStatus runNamed(
+											IProgressMonitor progressMonitor) {
+										SubMonitor monitor = SubMonitor
+												.convert(progressMonitor);
+										monitor.beginTask("... for"
+												+ identifier, 1);
+										IDiffs diffs = Activator
+												.getDefault()
+												.getDiffDataContainer()
+												.getDiffFiles(identifier,
+														monitor);
+										synchronized (newOpenedDiffFileLists) {
+											newOpenedDiffFileLists.put(
+													identifier, diffs);
+										}
+										monitor.done();
+										return Status.OK_STATUS;
+									}
+								};
+								diffFileLoader.schedule();
+								return diffFileLoader;
 							}
-						};
-						diffFileLoader.schedule();
-						return diffFileLoader;
-					}
-				});
+						});
 
-		return EXECUTOR_UTIL.nonUIAsyncExec(new Callable<T>() {
+		return EXECUTOR_UTIL.customNonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 				for (Future<NamedJob> loader : loaders) {
@@ -404,7 +409,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					final String partName = "Diffs - "
 							+ StringUtils.join(newOpenedDiffFileLists.keySet(),
 									", ");
-					ExecutorUtil.asyncExec(new Runnable() {
+					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							DiffExplorerView.this.setPartName(partName);
@@ -422,7 +427,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 				}
 
 				if (success != null) {
-					return ExecutorUtil.syncExec(new Callable<T>() {
+					return ExecUtils.syncExec(new Callable<T>() {
 						@Override
 						public T call() throws Exception {
 							return success.call();

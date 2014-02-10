@@ -17,7 +17,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -139,7 +139,7 @@ public class SurveyView extends ViewPart {
 		// Case 1: no IDs
 		if (identifiers.size() == 0) {
 			if (success != null) {
-				return ExecutorUtil.asyncExec(success);
+				return ExecUtils.asyncExec(success);
 			} else {
 				return null;
 			}
@@ -156,34 +156,38 @@ public class SurveyView extends ViewPart {
 			}
 		}
 
-		return ExecutorUtil.nonUISyncExec(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				if (SurveyView.this.surveyViewer != null
-						&& SurveyView.this.surveyViewer.getTree() != null
-						&& !SurveyView.this.surveyViewer.getTree().isDisposed()) {
-					SurveyView.this.openedSurveyRecords = newOpenedSurveyRecords;
-					final String partName = "Survey - "
-							+ StringUtils.join(newOpenedSurveyRecords.keySet(),
-									", ");
-					ExecutorUtil.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							SurveyView.this.setPartName(partName);
-							SurveyView.this.surveyViewer
-									.setInput(newOpenedSurveyRecords.values());
-							SurveyView.this.surveyViewer.expandAll();
+		return ExecUtils.nonUIAsyncExec(SurveyView.class, "Open",
+				new Callable<T>() {
+					@Override
+					public T call() throws Exception {
+						if (SurveyView.this.surveyViewer != null
+								&& SurveyView.this.surveyViewer.getTree() != null
+								&& !SurveyView.this.surveyViewer.getTree()
+										.isDisposed()) {
+							SurveyView.this.openedSurveyRecords = newOpenedSurveyRecords;
+							final String partName = "Survey - "
+									+ StringUtils.join(
+											newOpenedSurveyRecords.keySet(),
+											", ");
+							ExecUtils.asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									SurveyView.this.setPartName(partName);
+									SurveyView.this.surveyViewer
+											.setInput(newOpenedSurveyRecords
+													.values());
+									SurveyView.this.surveyViewer.expandAll();
+								}
+							});
 						}
-					});
-				}
 
-				if (success != null) {
-					return success.call();
-				} else {
-					return null;
-				}
-			}
-		});
+						if (success != null) {
+							return success.call();
+						} else {
+							return null;
+						}
+					}
+				});
 	}
 
 }

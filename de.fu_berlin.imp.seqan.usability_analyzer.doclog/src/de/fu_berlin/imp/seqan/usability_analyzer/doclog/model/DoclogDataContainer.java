@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -28,7 +28,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
 
-	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
 			DoclogDataContainer.class);
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
@@ -89,37 +89,36 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		// force class loading since DoclogRecord is used in the Callable
 		DoclogAction.class.getClass();
 		DoclogRecord.class.getClass();
-		for (int worked : EXECUTOR_UTIL
-				.nonUIAsyncExecMerged(
-						this.datas.keySet(),
-						new com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable<IIdentifier, Integer>() {
-							@Override
-							public Integer call(IIdentifier identifier)
-									throws Exception {
-								final IData data = DoclogDataContainer.this.datas
-										.get(identifier);
-								long length = data.getLength();
-								if (length == 0l) {
-									return null;
-								}
-								try {
-									TimeZoneDateRange dateRange = Doclog
-											.getDateRange(data);
-									Token token = Doclog.getToken(data);
-									synchronized (DoclogDataContainer.this.fileDateRanges) {
-										DoclogDataContainer.this.fileDateRanges
-												.put(identifier, dateRange);
-									}
-									synchronized (DoclogDataContainer.this.fileToken) {
-										DoclogDataContainer.this.fileToken.put(
-												identifier, token);
-									}
-								} catch (Exception e) {
-									LOGGER.error(e);
-								}
-								return (int) (length / 1000l);
+		for (int worked : EXECUTOR_UTIL.customNonUIAsyncExecMerged(
+				this.datas.keySet(),
+				new ExecUtils.ParametrizedCallable<IIdentifier, Integer>() {
+					@Override
+					public Integer call(IIdentifier identifier)
+							throws Exception {
+						final IData data = DoclogDataContainer.this.datas
+								.get(identifier);
+						long length = data.getLength();
+						if (length == 0l) {
+							return null;
+						}
+						try {
+							TimeZoneDateRange dateRange = Doclog
+									.getDateRange(data);
+							Token token = Doclog.getToken(data);
+							synchronized (DoclogDataContainer.this.fileDateRanges) {
+								DoclogDataContainer.this.fileDateRanges.put(
+										identifier, dateRange);
 							}
-						})) {
+							synchronized (DoclogDataContainer.this.fileToken) {
+								DoclogDataContainer.this.fileToken.put(
+										identifier, token);
+							}
+						} catch (Exception e) {
+							LOGGER.error(e);
+						}
+						return (int) (length / 1000l);
+					}
+				})) {
 			monitor.worked(worked);
 		}
 		monitor.done();
@@ -171,7 +170,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	}
 
 	public boolean doclogFileLoaded(IIdentifier identifier) {
-		return doclogCache.getCachedKeys().contains(identifier);
+		return this.doclogCache.getCachedKeys().contains(identifier);
 	}
 
 	/**

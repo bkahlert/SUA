@@ -4,6 +4,8 @@ import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bkahlert.nebula.datetime.CalendarRange;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -20,16 +22,19 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 		TimeZoneDate latestDate = null;
 
 		for (TimeZoneDateRange dateRange : dateRanges) {
-			if (dateRange == null)
+			if (dateRange == null) {
 				continue;
+			}
 			if (dateRange.getStartDate() != null
 					&& (earliestDate == null || earliestDate
-							.compareTo(dateRange.getStartDate()) > 0))
+							.compareTo(dateRange.getStartDate()) > 0)) {
 				earliestDate = dateRange.getStartDate();
+			}
 			if (dateRange.getEndDate() != null
 					&& (latestDate == null || latestDate.compareTo(dateRange
-							.getEndDate()) < 0))
+							.getEndDate()) < 0)) {
 				latestDate = dateRange.getEndDate();
+			}
 		}
 
 		return new TimeZoneDateRange(earliestDate, latestDate);
@@ -38,8 +43,9 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	public static TimeZoneDateRange calculateOuterDateRange(
 			List<? extends HasDateRange> hasDateRanges) {
 		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
-		for (HasDateRange hasDateRange : hasDateRanges)
+		for (HasDateRange hasDateRange : hasDateRanges) {
 			dateRanges.add(hasDateRange.getDateRange());
+		}
 		return calculateOuterDateRange(dateRanges
 				.toArray(new TimeZoneDateRange[0]));
 	}
@@ -47,14 +53,15 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	public static TimeZoneDateRange calculateOuterDateRange(
 			HasDateRange... hasDateRanges) {
 		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
-		for (HasDateRange hasDateRange : hasDateRanges)
+		for (HasDateRange hasDateRange : hasDateRanges) {
 			dateRanges.add(hasDateRange.getDateRange());
+		}
 		return calculateOuterDateRange(dateRanges
 				.toArray(new TimeZoneDateRange[0]));
 	}
 
-	private TimeZoneDate startDate;
-	private TimeZoneDate endDate;
+	private final TimeZoneDate startDate;
+	private final TimeZoneDate endDate;
 
 	public TimeZoneDateRange(TimeZoneDate startDate, TimeZoneDate endDate) {
 		super();
@@ -67,19 +74,26 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 		this.endDate = endDate;
 	}
 
+	public TimeZoneDateRange(CalendarRange calendarRange) {
+		this(new TimeZoneDate(calendarRange.getStartDate()), new TimeZoneDate(
+				calendarRange.getEndDate()));
+	}
+
 	public TimeZoneDate getStartDate() {
-		return startDate;
+		return this.startDate;
 	}
 
 	public TimeZoneDate getEndDate() {
-		return endDate;
+		return this.endDate;
 	}
 
 	public Long getDifference() {
-		if (this.startDate == null)
+		if (this.startDate == null) {
 			return null;
-		if (this.endDate == null)
+		}
+		if (this.endDate == null) {
 			return null;
+		}
 		return this.endDate.getTime() - this.startDate.getTime();
 	}
 
@@ -89,34 +103,39 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	}
 
 	public boolean isInRange(TimeZoneDate date) {
-		if (date == null)
+		if (date == null) {
 			return false;
+		}
 		return this.isInRange(date.getTime());
 	}
 
 	public boolean isBeforeRange(long time) {
-		if (this.startDate == null)
+		if (this.startDate == null) {
 			return false;
-		else
+		} else {
 			return time < this.startDate.getTime();
+		}
 	}
 
 	public boolean isBeforeRange(TimeZoneDate date) {
-		if (date == null)
+		if (date == null) {
 			return false;
+		}
 		return this.isBeforeRange(date.getTime());
 	}
 
 	public boolean isAfterRange(long time) {
-		if (this.endDate == null)
+		if (this.endDate == null) {
 			return false;
-		else
+		} else {
 			return time > this.endDate.getTime();
+		}
 	}
 
 	public boolean isAfterRange(TimeZoneDate date) {
-		if (date == null)
+		if (date == null) {
 			return false;
+		}
 		return this.isAfterRange(date.getTime());
 	}
 
@@ -128,8 +147,9 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	 * @return
 	 */
 	public boolean isIntersected(TimeZoneDateRange dateRange) {
-		if (dateRange == null)
+		if (dateRange == null) {
 			return true;
+		}
 
 		boolean startAndEndBeforeRange = this.isBeforeRange(dateRange
 				.getStartDate()) && this.isBeforeRange(dateRange.getEndDate());
@@ -151,8 +171,9 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	 * @return
 	 */
 	public boolean isIntersected2(TimeZoneDateRange dateRange) {
-		if (!this.isIntersected(dateRange))
+		if (!this.isIntersected(dateRange)) {
 			return false;
+		}
 		boolean areNeighbors1 = this.endDate != null
 				&& dateRange.getStartDate() != null
 				&& this.endDate.equals(dateRange.getStartDate());
@@ -165,26 +186,32 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	@Override
 	public int compareTo(TimeZoneDateRange o) {
 		TimeZoneDate t1 = this.getStartDate();
-		if (t1 == null)
+		if (t1 == null) {
 			t1 = this.getEndDate();
+		}
 
 		TimeZoneDate t2 = o.getStartDate();
-		if (t2 == null)
+		if (t2 == null) {
 			t2 = o.getEndDate();
+		}
 
-		if (t1 == null && t2 == null)
+		if (t1 == null && t2 == null) {
 			return 0;
-		if (t1 != null && t2 == null)
+		}
+		if (t1 != null && t2 == null) {
 			return +1;
-		if (t1 == null && t2 != null)
+		}
+		if (t1 == null && t2 != null) {
 			return -1;
+		}
 		return t1.compareTo(t2);
 	}
 
 	@Override
 	public String toString() {
-		return ((startDate != null) ? startDate.toISO8601() : "-inf") + " - "
-				+ ((endDate != null) ? endDate.toISO8601() : "+inf");
+		return ((this.startDate != null) ? this.startDate.toISO8601() : "-inf")
+				+ " - "
+				+ ((this.endDate != null) ? this.endDate.toISO8601() : "+inf");
 	}
 
 }

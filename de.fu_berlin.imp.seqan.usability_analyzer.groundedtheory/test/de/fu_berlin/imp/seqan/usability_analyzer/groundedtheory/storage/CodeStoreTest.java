@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -627,7 +627,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		shell.setSize(300, 120);
 		shell.open();
 
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				shell.close();

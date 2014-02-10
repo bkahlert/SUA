@@ -8,7 +8,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 public class WorkbenchUtils {
 	private static final Logger LOGGER = Logger.getLogger(WorkbenchUtils.class);
@@ -34,7 +34,7 @@ public class WorkbenchUtils {
 			if (Display.getCurrent() == Display.getDefault()) {
 				return callable.call();
 			} else {
-				return ExecutorUtil.syncExec(callable);
+				return ExecUtils.syncExec(callable);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving " + IViewPart.class.getSimpleName(),

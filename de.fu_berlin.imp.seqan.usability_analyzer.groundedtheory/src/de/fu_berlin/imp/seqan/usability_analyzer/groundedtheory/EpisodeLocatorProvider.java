@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -94,7 +94,7 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
 			try {
-				return ExecutorUtil.syncExec(new Callable<Boolean>() {
+				return ExecUtils.syncExec(new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
 						EpisodeView episodeView = (EpisodeView) WorkbenchUtils

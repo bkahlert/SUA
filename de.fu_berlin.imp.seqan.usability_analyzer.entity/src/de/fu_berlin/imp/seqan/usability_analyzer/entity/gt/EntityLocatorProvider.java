@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -84,7 +84,7 @@ public class EntityLocatorProvider extends AdaptingLocatorProvider {
 			subMonitor.worked(1);
 			List<URI> selected;
 			try {
-				selected = ExecutorUtil.syncExec(new Callable<List<URI>>() {
+				selected = ExecUtils.syncExec(new Callable<List<URI>>() {
 					@Override
 					public List<URI> call() throws Exception {
 						viewer.setSelection(new StructuredSelection(uris), true);

@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 
@@ -194,14 +194,15 @@ public class CacheTest {
 		}
 
 		public Future<Long> run() {
-			return ExecutorUtil.nonUISyncExec(new Callable<Long>() {
+			return ExecUtils.nonUISyncExec(new Callable<Long>() {
 				@Override
 				public Long call() throws Exception {
 					TimePassed passed = new TimePassed();
-					for (int i = 0; i < numRuns; i++) {
-						KEY key = runToKeyConverter.convert(i);
-						assertEquals(keyToPayloadConverter.convert(key),
-								cache.getPayload(key, null));
+					for (int i = 0; i < CacheRunner.this.numRuns; i++) {
+						KEY key = CacheRunner.this.runToKeyConverter.convert(i);
+						assertEquals(CacheRunner.this.keyToPayloadConverter
+								.convert(key), CacheRunner.this.cache
+								.getPayload(key, null));
 					}
 					return passed.getTimePassed();
 				}

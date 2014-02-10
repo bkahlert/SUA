@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
@@ -20,12 +20,12 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 	private IDataService dataService;
 
 	public DataDirectoriesContributionItem() {
-		init();
+		this.init();
 	}
 
 	public DataDirectoriesContributionItem(String id) {
 		super(id);
-		init();
+		this.init();
 	}
 
 	private void init() {
@@ -42,11 +42,12 @@ public class DataDirectoriesContributionItem extends ContributionItem {
 			menuItem.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					ExecutorUtil.nonUISyncExec(new Runnable() {
+					ExecUtils.nonUIAsyncExec(new Runnable() {
 						@Override
 						public void run() {
-							dataService.loadDataDirectories(Arrays
-									.asList(dataResourceContainer));
+							DataDirectoriesContributionItem.this.dataService
+									.loadDataDirectories(Arrays
+											.asList(dataResourceContainer));
 						}
 					});
 				}

@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataList;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
@@ -53,7 +53,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	public static final int DIFF_CACHE_SIZE = 5;
 
-	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
 			DiffContainer.class);
 
 	/**
@@ -162,28 +162,26 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		}
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
-		for (Integer worked : EXECUTOR_UTIL
-				.nonUIAsyncExecMerged(
-						this.dataLists.keySet(),
-						new com.bkahlert.devel.nebula.utils.ExecutorUtil.ParametrizedCallable<ID, Integer>() {
-							@Override
-							public Integer call(ID id) throws Exception {
-								final DataList dataList = DiffContainer.this.dataLists
-										.get(id);
+		for (Integer worked : EXECUTOR_UTIL.customNonUIAsyncExecMerged(
+				this.dataLists.keySet(),
+				new ExecUtils.ParametrizedCallable<ID, Integer>() {
+					@Override
+					public Integer call(ID id) throws Exception {
+						final DataList dataList = DiffContainer.this.dataLists
+								.get(id);
 
-								final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
+						final CachingDiffFileComparator cachingDiffFileComparator = new CachingDiffFileComparator();
 
-								sortDiffFiles(dataList,
-										cachingDiffFileComparator);
-								TimeZoneDateRange dateRange = calculateDateRange(dataList);
-								synchronized (DiffContainer.this.fileDateRanges) {
-									DiffContainer.this.fileDateRanges.put(id,
-											dateRange);
-								}
+						sortDiffFiles(dataList, cachingDiffFileComparator);
+						TimeZoneDateRange dateRange = calculateDateRange(dataList);
+						synchronized (DiffContainer.this.fileDateRanges) {
+							DiffContainer.this.fileDateRanges
+									.put(id, dateRange);
+						}
 
-								return (int) (sizes.get(id) / 1000l);
-							}
-						})) {
+						return (int) (sizes.get(id) / 1000l);
+					}
+				})) {
 			monitor.worked(worked);
 		}
 		monitor.done();
@@ -250,7 +248,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public IDiffs createDiffFiles(IIdentifier identifier,
 			IProgressMonitor progressMonitor) {
-		if (ExecutorUtil.isUIThread()) {
+		if (ExecUtils.isUIThread()) {
 			System.err.println("NO NO");
 		}
 		this.scanIfNecessary(SubMonitor.convert(progressMonitor));

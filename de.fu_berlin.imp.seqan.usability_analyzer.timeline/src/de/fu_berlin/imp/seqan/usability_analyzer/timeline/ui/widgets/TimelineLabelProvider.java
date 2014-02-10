@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
@@ -39,7 +39,7 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 			final TIMELINE timeline) {
 		IIdentifier identifier = null;
 		try {
-			identifier = ExecutorUtil.syncExec(new Callable<IIdentifier>() {
+			identifier = ExecUtils.syncExec(new Callable<IIdentifier>() {
 				@Override
 				public IIdentifier call() throws Exception {
 					Object identifier = timeline.getData();

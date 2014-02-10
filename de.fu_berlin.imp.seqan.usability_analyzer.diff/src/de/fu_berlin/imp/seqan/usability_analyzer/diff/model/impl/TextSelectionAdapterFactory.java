@@ -18,6 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 
+@SuppressWarnings("restriction")
 public class TextSelectionAdapterFactory implements IAdapterFactory {
 
 	private static final Logger LOGGER = Logger

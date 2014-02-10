@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
@@ -83,14 +83,15 @@ public class CDViewer extends Viewer {
 							+ anker.getHref());
 					return;
 				}
-				ExecutorUtil.nonUISyncExec(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						WizardUtils.openAddCodeWizard(uri.get(),
-								Utils.getFancyCodeColor());
-						return null;
-					}
-				});
+				ExecUtils.nonUISyncExec(CDViewer.class,
+						"Opening Add Code Wizard", new Callable<Void>() {
+							@Override
+							public Void call() throws Exception {
+								WizardUtils.openAddCodeWizard(uri.get(),
+										Utils.getFancyCodeColor());
+								return null;
+							}
+						});
 			}
 		});
 
@@ -101,13 +102,13 @@ public class CDViewer extends Viewer {
 
 			@Override
 			public void focusGained(final IElement element) {
-				ExecutorUtil.nonUISyncExec(new Callable<Void>() {
+				ExecUtils.nonUISyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
 						URI uri = new URI(element.getAttribute("data-focus-id"));
 						final ILocatable locatable = CDViewer.this.locatorService
 								.resolve(uri, null).get();
-						ExecutorUtil.asyncExec(new Runnable() {
+						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								CDViewer.this
@@ -264,15 +265,17 @@ public class CDViewer extends Viewer {
 
 	@Override
 	public void refresh() {
-		ExecutorUtil.nonUISyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				Point pos = CDViewer.this.browser.getScrollPosition().get();
-				CDViewer.this.setInput(CDViewer.this.surveyContainer);
-				CDViewer.this.browser.scrollTo(pos);
-				return null;
-			}
-		});
+		ExecUtils.nonUIAsyncExec(CDViewer.class, "Refresh",
+				new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						Point pos = CDViewer.this.browser.getScrollPosition()
+								.get();
+						CDViewer.this.setInput(CDViewer.this.surveyContainer);
+						CDViewer.this.browser.scrollTo(pos);
+						return null;
+					}
+				});
 	}
 
 }

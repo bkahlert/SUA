@@ -40,7 +40,7 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -193,7 +193,7 @@ public class EpisodeRenderer implements IDisposable {
 
 		public void setHoveredItem(URI uri) {
 			try {
-				ILocatable hoveredItem = locatorService.resolve(uri, null)
+				ILocatable hoveredItem = this.locatorService.resolve(uri, null)
 						.get();
 				if (hoveredItem instanceof HasDateRange) {
 					TimeZoneDateRange newRange;
@@ -312,19 +312,24 @@ public class EpisodeRenderer implements IDisposable {
 					final IEpisode oldEpisode = this.resizeInfo.getEpisode();
 					final IEpisode newEpisode = this.resizeInfo.getNewEpisode();
 					if (oldEpisode != null && newEpisode != null) {
-						ExecutorUtil.nonUISyncExec(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									Renderer.this.codeService
-											.replaceEpisodeAndSave(oldEpisode,
-													newEpisode);
-								} catch (CodeServiceException e) {
-									LOGGER.error("Error resizing "
-											+ IEpisode.class.getSimpleName(), e);
-								}
-							}
-						});
+						ExecUtils.nonUISyncExec(EpisodeRenderer.class,
+								"Setting Episode", new Runnable() {
+									@Override
+									public void run() {
+										try {
+											Renderer.this.codeService
+													.replaceEpisodeAndSave(
+															oldEpisode,
+															newEpisode);
+										} catch (CodeServiceException e) {
+											LOGGER.error(
+													"Error resizing "
+															+ IEpisode.class
+																	.getSimpleName(),
+													e);
+										}
+									}
+								});
 					}
 					this.resizeInfo = null;
 					event.widget.setData(CONTROL_DATA_STRING, null);
@@ -658,7 +663,7 @@ public class EpisodeRenderer implements IDisposable {
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		private void redraw() {
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					if (EpisodeRenderer.this.viewer.getControl() != null

@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -31,9 +30,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.TimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
@@ -43,20 +44,23 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineP
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.preferences.SUATimelinePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.viewer.HighlightableTimelineGroupViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.InformationPresentingTimeline;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.widgets.TimelineLabelProvider;
 
@@ -74,8 +78,8 @@ public class TimelineView extends ViewPart {
 				Set<IIdentifier> identifiers) {
 			Set<IIdentifier> filteredKeys = new HashSet<IIdentifier>();
 			identifierLoop: for (IIdentifier key : identifiers) {
-				for (ITimelineBandProvider<HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineBandProvider : Activator
-						.<HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> getRegisteredTimelineBandProviders()) {
+				for (ITimelineBandProvider<TimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineBandProvider : Activator
+						.<TimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> getRegisteredTimelineBandProviders()) {
 					if (!timelineBandProvider.getContentProvider().isValid(key)) {
 						continue identifierLoop;
 					}

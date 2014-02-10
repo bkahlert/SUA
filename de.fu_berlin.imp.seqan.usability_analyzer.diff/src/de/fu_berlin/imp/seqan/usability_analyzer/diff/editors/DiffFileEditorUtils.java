@@ -15,6 +15,7 @@ import org.eclipse.ui.model.WorkbenchAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 
+@SuppressWarnings("restriction")
 public class DiffFileEditorUtils {
 
 	private static final Logger LOGGER = Logger

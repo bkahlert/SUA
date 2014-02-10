@@ -38,7 +38,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
@@ -67,7 +67,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		@Override
 		public Object create() throws CoreException {
 			try {
-				IViewReference[] allviews = ExecutorUtil
+				IViewReference[] allviews = ExecUtils
 						.syncExec(new Callable<IViewReference[]>() {
 							@Override
 							public IViewReference[] call() throws Exception {
@@ -124,7 +124,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 			// TODO implement moveInsideViewport support
 
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
@@ -168,7 +168,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecutorUtil EXECUTOR_UTIL = new ExecutorUtil(
+	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
 			DoclogExplorerView.class);
 	private Set<IIdentifier> loadedIdentifiers;
 
@@ -268,7 +268,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	@Override
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			final TimeZoneDateRange newDateRange) {
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (DoclogExplorerView.this.dateRangeFilter != null) {
@@ -313,54 +313,56 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		// Case 1: no IDs
 		if (identifiers.size() == 0) {
 			if (success != null) {
-				return ExecutorUtil.asyncExec(success);
+				return ExecUtils.asyncExec(success);
 			} else {
 				return null;
 			}
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL.nonUIAsyncExec(
-				identifiers,
-				new ExecutorUtil.ParametrizedCallable<IIdentifier, NamedJob>() {
-					@Override
-					public NamedJob call(final IIdentifier identifier)
-							throws Exception {
-						NamedJob doclogFileLoader = new NamedJob(
-								DoclogExplorerView.class, "Loading "
-										+ Doclog.class.getSimpleName()
-										+ "s ...") {
+		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL
+				.customNonUIAsyncExec(
+						identifiers,
+						new ExecUtils.ParametrizedCallable<IIdentifier, NamedJob>() {
 							@Override
-							protected IStatus runNamed(
-									IProgressMonitor progressMonitor) {
-								SubMonitor monitor = SubMonitor
-										.convert(progressMonitor);
-								monitor.beginTask("... for" + identifier, 1);
-								Doclog doclog = Activator
-										.getDefault()
-										.getDoclogContainer()
-										.getDoclogFile(identifier,
-												monitor.newChild(1));
-								synchronized (newOpenedDoclogFiles) {
-									if (doclog != null) {
-										newOpenedDoclogFiles.put(identifier,
-												doclog);
-									} else {
-										identifiers.remove(identifier);
-									}
-								}
-								monitor.done();
-								return Status.OK_STATUS;
+							public NamedJob call(final IIdentifier identifier)
+									throws Exception {
+								NamedJob doclogFileLoader = new NamedJob(
+										DoclogExplorerView.class, "Loading "
+												+ Doclog.class.getSimpleName()
+												+ "s ...") {
+									@Override
+									protected IStatus runNamed(
+											IProgressMonitor progressMonitor) {
+										SubMonitor monitor = SubMonitor
+												.convert(progressMonitor);
+										monitor.beginTask("... for"
+												+ identifier, 1);
+										Doclog doclog = Activator
+												.getDefault()
+												.getDoclogContainer()
+												.getDoclogFile(identifier,
+														monitor.newChild(1));
+										synchronized (newOpenedDoclogFiles) {
+											if (doclog != null) {
+												newOpenedDoclogFiles.put(
+														identifier, doclog);
+											} else {
+												identifiers.remove(identifier);
+											}
+										}
+										monitor.done();
+										return Status.OK_STATUS;
+									};
+								};
+								doclogFileLoader.schedule();
+								return doclogFileLoader;
 							};
-						};
-						doclogFileLoader.schedule();
-						return doclogFileLoader;
-					};
-				});
+						});
 
 		this.loadedIdentifiers = identifiers;
 
-		return EXECUTOR_UTIL.nonUIAsyncExec(new Callable<T>() {
+		return EXECUTOR_UTIL.customNonUIAsyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 				for (Future<NamedJob> loader : loaders) {
@@ -384,7 +386,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					final String partName = "Doclogs - "
 							+ StringUtils.join(newOpenedDoclogFiles.keySet(),
 									", ");
-					ExecutorUtil.asyncExec(new Runnable() {
+					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							DoclogExplorerView.this.setPartName(partName);
@@ -402,7 +404,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				}
 
 				if (success != null) {
-					return ExecutorUtil.syncExec(new Callable<T>() {
+					return ExecUtils.syncExec(new Callable<T>() {
 						@Override
 						public T call() throws Exception {
 							return success.call();

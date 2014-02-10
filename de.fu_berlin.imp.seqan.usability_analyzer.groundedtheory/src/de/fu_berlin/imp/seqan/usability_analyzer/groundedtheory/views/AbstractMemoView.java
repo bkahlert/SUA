@@ -15,7 +15,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.KeyboardUtils;
 import com.bkahlert.devel.nebula.utils.history.History;
 import com.bkahlert.devel.nebula.utils.history.IHistory;
@@ -48,15 +48,15 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
-	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
 	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
-	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
 			if (uris.contains(AbstractMemoView.this.getLoadedObject())) {
@@ -93,10 +93,10 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		};
 	};
 
-	private IHighlightService highlightService = (IHighlightService) PlatformUI
+	private final IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
 
-	private IHistory<URI> history;
+	private final IHistory<URI> history;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
@@ -191,7 +191,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 								.showInWorkspace(uri,
 										KeyboardUtils.isMetaKeyPressed(), null)
 								.get()) {
-							ExecutorUtil.asyncExec(new Runnable() {
+							ExecUtils.asyncExec(new Runnable() {
 								@Override
 								public void run() {
 									MessageDialog.openInformation(PlatformUI
