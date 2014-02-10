@@ -12,15 +12,16 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.nebula.utils.ImageUtils;
-import com.bkahlert.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.BaseTimelineGroup;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
@@ -38,9 +39,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeSer
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
-public class DiffTimelineBandProvider
-		implements
-		ITimelineBandProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> {
+public class DiffTimelineBandProvider implements
+		ITimelineBandProvider<IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffTimelineBandProvider.class);
@@ -50,8 +50,8 @@ public class DiffTimelineBandProvider
 	}
 
 	@Override
-	public ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
-		return new ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
+	public ITimelineContentProvider<IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<IIdentifier>() {
 
 			private final ITimelineListener timelineListener = new TimelineAdapter() {
 				@Override
@@ -65,14 +65,14 @@ public class DiffTimelineBandProvider
 			};
 
 			private IIdentifier input = null;
-			private TimelineGroup<ITimeline, IIdentifier> timelineGroup = null;
+			private BaseTimelineGroup<? extends IBaseTimeline, IIdentifier> timelineGroup = null;
 
 			// private final DiffContentProvider diffContentProvider = new
 			// DiffContentProvider();
 
 			@Override
-			public void inputChanged(
-					MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
+			public <TIMELINE extends IBaseTimeline> void inputChanged(
+					ITimelineGroupViewer<TIMELINE, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
 
@@ -86,14 +86,16 @@ public class DiffTimelineBandProvider
 				// this.diffContentProvider.inputChanged(viewer, oldInputUri,
 				// newInputUri);
 
-				if (this.timelineGroup != null) {
-					this.timelineGroup
+				if (this.timelineGroup instanceof TimelineGroup) {
+					((TimelineGroup<?, ?>) this.timelineGroup)
 							.removeTimelineListener(this.timelineListener);
 				}
 				if (viewer != null && viewer.getControl() != null) {
 					this.timelineGroup = viewer.getControl();
-					this.timelineGroup
-							.addTimelineListener(this.timelineListener);
+					if (this.timelineGroup instanceof TimelineGroup) {
+						((TimelineGroup<?, ?>) this.timelineGroup)
+								.addTimelineListener(this.timelineListener);
+					}
 				}
 				// } catch (URISyntaxException e) {
 				// throw new RuntimeException(e);

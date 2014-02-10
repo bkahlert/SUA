@@ -12,10 +12,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
-import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
-
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView;
 
@@ -34,18 +30,18 @@ public class Activator extends AbstractUIPlugin {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> List<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> getRegisteredTimelineBandProviders() {
+	public static <INPUT> List<ITimelineBandProvider<INPUT>> getRegisteredTimelineBandProviders() {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor(
 						"de.fu_berlin.imp.seqan.usability_analyzer.timeline");
-		final List<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> registeredTimelineBandProviders = new ArrayList<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>>();
+		final List<ITimelineBandProvider<INPUT>> registeredTimelineBandProviders = new ArrayList<ITimelineBandProvider<INPUT>>();
 		for (IConfigurationElement configElement : config) {
 			try {
 				Object o = configElement.createExecutableExtension("class");
 				if (o instanceof ITimelineBandProvider) {
 					try {
 						registeredTimelineBandProviders
-								.add((ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>) o);
+								.add((ITimelineBandProvider<INPUT>) o);
 					} catch (ClassCastException ex) {
 						LOGGER.error("The provided "
 								+ ITimelineBandProvider.class.getSimpleName()
@@ -62,20 +58,15 @@ public class Activator extends AbstractUIPlugin {
 		}
 
 		// sort alphabetically
-		Collections
-				.sort(registeredTimelineBandProviders,
-						new Comparator<ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>>() {
-							@Override
-							public int compare(
-									ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> o1,
-									ITimelineBandProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> o2) {
-								return o1
-										.getClass()
-										.getSimpleName()
-										.compareTo(
-												o2.getClass().getSimpleName());
-							}
-						});
+		Collections.sort(registeredTimelineBandProviders,
+				new Comparator<ITimelineBandProvider<INPUT>>() {
+					@Override
+					public int compare(ITimelineBandProvider<INPUT> o1,
+							ITimelineBandProvider<INPUT> o2) {
+						return o1.getClass().getSimpleName()
+								.compareTo(o2.getClass().getSimpleName());
+					}
+				});
 		return registeredTimelineBandProviders;
 	}
 

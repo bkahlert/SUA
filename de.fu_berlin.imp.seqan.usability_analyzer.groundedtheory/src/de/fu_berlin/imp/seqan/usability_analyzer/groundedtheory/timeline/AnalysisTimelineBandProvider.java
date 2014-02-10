@@ -10,19 +10,21 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.nebula.utils.ImageUtils;
-import com.bkahlert.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.BaseTimelineGroup;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -36,9 +38,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 
-public class AnalysisTimelineBandProvider
-		implements
-		ITimelineBandProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> {
+public class AnalysisTimelineBandProvider implements
+		ITimelineBandProvider<IIdentifier> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AnalysisTimelineBandProvider.class);
@@ -48,8 +49,8 @@ public class AnalysisTimelineBandProvider
 	}
 
 	@Override
-	public ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> getContentProvider() {
-		return new ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>, TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier>() {
+	public ITimelineContentProvider<IIdentifier> getContentProvider() {
+		return new ITimelineContentProvider<IIdentifier>() {
 
 			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
@@ -82,20 +83,20 @@ public class AnalysisTimelineBandProvider
 
 			private IIdentifier input = null;
 			private TimelineRefresher timelineRefresher = null;
-			private TimelineGroup<ITimeline, IIdentifier> timelineGroup = null;
+			private BaseTimelineGroup<? extends IBaseTimeline, IIdentifier> timelineGroup = null;
 
 			@Override
-			public void inputChanged(
-					MinimalTimelineGroupViewer<TimelineGroup<ITimeline, IIdentifier>, ITimeline, IIdentifier> viewer,
+			public <TIMELINE extends IBaseTimeline> void inputChanged(
+					ITimelineGroupViewer<TIMELINE, IIdentifier> viewer,
 					IIdentifier oldInput, IIdentifier newInput) {
 				this.input = newInput;
-				if (this.timelineGroup != null) {
-					this.timelineGroup
+				if (this.timelineGroup instanceof TimelineGroup<?, ?>) {
+					((TimelineGroup<?, ?>) this.timelineGroup)
 							.removeTimelineListener(this.timelineListener);
 				}
 				if (viewer != null && viewer.getControl() != null) {
 					this.timelineGroup = viewer.getControl();
-					this.timelineGroup
+					((TimelineGroup<?, ?>) this.timelineGroup)
 							.addTimelineListener(this.timelineListener);
 				}
 
@@ -104,7 +105,10 @@ public class AnalysisTimelineBandProvider
 				} else if (oldInput == null && newInput == null) {
 					// do nothing
 				} else if (oldInput == null && newInput != null) {
-					this.timelineRefresher = new TimelineRefresher(viewer, 500);
+					if (viewer instanceof Viewer) {
+						this.timelineRefresher = new TimelineRefresher(
+								(Viewer) viewer, 500);
+					}
 					this.codeService
 							.addCodeServiceListener(this.timelineRefresher);
 				} else {
