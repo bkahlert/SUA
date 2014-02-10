@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -132,7 +133,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						// we do not use diffLabelProvider here because we want
@@ -176,7 +177,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						if (type == IDiff.class) {
@@ -199,7 +200,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						if (type == IDiffRecord.class) {
@@ -234,7 +235,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						if (type == IDiff.class) {
@@ -269,7 +270,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						if (type == IDiffs.class) {
@@ -296,9 +297,9 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 				URI uri1 = (URI) o1;
 				URI uri2 = (URI) o2;
-				Class<? extends ILocatable> type1 = locatorService
+				Class<? extends ILocatable> type1 = DiffListsViewer.this.locatorService
 						.getType(uri1);
-				Class<? extends ILocatable> type2 = locatorService
+				Class<? extends ILocatable> type2 = DiffListsViewer.this.locatorService
 						.getType(uri2);
 
 				if (type1 == IDiff.class && type2 == IDiff.class) {
@@ -334,7 +335,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 
 					@Override
 					public Color getBackground(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						if (type == IDiff.class) {
@@ -365,7 +366,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						TimeZoneDateRange range = null;
@@ -397,7 +398,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = locatorService
+						Class<? extends ILocatable> type = DiffListsViewer.this.locatorService
 								.getType(uri);
 
 						TimeZoneDateRange range = null;
@@ -440,13 +441,14 @@ public class DiffListsViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, TimeZoneDateRange[] dataRanges) {
+			TreeItem[] treeItems, CalendarRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, IDiffRecord.class)) {
 			IDiffRecord diffRecord = (IDiffRecord) item.getData();
-			for (TimeZoneDateRange dateRange : dataRanges) {
-				if (dateRange.isIntersected(diffRecord.getDateRange())) {
+			for (CalendarRange dateRange : dataRanges) {
+				if (dateRange.isIntersected(diffRecord.getDateRange()
+						.getCalendarRange())) {
 					treePaths.add(new TreePath(new Object[] { diffRecord }));
 					break;
 				}
@@ -472,7 +474,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, IIdentifier identifier,
-			TimeZoneDateRange[] dataRanges) {
+			CalendarRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, IDiffs.class)) {

@@ -41,6 +41,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -101,13 +102,13 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	private final IHighlightService highlightService;
 	private final IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
-		public void highlight(Object sender, TimeZoneDateRange[] ranges,
+		public void highlight(Object sender, CalendarRange[] ranges,
 				boolean moveInsideViewport) {
 			if (DoclogExplorerView.this.loadedIdentifiers == null
 					|| DoclogExplorerView.this.loadedIdentifiers.size() == 0) {
 				return;
 			}
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges = new HashMap<IIdentifier, TimeZoneDateRange[]>();
+			Map<IIdentifier, CalendarRange[]> groupedRanges = new HashMap<IIdentifier, CalendarRange[]>();
 			for (IIdentifier loadedIdentifier : DoclogExplorerView.this.loadedIdentifiers) {
 				groupedRanges.put(loadedIdentifier, ranges);
 			}
@@ -116,7 +117,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 		@Override
 		public void highlight(Object sender,
-				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				boolean moveInsideViewport) {
 			if (sender == DoclogExplorerView.this) {
 				return;
@@ -129,7 +130,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
 					for (IIdentifier identifier : groupedRanges.keySet()) {
-						TimeZoneDateRange[] dataRanges = groupedRanges
+						CalendarRange[] dataRanges = groupedRanges
 								.get(identifier);
 						TreeItem[] treeItems = DoclogExplorerView.this.treeViewer
 								.getTree().getItems();

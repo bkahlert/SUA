@@ -183,7 +183,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 										TimeZoneDateRange.class);
 						if (range != null) {
 							AbstractMemoView.this.highlightService.highlight(
-									AbstractMemoView.this, range, true);
+									AbstractMemoView.this,
+									range.getCalendarRange(), true);
 						}
 
 						// open element

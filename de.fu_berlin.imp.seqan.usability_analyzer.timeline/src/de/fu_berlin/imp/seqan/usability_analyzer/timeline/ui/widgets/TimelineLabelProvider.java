@@ -56,9 +56,14 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	}
 
 	private static IDataSetInfo getDataSetInfo() {
-		return ((IDataService) PlatformUI.getWorkbench().getService(
-				IDataService.class)).getActiveDataDirectories().get(0)
-				.getInfo();
+		IDataService dataService = (IDataService) PlatformUI.getWorkbench()
+				.getService(IDataService.class);
+		if (dataService.getActiveDataDirectories() != null
+				&& dataService.getActiveDataDirectories().size() > 0) {
+			return dataService.getActiveDataDirectories().get(0).getInfo();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -83,7 +88,8 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 
 		if (centerVisibleDate == null) {
 			IDataSetInfo dataSetInfo = getDataSetInfo();
-			centerVisibleDate = dataSetInfo.getDateRange() != null
+			centerVisibleDate = dataSetInfo != null
+					&& dataSetInfo.getDateRange() != null
 					&& dataSetInfo.getDateRange().getStartDate() != null ? dataSetInfo
 					.getDateRange().getStartDate().getCalendar()
 					: null;
@@ -95,23 +101,33 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	@Override
 	public IHotZone[] getHotZones(TIMELINE timeline) {
 		IDataSetInfo dataSetInfo = getDataSetInfo();
-		return new IHotZone[] { new HotZone(dataSetInfo.getDateRange()
-				.getStartDate().toISO8601(), dataSetInfo.getDateRange()
-				.getEndDate().toISO8601()) };
+		if (dataSetInfo != null && dataSetInfo.getDateRange() != null) {
+			TimeZoneDateRange dateRange = dataSetInfo.getDateRange();
+			if (dateRange.getStartDate() != null
+					&& dateRange.getEndDate() != null) {
+				return new IHotZone[] { new HotZone(dateRange.getStartDate()
+						.toISO8601(), dateRange.getEndDate().toISO8601()) };
+			}
+		}
+		return new IHotZone[0];
 	}
 
 	@Override
 	public IDecorator[] getDecorators(TIMELINE timeline) {
 		IDataSetInfo dataSetInfo = getDataSetInfo();
-		TimeZoneDateRange range = dataSetInfo.getDateRange();
 
-		Calendar decoratorStart = range.getStartDate() != null ? range
-				.getStartDate().getCalendar() : null;
-		Calendar decoratorEnd = range.getEndDate() != null ? range.getEndDate()
-				.getCalendar() : null;
+		if (dataSetInfo != null && dataSetInfo.getDateRange() != null) {
+			TimeZoneDateRange range = dataSetInfo.getDateRange();
 
-		return new IDecorator[] { new Decorator(decoratorStart,
-				dataSetInfo.getName(), decoratorEnd, dataSetInfo.getName()) };
+			Calendar decoratorStart = range.getStartDate() != null ? range
+					.getStartDate().getCalendar() : null;
+			Calendar decoratorEnd = range.getEndDate() != null ? range
+					.getEndDate().getCalendar() : null;
+
+			return new IDecorator[] { new Decorator(decoratorStart,
+					dataSetInfo.getName(), decoratorEnd, dataSetInfo.getName()) };
+		}
+		return new IDecorator[0];
 	}
 
 	@Override
@@ -195,11 +211,13 @@ public class TimelineLabelProvider<TIMELINE extends IBaseTimeline> implements
 	@Override
 	public Float getTimeZone(TIMELINE timeline) {
 		IDataSetInfo dataSetInfo = getDataSetInfo();
-		TimeZoneDateRange range = dataSetInfo.getDateRange();
-		if (range.getStartDate() != null) {
-			float offset = (range.getStartDate().getLocalTime() - range
-					.getStartDate().getTime()) / 3600000f; // e.g. 2 or -5.5
-			return offset;
+		if (dataSetInfo != null && dataSetInfo.getDateRange() != null) {
+			TimeZoneDateRange range = dataSetInfo.getDateRange();
+			if (range.getStartDate() != null) {
+				float offset = (range.getStartDate().getLocalTime() - range
+						.getStartDate().getTime()) / 3600000f; // e.g. 2 or -5.5
+				return offset;
+			}
 		}
 		return null;
 	}

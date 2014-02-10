@@ -23,6 +23,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.WorkSession;

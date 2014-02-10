@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 import java.util.Map;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -29,7 +30,7 @@ public interface IHighlightServiceListener {
 	 * @param moveInsideViewport
 	 * @see IHighlightService#highlight(TimeZoneDateRange[])
 	 */
-	public void highlight(Object sender, TimeZoneDateRange[] ranges,
+	public void highlight(Object sender, CalendarRange[] ranges,
 			boolean moveInsideViewport);
 
 	/**
@@ -47,7 +48,7 @@ public interface IHighlightServiceListener {
 	 * @see IHighlightService#highlight(Map)
 	 */
 	public void highlight(Object sender,
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			Map<IIdentifier, CalendarRange[]> groupedRanges,
 			boolean moveInsideViewport);
 
 }

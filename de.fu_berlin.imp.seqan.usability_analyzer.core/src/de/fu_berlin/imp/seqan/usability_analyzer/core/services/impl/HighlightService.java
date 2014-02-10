@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -24,7 +25,7 @@ public class HighlightService implements IHighlightService {
 	private static final Logger LOGGER = Logger
 			.getLogger(HighlightService.class);
 
-	private HighlightServiceListenerNotifier notifier = new HighlightServiceListenerNotifier();
+	private final HighlightServiceListenerNotifier notifier = new HighlightServiceListenerNotifier();
 
 	public HighlightService() {
 	}
@@ -42,16 +43,16 @@ public class HighlightService implements IHighlightService {
 	}
 
 	@Override
-	public void highlight(Object sender, TimeZoneDateRange range,
+	public void highlight(Object sender, CalendarRange range,
 			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(range);
-		this.highlight(sender, new TimeZoneDateRange[] { range },
+		this.highlight(sender, new CalendarRange[] { range },
 				moveInsideViewport);
 	}
 
 	@Override
-	public void highlight(Object sender, TimeZoneDateRange[] ranges,
+	public void highlight(Object sender, CalendarRange[] ranges,
 			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(ranges);
@@ -61,7 +62,7 @@ public class HighlightService implements IHighlightService {
 
 	@Override
 	public void highlight(Object sender,
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			Map<IIdentifier, CalendarRange[]> groupedRanges,
 			boolean moveInsideViewport) {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(groupedRanges);
@@ -77,7 +78,7 @@ public class HighlightService implements IHighlightService {
 
 		List<HasIdentifier> identifiables = SelectionUtils.getAdaptableObjects(
 				selection, HasIdentifier.class);
-		Map<IIdentifier, List<TimeZoneDateRange>> groupedRanges = new HashMap<IIdentifier, List<TimeZoneDateRange>>();
+		Map<IIdentifier, List<CalendarRange>> groupedRanges = new HashMap<IIdentifier, List<CalendarRange>>();
 		for (HasIdentifier identifiable : identifiables) {
 			TimeZoneDateRange range = (TimeZoneDateRange) Platform
 					.getAdapterManager().getAdapter(identifiable,
@@ -86,16 +87,16 @@ public class HighlightService implements IHighlightService {
 				IIdentifier identifier = identifiable.getIdentifier();
 				if (!groupedRanges.containsKey(identifier)) {
 					groupedRanges.put(identifier,
-							new ArrayList<TimeZoneDateRange>());
+							new ArrayList<CalendarRange>());
 				}
-				groupedRanges.get(identifier).add(range);
+				groupedRanges.get(identifier).add(range.getCalendarRange());
 			}
 		}
 
-		Map<IIdentifier, TimeZoneDateRange[]> groupedRangesArr = new HashMap<IIdentifier, TimeZoneDateRange[]>();
+		Map<IIdentifier, CalendarRange[]> groupedRangesArr = new HashMap<IIdentifier, CalendarRange[]>();
 		for (IIdentifier identifier : groupedRanges.keySet()) {
 			groupedRangesArr.put(identifier, groupedRanges.get(identifier)
-					.toArray(new TimeZoneDateRange[0]));
+					.toArray(new CalendarRange[0]));
 		}
 
 		if (!groupedRangesArr.isEmpty()) {

@@ -87,6 +87,12 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 		return this.endDate;
 	}
 
+	public CalendarRange getCalendarRange() {
+		return new CalendarRange(
+				this.startDate != null ? this.startDate.getCalendar() : null,
+				this.endDate != null ? this.endDate.getCalendar() : null);
+	}
+
 	public Long getDifference() {
 		if (this.startDate == null) {
 			return null;

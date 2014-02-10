@@ -144,7 +144,7 @@ public class AnalysisTimelineBandProvider
 				switch ((BANDS) band) {
 				case CODE_BAND:
 					Set<IEpisode> episodes = codeService
-							.getEpisodes((IIdentifier) this.input);
+							.getEpisodes(this.input);
 					monitor.worked(2);
 					return episodes.toArray();
 				}
@@ -197,10 +197,10 @@ public class AnalysisTimelineBandProvider
 	public ITimelineEventLabelProvider getEventLabelProvider() {
 		return new ITimelineEventLabelProvider() {
 
-			private ICodeService codeService = (ICodeService) PlatformUI
+			private final ICodeService codeService = (ICodeService) PlatformUI
 					.getWorkbench().getService(ICodeService.class);
 
-			private ILabelProvider episodeLabelProvider = new GTLabelProvider();
+			private final ILabelProvider episodeLabelProvider = new GTLabelProvider();
 
 			@Override
 			public String getTitle(Object event) {

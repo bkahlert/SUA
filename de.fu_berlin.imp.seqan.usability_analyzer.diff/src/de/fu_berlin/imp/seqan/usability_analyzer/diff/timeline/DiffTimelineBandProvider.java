@@ -119,10 +119,15 @@ public class DiffTimelineBandProvider
 					return new Object[0];
 				}
 
-				final IDiffs diffList = (this.input instanceof IIdentifier) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+				final IDiffs diffList = (this.input instanceof IIdentifier && de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
+						.getDefault().getDiffDataContainer() != null) ? de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator
 						.getDefault().getDiffDataContainer()
 						.getDiffFiles(this.input, subMonitor.newChild(1))
 						: null;
+
+				if (diffList == null) {
+					return new Object[0];
+				}
 
 				switch ((BANDS) band) {
 				case DIFF_BAND:

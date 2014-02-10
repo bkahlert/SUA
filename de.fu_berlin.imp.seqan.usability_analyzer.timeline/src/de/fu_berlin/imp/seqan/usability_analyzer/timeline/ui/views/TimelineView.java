@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -110,13 +111,13 @@ public class TimelineView extends ViewPart {
 	private final IHighlightService highlightService;
 	private final IHighlightServiceListener highlightServiceListener = new IHighlightServiceListener() {
 		@Override
-		public void highlight(Object sender, TimeZoneDateRange[] ranges,
+		public void highlight(Object sender, CalendarRange[] ranges,
 				boolean moveInsideViewport) {
 			if (TimelineView.this.openedIdentifiers == null
 					|| TimelineView.this.openedIdentifiers.size() == 0) {
 				return;
 			}
-			Map<IIdentifier, TimeZoneDateRange[]> groupedRanges = new HashMap<IIdentifier, TimeZoneDateRange[]>();
+			Map<IIdentifier, CalendarRange[]> groupedRanges = new HashMap<IIdentifier, CalendarRange[]>();
 			for (IIdentifier loadedIdentifier : TimelineView.this.openedIdentifiers) {
 				groupedRanges.put(loadedIdentifier, ranges);
 			}
@@ -125,13 +126,13 @@ public class TimelineView extends ViewPart {
 
 		@Override
 		public void highlight(Object sender,
-				final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				final boolean moveInsideViewport) {
 			if (sender == TimelineView.this) {
 				return;
 			}
 
-			final Map<Object, TimeZoneDate> centeredDates = new HashMap<Object, TimeZoneDate>();
+			final Map<Object, Calendar> centeredDates = new HashMap<Object, Calendar>();
 			// if (part == TimelineView.this) {
 			// if (TimelineView.this.openedIdentifiers == null) {
 			// return;
@@ -156,9 +157,8 @@ public class TimelineView extends ViewPart {
 			// }
 			// } else {
 			for (IIdentifier key : groupedRanges.keySet()) {
-				TimeZoneDate centeredDate = TimeZoneDateRange
-						.calculateOuterDateRange(groupedRanges.get(key))
-						.getStartDate();
+				Calendar centeredDate = CalendarRange.calculateOuterDateRange(
+						groupedRanges.get(key)).getStartDate();
 				centeredDates.put(key, centeredDate);
 			}
 			// }
@@ -323,8 +323,10 @@ public class TimelineView extends ViewPart {
 			ITimelineProviderFactory<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> {
 		@Override
 		public ITimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> createTimelineProvider() {
+
 			ITimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineProvider;
 			ITimelineLabelProvider<InformationPresentingTimeline> timelineLabelProvider = new TimelineLabelProvider<InformationPresentingTimeline>();
+
 			List<IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>> bandGroupProviders = new ArrayList<IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>>();
 			for (ITimelineBandProvider<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> bandProvider : Activator
 					.<MinimalTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>, TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> getRegisteredTimelineBandProviders()) {

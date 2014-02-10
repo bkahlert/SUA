@@ -81,13 +81,14 @@ public class DoclogTimelineBandProvider
 					return new Object[0];
 				}
 
-				final Doclog doclog = (this.input instanceof IIdentifier) ? Activator
+				final Doclog doclog = (this.input instanceof IIdentifier && Activator
+						.getDefault().getDoclogContainer() != null) ? Activator
 						.getDefault().getDoclogContainer()
 						.getDoclogFile(this.input, subMonitor.newChild(1))
 						: null;
 
 				if (doclog == null) {
-					return null;
+					return new Object[0];
 				}
 
 				switch ((BANDS) band) {

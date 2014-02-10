@@ -71,7 +71,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 					@Override
 					public String getText(URI uri) throws Exception {
 						if (locatorService.getType(uri) == Doclog.class) {
-							return doclogLabelProvider.getText(uri);
+							return this.doclogLabelProvider.getText(uri);
 						}
 						if (locatorService.getType(uri) == DoclogRecord.class) {
 							DoclogRecord doclogRecord = locatorService.resolve(
@@ -86,7 +86,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 
 					@Override
 					public Image getImage(URI uri) throws Exception {
-						return doclogLabelProvider.getImage(uri);
+						return this.doclogLabelProvider.getImage(uri);
 					}
 				});
 
@@ -301,13 +301,14 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, TimeZoneDateRange[] dataRanges) {
+			TreeItem[] treeItems, CalendarRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, DoclogRecord.class)) {
 			DoclogRecord doclogRecord = (DoclogRecord) item.getData();
-			for (TimeZoneDateRange dateRange : dataRanges) {
-				if (dateRange.isIntersected(doclogRecord.getDateRange())) {
+			for (CalendarRange dateRange : dataRanges) {
+				if (dateRange.isIntersected(doclogRecord.getDateRange()
+						.getCalendarRange())) {
 					treePaths.add(new TreePath(new Object[] { doclogRecord }));
 					break;
 				}
@@ -333,7 +334,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, IIdentifier identifier,
-			TimeZoneDateRange[] dataRanges) {
+			CalendarRange[] dataRanges) {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, Doclog.class)) {

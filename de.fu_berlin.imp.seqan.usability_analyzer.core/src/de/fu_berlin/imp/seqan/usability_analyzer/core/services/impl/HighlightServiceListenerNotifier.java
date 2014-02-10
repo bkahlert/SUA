@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
 
@@ -25,8 +25,8 @@ public class HighlightServiceListenerNotifier {
 		this.highlightServiceListeners.remove(highlightServiceListener);
 	}
 
-	public void highlight(final Object sender,
-			final TimeZoneDateRange[] ranges, final boolean moveInsideViewport) {
+	public void highlight(final Object sender, final CalendarRange[] ranges,
+			final boolean moveInsideViewport) {
 		EXECUTOR_UTIL
 				.customNonUIAsyncExec(
 						DataServiceListenerNotifier.class,
@@ -45,7 +45,7 @@ public class HighlightServiceListenerNotifier {
 	}
 
 	public void highlight(final Object sender,
-			final Map<IIdentifier, TimeZoneDateRange[]> groupedRanges,
+			final Map<IIdentifier, CalendarRange[]> groupedRanges,
 			final boolean moveInsideViewport) {
 		EXECUTOR_UTIL
 				.customNonUIAsyncExec(

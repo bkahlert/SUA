@@ -75,6 +75,7 @@ public class InformationPresentingTimeline extends Timeline {
 	public InformationPresentingTimeline(Composite parent, int style) {
 
 		super(parent, style);
+
 		try {
 			this.injectCssFile(getFileUrl(InformationPresentingTimeline.class,
 					"style.css"));
