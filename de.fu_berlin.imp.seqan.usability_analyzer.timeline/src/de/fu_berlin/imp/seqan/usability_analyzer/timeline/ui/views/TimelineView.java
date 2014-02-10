@@ -31,7 +31,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
@@ -45,17 +44,12 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineP
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
@@ -97,8 +91,9 @@ public class TimelineView extends ViewPart {
 					workSession.getEntities(), IIdentifier.class));
 			final Set<IIdentifier> filteredKeys = this
 					.filterValidIdentifiers(keys);
+
 			TimelineView.this.open(filteredKeys);
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					TimelineView.this.setPartName(StringUtils.join(
@@ -132,7 +127,7 @@ public class TimelineView extends ViewPart {
 				return;
 			}
 
-			final Map<Object, Calendar> centeredDates = new HashMap<Object, Calendar>();
+			final Map<IIdentifier, Calendar> centeredDates = new HashMap<IIdentifier, Calendar>();
 			// if (part == TimelineView.this) {
 			// if (TimelineView.this.openedIdentifiers == null) {
 			// return;
@@ -183,8 +178,9 @@ public class TimelineView extends ViewPart {
 								TimelineView.this.timelineGroupViewer
 										.highlight(groupedRanges,
 												subMonitor.newChild(1));
-								TimelineView.this.timelineGroupViewer.center(
-										centeredDates, subMonitor.newChild(1));
+								TimelineView.this.timelineGroupViewer
+										.setCenterVisibleDate(centeredDates,
+												subMonitor.newChild(1));
 							} else {
 								TimelineView.this.timelineGroupViewer
 										.highlight(groupedRanges,
@@ -201,7 +197,7 @@ public class TimelineView extends ViewPart {
 	};
 
 	private TimelineGroup<InformationPresentingTimeline, IIdentifier> timelineGroup;
-	private HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineGroupViewer;
+	private TimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier> timelineGroupViewer;
 
 	private Set<IIdentifier> openedIdentifiers = null;
 
@@ -258,38 +254,43 @@ public class TimelineView extends ViewPart {
 		// must be called synchronously; switching to another thread
 		// would allow Eclipse to close completely before we
 		// accessed the widgets
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (TimelineView.this.timelineGroup != null
-						&& !TimelineView.this.timelineGroup.isDisposed()) {
-					final Set<IIdentifier> inputs = TimelineView.this.timelineGroup
-							.getTimelineKeys();
-					for (final IIdentifier identifier : inputs) {
-						try {
-							ITimeline timeline = TimelineView.this.timelineGroup
-									.getTimeline(identifier);
-							Calendar centerVisibleDate = timeline
-									.getCenterVisibleDate().get();
-							Integer zoomIndex = timeline.getZoomIndex().get();
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (TimelineView.this.timelineGroup != null
+							&& !TimelineView.this.timelineGroup.isDisposed()) {
+						final Set<IIdentifier> inputs = TimelineView.this.timelineGroup
+								.getTimelineKeys();
+						for (final IIdentifier identifier : inputs) {
+							try {
+								ITimeline timeline = TimelineView.this.timelineGroup
+										.getTimeline(identifier);
+								Calendar centerVisibleDate = timeline
+										.getCenterVisibleDate().get();
+								Integer zoomIndex = timeline.getZoomIndex()
+										.get();
 
-							SUATimelinePreferenceUtil util = new SUATimelinePreferenceUtil();
-							if (centerVisibleDate != null) {
-								util.setCenterStartDate(identifier,
-										centerVisibleDate);
+								SUATimelinePreferenceUtil util = new SUATimelinePreferenceUtil();
+								if (centerVisibleDate != null) {
+									util.setCenterStartDate(identifier,
+											centerVisibleDate);
+								}
+								if (zoomIndex != null) {
+									util.setZoomIndex(identifier, zoomIndex);
+								}
+							} catch (Exception e) {
+								LOGGER.error("Error saving state of "
+										+ ITimeline.class.getSimpleName() + " "
+										+ identifier, e);
 							}
-							if (zoomIndex != null) {
-								util.setZoomIndex(identifier, zoomIndex);
-							}
-						} catch (Exception e) {
-							LOGGER.error("Error saving state of "
-									+ ITimeline.class.getSimpleName() + " "
-									+ identifier, e);
 						}
 					}
 				}
-			}
-		});
+			});
+		} catch (Exception e) {
+			LOGGER.error("Error saving timeline states", e);
+		}
 	}
 
 	@Override
@@ -376,8 +377,9 @@ public class TimelineView extends ViewPart {
 		Menu menu = menuManager.createContextMenu(this.timelineGroup);
 		this.timelineGroup.setMenu(menu);
 
-		this.timelineGroupViewer = new HighlightableTimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>(
+		this.timelineGroupViewer = new TimelineGroupViewer<TimelineGroup<InformationPresentingTimeline, IIdentifier>, InformationPresentingTimeline, IIdentifier>(
 				this.timelineGroup, timelineProviderFactory);
+
 		this.getSite().registerContextMenu(menuManager,
 				this.timelineGroupViewer);
 		this.getSite().setSelectionProvider(this.timelineGroupViewer);

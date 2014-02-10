@@ -54,7 +54,7 @@ public abstract class UriPresentingEditorView extends EditorView<URI> {
 				new ISubjectInformationProvider<Editor<URI>, URI>() {
 					private URI hoveredUri = null;
 
-					private IAnkerListener ankerListener = new AnkerAdaptingListener(
+					private final IAnkerListener ankerListener = new AnkerAdaptingListener(
 							new URIAdapter() {
 								@Override
 								public void uriHovered(URI uri, boolean entered) {
