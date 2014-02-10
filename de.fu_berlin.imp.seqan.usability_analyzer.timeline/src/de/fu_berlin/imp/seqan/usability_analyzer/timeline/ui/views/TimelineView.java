@@ -43,9 +43,9 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.BandGroup
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;

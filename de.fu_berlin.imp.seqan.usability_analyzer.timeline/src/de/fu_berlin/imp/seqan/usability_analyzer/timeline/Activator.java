@@ -14,7 +14,7 @@ import org.osgi.framework.BundleContext;
 
 import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.extensionProviders.ITimelineBandProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView;
