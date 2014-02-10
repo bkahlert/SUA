@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
@@ -19,6 +18,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 import com.bkahlert.devel.nebula.widgets.timeline.model.Unit;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataSetInfo;

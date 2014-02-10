@@ -12,15 +12,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
