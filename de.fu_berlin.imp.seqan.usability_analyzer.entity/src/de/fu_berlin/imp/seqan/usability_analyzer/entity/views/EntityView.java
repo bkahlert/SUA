@@ -211,7 +211,13 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 		if (this.entityViewer != null
 				&& !this.entityViewer.getControl().isDisposed()) {
 			this.entityViewer.getControl().setFocus();
-			this.entityViewer.setInput(Activator.getDefault().getLoadedData());
+			if (this.entityViewer.getInput() != Activator.getDefault()
+					.getLoadedData()) {
+				TimePassed timePassed = new TimePassed("setFocus");
+				this.entityViewer.setInput(Activator.getDefault()
+						.getLoadedData());
+				timePassed.finished();
+			}
 		}
 	}
 

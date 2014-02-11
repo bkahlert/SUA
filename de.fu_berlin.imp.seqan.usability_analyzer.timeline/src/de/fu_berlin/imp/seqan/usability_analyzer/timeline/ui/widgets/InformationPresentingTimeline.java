@@ -35,7 +35,7 @@ public class InformationPresentingTimeline extends Timeline {
 	private static final Logger LOGGER = Logger
 			.getLogger(InformationPresentingTimeline.class);
 
-	// TODO move everything related to HighlightableTimelineGroupViewer
+	// TODO move everything related to TimelineGroupViewer
 	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
@@ -89,7 +89,7 @@ public class InformationPresentingTimeline extends Timeline {
 		this.informationPresenterService
 				.enable(this,
 						new ISubjectInformationProvider<InformationPresentingTimeline, URI>() {
-							private ITimelineListener timelineListener = new TimelineAdapter() {
+							private final ITimelineListener timelineListener = new TimelineAdapter() {
 								@Override
 								public void hoveredIn(TimelineEvent event) {
 									if (ILocatable.class.isInstance(event

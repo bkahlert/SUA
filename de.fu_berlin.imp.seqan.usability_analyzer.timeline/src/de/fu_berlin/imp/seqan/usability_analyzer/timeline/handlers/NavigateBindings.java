@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.handlers;
 
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -15,16 +17,13 @@ import org.eclipse.ui.handlers.IHandlerService;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-
-public class NavigateBindings implements
-		IInformationControlExtender<ILocatable> {
+public class NavigateBindings implements IInformationControlExtender<URI> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(NavigateBindings.class);
 
-	private Listener listener = new Listener() {
-		private IHandlerService handlerService = (IHandlerService) PlatformUI
+	private final Listener listener = new Listener() {
+		private final IHandlerService handlerService = (IHandlerService) PlatformUI
 				.getWorkbench().getService(IHandlerService.class);
 
 		@Override
@@ -47,10 +46,15 @@ public class NavigateBindings implements
 		}
 	};
 
+	@Override
+	public Class<URI> getInformationClass() {
+		return URI.class;
+	}
+
 	private Shell shell = null;
 
 	@Override
-	public void extend(InformationControl<ILocatable> informationControl,
+	public void extend(InformationControl<URI> informationControl,
 			Composite parent) {
 		this.shell = parent.getShell();
 		Display.getCurrent().addFilter(SWT.KeyDown, this.listener);
@@ -64,8 +68,8 @@ public class NavigateBindings implements
 	}
 
 	@Override
-	public void extend(InformationControl<ILocatable> informationControl,
-			ILocatable information) {
+	public void extend(InformationControl<URI> informationControl,
+			URI information) {
 		return;
 	}
 
