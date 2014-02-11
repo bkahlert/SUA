@@ -35,6 +35,11 @@ public class CodeInformationControlExtender implements
 	}
 
 	@Override
+	public Class<URI> getInformationClass() {
+		return URI.class;
+	}
+
+	@Override
 	public void extend(InformationControl<URI> informationControl,
 			Composite parent) {
 		this.codeInstanceViewer = new CodeInstanceViewer(parent, SWT.NONE);

@@ -1061,12 +1061,10 @@
    <extension
          point="com.bkahlert.nebula.information">
       <extender
-            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.MemoInformationControlExtender"
-            informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.MemoInformationControlExtender">
       </extender>
       <extender
-            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.CodeInformationControlExtender"
-            informationClass="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+            extenderClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.information.CodeInformationControlExtender">
       </extender>
    </extension>
 </plugin>

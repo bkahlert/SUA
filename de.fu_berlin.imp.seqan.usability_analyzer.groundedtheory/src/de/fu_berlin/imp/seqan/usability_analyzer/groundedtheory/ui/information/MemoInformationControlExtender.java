@@ -18,12 +18,17 @@ public class MemoInformationControlExtender extends
 	private static final Logger LOGGER = Logger
 			.getLogger(MemoInformationControlExtender.class);
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	public MemoInformationControlExtender() {
 		super(GridDataFactory.fillDefaults().grab(true, true).hint(450, 350)
 				.minSize(450, 300));
+	}
+
+	@Override
+	public Class<URI> getInformationClass() {
+		return URI.class;
 	}
 
 	@Override
