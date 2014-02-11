@@ -9,7 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		de.fu_berlin.imp.seqan.usability_analyzer.diff.model.diff.AllTests.class,
 		de.fu_berlin.imp.seqan.usability_analyzer.diff.model.source.AllTests.class,
 		DiffFileRecordTest.class, DiffFileDirectoryTest.class,
-		DiffFileTest.class })
+		DiffTest.class })
 public class AllTests {
 
 }

@@ -22,7 +22,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffFileTest;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.DiffTest;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
@@ -80,7 +80,7 @@ public class DiffRecordUtilsTest {
 	@Test
 	public void testGetRecordsFromSegments() throws IllegalArgumentException,
 			URISyntaxException {
-		IDiff diff = DiffFileTest
+		IDiff diff = DiffTest
 				.getDiffFile(
 						"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff",
 						IdentifierFactory.createFrom("o6lmo5tpxvn3b6fg"), 48l,

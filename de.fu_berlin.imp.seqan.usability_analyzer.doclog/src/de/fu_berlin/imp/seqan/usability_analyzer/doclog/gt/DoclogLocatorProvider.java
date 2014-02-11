@@ -74,7 +74,9 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 
 	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
-		if (this.isResolvabilityImpossible(uri)) {
+		if (this.isResolvabilityImpossible(uri)
+				|| Activator.getDefault() == null
+				|| Activator.getDefault().getDoclogContainer() == null) {
 			return null;
 		}
 		String[] path = uri.getRawPath().substring(1).split("/");

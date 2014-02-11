@@ -44,6 +44,11 @@ public class DiffDataUtils {
 			Matcher matcher = Diff.PATTERN.matcher(data.getName());
 			if (matcher.find()) {
 				revision = matcher.group(2);
+				try {
+					Integer shortRevision = Integer.valueOf(revision);
+					revision = shortRevision.toString();
+				} catch (NumberFormatException e) {
+				}
 			}
 		} else if (Diff.ZIPPED_PATTERN.matcher(data.getName()).matches()) {
 			Matcher matcher = Diff.ZIPPED_PATTERN.matcher(data.getName());

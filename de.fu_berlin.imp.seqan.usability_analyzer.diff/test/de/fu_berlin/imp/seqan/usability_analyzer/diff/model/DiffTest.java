@@ -25,7 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.ITrunk;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.SourceCache;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.Trunk;
 
-public class DiffFileTest {
+public class DiffTest {
 
 	private static final String root = "/"
 			+ DiffFileDirectoryTest.class.getPackage().getName()
@@ -72,7 +72,7 @@ public class DiffFileTest {
 										"some/dir/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 
 		Assert.assertEquals(
-				"00000048",
+				"48",
 				DiffDataUtils
 						.getRevision(new FileData(
 								baseContainer,
@@ -80,7 +80,7 @@ public class DiffFileTest {
 								new File(
 										"o6lmo5tpxvn3b6fg/o6lmo5tpxvn3b6fg_r00000048_2011-09-13T12-11-02.diff"))));
 		Assert.assertEquals(
-				"00000048",
+				"48",
 				DiffDataUtils
 						.getRevision(new FileData(
 								baseContainer,

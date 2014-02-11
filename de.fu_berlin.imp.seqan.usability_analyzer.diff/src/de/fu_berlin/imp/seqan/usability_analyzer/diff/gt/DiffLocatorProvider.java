@@ -93,7 +93,9 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 
 	@Override
 	public ILocatable getObject(URI uri, IProgressMonitor monitor) {
-		if (this.isResolvabilityImpossible(uri)) {
+		if (this.isResolvabilityImpossible(uri)
+				|| Activator.getDefault() == null
+				|| Activator.getDefault().getDiffDataContainer() == null) {
 			return null;
 		}
 
@@ -121,7 +123,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 				break;
 			}
 		}
-		if (trail.size() < 2) {
+		if (trail.size() < 2 || diff == null) {
 			return diff;
 		}
 		String diffFileRecordName;
