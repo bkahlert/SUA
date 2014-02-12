@@ -1,10 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
@@ -23,7 +24,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
  */
 public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
-	private Calendar calendar;
+	private final Calendar calendar;
 
 	/**
 	 * Constructs a new instance that describes this very moment (now).
@@ -65,8 +66,9 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * @param timeZone
 	 */
 	public TimeZoneDate(Calendar calendar) {
-		if (calendar == null)
+		if (calendar == null) {
 			throw new IllegalArgumentException("calendar must not be null");
+		}
 		this.calendar = calendar;
 	}
 
@@ -78,7 +80,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * @return
 	 */
 	public String format(String pattern) {
-		return this.format(new SimpleDateFormat(pattern));
+		return CalendarUtils.format(this.getCalendar(), pattern);
 	}
 
 	/**
@@ -89,8 +91,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * @return
 	 */
 	public String format(DateFormat dateFormat) {
-		dateFormat.setTimeZone(calendar.getTimeZone());
-		return dateFormat.format(this.calendar.getTime());
+		return CalendarUtils.format(this.getCalendar(), dateFormat);
 	}
 
 	/**
@@ -140,8 +141,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * @return
 	 */
 	public long getLocalTime() {
-		return calendar.getTimeInMillis()
-				+ calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
+		return CalendarUtils.getLocalTime(this.calendar);
 	}
 
 	/**
@@ -154,15 +154,13 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	}
 
 	public TimeZoneDate addMilliseconds(Long amount) {
-		if (amount != null)
-			this.calendar.add(Calendar.MILLISECOND, (int) amount.floatValue());
+		CalendarUtils.addMilliseconds(this.calendar, amount);
 		return this;
 	}
 
 	public int compareToTimeZoneLess(TimeZoneDate date) {
-		long localTime = this.getLocalTime();
-		long otherLocalTime = date.getLocalTime();
-		return new Long(localTime).compareTo(otherLocalTime);
+		return CalendarUtils
+				.compareToTimeZoneLess(this.calendar, date.calendar);
 	}
 
 	public TimeZoneDate addMilliseconds(int amount) {
@@ -171,11 +169,11 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	}
 
 	public boolean before(TimeZoneDate date) {
-		return date.compareTo(this) > 0;
+		return CalendarUtils.before(this.calendar, date.calendar);
 	}
 
 	public boolean after(TimeZoneDate date) {
-		return date.compareTo(this) < 0;
+		return CalendarUtils.after(this.calendar, date.calendar);
 	}
 
 	/**
@@ -190,8 +188,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	}
 
 	public String toShort() {
-		return DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-				DateFormat.SHORT).format(this.calendar.getTime());
+		return CalendarUtils.toShort(this.calendar);
 	}
 
 	@Override
@@ -202,7 +199,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	@Override
 	public TimeZoneDate clone() {
 		return new TimeZoneDate(new Date(this.calendar.getTime().getTime()),
-				TimeZone.getTimeZone(calendar.getTimeZone().getID()));
+				TimeZone.getTimeZone(this.calendar.getTimeZone().getID()));
 	}
 
 	@Override
@@ -210,24 +207,29 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((calendar == null) ? 0 : calendar.hashCode());
+				+ ((this.calendar == null) ? 0 : this.calendar.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		TimeZoneDate other = (TimeZoneDate) obj;
-		if (calendar == null) {
-			if (other.calendar != null)
+		if (this.calendar == null) {
+			if (other.calendar != null) {
 				return false;
-		} else if (this.compareTo(other) != 0)
+			}
+		} else if (this.compareTo(other) != 0) {
 			return false;
+		}
 		return true;
 	}
 }
