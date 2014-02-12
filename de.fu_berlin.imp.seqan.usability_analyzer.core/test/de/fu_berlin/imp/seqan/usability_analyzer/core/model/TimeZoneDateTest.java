@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -95,20 +97,20 @@ public class TimeZoneDateTest {
 		Assert.assertTrue(new TimeZoneDate("2011-11-18T15:38:33+09:00")
 				.compareTo(new TimeZoneDate("2011-11-18T15:38:28+09:00") {
 					{
-						addMilliseconds(5000l);
+						this.addMilliseconds(5000l);
 					}
 				}) == 0);
 		Assert.assertTrue(new TimeZoneDate("2011-11-18T15:38:20+09:00")
 				.compareTo(new TimeZoneDate("2011-11-18T15:38:28+08:00") {
 					{
-						addMilliseconds(-8000);
+						this.addMilliseconds(-8000);
 					}
 				}) != 0);
 		Assert.assertTrue(new TimeZoneDate("2011-11-18T15:38:20+09:00")
 				.compareToTimeZoneLess(new TimeZoneDate(
 						"2011-11-18T15:38:28+08:00") {
 					{
-						addMilliseconds(-8000);
+						this.addMilliseconds(-8000);
 					}
 				}) == 0);
 	}
@@ -120,6 +122,45 @@ public class TimeZoneDateTest {
 		clone.addMilliseconds(1000);
 		Assert.assertFalse(original.getTime() == clone.getTime());
 		Assert.assertTrue(original.getTime() - clone.getTime() == -1000);
+	}
+
+	@Test
+	public void testShortener() {
+		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("00 h")
+				.matches());
+		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("00h")
+				.matches());
+		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("0s")
+				.matches());
+		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("0000")
+				.matches());
+		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER
+				.matcher("01 h").matches());
+		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER.matcher("1")
+				.matches());
+		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER.matcher("abc")
+				.matches());
+	}
+
+	@Test
+	public void testFormatDuration() {
+		assertEquals("1s", new TimeZoneDateRange(new TimeZoneDate(
+				"2011-11-18T15:38:28+09:00"), new TimeZoneDate(
+				"2011-11-18T15:38:29+09:00")).formatDuration());
+		assertEquals("1m 00s", new TimeZoneDateRange(new TimeZoneDate(
+				"2011-11-18T15:38:28+09:00"), new TimeZoneDate(
+				"2011-11-18T15:39:28+09:00")).formatDuration());
+		assertEquals("1h 00m 00s", new TimeZoneDateRange(new TimeZoneDate(
+				"2011-11-18T15:38:28+09:00"), new TimeZoneDate(
+				"2011-11-18T16:38:28+09:00")).formatDuration());
+
+		assertEquals("25h 00m 00s", new TimeZoneDateRange(new TimeZoneDate(
+				"2011-11-18T15:38:28+09:00"), new TimeZoneDate(
+				"2011-11-19T16:38:28+09:00")).formatDuration());
+
+		assertEquals("25h 10m 04s", new TimeZoneDateRange(new TimeZoneDate(
+				"2011-11-18T15:38:28+09:00"), new TimeZoneDate(
+				"2011-11-19T16:48:32+09:00")).formatDuration());
 	}
 
 }

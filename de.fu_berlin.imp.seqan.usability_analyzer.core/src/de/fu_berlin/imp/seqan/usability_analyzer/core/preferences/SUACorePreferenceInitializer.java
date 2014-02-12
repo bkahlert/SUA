@@ -10,6 +10,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 
 public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer {
 
+	public static final String DEFAULT_TIMEDIFFERENCEFORMAT = "HH'h' mm'm' ss's'";
+
+	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
@@ -31,7 +34,7 @@ public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer 
 				"yyyy-MM-dd HH:mm:ss Z");
 
 		store.setDefault(SUACorePreferenceConstants.TIMEDIFFERENCEFORMAT,
-				"HH'h' mm'm' ss's'");
+				DEFAULT_TIMEDIFFERENCEFORMAT);
 
 		PreferenceConverter.setDefault(store,
 				SUACorePreferenceConstants.COLOR_OK, new RGB(122, 163, 94));

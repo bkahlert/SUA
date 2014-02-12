@@ -311,7 +311,7 @@ public class DiffLabelProvider extends UriLabelProvider {
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()
 											.getTimeDifferenceFormat(), true)
-							: "unknown"));
+							: "?"));
 		}
 		if (locatable instanceof IDiffRecord) {
 			IDiffRecord diffRecord = (IDiffRecord) locatable;
@@ -334,7 +334,7 @@ public class DiffLabelProvider extends UriLabelProvider {
 							.formatDuration(milliSecondsPassed,
 									new SUACorePreferenceUtil()
 											.getTimeDifferenceFormat(), true)
-							: "unknown"));
+							: "?"));
 		}
 		return detailEntries;
 	}

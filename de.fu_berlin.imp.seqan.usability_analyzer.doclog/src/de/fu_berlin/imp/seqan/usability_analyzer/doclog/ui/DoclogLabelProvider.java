@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -31,7 +30,7 @@ import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -292,14 +291,9 @@ public class DoclogLabelProvider extends UriLabelProvider {
 					.getStartDate() != null) ? doclogRecord.getDateRange()
 					.getStartDate().toISO8601() : "-"));
 
-			Long milliSecondsPassed = doclogRecord.getDateRange() != null ? doclogRecord
-					.getDateRange().getDifference() : null;
+			TimeZoneDateRange range = doclogRecord.getDateRange();
 			detailEntries.add(new DetailEntry("Time Passed",
-					(milliSecondsPassed != null) ? DurationFormatUtils
-							.formatDuration(milliSecondsPassed,
-									new SUACorePreferenceUtil()
-											.getTimeDifferenceFormat(), true)
-							: "unknown"));
+					(range != null) ? range.formatDuration() : "?"));
 		}
 		return detailEntries;
 	}

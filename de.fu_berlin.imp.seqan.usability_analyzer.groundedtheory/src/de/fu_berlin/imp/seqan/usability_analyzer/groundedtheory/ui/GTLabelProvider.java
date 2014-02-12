@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
@@ -19,7 +18,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -76,7 +75,7 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return "no code";
 		}
 
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
@@ -120,7 +119,7 @@ public final class GTLabelProvider extends UriLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == ICode.class) {
 			return this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
 					: ImageManager.CODE;
@@ -240,14 +239,9 @@ public final class GTLabelProvider extends UriLabelProvider {
 							.getEndDate() != null) ? episode.getDateRange()
 							.getEndDate().toISO8601() : "-"));
 
-			Long milliSecondsPassed = episode.getDateRange() != null ? episode
-					.getDateRange().getDifference() : null;
-			detailEntries.add(new DetailEntry("Span",
-					(milliSecondsPassed != null) ? DurationFormatUtils
-							.formatDuration(milliSecondsPassed,
-									new SUACorePreferenceUtil()
-											.getTimeDifferenceFormat(), true)
-							: "unknown"));
+			TimeZoneDateRange range = episode.getDateRange();
+			detailEntries.add(new DetailEntry("Span", (range != null) ? range
+					.formatDuration() : "?"));
 		}
 		return detailEntries;
 	}

@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -150,11 +149,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 									: "";
 						}
 						if (type == IDiffRecord.class) {
-							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
-									.resolve(uri, IDiffRecord.class, null)
-									.get();
-							String name = diffRecord.getFilename();
-							return (name != null) ? name : "";
+							return this.diffLabelProvider.getText(uri);
 						}
 						return "ERROR";
 					}
@@ -173,7 +168,7 @@ public class DiffListsViewer extends SortableTreeViewer {
 		});
 		new EpisodeRenderer(this, episodeColumn, 1).activateRendering();
 
-		this.createColumn("IDE", 30).setLabelProvider(
+		this.createColumn("IDE", 50).setLabelProvider(
 				new ILabelProviderService.StyledColumnLabelProvider() {
 					@Override
 					public String getText(URI uri) throws Exception {
@@ -241,23 +236,15 @@ public class DiffListsViewer extends SortableTreeViewer {
 						if (type == IDiff.class) {
 							IDiff diff = DiffListsViewer.this.locatorService
 									.resolve(uri, IDiff.class, null).get();
-							Long milliSecondsPassed = diff.getDateRange()
-									.getDifference();
-							return (milliSecondsPassed != null) ? DurationFormatUtils
-									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true)
-									: "unknown";
+							TimeZoneDateRange range = diff.getDateRange();
+							return range != null ? range.formatDuration() : "?";
 						}
 						if (type == IDiffRecord.class) {
 							IDiffRecord diffRecord = DiffListsViewer.this.locatorService
 									.resolve(uri, IDiffRecord.class, null)
 									.get();
-							Long milliSecondsPassed = diffRecord.getDateRange()
-									.getDifference();
-							return (milliSecondsPassed != null) ? DurationFormatUtils
-									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true)
-									: "unknown";
+							TimeZoneDateRange range = diffRecord.getDateRange();
+							return range != null ? range.formatDuration() : "?";
 						}
 
 						return "";

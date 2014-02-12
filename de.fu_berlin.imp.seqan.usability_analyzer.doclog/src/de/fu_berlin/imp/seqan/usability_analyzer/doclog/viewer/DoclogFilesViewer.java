@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.TreePath;
@@ -108,11 +107,9 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 						if (locatorService.getType(uri) == DoclogRecord.class) {
 							DoclogRecord doclogRecord = locatorService.resolve(
 									uri, DoclogRecord.class, null).get();
-							Long milliSecondsPassed = doclogRecord
-									.getDateRange().getDifference();
-							return (milliSecondsPassed != null) ? DurationFormatUtils
-									.formatDuration(milliSecondsPassed,
-											timeDifferenceFormat, true) : "";
+							TimeZoneDateRange range = doclogRecord
+									.getDateRange();
+							return range != null ? range.formatDuration() : "?";
 						}
 						return "";
 					}
