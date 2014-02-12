@@ -53,11 +53,11 @@ public class DoclogLabelProvider extends UriLabelProvider {
 
 	@Override
 	public String getText(URI uri) throws Exception {
-		if (locatorService.getType(uri) == Doclog.class) {
+		if (this.locatorService.getType(uri) == Doclog.class) {
 			return URIUtils.getIdentifier(uri).toString();
 		}
-		if (locatorService.getType(uri) == DoclogRecord.class) {
-			DoclogRecord doclogRecord = locatorService.resolve(uri,
+		if (this.locatorService.getType(uri) == DoclogRecord.class) {
+			DoclogRecord doclogRecord = this.locatorService.resolve(uri,
 					DoclogRecord.class, null).get();
 			String url = doclogRecord.getUrl();
 			if (url != null) {
@@ -71,9 +71,11 @@ public class DoclogLabelProvider extends UriLabelProvider {
 		return "ERROR";
 	}
 
+	private final Map<String, Image> cachedImages = new HashMap<String, Image>();
+
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		if (locatorService.getType(uri) == Doclog.class) {
+		if (this.locatorService.getType(uri) == Doclog.class) {
 			try {
 				return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
 						.isMemo(uri) ? ImageManager.DOCLOGFILE_CODED_MEMO
@@ -84,15 +86,89 @@ public class DoclogLabelProvider extends UriLabelProvider {
 				return ImageManager.DOCLOGFILE;
 			}
 		}
-		if (locatorService.getType(uri) == DoclogRecord.class) {
+		if (this.locatorService.getType(uri) == DoclogRecord.class) {
+			String key = null;
+			Image image = null;
+			DoclogRecord doclogRecord = this.locatorService.resolve(uri,
+					DoclogRecord.class, null).get();
+			if (doclogRecord != null) {
+				key = doclogRecord.getAction().name();
+				switch (doclogRecord.getAction()) {
+				case BLUR:
+					image = ImageManager.DOCLOGACTION_BLUR;
+					break;
+				case FOCUS:
+					image = ImageManager.DOCLOGACTION_FOCUS;
+					break;
+				case LINK:
+					image = ImageManager.DOCLOGACTION_LINK;
+					break;
+				case READY:
+					image = ImageManager.DOCLOGACTION_READY;
+					break;
+				case RESIZE:
+					image = ImageManager.DOCLOGACTION_RESIZE;
+					break;
+				case SCROLL:
+					image = ImageManager.DOCLOGACTION_SCROLL;
+					break;
+				case SURVEY:
+					image = ImageManager.DOCLOGACTION_SURVEY;
+					break;
+				case TYPING:
+					image = ImageManager.DOCLOGACTION_TYPING;
+					break;
+				case UNLOAD:
+					image = ImageManager.DOCLOGACTION_UNLOAD;
+					break;
+				default:
+					image = ImageManager.DOCLOGACTION_UNKNOWN;
+					break;
+				}
+			} else {
+				image = ImageManager.DOCLOGRECORD;
+			}
+
 			try {
-				return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.DOCLOGRECORD_CODED_MEMO
-						: ImageManager.DOCLOGRECORD_CODED) : (this.codeService
-						.isMemo(uri) ? ImageManager.DOCLOGRECORD_MEMO
-						: ImageManager.DOCLOGRECORD);
+				if (this.codeService.getCodes(uri).size() > 0) {
+					if (this.codeService.isMemo(uri)) {
+						if (key != null) {
+							key += ",coded,memo";
+						}
+						if (this.cachedImages.containsKey(key)) {
+							return this.cachedImages.get(key);
+						}
+						image = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager
+								.applyCodedMemoOverlay(image);
+					} else {
+						if (key != null) {
+							key += ",coded";
+						}
+						if (this.cachedImages.containsKey(key)) {
+							return this.cachedImages.get(key);
+						}
+						image = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager
+								.applyCodedOverlay(image);
+					}
+				} else {
+					if (this.codeService.isMemo(uri)) {
+						if (key != null) {
+							key += ",memo";
+						}
+						if (this.cachedImages.containsKey(key)) {
+							return this.cachedImages.get(key);
+						}
+						image = de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager
+								.applyMemoOverlay(image);
+					}
+				}
 			} catch (CodeServiceException e) {
-				return ImageManager.DOCLOGRECORD;
+				return image;
+			}
+
+			if (key != null) {
+				this.cachedImages.put(key, image);
+				return image;
 			}
 		}
 		return PlatformUI.getWorkbench().getSharedImages()

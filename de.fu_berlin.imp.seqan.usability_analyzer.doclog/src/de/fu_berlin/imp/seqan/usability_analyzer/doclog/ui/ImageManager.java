@@ -62,6 +62,17 @@ public class ImageManager {
 			de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager.OVERLAY_CODED,
 			IDecoration.BOTTOM_RIGHT).createImage();
 
+	public static final Image DOCLOGACTION_READY = getImage("icons/obj16/doclogaction_ready_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_UNLOAD = getImage("icons/obj16/doclogaction_unload_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_SCROLL = getImage("icons/obj16/doclogaction_scroll_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_LINK = getImage("icons/obj16/doclogaction_link_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_SURVEY = getImage("icons/obj16/doclogaction_survey_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_FOCUS = getImage("icons/obj16/doclogaction_focus_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_BLUR = getImage("icons/obj16/doclogaction_blur_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_TYPING = getImage("icons/obj16/doclogaction_typing_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_RESIZE = getImage("icons/obj16/doclogaction_resize_obj.png"); //$NON-NLS-1$
+	public static final Image DOCLOGACTION_UNKNOWN = getImage("icons/obj16/doclogaction_unknown_obj.png"); //$NON-NLS-1$
+
 	/**
 	 * Returns an image from the file at the given plug-in relative path.
 	 * 

@@ -62,6 +62,21 @@ public class ImageManager {
 	public static final Image EPISODE_CODED_MEMO = new DecorationOverlayIcon(
 			EPISODE_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 
+	public static Image applyCodedOverlay(Image image) {
+		return new DecorationOverlayIcon(image, OVERLAY_CODED,
+				IDecoration.BOTTOM_RIGHT).createImage();
+	}
+
+	public static Image applyMemoOverlay(Image image) {
+		return new DecorationOverlayIcon(image, OVERLAY_MEMO,
+				IDecoration.TOP_RIGHT).createImage();
+	}
+
+	public static Image applyCodedMemoOverlay(Image image) {
+		return new DecorationOverlayIcon(image, new ImageDescriptor[] { null,
+				OVERLAY_MEMO, null, OVERLAY_CODED }).createImage();
+	}
+
 	/**
 	 * Returns an image from the file at the given plug-in relative path.
 	 * 

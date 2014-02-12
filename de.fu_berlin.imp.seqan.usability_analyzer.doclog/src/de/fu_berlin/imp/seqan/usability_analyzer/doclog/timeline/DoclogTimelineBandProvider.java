@@ -164,7 +164,6 @@ public class DoclogTimelineBandProvider implements
 					DoclogRecord doclogRecord = (DoclogRecord) event;
 
 					StringBuffer title = new StringBuffer();
-					title.append(doclogRecord.getAction().toString() + " - ");
 					title.append(doclogRecord.getShortUrl());
 					switch (doclogRecord.getAction()) {
 					case LINK:
@@ -190,26 +189,6 @@ public class DoclogTimelineBandProvider implements
 
 			@Override
 			public URI getIcon(Object event) {
-				/*
-				 * IMPORTANT: Because Mac OS returns filenames in a decomposed
-				 * form
-				 * (http://loopkid.net/articles/2011/03/19/groking-hfs-character
-				 * -encoding) we need to convert them to composed form
-				 * (http://download
-				 * .oracle.com/javase/6/docs/api/java/text/Normalizer.html).
-				 * This is the only form where we can be sure it is compatible
-				 * with the outer world (e.g. a browser).
-				 */
-				/*
-				 * I don't know why but the NFC thing doesn't seem to be
-				 * necessary any more... String filename = Normalizer.normalize(
-				 * screenshotFile.getCanonicalPath(), Form.NFC);
-				 */
-				// File screenshotFile = doclogRecord.getScreenshot().getFile();
-				// if (screenshotFile != null) {
-				// String filename = screenshotFile.getCanonicalPath();
-				// icon = "file://" + filename.replace("%", "%25");
-				// }
 				Image image = this.doclogLabelProvider.getImage(event);
 				if (image != null) {
 					return ImageUtils.createUriFromImage(image);
