@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Image;
@@ -15,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
@@ -25,7 +27,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -34,11 +35,11 @@ public class DiffLabelProvider extends UriLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffLabelProvider.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private ICompilationService compilationService = (ICompilationService) PlatformUI
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final ICompilationService compilationService = (ICompilationService) PlatformUI
 			.getWorkbench().getService(ICompilationService.class);
 
 	@Override
@@ -59,18 +60,14 @@ public class DiffLabelProvider extends UriLabelProvider {
 		}
 		if (locatable instanceof IDiff) {
 			IDiff diff = (IDiff) locatable;
-			Long milliSecondsPassed = diff.getDateRange().getDifference();
-			String duration = (milliSecondsPassed != null) ? DurationFormatUtils
-					.formatDuration(milliSecondsPassed,
-							new SUACorePreferenceUtil()
-									.getTimeDifferenceFormat(), true)
-					: "unknown";
+			TimeZoneDateRange range = diff.getDateRange();
+			String duration = range != null ? range.formatDuration() : "?";
 			return "Iteration #" + diff.getCalculatedRevision() + " - "
 					+ duration;
 		} else if (locatable instanceof IDiffRecord
 				|| locatable instanceof IDiffRecordSegment) {
-			IDiffRecord diffRecord = locatable instanceof DiffRecord ? (DiffRecord) locatable
-					: ((DiffRecordSegment) locatable).getDiffFileRecord();
+			IDiffRecord diffRecord = locatable instanceof IDiffRecord ? (IDiffRecord) locatable
+					: ((IDiffRecordSegment) locatable).getDiffFileRecord();
 			String prefix = Activator.getDefault().getDiffDataContainer()
 					.getDiffFiles(diffRecord.getIdentifier(), null)
 					.getLongestCommonPrefix();
@@ -78,15 +75,17 @@ public class DiffLabelProvider extends UriLabelProvider {
 			String shortenedFilename = filename.startsWith(prefix) ? filename
 					.substring(prefix.length()) : filename;
 
-			String revisionShortenedFilename = shortenedFilename + "@"
-					+ diffRecord.getDiffFile().getCalculatedRevision();
-			return locatable instanceof DiffRecord ? revisionShortenedFilename
-					: revisionShortenedFilename
-							+ ": "
-							+ ((DiffRecordSegment) locatable).getSegmentStart()
-							+ "+"
-							+ ((DiffRecordSegment) locatable)
-									.getSegmentLength();
+			if (shortenedFilename.isEmpty()) {
+				shortenedFilename = FilenameUtils.getName(filename);
+			}
+
+			if (locatable instanceof IDiffRecordSegment) {
+				shortenedFilename += ": "
+						+ ((IDiffRecordSegment) locatable).getSegmentStart()
+						+ "+"
+						+ ((IDiffRecordSegment) locatable).getSegmentLength();
+			}
+			return shortenedFilename;
 		}
 		return super.getText(locatable);
 	}

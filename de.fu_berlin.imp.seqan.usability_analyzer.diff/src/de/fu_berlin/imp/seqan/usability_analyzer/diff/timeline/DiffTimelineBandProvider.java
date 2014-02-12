@@ -207,7 +207,13 @@ public class DiffTimelineBandProvider implements
 
 			@Override
 			public String getTitle(Object event) {
-				return this.diffLabelProvider.getText(event);
+				String title = this.diffLabelProvider.getText(event);
+				if (event instanceof IDiffRecord) {
+					IDiffRecord diffRecord = (IDiffRecord) event;
+					title += " @"
+							+ diffRecord.getDiffFile().getCalculatedRevision();
+				}
+				return title;
 			}
 
 			@Override
