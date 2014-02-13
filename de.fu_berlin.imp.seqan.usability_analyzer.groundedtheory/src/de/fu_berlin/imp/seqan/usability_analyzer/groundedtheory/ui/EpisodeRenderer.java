@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -208,7 +209,13 @@ public class EpisodeRenderer implements IDisposable {
 						end = ((HasDateRange) hoveredItem).getDateRange()
 								.getEndDate();
 					}
-					newRange = new TimeZoneDateRange(start, end);
+
+					try {
+						newRange = new TimeZoneDateRange(start, end);
+					} catch (InvalidParameterException e) {
+						return;
+					}
+
 					if (this.episode.getDateRange().equals(newRange)) {
 						return;
 					}
@@ -225,11 +232,17 @@ public class EpisodeRenderer implements IDisposable {
 	private static Converter<IEpisode> CONVERTER = new Converter<IEpisode>() {
 		@Override
 		public Long getStart(IEpisode episode) {
+			if (episode == null || episode.getStart() == null) {
+				return Long.MIN_VALUE;
+			}
 			return episode.getStart().getTime();
 		}
 
 		@Override
 		public Long getEnd(IEpisode episode) {
+			if (episode == null || episode.getEnd() == null) {
+				return Long.MAX_VALUE;
+			}
 			return episode.getEnd().getTime();
 		}
 	};
@@ -287,7 +300,7 @@ public class EpisodeRenderer implements IDisposable {
 		}
 
 		@Override
-		public void handleEvent(Event event) {
+		public void handleEvent(final Event event) {
 
 			if (this.renderingBounds == null) {
 				return;
@@ -299,7 +312,6 @@ public class EpisodeRenderer implements IDisposable {
 			case SWT.MouseDown:
 				if (info != null && info.direction != 0) {
 					this.resizeInfo = info;
-					event.widget.setData(CONTROL_DATA_STRING, new Object());
 				}
 				break;
 			case SWT.MouseUp:
@@ -328,17 +340,24 @@ public class EpisodeRenderer implements IDisposable {
 																	.getSimpleName(),
 													e);
 										}
+
+										((Control) event.widget).redraw();
+										((Control) event.widget)
+												.setCursor(null);
 									}
 								});
 					}
 					this.resizeInfo = null;
-					event.widget.setData(CONTROL_DATA_STRING, null);
 					this.hoveredItemTooltip.setVisible(false);
-					((Control) event.widget).redraw();
-					((Control) event.widget).setCursor(null);
 				}
 				break;
 			case SWT.MouseMove:
+				if (info != null) {
+					event.widget.setData(CONTROL_DATA_STRING, new Object());
+				} else {
+					event.widget.setData(CONTROL_DATA_STRING, null);
+				}
+
 				if (this.resizeInfo == null) {
 					this.hoveredItemTooltip.setVisible(false);
 
@@ -366,22 +385,29 @@ public class EpisodeRenderer implements IDisposable {
 								event.y));
 					}
 
-					if (item != null && item.getData() instanceof HasDateRange) {
+					if (item != null && item.getData() instanceof URI) {
 						this.resizeInfo.setHoveredItem((URI) item.getData());
 
 						Point pt = ((Tree) event.widget).toDisplay(
 								event.x + 10, event.y);
-						this.hoveredItemTooltip
-								.setText("New episode "
-										+ (this.resizeInfo.getDirection() < 0 ? "starts at "
-												+ this.resizeInfo
-														.getNewEpisode()
-														.getStart().toISO8601()
-												: "ends at "
-														+ this.resizeInfo
-																.getNewEpisode()
-																.getEnd()
-																.toISO8601()));
+						String tooltip;
+						if (this.resizeInfo.getNewEpisode() == null) {
+							tooltip = "Invalid";
+						} else if (this.resizeInfo.getDirection() < 0) {
+							tooltip = "New episode starts at "
+									+ (this.resizeInfo.getNewEpisode()
+											.getStart() != null ? this.resizeInfo
+											.getNewEpisode().getStart()
+											.toISO8601()
+											: "-∞");
+						} else {
+							tooltip = "New episode ends at "
+									+ (this.resizeInfo.getNewEpisode().getEnd() != null ? this.resizeInfo
+											.getNewEpisode().getEnd()
+											.toISO8601()
+											: "+∞");
+						}
+						this.hoveredItemTooltip.setText(tooltip);
 						this.hoveredItemTooltip.setLocation(pt);
 						this.hoveredItemTooltip.setVisible(true);
 
@@ -592,8 +618,21 @@ public class EpisodeRenderer implements IDisposable {
 					continue;
 				}
 
-				if (item.getData() instanceof HasDateRange) {
-					TimeZoneDateRange range = ((HasDateRange) item.getData())
+				ILocatable locatable = null;
+				if (item.getData() instanceof ILocatable) {
+					locatable = (ILocatable) item.getData();
+				} else if (item.getData() instanceof URI) {
+					try {
+						locatable = this.locatorService.resolve(
+								(URI) item.getData(), null).get();
+					} catch (Exception e) {
+						LOGGER.error("Can't resolve " + item.getData()
+								+ " for rendering", e);
+					}
+				}
+
+				if (locatable instanceof HasDateRange) {
+					TimeZoneDateRange range = ((HasDateRange) locatable)
 							.getDateRange();
 					for (IEpisode episode : set) {
 						if (range.isIntersected2(episode.getDateRange())) {
