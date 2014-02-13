@@ -213,7 +213,7 @@ public class DiffViewer extends SortableTreeViewer {
 					}
 				}));
 
-		this.createColumn("Start", new AbsoluteWidth(200)).setLabelProvider(
+		this.createColumn("Start", new AbsoluteWidth(0)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -249,7 +249,7 @@ public class DiffViewer extends SortableTreeViewer {
 												.getDateFormat()) : "");
 							}
 						}));
-		this.createColumn("End", new AbsoluteWidth(200)).setLabelProvider(
+		this.createColumn("End", new AbsoluteWidth(0)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -286,7 +286,7 @@ public class DiffViewer extends SortableTreeViewer {
 							}
 						}));
 
-		this.createColumn("", new AbsoluteWidth(10), false,
+		this.createColumn("", new AbsoluteWidth(8), false,
 				new Comparator<Object>() {
 					@Override
 					public int compare(Object o1, Object o2) {

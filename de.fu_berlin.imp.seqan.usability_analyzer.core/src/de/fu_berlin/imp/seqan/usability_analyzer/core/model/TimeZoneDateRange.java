@@ -1,13 +1,8 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
 import java.security.InvalidParameterException;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.bkahlert.nebula.datetime.CalendarRange;
 
@@ -21,9 +16,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
  * @author bkahlert
  */
 public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
-
-	public static Pattern DURATION_SHORTENER = Pattern
-			.compile("0+\\s*[A-Za-z]*");
 
 	public static TimeZoneDateRange calculateOuterDateRange(
 			TimeZoneDateRange... dateRanges) {
@@ -223,25 +215,8 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	}
 
 	public String formatDuration() {
-		String duration = this.getCalendarRange().formatDuration(
+		return this.getCalendarRange().formatDurationNicely(
 				new SUACorePreferenceUtil().getTimeDifferenceFormat());
-		List<String> parts = new LinkedList<String>(Arrays.asList(duration
-				.split(" ")));
-		for (Iterator<String> it = parts.iterator(); it.hasNext();) {
-			String part = it.next();
-			// remove parts only consisting of zeros
-			if (DURATION_SHORTENER.matcher(part).matches()) {
-				it.remove();
-			} else {
-				break;
-			}
-		}
-		// invariant: no leading parts that are only zero
-		if (parts.size() > 0) {
-			// remove leading zeros
-			parts.set(0, parts.get(0).replaceAll("^0+", ""));
-		}
-		return StringUtils.join(parts, " ");
 	}
 
 	@Override

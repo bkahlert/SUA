@@ -317,7 +317,7 @@ public class DoclogViewer extends SortableTreeViewer {
 							}
 						}));
 
-		this.createColumn("", new AbsoluteWidth(10), false,
+		this.createColumn("", new AbsoluteWidth(8), false,
 				new Comparator<Object>() {
 					@Override
 					public int compare(Object o1, Object o2) {
