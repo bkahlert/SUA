@@ -75,8 +75,6 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return "no code";
 		}
 
-		Class<? extends ILocatable> type = this.locatorService.getType(uri);
-
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
 		if (ICode.class.isInstance(locatable)) {
@@ -90,10 +88,10 @@ public final class GTLabelProvider extends UriLabelProvider {
 			return (labelProvider != null) ? labelProvider.getText(codeInstance
 					.getId()) : "[UNKNOWN ORIGIN]";
 		}
-		if (type == IEpisodes.class) {
+		if (IEpisodes.class.isInstance(locatable)) {
 			return URIUtils.getIdentifier(uri).toString();
 		}
-		if (type == IEpisode.class) {
+		if (IEpisode.class.isInstance(locatable)) {
 			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
