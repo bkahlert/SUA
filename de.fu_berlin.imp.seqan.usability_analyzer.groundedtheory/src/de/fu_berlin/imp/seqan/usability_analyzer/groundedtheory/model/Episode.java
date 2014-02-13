@@ -120,16 +120,16 @@ public class Episode implements IEpisode {
 		sb.append(" in ");
 		sb.append(this.getIdentifier());
 		sb.append(": ");
-		if (this.getEnd() != null) {
-			sb.append(this.getEnd().toISO8601());
+		if (this.getStart() != null) {
+			sb.append(this.getStart().toISO8601());
 		} else {
-			sb.append("undefined");
+			sb.append("-∞");
 		}
 		sb.append(" to ");
 		if (this.getEnd() != null) {
 			sb.append(this.getEnd().toISO8601());
 		} else {
-			sb.append("undefined");
+			sb.append("+∞");
 		}
 		return sb.toString();
 	}

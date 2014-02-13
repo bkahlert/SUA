@@ -246,9 +246,9 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 
 	@Override
 	public String toString() {
-		return ((this.startDate != null) ? this.startDate.toISO8601() : "-inf")
+		return ((this.startDate != null) ? this.startDate.toISO8601() : "-∞")
 				+ " - "
-				+ ((this.endDate != null) ? this.endDate.toISO8601() : "+inf");
+				+ ((this.endDate != null) ? this.endDate.toISO8601() : "+∞");
 	}
 
 }

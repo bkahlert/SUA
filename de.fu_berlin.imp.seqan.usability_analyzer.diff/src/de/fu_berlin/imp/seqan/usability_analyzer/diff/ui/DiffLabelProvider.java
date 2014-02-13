@@ -15,6 +15,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -64,8 +65,8 @@ public class DiffLabelProvider extends StyledUriLabelProvider {
 			IDiff diff = (IDiff) locatable;
 			TimeZoneDateRange range = diff.getDateRange();
 			String duration = range != null ? range.formatDuration() : "?";
-			return new StyledString("Iteration #"
-					+ diff.getCalculatedRevision() + " - " + duration);
+			return new StyledString("Rev. " + diff.getCalculatedRevision()
+					+ " @ " + diff.getLocationHash() + " - " + duration);
 		} else if (locatable instanceof IDiffRecord
 				|| locatable instanceof IDiffRecordSegment) {
 			IDiffRecord diffRecord = locatable instanceof IDiffRecord ? (IDiffRecord) locatable
@@ -87,7 +88,10 @@ public class DiffLabelProvider extends StyledUriLabelProvider {
 						+ "+"
 						+ ((IDiffRecordSegment) locatable).getSegmentLength();
 			}
-			return new StyledString(shortenedFilename);
+			return new StyledString(shortenedFilename).append(" (Rev. "
+					+ diffRecord.getDiffFile().getCalculatedRevision() + " @ "
+					+ diffRecord.getDiffFile().getLocationHash() + ")",
+					Stylers.MINOR_STYLER);
 		}
 		return super.getStyledText(locatable);
 	}

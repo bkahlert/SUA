@@ -56,8 +56,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffViewer extends SortableTreeViewer {
-	private static final Logger LOGGER = Logger
-			.getLogger(DiffViewer.class);
+	private static final Logger LOGGER = Logger.getLogger(DiffViewer.class);
 
 	private final LocalResourceManager resources;
 
@@ -66,8 +65,8 @@ public class DiffViewer extends SortableTreeViewer {
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
-	public DiffViewer(final Composite parent, int style,
-			DateFormat dateFormat, String timeDifferenceFormat) {
+	public DiffViewer(final Composite parent, int style, DateFormat dateFormat,
+			String timeDifferenceFormat) {
 		super(parent, style);
 
 		this.resources = new LocalResourceManager(
@@ -86,12 +85,14 @@ public class DiffViewer extends SortableTreeViewer {
 				.getTransfer() };
 		this.addDragSupport(operations, transferTypes,
 				new DragSourceListener() {
+					private boolean isEpisodeRendererActive() {
+						return DiffViewer.this.getControl().getData(
+								EpisodeRenderer.CONTROL_DATA_STRING) != null;
+					}
+
 					@Override
 					public void dragStart(DragSourceEvent event) {
-						boolean episodeRendererActive = DiffViewer.this
-								.getControl().getData(
-										EpisodeRenderer.CONTROL_DATA_STRING) != null;
-						if (!episodeRendererActive
+						if (!this.isEpisodeRendererActive()
 								&& SelectionRetrieverFactory
 										.getSelectionRetriever(URI.class)
 										.getSelection().size() > 0) {
@@ -108,6 +109,10 @@ public class DiffViewer extends SortableTreeViewer {
 
 					@Override
 					public void dragSetData(DragSourceEvent event) {
+						if (this.isEpisodeRendererActive()) {
+							event.doit = false;
+						}
+
 						if (LocalSelectionTransfer.getTransfer()
 								.isSupportedType(event.dataType)) {
 							event.data = LocalSelectionTransfer.getTransfer()
@@ -163,7 +168,10 @@ public class DiffViewer extends SortableTreeViewer {
 									Stylers.MINOR_STYLER);
 						}
 						if (type == IDiffRecord.class) {
-							return this.diffLabelProvider.getStyledText(uri);
+							String text = this.diffLabelProvider
+									.getStyledText(uri).toString()
+									.replaceAll("\\s*(.*?)", "");
+							return new StyledString(text);
 						}
 						return new StyledString("ERROR",
 								Stylers.ATTENTION_STYLER);
@@ -249,7 +257,7 @@ public class DiffViewer extends SortableTreeViewer {
 					}
 				}));
 
-		this.createColumn("Start", new AbsoluteWidth(0)).setLabelProvider(
+		this.createColumn("Start", new AbsoluteWidth(200)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -280,14 +288,12 @@ public class DiffViewer extends SortableTreeViewer {
 
 								TimeZoneDate date = range != null ? range
 										.getStartDate() : null;
-								return new StyledString(
-										date != null ? date
-												.format(DiffViewer.this.preferenceUtil
-														.getDateFormat())
-												: "");
+								return new StyledString(date != null ? date
+										.format(DiffViewer.this.preferenceUtil
+												.getDateFormat()) : "");
 							}
 						}));
-		this.createColumn("End", new AbsoluteWidth(0)).setLabelProvider(
+		this.createColumn("End", new AbsoluteWidth(200)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -318,11 +324,9 @@ public class DiffViewer extends SortableTreeViewer {
 
 								TimeZoneDate date = range != null ? range
 										.getEndDate() : null;
-								return new StyledString(
-										date != null ? date
-												.format(DiffViewer.this.preferenceUtil
-														.getDateFormat())
-												: "");
+								return new StyledString(date != null ? date
+										.format(DiffViewer.this.preferenceUtil
+												.getDateFormat()) : "");
 							}
 						}));
 

@@ -234,7 +234,8 @@ public class AnalysisTimelineBandProvider implements
 			public Calendar getStart(Object event) {
 				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
-					return episode.getStart().getCalendar();
+					return episode.getStart() != null ? episode.getStart()
+							.getCalendar() : null;
 				}
 				return null;
 			}
@@ -243,7 +244,8 @@ public class AnalysisTimelineBandProvider implements
 			public Calendar getEnd(Object event) {
 				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
-					return episode.getEnd().getCalendar();
+					return episode.getEnd() != null ? episode.getEnd()
+							.getCalendar() : null;
 				}
 				return null;
 			}
