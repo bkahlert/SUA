@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -19,7 +20,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
@@ -31,7 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DiffLabelProvider extends UriLabelProvider {
+public class DiffLabelProvider extends StyledUriLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffLabelProvider.class);
 
@@ -43,11 +44,11 @@ public class DiffLabelProvider extends UriLabelProvider {
 			.getWorkbench().getService(ICompilationService.class);
 
 	@Override
-	public String getText(URI uri) throws Exception {
+	public StyledString getStyledText(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
 		if (locatable == null) {
-			return uri.toString();
+			return new StyledString(uri.toString());
 		}
 
 		if (locatable instanceof IDiffs) {
@@ -56,14 +57,15 @@ public class DiffLabelProvider extends UriLabelProvider {
 			if (diffList.length() > 0) {
 				identifier = diffList.get(0).getIdentifier();
 			}
-			return (identifier != null) ? identifier.toString() : "";
+			return new StyledString(
+					(identifier != null) ? identifier.toString() : "");
 		}
 		if (locatable instanceof IDiff) {
 			IDiff diff = (IDiff) locatable;
 			TimeZoneDateRange range = diff.getDateRange();
 			String duration = range != null ? range.formatDuration() : "?";
-			return "Iteration #" + diff.getCalculatedRevision() + " - "
-					+ duration;
+			return new StyledString("Iteration #"
+					+ diff.getCalculatedRevision() + " - " + duration);
 		} else if (locatable instanceof IDiffRecord
 				|| locatable instanceof IDiffRecordSegment) {
 			IDiffRecord diffRecord = locatable instanceof IDiffRecord ? (IDiffRecord) locatable
@@ -85,9 +87,9 @@ public class DiffLabelProvider extends UriLabelProvider {
 						+ "+"
 						+ ((IDiffRecordSegment) locatable).getSegmentLength();
 			}
-			return shortenedFilename;
+			return new StyledString(shortenedFilename);
 		}
-		return super.getText(locatable);
+		return super.getStyledText(locatable);
 	}
 
 	private boolean hasCodedChildren(IDiff diff) {

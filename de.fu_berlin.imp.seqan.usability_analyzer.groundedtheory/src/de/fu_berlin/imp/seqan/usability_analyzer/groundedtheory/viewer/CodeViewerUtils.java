@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.graphics.Image;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
@@ -17,7 +18,8 @@ public class CodeViewerUtils {
 
 	public static void createCodeColumn(SortableTreeViewer treeViewer,
 			final ICodeService codeService) {
-		TreeViewerColumn codeColumn = treeViewer.createColumn("Code", 220);
+		TreeViewerColumn codeColumn = treeViewer.createColumn("Code",
+				new RelativeWidth(1.0, 150));
 
 		final ILabelProvider labelProvider = new GTLabelProvider();
 

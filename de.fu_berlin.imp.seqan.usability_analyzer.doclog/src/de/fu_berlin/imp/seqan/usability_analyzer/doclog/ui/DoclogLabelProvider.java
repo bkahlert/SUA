@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.util.Geometry;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -27,11 +28,12 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.bkahlert.devel.nebula.utils.MathUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
@@ -39,7 +41,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DoclogLabelProvider extends UriLabelProvider {
+public class DoclogLabelProvider extends StyledUriLabelProvider {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -51,9 +53,9 @@ public class DoclogLabelProvider extends UriLabelProvider {
 			.getWorkbench().getService(ICodeService.class);
 
 	@Override
-	public String getText(URI uri) throws Exception {
+	public StyledString getStyledText(URI uri) throws Exception {
 		if (this.locatorService.getType(uri) == Doclog.class) {
-			return URIUtils.getIdentifier(uri).toString();
+			return new StyledString(URIUtils.getIdentifier(uri).toString());
 		}
 		if (this.locatorService.getType(uri) == DoclogRecord.class) {
 			DoclogRecord doclogRecord = this.locatorService.resolve(uri,
@@ -64,10 +66,12 @@ public class DoclogLabelProvider extends UriLabelProvider {
 			}
 			Integer scrollY = doclogRecord.getScrollPosition() != null ? doclogRecord
 					.getScrollPosition().y : null;
-			return url != null ? (scrollY != null ? url + " ⇅" + scrollY : url)
-					: "ERROR";
+			if (url != null) {
+				return new StyledString(scrollY != null ? url + " ⇅" + scrollY
+						: url);
+			}
 		}
-		return "ERROR";
+		return new StyledString("ERROR", Stylers.ATTENTION_STYLER);
 	}
 
 	private final Map<String, Image> cachedImages = new HashMap<String, Image>();

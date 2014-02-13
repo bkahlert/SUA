@@ -9,22 +9,18 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.StyledString.Styler;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
+import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -41,7 +37,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderSer
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FontUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -69,7 +64,6 @@ public class EntityViewer extends SortableTableViewer implements
 		};
 	};
 
-	private Styler boldStyler = null;
 	private Collection<URI> boldObjects = new LinkedList<URI>();
 
 	public EntityViewer(Table table) {
@@ -79,19 +73,6 @@ public class EntityViewer extends SortableTableViewer implements
 				.create());
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
-		LocalResourceManager resources = new LocalResourceManager(
-				JFaceResources.getResources(), table);
-
-		final Font boldFont = resources.createFont(FontDescriptor
-				.createFrom(FontUtils.getModifiedFontData(table.getFont()
-						.getFontData(), SWT.BOLD)));
-		this.boldStyler = new StyledString.Styler() {
-			@Override
-			public void applyStyles(TextStyle textStyle) {
-				textStyle.font = boldFont;
-			}
-		};
 
 		this.createColumns();
 		this.sort(0);
@@ -110,9 +91,9 @@ public class EntityViewer extends SortableTableViewer implements
 		final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
 
-		this.createColumn("ID", 150).setLabelProvider(
+		this.createColumn("ID", new RelativeWidth(.35, 170)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledLabelProvider() {
 
 							@Override
 							public StyledString getStyledText(URI uri)
@@ -127,9 +108,10 @@ public class EntityViewer extends SortableTableViewer implements
 									return new StyledString("");
 								}
 
-								StyledString styledString = new StyledString(id
-										.toString(),
-										(boldObjects.contains(uri) ? boldStyler
+								StyledString styledString = new StyledString(
+										id.toString(),
+										(EntityViewer.this.boldObjects
+												.contains(uri) ? Stylers.BOLD_STYLER
 												: null));
 								return styledString;
 							}
@@ -175,31 +157,34 @@ public class EntityViewer extends SortableTableViewer implements
 							}
 						}));
 
-		this.createColumn("Fingerprints", 300).setLabelProvider(
-				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
-							@Override
-							public StyledString getStyledText(URI uri)
-									throws Exception {
-								ILocatable locatable = locatorService.resolve(
-										uri, null).get();
+		this.createColumn("Fingerprints", new RelativeWidth(.65, 300))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										ILocatable locatable = locatorService
+												.resolve(uri, null).get();
 
-								Entity entity = (Entity) locatable;
-								List<Fingerprint> secondaryFingerprints = entity
-										.getFingerprints();
-								StyledString styledString = new StyledString(
-										(secondaryFingerprints != null) ? StringUtils
-												.join(secondaryFingerprints,
-														", ") : "", boldObjects
-												.contains(uri) ? boldStyler
-												: null);
-								return styledString;
-							}
-						}));
+										Entity entity = (Entity) locatable;
+										List<Fingerprint> secondaryFingerprints = entity
+												.getFingerprints();
+										StyledString styledString = new StyledString(
+												(secondaryFingerprints != null) ? StringUtils
+														.join(secondaryFingerprints,
+																", ")
+														: "",
+												EntityViewer.this.boldObjects
+														.contains(uri) ? Stylers.BOLD_STYLER
+														: null);
+										return styledString;
+									}
+								}));
 
-		this.createColumn("Token", 45).setLabelProvider(
+		this.createColumn("Token", new AbsoluteWidth(45)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledLabelProvider() {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
@@ -210,15 +195,66 @@ public class EntityViewer extends SortableTableViewer implements
 								Token token = entity.getToken();
 								StyledString styledString = new StyledString(
 										(token != null) ? token.toString() : "",
-										boldObjects.contains(uri) ? boldStyler
+										EntityViewer.this.boldObjects
+												.contains(uri) ? Stylers.BOLD_STYLER
 												: null);
 								return styledString;
 							}
 						}));
 
-		this.createColumn("OS", 100).setLabelProvider(
+		this.createColumn("Earliest Entry", new AbsoluteWidth(0))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										ILocatable locatable = locatorService
+												.resolve(uri, null).get();
+
+										Entity entity = (Entity) locatable;
+										TimeZoneDate earliestDate = entity
+												.getEarliestEntryDate();
+										StyledString styledString = new StyledString(
+												(earliestDate != null) ? earliestDate
+														.format(EntityViewer.this.preferenceUtil
+																.getDateFormat())
+														: "",
+												EntityViewer.this.boldObjects
+														.contains(uri) ? Stylers.BOLD_STYLER
+														: null);
+										return styledString;
+									}
+								}));
+
+		this.createColumn("Latest Entry", new AbsoluteWidth(0))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										ILocatable locatable = locatorService
+												.resolve(uri, null).get();
+
+										Entity entity = (Entity) locatable;
+										TimeZoneDate lastestDate = entity
+												.getLatestEntryDate();
+										StyledString styledString = new StyledString(
+												(lastestDate != null) ? lastestDate
+														.format(EntityViewer.this.preferenceUtil
+																.getDateFormat())
+														: "",
+												EntityViewer.this.boldObjects
+														.contains(uri) ? Stylers.BOLD_STYLER
+														: null);
+										return styledString;
+									}
+								}));
+
+		this.createColumn("OS", new AbsoluteWidth(160)).setLabelProvider(
 				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
+						new ILabelProviderService.StyledLabelProvider() {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
@@ -230,78 +266,35 @@ public class EntityViewer extends SortableTableViewer implements
 								StyledString styledString = new StyledString(
 										(statsFile != null) ? statsFile
 												.getPlatformLong() : "",
-										boldObjects.contains(uri) ? boldStyler
+										EntityViewer.this.boldObjects
+												.contains(uri) ? Stylers.BOLD_STYLER
 												: null);
 								return styledString;
 							}
 						}));
 
-		this.createColumn("Generator", 100).setLabelProvider(
-				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
-							@Override
-							public StyledString getStyledText(URI uri)
-									throws Exception {
-								ILocatable locatable = locatorService.resolve(
-										uri, null).get();
+		this.createColumn("Generator", new AbsoluteWidth(210))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										ILocatable locatable = locatorService
+												.resolve(uri, null).get();
 
-								Entity entity = (Entity) locatable;
-								CMakeCacheFile cMakeCacheFile = entity
-										.getCMakeCacheFile();
-								StyledString styledString = new StyledString(
-										(cMakeCacheFile != null) ? cMakeCacheFile
-												.getGenerator() : "",
-										boldObjects.contains(uri) ? boldStyler
-												: null);
-								return styledString;
-							}
-						}));
-
-		this.createColumn("Earliest Entry", 180).setLabelProvider(
-				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
-							@Override
-							public StyledString getStyledText(URI uri)
-									throws Exception {
-								ILocatable locatable = locatorService.resolve(
-										uri, null).get();
-
-								Entity entity = (Entity) locatable;
-								TimeZoneDate earliestDate = entity
-										.getEarliestEntryDate();
-								StyledString styledString = new StyledString(
-										(earliestDate != null) ? earliestDate
-												.format(EntityViewer.this.preferenceUtil
-														.getDateFormat())
-												: "",
-										boldObjects.contains(uri) ? boldStyler
-												: null);
-								return styledString;
-							}
-						}));
-
-		this.createColumn("Latest Entry", 180).setLabelProvider(
-				new DelegatingStyledCellLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
-							@Override
-							public StyledString getStyledText(URI uri)
-									throws Exception {
-								ILocatable locatable = locatorService.resolve(
-										uri, null).get();
-
-								Entity entity = (Entity) locatable;
-								TimeZoneDate lastestDate = entity
-										.getLatestEntryDate();
-								StyledString styledString = new StyledString(
-										(lastestDate != null) ? lastestDate
-												.format(EntityViewer.this.preferenceUtil
-														.getDateFormat())
-												: "",
-										boldObjects.contains(uri) ? boldStyler
-												: null);
-								return styledString;
-							}
-						}));
+										Entity entity = (Entity) locatable;
+										CMakeCacheFile cMakeCacheFile = entity
+												.getCMakeCacheFile();
+										StyledString styledString = new StyledString(
+												(cMakeCacheFile != null) ? cMakeCacheFile
+														.getGenerator() : "",
+												EntityViewer.this.boldObjects
+														.contains(uri) ? Stylers.BOLD_STYLER
+														: null);
+										return styledString;
+									}
+								}));
 	}
 
 	@Override

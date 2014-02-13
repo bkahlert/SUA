@@ -24,6 +24,11 @@ public interface IUriPresenterService extends IInformationPresenterService<URI> 
 
 	}
 
+	public static class StyledUriLabelProvider extends
+			StyledInformationLabelProvider<URI> {
+
+	}
+
 	public <CONTROL extends Control> InformationControlManager<CONTROL, URI> enable(
 			CONTROL control,
 			ISubjectInformationProvider<CONTROL, URI> subjectInformationProvider);

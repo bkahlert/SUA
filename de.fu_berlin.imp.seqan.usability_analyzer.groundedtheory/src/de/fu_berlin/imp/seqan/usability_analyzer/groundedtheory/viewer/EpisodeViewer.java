@@ -8,10 +8,12 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
@@ -28,6 +30,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
@@ -56,7 +60,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 		this.setLayout(new FillLayout());
 
 		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
-		tree.setHeaderVisible(true);
+		tree.setHeaderVisible(false);
 		tree.setLinesVisible(false);
 
 		this.treeViewer = new SortableTreeViewer(tree);
@@ -117,7 +121,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 
 	private void createColumns() {
 		TreeViewerColumn episodeColumn = this.treeViewer.createColumn(
-				"Episode", 150);
+				"Episode", new RelativeWidth(1.0, 150));
 		episodeColumn.setLabelProvider(new ColumnLabelProvider() {
 
 			ILabelProvider labelProvider = new GTLabelProvider();
@@ -146,60 +150,72 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				this.treeViewer, EpisodeEditingSupport.Field.NAME));
 
 		TreeViewerColumn startColumn = this.treeViewer.createColumn("Start",
-				170);
-		startColumn
-				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
+				new AbsoluteWidth(0));
+		startColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
 					@Override
-					public String getText(URI uri) throws Exception {
+					public StyledString getStyledText(URI uri) throws Exception {
 						ILocatable locatable = EpisodeViewer.this.locatorService
 								.resolve(uri, null).get();
 						if (IEpisode.class.isInstance(locatable)) {
 							IEpisode episode = (IEpisode) locatable;
-							return episode.getStart() != null ? EpisodeViewer.this.preferenceUtil
-									.getDateFormat().format(
-											episode.getStart().getDate())
-									: "-∞";
+							return new StyledString(
+									episode.getStart() != null ? EpisodeViewer.this.preferenceUtil
+											.getDateFormat().format(
+													episode.getStart()
+															.getDate()) : "-∞");
 						}
-						return "";
+						return new StyledString();
 					}
-				});
+				}));
 		startColumn.setEditingSupport(new EpisodeEditingSupport(
 				this.treeViewer, EpisodeEditingSupport.Field.STARTDATE));
 
-		TreeViewerColumn endColumn = this.treeViewer.createColumn("End", 170);
-		endColumn
-				.setLabelProvider(new ILabelProviderService.StyledColumnLabelProvider() {
+		TreeViewerColumn endColumn = this.treeViewer.createColumn("End",
+				new AbsoluteWidth(0));
+		endColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
 					@Override
-					public String getText(URI uri) throws Exception {
+					public StyledString getStyledText(URI uri) throws Exception {
 						ILocatable locatable = EpisodeViewer.this.locatorService
 								.resolve(uri, null).get();
 						if (IEpisode.class.isInstance(locatable)) {
 							IEpisode episode = (IEpisode) locatable;
-							return episode.getEnd() != null ? EpisodeViewer.this.preferenceUtil
-									.getDateFormat().format(
-											episode.getEnd().getDate()) : "+∞";
+							return new StyledString(
+									episode.getEnd() != null ? EpisodeViewer.this.preferenceUtil
+											.getDateFormat().format(
+													episode.getEnd().getDate())
+											: "+∞");
 						}
-						return "";
+						return new StyledString();
 					}
-				});
+				}));
 		endColumn.setEditingSupport(new EpisodeEditingSupport(this.treeViewer,
 				EpisodeEditingSupport.Field.ENDDATE));
 
-		this.treeViewer.createColumn("Date Created", 170).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						ILocatable locatable = EpisodeViewer.this.locatorService
-								.resolve(uri, null).get();
-						if (IEpisode.class.isInstance(locatable)) {
-							IEpisode episode = (IEpisode) locatable;
-							return EpisodeViewer.this.preferenceUtil
-									.getDateFormat().format(
-											episode.getCreation().getDate());
-						}
-						return "";
-					}
-				});
+		this.treeViewer
+				.createColumn("Date Created", new AbsoluteWidth(0))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										ILocatable locatable = EpisodeViewer.this.locatorService
+												.resolve(uri, null).get();
+										if (IEpisode.class
+												.isInstance(locatable)) {
+											IEpisode episode = (IEpisode) locatable;
+											return new StyledString(
+													EpisodeViewer.this.preferenceUtil
+															.getDateFormat()
+															.format(episode
+																	.getCreation()
+																	.getDate()));
+										}
+										return new StyledString();
+									}
+								}));
 	}
 
 	public Control getControl() {

@@ -10,6 +10,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 
 public class SUACorePreferenceInitializer extends AbstractPreferenceInitializer {
 
+	public static final String DEFAULT_SMART_DATETIME = "''yy-MM-dd HH:mm:ss";
 	public static final String DEFAULT_TIMEDIFFERENCEFORMAT = "HH'h' mm'm' ss's'";
 
 	@Override

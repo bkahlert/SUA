@@ -8,7 +8,11 @@ import java.util.List;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
@@ -22,6 +26,9 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -64,83 +71,267 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 		final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
 
-		this.createColumn("Date", 160).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
+		this.createColumn("Date", new RelativeWidth(1.0, 150))
+				.setLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
 
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == Doclog.class) {
+									return this.doclogLabelProvider
+											.getStyledText(uri);
+								}
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									TimeZoneDate date = doclogRecord
+											.getDateRange().getStartDate();
+									StyledString s = new StyledString(
+											(date != null) ? date
+													.format(dateFormat) : "");
+
+									String url = doclogRecord.getUrl();
+									s.append(
+											"   "
+													+ ((url != null) ? "... "
+															+ url.substring((int) (url
+																	.length() / 3.0))
+															: "") + "",
+											Stylers.MINOR_STYLER);
+
+									return s;
+								}
+								return new StyledString();
+							}
+
+							@Override
+							public String getToolTipText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+
+									DoclogAction action = doclogRecord
+											.getAction();
+									String actionParameter = doclogRecord
+											.getActionParameter();
+									if (action != null
+											&& actionParameter != null) {
+										return action.toString() + " :: "
+												+ actionParameter;
+									} else if (action != null
+											&& actionParameter == null) {
+										return action.toString();
+									} else if (action == null
+											&& actionParameter != null) {
+										return "??? :: " + actionParameter;
+									} else {
+										return "";
+									}
+								}
+								return null;
+							}
+
+							@Override
+							public Image getImage(URI uri) throws Exception {
+								return this.doclogLabelProvider.getImage(uri);
+							}
+						});
+
+		TreeViewerColumn passedColumn = this.createColumn("Passed",
+				new AbsoluteWidth(90), true, new Comparator<Object>() {
 					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == Doclog.class) {
-							return this.doclogLabelProvider.getText(uri);
+					public int compare(Object arg0, Object arg1) {
+						Long l1 = (Long) arg0;
+						Long l2 = (Long) arg1;
+						if (l1 != null) {
+							return l1.compareTo(l2);
 						}
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							TimeZoneDate date = doclogRecord.getDateRange()
-									.getStartDate();
-							return (date != null) ? date.format(dateFormat)
-									: "";
-						}
-						return "";
+						return 0;
 					}
-
+				}, new Class<?>[] { Long.class });
+		passedColumn.getColumn().setAlignment(SWT.RIGHT);
+		passedColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
 					@Override
-					public Image getImage(URI uri) throws Exception {
-						return this.doclogLabelProvider.getImage(uri);
-					}
-				});
-
-		this.createColumn("Passed", 90, true, new Comparator<Object>() {
-			@Override
-			public int compare(Object arg0, Object arg1) {
-				Long l1 = (Long) arg0;
-				Long l2 = (Long) arg1;
-				if (l1 != null) {
-					return l1.compareTo(l2);
-				}
-				return 0;
-			}
-		}, new Class<?>[] { Long.class }).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
+					public StyledString getStyledText(URI uri) throws Exception {
 						if (locatorService.getType(uri) == DoclogRecord.class) {
 							DoclogRecord doclogRecord = locatorService.resolve(
 									uri, DoclogRecord.class, null).get();
 							TimeZoneDateRange range = doclogRecord
 									.getDateRange();
-							return range != null ? range.formatDuration() : "?";
+							return new StyledString(range != null ? range
+									.formatDuration() : "?");
 						}
-						return "";
+						return new StyledString();
 					}
-				});
+				}));
 
-		this.createColumn("", 10, false, new Comparator<Object>() {
-			@Override
-			public int compare(Object o1, Object o2) {
-				if (o1 instanceof Doclog && o2 instanceof Doclog) {
-					Doclog doclogFile1 = (Doclog) o1;
-					Doclog doclogFile2 = (Doclog) o2;
-					Status status1 = doclogFile1.getScreenshotStatus();
-					Status status2 = doclogFile2.getScreenshotStatus();
-					return Integer.valueOf(status1.ordinal()).compareTo(
-							status2.ordinal());
-				} else if (o1 instanceof DoclogRecord
-						&& o2 instanceof DoclogRecord) {
-					DoclogRecord doclogRecord1 = (DoclogRecord) o1;
-					DoclogRecord doclogRecord2 = (DoclogRecord) o2;
-					Status status1 = doclogRecord1.getScreenshot().getStatus();
-					Status status2 = doclogRecord2.getScreenshot().getStatus();
-					return Integer.valueOf(status1.ordinal()).compareTo(
-							status2.ordinal());
-				}
-				return 0;
-			}
-		}, new Class<?>[] { Doclog.class, DoclogRecord.class })
-				.setLabelProvider(
-						new ILabelProviderService.StyledColumnLabelProvider() {
+		this.createColumn("Action", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
 							@Override
-							public String getText(URI uri) throws Exception {
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									DoclogAction action = doclogRecord
+											.getAction();
+									return new StyledString(
+											(action != null) ? action
+													.toString() : "");
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("Param", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									String actionParameter = doclogRecord
+											.getActionParameter();
+									if (actionParameter != null) {
+										if (actionParameter.length() > 50) {
+											return new StyledString(
+													actionParameter
+															.subSequence(0, 50)
+															+ "...");
+										}
+										return new StyledString(actionParameter);
+									}
+									return new StyledString();
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("Width", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									Point windowDimensions = doclogRecord
+											.getWindowDimensions();
+									return new StyledString(
+											(windowDimensions != null) ? windowDimensions.x
+													+ ""
+													: "-");
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("Height", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									Point windowDimensions = doclogRecord
+											.getWindowDimensions();
+									return new StyledString(
+											(windowDimensions != null) ? windowDimensions.y
+													+ ""
+													: "-");
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("X", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									Point scrollPosition = doclogRecord
+											.getScrollPosition();
+									return new StyledString(
+											(scrollPosition != null) ? scrollPosition.x
+													+ ""
+													: "-");
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("Y", new AbsoluteWidth(0)).setLabelProvider(
+				new DelegatingStyledCellLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (locatorService.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = locatorService
+											.resolve(uri, DoclogRecord.class,
+													null).get();
+									Point scrollPosition = doclogRecord
+											.getScrollPosition();
+									return new StyledString(
+											(scrollPosition != null) ? scrollPosition.y
+													+ ""
+													: "-");
+								}
+								return new StyledString();
+							}
+						}));
+
+		this.createColumn("", new AbsoluteWidth(10), false,
+				new Comparator<Object>() {
+					@Override
+					public int compare(Object o1, Object o2) {
+						if (o1 instanceof Doclog && o2 instanceof Doclog) {
+							Doclog doclogFile1 = (Doclog) o1;
+							Doclog doclogFile2 = (Doclog) o2;
+							Status status1 = doclogFile1.getScreenshotStatus();
+							Status status2 = doclogFile2.getScreenshotStatus();
+							return Integer.valueOf(status1.ordinal())
+									.compareTo(status2.ordinal());
+						} else if (o1 instanceof DoclogRecord
+								&& o2 instanceof DoclogRecord) {
+							DoclogRecord doclogRecord1 = (DoclogRecord) o1;
+							DoclogRecord doclogRecord2 = (DoclogRecord) o2;
+							Status status1 = doclogRecord1.getScreenshot()
+									.getStatus();
+							Status status2 = doclogRecord2.getScreenshot()
+									.getStatus();
+							return Integer.valueOf(status1.ordinal())
+									.compareTo(status2.ordinal());
+						}
+						return 0;
+					}
+				}, new Class<?>[] { Doclog.class, DoclogRecord.class })
+				.setLabelProvider(
+						new ILabelProviderService.ColumnLabelProvider() {
+
+							@Override
+							public String getText(Object element) {
 								return "";
 							}
 
@@ -169,121 +360,6 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 							}
 						});
 
-		this.createColumn("URL", 200).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							String url = doclogRecord.getUrl();
-							return (url != null) ? url : "";
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("Action", 60).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							DoclogAction action = doclogRecord.getAction();
-							return (action != null) ? action.toString() : "";
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("Param", 50).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							String actionParameter = doclogRecord
-									.getActionParameter();
-							if (actionParameter != null) {
-								if (actionParameter.length() > 50) {
-									return actionParameter.subSequence(0, 50)
-											+ "...";
-								}
-								return actionParameter;
-							}
-							return null;
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("Width", 40).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							Point windowDimensions = doclogRecord
-									.getWindowDimensions();
-							return (windowDimensions != null) ? windowDimensions.x
-									+ ""
-									: "-";
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("Height", 40).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							Point windowDimensions = doclogRecord
-									.getWindowDimensions();
-							return (windowDimensions != null) ? windowDimensions.y
-									+ ""
-									: "-";
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("X", 40).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							Point scrollPosition = doclogRecord
-									.getScrollPosition();
-							return (scrollPosition != null) ? scrollPosition.x
-									+ "" : "-";
-						}
-						return "";
-					}
-				});
-
-		this.createColumn("Y", 40).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
-							Point scrollPosition = doclogRecord
-									.getScrollPosition();
-							return (scrollPosition != null) ? scrollPosition.y
-									+ "" : "-";
-						}
-						return "";
-					}
-				});
 	}
 
 	/**

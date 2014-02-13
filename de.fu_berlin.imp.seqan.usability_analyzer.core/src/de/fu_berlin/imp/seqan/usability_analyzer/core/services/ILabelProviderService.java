@@ -8,12 +8,16 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -164,29 +168,38 @@ public interface ILabelProviderService {
 		}
 	}
 
-	public static class StyledColumnLabelProvider extends ColumnLabelProvider
-			implements IStyledLabelProvider {
+	public static class StyledLabelProvider extends StyledCellLabelProvider
+			implements ILabelProvider, IStyledLabelProvider {
 
 		private static final Logger LOGGER = Logger
-				.getLogger(StyledColumnLabelProvider.class);
+				.getLogger(StyledLabelProvider.class);
 
 		@Override
 		public StyledString getStyledText(URI element) throws Exception {
-			return new StyledString("");
+			return null;
 		}
 
 		@Override
-		public String getText(URI element) throws Exception {
-			return getStyledText(element).getString();
+		public StyledString getStyledText(Object element) {
+			URI uri = URIUtils.adapt(element);
+			if (uri != null) {
+				try {
+					StyledString styledString = getStyledText(uri);
+					return styledString == null ? new StyledString("")
+							: styledString;
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving styled text for " + element,
+							e);
+					return new StyledString("ERROR", Stylers.ATTENTION_STYLER);
+				}
+			} else {
+				return new StyledString("");
+			}
 		}
 
 		@Override
-		public Image getImage(URI element) throws Exception {
-			return super.getImage(element);
-		}
-
-		public Color getBackground(URI element) throws Exception {
-			return super.getBackground(element);
+		public String getText(URI uri) throws Exception {
+			return getStyledText(uri).getString();
 		}
 
 		@Override
@@ -194,14 +207,19 @@ public interface ILabelProviderService {
 			URI uri = URIUtils.adapt(element);
 			if (uri != null) {
 				try {
-					return getText(uri);
+					return getStyledText(uri).getString();
 				} catch (Exception e) {
 					LOGGER.error("Error retrieving text for " + element, e);
 					return "ERROR";
 				}
 			} else {
-				return super.getText(element);
+				return "";
 			}
+		}
+
+		@Override
+		public Image getImage(URI element) throws Exception {
+			return null;
 		}
 
 		@Override
@@ -215,24 +233,126 @@ public interface ILabelProviderService {
 					return null;
 				}
 			} else {
-				return super.getImage(element);
+				return null;
 			}
 		}
 
-		@Override
-		public StyledString getStyledText(Object element) {
+		public Color getBackground(URI uri) throws Exception {
+			return null;
+		}
+
+		public final Color getBackground(Object element) {
 			URI uri = URIUtils.adapt(element);
 			if (uri != null) {
 				try {
-					return getStyledText(uri);
+					return getBackground(uri);
 				} catch (Exception e) {
-					LOGGER.error("Error retrieving styled text for " + element,
+					LOGGER.error("Error retrieving background for " + element,
 							e);
-					return new StyledString("ERROR");
+					return Display.getDefault().getSystemColor(SWT.COLOR_RED);
 				}
-			} else {
-				return new StyledString(super.getText(element));
 			}
+			return null;
+		}
+
+		public Color getForeground(URI uri) throws Exception {
+			return null;
+		}
+
+		public final Color getForeground(Object element) {
+			URI uri = URIUtils.adapt(element);
+			if (uri != null) {
+				try {
+					return getForeground(uri);
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving foreground for " + element,
+							e);
+					return Display.getDefault().getSystemColor(SWT.COLOR_RED);
+				}
+			}
+			return null;
+		}
+
+		public Font getFont(URI uri) throws Exception {
+			return null;
+		}
+
+		public final Font getFont(Object element) {
+			URI uri = URIUtils.adapt(element);
+			if (uri != null) {
+				try {
+					return getFont(uri);
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving font for " + element, e);
+					return Display.getDefault().getSystemFont();
+				}
+			}
+			return null;
+		}
+
+		public String getToolTipText(URI uri) throws Exception {
+			return null;
+		}
+
+		@Override
+		public final String getToolTipText(Object element) {
+			URI uri = URIUtils.adapt(element);
+			if (uri != null) {
+				try {
+					String toolTipText = getToolTipText(uri);
+					return toolTipText == null ? super.getToolTipText(element)
+							: toolTipText;
+				} catch (Exception e) {
+					LOGGER.error(
+							"Error retrieving tooltip text for " + element, e);
+					return super.getToolTipText(element);
+				}
+			}
+			return null;
+		}
+
+		public Image getToolTipImage(URI uri) throws Exception {
+			return null;
+		}
+
+		@Override
+		public final Image getToolTipImage(Object element) {
+			URI uri = URIUtils.adapt(element);
+			if (uri != null) {
+				try {
+					Image toolTipImage = getToolTipImage(uri);
+					return toolTipImage == null ? super
+							.getToolTipImage(element) : toolTipImage;
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving tooltip image for "
+							+ element, e);
+					return super.getToolTipImage(element);
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public void update(ViewerCell cell) {
+			Object element = cell.getElement();
+			StyledString styledString = getStyledText(element);
+			cell.setText(styledString.toString());
+			cell.setStyleRanges(styledString.getStyleRanges());
+			cell.setImage(getImage(element));
+			cell.setBackground(getBackground(element));
+			cell.setForeground(getForeground(element));
+			cell.setFont(getFont(element));
+		}
+	}
+
+	public static class ColumnLabelProvider extends
+			org.eclipse.jface.viewers.ColumnLabelProvider {
+
+		private static final Logger LOGGER = Logger
+				.getLogger(ColumnLabelProvider.class);
+
+		public Color getBackground(URI uri) throws Exception {
+			return null;
 		}
 
 		@Override
@@ -247,7 +367,7 @@ public interface ILabelProviderService {
 					return Display.getDefault().getSystemColor(SWT.COLOR_RED);
 				}
 			}
-			return super.getBackground(element);
+			return null;
 		}
 	}
 

@@ -19,6 +19,7 @@ import com.bkahlert.nebula.information.InformationControlManager;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.LabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.StyledLabelProvider;
 
 /**
  * This service can display {@link PopupDialog}s that show detailed information
@@ -122,6 +123,47 @@ public interface IInformationPresenterService<INFORMATION> {
 	 */
 	public static class InformationLabelProvider<INFORMATION> extends
 			LabelProvider implements IInformationLabelProvider<INFORMATION> {
+
+		@Override
+		public boolean hasInformation(INFORMATION uri) throws Exception {
+			return false;
+		}
+
+		@Override
+		public Control fillInformation(INFORMATION uri, Composite composite)
+				throws Exception {
+			return null;
+		}
+
+		@Override
+		public List<IllustratedText> getMetaInformation(INFORMATION uri)
+				throws Exception {
+			return new ArrayList<IllustratedText>();
+		}
+
+		@Override
+		public List<IDetailEntry> getDetailInformation(INFORMATION uri)
+				throws Exception {
+			return new ArrayList<IDetailEntry>();
+		}
+
+		@Override
+		public void fill(INFORMATION uri, ToolBarManager toolBarManager)
+				throws Exception {
+			return;
+		}
+
+	}
+
+	/**
+	 * Default implemention of {@link IInformationLabelProvider}.
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
+	public static class StyledInformationLabelProvider<INFORMATION> extends
+			StyledLabelProvider implements
+			IInformationLabelProvider<INFORMATION> {
 
 		@Override
 		public boolean hasInformation(INFORMATION uri) throws Exception {

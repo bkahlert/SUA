@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -20,6 +21,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
@@ -32,9 +35,9 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeInstanceViewer.class);
 
-	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
-	private SortableTreeViewer treeViewer;
+	private final SortableTreeViewer treeViewer;
 
 	public CodeInstanceViewer(Composite parent, int style) {
 		super(parent, style);
@@ -54,43 +57,58 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	private void createColumns() {
-		this.treeViewer.createColumn("ID", 180).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) throws Exception {
-						if (uri.equals(NoCodesNode.Uri)) {
-							return "no codes";
-						}
-						return CodeInstanceViewer.this.labelProviderService
-								.getLabelProvider(uri).getText(uri);
-					}
+		this.treeViewer
+				.createColumn("ID", new RelativeWidth(1.0, 150))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										if (uri.equals(NoCodesNode.Uri)) {
+											return new StyledString(
+													"no codes",
+													StyledString.QUALIFIER_STYLER);
+										}
+										return new StyledString(
+												CodeInstanceViewer.this.labelProviderService
+														.getLabelProvider(uri)
+														.getText(uri));
+									}
 
-					@Override
-					public Image getImage(URI uri) throws Exception {
-						if (uri.equals(NoCodesNode.Uri)) {
-							return null;
-						}
-						return CodeInstanceViewer.this.labelProviderService
-								.getLabelProvider(uri).getImage(uri);
-					}
-				});
-		this.treeViewer.createColumn("", 16).setLabelProvider(
-				new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						return "";
-					}
-				});
-		this.treeViewer.createColumn("URI", 300).setLabelProvider(
-				new ILabelProviderService.StyledColumnLabelProvider() {
-					@Override
-					public String getText(URI uri) {
-						if (uri.equals(NoCodesNode.Uri)) {
-							return "";
-						}
-						return uri.toString();
-					}
-				});
+									@Override
+									public Image getImage(URI uri)
+											throws Exception {
+										if (uri.equals(NoCodesNode.Uri)) {
+											return null;
+										}
+										return CodeInstanceViewer.this.labelProviderService
+												.getLabelProvider(uri)
+												.getImage(uri);
+									}
+								}));
+		this.treeViewer.createColumn("", new AbsoluteWidth(16))
+				.setLabelProvider(
+						new ILabelProviderService.ColumnLabelProvider() {
+							@Override
+							public String getText(Object element) {
+								return "??";
+							}
+						});
+		this.treeViewer
+				.createColumn("URI", new AbsoluteWidth(300))
+				.setLabelProvider(
+						new DelegatingStyledCellLabelProvider(
+								new ILabelProviderService.StyledLabelProvider() {
+									@Override
+									public StyledString getStyledText(URI uri)
+											throws Exception {
+										if (uri.equals(NoCodesNode.Uri)) {
+											return new StyledString();
+										}
+										return new StyledString(uri.toString());
+									}
+								}));
 	}
 
 	@Override

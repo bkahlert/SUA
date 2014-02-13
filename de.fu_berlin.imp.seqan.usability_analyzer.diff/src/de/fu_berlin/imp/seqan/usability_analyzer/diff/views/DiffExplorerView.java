@@ -3,6 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 import java.io.FileFilter;
 import java.net.URI;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +54,7 @@ import com.bkahlert.nebula.datetime.CalendarRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.extensionPoints.IDateRangeListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceInitializer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
@@ -175,8 +177,8 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	private DateRangeFilter dateRangeFilter = null;
 	private final HashMap<FileFilter, DiffFileListsViewerFileFilter> diffFileListsViewerFileFilters = new HashMap<FileFilter, DiffFileListsViewerFileFilter>();
 
-	protected static final DateFormat dateFormat = new SUACorePreferenceUtil()
-			.getDateFormat();
+	protected static final DateFormat dateFormat = new SimpleDateFormat(
+			SUACorePreferenceInitializer.DEFAULT_SMART_DATETIME);
 
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
