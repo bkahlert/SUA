@@ -35,8 +35,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiffs;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.DiffRecordSegment;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.util.DiffRecordUtils;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView;
 
 public class DiffLocatorProvider extends AdaptingLocatorProvider {
 
@@ -160,15 +160,15 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 	public boolean showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
-			DiffExplorerView diffExplorerView = (DiffExplorerView) WorkbenchUtils
-					.getView(DiffExplorerView.ID);
-			if (diffExplorerView == null) {
+			DiffView diffView = (DiffView) WorkbenchUtils
+					.getView(DiffView.ID);
+			if (diffView == null) {
 				return false;
 			}
-			if (this.openFiles(uris, diffExplorerView).length != uris.length) {
+			if (this.openFiles(uris, diffView).length != uris.length) {
 				return false;
 			}
-			if (!this.openSegments(uris, diffExplorerView, monitor)) {
+			if (!this.openSegments(uris, diffView, monitor)) {
 				return false;
 			}
 		}
@@ -176,7 +176,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	public URI[] openFiles(final URI[] uris,
-			final DiffExplorerView diffExplorerView) {
+			final DiffView diffView) {
 		final List<URI> open = new ArrayList<URI>();
 		open.addAll(Arrays.asList(uris));
 		open.addAll(DiffRecordUtils.getRecordsFromSegments(uris));
@@ -184,11 +184,11 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 		// open
 		try {
 			Set<IIdentifier> ids = URIUtils.getIdentifiers(uris);
-			Future<URI[]> future = diffExplorerView.open(ids,
+			Future<URI[]> future = diffView.open(ids,
 					new Callable<URI[]>() {
 						@Override
 						public URI[] call() {
-							final DiffListsViewer viewer = diffExplorerView
+							final DiffViewer viewer = diffView
 									.getDiffFileListsViewer();
 							try {
 								List<URI> selectedLocatables = ExecUtils
@@ -221,7 +221,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	public boolean openSegments(final URI[] uris,
-			final DiffExplorerView diffExplorerView, IProgressMonitor monitor) {
+			final DiffView diffView, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, uris.length);
 		ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);

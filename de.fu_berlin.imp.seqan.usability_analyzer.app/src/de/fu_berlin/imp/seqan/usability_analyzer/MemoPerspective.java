@@ -22,7 +22,7 @@ public class MemoPerspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView");
 			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView");
 		}
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.CompilerOutputView",

@@ -26,7 +26,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView;
 
 public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 
@@ -123,8 +123,8 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		if (uris.length > 0) {
 			URI[] selected = this.openAndSelectFilesInExplorer(uris,
-					(DoclogExplorerView) WorkbenchUtils
-							.getView(DoclogExplorerView.ID));
+					(DoclogView) WorkbenchUtils
+							.getView(DoclogView.ID));
 			return selected.length == uris.length;
 		}
 		subMonitor.done();
@@ -133,15 +133,15 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 	}
 
 	public URI[] openAndSelectFilesInExplorer(final URI[] uris,
-			final DoclogExplorerView doclogExplorerView) {
+			final DoclogView doclogView) {
 		Set<IIdentifier> identifiers = URIUtils.getIdentifiers(uris);
 
 		// open
-		Future<URI[]> rt = doclogExplorerView.open(identifiers,
+		Future<URI[]> rt = doclogView.open(identifiers,
 				new Callable<URI[]>() {
 					@Override
 					public URI[] call() {
-						TreeViewer viewer = doclogExplorerView
+						TreeViewer viewer = doclogView
 								.getDoclogFilesViewer();
 						viewer.setSelection(new StructuredSelection(uris), true);
 						List<URI> selectedLocatables = SelectionUtils

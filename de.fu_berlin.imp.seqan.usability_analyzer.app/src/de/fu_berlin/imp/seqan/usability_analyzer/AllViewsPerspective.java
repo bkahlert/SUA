@@ -17,12 +17,12 @@ public class AllViewsPerspective implements IPerspectiveFactory {
 		this.addPerspectiveShortcuts(layout);
 
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView",
 				IPageLayout.LEFT, 0.32f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
-				"de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView",
+				"de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView",
 				IPageLayout.BOTTOM, 0.5f,
-				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
+				"de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.entity.views.EntityView",
 				IPageLayout.BOTTOM, 0.69f, IPageLayout.ID_EDITOR_AREA);

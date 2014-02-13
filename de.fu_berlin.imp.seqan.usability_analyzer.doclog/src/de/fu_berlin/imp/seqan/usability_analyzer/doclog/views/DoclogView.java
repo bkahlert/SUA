@@ -57,14 +57,14 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionServi
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
-import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogFilesViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer.DoclogViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
-public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
+public class DoclogView extends ViewPart implements IDateRangeListener {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(DoclogExplorerView.class);
-	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView";
+			.getLogger(DoclogView.class);
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView";
 
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
@@ -97,7 +97,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			DoclogExplorerView.this.load(workSession);
+			DoclogView.this.load(workSession);
 		}
 	};
 
@@ -106,12 +106,12 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		@Override
 		public void highlight(Object sender, CalendarRange[] ranges,
 				boolean moveInsideViewport) {
-			if (DoclogExplorerView.this.loadedIdentifiers == null
-					|| DoclogExplorerView.this.loadedIdentifiers.size() == 0) {
+			if (DoclogView.this.loadedIdentifiers == null
+					|| DoclogView.this.loadedIdentifiers.size() == 0) {
 				return;
 			}
 			Map<IIdentifier, CalendarRange[]> groupedRanges = new HashMap<IIdentifier, CalendarRange[]>();
-			for (IIdentifier loadedIdentifier : DoclogExplorerView.this.loadedIdentifiers) {
+			for (IIdentifier loadedIdentifier : DoclogView.this.loadedIdentifiers) {
 				groupedRanges.put(loadedIdentifier, ranges);
 			}
 			this.highlight(sender, groupedRanges, moveInsideViewport);
@@ -121,7 +121,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		public void highlight(Object sender,
 				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				boolean moveInsideViewport) {
-			if (sender == DoclogExplorerView.this) {
+			if (sender == DoclogView.this) {
 				return;
 			}
 
@@ -134,18 +134,18 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					for (IIdentifier identifier : groupedRanges.keySet()) {
 						CalendarRange[] dataRanges = groupedRanges
 								.get(identifier);
-						TreeItem[] treeItems = DoclogExplorerView.this.treeViewer
+						TreeItem[] treeItems = DoclogView.this.treeViewer
 								.getTree().getItems();
 
 						List<TreePath> idIntersectingDoclogRecords;
 						if (com.bkahlert.devel.nebula.utils.ViewerUtils
 								.getItemWithDataType(treeItems, Doclog.class)
 								.size() == 0) {
-							idIntersectingDoclogRecords = DoclogFilesViewer
+							idIntersectingDoclogRecords = DoclogViewer
 									.getItemsOfIntersectingDataRanges(
 											treeItems, dataRanges);
 						} else {
-							idIntersectingDoclogRecords = DoclogFilesViewer
+							idIntersectingDoclogRecords = DoclogViewer
 									.getItemsOfIdIntersectingDataRanges(
 											treeItems, identifier, dataRanges);
 						}
@@ -154,7 +154,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 
 					TreeSelection treeSelection = new TreeSelection(treePaths
 							.toArray(new TreePath[0]));
-					DoclogExplorerView.this.treeViewer
+					DoclogView.this.treeViewer
 							.setSelection(treeSelection);
 				}
 			});
@@ -172,10 +172,10 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			.getTimeDifferenceFormat();
 
 	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DoclogExplorerView.class);
+			DoclogView.class);
 	private Set<IIdentifier> loadedIdentifiers;
 
-	public DoclogExplorerView() {
+	public DoclogView() {
 		this.workSessionService = (IWorkSessionService) PlatformUI
 				.getWorkbench().getService(IWorkSessionService.class);
 		if (this.workSessionService == null) {
@@ -225,7 +225,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.treeViewer = new DoclogFilesViewer(parent, SWT.MULTI
+		this.treeViewer = new DoclogViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
 		final Tree table = this.treeViewer.getTree();
 		table.setHeaderVisible(true);
@@ -234,12 +234,12 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override
 					public void selectionChanged(SelectionChangedEvent event) {
-						if (DoclogExplorerView.this.highlightService != null
-								&& DoclogExplorerView.this.getSite()
+						if (DoclogView.this.highlightService != null
+								&& DoclogView.this.getSite()
 										.getWorkbenchWindow().getActivePage()
-										.getActivePart() == DoclogExplorerView.this) {
-							DoclogExplorerView.this.highlightService.highlight(
-									DoclogExplorerView.this,
+										.getActivePart() == DoclogView.this) {
+							DoclogView.this.highlightService.highlight(
+									DoclogView.this,
 									event.getSelection(), false);
 						}
 					}
@@ -274,20 +274,20 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (DoclogExplorerView.this.dateRangeFilter != null) {
-					DoclogExplorerView.this.treeViewer
-							.removeFilter(DoclogExplorerView.this.dateRangeFilter);
+				if (DoclogView.this.dateRangeFilter != null) {
+					DoclogView.this.treeViewer
+							.removeFilter(DoclogView.this.dateRangeFilter);
 				}
-				DoclogExplorerView.this.dateRangeFilter = new DateRangeFilter(
+				DoclogView.this.dateRangeFilter = new DateRangeFilter(
 						newDateRange);
-				DoclogExplorerView.this.treeViewer
-						.addFilter(DoclogExplorerView.this.dateRangeFilter);
+				DoclogView.this.treeViewer
+						.addFilter(DoclogView.this.dateRangeFilter);
 			}
 		});
 	}
 
 	/**
-	 * Opens the given {@link IIdentifier}s in the {@link DoclogFilesViewer}. If
+	 * Opens the given {@link IIdentifier}s in the {@link DoclogViewer}. If
 	 * the corresponding {@link Doclog}s could be successfully opened a caller
 	 * defined {@link Runnable} gets executed.
 	 * <p>
@@ -331,7 +331,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 							public NamedJob call(final IIdentifier identifier)
 									throws Exception {
 								NamedJob doclogFileLoader = new NamedJob(
-										DoclogExplorerView.class, "Loading "
+										DoclogView.class, "Loading "
 												+ Doclog.class.getSimpleName()
 												+ "s ...") {
 									@Override
@@ -380,28 +380,28 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 					}
 				}
 
-				if (DoclogExplorerView.this.treeViewer != null
-						&& DoclogExplorerView.this.treeViewer.getTree() != null
-						&& !DoclogExplorerView.this.treeViewer.getTree()
+				if (DoclogView.this.treeViewer != null
+						&& DoclogView.this.treeViewer.getTree() != null
+						&& !DoclogView.this.treeViewer.getTree()
 								.isDisposed()
 						&& newOpenedDoclogFiles.size() > 0) {
-					DoclogExplorerView.this.openedDoclogFiles = newOpenedDoclogFiles;
+					DoclogView.this.openedDoclogFiles = newOpenedDoclogFiles;
 					final String partName = "Doclogs - "
 							+ StringUtils.join(newOpenedDoclogFiles.keySet(),
 									", ");
 					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							DoclogExplorerView.this.setPartName(partName);
+							DoclogView.this.setPartName(partName);
 							List<URI> uris = new ArrayList<URI>();
 							for (Iterator<Doclog> iterator = newOpenedDoclogFiles
 									.values().iterator(); iterator.hasNext();) {
 								Doclog doclog = iterator.next();
 								uris.add(doclog.getUri());
 							}
-							DoclogExplorerView.this.treeViewer.setInput(uris
+							DoclogView.this.treeViewer.setInput(uris
 									.toArray(new URI[uris.size()]));
-							DoclogExplorerView.this.treeViewer.expandAll();
+							DoclogView.this.treeViewer.expandAll();
 						}
 					});
 				}
@@ -430,7 +430,7 @@ public class DoclogExplorerView extends ViewPart implements IDateRangeListener {
 			final Set<IIdentifier> identifiers = new HashSet<IIdentifier>();
 			identifiers.addAll(ArrayUtils.getAdaptableObjects(
 					workSession.getEntities(), IIdentifier.class));
-			DoclogExplorerView.this.open(identifiers, null);
+			DoclogView.this.open(identifiers, null);
 		}
 	}
 }

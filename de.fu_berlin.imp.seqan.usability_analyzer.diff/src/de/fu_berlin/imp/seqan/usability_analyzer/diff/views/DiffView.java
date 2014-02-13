@@ -71,16 +71,16 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl.Diff;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.preferences.SUADiffPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.widgets.FileFilterComposite;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffContentProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffListsViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.DiffViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer.filters.DiffFileListsViewerFileFilter;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
-public class DiffExplorerView extends ViewPart implements IDateRangeListener,
+public class DiffView extends ViewPart implements IDateRangeListener,
 		IFileFilterListener {
 
-	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView";
+	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView";
 	public static final Logger LOGGER = Logger
-			.getLogger(DiffExplorerView.class);
+			.getLogger(DiffView.class);
 
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
@@ -103,13 +103,13 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 	private final SUADiffPreferenceUtil diffPreferenceUtil = new SUADiffPreferenceUtil();
-	private DiffListsViewer diffListsViewer;
+	private DiffViewer diffViewer;
 
 	private IWorkSessionService workSessionService;
 	private final IWorkSessionListener workSessionListener = new IWorkSessionListener() {
 		@Override
 		public void workSessionStarted(IWorkSession workSession) {
-			DiffExplorerView.this.load(workSession);
+			DiffView.this.load(workSession);
 		}
 	};
 
@@ -118,12 +118,12 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		@Override
 		public void highlight(Object sender, CalendarRange[] ranges,
 				boolean moveInsideViewport) {
-			if (DiffExplorerView.this.openedDiffs == null
-					|| DiffExplorerView.this.openedDiffs.keySet().size() == 0) {
+			if (DiffView.this.openedDiffs == null
+					|| DiffView.this.openedDiffs.keySet().size() == 0) {
 				return;
 			}
 			Map<IIdentifier, CalendarRange[]> groupedRanges = new HashMap<IIdentifier, CalendarRange[]>();
-			for (IIdentifier openedIdentifier : DiffExplorerView.this.openedDiffs
+			for (IIdentifier openedIdentifier : DiffView.this.openedDiffs
 					.keySet()) {
 				groupedRanges.put(openedIdentifier, ranges);
 			}
@@ -134,7 +134,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		public void highlight(Object sender,
 				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				boolean moveInsideViewport) {
-			if (sender == DiffExplorerView.this) {
+			if (sender == DiffView.this) {
 				return;
 			}
 
@@ -147,18 +147,18 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					for (IIdentifier identifier : groupedRanges.keySet()) {
 						CalendarRange[] dataRanges = groupedRanges
 								.get(identifier);
-						TreeItem[] treeItems = DiffExplorerView.this.diffListsViewer
+						TreeItem[] treeItems = DiffView.this.diffViewer
 								.getTree().getItems();
 
 						List<TreePath> idIntersectingDoclogRecords;
 						if (com.bkahlert.devel.nebula.utils.ViewerUtils
 								.getItemWithDataType(treeItems, IDiffs.class)
 								.size() == 0) {
-							idIntersectingDoclogRecords = DiffListsViewer
+							idIntersectingDoclogRecords = DiffViewer
 									.getItemsOfIntersectingDataRanges(
 											treeItems, dataRanges);
 						} else {
-							idIntersectingDoclogRecords = DiffListsViewer
+							idIntersectingDoclogRecords = DiffViewer
 									.getItemsOfIdIntersectingDataRanges(
 											treeItems, identifier, dataRanges);
 						}
@@ -167,7 +167,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 
 					TreeSelection treeSelection = new TreeSelection(treePaths
 							.toArray(new TreePath[0]));
-					DiffExplorerView.this.diffListsViewer
+					DiffView.this.diffViewer
 							.setSelection(treeSelection);
 				}
 			});
@@ -184,10 +184,10 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 			.getTimeDifferenceFormat();
 
 	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DiffExplorerView.class);
+			DiffView.class);
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
-	public DiffExplorerView() {
+	public DiffView() {
 
 	}
 
@@ -248,29 +248,29 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		FileFilterComposite filters = new FileFilterComposite(parent, SWT.NONE);
 		filters.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		this.diffListsViewer = new DiffListsViewer(parent, SWT.MULTI
+		this.diffViewer = new DiffViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
-		final Tree tree = this.diffListsViewer.getTree();
+		final Tree tree = this.diffViewer.getTree();
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
 
-		this.diffListsViewer.setContentProvider(new DiffContentProvider());
-		this.diffListsViewer
+		this.diffViewer.setContentProvider(new DiffContentProvider());
+		this.diffViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override
 					public void selectionChanged(SelectionChangedEvent event) {
-						if (DiffExplorerView.this.highlightService != null
-								&& DiffExplorerView.this.getSite()
+						if (DiffView.this.highlightService != null
+								&& DiffView.this.getSite()
 										.getWorkbenchWindow().getActivePage()
-										.getActivePart() == DiffExplorerView.this) {
-							DiffExplorerView.this.highlightService.highlight(
-									DiffExplorerView.this,
+										.getActivePart() == DiffView.this) {
+							DiffView.this.highlightService.highlight(
+									DiffView.this,
 									event.getSelection(), false);
 						}
 					}
 				});
-		this.diffListsViewer.addDoubleClickListener(new IDoubleClickListener() {
+		this.diffViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				List<IDiff> diffs = SelectionUtils.getAdaptableObjects(
@@ -295,7 +295,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 			this.fileFilterAdded(fileFilter);
 		}
 
-		new ContextMenu(this.diffListsViewer, this.getSite()) {
+		new ContextMenu(this.diffViewer, this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
 				return null;
@@ -303,16 +303,16 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		};
 	}
 
-	public DiffListsViewer getDiffFileListsViewer() {
-		return this.diffListsViewer;
+	public DiffViewer getDiffFileListsViewer() {
+		return this.diffViewer;
 	}
 
 	@Override
 	public void setFocus() {
-		if (this.diffListsViewer != null
-				&& this.diffListsViewer.getControl() != null
-				&& !this.diffListsViewer.getControl().isDisposed()) {
-			this.diffListsViewer.getControl().setFocus();
+		if (this.diffViewer != null
+				&& this.diffViewer.getControl() != null
+				&& !this.diffViewer.getControl().isDisposed()) {
+			this.diffViewer.getControl().setFocus();
 			this.load(this.workSessionService.getCurrentWorkSession());
 		}
 	}
@@ -360,7 +360,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 							public NamedJob call(final IIdentifier identifier)
 									throws Exception {
 								NamedJob diffFileLoader = new NamedJob(
-										DiffExplorerView.class, "Loading "
+										DiffView.class, "Loading "
 												+ Diff.class.getSimpleName()
 												+ "s ...") {
 									@Override
@@ -403,28 +403,28 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 					}
 				}
 
-				if (DiffExplorerView.this.diffListsViewer != null
-						&& DiffExplorerView.this.diffListsViewer.getTree() != null
-						&& !DiffExplorerView.this.diffListsViewer.getTree()
+				if (DiffView.this.diffViewer != null
+						&& DiffView.this.diffViewer.getTree() != null
+						&& !DiffView.this.diffViewer.getTree()
 								.isDisposed()
 						&& newOpenedDiffFileLists.size() > 0) {
-					DiffExplorerView.this.openedDiffs = newOpenedDiffFileLists;
+					DiffView.this.openedDiffs = newOpenedDiffFileLists;
 					final String partName = "Diffs - "
 							+ StringUtils.join(newOpenedDiffFileLists.keySet(),
 									", ");
 					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							DiffExplorerView.this.setPartName(partName);
+							DiffView.this.setPartName(partName);
 							List<URI> uris = new ArrayList<URI>();
 							for (Iterator<IDiffs> iterator = newOpenedDiffFileLists
 									.values().iterator(); iterator.hasNext();) {
 								IDiffs diffs = iterator.next();
 								uris.add(diffs.getUri());
 							}
-							DiffExplorerView.this.diffListsViewer.setInput(uris
+							DiffView.this.diffViewer.setInput(uris
 									.toArray(new URI[uris.size()]));
-							DiffExplorerView.this.diffListsViewer.expandAll();
+							DiffView.this.diffViewer.expandAll();
 						}
 					});
 				}
@@ -447,34 +447,34 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 	public void dateRangeChanged(TimeZoneDateRange oldDateRange,
 			TimeZoneDateRange newDateRange) {
 		if (this.dateRangeFilter != null) {
-			this.diffListsViewer.removeFilter(this.dateRangeFilter);
+			this.diffViewer.removeFilter(this.dateRangeFilter);
 		}
 		this.dateRangeFilter = new DateRangeFilter(newDateRange);
-		this.diffListsViewer.addFilter(this.dateRangeFilter);
+		this.diffViewer.addFilter(this.dateRangeFilter);
 	}
 
 	@Override
 	public void fileFilterAdded(final FileFilter fileFilter) {
-		if (this.diffListsViewer != null
-				&& this.diffListsViewer.getTree() != null
-				&& !this.diffListsViewer.getTree().isDisposed()) {
+		if (this.diffViewer != null
+				&& this.diffViewer.getTree() != null
+				&& !this.diffViewer.getTree().isDisposed()) {
 			if (!this.diffFileListsViewerFileFilters.containsKey(fileFilter)) {
 				this.diffFileListsViewerFileFilters.put(fileFilter,
 						new DiffFileListsViewerFileFilter(fileFilter));
 			}
-			this.diffListsViewer.addFilter(this.diffFileListsViewerFileFilters
+			this.diffViewer.addFilter(this.diffFileListsViewerFileFilters
 					.get(fileFilter));
 		}
 	}
 
 	@Override
 	public void fileFilterRemoved(FileFilter fileFilter) {
-		if (this.diffListsViewer != null
-				&& this.diffListsViewer.getTree() != null
-				&& !this.diffListsViewer.getTree().isDisposed()) {
+		if (this.diffViewer != null
+				&& this.diffViewer.getTree() != null
+				&& !this.diffViewer.getTree().isDisposed()) {
 			if (this.diffFileListsViewerFileFilters.containsKey(fileFilter)) {
 				this.diffFileListsViewerFileFilters.remove(fileFilter);
-				this.diffListsViewer
+				this.diffViewer
 						.removeFilter(this.diffFileListsViewerFileFilters
 								.get(fileFilter));
 			}
@@ -490,7 +490,7 @@ public class DiffExplorerView extends ViewPart implements IDateRangeListener,
 		final List<IIdentifier> ids = workSession != null ? ArrayUtils
 				.getAdaptableObjects(workSession.getEntities(),
 						IIdentifier.class) : new LinkedList<IIdentifier>();
-		DiffExplorerView.this.open(new HashSet<IIdentifier>(ids), null);
+		DiffView.this.open(new HashSet<IIdentifier>(ids), null);
 	}
 
 }

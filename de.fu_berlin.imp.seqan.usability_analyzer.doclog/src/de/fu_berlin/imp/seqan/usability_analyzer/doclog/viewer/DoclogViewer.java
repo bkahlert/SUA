@@ -42,10 +42,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
 
-public class DoclogFilesViewer extends SortableTreeViewer {
+public class DoclogViewer extends SortableTreeViewer {
 	private final LocalResourceManager resources;
 
-	public DoclogFilesViewer(Composite parent, int style,
+	public DoclogViewer(Composite parent, int style,
 			DateFormat dateFormat, String timeDifferenceFormat) {
 		super(parent, style);
 
@@ -54,7 +54,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 		parent.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				DoclogFilesViewer.this.resources.dispose();
+				DoclogViewer.this.resources.dispose();
 			}
 		});
 
@@ -343,7 +343,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 											.resolve(uri, Doclog.class, null)
 											.get().getScreenshotStatus();
 									RGB backgroundRgb = worstStatus.getRGB();
-									return DoclogFilesViewer.this.resources
+									return DoclogViewer.this.resources
 											.createColor(backgroundRgb);
 								}
 								if (locatorService.getType(uri) == DoclogRecord.class) {
@@ -353,7 +353,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 									RGB backgroundRgb = doclogRecord
 											.getScreenshot().getStatus()
 											.getRGB();
-									return DoclogFilesViewer.this.resources
+									return DoclogViewer.this.resources
 											.createColor(backgroundRgb);
 								}
 								return null;
@@ -414,7 +414,7 @@ public class DoclogFilesViewer extends SortableTreeViewer {
 				.getItemWithDataType(treeItems, Doclog.class)) {
 			URI uri = (URI) item.getData();
 			if (identifier.equals(URIUtils.getIdentifier(uri))) {
-				List<TreePath> childTreePaths = DoclogFilesViewer
+				List<TreePath> childTreePaths = DoclogViewer
 						.getItemsOfIntersectingDataRanges(
 								((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {

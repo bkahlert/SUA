@@ -21,7 +21,7 @@ public class TimelinePerspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views.TimelineView");
 			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView");
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1",

@@ -6,7 +6,7 @@
          point="org.eclipse.ui.views">
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView"
             icon="icons/view16/diff_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
             name="Diff Explorer"
@@ -208,7 +208,7 @@
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.daterange">
       <DateRangeListenerFactory
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView$Factory">
       </DateRangeListenerFactory>
    </extension>
    <extension
@@ -221,7 +221,7 @@
    <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.diff.filefilter">
       <FileFilterListenerFactory
-            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView$Factory">
+            class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView$Factory">
       </FileFilterListenerFactory>
    </extension>
    <extension
