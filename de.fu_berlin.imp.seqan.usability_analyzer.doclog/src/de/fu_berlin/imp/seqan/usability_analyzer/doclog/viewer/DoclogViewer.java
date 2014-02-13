@@ -8,10 +8,12 @@ import java.util.List;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -26,6 +28,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.utils.DNDUtils;
+import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
@@ -41,12 +45,13 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogScreenshot.Status;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui.DoclogLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 
 public class DoclogViewer extends SortableTreeViewer {
 	private final LocalResourceManager resources;
 
-	public DoclogViewer(Composite parent, int style,
-			DateFormat dateFormat, String timeDifferenceFormat) {
+	public DoclogViewer(Composite parent, int style, DateFormat dateFormat,
+			String timeDifferenceFormat) {
 		super(parent, style);
 
 		this.resources = new LocalResourceManager(
@@ -62,6 +67,14 @@ public class DoclogViewer extends SortableTreeViewer {
 
 		this.initColumns(dateFormat, timeDifferenceFormat);
 
+		DNDUtils.addLocalDragSupport(this, new Oracle() {
+			@Override
+			public boolean allowDND() {
+				return DoclogViewer.this.getControl().getData(
+						EpisodeRenderer.CONTROL_DATA_STRING) == null;
+			}
+		}, URI.class);
+
 		this.sort(0);
 	}
 
@@ -71,76 +84,78 @@ public class DoclogViewer extends SortableTreeViewer {
 		final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
 
-		this.createColumn("Date", new RelativeWidth(1.0, 150))
-				.setLabelProvider(
-						new ILabelProviderService.StyledLabelProvider() {
-							DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
+		this.createColumn("Date", new RelativeWidth(.9, 250)).setLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
 
-							@Override
-							public StyledString getStyledText(URI uri)
-									throws Exception {
-								if (locatorService.getType(uri) == Doclog.class) {
-									return this.doclogLabelProvider
-											.getStyledText(uri);
-								}
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
-											.resolve(uri, DoclogRecord.class,
-													null).get();
-									TimeZoneDate date = doclogRecord
-											.getDateRange().getStartDate();
-									StyledString s = new StyledString(
-											(date != null) ? date
-													.format(dateFormat) : "");
+					DoclogLabelProvider doclogLabelProvider = new DoclogLabelProvider();
 
-									String url = doclogRecord.getUrl();
-									s.append(
-											"   "
-													+ ((url != null) ? "... "
-															+ url.substring((int) (url
-																	.length() / 3.0))
-															: "") + "",
-											Stylers.MINOR_STYLER);
+					@Override
+					public StyledString getStyledText(URI uri) throws Exception {
+						if (locatorService.getType(uri) == Doclog.class) {
+							return this.doclogLabelProvider.getStyledText(uri);
+						}
+						if (locatorService.getType(uri) == DoclogRecord.class) {
+							DoclogRecord doclogRecord = locatorService.resolve(
+									uri, DoclogRecord.class, null).get();
+							TimeZoneDate date = doclogRecord.getDateRange()
+									.getStartDate();
+							StyledString s = new StyledString(
+									(date != null) ? date.format(dateFormat)
+											: "");
 
-									return s;
-								}
-								return new StyledString();
+							String url = doclogRecord.getUrl();
+							s.append(
+									"   "
+											+ ((url != null) ? "... "
+													+ url.substring((int) (url
+															.length() / 3.0))
+													: "") + "",
+									Stylers.MINOR_STYLER);
+
+							return s;
+						}
+						return new StyledString();
+					}
+
+					@Override
+					public String getToolTipText(URI uri) throws Exception {
+						if (locatorService.getType(uri) == DoclogRecord.class) {
+							DoclogRecord doclogRecord = locatorService.resolve(
+									uri, DoclogRecord.class, null).get();
+
+							DoclogAction action = doclogRecord.getAction();
+							String actionParameter = doclogRecord
+									.getActionParameter();
+							if (action != null && actionParameter != null) {
+								return action.toString() + " :: "
+										+ actionParameter;
+							} else if (action != null
+									&& actionParameter == null) {
+								return action.toString();
+							} else if (action == null
+									&& actionParameter != null) {
+								return "??? :: " + actionParameter;
+							} else {
+								return "";
 							}
+						}
+						return null;
+					}
 
-							@Override
-							public String getToolTipText(URI uri)
-									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
-											.resolve(uri, DoclogRecord.class,
-													null).get();
+					@Override
+					public Image getImage(URI uri) throws Exception {
+						return this.doclogLabelProvider.getImage(uri);
+					}
+				});
 
-									DoclogAction action = doclogRecord
-											.getAction();
-									String actionParameter = doclogRecord
-											.getActionParameter();
-									if (action != null
-											&& actionParameter != null) {
-										return action.toString() + " :: "
-												+ actionParameter;
-									} else if (action != null
-											&& actionParameter == null) {
-										return action.toString();
-									} else if (action == null
-											&& actionParameter != null) {
-										return "??? :: " + actionParameter;
-									} else {
-										return "";
-									}
-								}
-								return null;
-							}
-
-							@Override
-							public Image getImage(URI uri) throws Exception {
-								return this.doclogLabelProvider.getImage(uri);
-							}
-						});
+		TreeViewerColumn episodeColumn = this.createColumn("",
+				new RelativeWidth(.1, 22));
+		episodeColumn.setLabelProvider(new CellLabelProvider() {
+			@Override
+			public void update(ViewerCell cell) {
+			}
+		});
+		new EpisodeRenderer(this, episodeColumn, 1).activateRendering();
 
 		TreeViewerColumn passedColumn = this.createColumn("Passed",
 				new AbsoluteWidth(90), true, new Comparator<Object>() {

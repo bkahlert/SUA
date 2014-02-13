@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
@@ -14,14 +13,9 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -30,6 +24,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.utils.DNDUtils;
+import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 
@@ -42,6 +38,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderSer
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 
 public class EpisodeViewer extends Composite implements ISelectionProvider {
@@ -80,43 +77,13 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 					}
 				}, TreeViewerEditor.DEFAULT);
 
-		int operations = DND.DROP_LINK;
-		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
-				.getTransfer() };
-		this.treeViewer.addDragSupport(operations, transferTypes,
-				new DragSourceListener() {
-					@Override
-					public void dragStart(DragSourceEvent event) {
-						if (((TreeSelection) EpisodeViewer.this.treeViewer
-								.getSelection()).size() > 0) {
-							LocalSelectionTransfer.getTransfer().setSelection(
-									EpisodeViewer.this.treeViewer
-											.getSelection());
-							LocalSelectionTransfer.getTransfer()
-									.setSelectionSetTime(
-											event.time & 0xFFFFFFFFL);
-							event.doit = true;
-						} else {
-							event.doit = false;
-						}
-					};
-
-					@Override
-					public void dragSetData(DragSourceEvent event) {
-						if (LocalSelectionTransfer.getTransfer()
-								.isSupportedType(event.dataType)) {
-							event.data = LocalSelectionTransfer.getTransfer()
-									.getSelection();
-						}
-					}
-
-					@Override
-					public void dragFinished(DragSourceEvent event) {
-						LocalSelectionTransfer.getTransfer().setSelection(null);
-						LocalSelectionTransfer.getTransfer()
-								.setSelectionSetTime(0);
-					}
-				});
+		DNDUtils.addLocalDragSupport(this.treeViewer, new Oracle() {
+			@Override
+			public boolean allowDND() {
+				return EpisodeViewer.this.getControl().getData(
+						EpisodeRenderer.CONTROL_DATA_STRING) == null;
+			}
+		}, URI.class);
 	}
 
 	private void createColumns() {

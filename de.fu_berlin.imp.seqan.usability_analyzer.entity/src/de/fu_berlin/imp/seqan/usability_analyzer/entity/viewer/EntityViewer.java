@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.viewer.SortableTableViewer;
+import com.bkahlert.nebula.utils.DNDUtils;
+import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
@@ -40,6 +42,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.IBoldViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.CMakeCacheFile;
 import de.fu_berlin.imp.seqan.usability_analyzer.stats.model.StatsFile;
 
@@ -75,6 +78,15 @@ public class EntityViewer extends SortableTableViewer implements
 		table.setLinesVisible(true);
 
 		this.createColumns();
+
+		DNDUtils.addLocalDragSupport(this, new Oracle() {
+			@Override
+			public boolean allowDND() {
+				return EntityViewer.this.getControl().getData(
+						EpisodeRenderer.CONTROL_DATA_STRING) == null;
+			}
+		}, URI.class);
+
 		this.sort(0);
 
 		this.dataService.addDataServiceListener(this.dataServiceListener);

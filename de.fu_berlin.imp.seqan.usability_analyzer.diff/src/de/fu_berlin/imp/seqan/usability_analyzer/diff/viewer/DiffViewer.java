@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
-import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -18,10 +17,6 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
@@ -34,8 +29,9 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
-import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.utils.DNDUtils;
+import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
@@ -80,55 +76,15 @@ public class DiffViewer extends SortableTreeViewer {
 
 		this.initColumns(dateFormat, timeDifferenceFormat);
 
-		int operations = DND.DROP_LINK;
-		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
-				.getTransfer() };
-		this.addDragSupport(operations, transferTypes,
-				new DragSourceListener() {
-					private boolean isEpisodeRendererActive() {
-						return DiffViewer.this.getControl().getData(
-								EpisodeRenderer.CONTROL_DATA_STRING) != null;
-					}
+		DNDUtils.addLocalDragSupport(this, new Oracle() {
+			@Override
+			public boolean allowDND() {
+				return DiffViewer.this.getControl().getData(
+						EpisodeRenderer.CONTROL_DATA_STRING) == null;
+			}
+		}, URI.class);
 
-					@Override
-					public void dragStart(DragSourceEvent event) {
-						if (!this.isEpisodeRendererActive()
-								&& SelectionRetrieverFactory
-										.getSelectionRetriever(URI.class)
-										.getSelection().size() > 0) {
-							LocalSelectionTransfer.getTransfer().setSelection(
-									DiffViewer.this.getSelection());
-							LocalSelectionTransfer.getTransfer()
-									.setSelectionSetTime(
-											event.time & 0xFFFFFFFFL);
-							event.doit = true;
-						} else {
-							event.doit = false;
-						}
-					};
-
-					@Override
-					public void dragSetData(DragSourceEvent event) {
-						if (this.isEpisodeRendererActive()) {
-							event.doit = false;
-						}
-
-						if (LocalSelectionTransfer.getTransfer()
-								.isSupportedType(event.dataType)) {
-							event.data = LocalSelectionTransfer.getTransfer()
-									.getSelection();
-						}
-					}
-
-					@Override
-					public void dragFinished(DragSourceEvent event) {
-						LocalSelectionTransfer.getTransfer().setSelection(null);
-						LocalSelectionTransfer.getTransfer()
-								.setSelectionSetTime(0);
-					}
-				});
-
-		this.sort(3);
+		this.sort(0);
 	}
 
 	private void initColumns(final DateFormat dateFormat,
@@ -170,7 +126,7 @@ public class DiffViewer extends SortableTreeViewer {
 						if (type == IDiffRecord.class) {
 							String text = this.diffLabelProvider
 									.getStyledText(uri).toString()
-									.replaceAll("\\s*(.*?)", "");
+									.replaceAll("\\s*\\(.*?\\)", "");
 							return new StyledString(text);
 						}
 						return new StyledString("ERROR",
