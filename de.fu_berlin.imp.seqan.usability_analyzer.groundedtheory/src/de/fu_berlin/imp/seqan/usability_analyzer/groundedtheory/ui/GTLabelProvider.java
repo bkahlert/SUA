@@ -4,18 +4,26 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.colors.ColorUtils;
+import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.utils.PaintUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -33,6 +41,50 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNo
 
 public final class GTLabelProvider extends UriLabelProvider {
 
+	public static class CodeColors {
+		private final RGB backgroundRGB;
+		private Color backgroundColor = null;
+		private Color borderColor = null;
+
+		public CodeColors(RGB backgroundRGB) {
+			this.backgroundRGB = backgroundRGB;
+
+			if (backgroundRGB == null) {
+				this.backgroundColor = EpisodeRenderer.DEFAULT_BACKGROUND_COLOR;
+			} else {
+				this.backgroundColor = new Color(Display.getCurrent(),
+						backgroundRGB.toClassicRGB());
+			}
+
+			this.borderColor = new Color(Display.getDefault(), ColorUtils
+					.scaleLightnessBy(new RGB(this.backgroundColor.getRGB()),
+							0.85f).toClassicRGB());
+		}
+
+		public RGB getBackgroundRGB() {
+			return this.backgroundRGB;
+		}
+
+		public Color getBackgroundColor() {
+			return this.backgroundColor;
+		}
+
+		public Color getBorderColor() {
+			return this.borderColor;
+		}
+
+		public void dispose() {
+			if (EpisodeRenderer.DEFAULT_BACKGROUND_COLOR != this.backgroundColor
+					&& this.backgroundColor != null
+					&& !this.backgroundColor.isDisposed()) {
+				this.backgroundColor.dispose();
+			}
+			if (this.borderColor != null && !this.borderColor.isDisposed()) {
+				this.borderColor.dispose();
+			}
+		}
+	}
+
 	private static final Logger LOGGER = Logger
 			.getLogger(GTLabelProvider.class);
 
@@ -43,6 +95,43 @@ public final class GTLabelProvider extends UriLabelProvider {
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 	private final HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
+
+	/**
+	 * Caches image that shows the color of a {@link ICode}.
+	 */
+	private static final Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
+
+	/**
+	 * Returns the image that shows the color of the given {@link ICode}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public static Image getCodeImage(ICode code) {
+		if (!codeImages.containsKey(code)) {
+			Image image = new Image(Display.getCurrent(), 16, 16);
+			GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
+					code.getColor());
+			GC gc = new GC(image);
+			gc.setAlpha(128);
+			PaintUtils.drawRoundedRectangle(gc, image.getBounds(),
+					info.getBackgroundColor(), info.getBorderColor());
+			gc.dispose();
+			codeImages.put(code, image);
+		}
+		return codeImages.get(code);
+	}
+
+	/**
+	 * Returns the {@link URI} point to the image that shows the color of the
+	 * given {@link ICode}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public static URI getCodeImageURI(ICode code) {
+		return ImageUtils.createUriFromImage(getCodeImage(code));
+	}
 
 	protected Image getMemoAnnotatedImage(Image image) {
 		if (image == null) {

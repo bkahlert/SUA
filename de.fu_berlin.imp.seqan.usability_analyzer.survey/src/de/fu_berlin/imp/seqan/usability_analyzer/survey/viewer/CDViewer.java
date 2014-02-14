@@ -5,9 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -16,15 +14,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.PaintUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite.IFocusListener;
@@ -38,7 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocator
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer.CodeColors;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.WizardUtils;
@@ -237,28 +231,11 @@ public class CDViewer extends Viewer {
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
 	}
 
-	private final Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
-
-	private URI getCodeImage(ICode code) {
-		if (!this.codeImages.containsKey(code)) {
-			Image image = new Image(Display.getCurrent(), 16, 16);
-			CodeColors info = new CodeColors(code.getColor());
-			GC gc = new GC(image);
-			gc.setAlpha(128);
-			PaintUtils.drawRoundedRectangle(gc, image.getBounds(),
-					info.getBackgroundColor(), info.getBorderColor());
-			gc.dispose();
-			this.codeImages.put(code, image);
-		}
-
-		return ImageUtils.createUriFromImage(this.codeImages.get(code));
-	}
-
 	private String createCodeLinks(List<ICode> codes) {
 		List<String> html = new ArrayList<String>();
 		for (ICode code : codes) {
 			html.add("<a href=\"" + code.getUri() + "\"><img src=\""
-					+ this.getCodeImage(code) + "\"/>");
+					+ GTLabelProvider.getCodeImageURI(code) + "\"/>");
 		}
 		return StringUtils.join(html, " ");
 	}

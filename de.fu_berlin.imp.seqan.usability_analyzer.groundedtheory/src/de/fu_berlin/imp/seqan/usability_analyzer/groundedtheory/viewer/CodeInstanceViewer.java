@@ -23,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
@@ -66,14 +67,14 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 									public StyledString getStyledText(URI uri)
 											throws Exception {
 										if (uri.equals(NoCodesNode.Uri)) {
-											return new StyledString(
-													"no codes",
-													StyledString.QUALIFIER_STYLER);
+											return new StyledString("no codes",
+													Stylers.MINOR_STYLER);
 										}
 										return new StyledString(
 												CodeInstanceViewer.this.labelProviderService
 														.getLabelProvider(uri)
-														.getText(uri));
+														.getText(uri),
+												Stylers.DEFAULT_STYLER);
 									}
 
 									@Override
@@ -92,7 +93,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 						new ILabelProviderService.ColumnLabelProvider() {
 							@Override
 							public String getText(Object element) {
-								return "??";
+								return "";
 							}
 						});
 		this.treeViewer

@@ -36,8 +36,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
@@ -78,50 +76,6 @@ public class EpisodeRenderer implements IDisposable {
 
 	public static Color DEFAULT_BACKGROUND_COLOR = new Color(
 			Display.getCurrent(), new org.eclipse.swt.graphics.RGB(85, 85, 85));
-
-	public static class CodeColors {
-		private final RGB backgroundRGB;
-		private Color backgroundColor = null;
-		private Color borderColor = null;
-
-		public CodeColors(RGB backgroundRGB) {
-			this.backgroundRGB = backgroundRGB;
-
-			if (backgroundRGB == null) {
-				this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
-			} else {
-				this.backgroundColor = new Color(Display.getCurrent(),
-						backgroundRGB.toClassicRGB());
-			}
-
-			this.borderColor = new Color(Display.getDefault(), ColorUtils
-					.scaleLightnessBy(new RGB(this.backgroundColor.getRGB()),
-							0.85f).toClassicRGB());
-		}
-
-		public RGB getBackgroundRGB() {
-			return this.backgroundRGB;
-		}
-
-		public Color getBackgroundColor() {
-			return this.backgroundColor;
-		}
-
-		public Color getBorderColor() {
-			return this.borderColor;
-		}
-
-		public void dispose() {
-			if (DEFAULT_BACKGROUND_COLOR != this.backgroundColor
-					&& this.backgroundColor != null
-					&& !this.backgroundColor.isDisposed()) {
-				this.backgroundColor.dispose();
-			}
-			if (this.borderColor != null && !this.borderColor.isDisposed()) {
-				this.borderColor.dispose();
-			}
-		}
-	}
 
 	private static class ResizeInfo {
 		public static ResizeInfo getInfoIfApplicable(Event event,
@@ -250,7 +204,7 @@ public class EpisodeRenderer implements IDisposable {
 	private static class Renderer implements PaintListener, Listener,
 			IDisposable {
 
-		private final Map<IEpisode, CodeColors> renderingColors = new HashMap<IEpisode, CodeColors>();
+		private final Map<IEpisode, GTLabelProvider.CodeColors> renderingColors = new HashMap<IEpisode, GTLabelProvider.CodeColors>();
 
 		private final ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);
@@ -461,7 +415,7 @@ public class EpisodeRenderer implements IDisposable {
 					try {
 						List<ICode> codes = this.codeService.getCodes(episode
 								.getUri());
-						CodeColors renderingColor = this.renderingColors
+						GTLabelProvider.CodeColors renderingColor = this.renderingColors
 								.get(episode);
 						if (codes.size() == 0
 								|| !codes
@@ -484,10 +438,10 @@ public class EpisodeRenderer implements IDisposable {
 						List<ICode> codes = this.codeService.getCodes(episode
 								.getUri());
 						if (codes.size() > 0) {
-							this.renderingColors.put(episode, new CodeColors(
+							this.renderingColors.put(episode, new GTLabelProvider.CodeColors(
 									codes.get(0).getColor()));
 						} else {
-							this.renderingColors.put(episode, new CodeColors(
+							this.renderingColors.put(episode, new GTLabelProvider.CodeColors(
 									null));
 						}
 					} catch (CodeServiceException e1) {
@@ -499,7 +453,7 @@ public class EpisodeRenderer implements IDisposable {
 
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
-				CodeColors codeColors = this.renderingColors.get(episode);
+				GTLabelProvider.CodeColors codeColors = this.renderingColors.get(episode);
 				if (codeColors == null) {
 					LOGGER.warn("Could not paint episode because it has no color; "
 							+ episode);

@@ -180,7 +180,7 @@ public interface ILabelProviderService {
 		}
 
 		@Override
-		public StyledString getStyledText(Object element) {
+		public final StyledString getStyledText(Object element) {
 			URI uri = URIUtils.adapt(element);
 			if (uri != null) {
 				try {
@@ -198,7 +198,7 @@ public interface ILabelProviderService {
 		}
 
 		@Override
-		public String getText(URI uri) throws Exception {
+		public final String getText(URI uri) throws Exception {
 			return getStyledText(uri).getString();
 		}
 

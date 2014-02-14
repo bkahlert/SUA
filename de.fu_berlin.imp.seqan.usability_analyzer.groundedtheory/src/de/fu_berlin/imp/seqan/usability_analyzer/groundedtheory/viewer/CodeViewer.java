@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -91,12 +90,14 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		CodeViewerUtils.createCodeColumn(this.treeViewer, codeService);
 
 		this.treeViewer.createColumn("", new AbsoluteWidth(16))
-				.setLabelProvider(new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						return "";
-					}
-				});
+				.setLabelProvider(
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI element)
+									throws Exception {
+								return new StyledString();
+							}
+						});
 
 		this.treeViewer
 				.createColumn("ID", new AbsoluteWidth(0)/* 150 */)

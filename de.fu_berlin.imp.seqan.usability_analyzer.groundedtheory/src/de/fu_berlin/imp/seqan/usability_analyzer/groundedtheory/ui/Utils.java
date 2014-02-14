@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -23,10 +24,10 @@ import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer.CodeColors;
 
 public class Utils {
 
@@ -62,11 +63,15 @@ public class Utils {
 	public static void addCodeColorRenderSupport(Tree tree,
 			final int columnNumber) {
 		tree.addListener(SWT.PaintItem, new Listener() {
+			private final ILocatorService locatorService = (ILocatorService) PlatformUI
+					.getWorkbench().getService(ILocatorService.class);
+
 			@Override
 			public void handleEvent(Event event) {
 				if (!(event.item instanceof TreeItem)
-						|| !(event.item.getData() instanceof ICode))
+						|| !(event.item.getData() instanceof URI)) {
 					return;
+				}
 				TreeItem item = (TreeItem) event.item;
 				Rectangle bounds = item.getImageBounds(columnNumber);
 				bounds.width = 14;
@@ -74,21 +79,31 @@ public class Utils {
 				bounds.y += 2;
 				bounds.x -= 2;
 
-				ICode code = (ICode) item.getData();
-				CodeColors info = new CodeColors(code.getColor());
-				event.gc.setAlpha(128);
-				PaintUtils.drawRoundedRectangle(event.gc, bounds,
-						info.getBackgroundColor(), info.getBorderColor());
+				ICode code = null;
+				try {
+					code = this.locatorService.resolve((URI) item.getData(),
+							ICode.class, null).get();
+				} catch (Exception e) {
+					LOGGER.error("Error painting color of " + item.getData());
+				}
+				if (code != null) {
+					GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
+							code.getColor());
+					event.gc.setAlpha(128);
+					PaintUtils.drawRoundedRectangle(event.gc, bounds,
+							info.getBackgroundColor(), info.getBorderColor());
+				}
 			}
 		});
 		tree.addListener(SWT.MouseMove, new Listener() {
-			private Cursor hand = new Cursor(Display.getCurrent(),
+			private final Cursor hand = new Cursor(Display.getCurrent(),
 					SWT.CURSOR_HAND);
 
 			@Override
 			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Tree))
+				if (!(event.widget instanceof Tree)) {
 					return;
+				}
 				Tree tree = ((Tree) event.widget);
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
@@ -101,7 +116,7 @@ public class Utils {
 
 					if (event.getBounds().x >= bounds.x
 							&& event.getBounds().x <= bounds.x + bounds.width) {
-						tree.setCursor(hand);
+						tree.setCursor(this.hand);
 					} else {
 						tree.setCursor(null);
 					}
@@ -111,8 +126,9 @@ public class Utils {
 		tree.addListener(SWT.MouseUp, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Tree))
+				if (!(event.widget instanceof Tree)) {
 					return;
+				}
 				Tree tree = ((Tree) event.widget);
 				if (tree.getCursor() != null) {
 					ICommandService cmdService = (ICommandService) PlatformUI
