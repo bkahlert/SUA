@@ -19,7 +19,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocator
  * 
  */
 public class DateRangeFilter extends ViewerFilter {
-	private final Logger logger = Logger.getLogger(TimeZoneDateRange.class);
+	private final Logger logger = Logger.getLogger(DateRangeFilter.class);
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
@@ -39,9 +39,10 @@ public class DateRangeFilter extends ViewerFilter {
 
 		if (element instanceof URI) {
 			try {
-				element = locatorService.resolve((URI) element, null).get();
+				element = this.locatorService.resolve((URI) element, null)
+						.get();
 			} catch (Exception e) {
-				logger.error("Could not resolve " + element);
+				this.logger.error("Could not resolve " + element);
 			}
 		}
 
@@ -51,7 +52,7 @@ public class DateRangeFilter extends ViewerFilter {
 			return this.dateRange.isIntersected(dateRange);
 		}
 
-		logger.warn("The object " + element + " does not implement "
+		this.logger.warn("The object " + element + " does not implement "
 				+ HasDateRange.class.getSimpleName()
 				+ " and had been filtered from viewer " + viewer + ".");
 		return false;

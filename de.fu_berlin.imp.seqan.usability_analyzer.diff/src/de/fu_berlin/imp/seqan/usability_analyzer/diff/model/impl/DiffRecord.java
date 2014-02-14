@@ -381,4 +381,9 @@ public class DiffRecord implements IDiffRecord {
 		return false;
 	}
 
+	@Override
+	public File getFile() throws IOException {
+		return this.diff.getFile();
+	}
+
 }

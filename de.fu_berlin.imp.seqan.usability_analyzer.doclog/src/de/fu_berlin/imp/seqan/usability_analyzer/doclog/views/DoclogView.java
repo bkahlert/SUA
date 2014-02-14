@@ -54,6 +54,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.DateRangeFilter;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
@@ -62,8 +63,7 @@ import de.ralfebert.rcputils.menus.ContextMenu;
 
 public class DoclogView extends ViewPart implements IDateRangeListener {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(DoclogView.class);
+	private static final Logger LOGGER = Logger.getLogger(DoclogView.class);
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView";
 
 	public static class Factory implements IExecutableExtensionFactory {
@@ -121,13 +121,28 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 		public void highlight(Object sender,
 				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				boolean moveInsideViewport) {
-			if (sender == DoclogView.this) {
+			if (sender == DoclogView.this || !moveInsideViewport) {
 				return;
 			}
 
 			// TODO implement moveInsideViewport support
 
 			ExecUtils.asyncExec(new Runnable() {
+				private final ILocatorService locatorService = (ILocatorService) PlatformUI
+						.getWorkbench().getService(ILocatorService.class);
+
+				private boolean hasIDiffNodes(TreeItem[] treeItems) {
+					for (TreeItem treeItem : treeItems) {
+						if (treeItem.getData() instanceof URI) {
+							if (this.locatorService.getType((URI) treeItem
+									.getData()) == Doclog.class) {
+								return true;
+							}
+						}
+					}
+					return false;
+				}
+
 				@Override
 				public void run() {
 					List<TreePath> treePaths = new ArrayList<TreePath>();
@@ -137,25 +152,27 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 						TreeItem[] treeItems = DoclogView.this.treeViewer
 								.getTree().getItems();
 
-						List<TreePath> idIntersectingDoclogRecords;
-						if (com.bkahlert.devel.nebula.utils.ViewerUtils
-								.getItemWithDataType(treeItems, Doclog.class)
-								.size() == 0) {
-							idIntersectingDoclogRecords = DoclogViewer
-									.getItemsOfIntersectingDataRanges(
-											treeItems, dataRanges);
-						} else {
-							idIntersectingDoclogRecords = DoclogViewer
-									.getItemsOfIdIntersectingDataRanges(
-											treeItems, identifier, dataRanges);
+						try {
+							List<TreePath> idIntersectingDoclogRecords;
+							if (!this.hasIDiffNodes(treeItems)) {
+								idIntersectingDoclogRecords = DoclogViewer
+										.getItemsOfIntersectingDataRanges(
+												treeItems, dataRanges);
+							} else {
+								idIntersectingDoclogRecords = DoclogViewer
+										.getItemsOfIdIntersectingDataRanges(
+												treeItems, identifier,
+												dataRanges);
+							}
+							treePaths.addAll(idIntersectingDoclogRecords);
+						} catch (Exception e) {
+							LOGGER.error("Error highlighting " + identifier, e);
 						}
-						treePaths.addAll(idIntersectingDoclogRecords);
 					}
 
 					TreeSelection treeSelection = new TreeSelection(treePaths
 							.toArray(new TreePath[0]));
-					DoclogView.this.treeViewer
-							.setSelection(treeSelection);
+					DoclogView.this.treeViewer.setSelection(treeSelection);
 				}
 			});
 		}
@@ -225,8 +242,8 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.treeViewer = new DoclogViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
+		this.treeViewer = new DoclogViewer(parent, SWT.MULTI | SWT.H_SCROLL
+				| SWT.V_SCROLL, dateFormat, timeDifferenceFormat);
 		final Tree table = this.treeViewer.getTree();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(false);
@@ -239,8 +256,8 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 										.getWorkbenchWindow().getActivePage()
 										.getActivePart() == DoclogView.this) {
 							DoclogView.this.highlightService.highlight(
-									DoclogView.this,
-									event.getSelection(), false);
+									DoclogView.this, event.getSelection(),
+									false);
 						}
 					}
 				});
@@ -287,8 +304,8 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 	}
 
 	/**
-	 * Opens the given {@link IIdentifier}s in the {@link DoclogViewer}. If
-	 * the corresponding {@link Doclog}s could be successfully opened a caller
+	 * Opens the given {@link IIdentifier}s in the {@link DoclogViewer}. If the
+	 * corresponding {@link Doclog}s could be successfully opened a caller
 	 * defined {@link Runnable} gets executed.
 	 * <p>
 	 * Note: The {@link Runnable} is executed in the UI thread.
@@ -382,8 +399,7 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 
 				if (DoclogView.this.treeViewer != null
 						&& DoclogView.this.treeViewer.getTree() != null
-						&& !DoclogView.this.treeViewer.getTree()
-								.isDisposed()
+						&& !DoclogView.this.treeViewer.getTree().isDisposed()
 						&& newOpenedDoclogFiles.size() > 0) {
 					DoclogView.this.openedDoclogFiles = newOpenedDoclogFiles;
 					final String partName = "Doclogs - "

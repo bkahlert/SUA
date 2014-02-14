@@ -115,19 +115,6 @@
       </DataLoadProvider>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.adapters">
-      <factory
-            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecordAdapterFactory">
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
-         </adapter>
-      </factory>
-   </extension>
-   <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
       <LocatorProviderFactory
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt.DoclogLocatorProviderFactory">

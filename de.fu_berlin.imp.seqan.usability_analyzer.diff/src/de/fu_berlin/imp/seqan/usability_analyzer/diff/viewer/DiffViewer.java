@@ -58,7 +58,7 @@ public class DiffViewer extends SortableTreeViewer {
 
 	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final static ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
 	public DiffViewer(final Composite parent, int style, DateFormat dateFormat,
@@ -96,7 +96,7 @@ public class DiffViewer extends SortableTreeViewer {
 
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = DiffViewer.this.locatorService
+						Class<? extends ILocatable> type = LOCATOR_SERVICE
 								.getType(uri);
 
 						// we do not use diffLabelProvider here
@@ -104,16 +104,16 @@ public class DiffViewer extends SortableTreeViewer {
 						// we want
 						// to provide more detailed information
 						if (type == IDiffs.class) {
-							IDiffs diffs = DiffViewer.this.locatorService
-									.resolve(uri, IDiffs.class, null).get();
+							IDiffs diffs = LOCATOR_SERVICE.resolve(uri,
+									IDiffs.class, null).get();
 
 							return new StyledString(diffs.getIdentifier()
 									.toString()).append(" (" + diffs.length()
 									+ ")", Stylers.COUNTER_STYLER);
 						}
 						if (type == IDiff.class) {
-							IDiff diff = DiffViewer.this.locatorService
-									.resolve(uri, IDiff.class, null).get();
+							IDiff diff = LOCATOR_SERVICE.resolve(uri,
+									IDiff.class, null).get();
 
 							TimeZoneDate date = diff.getDateRange()
 									.getEndDate();
@@ -154,11 +154,11 @@ public class DiffViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								Class<? extends ILocatable> type = DiffViewer.this.locatorService
+								Class<? extends ILocatable> type = LOCATOR_SERVICE
 										.getType(uri);
 
 								if (type == IDiffRecord.class) {
-									IDiffRecord diffRecord = DiffViewer.this.locatorService
+									IDiffRecord diffRecord = LOCATOR_SERVICE
 											.resolve(uri, IDiffRecord.class,
 													null).get();
 									List<String> flags = new LinkedList<String>();
@@ -190,20 +190,19 @@ public class DiffViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						Class<? extends ILocatable> type = DiffViewer.this.locatorService
+						Class<? extends ILocatable> type = LOCATOR_SERVICE
 								.getType(uri);
 
 						if (type == IDiff.class) {
-							IDiff diff = DiffViewer.this.locatorService
-									.resolve(uri, IDiff.class, null).get();
+							IDiff diff = LOCATOR_SERVICE.resolve(uri,
+									IDiff.class, null).get();
 							TimeZoneDateRange range = diff.getDateRange();
 							return new StyledString(range != null ? range
 									.formatDuration() : "?");
 						}
 						if (type == IDiffRecord.class) {
-							IDiffRecord diffRecord = DiffViewer.this.locatorService
-									.resolve(uri, IDiffRecord.class, null)
-									.get();
+							IDiffRecord diffRecord = LOCATOR_SERVICE.resolve(
+									uri, IDiffRecord.class, null).get();
 							TimeZoneDateRange range = diffRecord.getDateRange();
 							return new StyledString(range != null ? range
 									.formatDuration() : "?");
@@ -219,24 +218,22 @@ public class DiffViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								Class<? extends ILocatable> type = DiffViewer.this.locatorService
+								Class<? extends ILocatable> type = LOCATOR_SERVICE
 										.getType(uri);
 
 								TimeZoneDateRange range = null;
 								if (type == IDiffs.class) {
-									IDiffs diffs = DiffViewer.this.locatorService
-											.resolve(uri, IDiffs.class, null)
-											.get();
+									IDiffs diffs = LOCATOR_SERVICE.resolve(uri,
+											IDiffs.class, null).get();
 									range = diffs.getDateRange();
 								}
 								if (type == IDiff.class) {
-									IDiff diff = DiffViewer.this.locatorService
-											.resolve(uri, IDiff.class, null)
-											.get();
+									IDiff diff = LOCATOR_SERVICE.resolve(uri,
+											IDiff.class, null).get();
 									range = diff.getDateRange();
 								}
 								if (type == IDiffRecord.class) {
-									IDiffRecord diffRecord = DiffViewer.this.locatorService
+									IDiffRecord diffRecord = LOCATOR_SERVICE
 											.resolve(uri, IDiffRecord.class,
 													null).get();
 									range = diffRecord.getDateRange();
@@ -255,24 +252,22 @@ public class DiffViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								Class<? extends ILocatable> type = DiffViewer.this.locatorService
+								Class<? extends ILocatable> type = LOCATOR_SERVICE
 										.getType(uri);
 
 								TimeZoneDateRange range = null;
 								if (type == IDiffs.class) {
-									IDiffs diffs = DiffViewer.this.locatorService
-											.resolve(uri, IDiffs.class, null)
-											.get();
+									IDiffs diffs = LOCATOR_SERVICE.resolve(uri,
+											IDiffs.class, null).get();
 									range = diffs.getDateRange();
 								}
 								if (type == IDiff.class) {
-									IDiff diff = DiffViewer.this.locatorService
-											.resolve(uri, IDiff.class, null)
-											.get();
+									IDiff diff = LOCATOR_SERVICE.resolve(uri,
+											IDiff.class, null).get();
 									range = diff.getDateRange();
 								}
 								if (type == IDiffRecord.class) {
-									IDiffRecord diffRecord = DiffViewer.this.locatorService
+									IDiffRecord diffRecord = LOCATOR_SERVICE
 											.resolve(uri, IDiffRecord.class,
 													null).get();
 									range = diffRecord.getDateRange();
@@ -296,9 +291,9 @@ public class DiffViewer extends SortableTreeViewer {
 
 						URI uri1 = (URI) o1;
 						URI uri2 = (URI) o2;
-						Class<? extends ILocatable> type1 = DiffViewer.this.locatorService
+						Class<? extends ILocatable> type1 = LOCATOR_SERVICE
 								.getType(uri1);
-						Class<? extends ILocatable> type2 = DiffViewer.this.locatorService
+						Class<? extends ILocatable> type2 = LOCATOR_SERVICE
 								.getType(uri2);
 
 						if (type1 == IDiff.class && type2 == IDiff.class) {
@@ -308,10 +303,10 @@ public class DiffViewer extends SortableTreeViewer {
 						} else if (type1 == IDiffRecord.class
 								&& type2 == IDiffRecord.class) {
 							try {
-								IDiffRecord diffRecord1 = DiffViewer.this.locatorService
+								IDiffRecord diffRecord1 = LOCATOR_SERVICE
 										.resolve(uri1, IDiffRecord.class, null)
 										.get();
-								IDiffRecord diffRecord2 = DiffViewer.this.locatorService
+								IDiffRecord diffRecord2 = LOCATOR_SERVICE
 										.resolve(uri2, IDiffRecord.class, null)
 										.get();
 								Boolean sourceExists1 = diffRecord1
@@ -338,13 +333,12 @@ public class DiffViewer extends SortableTreeViewer {
 							@Override
 							public Color getBackground(URI uri)
 									throws Exception {
-								Class<? extends ILocatable> type = DiffViewer.this.locatorService
+								Class<? extends ILocatable> type = LOCATOR_SERVICE
 										.getType(uri);
 
 								if (type == IDiff.class) {
-									IDiff diff = DiffViewer.this.locatorService
-											.resolve(uri, IDiff.class, null)
-											.get();
+									IDiff diff = LOCATOR_SERVICE.resolve(uri,
+											IDiff.class, null).get();
 									RGB backgroundRgb = diff.sourcesExist() ? DiffViewer.this.preferenceUtil
 											.getColorOk()
 											: DiffViewer.this.preferenceUtil
@@ -353,7 +347,7 @@ public class DiffViewer extends SortableTreeViewer {
 											.createColor(backgroundRgb);
 								}
 								if (type == IDiffRecord.class) {
-									IDiffRecord diffRecord = DiffViewer.this.locatorService
+									IDiffRecord diffRecord = LOCATOR_SERVICE
 											.resolve(uri, IDiffRecord.class,
 													null).get();
 									RGB backgroundRgb = diffRecord
@@ -383,16 +377,20 @@ public class DiffViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, CalendarRange[] dataRanges) {
+			TreeItem[] treeItems, CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
-				.getItemWithDataType(treeItems, IDiffRecord.class)) {
-			IDiffRecord diffRecord = (IDiffRecord) item.getData();
-			for (CalendarRange dateRange : dataRanges) {
-				if (dateRange.isIntersected(diffRecord.getDateRange()
-						.getCalendarRange())) {
-					treePaths.add(new TreePath(new Object[] { diffRecord }));
-					break;
+				.getItemWithDataType(treeItems, URI.class)) {
+			IDiffRecord diffRecord = LOCATOR_SERVICE.resolve(
+					(URI) item.getData(), IDiffRecord.class, null).get();
+			if (diffRecord != null) {
+				for (CalendarRange dateRange : dataRanges) {
+					if (dateRange.isIntersected(diffRecord.getDateRange()
+							.getCalendarRange())) {
+						treePaths.add(new TreePath(new Object[] { item
+								.getData() }));
+						break;
+					}
 				}
 			}
 		}
@@ -416,18 +414,19 @@ public class DiffViewer extends SortableTreeViewer {
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, IIdentifier identifier,
-			CalendarRange[] dataRanges) {
+			CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
-				.getItemWithDataType(treeItems, IDiffs.class)) {
-			IDiffs diffs = (IDiffs) item.getData();
-			if (identifier.equals(diffs.getIdentifier())) {
+				.getItemWithDataType(treeItems, URI.class)) {
+			IDiffs diffs = LOCATOR_SERVICE.resolve((URI) item.getData(),
+					IDiffs.class, null).get();
+			if (diffs != null && identifier.equals(diffs.getIdentifier())) {
 				List<TreePath> childTreePaths = DiffViewer
 						.getItemsOfIntersectingDataRanges(
 								((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {
 					TreePath treePath = com.bkahlert.devel.nebula.utils.ViewerUtils
-							.merge(new TreePath(new Object[] { diffs }),
+							.merge(new TreePath(new Object[] { item.getData() }),
 									childTreePath);
 					treePaths.add(treePath);
 				}

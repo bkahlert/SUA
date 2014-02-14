@@ -3,6 +3,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.model.data;
 import java.io.File;
 import java.io.IOException;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
+
 /**
  * This is the most basic structure that can hold data independently of it's
  * underlying structure.
@@ -10,7 +12,7 @@ import java.io.IOException;
  * @author Björn Kahlert <mail@bkahlert.com>
  * 
  */
-public interface IData extends Iterable<String> {
+public interface IData extends Iterable<String>, IRevealableInOS {
 
 	/**
 	 * Returns the {@link IBaseDataContainer} this {@link IData} belongs to.

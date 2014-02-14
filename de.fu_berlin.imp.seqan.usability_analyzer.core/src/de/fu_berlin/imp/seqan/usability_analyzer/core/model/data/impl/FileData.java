@@ -27,7 +27,7 @@ public class FileData implements IData {
 
 	private IBaseDataContainer baseDataContainer;
 	private IDataContainer dataContainer;
-	private File file;
+	private final File file;
 
 	public FileData(IBaseDataContainer baseDataContainer,
 			IDataContainer parentDataContainer, File file) {
@@ -214,6 +214,11 @@ public class FileData implements IData {
 		String name = StringUtils.join(new ReverseListIterator(path),
 				File.separator);
 		return this.getBaseDataContainer().getStaticFile(scope, name);
+	}
+
+	@Override
+	public File getFile() throws IOException {
+		return this.getStaticFile();
 	}
 
 	@Override

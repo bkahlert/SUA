@@ -19,6 +19,7 @@ import org.olat.core.util.URIHelper;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSourceInvalidException;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
@@ -27,7 +28,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 
 public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
-		ILocatable, HasIdentifier {
+		ILocatable, HasIdentifier, IRevealableInOS {
 
 	private static final long serialVersionUID = -8279575943640177616L;
 
@@ -299,6 +300,11 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 		} else {
 			return this.getDate().compareTo(doclogRecord.getDate());
 		}
+	}
+
+	@Override
+	public File getFile() throws IOException {
+		return this.doclog.getFile();
 	}
 
 	@Override

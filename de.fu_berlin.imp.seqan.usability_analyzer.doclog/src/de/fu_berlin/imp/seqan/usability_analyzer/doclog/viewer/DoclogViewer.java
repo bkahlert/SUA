@@ -39,7 +39,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogAction;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
@@ -49,6 +48,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRender
 
 public class DoclogViewer extends SortableTreeViewer {
 	private final LocalResourceManager resources;
+	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	public DoclogViewer(Composite parent, int style, DateFormat dateFormat,
 			String timeDifferenceFormat) {
@@ -81,9 +82,6 @@ public class DoclogViewer extends SortableTreeViewer {
 	private void initColumns(final DateFormat dateFormat,
 			final String timeDifferenceFormat) {
 
-		final ILocatorService locatorService = (ILocatorService) PlatformUI
-				.getWorkbench().getService(ILocatorService.class);
-
 		this.createColumn("Date", new RelativeWidth(.9, 250)).setLabelProvider(
 				new ILabelProviderService.StyledLabelProvider() {
 
@@ -91,12 +89,13 @@ public class DoclogViewer extends SortableTreeViewer {
 
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == Doclog.class) {
+						if (LOCATOR_SERVICE.getType(uri) == Doclog.class) {
 							return this.doclogLabelProvider.getStyledText(uri);
 						}
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
+						if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+							DoclogRecord doclogRecord = LOCATOR_SERVICE
+									.resolve(uri, DoclogRecord.class, null)
+									.get();
 							TimeZoneDate date = doclogRecord.getDateRange()
 									.getStartDate();
 							StyledString s = new StyledString(
@@ -119,9 +118,10 @@ public class DoclogViewer extends SortableTreeViewer {
 
 					@Override
 					public String getToolTipText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
+						if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+							DoclogRecord doclogRecord = LOCATOR_SERVICE
+									.resolve(uri, DoclogRecord.class, null)
+									.get();
 
 							DoclogAction action = doclogRecord.getAction();
 							String actionParameter = doclogRecord
@@ -174,9 +174,10 @@ public class DoclogViewer extends SortableTreeViewer {
 				new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						if (locatorService.getType(uri) == DoclogRecord.class) {
-							DoclogRecord doclogRecord = locatorService.resolve(
-									uri, DoclogRecord.class, null).get();
+						if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+							DoclogRecord doclogRecord = LOCATOR_SERVICE
+									.resolve(uri, DoclogRecord.class, null)
+									.get();
 							TimeZoneDateRange range = doclogRecord
 									.getDateRange();
 							return new StyledString(range != null ? range
@@ -192,8 +193,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									DoclogAction action = doclogRecord
@@ -212,8 +213,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									String actionParameter = doclogRecord
@@ -239,8 +240,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									Point windowDimensions = doclogRecord
@@ -260,8 +261,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									Point windowDimensions = doclogRecord
@@ -281,8 +282,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									Point scrollPosition = doclogRecord
@@ -302,8 +303,8 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									Point scrollPosition = doclogRecord
@@ -353,16 +354,16 @@ public class DoclogViewer extends SortableTreeViewer {
 							@Override
 							public Color getBackground(URI uri)
 									throws Exception {
-								if (locatorService.getType(uri) == Doclog.class) {
-									Status worstStatus = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == Doclog.class) {
+									Status worstStatus = LOCATOR_SERVICE
 											.resolve(uri, Doclog.class, null)
 											.get().getScreenshotStatus();
 									RGB backgroundRgb = worstStatus.getRGB();
 									return DoclogViewer.this.resources
 											.createColor(backgroundRgb);
 								}
-								if (locatorService.getType(uri) == DoclogRecord.class) {
-									DoclogRecord doclogRecord = locatorService
+								if (LOCATOR_SERVICE.getType(uri) == DoclogRecord.class) {
+									DoclogRecord doclogRecord = LOCATOR_SERVICE
 											.resolve(uri, DoclogRecord.class,
 													null).get();
 									RGB backgroundRgb = doclogRecord
@@ -381,7 +382,7 @@ public class DoclogViewer extends SortableTreeViewer {
 	 * Returns the {@link TreePath}s that describe {@link DoclogRecord}
 	 * fulfilling the following criteria:
 	 * <ol>
-	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
+	 * <li>{@link DoclogRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
 	 * 
@@ -390,16 +391,20 @@ public class DoclogViewer extends SortableTreeViewer {
 	 * @return
 	 */
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
-			TreeItem[] treeItems, CalendarRange[] dataRanges) {
+			TreeItem[] treeItems, CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
-				.getItemWithDataType(treeItems, DoclogRecord.class)) {
-			DoclogRecord doclogRecord = (DoclogRecord) item.getData();
-			for (CalendarRange dateRange : dataRanges) {
-				if (dateRange.isIntersected(doclogRecord.getDateRange()
-						.getCalendarRange())) {
-					treePaths.add(new TreePath(new Object[] { doclogRecord }));
-					break;
+				.getItemWithDataType(treeItems, URI.class)) {
+			DoclogRecord doclogRecord = LOCATOR_SERVICE.resolve(
+					(URI) item.getData(), DoclogRecord.class, null).get();
+			if (doclogRecord != null) {
+				for (CalendarRange dateRange : dataRanges) {
+					if (dateRange.isIntersected(doclogRecord.getDateRange()
+							.getCalendarRange())) {
+						treePaths.add(new TreePath(new Object[] { item
+								.getData() }));
+						break;
+					}
 				}
 			}
 		}
@@ -423,18 +428,18 @@ public class DoclogViewer extends SortableTreeViewer {
 	 */
 	public static List<TreePath> getItemsOfIdIntersectingDataRanges(
 			TreeItem[] treeItems, IIdentifier identifier,
-			CalendarRange[] dataRanges) {
+			CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
 		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
-				.getItemWithDataType(treeItems, Doclog.class)) {
-			URI uri = (URI) item.getData();
-			if (identifier.equals(URIUtils.getIdentifier(uri))) {
-				List<TreePath> childTreePaths = DoclogViewer
-						.getItemsOfIntersectingDataRanges(
-								((TreeItem) item).getItems(), dataRanges);
+				.getItemWithDataType(treeItems, URI.class)) {
+			Doclog doclog = LOCATOR_SERVICE.resolve((URI) item.getData(),
+					Doclog.class, null).get();
+			if (doclog != null && identifier.equals(doclog.getIdentifier())) {
+				List<TreePath> childTreePaths = getItemsOfIntersectingDataRanges(
+						((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {
 					TreePath treePath = com.bkahlert.devel.nebula.utils.ViewerUtils
-							.merge(new TreePath(new URI[] { uri }),
+							.merge(new TreePath(new Object[] { item.getData() }),
 									childTreePath);
 					treePaths.add(treePath);
 				}

@@ -19,8 +19,8 @@ public class StringData implements IData {
 
 	private IBaseDataContainer baseDataContainer;
 	private IDataContainer dataContainer;
-	private String name;
-	private String content;
+	private final String name;
+	private final String content;
 
 	public StringData(IBaseDataContainer baseDataContainer,
 			IDataContainer parentDataContainer, String name, String content) {
@@ -30,8 +30,9 @@ public class StringData implements IData {
 		Assert.isNotNull(parentDataContainer);
 
 		IDataContainer tmp = parentDataContainer;
-		while (tmp.getParentDataContainer() != null)
+		while (tmp.getParentDataContainer() != null) {
 			tmp = tmp.getParentDataContainer();
+		}
 		Assert.isTrue(tmp == baseDataContainer);
 
 		this.baseDataContainer = baseDataContainer;
@@ -89,7 +90,7 @@ public class StringData implements IData {
 			private int i = 0;
 
 			{
-				this.lines = content.split("\n");
+				this.lines = StringData.this.content.split("\n");
 			}
 
 			@Override
@@ -99,14 +100,14 @@ public class StringData implements IData {
 
 			@Override
 			public String next() {
-				String rt = this.lines[i];
-				i++;
+				String rt = this.lines[this.i];
+				this.i++;
 				return rt;
 			}
 
 			@Override
 			public boolean hasNext() {
-				return this.lines.length >= i + 1;
+				return this.lines.length >= this.i + 1;
 			}
 		};
 	}
@@ -120,7 +121,7 @@ public class StringData implements IData {
 	@Override
 	public File getStaticFile() throws IOException {
 		List<String> path = new LinkedList<String>();
-		path.add(getName());
+		path.add(this.getName());
 		IDataContainer container = this.getParentDataContainer();
 		while (container != null) {
 			path.add(container.getName());
@@ -133,6 +134,11 @@ public class StringData implements IData {
 		String name = StringUtils.join(new ReverseListIterator(path),
 				File.separator);
 		return this.getBaseDataContainer().getStaticFile(scope, name);
+	}
+
+	@Override
+	public File getFile() throws IOException {
+		return this.getStaticFile();
 	}
 
 	@Override

@@ -29,11 +29,11 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -178,13 +178,13 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 						// do not follow the link but make Eclipse open the
 						// resource
-						TimeZoneDateRange range = (TimeZoneDateRange) Platform
+						HasDateRange range = (HasDateRange) Platform
 								.getAdapterManager().getAdapter(locatable,
-										TimeZoneDateRange.class);
+										HasDateRange.class);
 						if (range != null) {
 							AbstractMemoView.this.highlightService.highlight(
-									AbstractMemoView.this,
-									range.getCalendarRange(), true);
+									AbstractMemoView.this, range.getDateRange()
+											.getCalendarRange(), true);
 						}
 
 						// open element

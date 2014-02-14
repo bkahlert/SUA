@@ -5,10 +5,16 @@ import java.net.URI;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdapterFactory;
+import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 
+import com.bkahlert.nebula.utils.AdapterFactoryProxy;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 		IAdapterFactory {
@@ -16,6 +22,17 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(AdaptingLocatorProvider.class);
+
+	public static final Class<?>[] SHARED_ADAPTERS = new Class<?>[] {
+			ILocatable.class, HasDateRange.class, IOpenable.class,
+			IRevealableInOS.class, HasIdentifier.class };
+
+	/**
+	 * Eclipse's default {@link IAdapterManager} does only consult one
+	 * {@link IAdapterFactory}. Therefore we use {@link AdapterFactoryProxy}.
+	 */
+	private static AdapterFactoryProxy<URI> adapterFactoryProxy = new AdapterFactoryProxy<URI>(
+			URI.class, SHARED_ADAPTERS);
 
 	private final Class<? extends ILocatable>[] classes;
 
@@ -31,13 +48,14 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	 */
 	public AdaptingLocatorProvider(Class<? extends ILocatable>... classes) {
 		this.classes = classes;
-		Platform.getAdapterManager().registerAdapters(this, URI.class);
+		adapterFactoryProxy.registerAdapters(this);
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		return classes;
+		System.err.println("LOOKUP");
+		return this.classes;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -45,8 +63,14 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof URI) {
 			final URI uri = (URI) adaptableObject;
-			if (ArrayUtils.contains(classes, adapterType)) {
-				ILocatable locatable = getObject(uri, null);
+			if (uri.toString().contains("diff")
+					&& adapterType == HasDateRange.class
+					&& this.getClass().getSimpleName().contains("Diff")) {
+				System.err.println("OK");
+			}
+			if (ArrayUtils.contains(SHARED_ADAPTERS, adapterType)
+					|| ArrayUtils.contains(this.classes, adapterType)) {
+				ILocatable locatable = this.getObject(uri, null);
 				if (adapterType.isInstance(locatable)) {
 					return locatable;
 				}

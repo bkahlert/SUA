@@ -7,6 +7,7 @@ import java.util.List;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IOpenable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -16,7 +17,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
  * 
  */
 public interface IDiffRecord extends HasDateRange, ILocatable, HasIdentifier,
-		IOpenable, ICompilable {
+		IOpenable, ICompilable, IRevealableInOS {
 
 	/**
 	 * Flags that may apply to an instance of {@link IDiffRecord}

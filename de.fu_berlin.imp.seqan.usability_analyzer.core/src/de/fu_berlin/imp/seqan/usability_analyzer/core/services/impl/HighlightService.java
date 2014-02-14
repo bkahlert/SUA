@@ -14,10 +14,10 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public class HighlightService implements IHighlightService {
 
@@ -80,16 +80,16 @@ public class HighlightService implements IHighlightService {
 				selection, HasIdentifier.class);
 		Map<IIdentifier, List<CalendarRange>> groupedRanges = new HashMap<IIdentifier, List<CalendarRange>>();
 		for (HasIdentifier identifiable : identifiables) {
-			TimeZoneDateRange range = (TimeZoneDateRange) Platform
-					.getAdapterManager().getAdapter(identifiable,
-							TimeZoneDateRange.class);
+			HasDateRange range = (HasDateRange) Platform.getAdapterManager()
+					.getAdapter(identifiable, HasDateRange.class);
 			if (range != null) {
 				IIdentifier identifier = identifiable.getIdentifier();
 				if (!groupedRanges.containsKey(identifier)) {
 					groupedRanges.put(identifier,
 							new ArrayList<CalendarRange>());
 				}
-				groupedRanges.get(identifier).add(range.getCalendarRange());
+				groupedRanges.get(identifier).add(
+						range.getDateRange().getCalendarRange());
 			}
 		}
 

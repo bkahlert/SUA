@@ -18,7 +18,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IDataContainer;
  */
 public abstract class WrappingData implements IData {
 
-	private IData data;
+	private final IData data;
 
 	public WrappingData(IData wrappedData) {
 		this.data = wrappedData;
@@ -76,6 +76,11 @@ public abstract class WrappingData implements IData {
 	@Override
 	public File getStaticFile() throws IOException {
 		return this.data.getStaticFile();
+	}
+
+	@Override
+	public File getFile() throws IOException {
+		return this.getStaticFile();
 	}
 
 	@Override
