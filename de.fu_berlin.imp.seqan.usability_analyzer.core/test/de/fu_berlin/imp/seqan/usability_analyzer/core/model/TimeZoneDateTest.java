@@ -40,8 +40,8 @@ public class TimeZoneDateTest {
 				new TimeZoneDate("2011-11-18T15:38:28+09:00").getTimeZone());
 		Assert.assertEquals(TimeZone.getTimeZone("GMT-05:00"),
 				new TimeZoneDate("2011-11-18T15:38:28-05:00").getTimeZone());
-		Assert.assertEquals(TimeZone.getDefault(), new TimeZoneDate(
-				"2011-11-18T15:38:28").getTimeZone());
+		Assert.assertEquals(TimeZone.getTimeZone("GMT+00:00"),
+				new TimeZoneDate("2011-11-18T15:38:28").getTimeZone());
 	}
 
 	@Test
@@ -122,24 +122,6 @@ public class TimeZoneDateTest {
 		clone.addMilliseconds(1000);
 		Assert.assertFalse(original.getTime() == clone.getTime());
 		Assert.assertTrue(original.getTime() - clone.getTime() == -1000);
-	}
-
-	@Test
-	public void testShortener() {
-		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("00 h")
-				.matches());
-		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("00h")
-				.matches());
-		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("0s")
-				.matches());
-		assertEquals(true, TimeZoneDateRange.DURATION_SHORTENER.matcher("0000")
-				.matches());
-		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER
-				.matcher("01 h").matches());
-		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER.matcher("1")
-				.matches());
-		assertEquals(false, TimeZoneDateRange.DURATION_SHORTENER.matcher("abc")
-				.matches());
 	}
 
 	@Test

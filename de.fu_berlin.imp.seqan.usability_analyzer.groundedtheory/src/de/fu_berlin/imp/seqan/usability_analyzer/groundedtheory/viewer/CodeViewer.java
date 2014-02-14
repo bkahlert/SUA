@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -168,26 +167,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 									}
 								}));
 
-		TreeViewerColumn countColumn = this.treeViewer.createColumn("# ph",
-				new AbsoluteWidth(60));
-		countColumn.getColumn().setAlignment(SWT.RIGHT);
-		countColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(
-				new ILabelProviderService.StyledLabelProvider() {
-					@Override
-					public StyledString getStyledText(URI uri) throws Exception {
-						ILocatable element = CodeViewer.this.locatorService
-								.resolve(uri, null).get();
-
-						if (ICode.class.isInstance(element)) {
-							ICode code = (ICode) element;
-							int all = codeService.getAllInstances(code).size();
-							int here = codeService.getInstances(code).size();
-							return new StyledString((all != here) ? all + " ("
-									+ here + ")" : all + "");
-						}
-						return new StyledString();
-					}
-				}));
+		CodeViewerUtils.createNumPhaenomenonsColumn(this.treeViewer,
+				codeService);
 	}
 
 	public Control getControl() {

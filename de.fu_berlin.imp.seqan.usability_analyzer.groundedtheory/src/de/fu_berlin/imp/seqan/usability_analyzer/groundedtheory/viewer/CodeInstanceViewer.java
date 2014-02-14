@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -28,6 +27,7 @@ import com.bkahlert.nebula.utils.Stylers;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
@@ -58,36 +58,41 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	}
 
 	private void createColumns() {
-		this.treeViewer
-				.createColumn("ID", new RelativeWidth(1.0, 150))
+		this.treeViewer.createColumn("ID", new RelativeWidth(1.0, 150))
 				.setLabelProvider(
-						new DelegatingStyledCellLabelProvider(
-								new ILabelProviderService.StyledLabelProvider() {
-									@Override
-									public StyledString getStyledText(URI uri)
-											throws Exception {
-										if (uri.equals(NoCodesNode.Uri)) {
-											return new StyledString("no codes",
-													Stylers.MINOR_STYLER);
-										}
-										return new StyledString(
-												CodeInstanceViewer.this.labelProviderService
-														.getLabelProvider(uri)
-														.getText(uri),
-												Stylers.DEFAULT_STYLER);
-									}
+						new ILabelProviderService.StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(URI uri)
+									throws Exception {
+								if (uri.equals(NoCodesNode.Uri)) {
+									return new StyledString("no codes",
+											Stylers.MINOR_STYLER);
+								}
+								return new StyledString(
+										CodeInstanceViewer.this.labelProviderService
+												.getLabelProvider(uri).getText(
+														uri),
+										Stylers.DEFAULT_STYLER);
+							}
 
-									@Override
-									public Image getImage(URI uri)
-											throws Exception {
-										if (uri.equals(NoCodesNode.Uri)) {
-											return null;
-										}
-										return CodeInstanceViewer.this.labelProviderService
-												.getLabelProvider(uri)
-												.getImage(uri);
-									}
-								}));
+							@Override
+							public Image getImage(URI uri) throws Exception {
+								if (uri.equals(NoCodesNode.Uri)) {
+									return null;
+								}
+								return CodeInstanceViewer.this.labelProviderService
+										.getLabelProvider(uri).getImage(uri);
+							}
+
+							@Override
+							public String getToolTipText(URI uri)
+									throws Exception {
+								if (uri.equals(NoCodesNode.Uri)) {
+									return "";
+								}
+								return uri.toString();
+							}
+						});
 		this.treeViewer.createColumn("", new AbsoluteWidth(16))
 				.setLabelProvider(
 						new ILabelProviderService.ColumnLabelProvider() {
@@ -96,20 +101,11 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 								return "";
 							}
 						});
-		this.treeViewer
-				.createColumn("URI", new AbsoluteWidth(300))
-				.setLabelProvider(
-						new DelegatingStyledCellLabelProvider(
-								new ILabelProviderService.StyledLabelProvider() {
-									@Override
-									public StyledString getStyledText(URI uri)
-											throws Exception {
-										if (uri.equals(NoCodesNode.Uri)) {
-											return new StyledString();
-										}
-										return new StyledString(uri.toString());
-									}
-								}));
+
+		CodeViewerUtils.createNumPhaenomenonsColumn(
+				this.treeViewer,
+				(ICodeService) PlatformUI.getWorkbench().getService(
+						ICodeService.class));
 	}
 
 	@Override
