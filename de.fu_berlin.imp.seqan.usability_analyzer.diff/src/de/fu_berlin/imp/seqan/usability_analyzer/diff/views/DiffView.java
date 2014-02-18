@@ -135,7 +135,7 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 		public void highlight(Object sender,
 				final Map<IIdentifier, CalendarRange[]> groupedRanges,
 				boolean moveInsideViewport) {
-			if (sender == DiffView.this) {
+			if (sender == DiffView.this || !moveInsideViewport) {
 				return;
 			}
 

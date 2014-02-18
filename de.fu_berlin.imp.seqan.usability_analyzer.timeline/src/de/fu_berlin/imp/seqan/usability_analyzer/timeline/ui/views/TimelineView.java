@@ -175,10 +175,10 @@ public class TimelineView extends ViewPart {
 						if (!groupedRanges.isEmpty()) {
 							if (moveInsideViewport) {
 								TimelineView.this.timelineGroupViewer
-										.highlight(groupedRanges,
+										.setCenterVisibleDate(centeredDates,
 												subMonitor.newChild(1));
 								TimelineView.this.timelineGroupViewer
-										.setCenterVisibleDate(centeredDates,
+										.highlight(groupedRanges,
 												subMonitor.newChild(1));
 							} else {
 								TimelineView.this.timelineGroupViewer

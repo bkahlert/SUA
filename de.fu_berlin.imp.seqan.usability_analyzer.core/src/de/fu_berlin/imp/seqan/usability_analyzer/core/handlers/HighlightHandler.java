@@ -5,6 +5,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
@@ -34,7 +35,7 @@ public class HighlightHandler extends AbstractHandler {
 				}
 			}
 		} else {
-			highlightService.highlight(HighlightHandler.this,
+			highlightService.highlight(HandlerUtil.getActivePart(event),
 					SelectionUtils.getSelection(), true);
 		}
 

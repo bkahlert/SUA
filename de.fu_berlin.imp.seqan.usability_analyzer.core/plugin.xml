@@ -114,9 +114,14 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.RevealInOSHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.revealInOS">
            <activeWhen>
-              <reference
-                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
-              </reference>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfIRevealableInOS">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsIRevealableInOS">
+                 </reference>
+              </or>
            </activeWhen>
         </handler>
         <handler
@@ -189,9 +194,11 @@
                tooltip="Open the selected file in Finder">
             <visibleWhen
                   checkEnabled="false">
-               <reference
-                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIRevealableInOS">
-               </reference>
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsIRevealableInOS">
+                  </reference>
+               </or>
             </visibleWhen>
          </command>
          <command
@@ -202,10 +209,10 @@
                   checkEnabled="false">
                <or>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsHasDateRanges">
                   </reference>
                   <reference
-                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsHasDateRanges">
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
                   </reference>
                </or>
             </visibleWhen>
@@ -385,6 +392,17 @@
                   </test>
                </or>
             </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsIRevealableInOS">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <or>
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS">
+               </adapt>
+            </or>
          </with>
       </definition>
       <definition
