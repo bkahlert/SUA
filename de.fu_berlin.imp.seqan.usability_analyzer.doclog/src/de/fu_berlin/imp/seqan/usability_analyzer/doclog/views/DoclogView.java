@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
@@ -188,8 +187,6 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 	public static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DoclogView.class);
 	private Set<IIdentifier> loadedIdentifiers;
 
 	public DoclogView() {
@@ -339,9 +336,12 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 			}
 		}
 
-		// Case 2: multiple IDs
-		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		return ExecUtils.nonUIAsyncExec(new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				for (NamedJob loader : ExecUtils.nonUIAsyncExecMerged(
+						DoclogView.class,
+						"Loading " + StringUtils.join(identifiers, ", "),
 						identifiers,
 						new ExecUtils.ParametrizedCallable<IIdentifier, NamedJob>() {
 							@Override
@@ -378,24 +378,16 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 								doclogFileLoader.schedule();
 								return doclogFileLoader;
 							};
-						});
-
-		this.loadedIdentifiers = identifiers;
-
-		return EXECUTOR_UTIL.customNonUIAsyncExec(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				for (Future<NamedJob> loader : loaders) {
+						})) {
 					try {
-						loader.get().join();
+						loader.join();
 					} catch (InterruptedException e) {
-						LOGGER.error("Error loading "
-								+ Doclog.class.getSimpleName());
-					} catch (ExecutionException e) {
 						LOGGER.error("Error loading "
 								+ Doclog.class.getSimpleName());
 					}
 				}
+
+				DoclogView.this.loadedIdentifiers = identifiers;
 
 				if (DoclogView.this.treeViewer != null
 						&& DoclogView.this.treeViewer.getTree() != null

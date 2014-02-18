@@ -10,8 +10,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListe
 
 public class DataServiceListenerNotifier {
 	private final List<IDataServiceListener> dataServiceListeners = new ArrayList<IDataServiceListener>();
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DataServiceListenerNotifier.class);
 
 	public void addDataDirectoryServiceListener(
 			IDataServiceListener dataServiceListener) {
@@ -25,8 +23,8 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesAdded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
 						"Data Directories Added Notification",
 						this.dataServiceListeners,
@@ -44,8 +42,8 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesRemoved(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
 						"Data Directories Removed Notification",
 						this.dataServiceListeners,
@@ -63,8 +61,8 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesLoaded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
 						"Data Directories Loaded Notification",
 						this.dataServiceListeners,
@@ -82,8 +80,8 @@ public class DataServiceListenerNotifier {
 
 	public void dataDirectoriesUnloaded(
 			final List<? extends IBaseDataContainer> dataContainers) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
 						"Data Directories Unloaded Notification",
 						this.dataServiceListeners,

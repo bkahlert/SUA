@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -27,9 +28,6 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 			.getLogger(DoclogDataContainer.class);
 
 	public static final int DOCLOG_CACHE_SIZE = 10;
-
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DoclogDataContainer.class);
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
@@ -89,7 +87,9 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 		// force class loading since DoclogRecord is used in the Callable
 		DoclogAction.class.getClass();
 		DoclogRecord.class.getClass();
-		for (int worked : EXECUTOR_UTIL.customNonUIAsyncExecMerged(
+		for (int worked : ExecUtils.nonUIAsyncExecMerged(
+				DoclogDataContainer.class,
+				"Loading " + StringUtils.join(this.datas.keySet(), ", "),
 				this.datas.keySet(),
 				new ExecUtils.ParametrizedCallable<IIdentifier, Integer>() {
 					@Override

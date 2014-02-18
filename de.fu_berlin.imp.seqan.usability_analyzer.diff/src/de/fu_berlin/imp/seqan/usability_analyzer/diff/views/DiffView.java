@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -201,7 +200,6 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 	protected static final String timeDifferenceFormat = new SUACorePreferenceUtil()
 			.getTimeDifferenceFormat();
 
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(DiffView.class);
 	private HashMap<IIdentifier, IDiffs> openedDiffs = new HashMap<IIdentifier, IDiffs>();
 
 	public DiffView() {
@@ -366,8 +364,14 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 		}
 
 		// Case 2: multiple IDs
-		final List<Future<NamedJob>> loaders = EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+
+		return ExecUtils.nonUIAsyncExec(DiffView.class, "Refreshing "
+				+ StringUtils.join(ids, ", "), new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				for (NamedJob loader : ExecUtils.nonUIAsyncExecMerged(
+						DiffView.class,
+						"Loading " + StringUtils.join(ids, ", "),
 						ids,
 						new ExecUtils.ParametrizedCallable<IIdentifier, NamedJob>() {
 							@Override
@@ -400,18 +404,10 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 								diffFileLoader.schedule();
 								return diffFileLoader;
 							}
-						});
-
-		return EXECUTOR_UTIL.customNonUIAsyncExec(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				for (Future<NamedJob> loader : loaders) {
+						})) {
 					try {
-						loader.get().join();
+						loader.join();
 					} catch (InterruptedException e) {
-						LOGGER.error("Error loading "
-								+ Diff.class.getSimpleName());
-					} catch (ExecutionException e) {
 						LOGGER.error("Error loading "
 								+ Diff.class.getSimpleName());
 					}

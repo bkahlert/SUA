@@ -12,8 +12,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService
 
 public class HighlightServiceListenerNotifier {
 	private final List<IHighlightServiceListener> highlightServiceListeners = new ArrayList<IHighlightServiceListener>();
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			HighlightServiceListenerNotifier.class);
 
 	public void addHighlightServiceListener(
 			IHighlightServiceListener highlightServiceListener) {
@@ -27,10 +25,10 @@ public class HighlightServiceListenerNotifier {
 
 	public void highlight(final Object sender, final CalendarRange[] ranges,
 			final boolean moveInsideViewport) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
-						"Highlighting",
+						"Highlight Notification",
 						this.highlightServiceListeners,
 						new ExecUtils.ParametrizedCallable<IHighlightServiceListener, Void>() {
 							@Override
@@ -47,10 +45,10 @@ public class HighlightServiceListenerNotifier {
 	public void highlight(final Object sender,
 			final Map<IIdentifier, CalendarRange[]> groupedRanges,
 			final boolean moveInsideViewport) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
-						"Highlighting",
+						"Highlight Notification",
 						this.highlightServiceListeners,
 						new ExecUtils.ParametrizedCallable<IHighlightServiceListener, Void>() {
 							@Override

@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.devel.nebula.widgets.browser.listener.SchemeAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;
 
 public class CompilationServiceListenerNotifier {
 	private final List<ICompilationServiceListener> compilationServiceListeners = new ArrayList<ICompilationServiceListener>();
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			CompilationServiceListenerNotifier.class);
 
 	public void addCompilationServiceListener(
 			ICompilationServiceListener compilationServiceListener) {
@@ -25,8 +24,10 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilationStateChanged(final ICompilable[] compilables,
 			final Boolean state) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
+						CompilationServiceListenerNotifier.class,
+						"Compilation State Changed Notification",
 						this.compilationServiceListeners,
 						new ExecUtils.ParametrizedCallable<ICompilationServiceListener, Void>() {
 							@Override
@@ -43,8 +44,10 @@ public class CompilationServiceListenerNotifier {
 
 	public void compilerOutputChanged(final ICompilable compilable,
 			final String html) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
+						CompilationServiceListenerNotifier.class,
+						"Compilation Output Changed Notification",
 						this.compilationServiceListeners,
 						new ExecUtils.ParametrizedCallable<ICompilationServiceListener, Void>() {
 							@Override
@@ -60,8 +63,10 @@ public class CompilationServiceListenerNotifier {
 
 	public void executionOutputChanged(final ICompilable compilable,
 			final String html) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
+						SchemeAnkerListener.class,
+						"Execution Output Changed Notification",
 						this.compilationServiceListeners,
 						new ExecUtils.ParametrizedCallable<ICompilationServiceListener, Void>() {
 							@Override

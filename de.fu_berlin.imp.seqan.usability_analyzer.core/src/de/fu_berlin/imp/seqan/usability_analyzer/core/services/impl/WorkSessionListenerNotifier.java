@@ -10,8 +10,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListe
 
 public class WorkSessionListenerNotifier {
 	private final List<IWorkSessionListener> workSessionListeners = new ArrayList<IWorkSessionListener>();
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			WorkSessionListenerNotifier.class);
 
 	void addWorkSessionListener(IWorkSessionListener workSessionListener) {
 		this.workSessionListeners.add(workSessionListener);
@@ -22,8 +20,8 @@ public class WorkSessionListenerNotifier {
 	}
 
 	void workSessionStarted(final IWorkSession workSession) {
-		EXECUTOR_UTIL
-				.customNonUIAsyncExec(
+		ExecUtils
+				.nonUIAsyncExec(
 						DataServiceListenerNotifier.class,
 						"Work Session Started Notification",
 						this.workSessionListeners,

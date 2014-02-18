@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -52,9 +53,6 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	private static final Logger LOGGER = Logger.getLogger(DiffContainer.class);
 
 	public static final int DIFF_CACHE_SIZE = 5;
-
-	private static final ExecUtils EXECUTOR_UTIL = new ExecUtils(
-			DiffContainer.class);
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
@@ -162,7 +160,9 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 		}
 
 		monitor.beginTask("Loading " + this, (int) (size / 1000l));
-		for (Integer worked : EXECUTOR_UTIL.customNonUIAsyncExecMerged(
+		for (Integer worked : ExecUtils.nonUIAsyncExecMerged(
+				DiffContainer.class,
+				"Loading " + StringUtils.join(this.dataLists.keySet(), ", "),
 				this.dataLists.keySet(),
 				new ExecUtils.ParametrizedCallable<ID, Integer>() {
 					@Override
