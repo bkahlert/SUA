@@ -174,7 +174,7 @@ public class DiffViewer extends SortableTreeViewer {
 						}));
 
 		TreeViewerColumn passedColumn = this.createColumn("Passed",
-				new AbsoluteWidth(90), true, new Comparator<Object>() {
+				new AbsoluteWidth(110), true, new Comparator<Object>() {
 					@Override
 					public int compare(Object arg0, Object arg1) {
 						Long l1 = (Long) arg0;

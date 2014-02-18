@@ -158,7 +158,7 @@ public class DoclogViewer extends SortableTreeViewer {
 		new EpisodeRenderer(this, episodeColumn, 1).activateRendering();
 
 		TreeViewerColumn passedColumn = this.createColumn("Passed",
-				new AbsoluteWidth(90), true, new Comparator<Object>() {
+				new AbsoluteWidth(110), true, new Comparator<Object>() {
 					@Override
 					public int compare(Object arg0, Object arg1) {
 						Long l1 = (Long) arg0;
