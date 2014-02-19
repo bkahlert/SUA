@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -15,17 +16,15 @@ import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedT
 import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.uri.ImageManager;
 import de.fu_berlin.imp.seqan.usability_analyzer.uri.model.IUri;
 
-public class UriLabelProvider
-		extends
-		de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider {
+public class UriLabelProvider extends StyledUriInformationLabelProvider {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(UriLabelProvider.class);
 
@@ -35,21 +34,6 @@ public class UriLabelProvider
 			.getWorkbench().getService(ICodeService.class);
 
 	@Override
-	public String getText(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
-		if (locatable instanceof IUri) {
-			IUri uri_ = (IUri) locatable;
-			StringBuilder text = new StringBuilder();
-			text.append(uri_.getUri().toString());
-			if (uri_.getTitle() != null) {
-				text.append(" - ");
-				text.append(uri_.getTitle());
-			}
-			return text.toString();
-		}
-		return "";
-	}
-
 	public StyledString getStyledText(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		if (locatable instanceof IUri) {
@@ -85,6 +69,19 @@ public class UriLabelProvider
 	}
 
 	@Override
+	public boolean hasInformation(URI uri) throws Exception {
+		ILocatable locatable;
+		try {
+			locatable = this.locatorService.resolve(uri, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error checking information for " + uri);
+			return false;
+		}
+
+		return locatable instanceof IUri;
+	}
+
+	@Override
 	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
@@ -113,7 +110,12 @@ public class UriLabelProvider
 	@Override
 	public Control fillInformation(URI uri, Composite composite)
 			throws Exception {
-		return super.fillInformation(uri, composite);
+		return null;
+	}
+
+	@Override
+	public void fill(URI object, ToolBarManager toolBarManager)
+			throws Exception {
 	}
 
 }

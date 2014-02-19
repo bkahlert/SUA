@@ -8,9 +8,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -24,11 +26,12 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.PaintUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -39,7 +42,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
-public final class GTLabelProvider extends UriLabelProvider {
+public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	public static class CodeColors {
 		private final RGB backgroundRGB;
@@ -159,26 +162,28 @@ public final class GTLabelProvider extends UriLabelProvider {
 	}
 
 	@Override
-	public String getText(URI uri) throws Exception {
+	public StyledString getStyledText(URI uri) throws Exception {
 		if (NoCodesNode.Uri.equals(uri)) {
-			return "no code";
+			return new StyledString("no code", Stylers.MINOR_STYLER);
 		}
 
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;
-			return code.getCaption();
+			return new StyledString(code.getCaption());
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
-			return (labelProvider != null) ? labelProvider.getText(codeInstance
-					.getId()) : "[UNKNOWN ORIGIN]";
+			return (labelProvider != null) ? new StyledString(
+					labelProvider.getText(codeInstance.getId()))
+					: new StyledString("unknown origin",
+							Stylers.ATTENTION_STYLER);
 		}
 		if (IEpisodes.class.isInstance(locatable)) {
-			return URIUtils.getIdentifier(uri).toString();
+			return new StyledString(URIUtils.getIdentifier(uri).toString());
 		}
 		if (IEpisode.class.isInstance(locatable)) {
 			IEpisode episode = (IEpisode) locatable;
@@ -196,12 +201,14 @@ public final class GTLabelProvider extends UriLabelProvider {
 					LOGGER.warn("Could not find the episode's codes", e);
 				}
 			}
-			return name;
+			return new StyledString(name);
 		}
 
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(uri);
-		return (labelProvider != null) ? labelProvider.getText(uri) : "-";
+		return (labelProvider != null) ? new StyledString(
+				labelProvider.getText(uri)) : new StyledString(
+				"label provider missing", Stylers.ATTENTION_STYLER);
 	}
 
 	@Override
@@ -336,6 +343,11 @@ public final class GTLabelProvider extends UriLabelProvider {
 	@Override
 	public Control fillInformation(URI uri, Composite composite)
 			throws Exception {
-		return super.fillInformation(uri, composite);
+		return null;
+	}
+
+	@Override
+	public void fill(URI object, ToolBarManager toolBarManager)
+			throws Exception {
 	}
 }

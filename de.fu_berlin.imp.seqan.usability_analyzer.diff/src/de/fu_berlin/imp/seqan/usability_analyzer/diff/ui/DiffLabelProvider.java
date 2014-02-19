@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -21,7 +22,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.IDiff;
@@ -33,7 +34,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServi
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DiffLabelProvider extends StyledUriLabelProvider {
+public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffLabelProvider.class);
 
@@ -347,7 +348,12 @@ public class DiffLabelProvider extends StyledUriLabelProvider {
 	@Override
 	public Control fillInformation(URI uri, Composite composite)
 			throws Exception {
-		return super.fillInformation(uri, composite);
+		return null;
+	}
+
+	@Override
+	public void fill(URI object, ToolBarManager toolBarManager)
+			throws Exception {
 	}
 
 }

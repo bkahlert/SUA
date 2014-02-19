@@ -33,7 +33,7 @@ import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.Doclog;
@@ -41,7 +41,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
-public class DoclogLabelProvider extends StyledUriLabelProvider {
+public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -184,7 +184,7 @@ public class DoclogLabelProvider extends StyledUriLabelProvider {
 		if (locatable instanceof DoclogRecord) {
 			return true;
 		}
-		return super.hasInformation(uri);
+		return false;
 	}
 
 	@Override

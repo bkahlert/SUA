@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -14,10 +16,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -26,7 +29,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.DateId;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocument;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd.CDDocumentField;
 
-public class SurveyLabelProvider extends UriLabelProvider {
+public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
@@ -52,19 +55,20 @@ public class SurveyLabelProvider extends UriLabelProvider {
 	}
 
 	@Override
-	public String getText(URI uri) throws Exception {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+	public StyledString getStyledText(URI uri) throws Exception {
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == CDDocument.class) {
 			List<String> trail = URIUtils.getTrail(uri);
 			IIdentifier identifier = new DateId(trail.get(0));
-			return hash(identifier.toString());
+			return new StyledString(hash(identifier.toString()));
 		}
 		if (type == CDDocumentField.class) {
 			List<String> trail = URIUtils.getTrail(uri);
 			IIdentifier identifier = new DateId(trail.get(0));
-			return hash(identifier.toString()) + " - " + trail.get(1);
+			return new StyledString(hash(identifier.toString()) + " - "
+					+ trail.get(1));
 		}
-		return uri.toString();
+		return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
 	}
 
 	// private boolean hasCodedChildren(IDiff diff) {
@@ -81,7 +85,7 @@ public class SurveyLabelProvider extends UriLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == CDDocument.class) {
 			try {
 				if (this.codeService.getCodes(uri).size() > 0) {
@@ -124,11 +128,11 @@ public class SurveyLabelProvider extends UriLabelProvider {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
 		if (locatable instanceof CDDocument) {
-			metaEntries.add(new IllustratedText(getImage(uri), CDDocument.class
-					.getSimpleName()));
+			metaEntries.add(new IllustratedText(this.getImage(uri),
+					CDDocument.class.getSimpleName()));
 		}
 		if (locatable instanceof CDDocumentField) {
-			metaEntries.add(new IllustratedText(getImage(uri),
+			metaEntries.add(new IllustratedText(this.getImage(uri),
 					CDDocumentField.class.getSimpleName()));
 		}
 		return metaEntries;
@@ -168,7 +172,12 @@ public class SurveyLabelProvider extends UriLabelProvider {
 	@Override
 	public Control fillInformation(URI uri, Composite composite)
 			throws Exception {
-		return super.fillInformation(uri, composite);
+		return null;
+	}
+
+	@Override
+	public void fill(URI object, ToolBarManager toolBarManager)
+			throws Exception {
 	}
 
 }

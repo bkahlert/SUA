@@ -32,7 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPrese
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.UriLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.IUriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.UriInformationControl.IPostProcessor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
@@ -129,11 +129,14 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	public boolean load(URI uri, ToolBarManager toolBarManager) {
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(uri);
-		if (!UriLabelProvider.class.isInstance(labelProvider)) {
+		if (!IUriLabelProvider.class.isInstance(labelProvider)) {
+			LOGGER.warn(labelProvider.getClass().getSimpleName()
+					+ " is not of type "
+					+ IUriLabelProvider.class.getSimpleName());
 			return false;
 		}
 
-		final UriLabelProvider uriLabelProvider = (UriLabelProvider) labelProvider;
+		final IUriLabelProvider uriLabelProvider = (IUriLabelProvider) labelProvider;
 		try {
 			if (!uriLabelProvider.hasInformation(uri)) {
 				return false;
