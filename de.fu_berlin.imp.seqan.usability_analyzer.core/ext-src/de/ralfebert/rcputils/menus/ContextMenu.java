@@ -41,7 +41,6 @@ public abstract class ContextMenu {
 		this.viewer = viewer;
 		this.site = site;
 
-		long start = System.currentTimeMillis();
 		MenuManager menuManager = new MenuManager();
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
@@ -53,10 +52,6 @@ public abstract class ContextMenu {
 		site.setSelectionProvider(viewer);
 
 		this.setDefaultItemHandling(true);
-
-		LOGGER.debug(ContextMenu.class.getSimpleName() + " for "
-				+ viewer.getClass().getSimpleName() + " initialized within "
-				+ (System.currentTimeMillis() - start) + "ms");
 	}
 
 	/**
@@ -90,9 +85,11 @@ public abstract class ContextMenu {
 			IHandlerService handlerService = (IHandlerService) ContextMenu.this.site
 					.getService(IHandlerService.class);
 			try {
-				String defaultCommandID = getDefaultCommandID();
+				String defaultCommandID = ContextMenu.this
+						.getDefaultCommandID();
 				if (defaultCommandID != null) {
-					handlerService.executeCommand(getDefaultCommandID(), null);
+					handlerService.executeCommand(
+							ContextMenu.this.getDefaultCommandID(), null);
 				}
 			} catch (CommandException e) {
 				LOGGER.error("Could not execute command", e);

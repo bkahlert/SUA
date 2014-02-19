@@ -248,9 +248,6 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 */
 	public IDiffs createDiffFiles(IIdentifier identifier,
 			IProgressMonitor progressMonitor) {
-		if (ExecUtils.isUIThread()) {
-			System.err.println("NO NO");
-		}
 		this.scanIfNecessary(SubMonitor.convert(progressMonitor));
 		DataList dataList = this.dataLists.get(identifier);
 		if (dataList != null) {

@@ -54,7 +54,6 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
-		System.err.println("LOOKUP");
 		return this.classes;
 	}
 
