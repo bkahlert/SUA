@@ -8,19 +8,20 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationBackgroundProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 /**
@@ -35,36 +36,53 @@ public class InformationPresentingTimeline extends Timeline {
 	private static final Logger LOGGER = Logger
 			.getLogger(InformationPresentingTimeline.class);
 
-	// TODO move everything related to TimelineGroupViewer
+	// TODO move background coloring functionality to TimelineGroupViewer
 	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
-	private final IInformationBackgroundProvider informationBackgroundProvider = new IInformationBackgroundProvider() {
-		@Override
-		public Color getBackground(Object element) {
-			if (element instanceof HasDateRange) {
-				boolean isIntersected = false;
+	private final IInformationBackgroundProvider<URI> informationBackgroundProvider = new IInformationBackgroundProvider<URI>() {
+		private final ILocatorService locatorService = (ILocatorService) PlatformUI
+				.getWorkbench().getService(ILocatorService.class);
 
-				TimeZoneDateRange dateRange = ((HasDateRange) element)
-						.getDateRange();
-
-				if (InformationPresentingTimeline.this.getDecorators() != null) {
-					for (IDecorator t : InformationPresentingTimeline.this
-							.getDecorators()) {
-						if (new TimeZoneDateRange(
-								t.getStartDate() != null ? new TimeZoneDate(
-										t.getStartDate()) : null,
-								t.getEndDate() != null ? new TimeZoneDate(t
-										.getEndDate()) : null)
-								.isIntersected(dateRange)) {
-							isIntersected = true;
-							break;
-						}
-					}
+		private boolean intersects(IDecorator[] decorators, CalendarRange range) {
+			if (decorators == null) {
+				return false;
+			}
+			for (IDecorator t : decorators) {
+				if (new CalendarRange(
+						t.getStartDate() != null ? CalendarUtils.fromISO8601(t
+								.getStartDate()) : null,
+						t.getEndDate() != null ? CalendarUtils.fromISO8601(t
+								.getEndDate()) : null).isIntersected(range)) {
+					return true;
 				}
+			}
+			return false;
+		}
 
-				return isIntersected ? Activator.COLOR_HIGHLIGHT
-						: Activator.COLOR_STANDARD;
+		@Override
+		public Color getBackground(URI uri) {
+			ILocatable locatable;
+			try {
+				locatable = this.locatorService.resolve(uri, null).get();
+			} catch (Exception e) {
+				LOGGER.error("Error resolving " + uri);
+				return null;
+			}
+
+			if (locatable instanceof HasDateRange) {
+				CalendarRange dateRange = ((HasDateRange) locatable)
+						.getDateRange().getCalendarRange();
+
+				if (this.intersects(
+						InformationPresentingTimeline.this.getDecorators(),
+						dateRange)) {
+					return Activator.COLOR_HIGHLIGHT;
+				}
+				if (this.intersects(InformationPresentingTimeline.this
+						.getPermanentDecorators(), dateRange)) {
+					return Activator.COLOR_STANDARD;
+				}
 			}
 			return null;
 		}

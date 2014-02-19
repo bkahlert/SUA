@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +17,6 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControlManager;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.LabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.StyledLabelProvider;
 
 /**
  * This service can display {@link PopupDialog}s that show detailed information
@@ -35,8 +32,8 @@ public interface IInformationPresenterService<INFORMATION> {
 	 * 
 	 * @author bkahlert
 	 */
-	public static interface IInformationBackgroundProvider {
-		public Color getBackground(Object element);
+	public static interface IInformationBackgroundProvider<INFORMATION> {
+		public Color getBackground(INFORMATION element);
 	}
 
 /**
@@ -127,7 +124,7 @@ public interface IInformationPresenterService<INFORMATION> {
 	 * @param informationBackgroundProvider
 	 */
 	public void addInformationBackgroundProvider(
-			IInformationBackgroundProvider informationBackgroundProvider);
+			IInformationBackgroundProvider<INFORMATION> informationBackgroundProvider);
 
 	/**
 	 * Removes a {@link IInformationBackgroundProvider} from the pool of
@@ -136,7 +133,7 @@ public interface IInformationPresenterService<INFORMATION> {
 	 * @param informationBackgroundProvider
 	 */
 	public void removeInformationBackgroundProvider(
-			IInformationBackgroundProvider informationBackgroundProvider);
+			IInformationBackgroundProvider<INFORMATION> informationBackgroundProvider);
 
 	/**
 	 * Installs a new {@link InformationControlManager} on the given control.
