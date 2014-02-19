@@ -1,29 +1,35 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 
 public class HighlightService implements IHighlightService {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(HighlightService.class);
+
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	private final HighlightServiceListenerNotifier notifier = new HighlightServiceListenerNotifier();
 
@@ -76,14 +82,26 @@ public class HighlightService implements IHighlightService {
 		Assert.isNotNull(sender);
 		Assert.isNotNull(selection);
 
-		List<HasIdentifier> identifiables = SelectionUtils.getAdaptableObjects(
-				selection, HasIdentifier.class);
+		List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
+				URI.class);
+
+		List<ILocatable> locatables;
+		try {
+			locatables = this.locatorService.resolve(uris, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error resolving " + StringUtils.join(uris, ", "), e);
+			return;
+		}
 		Map<IIdentifier, List<CalendarRange>> groupedRanges = new HashMap<IIdentifier, List<CalendarRange>>();
-		for (HasIdentifier identifiable : identifiables) {
-			HasDateRange range = (HasDateRange) Platform.getAdapterManager()
-					.getAdapter(identifiable, HasDateRange.class);
+		for (ILocatable locatable : locatables) {
+			if (!(locatable instanceof HasIdentifier)
+					|| !(locatable instanceof HasDateRange)) {
+				continue;
+			}
+			HasDateRange range = (HasDateRange) locatable;
 			if (range != null) {
-				IIdentifier identifier = identifiable.getIdentifier();
+				IIdentifier identifier = ((HasIdentifier) locatable)
+						.getIdentifier();
 				if (!groupedRanges.containsKey(identifier)) {
 					groupedRanges.put(identifier,
 							new ArrayList<CalendarRange>());

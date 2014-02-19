@@ -127,35 +127,11 @@ public class TimelineView extends ViewPart {
 			}
 
 			final Map<IIdentifier, Calendar> centeredDates = new HashMap<IIdentifier, Calendar>();
-			// if (part == TimelineView.this) {
-			// if (TimelineView.this.openedIdentifiers == null) {
-			// return;
-			// }
-			//
-			// // TODO selection nur auf jeweiliger timeline anwenden (und
-			// // nicht auf alle)
-			// List<HasDateRange> ranges = SelectionRetrieverFactory
-			// .getSelectionRetriever(HasDateRange.class)
-			// .getSelection();
-			// for (Object key : TimelineView.this.openedIdentifiers) {
-			// List<TimeZoneDateRange> dateRanges = new
-			// LinkedList<TimeZoneDateRange>();
-			// for (HasDateRange range : ranges) {
-			// if (range.getClass().getSimpleName().toLowerCase()
-			// .contains("doclog")) {
-			// return;
-			// }
-			// dateRanges.add(range.getDateRange());
-			// }
-			// groupedDateRanges.put(key, dateRanges);
-			// }
-			// } else {
 			for (IIdentifier key : groupedRanges.keySet()) {
 				Calendar centeredDate = CalendarRange.calculateOuterDateRange(
 						groupedRanges.get(key)).getStartDate();
 				centeredDates.put(key, centeredDate);
 			}
-			// }
 
 			if (groupedRanges.keySet().size() == 0) {
 				return;

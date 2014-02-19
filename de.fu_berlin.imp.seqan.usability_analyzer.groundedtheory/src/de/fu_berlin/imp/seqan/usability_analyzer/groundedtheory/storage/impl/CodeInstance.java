@@ -4,8 +4,17 @@ import java.net.URI;
 import java.security.InvalidParameterException;
 
 import org.apache.log4j.Logger;
+import org.eclipse.ui.PlatformUI;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -13,7 +22,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 class CodeInstance implements ICodeInstance {
 
 	private static final long serialVersionUID = 7683462895079284073L;
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeInstance.class);
 
 	private URI uri;
@@ -21,6 +29,15 @@ class CodeInstance implements ICodeInstance {
 	private final ICode code;
 	private final URI id;
 	private final TimeZoneDate creation;
+
+	@XStreamOmitField
+	private ILocatorService locatorService;
+
+	@XStreamOmitField
+	private IIdentifier identifier;
+
+	@XStreamOmitField
+	private TimeZoneDateRange range;
 
 	public CodeInstance(long codeInstanceId, ICode code, URI id,
 			TimeZoneDate creation) {
@@ -73,6 +90,49 @@ class CodeInstance implements ICodeInstance {
 	@Override
 	public TimeZoneDate getCreation() {
 		return this.creation;
+	}
+
+	@Override
+	public IIdentifier getIdentifier() {
+		if (this.locatorService == null) {
+			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
+					.getService(ILocatorService.class);
+		}
+		if (this.identifier == null) {
+			ILocatable locatable;
+			try {
+				locatable = this.locatorService.resolve(this.getId(), null)
+						.get();
+				if (locatable instanceof HasIdentifier) {
+					this.identifier = ((HasIdentifier) locatable)
+							.getIdentifier();
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error resolving " + this.getId(), e);
+			}
+		}
+		return this.identifier;
+	}
+
+	@Override
+	public TimeZoneDateRange getDateRange() {
+		if (this.locatorService == null) {
+			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
+					.getService(ILocatorService.class);
+		}
+		if (this.range == null) {
+			ILocatable locatable;
+			try {
+				locatable = this.locatorService.resolve(this.getId(), null)
+						.get();
+				if (locatable instanceof HasDateRange) {
+					this.range = ((HasDateRange) locatable).getDateRange();
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error resolving " + this.getId(), e);
+			}
+		}
+		return this.range;
 	}
 
 	/*
