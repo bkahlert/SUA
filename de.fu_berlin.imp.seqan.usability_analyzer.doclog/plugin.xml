@@ -7,7 +7,7 @@
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView"
             icon="icons/view16/doclog_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogExplorerView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.doclog.views.DoclogView"
             name="Doclog Explorer"
             restorable="true">
       </view>

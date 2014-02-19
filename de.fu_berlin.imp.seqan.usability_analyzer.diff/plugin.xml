@@ -8,7 +8,7 @@
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
             class="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView"
             icon="icons/view16/diff_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffExplorerView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.diff.views.DiffView"
             name="Diff Explorer"
             restorable="true">
       </view>
