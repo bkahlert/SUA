@@ -6,7 +6,7 @@
       <perspective
             class="de.fu_berlin.imp.seqan.usability_analyzer.survey.perspectives.CognitiveDimensionsPerspective"
             id="de.fu_berlin.imp.seqan.usability_analyzer.survey.perspectives.CognitiveDimensionsPerspective"
-            name="name">
+            name="Cognitive Dimensions">
       </perspective>
    </extension>
    <extension

@@ -38,6 +38,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.Activator;
+import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.SurveyContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer.CDViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -230,6 +231,11 @@ public class CDView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		SurveyContainer surveyContainer = Activator.getDefault()
+				.getSurveyContainer();
+		if (this.viewer.getInput() != surveyContainer) {
+			this.viewer.setInput(surveyContainer);
+		}
 		this.browser.setFocus();
 	}
 
