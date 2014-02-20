@@ -23,19 +23,19 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.UriInformati
 
 public class UriPresenterService implements IUriPresenterService {
 
-	private List<IInformationBackgroundProvider> informationBackgroundProviders = new ArrayList<IInformationBackgroundProvider>();
+	private final List<IInformationBackgroundProvider<URI>> informationBackgroundProviders = new ArrayList<IInformationBackgroundProvider<URI>>();
 
-	private Map<Control, InformationControlManager<?, ?>> informationControlManagers = new HashMap<Control, InformationControlManager<?, ?>>();
+	private final Map<Control, InformationControlManager<?, ?>> informationControlManagers = new HashMap<Control, InformationControlManager<?, ?>>();
 
 	@Override
 	public void addInformationBackgroundProvider(
-			IInformationBackgroundProvider informationBackgroundProvider) {
+			IInformationBackgroundProvider<URI> informationBackgroundProvider) {
 		this.informationBackgroundProviders.add(informationBackgroundProvider);
 	};
 
 	@Override
 	public void removeInformationBackgroundProvider(
-			IInformationBackgroundProvider informationBackgroundProvider) {
+			IInformationBackgroundProvider<URI> informationBackgroundProvider) {
 		this.informationBackgroundProviders
 				.remove(informationBackgroundProvider);
 	};
@@ -70,7 +70,7 @@ public class UriPresenterService implements IUriPresenterService {
 					@Override
 					public void postProcess(URI uri, Composite root) {
 						Color backgroundColor = null;
-						for (IInformationBackgroundProvider informationBackgroundProvider : UriPresenterService.this.informationBackgroundProviders) {
+						for (IInformationBackgroundProvider<URI> informationBackgroundProvider : UriPresenterService.this.informationBackgroundProviders) {
 							backgroundColor = informationBackgroundProvider
 									.getBackground(uri);
 							if (backgroundColor != null) {
