@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.CalendarUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.DateUtil;
 

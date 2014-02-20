@@ -13,13 +13,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
 
 /**
  * Displays multiple bands as one single band

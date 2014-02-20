@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import org.eclipse.core.runtime.Assert;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.CalendarUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;

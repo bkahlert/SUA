@@ -3,8 +3,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.listener.SchemeAnkerListener;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.browser.listener.SchemeAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.ICompilationServiceListener;

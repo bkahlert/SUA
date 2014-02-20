@@ -14,16 +14,16 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.BaseTimelineGroup;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 

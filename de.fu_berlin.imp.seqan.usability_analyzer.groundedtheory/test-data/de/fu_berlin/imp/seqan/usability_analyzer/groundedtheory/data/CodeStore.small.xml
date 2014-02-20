@@ -9,25 +9,25 @@
     <long>3</long>
   </createdCodeInstanceIDs>
   <codeTrees>
-    <com.bkahlert.devel.nebula.data.TreeNode>
+    <com.bkahlert.nebula.data.TreeNode>
       <children/>
       <data class="codes">
         <id>234233209</id>
         <caption>Code #1</caption>
       </data>
-    </com.bkahlert.devel.nebula.data.TreeNode>
-    <com.bkahlert.devel.nebula.data.TreeNode>
+    </com.bkahlert.nebula.data.TreeNode>
+    <com.bkahlert.nebula.data.TreeNode>
       <children/>
       <data class="codes">
         <id>9908372</id>
         <caption>Code #2</caption>
       </data>
-    </com.bkahlert.devel.nebula.data.TreeNode>
+    </com.bkahlert.nebula.data.TreeNode>
   </codeTrees>
   <instances>
     <instance>
       <codeInstanceId>3</codeInstanceId>
-      <code class="codes" reference="../../../codeTrees/com.bkahlert.devel.nebula.data.TreeNode[2]/data"/>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode[2]/data"/>
       <id>sua://codeInstance3</id>
       <creation>
         <calendar>
@@ -38,7 +38,7 @@
     </instance>
     <instance>
       <codeInstanceId>2</codeInstanceId>
-      <code class="codes" reference="../../../codeTrees/com.bkahlert.devel.nebula.data.TreeNode/data"/>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode/data"/>
       <id>sua://codeInstance2</id>
       <creation>
         <calendar>
@@ -49,7 +49,7 @@
     </instance>
     <instance>
       <codeInstanceId>1</codeInstanceId>
-      <code class="codes" reference="../../../codeTrees/com.bkahlert.devel.nebula.data.TreeNode[2]/data"/>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode[2]/data"/>
       <id>sua://codeInstance1</id>
       <creation>
         <calendar>

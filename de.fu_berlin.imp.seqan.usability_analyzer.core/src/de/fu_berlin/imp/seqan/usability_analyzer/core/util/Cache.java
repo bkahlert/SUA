@@ -9,7 +9,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
+import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
 
 /**
  * Thread-safe {@link Cache} that retrieves elements using a provided

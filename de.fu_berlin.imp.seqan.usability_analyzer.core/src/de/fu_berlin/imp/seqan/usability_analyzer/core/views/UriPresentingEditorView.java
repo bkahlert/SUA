@@ -6,14 +6,14 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.views.EditorView;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdaptingListener;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.browser.listener.URIAdapter;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.views.EditorView;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
+import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;

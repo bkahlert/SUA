@@ -7,9 +7,9 @@ import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecUtils.DelayableThread;
-import com.bkahlert.devel.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.ExecUtils.DelayableThread;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;

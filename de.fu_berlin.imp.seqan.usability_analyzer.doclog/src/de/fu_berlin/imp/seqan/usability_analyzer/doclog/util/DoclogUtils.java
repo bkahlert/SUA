@@ -2,8 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.util;
 
 import java.util.Iterator;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage.IFieldFill;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public class DoclogUtils {
 

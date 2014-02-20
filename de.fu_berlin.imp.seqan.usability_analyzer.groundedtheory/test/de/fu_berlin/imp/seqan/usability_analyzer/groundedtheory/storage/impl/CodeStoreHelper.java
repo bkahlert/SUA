@@ -12,7 +12,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 
-import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -25,7 +25,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 
 public class CodeStoreHelper {
 	private static File getTempFile() throws IOException {
-		File dir = com.bkahlert.devel.nebula.utils.FileUtils.getTempDirectory();
+		File dir = com.bkahlert.nebula.utils.FileUtils.getTempDirectory();
 		File temp = new File(dir, CodeServiceTest.class.getSimpleName()
 				+ ".xml");
 		dir.deleteOnExit();

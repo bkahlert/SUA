@@ -26,13 +26,13 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.utils.DNDUtils;
 import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
@@ -393,7 +393,7 @@ public class DoclogViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
 			TreeItem[] treeItems, CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			DoclogRecord doclogRecord = LOCATOR_SERVICE.resolve(
 					(URI) item.getData(), DoclogRecord.class, null).get();
@@ -430,7 +430,7 @@ public class DoclogViewer extends SortableTreeViewer {
 			TreeItem[] treeItems, IIdentifier identifier,
 			CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.devel.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			Doclog doclog = LOCATOR_SERVICE.resolve((URI) item.getData(),
 					Doclog.class, null).get();
@@ -438,7 +438,7 @@ public class DoclogViewer extends SortableTreeViewer {
 				List<TreePath> childTreePaths = getItemsOfIntersectingDataRanges(
 						((TreeItem) item).getItems(), dataRanges);
 				for (TreePath childTreePath : childTreePaths) {
-					TreePath treePath = com.bkahlert.devel.nebula.utils.ViewerUtils
+					TreePath treePath = com.bkahlert.nebula.utils.ViewerUtils
 							.merge(new TreePath(new Object[] { item.getData() }),
 									childTreePath);
 					treePaths.add(treePath);

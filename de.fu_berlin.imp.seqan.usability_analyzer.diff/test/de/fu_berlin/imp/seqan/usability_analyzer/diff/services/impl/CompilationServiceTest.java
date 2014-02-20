@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.FileUtils;
+import com.bkahlert.nebula.utils.FileUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;

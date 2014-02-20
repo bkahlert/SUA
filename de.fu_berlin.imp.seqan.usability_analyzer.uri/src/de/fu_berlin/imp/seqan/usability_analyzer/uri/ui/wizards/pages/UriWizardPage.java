@@ -11,7 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
+import com.bkahlert.nebula.widgets.decoration.EmptyText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.uri.model.IUri;
 import de.fu_berlin.imp.seqan.usability_analyzer.uri.model.Uri;

@@ -8,15 +8,15 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
-import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineAdapter;
+import com.bkahlert.nebula.widgets.timeline.model.IDecorator;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;

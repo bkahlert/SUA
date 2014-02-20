@@ -16,9 +16,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.FontUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.utils.FontUtils;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 

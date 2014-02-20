@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.CalendarUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;

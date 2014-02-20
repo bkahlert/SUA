@@ -3,7 +3,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionListener;

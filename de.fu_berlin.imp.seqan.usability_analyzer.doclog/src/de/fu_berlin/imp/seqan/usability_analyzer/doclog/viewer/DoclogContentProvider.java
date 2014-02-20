@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -48,7 +48,7 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
 			if (this.isResponsible(uris)) {
-				com.bkahlert.devel.nebula.utils.ViewerUtils
+				com.bkahlert.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
 		}
@@ -59,14 +59,14 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
 			if (this.isResponsible(uris)) {
-				com.bkahlert.devel.nebula.utils.ViewerUtils
+				com.bkahlert.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
 		}
@@ -78,14 +78,14 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 		@Override
 		public void codeDeleted(ICode code) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void memoAdded(URI uri) {
 			if (this.isResponsible(new ArrayList<URI>(Arrays.asList(uri)))) {
-				com.bkahlert.devel.nebula.utils.ViewerUtils
+				com.bkahlert.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
 		}
@@ -97,26 +97,26 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		@Override
 		public void memoRemoved(URI uri) {
 			if (this.isResponsible(new ArrayList<URI>(Arrays.asList(uri)))) {
-				com.bkahlert.devel.nebula.utils.ViewerUtils
+				com.bkahlert.nebula.utils.ViewerUtils
 						.refresh(DoclogContentProvider.this.viewer);
 			}
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			com.bkahlert.devel.nebula.utils.ViewerUtils
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
 	};

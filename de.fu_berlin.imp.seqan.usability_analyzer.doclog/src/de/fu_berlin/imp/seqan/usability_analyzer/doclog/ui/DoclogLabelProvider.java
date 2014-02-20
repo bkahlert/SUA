@@ -25,10 +25,10 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import com.bkahlert.devel.nebula.utils.MathUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.MathUtils;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;

@@ -20,9 +20,9 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.PaintUtils;
+import com.bkahlert.nebula.utils.PaintUtils;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;

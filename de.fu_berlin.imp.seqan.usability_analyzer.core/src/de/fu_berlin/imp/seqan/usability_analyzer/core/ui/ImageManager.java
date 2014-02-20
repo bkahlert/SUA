@@ -5,8 +5,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.images.Images;
+import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
@@ -48,13 +48,13 @@ public class ImageManager {
 	 * overlays
 	 */
 	private static final SUACorePreferenceUtil CORE_PREFERENCE_UTIL = new SUACorePreferenceUtil();
-	public static final ImageDescriptor OVERLAY_OK = Images
+	public static final ImageDescriptor OVERLAY_OK = ImageUtils
 			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorOk()));
-	public static final ImageDescriptor OVERLAY_DIRTY = Images
+	public static final ImageDescriptor OVERLAY_DIRTY = ImageUtils
 			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorDirty()));
-	public static final ImageDescriptor OVERLAY_ERROR = Images
+	public static final ImageDescriptor OVERLAY_ERROR = ImageUtils
 			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorError()));
-	public static final ImageDescriptor OVERLAY_MISSING = Images
+	public static final ImageDescriptor OVERLAY_MISSING = ImageUtils
 			.getOverlayDot(new RGB(CORE_PREFERENCE_UTIL.getColorMissing()));
 
 	/**

@@ -18,14 +18,14 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.StringUtils;
-import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
-import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.StringUtils;
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -50,12 +50,12 @@ public class CDViewer extends Viewer {
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
-	private BootstrapEnabledBrowserComposite browser;
+	private BootstrapBrowser browser;
 	private SurveyContainer surveyContainer;
 
 	private ISelection selection = null;
 
-	public CDViewer(BootstrapEnabledBrowserComposite browser) {
+	public CDViewer(BootstrapBrowser browser) {
 		this.browser = browser;
 
 		/*

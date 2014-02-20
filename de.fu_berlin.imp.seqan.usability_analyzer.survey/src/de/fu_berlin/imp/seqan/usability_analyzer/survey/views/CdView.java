@@ -16,15 +16,15 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.CompletedFuture;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -141,7 +141,7 @@ public class CDView extends ViewPart {
 	};
 
 	private CDViewer viewer = null;
-	private BootstrapEnabledBrowserComposite browser = null;
+	private BootstrapBrowser browser = null;
 
 	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
@@ -163,7 +163,7 @@ public class CDView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.browser = new BootstrapEnabledBrowserComposite(parent, SWT.NONE);
+		this.browser = new BootstrapBrowser(parent, SWT.NONE);
 		this.browser.deactivateNativeMenu();
 		this.browser.setAllowLocationChange(true);
 		this.browser.openAboutBlank();

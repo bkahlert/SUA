@@ -14,8 +14,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.wizards.dialogs.CenteredWizardDialog;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.wizards.dialogs.CenteredWizardDialog;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;

@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;

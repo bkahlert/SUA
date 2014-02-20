@@ -31,12 +31,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.NamedJob;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.viewer.timeline.impl.TimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
@@ -44,6 +42,8 @@ import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.impl.BandGroupProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;

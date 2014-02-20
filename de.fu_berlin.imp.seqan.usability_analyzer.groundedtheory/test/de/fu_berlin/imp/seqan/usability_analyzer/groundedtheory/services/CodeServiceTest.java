@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;

@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage.IFieldFill;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public class DoclogUtilsTest {
 

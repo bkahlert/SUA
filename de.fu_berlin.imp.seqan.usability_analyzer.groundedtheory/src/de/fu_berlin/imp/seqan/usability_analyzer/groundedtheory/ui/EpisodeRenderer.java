@@ -36,11 +36,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 
-import com.bkahlert.devel.nebula.rendering.TrackCalculator;
-import com.bkahlert.devel.nebula.rendering.TrackCalculator.Converter;
-import com.bkahlert.devel.nebula.rendering.TrackCalculator.ITrackCalculation;
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.PaintUtils;
+import com.bkahlert.nebula.rendering.TrackCalculator;
+import com.bkahlert.nebula.rendering.TrackCalculator.Converter;
+import com.bkahlert.nebula.rendering.TrackCalculator.ITrackCalculation;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.PaintUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -80,7 +80,7 @@ public class EpisodeRenderer implements IDisposable {
 	private static class ResizeInfo {
 		public static ResizeInfo getInfoIfApplicable(Event event,
 				ViewerColumn column, Map<IEpisode, Rectangle> episodeBounds) {
-			Rectangle bounds = com.bkahlert.devel.nebula.utils.ViewerUtils
+			Rectangle bounds = com.bkahlert.nebula.utils.ViewerUtils
 					.getBounds(column);
 			if (event.x >= bounds.x && event.x <= bounds.x + bounds.width) {
 				ResizeInfo info = null;
@@ -374,7 +374,7 @@ public class EpisodeRenderer implements IDisposable {
 
 		@Override
 		public void paintControl(PaintEvent e) {
-			List<Item> items = com.bkahlert.devel.nebula.utils.ViewerUtils
+			List<Item> items = com.bkahlert.nebula.utils.ViewerUtils
 					.getAllItems((Control) e.widget);
 			if (items.size() == 0) {
 				return;
@@ -556,7 +556,7 @@ public class EpisodeRenderer implements IDisposable {
 			ITrackCalculation<IEpisode> tracks = TrackCalculator
 					.calculateTracks(new LinkedList<IEpisode>(set), CONVERTER);
 
-			Rectangle columnBounds = com.bkahlert.devel.nebula.utils.ViewerUtils
+			Rectangle columnBounds = com.bkahlert.nebula.utils.ViewerUtils
 					.getBounds(this.column);
 
 			Map<IEpisode, Rectangle> episodeBounds = new HashMap<IEpisode, Rectangle>();

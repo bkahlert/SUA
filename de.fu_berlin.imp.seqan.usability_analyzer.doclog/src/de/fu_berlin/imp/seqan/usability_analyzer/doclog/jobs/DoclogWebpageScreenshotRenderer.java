@@ -4,8 +4,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.impl.webpage.FormContainingWebpageScreenshotRenderer;
+import com.bkahlert.nebula.widgets.browser.extended.IJQueryBrowser;
 
 public class DoclogWebpageScreenshotRenderer extends
 		FormContainingWebpageScreenshotRenderer<DoclogWebpage> {
@@ -16,7 +16,7 @@ public class DoclogWebpageScreenshotRenderer extends
 
 	@Override
 	public void loadingWebpageFinished(DoclogWebpage webpage,
-			IJQueryEnabledBrowserComposite browser) {
+			IJQueryBrowser browser) {
 		super.loadingWebpageFinished(webpage, browser);
 
 		/*

@@ -20,11 +20,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.FontUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
+import com.bkahlert.nebula.utils.FontUtils;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;

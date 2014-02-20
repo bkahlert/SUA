@@ -2,8 +2,8 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
 import java.util.Map;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;

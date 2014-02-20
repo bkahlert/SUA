@@ -10,8 +10,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.devel.nebula.utils.FileUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.utils.FileUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IRevealableInOS;
 
