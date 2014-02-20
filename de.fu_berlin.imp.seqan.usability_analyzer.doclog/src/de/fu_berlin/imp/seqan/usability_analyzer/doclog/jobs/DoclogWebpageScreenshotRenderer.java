@@ -4,7 +4,6 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.widgets.browser.JavaScript;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.impl.webpage.FormContainingWebpageScreenshotRenderer;
 
@@ -32,11 +31,9 @@ public class DoclogWebpageScreenshotRenderer extends
 				 * using updateSearch in dddoc.js
 				 */
 				browser.run(
-						new JavaScript(
-								new JavaScript("var text=$('#search').val();"),
-								new JavaScript(
-										"var s='';count=1;if(text.length>=2){if(text.length<3)reg=new RegExp('^('+text.toLowerCase()+')','gi');else reg=new RegExp('('+text.toLowerCase()+')','gi');for(i=0;i<DB.length-1;++i){entry=DB[i];key=entry[0];if(key.match(reg)){displaytext=entry[0].replace(reg,'<b>$1</b>');s+='<div><nobr><a target=_parent '+entry[2]+displaytext+' '+entry[1]+'</a></nobr></div>';++count;if(count>=MAX_RESULT)break}}}"),
-								new JavaScript("$('#result').html(s);"))).get();
+						"var text=$('#search').val();"
+								+ "var s='';count=1;if(text.length>=2){if(text.length<3)reg=new RegExp('^('+text.toLowerCase()+')','gi');else reg=new RegExp('('+text.toLowerCase()+')','gi');for(i=0;i<DB.length-1;++i){entry=DB[i];key=entry[0];if(key.match(reg)){displaytext=entry[0].replace(reg,'<b>$1</b>');s+='<div><nobr><a target=_parent '+entry[2]+displaytext+' '+entry[1]+'</a></nobr></div>';++count;if(count>=MAX_RESULT)break}}}"
+								+ "$('#result').html(s);").get();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

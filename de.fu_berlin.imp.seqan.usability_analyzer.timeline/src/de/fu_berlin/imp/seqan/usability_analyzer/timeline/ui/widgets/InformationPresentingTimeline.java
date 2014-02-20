@@ -14,6 +14,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineAdapter;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 
@@ -95,7 +96,7 @@ public class InformationPresentingTimeline extends Timeline {
 		super(parent, style);
 
 		try {
-			this.injectCssFile(getFileUrl(InformationPresentingTimeline.class,
+			this.injectCssFile(BrowserUtils.getFileUrl(InformationPresentingTimeline.class,
 					"style.css"));
 		} catch (RuntimeException e) {
 			LOGGER.error("Could not find style.css", e);

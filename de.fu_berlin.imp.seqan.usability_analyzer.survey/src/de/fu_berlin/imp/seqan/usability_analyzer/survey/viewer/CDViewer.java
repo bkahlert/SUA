@@ -21,10 +21,10 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite.IFocusListener;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.utils.ImageUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
