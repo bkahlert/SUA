@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.views;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -9,29 +8,22 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector;
-import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
-import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -143,9 +135,6 @@ public class CDView extends ViewPart {
 	private CDViewer viewer = null;
 	private BootstrapBrowser browser = null;
 
-	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
-			.getWorkbench().getService(IUriPresenterService.class);
-
 	public CDView() {
 		this.dataService.addDataServiceListener(this.dataServiceListener);
 		this.codeService.addCodeServiceListener(this.codeServiceListener);
@@ -153,7 +142,6 @@ public class CDView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		this.informationPresenterService.disable(this.browser);
 		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
@@ -167,58 +155,6 @@ public class CDView extends ViewPart {
 		this.browser.deactivateNativeMenu();
 		this.browser.setAllowLocationChange(true);
 		this.browser.openAboutBlank();
-
-		this.informationPresenterService.enable(this.browser,
-				new ISubjectInformationProvider<Control, URI>() {
-					private URI hovered = null;
-
-					private final IAnkerListener ankerListener = new AnkerAdapter() {
-						@Override
-						public void ankerHovered(IAnker anker, boolean entered) {
-							URI uri;
-							try {
-								uri = new URI(anker.getHref());
-							} catch (URISyntaxException e1) {
-								hovered = null;
-								return;
-							}
-
-							if (uri.getScheme() != null
-									&& !uri.getScheme().contains("-")
-									&& entered) {
-								try {
-									hovered = uri;
-								} catch (Exception e) {
-									LOGGER.error(e);
-								}
-							} else {
-								hovered = null;
-							}
-						}
-					};
-
-					@Override
-					public void register(Control subject) {
-						CDView.this.browser
-								.addAnkerListener(this.ankerListener);
-					}
-
-					@Override
-					public void unregister(Control subject) {
-						CDView.this.browser
-								.removeAnkerListener(this.ankerListener);
-					}
-
-					@Override
-					public Point getHoverArea() {
-						return new Point(20, 10);
-					}
-
-					@Override
-					public URI getInformation() {
-						return this.hovered;
-					}
-				});
 
 		this.viewer = new CDViewer(this.browser);
 		new ContextMenu(this.viewer, this.getSite()) {

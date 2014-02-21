@@ -14,10 +14,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.StringUtils;
@@ -25,9 +28,11 @@ import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -51,12 +56,73 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(ICodeService.class);
 
 	private BootstrapBrowser browser;
+	private final IUriPresenterService presenterService = (IUriPresenterService) PlatformUI
+			.getWorkbench().getService(IUriPresenterService.class);
+
 	private SurveyContainer surveyContainer;
 
 	private ISelection selection = null;
 
-	public CDViewer(BootstrapBrowser browser) {
+	public CDViewer(final BootstrapBrowser browser) {
 		this.browser = browser;
+
+		this.presenterService.enable(this.browser,
+				new ISubjectInformationProvider<Control, URI>() {
+					private URI hovered = null;
+
+					private final IAnkerListener ankerListener = new AnkerAdapter() {
+						@Override
+						public void ankerHovered(IAnker anker, boolean entered) {
+							System.out.println(entered + " " + anker);
+							URI uri;
+							try {
+								uri = new URI(anker.getHref());
+							} catch (URISyntaxException e1) {
+								hovered = null;
+								return;
+							}
+
+							if (uri.getScheme() != null
+									&& !uri.getScheme().contains("-")
+									&& entered) {
+								try {
+									hovered = uri;
+								} catch (Exception e) {
+									LOGGER.error(e);
+								}
+							} else {
+								hovered = null;
+							}
+						}
+					};
+
+					@Override
+					public void register(Control subject) {
+						browser.addAnkerListener(this.ankerListener);
+					}
+
+					@Override
+					public void unregister(Control subject) {
+						browser.removeAnkerListener(this.ankerListener);
+					}
+
+					@Override
+					public Point getHoverArea() {
+						return new Point(20, 10);
+					}
+
+					@Override
+					public URI getInformation() {
+						return this.hovered;
+					}
+				});
+
+		browser.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				CDViewer.this.presenterService.disable(browser);
+			}
+		});
 
 		/*
 		 * Handle add code events
