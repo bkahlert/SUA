@@ -130,19 +130,20 @@ public class CDViewer extends Viewer {
 		this.browser.addAnkerListener(new AnkerAdapter() {
 			@Override
 			public void ankerClicked(IAnker anker) {
-				if (!anker.getHref().startsWith("addCode-")) {
+				if (!anker.getHref().startsWith("addcode-")) {
 					return;
 				}
 
 				final AtomicReference<URI> uri = new AtomicReference<URI>();
 				try {
 					uri.set(new URI(anker.getHref().substring(
-							"addCode-".length())));
+							"addcode-".length())));
 				} catch (URISyntaxException e) {
 					LOGGER.error("Can't create URI to code from "
 							+ anker.getHref());
 					return;
 				}
+				System.err.println(uri);
 				ExecUtils.nonUISyncExec(CDViewer.class,
 						"Opening Add Code Wizard", new Callable<Void>() {
 							@Override
@@ -234,7 +235,7 @@ public class CDViewer extends Viewer {
 										.createUriFromImage(ImageManager.MEMO)
 								+ "\"> " : " ")
 						+ this.createCodeLinks(documentCodes)
-						+ " <a href=\"addCode-"
+						+ " <a href=\"addcode-"
 						+ cdDocument.getUri()
 						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a></h2>");
 
@@ -260,7 +261,7 @@ public class CDViewer extends Viewer {
 											: "")
 									+ " "
 									+ this.createCodeLinks(fieldCodes)
-									+ " <a href=\"addCode-"
+									+ " <a href=\"addcode-"
 									+ field.getUri()
 									+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>",
 							field.getAnswer(), true);
