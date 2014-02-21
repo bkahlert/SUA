@@ -284,8 +284,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
 		if (locatable instanceof ICode) {
-			metaEntries.add(new IllustratedText(ImageManager.CODE, ICode.class
-					.getSimpleName().substring(1)));
+			ICode code = (ICode) locatable;
+			metaEntries.add(new IllustratedText(getCodeImage(code), code
+					.getClass().getSimpleName()
+					+ " \""
+					+ code.getCaption()
+					+ "\""));
 		}
 		if (locatable instanceof ICodeInstance) {
 			metaEntries.add(new IllustratedText(ICodeInstance.class
@@ -306,9 +310,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		if (locatable instanceof ICode) {
 			ICode code = (ICode) locatable;
 			detailEntries.add(new DetailEntry("URI", code.getUri().toString()));
-			detailEntries.add(new DetailEntry("Caption", code.getCaption()));
-			detailEntries.add(new DetailEntry("Color", code.getColor()
-					.toHexString()));
 			detailEntries.add(new DetailEntry("Created", code.getCreation()
 					.toISO8601()));
 		}
