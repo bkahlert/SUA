@@ -238,6 +238,7 @@ public class CodeService implements ICodeService {
 		RGB oldColor = code.getColor();
 		try {
 			code.setColor(newColor);
+			this.codeStore.save();
 			this.codeServiceListenerNotifier.codeRecolored(code, oldColor,
 					newColor);
 		} catch (Exception e) {
