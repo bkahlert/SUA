@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey;
 
 import java.net.URI;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,33 +39,19 @@ public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
-	private static String hash(String text) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] hash = md.digest(text.getBytes("UTF-8"));
-			StringBuilder sb = new StringBuilder(2 * hash.length);
-			for (byte b : hash) {
-				sb.append(String.format("%02x", b & 0xff));
-			}
-			return sb.toString().substring(0, 4);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
 		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == CDDocument.class) {
 			List<String> trail = URIUtils.getTrail(uri);
 			IIdentifier identifier = new DateId(trail.get(0));
-			return new StyledString(hash(identifier.toString()));
+			return new StyledString(CDDocument.getIdentifierHash(identifier));
 		}
 		if (type == CDDocumentField.class) {
 			List<String> trail = URIUtils.getTrail(uri);
 			IIdentifier identifier = new DateId(trail.get(0));
-			return new StyledString(hash(identifier.toString()) + " - "
-					+ trail.get(1));
+			return new StyledString(CDDocument.getIdentifierHash(identifier)
+					+ " - " + trail.get(1));
 		}
 		return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
 	}

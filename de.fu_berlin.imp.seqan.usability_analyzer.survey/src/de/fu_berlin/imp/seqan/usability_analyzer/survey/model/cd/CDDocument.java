@@ -11,6 +11,8 @@ import org.apache.commons.collections.iterators.ArrayListIterator;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
+import com.bkahlert.nebula.utils.HashUtils;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
@@ -72,6 +74,30 @@ public class CDDocument implements ILocatable, HasIdentifier,
 	@Override
 	public IIdentifier getIdentifier() {
 		return this.identifier;
+	}
+
+	/**
+	 * Returns a hash of length 4 of the {@link CDDocument}'s
+	 * {@link IIdentifier} for visual purposes only. The uniqueness is not
+	 * guaranteed but very likely and should thus never be used to unambiguously
+	 * identify a resource.
+	 * 
+	 * @return
+	 */
+	public static String getIdentifierHash(IIdentifier identifier) {
+		return HashUtils.md5(identifier.toString()).substring(0, 4);
+	}
+
+	/**
+	 * Returns a hash of length 4 of the {@link CDDocument}'s
+	 * {@link IIdentifier} for visual purposes only. The uniqueness is not
+	 * guaranteed but very likely and should thus never be used to unambiguously
+	 * identify a resource.
+	 * 
+	 * @return
+	 */
+	public String getIdentifierHash() {
+		return getIdentifierHash(this.identifier);
 	}
 
 	public Calendar getCompleted() {

@@ -54,10 +54,10 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(ILocatorService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
-
-	private BootstrapBrowser browser;
 	private final IUriPresenterService presenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
+
+	private BootstrapBrowser browser;
 
 	private SurveyContainer surveyContainer;
 
@@ -143,7 +143,6 @@ public class CDViewer extends Viewer {
 							+ anker.getHref());
 					return;
 				}
-				System.err.println(uri);
 				ExecUtils.nonUISyncExec(CDViewer.class,
 						"Opening Add Code Wizard", new Callable<Void>() {
 							@Override
@@ -208,7 +207,7 @@ public class CDViewer extends Viewer {
 
 			FormBuilder form = new FormBuilder();
 			for (CDDocument cdDocument : cdDocuments) {
-				String caption = cdDocument.getIdentifier().toString();
+				String caption = cdDocument.getIdentifierHash();
 
 				navigationElements.add(new NavigationElement(caption, "#"
 						+ cdDocument.getUri()));
