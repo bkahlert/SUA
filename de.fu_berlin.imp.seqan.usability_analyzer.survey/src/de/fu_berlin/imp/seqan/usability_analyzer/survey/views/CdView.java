@@ -18,6 +18,8 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
+import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
@@ -57,7 +59,6 @@ public class CDView extends ViewPart {
 		}
 	};
 
-	@SuppressWarnings("unused")
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
@@ -155,6 +156,14 @@ public class CDView extends ViewPart {
 		this.browser.deactivateNativeMenu();
 		this.browser.setAllowLocationChange(true);
 		this.browser.openAboutBlank();
+		this.browser.addAnkerListener(new AnkerAdaptingListener(
+				new URIAdapter() {
+					@Override
+					public void uriClicked(URI uri) {
+						CDView.this.locatorService.showInWorkspace(uri, false,
+								null);
+					}
+				}));
 
 		this.viewer = new CDViewer(this.browser);
 		new ContextMenu(this.viewer, this.getSite()) {
