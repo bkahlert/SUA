@@ -105,12 +105,27 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
 
 	/**
+	 * Caches color of {@link ICode} an image was created for. This is used to
+	 * re-create the image if the color changed.
+	 */
+	private static final Map<ICode, RGB> codeColors = new HashMap<ICode, RGB>();
+
+	/**
 	 * Returns the image that shows the color of the given {@link ICode}.
 	 * 
 	 * @param code
 	 * @return
 	 */
 	public static Image getCodeImage(ICode code) {
+		if (codeColors.containsKey(code)) {
+			if (!codeColors.get(code).equals(code.getColor())) {
+				// we don't dispose the outdated image since it could still be
+				// used. codeImages.get(code).dispose();
+				codeImages.remove(code);
+			}
+		}
+		codeColors.put(code, code.getColor());
+
 		if (!codeImages.containsKey(code)) {
 			Image image = new Image(Display.getCurrent(), 16, 16);
 			GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
