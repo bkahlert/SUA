@@ -21,6 +21,7 @@ import com.bkahlert.nebula.utils.DNDUtils;
 import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.viewer.SortableTableViewer;
 
@@ -315,12 +316,18 @@ public class EntityViewer extends SortableTableViewer implements
 			boldObjects = new LinkedList<URI>();
 		}
 		if (!this.boldObjects.equals(boldObjects)) {
-			List<Object> objectsToBeUpdated = new ArrayList<Object>();
+			final List<Object> objectsToBeUpdated = new ArrayList<Object>();
 			objectsToBeUpdated.addAll(this.boldObjects);
 			objectsToBeUpdated.addAll(boldObjects);
 
 			this.boldObjects = boldObjects;
-			this.update(objectsToBeUpdated.toArray(), null);
+			ExecUtils.asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					EntityViewer.this.update(objectsToBeUpdated.toArray(), null);
+				}
+			});
 		}
 	}
 }
