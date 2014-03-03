@@ -21,7 +21,7 @@ public interface ICodeStore {
 
 	public List<ICode> getTopLevelCodes();
 
-	public Set<ICodeInstance> loadInstances();
+	public Set<ICodeInstance> getInstances();
 
 	/**
 	 * Returns an existing {@link ICode} based on it's internal id

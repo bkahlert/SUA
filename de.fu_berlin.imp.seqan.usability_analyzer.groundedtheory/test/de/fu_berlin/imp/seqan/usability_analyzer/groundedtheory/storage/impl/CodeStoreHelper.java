@@ -170,7 +170,7 @@ public class CodeStoreHelper {
 	protected void testCodeInstances(ICodeStore actualCodeInstances,
 			ICodeInstance[] expectedCodeInstances)
 			throws CodeStoreReadException {
-		this.testCodeInstances(actualCodeInstances.loadInstances(),
+		this.testCodeInstances(actualCodeInstances.getInstances(),
 				expectedCodeInstances);
 	}
 

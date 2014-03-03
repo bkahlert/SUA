@@ -271,7 +271,7 @@ class CodeStore implements ICodeStore {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Set<ICodeInstance> loadInstances() {
+	public Set<ICodeInstance> getInstances() {
 		return (Set<ICodeInstance>) this.codeInstances.clone();
 	}
 

@@ -107,7 +107,7 @@ public class CodeService implements ICodeService {
 	@Override
 	public List<ICode> getCodes(URI uri) throws CodeServiceException {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
-		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 			if (codeInstance.getId().equals(uri)) {
 				codes.add(codeInstance.getCode());
 			}
@@ -163,7 +163,7 @@ public class CodeService implements ICodeService {
 	@Override
 	public Set<URI> getCodedIDs() {
 		Set<URI> codedIDs = new HashSet<URI>();
-		for (ICodeInstance instance : this.codeStore.loadInstances()) {
+		for (ICodeInstance instance : this.codeStore.getInstances()) {
 			URI id = instance.getId();
 			if (!codedIDs.contains(id)) {
 				codedIDs.add(id);
@@ -175,7 +175,7 @@ public class CodeService implements ICodeService {
 	@Override
 	public List<ICodeInstance> getInstances() {
 		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 			codeInstances.add(codeInstance);
 		}
 		return codeInstances;
@@ -184,7 +184,7 @@ public class CodeService implements ICodeService {
 	@Override
 	public List<ICodeInstance> getInstances(IIdentifier identifier) {
 		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 			String[] uriParts = codeInstance.getId().toString().split("/");
 			if (identifier.equals(IdentifierFactory.createFrom(uriParts[3]))) {
 				codeInstances.add(codeInstance);
@@ -196,7 +196,7 @@ public class CodeService implements ICodeService {
 	@Override
 	public List<ICodeInstance> getInstances(ICode code) {
 		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 			if (codeInstance.getCode().equals(code)) {
 				codeInstances.add(codeInstance);
 			}
@@ -289,7 +289,7 @@ public class CodeService implements ICodeService {
 		}
 		try {
 			List<ICode> removedCodes = new LinkedList<ICode>();
-			for (ICodeInstance codeInstance : this.codeStore.loadInstances()) {
+			for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 				if (codes.contains(codeInstance.getCode())
 						&& codeInstance.getId().equals(uri)) {
 					this.codeStore.deleteCodeInstance(codeInstance);
