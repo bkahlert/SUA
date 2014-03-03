@@ -2,7 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer;
 
 public class FormBuilder {
 
-	private StringBuilder value;
+	private final StringBuilder value;
 
 	public FormBuilder() {
 		this.value = new StringBuilder();
@@ -18,15 +18,15 @@ public class FormBuilder {
 	 * @param name
 	 * @param caption
 	 * @param value
-	 * @param makeFocusable
-	 *            changes the markup so the field container can have the focus.
-	 *            The provided id is also stored in the container attribute
-	 *            <code>data-focus-id</code>.
+	 * @param tabIndex
+	 *            if >= 0 the markup is changed so the field container can have
+	 *            focus. The provided id is also stored in the container
+	 *            attribute <code>data-focus-id</code>.
 	 */
 	public void addStaticField(String id, String name, String caption,
-			String value, boolean makeFocusable) {
+			String value, int tabIndex) {
 		this.value.append("<div class=\"form-group\"");
-		if (makeFocusable) {
+		if (tabIndex >= 0) {
 			this.value.append(" tabindex=\"0\" data-focus-id=\"" + id + "\"");
 		}
 		this.value.append(">");
@@ -43,8 +43,8 @@ public class FormBuilder {
 	}
 
 	public void addStaticField(String idAndName, String caption, String value,
-			boolean makeFocusable) {
-		this.addStaticField(idAndName, idAndName, caption, value, makeFocusable);
+			int tabIndex) {
+		this.addStaticField(idAndName, idAndName, caption, value, tabIndex);
 	}
 
 	@Override

@@ -206,6 +206,7 @@ public class CDViewer extends Viewer {
 			List<NavigationElement> navigationElements = new ArrayList<NavigationElement>();
 
 			FormBuilder form = new FormBuilder();
+			form.addRaw("<table>");
 			for (CDDocument cdDocument : cdDocuments) {
 				String caption = cdDocument.getIdentifierHash();
 
@@ -222,7 +223,10 @@ public class CDViewer extends Viewer {
 
 				boolean documentMemoExists = this.codeService.isMemo(cdDocument
 						.getUri());
-				form.addRaw("<h2 tabindex=\"0\" data-focus-id=\""
+				form.addRaw("<tr><td>");
+				form.addRaw("<h2 tabindex=\""
+						+ 0
+						+ "\" data-focus-id=\""
 						+ cdDocument.getUri()
 						+ "\"><a name=\""
 						+ cdDocument.getUri()
@@ -232,11 +236,13 @@ public class CDViewer extends Viewer {
 						+ (documentMemoExists ? " <img src=\""
 								+ ImageUtils
 										.createUriFromImage(ImageManager.MEMO)
-								+ "\"> " : " ")
-						+ this.createCodeLinks(documentCodes)
-						+ " <a href=\"addcode-"
-						+ cdDocument.getUri()
-						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a></h2>");
+								+ "\"> " : " ") + " </h2>");
+				form.addRaw("</td><td>");
+				form.addRaw("<a href=\"addcode-" + cdDocument.getUri()
+						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a>");
+				form.addRaw("</td><td>");
+				form.addRaw(this.createCodeLinks(documentCodes));
+				form.addRaw("</td></tr>");
 
 				for (CDDocumentField field : cdDocument) {
 					List<ICode> fieldCodes = new ArrayList<ICode>();
@@ -250,6 +256,7 @@ public class CDViewer extends Viewer {
 					boolean fieldMemoExists = this.codeService.isMemo(field
 							.getUri());
 
+					form.addRaw("<tr><td>");
 					form.addStaticField(
 							field.getUri().toString(),
 							field.getQuestion()
@@ -257,15 +264,17 @@ public class CDViewer extends Viewer {
 											+ ImageUtils
 													.createUriFromImage(ImageManager.MEMO)
 											+ "\">"
-											: "")
-									+ " "
-									+ this.createCodeLinks(fieldCodes)
-									+ " <a href=\"addcode-"
-									+ field.getUri()
-									+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>",
-							field.getAnswer(), true);
+											: ""), field.getAnswer(), 0);
+					form.addRaw("</td><td>");
+					form.addRaw("<a href=\"addcode-"
+							+ field.getUri()
+							+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>");
+					form.addRaw("</td><td>");
+					form.addRaw(this.createCodeLinks(fieldCodes));
+					form.addRaw("</td></tr>");
 				}
 			}
+			form.addRaw("</table>");
 
 			StringBuilder html = new StringBuilder();
 			BootstrapBuilder bootstrapBuilder = new BootstrapBuilder();
@@ -276,8 +285,19 @@ public class CDViewer extends Viewer {
 			html.append(form.toString());
 			html.append("</div>");
 
-			this.browser.setBodyHtml("<style>header{opacity:0.7;}</style>"
-					+ html.toString());
+			this.browser
+					.setBodyHtml("<style>header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }</style>"
+							+ html.toString());
+
+			// debug
+			// ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			// @Override
+			// public Void call() throws Exception {
+			// String html = CDViewer.this.browser.getHtml().get();
+			// System.err.println(html);
+			// return null;
+			// }
+			// });
 		}
 	}
 
@@ -300,8 +320,12 @@ public class CDViewer extends Viewer {
 	private String createCodeLinks(List<ICode> codes) {
 		List<String> html = new ArrayList<String>();
 		for (ICode code : codes) {
-			html.add("<a href=\"" + code.getUri() + "\"><img src=\""
-					+ GTLabelProvider.getCodeImageURI(code) + "\"/>");
+			html.add("<a href=\""
+					+ code.getUri()
+					+ "\" data-focus-id=\""
+					+ code.getUri().toString()
+					+ "\" tabindex=\"-1\" style=\"display: inline-block; margin: 3px;\"><img src=\""
+					+ GTLabelProvider.getCodeImageURI(code) + "\"/></a>");
 		}
 		return StringUtils.join(html, " ");
 	}
