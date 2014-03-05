@@ -21,7 +21,7 @@ public class Uri implements IUri, Serializable {
 	private URI uri;
 
 	/**
-	 * Constructs a title and a {@link Uri} from a {@link java.net.URI}.
+	 * Constructs a title and a {@link NO_CODES} from a {@link java.net.URI}.
 	 * 
 	 * @param uri
 	 */
@@ -31,7 +31,7 @@ public class Uri implements IUri, Serializable {
 	}
 
 	/**
-	 * Constructs a {@link Uri} from a {@link java.net.URI}.
+	 * Constructs a {@link NO_CODES} from a {@link java.net.URI}.
 	 * 
 	 * @param uri
 	 */
@@ -40,7 +40,7 @@ public class Uri implements IUri, Serializable {
 	}
 
 	/**
-	 * Constructs a title and a {@link Uri} from a {@link java.net.URL}.
+	 * Constructs a title and a {@link NO_CODES} from a {@link java.net.URL}.
 	 * 
 	 * @param url
 	 */
@@ -55,7 +55,7 @@ public class Uri implements IUri, Serializable {
 	}
 
 	/**
-	 * Constructs a {@link Uri} from a {@link java.net.URL}.
+	 * Constructs a {@link NO_CODES} from a {@link java.net.URL}.
 	 * 
 	 * @param url
 	 */
@@ -64,10 +64,10 @@ public class Uri implements IUri, Serializable {
 	}
 
 	/**
-	 * Constructs a {@link Uri} from a String.
+	 * Constructs a {@link NO_CODES} from a String.
 	 * <p>
 	 * This constructor is only a short hand for
-	 * <code>new Uri(new java.net.URI(uri))</code> whereas <code>uri</code> is
+	 * <code>new NO_CODES(new java.net.URI(uri))</code> whereas <code>uri</code> is
 	 * your String.
 	 * 
 	 * @param uri
@@ -78,10 +78,10 @@ public class Uri implements IUri, Serializable {
 	}
 
 	/**
-	 * Constructs a title and a {@link Uri} from a String.
+	 * Constructs a title and a {@link NO_CODES} from a String.
 	 * <p>
 	 * This constructor is only a short hand for
-	 * <code>new Uri(new java.net.URI(uri))</code> whereas <code>uri</code> is
+	 * <code>new NO_CODES(new java.net.URI(uri))</code> whereas <code>uri</code> is
 	 * your String.
 	 * 
 	 * @param uri

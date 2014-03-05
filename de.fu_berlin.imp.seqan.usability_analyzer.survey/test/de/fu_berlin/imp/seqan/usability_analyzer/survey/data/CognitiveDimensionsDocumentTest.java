@@ -41,11 +41,11 @@ public class CognitiveDimensionsDocumentTest {
 
 		CDDocument cdDoc = new CDDocument(testFile, "en");
 
-		assertEquals(new URI("sua://survey/cd/2013-09-18T17:45:54.888+02:00"),
+		assertEquals(new URI("sua://survey/cd/2013-09-18T17:45:54.889+02:00"),
 				cdDoc.getUri());
 
 		assertEquals(
-				CalendarUtils.fromISO8601("2013-09-18T17:45:54.888+02:00"),
+				CalendarUtils.fromISO8601("2013-09-18T17:45:54.889+02:00"),
 				cdDoc.getCompleted());
 
 		assertEquals(27, cdDoc.getSize());

@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +18,9 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeInstanceViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -32,8 +31,6 @@ public class CodeInstancesView extends ViewPart {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeInstancesView.class);
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 

@@ -30,7 +30,6 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -41,7 +40,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.NoCodesNode;
 
 public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
@@ -179,15 +177,11 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
-		if (NoCodesNode.Uri.equals(uri)) {
-			return new StyledString("no code", Stylers.MINOR_STYLER);
-		}
-
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;
-			return new StyledString(code.getCaption());
+			return new StyledString(code.getCaption(), Stylers.DEFAULT_STYLER);
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
@@ -199,7 +193,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 							Stylers.ATTENTION_STYLER);
 		}
 		if (IEpisodes.class.isInstance(locatable)) {
-			return new StyledString(URIUtils.getIdentifier(uri).toString());
+			return new StyledString(URIUtils.getIdentifier(uri).toString(),
+					Stylers.DEFAULT_STYLER);
 		}
 		if (IEpisode.class.isInstance(locatable)) {
 			IEpisode episode = (IEpisode) locatable;
@@ -217,7 +212,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					LOGGER.warn("Could not find the episode's codes", e);
 				}
 			}
-			return new StyledString(name);
+			return new StyledString(name, Stylers.DEFAULT_STYLER);
 		}
 
 		ILabelProvider labelProvider = this.labelProviderService
@@ -325,8 +320,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (locatable instanceof ICode) {
 			ICode code = (ICode) locatable;
-			detailEntries
-					.add(new DetailEntry("URI", code.getUri().toString()));
+			detailEntries.add(new DetailEntry("URI", code.getUri().toString()));
 			detailEntries.add(new DetailEntry("Created", code.getCreation()
 					.toISO8601()));
 		}

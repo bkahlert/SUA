@@ -140,7 +140,7 @@ public class DiffTest {
 						new TimeZoneDateRange(new TimeZoneDate(
 								"2011-09-13T12:11:02+02:00"), null)),
 				new int[] { 14, 14, 90, 14, 15, 14 },
-				new Long[] { 47547l, 47656l, 189485l, 47610l, 47921l, 47937l },
+				new Long[] { 47547l, 47657l, 189485l, 47610l, 47921l, 47937l },
 				new String[] {
 						"o6lmo5tpxvn3b6fg/48/bin/core/Win32/Debug/SeqAnCore/SeqAnCore.log",
 						"o6lmo5tpxvn3b6fg/48/bin/extras/Win32/Debug/SeqAnExtras/SeqAnExtras.log",

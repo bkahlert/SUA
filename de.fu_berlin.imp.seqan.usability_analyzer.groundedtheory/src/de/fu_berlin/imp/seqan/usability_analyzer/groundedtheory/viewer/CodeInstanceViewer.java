@@ -25,11 +25,11 @@ import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ViewerURI.State;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
@@ -65,20 +65,26 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (uri.equals(NoCodesNode.Uri)) {
+								if (uri == ViewerURI.NO_CODES_URI) {
 									return new StyledString("no codes",
 											Stylers.MINOR_STYLER);
 								}
-								return new StyledString(
+								StyledString text = new StyledString(
 										CodeInstanceViewer.this.labelProviderService
 												.getLabelProvider(uri).getText(
 														uri),
 										Stylers.DEFAULT_STYLER);
+								if (uri instanceof ViewerURI
+										&& ((ViewerURI) uri).getState() == State.PARENT) {
+									text.append("  parent",
+											Stylers.MINOR_STYLER);
+								}
+								return text;
 							}
 
 							@Override
 							public Image getImage(URI uri) throws Exception {
-								if (uri.equals(NoCodesNode.Uri)) {
+								if (uri == ViewerURI.NO_CODES_URI) {
 									return null;
 								}
 								return CodeInstanceViewer.this.labelProviderService
@@ -88,8 +94,8 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 							@Override
 							public String getToolTipText(URI uri)
 									throws Exception {
-								if (uri.equals(NoCodesNode.Uri)) {
-									return "";
+								if (uri == ViewerURI.NO_CODES_URI) {
+									return null;
 								}
 								return uri.toString();
 							}

@@ -82,7 +82,7 @@ public class DoclogRecord implements Comparable<DoclogRecord>, HasDateRange,
 				TimeZone timeZone;
 				try {
 					timeZone = new SUACorePreferenceUtil().getDefaultTimeZone();
-				} catch (NoClassDefFoundError e) {
+				} catch (Exception e) {
 					timeZone = TimeZone.getDefault();
 				}
 				rawDate.setTime(rawDate.getTime()

@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,26 +8,35 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.ViewerUtils.Annotater;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ViewerURI.State;
 
 public class CodeInstanceViewerContentProvider extends
 		URIContentProvider<URI[]> {
+
+	public static enum Annotation {
+		PARENT_CODE;
+	}
 
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeInstanceViewerContentProvider.class);
 
 	private Viewer viewer;
+	private Annotater<URI, Annotation> annotater;
+
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
@@ -119,6 +127,8 @@ public class CodeInstanceViewerContentProvider extends
 	public void inputChanged(Viewer viewer, URI[] oldInput, URI[] newInput,
 			Object ignore) {
 		this.viewer = viewer;
+		this.annotater = new Annotater<URI, CodeInstanceViewerContentProvider.Annotation>(
+				viewer);
 
 		if (oldInput != null) {
 			this.codeService
@@ -142,7 +152,7 @@ public class CodeInstanceViewerContentProvider extends
 	}
 
 	@Override
-	public URI[] getTopLevelElements(URI[] uris) {
+	public URI[] getTopLevelElements(URI[] uris) throws Exception {
 		if (uris.length == 1) {
 			return this.getChildren(uris[0]);
 		} else {
@@ -164,52 +174,42 @@ public class CodeInstanceViewerContentProvider extends
 	}
 
 	@Override
-	public boolean hasChildren(URI uri) {
+	public boolean hasChildren(URI uri) throws Exception {
 		return this.getChildren(uri).length > 0;
 	}
 
 	@Override
-	public URI[] getChildren(final URI parent) {
+	public URI[] getChildren(final URI parent) throws Exception {
 
-		List<URI> uris = new ArrayList<URI>();
+		ILocatable locatable = this.locatorService.resolve(parent, null).get();
+		if (locatable instanceof ICodeInstance) {
+			return this.getChildren(((ICodeInstance) locatable).getId());
+		}
 
-		if (!NoCodesNode.Uri.equals(parent)) {
+		List<URI> children = new LinkedList<URI>();
+		if (locatable instanceof ICode) {
+			ICode code = (ICode) locatable;
 
-			// add code's parent code
-			ILocatable locatable = null;
-			try {
-				locatable = this.locatorService.resolve(parent, null).get();
-			} catch (Exception e) {
-				LOGGER.error("Error getting children of " + parent);
-				return new URI[0];
-			}
-
-			// add code's parent codes
-			if (ICode.class.isInstance(locatable)) {
-				ICode code = (ICode) locatable;
-				ICode parentCode = this.codeService.getParent(code);
-				if (parentCode != null) {
-					uris.add(parentCode.getUri());
-				}
-			}
-
-			// add associated codes
-			try {
-				List<ICode> codes = this.codeService
-						.getCodes(ICodeInstance.class.isInstance(locatable) ? ((ICodeInstance) locatable)
-								.getId() : parent);
-				for (ICode code : codes) {
-					uris.add(code.getUri());
-				}
-			} catch (CodeServiceException e) {
-				return new URI[0];
-			}
-
-			if (uris.size() == 0) {
-				uris.add(NoCodesNode.Uri);
+			if (this.codeService.getParent(code) != null) {
+				URI parentUri = this.codeService.getParent(code).getUri();
+				this.annotater.setAnnotation(parentUri, Annotation.PARENT_CODE);
+				children.add(new ViewerURI(parentUri, State.PARENT));
 			}
 		}
 
-		return uris.toArray(new URI[0]);
+		List<URI> codes = AdapterUtils.adaptAll(
+				this.codeService.getCodes(parent), URI.class);
+		for (URI code : codes) {
+			this.annotater.setAnnotation(code, null);
+		}
+		children.addAll(codes);
+
+		if (parent != ViewerURI.NO_CODES_URI && !(locatable instanceof ICode)
+				&& !(locatable instanceof ICodeInstance)
+				&& children.size() == 0) {
+			children.add(ViewerURI.NO_CODES_URI);
+		}
+
+		return children.toArray(new URI[0]);
 	}
 }

@@ -10,11 +10,11 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
@@ -190,7 +190,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			}
 			return uris;
 		} else {
-			return new URI[] { NoCodesNode.Uri };
+			return new URI[] { ViewerURI.NO_CODES_URI };
 		}
 	}
 
@@ -219,50 +219,33 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	}
 
 	@Override
-	public boolean hasChildren(URI uri) {
-		try {
-			ILocatable locatable = this.locatorService.resolve(uri, null).get();
-			if (ICode.class.isInstance(locatable)) {
-				ICode code = (ICode) locatable;
-				if (this.codeService.getChildren(code).size() > 0) {
-					return true;
-				}
-				if (this.showInstances
-						&& this.codeService.getInstances(code).size() > 0) {
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error resolving " + uri);
-		}
-		return false;
+	public boolean hasChildren(URI uri) throws Exception {
+		return this.getChildren(uri).length > 0;
 	}
 
 	@Override
-	public URI[] getChildren(URI parentUri) {
-		try {
-			ILocatable locatable = this.locatorService.resolve(parentUri, null)
-					.get();
-			if (ICode.class.isInstance(locatable)) {
-				ICode code = (ICode) locatable;
+	public URI[] getChildren(URI parentUri) throws Exception {
+		ILocatable locatable = this.locatorService.resolve(parentUri, null)
+				.get();
+		if (ICode.class.isInstance(locatable)) {
+			ICode code = (ICode) locatable;
 
-				ArrayList<ILocatable> childNodes = new ArrayList<ILocatable>();
-				childNodes.addAll(this.codeService.getChildren(code));
-				if (this.showInstances) {
-					childNodes.addAll(this.codeService.getInstances(code));
+			ArrayList<URI> childNodes = new ArrayList<URI>();
+			childNodes.addAll(AdapterUtils.adaptAll(
+					this.codeService.getChildren(code), URI.class));
+			if (this.showInstances) {
+				List<ICodeInstance> instances = this.codeService
+						.getInstances(code);
+				if (instances.size() > 0) {
+					childNodes.addAll(AdapterUtils.adaptAll(instances,
+							URI.class));
+				} else {
+					childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
 				}
-
-				URI[] childUris = new URI[childNodes.size()];
-				for (int i = 0; i < childUris.length; i++) {
-					childUris[i] = childNodes.get(i).getUri();
-				}
-
-				return childUris;
 			}
-		} catch (Exception e) {
-			LOGGER.error("Error resolving " + parentUri);
+
+			return childNodes.toArray(new URI[0]);
 		}
 		return new URI[0];
 	}
-
 }

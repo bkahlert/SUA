@@ -16,15 +16,15 @@ public abstract class URIContentProvider<INPUT> implements
 			.getLogger(URIContentProvider.class);
 
 	public abstract void inputChanged(Viewer viewer, INPUT oldInput,
-			INPUT newInput, Object ignore);
+			INPUT newInput, Object ignore) throws Exception;
 
-	public abstract URI[] getTopLevelElements(INPUT input);
+	public abstract URI[] getTopLevelElements(INPUT input) throws Exception;
 
-	public abstract URI getParent(URI uri);
+	public abstract URI getParent(URI uri) throws Exception;
 
-	public abstract boolean hasChildren(URI uri);
+	public abstract boolean hasChildren(URI uri) throws Exception;
 
-	public abstract URI[] getChildren(URI parentUri);
+	public abstract URI[] getChildren(URI parentUri) throws Exception;
 
 	@Override
 	public abstract void dispose();
@@ -36,6 +36,9 @@ public abstract class URIContentProvider<INPUT> implements
 			this.inputChanged(viewer, (INPUT) oldInput, (INPUT) newInput, null);
 		} catch (ClassCastException e) {
 			LOGGER.error("Unsupported input type passed as input for "
+					+ this.getClass().getSimpleName(), e);
+		} catch (Exception e) {
+			LOGGER.error("Error while changing input for "
 					+ this.getClass().getSimpleName(), e);
 		}
 	}
@@ -49,25 +52,43 @@ public abstract class URIContentProvider<INPUT> implements
 			LOGGER.error("Unsupported input type passed to getElements of "
 					+ this.getClass().getSimpleName());
 			return new Object[0];
+		} catch (Exception e) {
+			LOGGER.error("Error while getting element of " + inputElement, e);
+			return new Object[0];
 		}
 	}
 
 	@Override
 	public final Object getParent(Object element) {
 		URI uri = URIUtils.adapt(element);
-		return uri != null ? this.getParent(uri) : null;
+		try {
+			return uri != null ? this.getParent(uri) : null;
+		} catch (Exception e) {
+			LOGGER.error("Error while getting parent of " + element, e);
+			return null;
+		}
 	}
 
 	@Override
 	public final boolean hasChildren(Object element) {
 		URI uri = URIUtils.adapt(element);
-		return uri != null ? this.hasChildren(uri) : false;
+		try {
+			return uri != null ? this.hasChildren(uri) : false;
+		} catch (Exception e) {
+			LOGGER.error("Error while checking children of " + element, e);
+			return false;
+		}
 	}
 
 	@Override
 	public final Object[] getChildren(Object parentElement) {
 		URI uri = URIUtils.adapt(parentElement);
-		return uri != null ? this.getChildren(uri) : null;
+		try {
+			return uri != null ? this.getChildren(uri) : null;
+		} catch (Exception e) {
+			LOGGER.error("Error while getting children of " + parentElement, e);
+			return null;
+		}
 	}
 
 }

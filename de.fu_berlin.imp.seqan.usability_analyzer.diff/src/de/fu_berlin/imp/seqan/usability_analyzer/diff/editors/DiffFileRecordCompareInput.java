@@ -27,14 +27,14 @@ public class DiffFileRecordCompareInput extends CompareEditorInput {
 	@Override
 	public String getName() {
 		return this.diffRecord != null ? this.diffRecord.getFilename()
-				: "EMPTY";
+				: "NO_CODES";
 	}
 
 	@Override
 	public String getTitle() {
 		return this.diffRecord != null ? this.diffRecord.getDiffFile()
 				.getIdentifier() + ": " + this.diffRecord.getFilename()
-				: "EMPTY";
+				: "NO_CODES";
 	}
 
 	@Override
