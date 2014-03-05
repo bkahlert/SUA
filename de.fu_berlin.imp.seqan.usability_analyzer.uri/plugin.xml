@@ -179,7 +179,7 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.uri.model.IUri"
             class="de.fu_berlin.imp.seqan.usability_analyzer.uri.model.URIAdapterFactory">
          <adapter
-               type="java.net.URI">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model">
          </adapter>
       </factory>
    </extension>

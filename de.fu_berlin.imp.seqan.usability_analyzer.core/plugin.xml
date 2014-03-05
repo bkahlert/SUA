@@ -466,7 +466,7 @@
                   ifEmpty="false"
                   operator="and">
                <adapt
-                     type="java.net.URI">
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
                </adapt>
             </iterate>
          </with>
@@ -476,7 +476,7 @@
          <with
                variable="com.bkahlert.nebula.information.input">
             <instanceof
-                  value="java.net.URI">
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
             </instanceof>
          </with>
       </definition>
@@ -488,7 +488,7 @@
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.propertyTesters.URIPropertyTester"
             namespace="de.fu_berlin.imp.seqan.usability_analyzer.core"
             properties="indirectInstanceOf"
-            type="java.net.URI">
+            type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
       </propertyTester>
    </extension>
    <extension
