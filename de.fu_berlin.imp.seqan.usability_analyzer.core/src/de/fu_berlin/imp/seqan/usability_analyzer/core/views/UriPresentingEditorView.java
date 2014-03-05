@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.views;
 
-import java.net.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
@@ -16,6 +14,8 @@ import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 
 /**
@@ -57,9 +57,10 @@ public abstract class UriPresentingEditorView extends EditorView<URI> {
 					private final IAnkerListener ankerListener = new AnkerAdaptingListener(
 							new URIAdapter() {
 								@Override
-								public void uriHovered(URI uri, boolean entered) {
+								public void uriHovered(java.net.URI uri,
+										boolean entered) {
 									if (entered) {
-										hoveredUri = uri;
+										hoveredUri = new URI(uri);
 									} else {
 										hoveredUri = null;
 									}

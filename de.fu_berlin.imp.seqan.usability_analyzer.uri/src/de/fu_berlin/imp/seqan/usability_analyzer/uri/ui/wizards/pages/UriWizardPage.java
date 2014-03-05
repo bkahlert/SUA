@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.ui.wizards.pages;
 
-import java.net.URISyntaxException;
-
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -33,7 +31,7 @@ public class UriWizardPage extends WizardPage {
 	public UriWizardPage(IUri editUri) {
 		this();
 		this.setTitle("Edit URI");
-		this.setDescription("Please specify the new URI.");
+		this.setDescription("Please specify the new URIXX.");
 		this.editUri = editUri;
 	}
 
@@ -99,12 +97,8 @@ public class UriWizardPage extends WizardPage {
 	}
 
 	public IUri getURI() {
-		try {
-			return new Uri(this.uriTitle.getText().isEmpty() ? null
-					: this.uriTitle.getText(), this.uriAddress.getText());
-		} catch (URISyntaxException e) {
-			return null;
-		}
+		return new Uri(this.uriTitle.getText().isEmpty() ? null
+				: this.uriTitle.getText(), this.uriAddress.getText());
 	}
 
 }

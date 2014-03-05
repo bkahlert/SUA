@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdapterFactory;

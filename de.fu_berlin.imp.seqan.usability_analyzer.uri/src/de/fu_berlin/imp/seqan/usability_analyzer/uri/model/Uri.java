@@ -1,8 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.model;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 /**
  * Instances of this class wrap a {@link java.net.URI} or a {@link java.net.URL}
@@ -11,18 +14,18 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
  * @author bkahlert
  * 
  */
-public class Uri implements IUri {
+public class Uri implements IUri, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final String title;
-	private java.net.URI uri;
+	private String title;
+	private URI uri;
 
 	/**
 	 * Constructs a title and a {@link Uri} from a {@link java.net.URI}.
 	 * 
 	 * @param uri
 	 */
-	public Uri(String title, java.net.URI uri) {
+	public Uri(String title, URI uri) {
 		this.title = title;
 		this.uri = uri;
 	}
@@ -32,7 +35,7 @@ public class Uri implements IUri {
 	 * 
 	 * @param uri
 	 */
-	public Uri(java.net.URI uri) {
+	public Uri(URI uri) {
 		this(null, uri);
 	}
 
@@ -70,8 +73,8 @@ public class Uri implements IUri {
 	 * @param uri
 	 * @throws URISyntaxException
 	 */
-	public Uri(String title, String uri) throws URISyntaxException {
-		this(title, new java.net.URI(uri));
+	public Uri(String title, String uri) {
+		this(title, new URI(uri));
 	}
 
 	/**
@@ -88,13 +91,19 @@ public class Uri implements IUri {
 		this(null, uri);
 	}
 
+	private void readObject(java.io.ObjectInputStream stream)
+			throws IOException, ClassNotFoundException {
+		this.title = (String) stream.readObject();
+		this.uri = new URI(stream.readObject().toString());
+	}
+
 	@Override
 	public String getTitle() {
 		return this.title;
 	}
 
 	@Override
-	public java.net.URI getUri() {
+	public URI getUri() {
 		return this.uri;
 	}
 

@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.views;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -22,6 +21,8 @@ import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
 import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
@@ -159,9 +160,9 @@ public class CDView extends ViewPart {
 		this.browser.addAnkerListener(new AnkerAdaptingListener(
 				new URIAdapter() {
 					@Override
-					public void uriClicked(URI uri) {
-						CDView.this.locatorService.showInWorkspace(uri, false,
-								null);
+					public void uriClicked(java.net.URI uri) {
+						CDView.this.locatorService.showInWorkspace(
+								new URI(uri), false, null);
 					}
 				}));
 

@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.viewer;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +30,8 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -73,14 +73,7 @@ public class CDViewer extends Viewer {
 					private final IAnkerListener ankerListener = new AnkerAdapter() {
 						@Override
 						public void ankerHovered(IAnker anker, boolean entered) {
-							System.out.println(entered + " " + anker);
-							URI uri;
-							try {
-								uri = new URI(anker.getHref());
-							} catch (URISyntaxException e1) {
-								hovered = null;
-								return;
-							}
+							URI uri = new URI(anker.getHref());
 
 							if (uri.getScheme() != null
 									&& !uri.getScheme().contains("-")
@@ -135,14 +128,7 @@ public class CDViewer extends Viewer {
 				}
 
 				final AtomicReference<URI> uri = new AtomicReference<URI>();
-				try {
-					uri.set(new URI(anker.getHref().substring(
-							"addcode-".length())));
-				} catch (URISyntaxException e) {
-					LOGGER.error("Can't create URI to code from "
-							+ anker.getHref());
-					return;
-				}
+				uri.set(new URI(anker.getHref().substring("addcode-".length())));
 				ExecUtils.nonUISyncExec(CDViewer.class,
 						"Opening Add Code Wizard", new Callable<Void>() {
 							@Override
@@ -165,7 +151,8 @@ public class CDViewer extends Viewer {
 				ExecUtils.nonUISyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						URI uri = new URI(element.getAttribute("data-focus-id"));
+						URI uri = new URI(element
+								.getAttribute("data-focus-id"));
 						final ILocatable locatable = CDViewer.this.locatorService
 								.resolve(uri, null).get();
 						ExecUtils.asyncExec(new Runnable() {

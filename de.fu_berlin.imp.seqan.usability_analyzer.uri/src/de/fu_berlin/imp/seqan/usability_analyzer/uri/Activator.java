@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.net.URL;
 
 import org.apache.log4j.PropertyConfigurator;

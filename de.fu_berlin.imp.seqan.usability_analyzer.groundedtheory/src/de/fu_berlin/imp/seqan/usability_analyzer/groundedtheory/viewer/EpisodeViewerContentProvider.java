@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +10,8 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -158,7 +159,7 @@ public class EpisodeViewerContentProvider extends
 
 	@Override
 	public URI getParent(URI uri) {
-		if (locatorService.getType(uri) == IEpisode.class) {
+		if (this.locatorService.getType(uri) == IEpisode.class) {
 			new Episodes(URIUtils.getIdentifier(uri)).getUri();
 		}
 		return null;
@@ -166,12 +167,12 @@ public class EpisodeViewerContentProvider extends
 
 	@Override
 	public boolean hasChildren(URI uri) {
-		return locatorService.getType(uri) == IEpisodes.class;
+		return this.locatorService.getType(uri) == IEpisodes.class;
 	}
 
 	@Override
 	public URI[] getChildren(URI uri) {
-		if (locatorService.getType(uri) == IEpisodes.class) {
+		if (this.locatorService.getType(uri) == IEpisodes.class) {
 			List<IEpisode> episodes = new ArrayList<IEpisode>(
 					this.codeService.getEpisodes(URIUtils.getIdentifier(uri)));
 			URI[] uris = new URI[episodes.size()];

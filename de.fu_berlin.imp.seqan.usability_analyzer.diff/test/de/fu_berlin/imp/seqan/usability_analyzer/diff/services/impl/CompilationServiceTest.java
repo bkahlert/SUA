@@ -7,13 +7,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.junit.Test;
 
 import com.bkahlert.nebula.utils.FileUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
@@ -29,28 +29,20 @@ public class CompilationServiceTest {
 		return new FileBaseDataContainer(tempDirectory);
 	}
 
-	private ICompilable compilable = new ICompilable() {
+	private final ICompilable compilable = new ICompilable() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public URI getUri() {
-			try {
-				return new URI("sua://compilable");
-			} catch (URISyntaxException e) {
-				return null;
-			}
+			return new URI("sua://compilable");
 		}
 	};
-	private ICompilable compilable2 = new ICompilable() {
+	private final ICompilable compilable2 = new ICompilable() {
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public URI getUri() {
-			try {
-				return new URI("sua://compilable2");
-			} catch (URISyntaxException e) {
-				return null;
-			}
+			return new URI("sua://compilable2");
 		}
 	};
 

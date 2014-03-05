@@ -516,11 +516,11 @@
             adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable"
             class="de.fu_berlin.imp.seqan.usability_analyzer.core.model.LocatableAdapterFactory">
          <adapter
-               type="java.net.URI">
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
          </adapter>
       </factory>
       <factory
-            adaptableType="java.net.URI"
+            adaptableType="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI"
             class="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URIAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">

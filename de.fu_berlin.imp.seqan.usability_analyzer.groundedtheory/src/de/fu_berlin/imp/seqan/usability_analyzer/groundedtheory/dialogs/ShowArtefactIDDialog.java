@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.dialogs;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;

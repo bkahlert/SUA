@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.model;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.HasIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;

@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 import java.util.Set;
 

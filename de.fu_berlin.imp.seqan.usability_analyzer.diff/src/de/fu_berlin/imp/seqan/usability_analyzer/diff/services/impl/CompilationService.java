@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.services.impl;
 
 import java.io.IOException;
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 import java.util.Map;
 

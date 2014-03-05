@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -27,6 +26,7 @@ import com.bkahlert.nebula.viewer.SortableTableViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;

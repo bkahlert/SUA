@@ -39,8 +39,9 @@ public class FileUtils {
 	public static File getFile(String filename) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0, num = FileUtils.class.getPackage().getName()
-				.split("\\.").length; i < num; i++)
+				.split("\\.").length; i < num; i++) {
 			sb.append("../");
+		}
 		try {
 			return getFile(FileUtils.class, sb.toString() + filename);
 		} catch (URISyntaxException e) {
@@ -50,8 +51,9 @@ public class FileUtils {
 
 	public static File getRootFile(Class<?> someClass, String filename) {
 		StringBuffer sb = new StringBuffer();
-		for (int i = 0, num = someClass.getPackage().getName().split("\\.").length; i < num; i++)
+		for (int i = 0, num = someClass.getPackage().getName().split("\\.").length; i < num; i++) {
 			sb.append("../");
+		}
 		try {
 			return getFile(someClass, sb.toString() + filename);
 		} catch (URISyntaxException e) {
@@ -127,10 +129,11 @@ public class FileUtils {
 		if (separator[0] == 0x0A) { // LF / \n
 			return 1;
 		} else if (separator[0] == 0x0D) { // CR / \r
-			if (separator[1] == 0x0A)
+			if (separator[1] == 0x0A) {
 				return 2; // CR+LF
-			else
+			} else {
 				return 1;
+			}
 		} else {
 			return 0;
 		}

@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;

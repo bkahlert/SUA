@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.views;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;

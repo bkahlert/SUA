@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.viewers;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +7,8 @@ import java.util.Set;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -21,9 +22,9 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 
 	private Viewer viewer;
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
 		@Override
 		public void codesAdded(List<ICode> code) {
@@ -97,9 +98,9 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		}
 	};
 
-	private IUriService uriService = (IUriService) PlatformUI.getWorkbench()
-			.getService(IUriService.class);
-	private IUriServiceListener uriServiceListener = new IUriServiceListener() {
+	private final IUriService uriService = (IUriService) PlatformUI
+			.getWorkbench().getService(IUriService.class);
+	private final IUriServiceListener uriServiceListener = new IUriServiceListener() {
 
 		@Override
 		public void urisAdded(Set<IUri> uris) {
@@ -141,7 +142,7 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 	@Override
 	public URI[] getTopLevelElements(IUriService input) {
 		if (input != null) {
-			IUriService uriService = (IUriService) input;
+			IUriService uriService = input;
 			List<IUri> uris = new ArrayList<IUri>(uriService.getUris());
 			URI[] uris_ = new URI[uris.size()];
 			for (int i = 0; i < uris_.length; i++) {

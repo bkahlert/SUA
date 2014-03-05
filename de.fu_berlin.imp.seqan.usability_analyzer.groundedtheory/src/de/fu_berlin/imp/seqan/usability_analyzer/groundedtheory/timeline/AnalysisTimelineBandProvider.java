@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -217,7 +216,7 @@ public class AnalysisTimelineBandProvider implements
 			}
 
 			@Override
-			public URI getIcon(Object event) {
+			public java.net.URI getIcon(Object event) {
 				Image image = this.episodeLabelProvider.getImage(event);
 				if (image != null) {
 					return ImageUtils.createUriFromImage(image);
@@ -226,7 +225,7 @@ public class AnalysisTimelineBandProvider implements
 			}
 
 			@Override
-			public URI getImage(Object event) {
+			public java.net.URI getImage(Object event) {
 				return null;
 			}
 

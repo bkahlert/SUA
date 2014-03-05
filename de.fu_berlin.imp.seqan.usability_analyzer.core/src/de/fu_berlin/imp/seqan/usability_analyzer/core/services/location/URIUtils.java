@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.location;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,6 +15,7 @@ import org.eclipse.jface.viewers.ISelection;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class URIUtils {

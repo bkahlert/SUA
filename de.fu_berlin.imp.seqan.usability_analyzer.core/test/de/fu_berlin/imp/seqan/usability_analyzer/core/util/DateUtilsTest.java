@@ -107,11 +107,11 @@ public class DateUtilsTest {
 
 	@Test
 	public void testToISO8601() {
-		Assert.assertEquals("2011-11-18T15:38:28.0+09:00", DateUtil
+		Assert.assertEquals("2011-11-18T15:38:28.000+09:00", DateUtil
 				.toISO8601(DateUtil.fromISO8601("2011-11-18T15:38:28+09:00")));
 
 		// over-accuracy, missing : in timezone, - instead of :
-		Assert.assertEquals("2013-09-18T17:45:54.888+02:00", DateUtil
+		Assert.assertEquals("2013-09-18T17:45:54.889+02:00", DateUtil
 				.toISO8601(DateUtil
 						.fromISO8601("2013-09-18T17-45-54.88891500+02:00")));
 	}

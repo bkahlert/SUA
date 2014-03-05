@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -30,9 +29,15 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -51,6 +56,28 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 class CodeStore implements ICodeStore {
 
 	private static final Logger logger = Logger.getLogger(CodeStore.class);
+
+	public static class URIConverter implements Converter {
+
+		@Override
+		public boolean canConvert(@SuppressWarnings("rawtypes") Class clazz) {
+			return clazz.equals(URI.class);
+		}
+
+		@Override
+		public void marshal(Object value, HierarchicalStreamWriter writer,
+				MarshallingContext context) {
+			URI uri = (URI) value;
+			writer.setValue(uri.getRawURI().toString());
+		}
+
+		@Override
+		public Object unmarshal(HierarchicalStreamReader reader,
+				UnmarshallingContext context) {
+			return new URI(reader.getValue());
+		}
+
+	}
 
 	@XStreamOmitField
 	private File codeStoreFile;
@@ -80,6 +107,7 @@ class CodeStore implements ICodeStore {
 		xstream.alias("codes", Code.class);
 		xstream.alias("instance", CodeInstance.class);
 		xstream.processAnnotations(CodeStore.class);
+		xstream.registerConverter(new URIConverter());
 	}
 
 	public static ICodeStore create(File codeStoreFile) {

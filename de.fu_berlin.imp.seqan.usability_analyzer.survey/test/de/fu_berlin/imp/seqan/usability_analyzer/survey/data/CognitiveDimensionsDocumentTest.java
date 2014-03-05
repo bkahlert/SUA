@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.junit.Test;
 
 import com.bkahlert.nebula.utils.CalendarUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.impl.FileBaseDataContainer;
@@ -39,8 +39,7 @@ public class CognitiveDimensionsDocumentTest {
 		IData testFile = this.getTestFile();
 		assertNotNull(testFile);
 
-		CDDocument cdDoc = new CDDocument(
-				testFile, "en");
+		CDDocument cdDoc = new CDDocument(testFile, "en");
 
 		assertEquals(new URI("sua://survey/cd/2013-09-18T17:45:54.888+02:00"),
 				cdDoc.getUri());

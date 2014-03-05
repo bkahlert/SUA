@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.gt;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +20,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -160,8 +160,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 	public boolean showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor) {
 		if (uris.length > 0) {
-			DiffView diffView = (DiffView) WorkbenchUtils
-					.getView(DiffView.ID);
+			DiffView diffView = (DiffView) WorkbenchUtils.getView(DiffView.ID);
 			if (diffView == null) {
 				return false;
 			}
@@ -175,8 +174,7 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 		return true;
 	}
 
-	public URI[] openFiles(final URI[] uris,
-			final DiffView diffView) {
+	public URI[] openFiles(final URI[] uris, final DiffView diffView) {
 		final List<URI> open = new ArrayList<URI>();
 		open.addAll(Arrays.asList(uris));
 		open.addAll(DiffRecordUtils.getRecordsFromSegments(uris));
@@ -184,32 +182,30 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 		// open
 		try {
 			Set<IIdentifier> ids = URIUtils.getIdentifiers(uris);
-			Future<URI[]> future = diffView.open(ids,
-					new Callable<URI[]>() {
-						@Override
-						public URI[] call() {
-							final DiffViewer viewer = diffView
-									.getDiffFileListsViewer();
-							try {
-								List<URI> selectedLocatables = ExecUtils
-										.syncExec(new Callable<List<URI>>() {
-											@Override
-											public List<URI> call()
-													throws Exception {
-												viewer.setSelection(
-														new StructuredSelection(
-																open), true);
-												return SelectionUtils.getAdaptableObjects(
+			Future<URI[]> future = diffView.open(ids, new Callable<URI[]>() {
+				@Override
+				public URI[] call() {
+					final DiffViewer viewer = diffView.getDiffFileListsViewer();
+					try {
+						List<URI> selectedLocatables = ExecUtils
+								.syncExec(new Callable<List<URI>>() {
+									@Override
+									public List<URI> call() throws Exception {
+										viewer.setSelection(
+												new StructuredSelection(open),
+												true);
+										return SelectionUtils
+												.getAdaptableObjects(
 														viewer.getSelection(),
 														URI.class);
-											}
-										});
-								return selectedLocatables.toArray(new URI[0]);
-							} catch (Exception e) {
-								return new URI[0];
-							}
-						}
-					});
+									}
+								});
+						return selectedLocatables.toArray(new URI[0]);
+					} catch (Exception e) {
+						return new URI[0];
+					}
+				}
+			});
 			return future.get();
 		} catch (InterruptedException e) {
 			LOGGER.error(e);
@@ -220,8 +216,8 @@ public class DiffLocatorProvider extends AdaptingLocatorProvider {
 		}
 	}
 
-	public boolean openSegments(final URI[] uris,
-			final DiffView diffView, IProgressMonitor monitor) {
+	public boolean openSegments(final URI[] uris, final DiffView diffView,
+			IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, uris.length);
 		ILocatorService locatorService = (ILocatorService) PlatformUI
 				.getWorkbench().getService(ILocatorService.class);

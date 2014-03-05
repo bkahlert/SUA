@@ -2,7 +2,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +15,8 @@ import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceTest;
@@ -84,11 +85,7 @@ public class CodeStoreHelper {
 
 			@Override
 			public URI getUri() {
-				try {
-					return new URI("sua://codeInstance1");
-				} catch (URISyntaxException e) {
-					return null;
-				}
+				return new URI("sua://codeInstance1");
 			}
 		};
 		this.locatable2 = new ILocatable() {
@@ -96,11 +93,7 @@ public class CodeStoreHelper {
 
 			@Override
 			public URI getUri() {
-				try {
-					return new URI("sua://codeInstance2");
-				} catch (URISyntaxException e) {
-					return null;
-				}
+				return new URI("sua://codeInstance2");
 			}
 		};
 		this.locatable3 = new ILocatable() {
@@ -108,11 +101,7 @@ public class CodeStoreHelper {
 
 			@Override
 			public URI getUri() {
-				try {
-					return new URI("sua://codeInstance3");
-				} catch (URISyntaxException e) {
-					return null;
-				}
+				return new URI("sua://codeInstance3");
 			}
 		};
 

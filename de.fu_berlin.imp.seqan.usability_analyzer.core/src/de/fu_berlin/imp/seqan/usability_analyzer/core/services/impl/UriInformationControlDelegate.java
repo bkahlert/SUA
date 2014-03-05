@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;

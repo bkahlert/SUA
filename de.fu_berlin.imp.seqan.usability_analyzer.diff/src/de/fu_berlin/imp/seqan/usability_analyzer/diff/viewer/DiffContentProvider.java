@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.viewer;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
@@ -162,9 +162,9 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 	@Override
 	public URI[] getTopLevelElements(URI[] uris) {
 		if (uris.length == 1
-				&& (locatorService.getType(uris[0]) == IDiffs.class || locatorService
+				&& (this.locatorService.getType(uris[0]) == IDiffs.class || this.locatorService
 						.getType(uris[0]) == IDiff.class)) {
-			return getChildren(uris[0]);
+			return this.getChildren(uris[0]);
 		} else {
 			return uris;
 		}
@@ -172,14 +172,14 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public URI getParent(URI uri) {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == IDiffs.class) {
 			return null;
 		} else if (type == IDiff.class) {
 			return null;
 		} else if (type == IDiffRecord.class) {
 			try {
-				IDiffRecord diffRecord = locatorService.resolve(uri,
+				IDiffRecord diffRecord = this.locatorService.resolve(uri,
 						IDiffRecord.class, null).get();
 				return diffRecord.getDiffFile().getUri();
 			} catch (Exception e) {
@@ -187,8 +187,8 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 			}
 		} else if (type == IDiffRecordSegment.class) {
 			try {
-				IDiffRecordSegment diffRecordSegment = locatorService.resolve(
-						uri, IDiffRecordSegment.class, null).get();
+				IDiffRecordSegment diffRecordSegment = this.locatorService
+						.resolve(uri, IDiffRecordSegment.class, null).get();
 				return diffRecordSegment.getDiffFileRecord().getUri();
 			} catch (Exception e) {
 				LOGGER.error("Error getting parent of " + uri, e);
@@ -199,7 +199,7 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public boolean hasChildren(URI uri) {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == IDiffRecord.class || type == IDiffRecordSegment.class) {
 			return false;
 		}
@@ -208,11 +208,11 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public URI[] getChildren(URI uri) {
-		Class<? extends ILocatable> type = locatorService.getType(uri);
+		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == IDiffs.class) {
 			try {
-				IDiff[] diffs = locatorService.resolve(uri, IDiffs.class, null)
-						.get().toArray();
+				IDiff[] diffs = this.locatorService
+						.resolve(uri, IDiffs.class, null).get().toArray();
 				URI[] uris = new URI[diffs.length];
 				for (int i = 0; i < diffs.length; i++) {
 					uris[i] = diffs[i].getUri();
@@ -223,7 +223,7 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 			}
 		} else if (type == IDiff.class) {
 			try {
-				IDiffRecords diffRecords = locatorService
+				IDiffRecords diffRecords = this.locatorService
 						.resolve(uri, IDiff.class, null).get()
 						.getDiffFileRecords();
 				if (diffRecords != null) {

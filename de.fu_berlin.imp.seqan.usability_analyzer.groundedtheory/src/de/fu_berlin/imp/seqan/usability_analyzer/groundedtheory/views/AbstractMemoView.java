@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +24,12 @@ import com.bkahlert.nebula.widgets.browser.listener.BrowserOpeningAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.SchemeAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
-import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
@@ -165,8 +166,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
 		listeners.put("SUA", new AnkerAdaptingListener(new URIAdapter() {
 			@Override
-			public void uriClicked(final URI uri) {
+			public void uriClicked(final java.net.URI nativeUri) {
 				try {
+					final URI uri = new URI(nativeUri);
 					if (!KeyboardUtils.isMetaKeyPressed()) {
 						// treat link as a typical link that opens a resource
 						AbstractMemoView.this.history.add(uri);

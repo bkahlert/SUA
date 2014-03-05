@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import org.eclipse.swt.widgets.Control;
 

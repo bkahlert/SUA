@@ -1,10 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.eclipse.jface.viewers.IContentProvider;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 
 /**
@@ -16,13 +15,5 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
  * 
  */
 public final class NoCodesNode {
-	public static URI Uri = null;
-
-	static {
-		try {
-			Uri = new URI("null");
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-	}
+	public static URI Uri = new URI("null");
 }

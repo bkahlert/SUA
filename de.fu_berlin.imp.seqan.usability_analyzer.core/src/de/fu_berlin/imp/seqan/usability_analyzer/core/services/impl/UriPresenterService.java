@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

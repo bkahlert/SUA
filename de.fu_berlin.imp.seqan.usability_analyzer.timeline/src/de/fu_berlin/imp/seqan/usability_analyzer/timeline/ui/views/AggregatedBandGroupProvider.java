@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.timeline.ui.views;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -216,10 +215,10 @@ public class AggregatedBandGroupProvider<INPUT> implements
 			}
 
 			@Override
-			public URI getImage(Object event) {
+			public java.net.URI getImage(Object event) {
 				for (IBandGroupProvider<INPUT> bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
-					URI value = bandGroupProvider.getEventLabelProvider()
-							.getImage(event);
+					java.net.URI value = bandGroupProvider
+							.getEventLabelProvider().getImage(event);
 					if (value != null) {
 						return value;
 					}
@@ -228,10 +227,10 @@ public class AggregatedBandGroupProvider<INPUT> implements
 			}
 
 			@Override
-			public URI getIcon(Object event) {
+			public java.net.URI getIcon(Object event) {
 				for (IBandGroupProvider<INPUT> bandGroupProvider : AggregatedBandGroupProvider.this.bandGroupProviders) {
-					URI value = bandGroupProvider.getEventLabelProvider()
-							.getIcon(event);
+					java.net.URI value = bandGroupProvider
+							.getEventLabelProvider().getIcon(event);
 					if (value != null) {
 						return value;
 					}

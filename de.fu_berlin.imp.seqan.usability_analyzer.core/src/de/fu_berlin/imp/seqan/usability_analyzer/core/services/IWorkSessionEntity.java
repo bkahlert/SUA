@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
 import java.io.Serializable;
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 

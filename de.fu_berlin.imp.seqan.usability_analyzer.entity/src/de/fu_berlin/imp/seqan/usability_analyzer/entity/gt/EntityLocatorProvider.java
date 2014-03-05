@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.gt;
 
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -13,6 +12,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;

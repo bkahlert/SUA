@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +29,8 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
@@ -147,7 +148,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	 * @param code
 	 * @return
 	 */
-	public static URI getCodeImageURI(ICode code) {
+	public static java.net.URI getCodeImageURI(ICode code) {
 		return ImageUtils.createUriFromImage(getCodeImage(code));
 	}
 
@@ -324,7 +325,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (locatable instanceof ICode) {
 			ICode code = (ICode) locatable;
-			detailEntries.add(new DetailEntry("URI", code.getUri().toString()));
+			detailEntries
+					.add(new DetailEntry("URI", code.getUri().toString()));
 			detailEntries.add(new DetailEntry("Created", code.getCreation()
 					.toISO8601()));
 		}

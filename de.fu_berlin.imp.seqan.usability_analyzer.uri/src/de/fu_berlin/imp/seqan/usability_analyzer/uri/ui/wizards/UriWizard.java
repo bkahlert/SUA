@@ -69,7 +69,7 @@ public class UriWizard extends Wizard {
 				public void run() {
 					IStatus status = new Status(IStatus.ERROR,
 							Activator.PLUGIN_ID,
-							"Error creating/saving a new URI", e);
+							"Error creating/saving a new URIXX", e);
 					ErrorDialog.openError(UriWizard.this.getShell(),
 							"URI Creation Error", status.getMessage(), status);
 				}

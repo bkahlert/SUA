@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
-import java.net.URISyntaxException;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +10,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
 public class DataSetInfoTest {
 
 	@Test
-	public void test() throws URISyntaxException {
+	public void test() {
 		IDataSetInfo dataSetInfo = new DataSetInfo(new FileData(
 				FileUtils.getFile("data/__dataset.txt")));
 		Assert.assertEquals("SeqAn Workshop '11", dataSetInfo.getName());

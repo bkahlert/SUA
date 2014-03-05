@@ -112,7 +112,7 @@ public class UriService implements IUriService {
 					.getService(ILocatorService.class);
 			codeService = (ICodeService) PlatformUI.getWorkbench().getService(
 					ICodeService.class);
-		} catch (IllegalStateException e) {
+		} catch (Exception e) {
 			locatorService = null;
 			codeService = null;
 		}

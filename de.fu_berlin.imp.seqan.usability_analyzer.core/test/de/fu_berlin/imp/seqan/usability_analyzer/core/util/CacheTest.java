@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Callable;
@@ -20,6 +19,8 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.Cache.CacheFetcher;
 

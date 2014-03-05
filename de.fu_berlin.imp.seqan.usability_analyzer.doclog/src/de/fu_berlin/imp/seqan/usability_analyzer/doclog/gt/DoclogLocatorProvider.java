@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Set;

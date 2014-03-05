@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -23,6 +21,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.WorkSession;
@@ -249,10 +249,6 @@ public class SUACorePreferenceUtil extends PreferenceUtil {
 				if (locatable instanceof IWorkSessionEntity) {
 					entities.add((IWorkSessionEntity) locatable);
 				}
-			} catch (URISyntaxException e) {
-				LOGGER.error(
-						"Could not deserialze " + URI.class.getSimpleName()
-								+ " " + uriStrings, e);
 			} catch (Exception e) {
 				LOGGER.error("Could not resolve the corresponding object of "
 						+ URI.class.getSimpleName() + " " + uriStrings, e);

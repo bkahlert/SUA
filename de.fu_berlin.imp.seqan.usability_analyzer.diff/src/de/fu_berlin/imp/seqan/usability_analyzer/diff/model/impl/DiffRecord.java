@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.diff.model.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,8 @@ import org.apache.log4j.Logger;
 import com.bkahlert.nebula.utils.DiffUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.editors.DiffFileEditorUtils;
@@ -104,8 +105,8 @@ public class DiffRecord implements IDiffRecord {
 	public URI getUri() {
 		if (this.uri == null) {
 			try {
-				this.uri = new URI(this.getDiffFile().getUri().toString() + "/"
-						+ URLEncoder.encode(this.getFilename(), "UTF-8"));
+				this.uri = new URI(this.getDiffFile().getUri().toString()
+						+ "/" + URLEncoder.encode(this.getFilename(), "UTF-8"));
 			} catch (Exception e) {
 				throw new RuntimeException("Error calculating " + URI.class
 						+ " for " + DiffRecord.class, e);

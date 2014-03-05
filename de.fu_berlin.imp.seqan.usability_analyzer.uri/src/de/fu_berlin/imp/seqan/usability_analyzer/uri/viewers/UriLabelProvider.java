@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.viewers;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.List;
 

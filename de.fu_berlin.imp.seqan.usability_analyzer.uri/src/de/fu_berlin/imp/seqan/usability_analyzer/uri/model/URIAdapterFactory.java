@@ -1,10 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.uri.model;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 
-public class UriAdapterFactory implements IAdapterFactory {
+public class URIAdapterFactory implements IAdapterFactory {
 
 	@Override
 	@SuppressWarnings("rawtypes")

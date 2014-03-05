@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -20,6 +18,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IData;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.FileUtils;
@@ -298,11 +298,7 @@ public class DiffRecordUtils {
 			int hashIndex = uri.toString().indexOf('#');
 			if (hashIndex != -1) {
 				String base = uri.toString().substring(0, hashIndex);
-				try {
-					diffRecords.add(new URI(base));
-				} catch (URISyntaxException e) {
-					LOGGER.fatal("Implementation error", e);
-				}
+				diffRecords.add(new URI(base));
 			} else {
 				diffRecords.add(uri);
 			}

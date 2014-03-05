@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.entity.viewer;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +9,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.Entity;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.model.EntityDataContainer;
@@ -111,8 +111,7 @@ public class EntityContentProvider extends
 
 	@Override
 	public URI[] getTopLevelElements(EntityDataContainer input) {
-		List<Entity> entities = ((EntityDataContainer) input)
-				.getEntityManager().getPersons();
+		List<Entity> entities = input.getEntityManager().getPersons();
 		URI[] uris = new URI[entities.size()];
 		for (int i = 0; i < uris.length; i++) {
 			uris[i] = entities.get(i).getUri();

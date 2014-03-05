@@ -1,7 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.survey.model.cd;
 
 import java.io.IOException;
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;

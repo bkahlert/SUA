@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.timeline;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -77,10 +76,10 @@ public class DiffTimelineBandProvider implements
 				this.input = newInput;
 
 				// try {
-				// URI oldInputUri = oldInput != null ? new URI("sua://"
+				// URI oldInputUri = oldInput != null ? new URIXX("sua://"
 				// + DiffLocatorProvider.DIFF_NAMESPACE + "/"
 				// + oldInput) : null;
-				// URI newInputUri = newInput != null ? new URI("sua://"
+				// URI newInputUri = newInput != null ? new URIXX("sua://"
 				// + DiffLocatorProvider.DIFF_NAMESPACE + "/"
 				// + newInput) : null;
 				// this.diffContentProvider.inputChanged(viewer, oldInputUri,
@@ -222,7 +221,7 @@ public class DiffTimelineBandProvider implements
 			}
 
 			@Override
-			public URI getIcon(Object event) {
+			public java.net.URI getIcon(Object event) {
 				Image image = this.diffLabelProvider.getImage(event);
 				if (image != null) {
 					return ImageUtils.createUriFromImage(image);
@@ -231,7 +230,7 @@ public class DiffTimelineBandProvider implements
 			}
 
 			@Override
-			public URI getImage(Object event) {
+			public java.net.URI getImage(Object event) {
 				return null;
 			}
 

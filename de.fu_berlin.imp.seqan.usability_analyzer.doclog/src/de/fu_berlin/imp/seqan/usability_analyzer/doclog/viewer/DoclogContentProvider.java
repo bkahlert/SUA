@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +11,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
@@ -138,8 +139,9 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public URI[] getTopLevelElements(URI[] uris) {
-		if (uris.length == 1 && locatorService.getType(uris[0]) == Doclog.class) {
-			return getChildren(uris[0]);
+		if (uris.length == 1
+				&& this.locatorService.getType(uris[0]) == Doclog.class) {
+			return this.getChildren(uris[0]);
 		} else {
 			return uris;
 		}
@@ -147,9 +149,9 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public URI getParent(URI uri) {
-		if (locatorService.getType(uri) == DoclogRecord.class) {
+		if (this.locatorService.getType(uri) == DoclogRecord.class) {
 			try {
-				DoclogRecord doclogRecord = locatorService.resolve(uri,
+				DoclogRecord doclogRecord = this.locatorService.resolve(uri,
 						DoclogRecord.class, null).get();
 				return doclogRecord.getDoclog().getUri();
 			} catch (Exception e) {
@@ -161,15 +163,15 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 	@Override
 	public boolean hasChildren(URI uri) {
-		return locatorService.getType(uri) == Doclog.class;
+		return this.locatorService.getType(uri) == Doclog.class;
 	}
 
 	@Override
 	public URI[] getChildren(URI uri) {
-		if (locatorService.getType(uri) == Doclog.class) {
+		if (this.locatorService.getType(uri) == Doclog.class) {
 			try {
-				Doclog doclog = locatorService.resolve(uri, Doclog.class, null)
-						.get();
+				Doclog doclog = this.locatorService.resolve(uri, Doclog.class,
+						null).get();
 				List<DoclogRecord> doclogRecords = doclog.getDoclogRecords();
 				URI[] uris = new URI[doclogRecords.size()];
 				for (int i = 0, m = uris.length; i < m; i++) {

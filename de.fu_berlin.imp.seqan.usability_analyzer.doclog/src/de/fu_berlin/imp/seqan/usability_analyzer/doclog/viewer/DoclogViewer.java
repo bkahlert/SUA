@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.viewer;
 
-import java.net.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;

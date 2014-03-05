@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,6 +13,8 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.Assert;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 
 /**
@@ -35,8 +36,9 @@ public class CompilationStateReaderWriter {
 	static Map<URI, Boolean> fromFile(File compilationStateFile)
 			throws FileNotFoundException, IOException {
 		Map<URI, Boolean> compilationStates = new HashMap<URI, Boolean>();
-		if (compilationStateFile == null)
+		if (compilationStateFile == null) {
 			return compilationStates;
+		}
 
 		Properties properties = new Properties();
 		properties.load(new FileReader(compilationStateFile));
@@ -76,10 +78,11 @@ public class CompilationStateReaderWriter {
 		for (Entry<URI, Boolean> entry : compilationStates.entrySet()) {
 			String key = entry.getKey().toString();
 			String value = "null";
-			if (Boolean.TRUE.equals(entry.getValue()))
+			if (Boolean.TRUE.equals(entry.getValue())) {
 				value = "true";
-			else if (Boolean.FALSE.equals(entry.getValue()))
+			} else if (Boolean.FALSE.equals(entry.getValue())) {
 				value = "false";
+			}
 			properties.put(key, value);
 		}
 

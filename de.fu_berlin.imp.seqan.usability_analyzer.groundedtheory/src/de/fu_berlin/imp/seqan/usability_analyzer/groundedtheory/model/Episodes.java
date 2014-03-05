@@ -1,9 +1,9 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
-import java.net.URI;
-
 import org.apache.log4j.Logger;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 
 public class Episodes implements IEpisodes {
@@ -34,7 +34,7 @@ public class Episodes implements IEpisodes {
 
 	@Override
 	public IIdentifier getIdentifier() {
-		return identifier;
+		return this.identifier;
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class Episodes implements IEpisodes {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((identifier == null) ? 0 : identifier.hashCode());
+				+ ((this.identifier == null) ? 0 : this.identifier.hashCode());
 		return result;
 	}
 
@@ -54,15 +54,15 @@ public class Episodes implements IEpisodes {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		Episodes other = (Episodes) obj;
-		if (identifier == null) {
+		if (this.identifier == null) {
 			if (other.identifier != null) {
 				return false;
 			}
-		} else if (!identifier.equals(other.identifier)) {
+		} else if (!this.identifier.equals(other.identifier)) {
 			return false;
 		}
 		return true;

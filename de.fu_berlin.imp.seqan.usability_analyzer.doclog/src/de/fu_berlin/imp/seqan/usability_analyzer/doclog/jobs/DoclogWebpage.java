@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.jobs;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.bkahlert.nebula.screenshots.impl.webpage.FuzzyFieldWebpage;
@@ -13,8 +12,8 @@ public class DoclogWebpage extends FuzzyFieldWebpage {
 
 	public DoclogWebpage(DoclogRecord doclogRecord, int timeout)
 			throws URISyntaxException {
-		super(new URI(doclogRecord.getUrl()), doclogRecord.getBounds(),
-				timeout,
+		super(new java.net.URI(doclogRecord.getUrl()),
+				doclogRecord.getBounds(), timeout,
 				doclogRecord.getAction() == DoclogAction.TYPING ? DoclogUtils
 						.getPossibleFields(doclogRecord.getActionParameter())
 						: null, 500);
