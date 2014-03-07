@@ -93,9 +93,11 @@ public class Utils {
 				if (code != null) {
 					GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
 							code.getColor());
+					int oldAlpha = event.gc.getAlpha();
 					event.gc.setAlpha(128);
 					PaintUtils.drawRoundedRectangle(event.gc, bounds,
 							info.getBackgroundColor(), info.getBorderColor());
+					event.gc.setAlpha(oldAlpha);
 				}
 			}
 		});
@@ -153,5 +155,4 @@ public class Utils {
 			}
 		});
 	}
-
 }
