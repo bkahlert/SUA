@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
@@ -24,6 +24,7 @@ import com.bkahlert.nebula.utils.PaintUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -32,6 +33,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 public class Utils {
 
 	public static final Logger LOGGER = Logger.getLogger(Utils.class);
+
+	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
+			.getWorkbench().getService(ILocatorService.class);
 
 	public static String chooseGTFileLocation() {
 		DirectoryDialog directoryDialog = new DirectoryDialog(new Shell()); // TODO
@@ -107,18 +111,22 @@ public class Utils {
 				Tree tree = ((Tree) event.widget);
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
-				if (item != null) {
-					Rectangle bounds = item.getImageBounds(columnNumber);
-					bounds.width = 14;
-					bounds.height = 14;
-					bounds.y += 2;
-					bounds.x -= 2;
+				if (item != null && item.getData() instanceof URI) {
+					if (ICode.class.equals(LOCATOR_SERVICE.getType((URI) item
+							.getData()))) {
+						Rectangle bounds = item.getImageBounds(columnNumber);
+						bounds.width = 14;
+						bounds.height = 14;
+						bounds.y += 2;
+						bounds.x -= 2;
 
-					if (event.getBounds().x >= bounds.x
-							&& event.getBounds().x <= bounds.x + bounds.width) {
-						tree.setCursor(this.hand);
-					} else {
-						tree.setCursor(null);
+						if (event.getBounds().x >= bounds.x
+								&& event.getBounds().x <= bounds.x
+										+ bounds.width) {
+							tree.setCursor(this.hand);
+						} else {
+							tree.setCursor(null);
+						}
 					}
 				}
 			}
@@ -137,6 +145,7 @@ public class Utils {
 							.getCommand("de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.recolorCode");
 					try {
 						cmd.executeWithChecks(new ExecutionEvent());
+					} catch (NotHandledException e) {
 					} catch (Exception e) {
 						LOGGER.error("Error recoloring " + event.item.getData());
 					}
