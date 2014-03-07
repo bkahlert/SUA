@@ -10,7 +10,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.ViewerUtils.Annotater;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -35,7 +34,6 @@ public class CodeInstanceViewerContentProvider extends
 			.getLogger(CodeInstanceViewerContentProvider.class);
 
 	private Viewer viewer;
-	private Annotater<URI, Annotation> annotater;
 
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
@@ -127,8 +125,6 @@ public class CodeInstanceViewerContentProvider extends
 	public void inputChanged(Viewer viewer, URI[] oldInput, URI[] newInput,
 			Object ignore) {
 		this.viewer = viewer;
-		this.annotater = new Annotater<URI, CodeInstanceViewerContentProvider.Annotation>(
-				viewer);
 
 		if (oldInput != null) {
 			this.codeService
@@ -192,17 +188,12 @@ public class CodeInstanceViewerContentProvider extends
 
 			if (this.codeService.getParent(code) != null) {
 				URI parentUri = this.codeService.getParent(code).getUri();
-				this.annotater.setAnnotation(parentUri, Annotation.PARENT_CODE);
 				children.add(new ViewerURI(parentUri, State.PARENT));
 			}
 		}
 
-		List<URI> codes = AdapterUtils.adaptAll(
-				this.codeService.getCodes(parent), URI.class);
-		for (URI code : codes) {
-			this.annotater.setAnnotation(code, null);
-		}
-		children.addAll(codes);
+		children.addAll(AdapterUtils.adaptAll(
+				this.codeService.getCodes(parent), URI.class));
 
 		if (parent != ViewerURI.NO_CODES_URI && !(locatable instanceof ICode)
 				&& !(locatable instanceof ICodeInstance)

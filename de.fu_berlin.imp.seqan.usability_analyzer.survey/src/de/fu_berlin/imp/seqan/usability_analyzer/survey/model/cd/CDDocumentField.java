@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.survey.model.xml.XMLSurveyField;
 
 public class CDDocumentField extends XMLSurveyField implements ILocatable {

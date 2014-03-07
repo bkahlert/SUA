@@ -14,7 +14,6 @@ import java.util.Properties;
 import org.eclipse.core.runtime.Assert;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 
 /**
