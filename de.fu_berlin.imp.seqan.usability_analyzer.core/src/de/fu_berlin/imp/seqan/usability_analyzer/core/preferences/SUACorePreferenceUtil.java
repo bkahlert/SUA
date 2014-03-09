@@ -17,6 +17,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
@@ -26,9 +28,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionEntity;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.WorkSession;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 
-public class SUACorePreferenceUtil extends PreferenceUtil {
+public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(SUACorePreferenceUtil.class);

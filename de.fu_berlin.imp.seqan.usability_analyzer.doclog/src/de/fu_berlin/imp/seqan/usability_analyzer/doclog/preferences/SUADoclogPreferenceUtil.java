@@ -2,10 +2,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.doclog.preferences;
 
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.doclog.Activator;
 
-public class SUADoclogPreferenceUtil extends PreferenceUtil {
+public class SUADoclogPreferenceUtil extends EclipsePreferenceUtil {
 
 	public SUADoclogPreferenceUtil() {
 		super(Activator.getDefault());

@@ -4,10 +4,11 @@ import java.io.File;
 
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.Activator;
 
-public class SUAGTPreferenceUtil extends PreferenceUtil {
+public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
 	public SUAGTPreferenceUtil() {
 		super(Activator.getDefault());

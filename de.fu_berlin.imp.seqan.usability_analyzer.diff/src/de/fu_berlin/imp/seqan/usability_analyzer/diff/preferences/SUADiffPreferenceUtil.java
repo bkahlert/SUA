@@ -7,11 +7,12 @@ import java.util.HashMap;
 import org.apache.commons.lang.SerializationUtils;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.io.RegexFileFilter;
 
-public class SUADiffPreferenceUtil extends PreferenceUtil {
+public class SUADiffPreferenceUtil extends EclipsePreferenceUtil {
 
 	public SUADiffPreferenceUtil() {
 		super(Activator.getDefault());

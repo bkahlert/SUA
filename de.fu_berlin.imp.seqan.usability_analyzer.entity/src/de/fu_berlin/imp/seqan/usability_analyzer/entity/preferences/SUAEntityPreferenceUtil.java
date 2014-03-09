@@ -5,11 +5,12 @@ import java.util.List;
 
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.DataSource;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.entity.Activator;
 
-public class SUAEntityPreferenceUtil extends PreferenceUtil {
+public class SUAEntityPreferenceUtil extends EclipsePreferenceUtil {
 
 	public SUAEntityPreferenceUtil() {
 		super(Activator.getDefault());

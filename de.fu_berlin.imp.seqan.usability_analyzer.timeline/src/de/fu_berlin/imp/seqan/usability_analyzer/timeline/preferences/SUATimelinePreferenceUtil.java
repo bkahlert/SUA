@@ -5,12 +5,12 @@ import java.util.Calendar;
 import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.PreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.timeline.Activator;
 
-public class SUATimelinePreferenceUtil extends PreferenceUtil {
+public class SUATimelinePreferenceUtil extends EclipsePreferenceUtil {
 
 	private static String getZoomIndexKey(IIdentifier identifier) {
 		Assert.isLegal(identifier != null);

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 
 public class URI implements Serializable {
+
 	private static final long serialVersionUID = 8337713802506985728L;
 	private java.net.URI uri;
 

@@ -12,6 +12,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -19,7 +21,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
@@ -44,10 +48,11 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private final SortableTreeViewer treeViewer;
 
 	public CodeViewer(Composite parent, int style) {
-		this(parent, style, true);
+		this(parent, style, true, true);
 	}
 
-	public CodeViewer(Composite parent, int style, boolean showInstances) {
+	public CodeViewer(Composite parent, int style, boolean showInstances,
+			boolean saveExpandedElements) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
@@ -79,6 +84,13 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				showInstances));
 		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
 				ICodeService.class));
+		this.loadExpandedElements();
+		this.treeViewer.getTree().addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				CodeViewer.this.saveExpandedElements();
+			}
+		});
 	}
 
 	private void createColumns() {
@@ -221,6 +233,39 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 	public AbstractTreeViewer getViewer() {
 		return this.treeViewer;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void saveExpandedElements() {
+		new NebulaPreferences().saveExpandedElements(
+				CodeViewer.class.getName(), this.treeViewer,
+				new IConverter<Object, String>() {
+					@Override
+					public String convert(Object returnValue) {
+						if (returnValue instanceof URI) {
+							return ((URI) returnValue).toString();
+						}
+						return null;
+					}
+				});
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadExpandedElements() {
+		new NebulaPreferences().loadExpandedElements(
+				CodeViewer.class.getName(), this.treeViewer,
+				new IConverter<String, Object>() {
+					@Override
+					public Object convert(String returnValue) {
+						try {
+							return new URI(returnValue);
+						} catch (Exception e) {
+							LOGGER.error("Error loading expanded element "
+									+ returnValue, e);
+						}
+						return null;
+					}
+				});
 	}
 
 	public void refresh() {

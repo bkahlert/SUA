@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.pages;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -21,6 +20,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.ColorPicker;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
 
 /**
@@ -93,7 +93,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 		group.setLayout(new GridLayout(1, false));
 		group.setText("Existing Code");
 
-		this.codeViewer = new CodeViewer(group, SWT.NONE, false);
+		this.codeViewer = new CodeViewer(group, SWT.NONE, false, false);
 		this.codeViewer.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
 		this.codeViewer
