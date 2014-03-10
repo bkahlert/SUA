@@ -56,7 +56,7 @@ public class ResortableCodeViewer extends CodeViewer {
 
 					@Override
 					public void dragStart(DragSourceEvent event) {
-						List<URI> uris = uriRetriever.getSelection();
+						List<URI> uris = this.uriRetriever.getSelection();
 						if (uris.size() > 0) {
 							LocalSelectionTransfer.getTransfer().setSelection(
 									new StructuredSelection(uris));

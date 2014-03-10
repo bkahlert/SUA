@@ -269,7 +269,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	public void refresh() {
-		this.treeViewer.refresh();
+		this.viewer.refresh();
 	}
 
 }
