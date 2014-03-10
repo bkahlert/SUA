@@ -44,9 +44,12 @@ public abstract class ContextMenu {
 		MenuManager menuManager = new MenuManager();
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
-		this.menu = menuManager.createContextMenu(viewer.getControl());
-
-		viewer.getControl().setMenu(this.menu);
+		if (viewer != null && viewer.getControl() != null) {
+			this.menu = menuManager.createContextMenu(viewer.getControl());
+			viewer.getControl().setMenu(this.menu);
+		} else {
+			this.menu = null;
+		}
 
 		site.registerContextMenu(menuManager, viewer);
 		site.setSelectionProvider(viewer);
