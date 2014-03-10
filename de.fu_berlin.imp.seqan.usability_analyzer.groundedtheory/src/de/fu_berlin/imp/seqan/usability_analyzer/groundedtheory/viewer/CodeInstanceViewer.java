@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
@@ -151,6 +152,10 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * @return
 	 */
 	public URI getUri() {
+		if (ViewerUtils.getInput(this.treeViewer) instanceof URI[]
+				&& ((URI[]) ViewerUtils.getInput(this.treeViewer)).length == 1) {
+			return ((URI[]) ViewerUtils.getInput(this.treeViewer))[0];
+		}
 		List<URI> uris = new LinkedList<URI>();
 		TreeItem[] treeItems = this.treeViewer.getTree().getSelection();
 		for (TreeItem treeItem : treeItems) {
@@ -172,7 +177,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * @param treeItem
 	 * @return
 	 */
-	public URI getURI(TreeItem treeItem) {
+	private URI getURI(TreeItem treeItem) {
 		if (treeItem.getData() instanceof URI) {
 			return (URI) treeItem.getData();
 		}
