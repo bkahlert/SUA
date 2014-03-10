@@ -97,7 +97,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		// TODO: Cache labelProviders on URI base
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		CodeViewerUtils.createCodeColumn(this.treeViewer, codeService);
+		Utils.createCodeColumn(this.treeViewer, codeService);
 
 		this.treeViewer.createColumn("", new AbsoluteWidth(16))
 				.setLabelProvider(
@@ -171,7 +171,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							}
 						});
 
-		CodeViewerUtils.createNumPhaenomenonsColumn(this.treeViewer,
+		Utils.createNumPhaenomenonsColumn(this.treeViewer,
 				codeService);
 	}
 

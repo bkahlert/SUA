@@ -109,7 +109,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 							}
 						});
 
-		CodeViewerUtils.createNumPhaenomenonsColumn(
+		Utils.createNumPhaenomenonsColumn(
 				this.treeViewer,
 				(ICodeService) PlatformUI.getWorkbench().getService(
 						ICodeService.class));
