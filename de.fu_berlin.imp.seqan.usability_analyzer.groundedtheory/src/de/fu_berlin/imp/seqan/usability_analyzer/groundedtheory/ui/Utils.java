@@ -209,6 +209,9 @@ public class Utils {
 
 					@Override
 					public Image getImage(URI element) throws Exception {
+						if (element == ViewerURI.NO_PHENOMENONS_URI) {
+							return null;
+						}
 						return labelProvider.getImage(element);
 					}
 				});
