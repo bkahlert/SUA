@@ -32,7 +32,7 @@ public class RenameCodeHandler extends AbstractHandler {
 			if (part instanceof CodeView) {
 				CodeView codeView = (CodeView) part;
 				CodeViewer codeViewer = codeView.getCodeViewer();
-				codeViewer.getViewer().editElement(codes.get(0), 0);
+				codeViewer.getViewer().editElement(codes.get(0).getUri(), 0);
 			}
 		} else {
 			LOGGER.warn("Selection did not contain any "

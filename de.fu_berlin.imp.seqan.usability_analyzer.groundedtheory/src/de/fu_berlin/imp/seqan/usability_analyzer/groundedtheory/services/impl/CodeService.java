@@ -225,6 +225,7 @@ public class CodeService implements ICodeService {
 		String oldCaption = code.getCaption();
 		try {
 			code.setCaption(newCaption);
+			this.codeStore.save();
 			this.codeServiceListenerNotifier.codeRenamed(code, oldCaption,
 					newCaption);
 		} catch (Exception e) {
