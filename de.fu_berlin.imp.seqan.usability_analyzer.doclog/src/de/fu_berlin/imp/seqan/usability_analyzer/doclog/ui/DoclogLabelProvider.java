@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.ui;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +32,7 @@ import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -60,15 +60,17 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 		if (this.locatorService.getType(uri) == DoclogRecord.class) {
 			DoclogRecord doclogRecord = this.locatorService.resolve(uri,
 					DoclogRecord.class, null).get();
-			String url = doclogRecord.getUrl();
-			if (url != null) {
-				url = url.replaceAll(".*://", "");
-			}
-			Integer scrollY = doclogRecord.getScrollPosition() != null ? doclogRecord
-					.getScrollPosition().y : null;
-			if (url != null) {
-				return new StyledString(scrollY != null ? url + " ⇅" + scrollY
-						: url);
+			if (doclogRecord != null) {
+				String url = doclogRecord.getUrl();
+				if (url != null) {
+					url = url.replaceAll(".*://", "");
+				}
+				Integer scrollY = doclogRecord.getScrollPosition() != null ? doclogRecord
+						.getScrollPosition().y : null;
+				if (url != null) {
+					return new StyledString(scrollY != null ? url + " ⇅"
+							+ scrollY : url);
+				}
 			}
 		}
 		return new StyledString("ERROR", Stylers.ATTENTION_STYLER);
