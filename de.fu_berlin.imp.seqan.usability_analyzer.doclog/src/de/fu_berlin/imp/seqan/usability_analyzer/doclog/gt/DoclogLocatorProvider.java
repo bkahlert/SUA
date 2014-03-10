@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.doclog.gt;
 
 import java.io.UnsupportedEncodingException;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +18,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -91,8 +91,8 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 					.getDoclogFile(identifier, monitor);
 		}
 		if (doclog == null) {
-			LOGGER.error(IIdentifier.class.getSimpleName()
-					+ " not specified for coded object retrieval for " + " "
+			LOGGER.error(Doclog.class.getSimpleName()
+					+ " missing for coded object retrieval for "
 					+ identifier.toString());
 			return null;
 		}
@@ -123,8 +123,7 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		if (uris.length > 0) {
 			URI[] selected = this.openAndSelectFilesInExplorer(uris,
-					(DoclogView) WorkbenchUtils
-							.getView(DoclogView.ID));
+					(DoclogView) WorkbenchUtils.getView(DoclogView.ID));
 			return selected.length == uris.length;
 		}
 		subMonitor.done();
@@ -137,19 +136,16 @@ public class DoclogLocatorProvider extends AdaptingLocatorProvider {
 		Set<IIdentifier> identifiers = URIUtils.getIdentifiers(uris);
 
 		// open
-		Future<URI[]> rt = doclogView.open(identifiers,
-				new Callable<URI[]>() {
-					@Override
-					public URI[] call() {
-						TreeViewer viewer = doclogView
-								.getDoclogFilesViewer();
-						viewer.setSelection(new StructuredSelection(uris), true);
-						List<URI> selectedLocatables = SelectionUtils
-								.getAdaptableObjects(viewer.getSelection(),
-										URI.class);
-						return selectedLocatables.toArray(new URI[0]);
-					}
-				});
+		Future<URI[]> rt = doclogView.open(identifiers, new Callable<URI[]>() {
+			@Override
+			public URI[] call() {
+				TreeViewer viewer = doclogView.getDoclogFilesViewer();
+				viewer.setSelection(new StructuredSelection(uris), true);
+				List<URI> selectedLocatables = SelectionUtils
+						.getAdaptableObjects(viewer.getSelection(), URI.class);
+				return selectedLocatables.toArray(new URI[0]);
+			}
+		});
 		try {
 			return rt.get();
 		} catch (InterruptedException e) {
