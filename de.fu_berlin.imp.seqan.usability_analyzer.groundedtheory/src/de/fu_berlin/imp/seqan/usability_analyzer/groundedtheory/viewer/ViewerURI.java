@@ -12,9 +12,11 @@ public class ViewerURI extends URI {
 
 	private static final long serialVersionUID = 5238025920625242523L;
 
-	public static final URI NO_CODES_URI = new URI("nocodes");
+	public static final ViewerURI NO_CODES_URI = new ViewerURI(new URI(
+			"nocodes"), null);
 
-	public static final URI NO_PHENOMENONS_URI = new URI("nophenomenons");
+	public static final ViewerURI NO_PHENOMENONS_URI = new ViewerURI(new URI(
+			"nophenomenons"), null);
 
 	public static enum State {
 		PARENT, NO_CODES;

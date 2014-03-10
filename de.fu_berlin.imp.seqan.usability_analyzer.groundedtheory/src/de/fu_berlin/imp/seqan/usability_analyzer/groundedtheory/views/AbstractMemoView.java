@@ -42,6 +42,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeSe
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.ImageManager;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ViewerURI;
 
 public class AbstractMemoView extends UriPresentingEditorView {
 
@@ -256,6 +257,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			}
 		} else {
 			ILabelProvider lp = this.labelProviderService.getLabelProvider(uri);
+			if (lp == null) {
+				return this.getDefaultPartInfo();
+			}
 			return new PartInfo(lp.getText(uri), lp.getImage(locatable));
 		}
 	}
@@ -288,6 +292,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public void loadAndClearHistory(URI uri) {
+		if (uri instanceof ViewerURI) {
+			uri = null;
+		}
 		this.history.clear();
 		this.history.add(uri);
 		this.updateNavigation();
