@@ -51,9 +51,13 @@ public class ImageManager {
 	 * objects
 	 */
 	public static final Image MEMO = OVERLAY_MEMO.createImage();
-	public static final Image CODE = getImage("icons/obj16/code_obj.png"); //$NON-NLS-1$
+	public static final Image CODE = getImage("icons/obj16/code_obj.png");
+	public static final Image CODE_CODED = new DecorationOverlayIcon(CODE,
+			OVERLAY_CODED, IDecoration.BOTTOM_RIGHT).createImage();
 	public static final Image CODE_MEMO = new DecorationOverlayIcon(CODE,
 			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
+	public static final Image CODE_CODED_MEMO = new DecorationOverlayIcon(
+			CODE_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
 	public static final Image EPISODE_CODED = new DecorationOverlayIcon(
 			EPISODE, OVERLAY_CODED, IDecoration.BOTTOM_RIGHT).createImage();

@@ -18,6 +18,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ImageUtils;
@@ -178,6 +179,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable == null) {
+			return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
+		}
 
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;
@@ -226,8 +230,17 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == ICode.class) {
-			return this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
-					: ImageManager.CODE;
+			Image overlay;
+			try {
+				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
+						: ImageManager.CODE_CODED) : (this.codeService
+						.isMemo(uri) ? ImageManager.CODE_MEMO
+						: ImageManager.CODE);
+			} catch (CodeServiceException e) {
+				overlay = ImageManager.CODE;
+			}
+			return overlay;
 		}
 		if (type == ICodeInstance.class) {
 			ILocatable locatable = this.locatorService.resolve(uri, null).get();
@@ -275,6 +288,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			// .getColor()));
 			// gc.copyArea(overlay, 0, 0);
 			// return image;
+		}
+
+		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		if (locatable == null) {
+			return PlatformUI.getWorkbench().getSharedImages()
+					.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 		}
 
 		ILabelProvider labelProvider = this.labelProviderService
