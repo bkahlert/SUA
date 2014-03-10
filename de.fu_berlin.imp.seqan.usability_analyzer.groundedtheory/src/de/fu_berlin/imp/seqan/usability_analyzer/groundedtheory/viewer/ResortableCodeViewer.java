@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -24,6 +23,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
@@ -37,8 +37,10 @@ public class ResortableCodeViewer extends CodeViewer {
 
 	private static Logger LOGGER = Logger.getLogger(ResortableCodeViewer.class);
 
-	public ResortableCodeViewer(Composite parent, int style) {
-		super(parent, style);
+	public ResortableCodeViewer(Composite parent, int style,
+			ShowInstances showInstances, String saveExpandedElementsKey,
+			Filterable filterable) {
+		super(parent, style, showInstances, saveExpandedElementsKey, filterable);
 
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
@@ -48,6 +50,10 @@ public class ResortableCodeViewer extends CodeViewer {
 				.getWorkbench().getService(ILocatorService.class);
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
+
+		if (this.getViewer() == null) {
+			return;
+		}
 
 		this.getViewer().addDragSupport(operations, transferTypes,
 				new DragSourceListener() {

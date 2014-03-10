@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.FilteredTree;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.NebulaPreferences;
@@ -26,6 +28,7 @@ import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.viewer.TreePatternFilter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
@@ -40,30 +43,54 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.Utils;
 public class CodeViewer extends Composite implements ISelectionProvider {
 
 	private static Logger LOGGER = Logger.getLogger(CodeViewer.class);
-	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
-
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final static SUACorePreferenceUtil PREFERENCE_UTIL = new SUACorePreferenceUtil();
+	private final static ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
-	private final SortableTreeViewer treeViewer;
-
-	public CodeViewer(Composite parent, int style) {
-		this(parent, style, true, true);
+	public static enum ShowInstances {
+		ON, OFF;
 	}
 
-	public CodeViewer(Composite parent, int style, boolean showInstances,
-			boolean saveExpandedElements) {
+	public static enum Filterable {
+		ON, OFF;
+	}
+
+	private TreeViewer viewer = null;
+
+	public CodeViewer(Composite parent, int style,
+			final ShowInstances showInstances,
+			final String saveExpandedElementsKey, Filterable filterable) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
-		Tree tree = new Tree(this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+		if (filterable == Filterable.ON) {
+			FilteredTree filteredTree = new FilteredTree(this, SWT.BORDER
+					| SWT.MULTI | SWT.FULL_SELECTION, new TreePatternFilter(),
+					true) {
+				@Override
+				protected TreeViewer doCreateTreeViewer(Composite parent,
+						int style) {
+					return createViewer(parent, style, showInstances,
+							saveExpandedElementsKey);
+				};
+			};
+			this.viewer = filteredTree.getViewer();
+		} else {
+			this.viewer = createViewer(this, style, showInstances,
+					saveExpandedElementsKey);
+		}
+	}
+
+	private static SortableTreeViewer createViewer(Composite parent, int style,
+			ShowInstances showInstances, final String saveExpandedElementsKey) {
+		Tree tree = new Tree(parent, style);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
 
 		Utils.addCodeColorRenderSupport(tree, 1);
 
-		this.treeViewer = new SortableTreeViewer(tree);
-		this.treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+		final SortableTreeViewer viewer = new SortableTreeViewer(tree);
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				final ISelection selection = event.getSelection();
@@ -79,37 +106,37 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				}
 			}
 		});
-		this.createColumns();
-		this.treeViewer.setContentProvider(new CodeViewerContentProvider(
-				showInstances));
-		this.treeViewer.setInput(PlatformUI.getWorkbench().getService(
-				ICodeService.class));
-		this.loadExpandedElements();
-		this.treeViewer.getTree().addDisposeListener(new DisposeListener() {
+		createColumns(viewer);
+		viewer.setContentProvider(new CodeViewerContentProvider(
+				showInstances == ShowInstances.ON));
+		viewer.setInput(PlatformUI.getWorkbench()
+				.getService(ICodeService.class));
+		loadExpandedElements(viewer, saveExpandedElementsKey);
+		tree.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				CodeViewer.this.saveExpandedElements();
+				saveExpandedElements(viewer, saveExpandedElementsKey);
 			}
 		});
+
+		return viewer;
 	}
 
-	private void createColumns() {
-		// TODO: Cache labelProviders on URI base
+	private static void createColumns(SortableTreeViewer viewer) {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		Utils.createCodeColumn(this.treeViewer, codeService);
+		Utils.createCodeColumn(viewer, codeService);
 
-		this.treeViewer.createColumn("", new AbsoluteWidth(16))
-				.setLabelProvider(
-						new ILabelProviderService.StyledLabelProvider() {
-							@Override
-							public StyledString getStyledText(URI element)
-									throws Exception {
-								return new StyledString();
-							}
-						});
+		viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
+					@Override
+					public StyledString getStyledText(URI element)
+							throws Exception {
+						return new StyledString();
+					}
+				});
 
-		this.treeViewer.createColumn("ID", new AbsoluteWidth(0)/* 150 */)
+		viewer.createColumn("ID", new AbsoluteWidth(0)/* 150 */)
 				.setLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -118,8 +145,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 									return new StyledString("");
 								}
-								ILocatable element = CodeViewer.this.locatorService
-										.resolve(uri, null).get();
+								ILocatable element = LOCATOR_SERVICE.resolve(
+										uri, null).get();
 
 								if (ICode.class.isInstance(element)) {
 									ICode code = (ICode) element;
@@ -136,8 +163,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 										Stylers.ATTENTION_STYLER);
 							}
 						});
-		this.treeViewer
-				.createColumn("Date Created", new AbsoluteWidth(0)/* 170 */)
+		viewer.createColumn("Date Created", new AbsoluteWidth(0)/* 170 */)
 				.setLabelProvider(
 						new ILabelProviderService.StyledLabelProvider() {
 							@Override
@@ -146,24 +172,21 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 									return new StyledString("");
 								}
-								ILocatable element = CodeViewer.this.locatorService
-										.resolve(uri, null).get();
+								ILocatable element = LOCATOR_SERVICE.resolve(
+										uri, null).get();
 
 								if (ICode.class.isInstance(element)) {
 									ICode code = (ICode) element;
-									return new StyledString(
-											CodeViewer.this.preferenceUtil
-													.getDateFormat().format(
-															code.getCreation()
-																	.getDate()));
+									return new StyledString(PREFERENCE_UTIL
+											.getDateFormat().format(
+													code.getCreation()
+															.getDate()));
 								}
 								if (ICodeInstance.class.isInstance(element)) {
 									ICodeInstance codeInstance = (ICodeInstance) element;
-									return new StyledString(
-											CodeViewer.this.preferenceUtil
-													.getDateFormat()
-													.format(codeInstance
-															.getCreation()
+									return new StyledString(PREFERENCE_UTIL
+											.getDateFormat().format(
+													codeInstance.getCreation()
 															.getDate()));
 								}
 								return new StyledString("ERROR",
@@ -171,36 +194,35 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							}
 						});
 
-		Utils.createNumPhaenomenonsColumn(this.treeViewer,
-				codeService);
+		Utils.createNumPhaenomenonsColumn(viewer, codeService);
 	}
 
 	public Control getControl() {
-		if (this.treeViewer != null) {
-			return this.treeViewer.getTree();
+		if (this.viewer != null) {
+			return this.viewer.getTree();
 		}
 		return null;
 	}
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		this.treeViewer.addSelectionChangedListener(listener);
+		this.viewer.addSelectionChangedListener(listener);
 	}
 
 	@Override
 	public ISelection getSelection() {
-		return this.treeViewer.getSelection();
+		return this.viewer.getSelection();
 	}
 
 	@Override
 	public void removeSelectionChangedListener(
 			ISelectionChangedListener listener) {
-		this.treeViewer.removeSelectionChangedListener(listener);
+		this.viewer.removeSelectionChangedListener(listener);
 	}
 
 	@Override
 	public void setSelection(ISelection selection) {
-		this.treeViewer.setSelection(selection);
+		this.viewer.setSelection(selection);
 	}
 
 	/**
@@ -232,14 +254,14 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	public AbstractTreeViewer getViewer() {
-		return this.treeViewer;
+		return this.viewer;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void saveExpandedElements() {
-		new NebulaPreferences().saveExpandedElements(
-				CodeViewer.class.getName(), this.treeViewer,
-				new IConverter<Object, String>() {
+	private static void saveExpandedElements(TreeViewer viewer,
+			String saveExpandedElementsKey) {
+		new NebulaPreferences().saveExpandedElements(saveExpandedElementsKey,
+				viewer, new IConverter<Object, String>() {
 					@Override
 					public String convert(Object returnValue) {
 						if (returnValue instanceof URI) {
@@ -251,10 +273,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void loadExpandedElements() {
-		new NebulaPreferences().loadExpandedElements(
-				CodeViewer.class.getName(), this.treeViewer,
-				new IConverter<String, Object>() {
+	private static void loadExpandedElements(TreeViewer viewer,
+			String saveExpandedElementsKey) {
+		new NebulaPreferences().loadExpandedElements(saveExpandedElementsKey,
+				viewer, new IConverter<String, Object>() {
 					@Override
 					public Object convert(String returnValue) {
 						try {

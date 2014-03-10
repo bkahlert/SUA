@@ -22,6 +22,8 @@ import com.bkahlert.nebula.widgets.ColorPicker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.Filterable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.ShowInstances;
 
 /**
  * Allows the user to enter a {@link JID}.
@@ -93,7 +95,8 @@ public class AddCodeWizardPage extends ORWizardPage {
 		group.setLayout(new GridLayout(1, false));
 		group.setText("Existing Code");
 
-		this.codeViewer = new CodeViewer(group, SWT.NONE, false, false);
+		this.codeViewer = new CodeViewer(group, SWT.NONE, ShowInstances.OFF,
+				null, Filterable.ON);
 		this.codeViewer.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
 		this.codeViewer

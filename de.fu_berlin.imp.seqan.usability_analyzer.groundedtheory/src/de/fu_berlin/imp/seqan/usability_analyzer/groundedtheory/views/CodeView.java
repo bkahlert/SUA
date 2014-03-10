@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +25,14 @@ import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.utils.NamedJob;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.Filterable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.ShowInstances;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ResortableCodeViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
 
@@ -52,7 +54,8 @@ public class CodeView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.codeViewer = new ResortableCodeViewer(parent, SWT.NONE);
+		this.codeViewer = new ResortableCodeViewer(parent, SWT.NONE,
+				ShowInstances.ON, CodeView.class.getName(), Filterable.ON);
 		this.codeViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override
@@ -140,7 +143,6 @@ public class CodeView extends ViewPart {
 		new ContextMenu(this.codeViewer.getViewer(), this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
