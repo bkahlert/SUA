@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView;
