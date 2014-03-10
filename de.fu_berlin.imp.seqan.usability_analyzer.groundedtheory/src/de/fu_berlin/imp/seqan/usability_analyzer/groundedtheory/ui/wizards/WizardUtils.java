@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +17,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.wizards.dialogs.CenteredWizardDialog;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 
@@ -92,7 +92,8 @@ public class WizardUtils {
 	 */
 	public static AddCodeWizard openAddCodeWizard(List<URI> uris, RGB initialRGB) {
 		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB),
-				new Point(800, 600));
+				new Point((int) (Display.getCurrent().getBounds().width * 0.8),
+						(int) (Display.getCurrent().getBounds().height * 0.8)));
 	}
 
 	/**
@@ -108,7 +109,9 @@ public class WizardUtils {
 			{
 				this.add(uri);
 			}
-		}, initialRGB), new Point(800, 600));
+		}, initialRGB), new Point(
+				(int) (Display.getCurrent().getBounds().width * 0.8),
+				(int) (Display.getCurrent().getBounds().height * 0.8)));
 	}
 
 	/**
