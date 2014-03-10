@@ -664,6 +664,15 @@
       </handler>
    </extension>
    <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.addCodeInstance"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1++">
+      </key>
+   </extension>
+   <extension
          point="org.eclipse.ui.services">
       <serviceFactory
             factoryClass="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl.CodeServiceFactory">
