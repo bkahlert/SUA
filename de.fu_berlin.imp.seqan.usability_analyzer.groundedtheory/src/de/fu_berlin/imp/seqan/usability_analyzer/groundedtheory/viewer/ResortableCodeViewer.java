@@ -39,8 +39,9 @@ public class ResortableCodeViewer extends CodeViewer {
 
 	public ResortableCodeViewer(Composite parent, int style,
 			ShowInstances showInstances, String saveExpandedElementsKey,
-			Filterable filterable) {
-		super(parent, style, showInstances, saveExpandedElementsKey, filterable);
+			Filterable filterable, QuickSelectionMode quickSelectionMode) {
+		super(parent, style, showInstances, saveExpandedElementsKey,
+				filterable, quickSelectionMode);
 
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer

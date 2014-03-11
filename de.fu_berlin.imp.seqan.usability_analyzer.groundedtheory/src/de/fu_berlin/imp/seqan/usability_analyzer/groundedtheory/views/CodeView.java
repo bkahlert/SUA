@@ -32,6 +32,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateR
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.Filterable;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.QuickSelectionMode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.ShowInstances;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ResortableCodeViewer;
 import de.ralfebert.rcputils.menus.ContextMenu;
@@ -55,7 +56,8 @@ public class CodeView extends ViewPart {
 		parent.setLayout(new FillLayout());
 
 		this.codeViewer = new ResortableCodeViewer(parent, SWT.NONE,
-				ShowInstances.ON, CodeView.class.getName(), Filterable.ON);
+				ShowInstances.ON, CodeView.class.getName(), Filterable.ON,
+				QuickSelectionMode.OFF);
 		this.codeViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override

@@ -55,11 +55,17 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		ON, OFF;
 	}
 
+	public static enum QuickSelectionMode {
+		ON, OFF;
+	}
+
 	private TreeViewer viewer = null;
+	private Control focusControl;
 
 	public CodeViewer(Composite parent, int style,
 			final ShowInstances showInstances,
-			final String saveExpandedElementsKey, Filterable filterable) {
+			final String saveExpandedElementsKey, Filterable filterable,
+			QuickSelectionMode quickSelectionMode) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
@@ -72,6 +78,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 							saveExpandedElementsKey);
 				}
 			});
+			filteredTree
+					.setQuickSelectionMode(quickSelectionMode == QuickSelectionMode.ON);
 			this.viewer = filteredTree.getViewer();
 			this.focusControl = filteredTree.getFilterControl();
 		} else {
