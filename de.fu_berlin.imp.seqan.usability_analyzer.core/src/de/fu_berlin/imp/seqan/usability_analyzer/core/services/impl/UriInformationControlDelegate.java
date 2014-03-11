@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -23,6 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
 import com.bkahlert.nebula.utils.FontUtils;
+import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
@@ -35,7 +37,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderSer
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.IUriLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl.UriInformationControl.IPostProcessor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.util.SWTUtil;
 
 /**
  * Instances of this class are created by {@link UriInformationControl} and
@@ -167,7 +168,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 			detailInformation.add(new DetailEntry("ERROR", "ERROR"));
 		}
 
-		SWTUtil.clearControl(this.l1CustomComposite);
+		SWTUtils.clearControl(this.l1CustomComposite);
 		try {
 			Control control = uriLabelProvider.fillInformation(uri,
 					this.l1CustomComposite);
@@ -225,7 +226,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	}
 
 	public void loadMetaInformation(List<IllustratedText> metaInformation) {
-		SWTUtil.clearControl(this.l1TitleArea);
+		SWTUtils.clearControl(this.l1TitleArea);
 		this.l1TitleArea.setLayout(RowLayoutFactory.fillDefaults()
 				.type(SWT.HORIZONTAL).margins(7, 3).spacing(3).create());
 		for (IllustratedText metaEntry : metaInformation) {
@@ -240,7 +241,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	}
 
 	public void loadDetailInformation(List<IDetailEntry> detailInformation) {
-		SWTUtil.clearControl(this.l1DetailComposite);
+		SWTUtils.clearControl(this.l1DetailComposite);
 
 		Point overallSize = this.l0.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		Point leftSize = this.l1Left.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -259,7 +260,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 
 	public void loadDetailInformation(List<IDetailEntry> detailInformation,
 			int numCols) {
-		SWTUtil.clearControl(this.l1DetailComposite);
+		SWTUtils.clearControl(this.l1DetailComposite);
 		this.l1DetailComposite.setLayout(new GridLayout(numCols * 2, false));
 
 		for (Entry<String, String> detailEntry : detailInformation) {

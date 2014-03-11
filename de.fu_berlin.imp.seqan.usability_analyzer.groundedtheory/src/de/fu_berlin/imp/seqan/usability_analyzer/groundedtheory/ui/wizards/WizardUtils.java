@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,9 +10,11 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.wizards.dialogs.CenteredWizardDialog;
 
@@ -91,9 +93,10 @@ public class WizardUtils {
 	 * instance in case of success.
 	 */
 	public static AddCodeWizard openAddCodeWizard(List<URI> uris, RGB initialRGB) {
+		Rectangle bounds = SWTUtils.getDisplayBounds();
 		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB),
-				new Point((int) (Display.getCurrent().getBounds().width * 0.8),
-						(int) (Display.getCurrent().getBounds().height * 0.8)));
+				new Point((int) (bounds.width * 0.8),
+						(int) (bounds.height * 0.8)));
 	}
 
 	/**
@@ -103,15 +106,8 @@ public class WizardUtils {
 	 * @param uri
 	 * @return
 	 */
-	@SuppressWarnings("serial")
 	public static AddCodeWizard openAddCodeWizard(final URI uri, RGB initialRGB) {
-		return openWizardSuccessfully(new AddCodeWizard(new ArrayList<URI>() {
-			{
-				this.add(uri);
-			}
-		}, initialRGB), new Point(
-				(int) (Display.getCurrent().getBounds().width * 0.8),
-				(int) (Display.getCurrent().getBounds().height * 0.8)));
+		return openAddCodeWizard(Arrays.asList(uri), initialRGB);
 	}
 
 	/**
