@@ -6,6 +6,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -21,6 +22,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.ColorPicker;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.Filterable;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.QuickSelectionMode;
@@ -110,6 +112,8 @@ public class AddCodeWizardPage extends ORWizardPage {
 					}
 				});
 		this.codeViewer.getViewer().expandAll();
+		this.codeViewer.setSelection(new StructuredSelection(
+				new SUAGTPreferenceUtil().getLastUsedCodes()));
 		this.codeViewer.setFocus();
 	}
 
@@ -135,6 +139,8 @@ public class AddCodeWizardPage extends ORWizardPage {
 			this.setErrorMessage("You must select at least one code!");
 			this.setPageComplete(false);
 		}
+
+		new SUAGTPreferenceUtil().setLastUsedCodes(newCodes);
 	}
 
 	public boolean getCreateCode() {

@@ -10,7 +10,6 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -93,10 +92,10 @@ public class WizardUtils {
 	 * instance in case of success.
 	 */
 	public static AddCodeWizard openAddCodeWizard(List<URI> uris, RGB initialRGB) {
-		Rectangle bounds = SWTUtils.getDisplayBounds();
-		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB),
-				new Point((int) (bounds.width * 0.8),
-						(int) (bounds.height * 0.8)));
+		Point size = SWTUtils.getMainScreenSize();
+		size = new Point((int) (size.x * 0.8), (int) (size.y * 0.8));
+		System.err.println(size);
+		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB), size);
 	}
 
 	/**
