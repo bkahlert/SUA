@@ -20,15 +20,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.FilteredTree;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.viewer.FilteredTree;
+import com.bkahlert.nebula.viewer.FilteredTree.TreeViewerFactory;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
-import com.bkahlert.nebula.viewer.TreePatternFilter;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
@@ -65,15 +65,13 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 		if (filterable == Filterable.ON) {
 			FilteredTree filteredTree = new FilteredTree(this, SWT.BORDER
-					| SWT.MULTI | SWT.FULL_SELECTION, new TreePatternFilter(),
-					true) {
+					| SWT.MULTI | SWT.FULL_SELECTION, new TreeViewerFactory() {
 				@Override
-				protected TreeViewer doCreateTreeViewer(Composite parent,
-						int style) {
+				public TreeViewer create(Composite parent, int style) {
 					return createViewer(parent, style, showInstances,
 							saveExpandedElementsKey);
-				};
-			};
+				}
+			});
 			this.viewer = filteredTree.getViewer();
 		} else {
 			this.viewer = createViewer(this, style, showInstances,
