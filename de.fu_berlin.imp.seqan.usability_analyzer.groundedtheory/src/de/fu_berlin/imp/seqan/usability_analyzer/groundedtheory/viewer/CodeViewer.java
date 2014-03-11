@@ -73,9 +73,11 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				}
 			});
 			this.viewer = filteredTree.getViewer();
+			this.focusControl = filteredTree.getFilterControl();
 		} else {
 			this.viewer = createViewer(this, style, showInstances,
 					saveExpandedElementsKey);
+			this.focusControl = this.viewer.getControl();
 		}
 	}
 
@@ -290,6 +292,11 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 	public void refresh() {
 		this.viewer.refresh();
+	}
+
+	@Override
+	public boolean setFocus() {
+		return this.focusControl.setFocus();
 	}
 
 }

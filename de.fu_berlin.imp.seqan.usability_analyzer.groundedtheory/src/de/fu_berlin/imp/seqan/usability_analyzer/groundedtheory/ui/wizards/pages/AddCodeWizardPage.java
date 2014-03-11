@@ -109,6 +109,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 					}
 				});
 		this.codeViewer.getViewer().expandAll();
+		this.codeViewer.setFocus();
 	}
 
 	private void updateCompletion(String newCodeCaption) {
