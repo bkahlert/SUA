@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards.pages;
 
+import java.util.concurrent.Callable;
+
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -10,19 +12,30 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.FontUtils;
 
 public abstract class ORWizardPage extends WizardPage {
 
-	private final Font font;
+	private Font font;
 	private final int numAlternatives;
 
 	public ORWizardPage(String pageName, int numAlternatives) {
 		super(pageName);
 		this.numAlternatives = numAlternatives;
-		this.font = new Font(Display.getCurrent(),
-				FontUtils.getResizedFontData(Display.getCurrent()
-						.getSystemFont().getFontData(), 2));
+		try {
+			this.font = ExecUtils.syncExec(new Callable<Font>() {
+
+				@Override
+				public Font call() throws Exception {
+					return new Font(Display.getCurrent(), FontUtils
+							.getResizedFontData(Display.getCurrent()
+									.getSystemFont().getFontData(), 2));
+				}
+			});
+		} catch (Exception e) {
+			this.font = Display.getDefault().getSystemFont();
+		}
 	}
 
 	@Override
