@@ -1,16 +1,20 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
@@ -26,6 +30,7 @@ import com.bkahlert.nebula.widgets.browser.listener.SchemeAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
@@ -60,20 +65,24 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
-			if (uris.contains(AbstractMemoView.this.getLoadedObject())) {
-				AbstractMemoView.this.refreshHeader();
+			for (URI uri : AbstractMemoView.this.getLoadedObjects()) {
+				if (uris.contains(uri)) {
+					AbstractMemoView.this.refreshHeader();
+				}
 			}
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
-			if (uris.contains(AbstractMemoView.this.getLoadedObject())) {
-				AbstractMemoView.this.refreshHeader();
+			for (URI uri : AbstractMemoView.this.getLoadedObjects()) {
+				if (uris.contains(uri)) {
+					AbstractMemoView.this.refreshHeader();
+				}
 			}
 		};
 
 		private void reloadIfNecessary(URI uri) {
-			if (uri.equals(AbstractMemoView.this.getLoadedObject())) {
+			if (AbstractMemoView.this.getLoadedObjects().contains(uri)) {
 				AbstractMemoView.this.refreshHeader();
 			}
 		}
@@ -97,126 +106,143 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	private final IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
 
-	private final IHistory<URI> history;
+	private final List<IHistory<URI>> history;
 
 	public AbstractMemoView() {
 		super(2000, ToolbarSet.DEFAULT, true);
-		this.history = new History<URI>();
+		this.history = new ArrayList<IHistory<URI>>();
 	}
 
 	@Override
 	public void postInit() {
 		super.postInit();
-		this.addAnkerLabelProviders();
-		this.addAnkerListeners();
 		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
-	private void addAnkerLabelProviders() {
-		this.getEditor().addAnkerLabelProvider(new IAnkerLabelProvider() {
-			@Override
-			public boolean isResponsible(IAnker anker) {
-				if (anker.getHref() != null) {
-					try {
-						URI uri = new URI(anker.getHref());
-						Future<ILocatable> locatable = AbstractMemoView.this.locatorService
-								.resolve(uri, null);
-						if (locatable.get() != null) {
-							return true;
+	@Override
+	public void created(List<Editor<URI>> editors) {
+		super.created(editors);
+		this.addAnkerLabelProviders(editors);
+		this.addAnkerListeners(editors);
+	}
+
+	private void addAnkerLabelProviders(List<Editor<URI>> editors) {
+		for (Editor<URI> editor : editors) {
+			editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
+				@Override
+				public boolean isResponsible(IAnker anker) {
+					if (anker.getHref() != null) {
+						try {
+							URI uri = new URI(anker.getHref());
+							Future<ILocatable> locatable = AbstractMemoView.this.locatorService
+									.resolve(uri, null);
+							if (locatable.get() != null) {
+								return true;
+							}
+						} catch (Exception e) {
+							LOGGER.error("Error handling " + anker.getHref(), e);
 						}
-					} catch (Exception e) {
-						LOGGER.error("Error handling " + anker.getHref(), e);
 					}
+					return false;
 				}
-				return false;
-			}
 
-			@Override
-			public String getHref(IAnker anker) {
-				return anker.getHref();
-			}
+				@Override
+				public String getHref(IAnker anker) {
+					return anker.getHref();
+				}
 
-			@Override
-			public String[] getClasses(IAnker anker) {
-				return new String[] { "special" };
-			}
+				@Override
+				public String[] getClasses(IAnker anker) {
+					return new String[] { "special" };
+				}
 
-			@Override
-			public String getContent(IAnker anker) {
-				if (anker.getHref() != null) {
-					try {
-						URI uri = new URI(anker.getHref());
-						ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-								.getLabelProvider(uri);
-						if (labelProvider != null) {
-							return labelProvider.getText(uri);
+				@Override
+				public String getContent(IAnker anker) {
+					if (anker.getHref() != null) {
+						try {
+							URI uri = new URI(anker.getHref());
+							ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
+									.getLabelProvider(uri);
+							if (labelProvider != null) {
+								return labelProvider.getText(uri);
+							}
+						} catch (URISyntaxException e) {
+
+						} catch (Exception e) {
+							LOGGER.error(e);
 						}
-					} catch (URISyntaxException e) {
+					}
+					return "!!! " + anker.getHref() + " !!!";
+				}
+			});
+		}
+	}
 
-					} catch (Exception e) {
+	private void addAnkerListeners(List<Editor<URI>> editors) {
+		for (int i = 0; i < editors.size(); i++) {
+			Editor<URI> editor = editors.get(i);
+			final IHistory<URI> history = this.history.get(i);
+
+			Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
+			listeners.put("SUA", new AnkerAdaptingListener(new URIAdapter() {
+				@Override
+				public void uriClicked(final java.net.URI nativeUri) {
+					try {
+						final URI uri = new URI(nativeUri);
+						if (!KeyboardUtils.isMetaKeyPressed()) {
+							// treat link as a typical link that opens a
+							// resource
+							history.add(uri);
+							AbstractMemoView.this.updateNavigation();
+							AbstractMemoView.this.load(uri);
+						} else {
+							final ILocatable locatable = AbstractMemoView.this.locatorService
+									.resolve(uri, null).get();
+
+							// do not follow the link but make Eclipse open the
+							// resource
+							HasDateRange range = (HasDateRange) Platform
+									.getAdapterManager().getAdapter(locatable,
+											HasDateRange.class);
+							if (range != null) {
+								AbstractMemoView.this.highlightService
+										.highlight(AbstractMemoView.this, range
+												.getDateRange()
+												.getCalendarRange(), true);
+							}
+
+							// open element
+							if (!AbstractMemoView.this.locatorService
+									.showInWorkspace(uri,
+											KeyboardUtils.isMetaKeyPressed(),
+											null).get()) {
+								ExecUtils.asyncExec(new Runnable() {
+									@Override
+									public void run() {
+										MessageDialog
+												.openInformation(
+														PlatformUI
+																.getWorkbench()
+																.getActiveWorkbenchWindow()
+																.getShell(),
+														"Artefact not found",
+														"The artefact "
+																+ uri.toString()
+																+ " could not be found.");
+									}
+								});
+							}
+						}
+					} catch (InterruptedException e) {
+						LOGGER.error(e);
+					} catch (ExecutionException e) {
 						LOGGER.error(e);
 					}
 				}
-				return "!!! " + anker.getHref() + " !!!";
-			}
-		});
-	}
-
-	private void addAnkerListeners() {
-		Map<String, IAnkerListener> listeners = new HashMap<String, IAnkerListener>();
-		listeners.put("SUA", new AnkerAdaptingListener(new URIAdapter() {
-			@Override
-			public void uriClicked(final java.net.URI nativeUri) {
-				try {
-					final URI uri = new URI(nativeUri);
-					if (!KeyboardUtils.isMetaKeyPressed()) {
-						// treat link as a typical link that opens a resource
-						AbstractMemoView.this.history.add(uri);
-						AbstractMemoView.this.updateNavigation();
-						AbstractMemoView.this.load(uri);
-					} else {
-						final ILocatable locatable = AbstractMemoView.this.locatorService
-								.resolve(uri, null).get();
-
-						// do not follow the link but make Eclipse open the
-						// resource
-						HasDateRange range = (HasDateRange) Platform
-								.getAdapterManager().getAdapter(locatable,
-										HasDateRange.class);
-						if (range != null) {
-							AbstractMemoView.this.highlightService.highlight(
-									AbstractMemoView.this, range.getDateRange()
-											.getCalendarRange(), true);
-						}
-
-						// open element
-						if (!AbstractMemoView.this.locatorService
-								.showInWorkspace(uri,
-										KeyboardUtils.isMetaKeyPressed(), null)
-								.get()) {
-							ExecUtils.asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									MessageDialog.openInformation(PlatformUI
-											.getWorkbench()
-											.getActiveWorkbenchWindow()
-											.getShell(), "Artefact not found",
-											"The artefact " + uri.toString()
-													+ " could not be found.");
-								}
-							});
-						}
-					}
-				} catch (InterruptedException e) {
-					LOGGER.error(e);
-				} catch (ExecutionException e) {
-					LOGGER.error(e);
-				}
-			}
-		}));
-		this.getEditor().addAnkerListener(
-				new SchemeAnkerListener(listeners,
-						new BrowserOpeningAnkerListener()));
+			}));
+			editor.addAnkerListener(new SchemeAnkerListener(listeners,
+					new BrowserOpeningAnkerListener()));
+		}
 	};
 
 	@Override
@@ -231,37 +257,61 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	@Override
-	public PartInfo getPartInfo(URI uri) throws Exception {
-		ILocatable locatable;
-		try {
-			locatable = this.locatorService.resolve(uri, null).get();
-		} catch (Exception e) {
-			LOGGER.error("Error retrieving " + PartInfo.class.getSimpleName()
-					+ " for " + uri);
+	public PartInfo getPartInfo(List<URI> uris) throws Exception {
+		if (uris == null || uris.size() == 0) {
 			return this.getDefaultPartInfo();
 		}
 
-		if (locatable instanceof ICode) {
-			ICode code = (ICode) locatable;
-			return new PartInfo(code.getCaption(), ImageManager.CODE);
-		} else if (locatable instanceof ICodeInstance) {
-			ICodeInstance codeInstance = (ICodeInstance) locatable;
-			ILabelProvider lp = this.labelProviderService
-					.getLabelProvider(codeInstance.getUri());
-			if (lp != null) {
-				return new PartInfo(lp.getText(uri) + " (coded with "
-						+ codeInstance.getCode().getCaption() + ")",
-						lp.getImage(uri));
-			} else {
-				return null;
-			}
-		} else {
-			ILabelProvider lp = this.labelProviderService.getLabelProvider(uri);
-			if (lp == null) {
-				return this.getDefaultPartInfo();
-			}
-			return new PartInfo(lp.getText(uri), lp.getImage(locatable));
+		List<ILocatable> locatables;
+		try {
+			locatables = this.locatorService.resolve(uris, null).get();
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving " + PartInfo.class.getSimpleName()
+					+ " for " + uris);
+			return this.getDefaultPartInfo();
 		}
+
+		Assert.isTrue(uris.size() == locatables.size());
+
+		String[] captions = new String[uris.size()];
+		Image[] images = new Image[uris.size()];
+		for (int i = 0; i < uris.size(); i++) {
+			if (locatables instanceof ICode) {
+				ICode code = (ICode) locatables;
+				captions[i] = code.getCaption();
+				images[i] = ImageManager.CODE;
+			} else if (locatables.get(i) instanceof ICodeInstance) {
+				ICodeInstance codeInstance = (ICodeInstance) locatables.get(i);
+				ILabelProvider lp = this.labelProviderService
+						.getLabelProvider(codeInstance.getUri());
+				if (lp != null) {
+					captions[i] = "[coded instance]";
+					images[i] = lp.getImage(uris.get(i));
+				} else {
+					captions[i] = "UNKNOWN";
+					images[i] = null;
+					return null;
+				}
+			} else {
+				ILabelProvider lp = this.labelProviderService
+						.getLabelProvider(uris.get(i));
+				if (lp == null) {
+					captions[i] = "UNKNOWN";
+					images[i] = null;
+				} else {
+					captions[i] = lp.getText(uris.get(i));
+					images[i] = lp.getImage(uris.get(i));
+				}
+			}
+		}
+		String caption = StringUtils.join(captions, ", ");
+		Image image = images[0];
+		for (int i = 1; i < images.length && image != null; i++) {
+			if (image != images[i]) {
+				image = null;
+			}
+		}
+		return new PartInfo(caption, image);
 	}
 
 	// TODO PropertyChangeService implementieren; header wird nicht
@@ -271,9 +321,13 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	public void setSourceMode(boolean on) {
 		if (on) {
-			this.getEditor().showSource();
+			for (Editor<URI> editor : this.getEditors()) {
+				editor.showSource();
+			}
 		} else {
-			this.getEditor().hideSource();
+			for (Editor<URI> editor : this.getEditors()) {
+				editor.hideSource();
+			}
 		}
 	}
 
@@ -291,14 +345,38 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		}
 	}
 
-	public void loadAndClearHistory(URI uri) {
-		if (uri instanceof ViewerURI) {
-			uri = null;
+	public void loadAndClearHistory(URI... uris) {
+		List<URI> filtered = new ArrayList<URI>();
+		for (URI uri : uris) {
+			if (!(uri instanceof ViewerURI)) {
+				filtered.add(uri);
+			}
+			if (this.locatorService.getType(uri) == ICodeInstance.class) {
+
+				try {
+					ICodeInstance codeInstance = this.locatorService.resolve(
+							uri, ICodeInstance.class, null).get();
+					if (codeInstance != null) {
+						filtered.add(filtered.size() - 1, codeInstance.getId());
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error checking where " + uri + " points to");
+				}
+
+			}
 		}
-		this.history.clear();
-		this.history.add(uri);
+		while (this.history.size() > filtered.size()) {
+			this.history.remove(this.history.size() - 1);
+		}
+		while (this.history.size() < filtered.size()) {
+			this.history.add(new History<URI>());
+		}
+		for (int i = 0; i < filtered.size(); i++) {
+			this.history.get(i).clear();
+			this.history.get(i).add(filtered.get(i));
+		}
 		this.updateNavigation();
-		this.load(uri);
+		this.load(filtered.toArray(new URI[0]));
 	}
 
 	protected void updateNavigation() {
@@ -311,24 +389,38 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public boolean canNavigateBack() {
-		return this.history.hasPrev();
+		for (IHistory<URI> history : this.history) {
+			if (history.hasPrev()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void navigateBack() {
-		if (this.history.hasPrev()) {
-			this.load(this.history.back());
-			this.updateNavigation();
+		for (int i = 0; i < this.history.size(); i++) {
+			if (this.history.get(i).hasPrev()) {
+				this.load(this.history.get(i).back());
+				this.updateNavigation();
+			}
 		}
 	}
 
 	public boolean canNavigateForward() {
-		return this.history.hasNext();
+		for (IHistory<URI> history : this.history) {
+			if (history.hasNext()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void navigateForward() {
-		if (this.history.hasNext()) {
-			this.load(this.history.forward());
-			this.updateNavigation();
+		for (int i = 0; i < this.history.size(); i++) {
+			if (this.history.get(i).hasNext()) {
+				this.load(this.history.get(i).forward());
+				this.updateNavigation();
+			}
 		}
 	}
 }

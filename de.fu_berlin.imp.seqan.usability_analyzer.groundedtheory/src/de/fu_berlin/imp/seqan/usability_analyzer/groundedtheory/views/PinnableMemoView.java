@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -9,6 +8,8 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+
 public class PinnableMemoView extends AbstractMemoView {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView";
@@ -16,7 +17,7 @@ public class PinnableMemoView extends AbstractMemoView {
 	private ISelection lastSelection;
 	private boolean pin = false;
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
+	private final ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			if (part == PinnableMemoView.this) {
@@ -51,9 +52,7 @@ public class PinnableMemoView extends AbstractMemoView {
 		final List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
 				URI.class);
 
-		if (uris.size() > 0) {
-			PinnableMemoView.this.loadAndClearHistory(uris.get(0));
-		}
+		PinnableMemoView.this.loadAndClearHistory(uris.toArray(new URI[0]));
 	}
 
 	/**

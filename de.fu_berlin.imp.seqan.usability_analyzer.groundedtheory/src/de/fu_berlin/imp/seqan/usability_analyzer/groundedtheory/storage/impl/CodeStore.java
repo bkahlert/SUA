@@ -740,6 +740,7 @@ class CodeStore implements ICodeStore {
 		}
 	};
 
+	// TODO remove
 	@Override
 	public void setMemo(ICode code, String html) throws CodeStoreWriteException {
 		try {
@@ -753,6 +754,7 @@ class CodeStore implements ICodeStore {
 		this.save();
 	}
 
+	// TODO remove
 	@Override
 	public void setMemo(ICodeInstance codeInstance, String html)
 			throws CodeStoreWriteException {

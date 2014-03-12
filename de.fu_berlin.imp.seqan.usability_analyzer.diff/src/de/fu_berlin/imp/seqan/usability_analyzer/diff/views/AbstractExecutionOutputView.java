@@ -1,13 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.ui.ImageManager;
@@ -18,7 +16,7 @@ public abstract class AbstractExecutionOutputView extends AbstractOutputView {
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractExecutionOutputView.class);
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
 	public AbstractExecutionOutputView(boolean selectionSensitive,
@@ -33,11 +31,8 @@ public abstract class AbstractExecutionOutputView extends AbstractOutputView {
 	}
 
 	@Override
-	public PartInfo getPartInfo(URI uri) {
-		ILabelProvider labelProvider = this.getLabelProviderService()
-				.getLabelProvider(uri);
-		return new PartInfo("Execution Output - " + labelProvider.getText(uri),
-				labelProvider.getImage(uri));
+	protected String getPartInfoPrefix() {
+		return "Execution Output - ";
 	}
 
 	@Override

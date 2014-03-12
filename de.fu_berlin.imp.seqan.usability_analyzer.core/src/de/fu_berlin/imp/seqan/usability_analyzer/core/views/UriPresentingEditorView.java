@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.views;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
@@ -47,50 +49,58 @@ public abstract class UriPresentingEditorView extends EditorView<URI> {
 	}
 
 	@Override
-	public void postInit() {
-		super.postInit();
-		this.informationPresenterService.enable(this.getEditor(),
-				new ISubjectInformationProvider<Editor<URI>, URI>() {
-					private URI hoveredUri = null;
+	public void created(List<Editor<URI>> editors) {
+		for (Editor<URI> editor : editors) {
+			this.informationPresenterService.enable(editor,
+					new ISubjectInformationProvider<Editor<URI>, URI>() {
+						private URI hoveredUri = null;
 
-					private final IAnkerListener ankerListener = new AnkerAdaptingListener(
-							new URIAdapter() {
-								@Override
-								public void uriHovered(java.net.URI uri,
-										boolean entered) {
-									if (entered) {
-										hoveredUri = new URI(uri);
-									} else {
-										hoveredUri = null;
-									}
-								};
-							});
+						private final IAnkerListener ankerListener = new AnkerAdaptingListener(
+								new URIAdapter() {
+									@Override
+									public void uriHovered(java.net.URI uri,
+											boolean entered) {
+										if (entered) {
+											hoveredUri = new URI(uri);
+										} else {
+											hoveredUri = null;
+										}
+									};
+								});
 
-					@Override
-					public void register(Editor<URI> editor) {
-						editor.addAnkerListener(this.ankerListener);
-					}
+						@Override
+						public void register(Editor<URI> editor) {
+							editor.addAnkerListener(this.ankerListener);
+						}
 
-					@Override
-					public void unregister(Editor<URI> editor) {
-						editor.removeAnkerListener(this.ankerListener);
-					}
+						@Override
+						public void unregister(Editor<URI> editor) {
+							editor.removeAnkerListener(this.ankerListener);
+						}
 
-					@Override
-					public Point getHoverArea() {
-						return new Point(50, 20);
-					}
+						@Override
+						public Point getHoverArea() {
+							return new Point(50, 20);
+						}
 
-					@Override
-					public URI getInformation() {
-						return this.hoveredUri;
-					}
-				});
+						@Override
+						public URI getInformation() {
+							return this.hoveredUri;
+						}
+					});
+		}
+	}
+
+	@Override
+	public void disposed(List<Editor<URI>> editors) {
+		for (Editor<URI> editor : editors) {
+			this.informationPresenterService.disable(editor);
+		}
 	}
 
 	@Override
 	public void dispose() {
-		this.informationPresenterService.disable(this.getEditor());
+		this.disposed(this.getEditors());
 		super.dispose();
 	}
 

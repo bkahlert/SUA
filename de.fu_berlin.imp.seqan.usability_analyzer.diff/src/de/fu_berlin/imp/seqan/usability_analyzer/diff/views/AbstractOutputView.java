@@ -1,11 +1,12 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.diff.views;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -14,7 +15,9 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.model.ICompilable;
 import de.fu_berlin.imp.seqan.usability_analyzer.diff.services.CompilationServiceAdapter;
@@ -41,7 +44,7 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 	final private boolean selectionSensitive;
 	final private boolean editorSensitive;
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
+	private final ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 			List<ICompilable> compilables = SelectionUtils.getAdaptableObjects(
@@ -52,7 +55,7 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 		}
 	};
 
-	private IPartListener partListener = new IPartListener() {
+	private final IPartListener partListener = new IPartListener() {
 
 		private ICompilable getCompilable(IWorkbenchPart part) {
 			ISelection selection = SelectionUtils.getSelection(part.getSite()
@@ -92,12 +95,12 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 		}
 	};
 
-	private ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
-	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-			.getService(ICodeService.class);
-	private ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+	private final ICodeService codeService = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void memoRemoved(URI uri) {
 			AbstractOutputView.this.refreshHeader();
@@ -123,9 +126,9 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 			AbstractOutputView.this.refreshHeader();
 		}
 	};
-	private ICompilationService compilationService = (ICompilationService) PlatformUI
+	private final ICompilationService compilationService = (ICompilationService) PlatformUI
 			.getWorkbench().getService(ICompilationService.class);
-	private ICompilationServiceListener compilationServiceListener = new CompilationServiceAdapter() {
+	private final ICompilationServiceListener compilationServiceListener = new CompilationServiceAdapter() {
 		@Override
 		public void compilationStateChanged(ICompilable[] compilables,
 				Boolean state) {
@@ -183,5 +186,36 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 		}
 		super.dispose();
 	}
+
+	@Override
+	public PartInfo getPartInfo(List<URI> uris) throws Exception {
+		if (uris == null || uris.size() == 0) {
+			return this.getDefaultPartInfo();
+		}
+
+		String[] captions = new String[uris.size()];
+		Image[] images = new Image[uris.size()];
+		for (int i = 0; i < uris.size(); i++) {
+			ILabelProvider lp = this.labelProviderService.getLabelProvider(uris
+					.get(i));
+			if (lp == null) {
+				captions[i] = "UNKNOWN";
+				images[i] = null;
+			} else {
+				captions[i] = lp.getText(uris.get(i));
+				images[i] = lp.getImage(uris.get(i));
+			}
+		}
+		String caption = StringUtils.join(captions, ", ");
+		Image image = images[0];
+		for (int i = 1; i < images.length && image != null; i++) {
+			if (image != images[i]) {
+				image = null;
+			}
+		}
+		return new PartInfo(this.getPartInfoPrefix() + caption, image);
+	}
+
+	protected abstract String getPartInfoPrefix();
 
 }
