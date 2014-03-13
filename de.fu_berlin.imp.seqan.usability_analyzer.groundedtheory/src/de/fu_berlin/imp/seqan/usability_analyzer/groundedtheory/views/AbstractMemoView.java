@@ -20,6 +20,7 @@ import org.eclipse.ui.services.IEvaluationService;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.KeyboardUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.history.History;
 import com.bkahlert.nebula.utils.history.IHistory;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -194,7 +195,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 							// resource
 							history.add(uri);
 							AbstractMemoView.this.updateNavigation();
-							AbstractMemoView.this.load(uri);
+							AbstractMemoView.this.load(null, uri);
 						} else {
 							final ILocatable locatable = AbstractMemoView.this.locatorService
 									.resolve(uri, null).get();
@@ -346,17 +347,20 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public void loadAndClearHistory(URI... uris) {
-		List<URI> filtered = new ArrayList<URI>();
+		final List<Integer> highlight = new ArrayList<Integer>();
+		final List<URI> filtered = new ArrayList<URI>();
 		for (URI uri : uris) {
 			if (!(uri instanceof ViewerURI)) {
 				filtered.add(uri);
 			}
-			if (this.locatorService.getType(uri) == ICodeInstance.class) {
 
+			// if a codeInstance is opened also load the referenced object
+			if (this.locatorService.getType(uri) == ICodeInstance.class) {
 				try {
 					ICodeInstance codeInstance = this.locatorService.resolve(
 							uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
+						highlight.add(filtered.size());
 						filtered.add(filtered.size() - 1, codeInstance.getId());
 					}
 				} catch (Exception e) {
@@ -376,7 +380,19 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			this.history.get(i).add(filtered.get(i));
 		}
 		this.updateNavigation();
-		this.load(filtered.toArray(new URI[0]));
+		this.load(new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < filtered.size(); i++) {
+					RGB rgb = null;
+					if (highlight.contains(i)) {
+						rgb = new RGB(252, 248, 227);
+					}
+					AbstractMemoView.this.getEditors().get(i)
+							.setBackground(rgb);
+				}
+			}
+		}, filtered.toArray(new URI[0]));
 	}
 
 	protected void updateNavigation() {
@@ -400,7 +416,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	public void navigateBack() {
 		for (int i = 0; i < this.history.size(); i++) {
 			if (this.history.get(i).hasPrev()) {
-				this.load(this.history.get(i).back());
+				this.load(null, this.history.get(i).back());
 				this.updateNavigation();
 			}
 		}
@@ -418,7 +434,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	public void navigateForward() {
 		for (int i = 0; i < this.history.size(); i++) {
 			if (this.history.get(i).hasNext()) {
-				this.load(this.history.get(i).forward());
+				this.load(null, this.history.get(i).forward());
 				this.updateNavigation();
 			}
 		}

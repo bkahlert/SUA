@@ -50,7 +50,7 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 			List<ICompilable> compilables = SelectionUtils.getAdaptableObjects(
 					selection, ICompilable.class);
 			if (compilables.size() > 0) {
-				AbstractOutputView.this.load(compilables.get(0).getUri());
+				AbstractOutputView.this.load(null, compilables.get(0).getUri());
 			}
 		}
 	};
@@ -78,7 +78,7 @@ public abstract class AbstractOutputView extends UriPresentingEditorView {
 			}
 			ICompilable compilable = this.getCompilable(part);
 			if (compilable != null) {
-				AbstractOutputView.this.load(compilable.getUri());
+				AbstractOutputView.this.load(null, compilable.getUri());
 			}
 		}
 
