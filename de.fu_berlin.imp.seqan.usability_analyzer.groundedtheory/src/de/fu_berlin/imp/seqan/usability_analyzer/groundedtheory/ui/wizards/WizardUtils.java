@@ -94,7 +94,6 @@ public class WizardUtils {
 	public static AddCodeWizard openAddCodeWizard(List<URI> uris, RGB initialRGB) {
 		Point size = SWTUtils.getMainScreenSize();
 		size = new Point((int) (size.x * 0.8), (int) (size.y * 0.8));
-		System.err.println(size);
 		return openWizardSuccessfully(new AddCodeWizard(uris, initialRGB), size);
 	}
 

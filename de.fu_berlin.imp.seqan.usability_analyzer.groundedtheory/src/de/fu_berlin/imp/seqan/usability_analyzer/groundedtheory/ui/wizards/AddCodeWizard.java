@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.wizards;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -27,14 +27,14 @@ public class AddCodeWizard extends Wizard {
 	public static final String TITLE = "Add Code";
 	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_ADD_CODE;
 
-	private ILocatorService locatorService = (ILocatorService) PlatformUI
+	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
 
 	protected final AddCodeWizardPage addCodeWizardPage;
 
 	protected List<ICode> affectedCodes;
 
-	private List<URI> uris;
+	private final List<URI> uris;
 
 	public AddCodeWizard(List<URI> uris, RGB initialRGB) {
 		this.setWindowTitle(TITLE);
