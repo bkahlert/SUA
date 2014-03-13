@@ -11,13 +11,13 @@ public class CognitiveDimensionsPerspective implements IPerspectiveFactory {
 
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.survey.views.CDView",
-				IPageLayout.LEFT, 0.5f, IPageLayout.ID_EDITOR_AREA);
+				IPageLayout.LEFT, 0.34f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView",
 				IPageLayout.TOP, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.PinnableMemoView",
-				IPageLayout.BOTTOM, 0.31f,
+				IPageLayout.RIGHT, 0.39f,
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView");
 		layout.addView(
 				"de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeInstancesView",
