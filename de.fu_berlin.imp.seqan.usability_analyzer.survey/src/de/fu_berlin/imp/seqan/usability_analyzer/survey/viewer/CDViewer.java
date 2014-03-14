@@ -31,6 +31,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -150,8 +151,7 @@ public class CDViewer extends Viewer {
 				ExecUtils.nonUISyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						URI uri = new URI(element
-								.getAttribute("data-focus-id"));
+						URI uri = new URI(element.getAttribute("data-focus-id"));
 						final ILocatable locatable = CDViewer.this.locatorService
 								.resolve(uri, null).get();
 						ExecUtils.asyncExec(new Runnable() {
@@ -165,6 +165,19 @@ public class CDViewer extends Viewer {
 						return null;
 					}
 				});
+			}
+		});
+
+		this.browser.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				try {
+					Point scrollPosition = browser.getScrollPosition().get();
+					new SUACorePreferenceUtil().setLastScrollPosition(
+							CDViewer.class, scrollPosition);
+				} catch (Exception e1) {
+					LOGGER.error("Error saving scroll position", e1);
+				}
 			}
 		});
 	}
@@ -274,6 +287,14 @@ public class CDViewer extends Viewer {
 			this.browser
 					.setBodyHtml("<style>header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }</style>"
 							+ html.toString());
+
+			Point pos = new SUACorePreferenceUtil()
+					.getLastScrollPosition(CDViewer.class);
+			try {
+				CDViewer.this.browser.scrollTo(pos).get();
+			} catch (Exception e) {
+				LOGGER.error("Error scrolling to last scroll position");
+			}
 
 			// debug
 			// ExecUtils.nonUIAsyncExec(new Callable<Void>() {

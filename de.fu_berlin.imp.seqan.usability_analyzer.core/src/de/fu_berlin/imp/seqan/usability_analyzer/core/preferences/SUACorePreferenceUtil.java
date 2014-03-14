@@ -1,19 +1,25 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.preferences;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.PlatformUI;
 
@@ -255,5 +261,83 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 			}
 		}
 		return new WorkSession(entities.toArray(new IWorkSessionEntity[0]));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Point> loadLastScrollPositions() {
+		Map<String, Point> scrollPositions = new HashMap<String, Point>();
+
+		String ser = this.getPreferenceStore().getString(
+				SUACorePreferenceConstants.LAST_SCROLL_POSITION);
+		if (ser == null || ser.isEmpty()) {
+			return scrollPositions;
+		}
+
+		try {
+			Map<String, String> map = new HashMap<String, String>();
+			map = (Map<String, String>) SerializationUtils.deserialize(ser
+					.getBytes());
+			for (Entry<String, String> entry : map.entrySet()) {
+				if (entry.getValue().contains(",")) {
+					String[] split = entry.getValue().split(",");
+					try {
+						scrollPositions.put(
+								entry.getKey(),
+								new Point(Integer.parseInt(split[0]), Integer
+										.parseInt(split[1])));
+					} catch (NumberFormatException e) {
+					}
+					;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error loading last scroll positions", e);
+		}
+		return scrollPositions;
+	}
+
+	private void saveLastScrollPositions(Map<String, Point> scrollPositions) {
+		Map<String, String> map = new HashMap<String, String>();
+		for (Entry<String, Point> entry : scrollPositions.entrySet()) {
+			if (entry.getValue() != null) {
+				map.put(entry.getKey(),
+						entry.getValue().x + "," + entry.getValue().y);
+			}
+		}
+		try {
+			String ser = new String(
+					SerializationUtils.serialize((Serializable) map));
+			this.getPreferenceStore().setValue(
+					SUACorePreferenceConstants.LAST_SCROLL_POSITION, ser);
+		} catch (Exception e) {
+			LOGGER.error("Error saving last scroll positions", e);
+		}
+	}
+
+	public Point getLastScrollPosition(String owner) {
+		Assert.isNotNull(owner);
+		Map<String, Point> scrollPositions = this.loadLastScrollPositions();
+		if (scrollPositions.containsKey(owner)) {
+			return scrollPositions.get(owner);
+		} else {
+			return new Point(0, 0);
+		}
+	}
+
+	public Point getLastScrollPosition(Class<?> clazz) {
+		Assert.isNotNull(clazz);
+		return this.getLastScrollPosition(clazz.getName());
+	}
+
+	public void setLastScrollPosition(String owner, Point scrollPosition) {
+		Assert.isNotNull(owner);
+		Map<String, Point> scrollPositions = this.loadLastScrollPositions();
+		scrollPositions.put(owner, scrollPosition);
+		this.saveLastScrollPositions(scrollPositions);
+	}
+
+	public void setLastScrollPosition(Class<?> clazz, Point scrollPosition) {
+		Assert.isNotNull(clazz);
+		this.setLastScrollPosition(clazz.getName(), scrollPosition);
 	}
 }

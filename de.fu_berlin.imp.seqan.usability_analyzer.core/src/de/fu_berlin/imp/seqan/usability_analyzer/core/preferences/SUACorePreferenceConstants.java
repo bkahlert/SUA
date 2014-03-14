@@ -21,4 +21,6 @@ public class SUACorePreferenceConstants {
 	public static final String COLOR_DIRTY = "color_dirty";
 	public static final String COLOR_ERROR = "color_error";
 	public static final String COLOR_MISSING = "color_missing";
+
+	public static final String LAST_SCROLL_POSITION = "last_scroll_position";
 }
