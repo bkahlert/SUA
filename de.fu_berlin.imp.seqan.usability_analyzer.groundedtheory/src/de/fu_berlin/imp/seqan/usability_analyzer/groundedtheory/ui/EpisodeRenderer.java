@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,11 +44,12 @@ import com.bkahlert.nebula.utils.PaintUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.GeometryUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
@@ -108,9 +108,6 @@ public class EpisodeRenderer implements IDisposable {
 			return null;
 		}
 
-		private final ILocatorService locatorService = (ILocatorService) PlatformUI
-				.getWorkbench().getService(ILocatorService.class);
-
 		private final int direction;
 		private final IEpisode episode;
 		private IEpisode newEpisode;
@@ -148,8 +145,8 @@ public class EpisodeRenderer implements IDisposable {
 
 		public void setHoveredItem(URI uri) {
 			try {
-				ILocatable hoveredItem = this.locatorService.resolve(uri, null)
-						.get();
+				ILocatable hoveredItem = LocatorService.INSTANCE.resolve(uri,
+						null).get();
 				if (hoveredItem instanceof HasDateRange) {
 					TimeZoneDateRange newRange;
 					TimeZoneDate start;
@@ -206,8 +203,6 @@ public class EpisodeRenderer implements IDisposable {
 
 		private final Map<IEpisode, GTLabelProvider.CodeColors> renderingColors = new HashMap<IEpisode, GTLabelProvider.CodeColors>();
 
-		private final ILocatorService locatorService = (ILocatorService) PlatformUI
-				.getWorkbench().getService(ILocatorService.class);
 		private final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 
@@ -271,7 +266,7 @@ public class EpisodeRenderer implements IDisposable {
 			case SWT.MouseUp:
 				if (this.resizeInfo == null) {
 					if (info != null && info.getDirection() == 0) {
-						Renderer.this.locatorService.showInWorkspace(info
+						LocatorService.INSTANCE.showInWorkspace(info
 								.getEpisode().getUri(), false, null);
 					}
 				} else {
@@ -438,11 +433,12 @@ public class EpisodeRenderer implements IDisposable {
 						List<ICode> codes = this.codeService.getCodes(episode
 								.getUri());
 						if (codes.size() > 0) {
-							this.renderingColors.put(episode, new GTLabelProvider.CodeColors(
-									codes.get(0).getColor()));
+							this.renderingColors.put(episode,
+									new GTLabelProvider.CodeColors(codes.get(0)
+											.getColor()));
 						} else {
-							this.renderingColors.put(episode, new GTLabelProvider.CodeColors(
-									null));
+							this.renderingColors.put(episode,
+									new GTLabelProvider.CodeColors(null));
 						}
 					} catch (CodeServiceException e1) {
 						LOGGER.error("Could not find the episode's "
@@ -453,7 +449,8 @@ public class EpisodeRenderer implements IDisposable {
 
 				Rectangle bounds = this.renderingBounds.get(episode);
 				e.gc.setAlpha(128);
-				GTLabelProvider.CodeColors codeColors = this.renderingColors.get(episode);
+				GTLabelProvider.CodeColors codeColors = this.renderingColors
+						.get(episode);
 				if (codeColors == null) {
 					LOGGER.warn("Could not paint episode because it has no color; "
 							+ episode);
@@ -577,7 +574,7 @@ public class EpisodeRenderer implements IDisposable {
 					locatable = (ILocatable) item.getData();
 				} else if (item.getData() instanceof URI) {
 					try {
-						locatable = this.locatorService.resolve(
+						locatable = LocatorService.INSTANCE.resolve(
 								(URI) item.getData(), null).get();
 					} catch (Exception e) {
 						LOGGER.error("Can't resolve " + item.getData()

@@ -24,10 +24,10 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.ISelectionRetriever;
 import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -47,8 +47,6 @@ public class ResortableCodeViewer extends CodeViewer {
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
 				.getTransfer() };
 
-		final ILocatorService locatorService = (ILocatorService) PlatformUI
-				.getWorkbench().getService(ILocatorService.class);
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
 
@@ -159,7 +157,7 @@ public class ResortableCodeViewer extends CodeViewer {
 								event.detail = DND.DROP_MOVE;
 							} else if (sourceCodeInstanceUris.size() > 0) {
 								try {
-									for (ICodeInstance sourceCodeInstance : locatorService
+									for (ICodeInstance sourceCodeInstance : LocatorService.INSTANCE
 											.resolve(sourceCodeInstanceUris,
 													ICodeInstance.class, null)
 											.get()) {
@@ -214,9 +212,10 @@ public class ResortableCodeViewer extends CodeViewer {
 								.getData() : null;
 
 						try {
-							List<ICode> sourceCodes = locatorService.resolve(
-									sourceCodeUris, ICode.class, null).get();
-							List<ICodeInstance> sourceCodeInstances = locatorService
+							List<ICode> sourceCodes = LocatorService.INSTANCE
+									.resolve(sourceCodeUris, ICode.class, null)
+									.get();
+							List<ICodeInstance> sourceCodeInstances = LocatorService.INSTANCE
 									.resolve(sourceCodeInstanceUris,
 											ICodeInstance.class, null).get();
 							if (!(sourceCodeUris.size() != 0
@@ -240,8 +239,9 @@ public class ResortableCodeViewer extends CodeViewer {
 									.equals(URIUtils.getResource(destUri))) {
 								// target: Code
 
-								ICode targetCode = locatorService.resolve(
-										destUri, ICode.class, null).get();
+								ICode targetCode = LocatorService.INSTANCE
+										.resolve(destUri, ICode.class, null)
+										.get();
 								if (sourceCodeUris.size() > 0) {
 									for (ICode sourceCode : sourceCodes) {
 										try {

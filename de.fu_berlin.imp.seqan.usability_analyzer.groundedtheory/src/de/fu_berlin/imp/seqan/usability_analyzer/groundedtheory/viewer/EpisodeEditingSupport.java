@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -13,9 +11,10 @@ import com.bkahlert.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.DateTimeCellEditor;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIEditingSupport;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
@@ -28,8 +27,6 @@ public class EpisodeEditingSupport extends URIEditingSupport {
 		NAME, STARTDATE, ENDDATE
 	}
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private final Field field;
 
 	public EpisodeEditingSupport(ColumnViewer viewer, Field field) {
@@ -40,8 +37,8 @@ public class EpisodeEditingSupport extends URIEditingSupport {
 	@Override
 	protected CellEditor getCellEditor(URI element, Composite composite)
 			throws Exception {
-		IEpisode episode = this.locatorService.resolve(element, IEpisode.class,
-				null).get();
+		IEpisode episode = LocatorService.INSTANCE.resolve(element,
+				IEpisode.class, null).get();
 		if (episode != null) {
 			if (this.field == Field.NAME) {
 				return new TextCellEditor(composite);
@@ -54,8 +51,8 @@ public class EpisodeEditingSupport extends URIEditingSupport {
 
 	@Override
 	protected Object getInitValue(URI element) throws Exception {
-		IEpisode episode = this.locatorService.resolve(element, IEpisode.class,
-				null).get();
+		IEpisode episode = LocatorService.INSTANCE.resolve(element,
+				IEpisode.class, null).get();
 		if (episode != null) {
 			if (this.field == Field.NAME) {
 				return episode.getCaption();
@@ -71,7 +68,7 @@ public class EpisodeEditingSupport extends URIEditingSupport {
 
 	@Override
 	protected void setEditedValue(URI element, Object value) throws Exception {
-		IEpisode oldEpisode = this.locatorService.resolve(element,
+		IEpisode oldEpisode = LocatorService.INSTANCE.resolve(element,
 				IEpisode.class, null).get();
 		if (oldEpisode != null) {
 			try {

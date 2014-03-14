@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Episodes;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -25,9 +24,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 
 public class EpisodeViewerContentProvider extends
 		URIContentProvider<ICodeService> {
-
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	private Viewer viewer;
 	private ICodeService codeService;
@@ -158,7 +154,7 @@ public class EpisodeViewerContentProvider extends
 
 	@Override
 	public URI getParent(URI uri) {
-		if (this.locatorService.getType(uri) == IEpisode.class) {
+		if (LocatorService.INSTANCE.getType(uri) == IEpisode.class) {
 			new Episodes(URIUtils.getIdentifier(uri)).getUri();
 		}
 		return null;
@@ -166,12 +162,12 @@ public class EpisodeViewerContentProvider extends
 
 	@Override
 	public boolean hasChildren(URI uri) {
-		return this.locatorService.getType(uri) == IEpisodes.class;
+		return LocatorService.INSTANCE.getType(uri) == IEpisodes.class;
 	}
 
 	@Override
 	public URI[] getChildren(URI uri) {
-		if (this.locatorService.getType(uri) == IEpisodes.class) {
+		if (LocatorService.INSTANCE.getType(uri) == IEpisodes.class) {
 			List<IEpisode> episodes = new ArrayList<IEpisode>(
 					this.codeService.getEpisodes(URIUtils.getIdentifier(uri)));
 			URI[] uris = new URI[episodes.size()];

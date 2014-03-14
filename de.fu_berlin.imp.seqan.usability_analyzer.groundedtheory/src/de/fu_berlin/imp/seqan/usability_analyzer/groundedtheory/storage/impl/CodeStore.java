@@ -106,6 +106,7 @@ class CodeStore implements ICodeStore {
 		xstream = new XStream();
 		xstream.alias("codes", Code.class);
 		xstream.alias("instance", CodeInstance.class);
+		xstream.processAnnotations(CodeInstance.class);
 		xstream.processAnnotations(CodeStore.class);
 		xstream.registerConverter(new URIConverter());
 	}

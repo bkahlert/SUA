@@ -14,7 +14,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -26,9 +26,6 @@ public class AddCodeWizard extends Wizard {
 
 	public static final String TITLE = "Add Code";
 	public static final ImageDescriptor IMAGE = ImageManager.WIZBAN_ADD_CODE;
-
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	protected final AddCodeWizardPage addCodeWizardPage;
 
@@ -79,7 +76,7 @@ public class AddCodeWizard extends Wizard {
 					new URI[0]);
 
 			try {
-				ILocatable[] locatables = this.locatorService.resolve(uris,
+				ILocatable[] locatables = LocatorService.INSTANCE.resolve(uris,
 						null).get();
 				List<ICode> codes = ArrayUtils.getAdaptableObjects(locatables,
 						ICode.class);

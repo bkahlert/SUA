@@ -38,9 +38,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.views.UriPresentingEditorView;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -54,9 +54,6 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
-
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
@@ -135,7 +132,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 					if (anker.getHref() != null) {
 						try {
 							URI uri = new URI(anker.getHref());
-							Future<ILocatable> locatable = AbstractMemoView.this.locatorService
+							Future<ILocatable> locatable = LocatorService.INSTANCE
 									.resolve(uri, null);
 							if (locatable.get() != null) {
 								return true;
@@ -197,7 +194,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 							AbstractMemoView.this.updateNavigation();
 							AbstractMemoView.this.load(null, uri);
 						} else {
-							final ILocatable locatable = AbstractMemoView.this.locatorService
+							final ILocatable locatable = LocatorService.INSTANCE
 									.resolve(uri, null).get();
 
 							// do not follow the link but make Eclipse open the
@@ -213,10 +210,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 							}
 
 							// open element
-							if (!AbstractMemoView.this.locatorService
-									.showInWorkspace(uri,
-											KeyboardUtils.isMetaKeyPressed(),
-											null).get()) {
+							if (!LocatorService.INSTANCE.showInWorkspace(uri,
+									KeyboardUtils.isMetaKeyPressed(), null)
+									.get()) {
 								ExecUtils.asyncExec(new Runnable() {
 									@Override
 									public void run() {
@@ -265,7 +261,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 		List<ILocatable> locatables;
 		try {
-			locatables = this.locatorService.resolve(uris, null).get();
+			locatables = LocatorService.INSTANCE.resolve(uris, null).get();
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving " + PartInfo.class.getSimpleName()
 					+ " for " + uris);
@@ -355,10 +351,10 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			}
 
 			// if a codeInstance is opened also load the referenced object
-			if (this.locatorService.getType(uri) == ICodeInstance.class) {
+			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
 				try {
-					ICodeInstance codeInstance = this.locatorService.resolve(
-							uri, ICodeInstance.class, null).get();
+					ICodeInstance codeInstance = LocatorService.INSTANCE
+							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
 						highlight.add(filtered.size());
 						filtered.add(filtered.size() - 1, codeInstance.getId());
@@ -366,7 +362,6 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				} catch (Exception e) {
 					LOGGER.error("Error checking where " + uri + " points to");
 				}
-
 			}
 		}
 		while (this.history.size() > filtered.size()) {

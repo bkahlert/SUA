@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -30,12 +28,13 @@ import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.Fingerprint;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.ID;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.EpisodeRenderer;
@@ -46,9 +45,6 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(EpisodeViewer.class);
 	private final SUACorePreferenceUtil preferenceUtil = new SUACorePreferenceUtil();
-
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	private SortableTreeViewer treeViewer;
 
@@ -122,8 +118,8 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						ILocatable locatable = EpisodeViewer.this.locatorService
-								.resolve(uri, null).get();
+						ILocatable locatable = LocatorService.INSTANCE.resolve(
+								uri, null).get();
 						if (IEpisode.class.isInstance(locatable)) {
 							IEpisode episode = (IEpisode) locatable;
 							return new StyledString(
@@ -144,8 +140,8 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 				new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						ILocatable locatable = EpisodeViewer.this.locatorService
-								.resolve(uri, null).get();
+						ILocatable locatable = LocatorService.INSTANCE.resolve(
+								uri, null).get();
 						if (IEpisode.class.isInstance(locatable)) {
 							IEpisode episode = (IEpisode) locatable;
 							return new StyledString(
@@ -168,7 +164,7 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 									@Override
 									public StyledString getStyledText(URI uri)
 											throws Exception {
-										ILocatable locatable = EpisodeViewer.this.locatorService
+										ILocatable locatable = LocatorService.INSTANCE
 												.resolve(uri, null).get();
 										if (IEpisode.class
 												.isInstance(locatable)) {

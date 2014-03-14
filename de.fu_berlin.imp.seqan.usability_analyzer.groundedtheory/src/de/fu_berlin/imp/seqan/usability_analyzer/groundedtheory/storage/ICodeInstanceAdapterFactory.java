@@ -1,14 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 
 public class ICodeInstanceAdapterFactory implements IAdapterFactory {
 
@@ -27,10 +26,8 @@ public class ICodeInstanceAdapterFactory implements IAdapterFactory {
 		if (adaptableObject instanceof ICodeInstance) {
 			if (adapterType == ILocatable.class) {
 				URI id = ((ICodeInstance) adaptableObject).getId();
-				ILocatorService locatorService = (ILocatorService) PlatformUI
-						.getWorkbench().getService(ILocatorService.class);
 				try {
-					return locatorService.resolve(id, null).get();
+					return LocatorService.INSTANCE.resolve(id, null).get();
 				} catch (InterruptedException e) {
 					LOGGER.error(e);
 				} catch (ExecutionException e) {

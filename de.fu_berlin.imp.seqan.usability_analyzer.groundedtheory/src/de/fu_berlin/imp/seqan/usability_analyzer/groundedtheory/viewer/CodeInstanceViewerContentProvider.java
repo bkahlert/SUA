@@ -14,8 +14,8 @@ import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -35,8 +35,6 @@ public class CodeInstanceViewerContentProvider extends
 
 	private Viewer viewer;
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 	private URI[] uris;
@@ -159,7 +157,8 @@ public class CodeInstanceViewerContentProvider extends
 	@Override
 	public URI getParent(URI uri) {
 		try {
-			ILocatable locatable = this.locatorService.resolve(uri, null).get();
+			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
+					.get();
 			if (ICodeInstance.class.isInstance(locatable)) {
 				return ((ICodeInstance) locatable).getCode().getUri();
 			}
@@ -177,7 +176,8 @@ public class CodeInstanceViewerContentProvider extends
 	@Override
 	public URI[] getChildren(final URI parent) throws Exception {
 
-		ILocatable locatable = this.locatorService.resolve(parent, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(parent, null)
+				.get();
 		if (locatable instanceof ICodeInstance) {
 			return this.getChildren(((ICodeInstance) locatable).getId());
 		}

@@ -10,8 +10,8 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIEditingSupport;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 
@@ -20,9 +20,6 @@ public class CodeEditingSupport extends URIEditingSupport {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeEditingSupport.class);
 
-	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
-
 	public CodeEditingSupport(ColumnViewer viewer) {
 		super(viewer);
 	}
@@ -30,7 +27,7 @@ public class CodeEditingSupport extends URIEditingSupport {
 	@Override
 	protected CellEditor getCellEditor(URI element, Composite composite)
 			throws Exception {
-		if (LOCATOR_SERVICE.resolve(element, ICode.class, null).get() != null) {
+		if (LocatorService.INSTANCE.resolve(element, ICode.class, null).get() != null) {
 			return new TextCellEditor(composite);
 		}
 		return null;
@@ -38,7 +35,8 @@ public class CodeEditingSupport extends URIEditingSupport {
 
 	@Override
 	protected Object getInitValue(URI element) throws Exception {
-		ICode code = LOCATOR_SERVICE.resolve(element, ICode.class, null).get();
+		ICode code = LocatorService.INSTANCE
+				.resolve(element, ICode.class, null).get();
 		if (code != null) {
 			return code.getCaption();
 		}
@@ -47,7 +45,8 @@ public class CodeEditingSupport extends URIEditingSupport {
 
 	@Override
 	protected void setEditedValue(URI element, Object value) throws Exception {
-		ICode code = LOCATOR_SERVICE.resolve(element, ICode.class, null).get();
+		ICode code = LocatorService.INSTANCE
+				.resolve(element, ICode.class, null).get();
 		if (code != null && value instanceof String) {
 			String newCaption = (String) value;
 			try {

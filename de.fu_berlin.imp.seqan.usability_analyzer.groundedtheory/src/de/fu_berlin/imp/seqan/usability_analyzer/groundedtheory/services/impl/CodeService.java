@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -21,8 +20,8 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
@@ -44,8 +43,6 @@ public class CodeService implements ICodeService {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
 
-	private ILocatorService locatorService;
-
 	@SuppressWarnings("unused")
 	private ComponentContext context;
 	private final ICodeStore codeStore;
@@ -53,13 +50,6 @@ public class CodeService implements ICodeService {
 
 	public CodeService() throws IOException {
 		this(new CodeStoreFactory().getCodeStore());
-		try {
-			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
-					.getService(ILocatorService.class);
-		} catch (IllegalStateException e) {
-			this.locatorService = null;
-		}
-
 	}
 
 	public CodeService(ICodeStore codeStore) throws IOException {
@@ -446,8 +436,8 @@ public class CodeService implements ICodeService {
 		}
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
-			if (this.locatorService != null) {
-				this.locatorService.uncache(oldEpisode.getUri());
+			if (LocatorService.INSTANCE != null) {
+				LocatorService.INSTANCE.uncache(oldEpisode.getUri());
 			}
 			episodes.remove(oldEpisode);
 			episodes.add(newEpisode);
@@ -468,8 +458,8 @@ public class CodeService implements ICodeService {
 		Set<IEpisode> deletedEpisodes = new NoNullSet<IEpisode>();
 		for (IEpisode episodeToDelete : episodesToDelete) {
 			if (episodes.contains(episodeToDelete)) {
-				if (this.locatorService != null) {
-					this.locatorService.uncache(episodeToDelete.getUri());
+				if (LocatorService.INSTANCE != null) {
+					LocatorService.INSTANCE.uncache(episodeToDelete.getUri());
 				}
 				episodes.remove(episodeToDelete);
 				this.removeCodes(this.getCodes(episodeToDelete.getUri()),
@@ -500,8 +490,8 @@ public class CodeService implements ICodeService {
 					"Arguments must not be null"));
 		}
 
-		if (this.locatorService != null) {
-			this.locatorService.uncache(src);
+		if (LocatorService.INSTANCE != null) {
+			LocatorService.INSTANCE.uncache(src);
 		}
 
 		List<ICode> codes = this.getCodes(src);

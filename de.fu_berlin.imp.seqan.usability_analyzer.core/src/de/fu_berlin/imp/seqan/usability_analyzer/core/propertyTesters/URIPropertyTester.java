@@ -1,11 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.propertyTesters;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.ui.PlatformUI;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 
 public class URIPropertyTester extends PropertyTester {
@@ -40,10 +39,12 @@ public class URIPropertyTester extends PropertyTester {
 		try {
 			Class<?> destinationClazz = Class.forName(className);
 			Class<?> uriType = locatorService.getType(uri);
-			return destinationClazz.isAssignableFrom(uriType);
+			if (uriType != null) {
+				return destinationClazz.isAssignableFrom(uriType);
+			}
 		} catch (Exception e) {
 			LOGGER.warn("Could not check if " + uri + " is of type "
-					+ className);
+					+ className, e);
 		}
 		return false;
 	}

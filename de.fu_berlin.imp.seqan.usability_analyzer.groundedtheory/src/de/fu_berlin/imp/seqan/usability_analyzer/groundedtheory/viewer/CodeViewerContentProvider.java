@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
@@ -16,8 +15,8 @@ import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -31,8 +30,6 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			.getLogger(CodeViewerContentProvider.class);
 
 	private Viewer viewer;
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private ICodeService codeService;
 
 	/**
@@ -197,7 +194,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	@Override
 	public URI getParent(URI uri) {
 		try {
-			ILocatable locatable = this.locatorService.resolve(uri, null).get();
+			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
+					.get();
 			if (ICode.class.isInstance(locatable)) {
 				ICode code = (ICode) locatable;
 				if (this.codeService != null) {
@@ -225,7 +223,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 	@Override
 	public URI[] getChildren(URI parentUri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(parentUri, null)
+		ILocatable locatable = LocatorService.INSTANCE.resolve(parentUri, null)
 				.get();
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;

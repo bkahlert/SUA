@@ -27,8 +27,8 @@ import com.bkahlert.nebula.utils.NamedJob;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.CodeViewer.Filterable;
@@ -42,8 +42,6 @@ public class CodeView extends ViewPart {
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView";
 
 	private static final Logger LOGGER = Logger.getLogger(CodeView.class);
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	private final IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
@@ -93,7 +91,7 @@ public class CodeView extends ViewPart {
 								}
 								List<ICodeInstance> codeInstances;
 								try {
-									codeInstances = CodeView.this.locatorService
+									codeInstances = LocatorService.INSTANCE
 											.resolve(
 													uris,
 													ICodeInstance.class,
@@ -111,7 +109,7 @@ public class CodeView extends ViewPart {
 								for (ICodeInstance codeInstance : codeInstances) {
 									ILocatable locatable;
 									try {
-										locatable = CodeView.this.locatorService
+										locatable = LocatorService.INSTANCE
 												.resolve(codeInstance.getId(),
 														subMonitor.newChild(1))
 												.get();

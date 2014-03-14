@@ -33,8 +33,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
@@ -91,8 +91,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(GTLabelProvider.class);
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
@@ -178,7 +176,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 		if (locatable == null) {
 			return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
 		}
@@ -228,7 +226,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		Class<? extends ILocatable> type = this.locatorService.getType(uri);
+		Class<? extends ILocatable> type = LocatorService.INSTANCE.getType(uri);
 		if (type == ICode.class) {
 			Image overlay;
 			try {
@@ -243,7 +241,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			return overlay;
 		}
 		if (type == ICodeInstance.class) {
-			ILocatable locatable = this.locatorService.resolve(uri, null).get();
+			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
+					.get();
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
@@ -290,7 +289,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			// return image;
 		}
 
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 		if (locatable == null) {
 			return PlatformUI.getWorkbench().getSharedImages()
 					.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
@@ -303,14 +302,14 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public boolean hasInformation(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 		return locatable instanceof ICode || locatable instanceof ICodeInstance
 				|| locatable instanceof IEpisode;
 	}
 
 	@Override
 	public List<IllustratedText> getMetaInformation(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
 		if (locatable instanceof ICode) {
@@ -334,7 +333,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public List<IDetailEntry> getDetailInformation(URI uri) throws Exception {
-		ILocatable locatable = this.locatorService.resolve(uri, null).get();
+		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 
 		List<IDetailEntry> detailEntries = new ArrayList<IDetailEntry>();
 		if (locatable instanceof ICode) {

@@ -3,7 +3,6 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 import java.security.InvalidParameterException;
 
 import org.apache.log4j.Logger;
-import org.eclipse.ui.PlatformUI;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
@@ -13,9 +12,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 
@@ -29,9 +28,6 @@ class CodeInstance implements ICodeInstance {
 	private final ICode code;
 	private final URI id;
 	private final TimeZoneDate creation;
-
-	@XStreamOmitField
-	private ILocatorService locatorService;
 
 	@XStreamOmitField
 	private IIdentifier identifier;
@@ -94,14 +90,10 @@ class CodeInstance implements ICodeInstance {
 
 	@Override
 	public IIdentifier getIdentifier() {
-		if (this.locatorService == null) {
-			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
-					.getService(ILocatorService.class);
-		}
 		if (this.identifier == null) {
 			ILocatable locatable;
 			try {
-				locatable = this.locatorService.resolve(this.getId(), null)
+				locatable = LocatorService.INSTANCE.resolve(this.getId(), null)
 						.get();
 				if (locatable instanceof HasIdentifier) {
 					this.identifier = ((HasIdentifier) locatable)
@@ -116,14 +108,10 @@ class CodeInstance implements ICodeInstance {
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
-		if (this.locatorService == null) {
-			this.locatorService = (ILocatorService) PlatformUI.getWorkbench()
-					.getService(ILocatorService.class);
-		}
 		if (this.range == null) {
 			ILocatable locatable;
 			try {
-				locatable = this.locatorService.resolve(this.getId(), null)
+				locatable = LocatorService.INSTANCE.resolve(this.getId(), null)
 						.get();
 				if (locatable instanceof HasDateRange) {
 					this.range = ((HasDateRange) locatable).getDateRange();

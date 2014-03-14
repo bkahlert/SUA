@@ -37,11 +37,11 @@ import com.bkahlert.nebula.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.CodeLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -51,9 +51,6 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.ViewerURI
 public class Utils {
 
 	public static final Logger LOGGER = Logger.getLogger(Utils.class);
-
-	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	public static String chooseGTFileLocation() {
 		DirectoryDialog directoryDialog = new DirectoryDialog(new Shell()); // TODO
@@ -85,9 +82,6 @@ public class Utils {
 	public static void addCodeColorRenderSupport(Tree tree,
 			final int columnNumber) {
 		tree.addListener(SWT.PaintItem, new Listener() {
-			private final ILocatorService locatorService = (ILocatorService) PlatformUI
-					.getWorkbench().getService(ILocatorService.class);
-
 			@Override
 			public void handleEvent(Event event) {
 				if (!(event.item instanceof TreeItem)
@@ -103,8 +97,8 @@ public class Utils {
 
 				ICode code = null;
 				try {
-					code = this.locatorService.resolve((URI) item.getData(),
-							ICode.class, null).get();
+					code = LocatorService.INSTANCE.resolve(
+							(URI) item.getData(), ICode.class, null).get();
 				} catch (Exception e) {
 					LOGGER.error("Error painting color of " + item.getData());
 				}
@@ -132,8 +126,8 @@ public class Utils {
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
 				if (item != null && item.getData() instanceof URI) {
-					if (ICode.class.equals(LOCATOR_SERVICE.getType((URI) item
-							.getData()))) {
+					if (ICode.class.equals(LocatorService.INSTANCE
+							.getType((URI) item.getData()))) {
 						Rectangle bounds = item.getImageBounds(columnNumber);
 						bounds.width = 14;
 						bounds.height = 14;
@@ -194,9 +188,11 @@ public class Utils {
 								.getStyledText(element);
 						if (CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE
 								.equals(URIUtils.getResource(element))) {
-							ICodeInstance codeInstance = LOCATOR_SERVICE
+							ICodeInstance codeInstance = LocatorService.INSTANCE
 									.resolve(element, ICodeInstance.class, null)
 									.get();
+							text.setStyle(0, text.length(),
+									Stylers.SMALL_STYLER);
 							if (CodeLocatorProvider.CODE_NAMESPACE
 									.equals(URIUtils.getResource(codeInstance
 											.getId()))) {
@@ -236,8 +232,8 @@ public class Utils {
 				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						ILocatable element = LOCATOR_SERVICE.resolve(uri, null)
-								.get();
+						ILocatable element = LocatorService.INSTANCE.resolve(
+								uri, null).get();
 
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;

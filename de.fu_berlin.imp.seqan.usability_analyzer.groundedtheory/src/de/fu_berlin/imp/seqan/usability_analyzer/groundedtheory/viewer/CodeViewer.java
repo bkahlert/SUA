@@ -35,6 +35,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
@@ -44,8 +45,6 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 
 	private static Logger LOGGER = Logger.getLogger(CodeViewer.class);
 	private final static SUACorePreferenceUtil PREFERENCE_UTIL = new SUACorePreferenceUtil();
-	private final static ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 
 	public static enum ShowInstances {
 		ON, OFF;
@@ -102,12 +101,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				final ISelection selection = event.getSelection();
-				ILocatorService locatorService = (ILocatorService) PlatformUI
-						.getWorkbench().getService(ILocatorService.class);
 				URI[] codeInstanceIDs = getURIs(selection);
-				if (locatorService != null) {
-					locatorService
-							.showInWorkspace(codeInstanceIDs, false, null);
+				if (LocatorService.INSTANCE != null) {
+					LocatorService.INSTANCE.showInWorkspace(codeInstanceIDs,
+							false, null);
 				} else {
 					LOGGER.error("Could not retrieve "
 							+ ILocatorService.class.getSimpleName());
@@ -153,8 +150,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 									return new StyledString("");
 								}
-								ILocatable element = LOCATOR_SERVICE.resolve(
-										uri, null).get();
+								ILocatable element = LocatorService.INSTANCE
+										.resolve(uri, null).get();
 
 								if (ICode.class.isInstance(element)) {
 									ICode code = (ICode) element;
@@ -180,8 +177,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 									return new StyledString("");
 								}
-								ILocatable element = LOCATOR_SERVICE.resolve(
-										uri, null).get();
+								ILocatable element = LocatorService.INSTANCE
+										.resolve(uri, null).get();
 
 								if (ICode.class.isInstance(element)) {
 									ICode code = (ICode) element;
