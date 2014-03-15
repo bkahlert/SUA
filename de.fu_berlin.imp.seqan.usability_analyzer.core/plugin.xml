@@ -566,6 +566,36 @@
             schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
             sequence="Delete">
       </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1+1">
+         <parameter
+               id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance.importance"
+               value="DEFAULT">
+         </parameter>
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1+2">
+         <parameter
+               id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance.importance"
+               value="LOW">
+         </parameter>
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="M1+3">
+         <parameter
+               id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance.importance"
+               value="HIGH">
+         </parameter>
+      </key>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
