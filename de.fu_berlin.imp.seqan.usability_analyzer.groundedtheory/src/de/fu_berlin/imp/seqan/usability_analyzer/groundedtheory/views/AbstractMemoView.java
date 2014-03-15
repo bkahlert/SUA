@@ -351,26 +351,24 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				filtered.add(uri);
 			}
 
+			// if a codeInstance is opened, open its reference instead
 			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
-				// if a codeInstance is opened also load the referenced object
 				try {
 					ICodeInstance codeInstance = LocatorService.INSTANCE
 							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
-						highlight.add(filtered.size());
-						filtered.add(filtered.size() - 1, codeInstance.getId());
+						uri = codeInstance.getId();
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error checking where " + uri + " points to");
 				}
-			} else {
-				// otherwise also open all related instances's memos
-				for (ICodeInstance codeInstance : this.codeService
-						.getInstances()) {
-					if (codeInstance.getId().equals(uri)) {
-						highlight.add(filtered.size());
-						filtered.add(codeInstance.getUri());
-					}
+			}
+
+			// open all related instances's memos
+			for (ICodeInstance codeInstance : this.codeService.getInstances()) {
+				if (codeInstance.getId().equals(uri)) {
+					highlight.add(filtered.size());
+					filtered.add(codeInstance.getUri());
 				}
 			}
 		}
