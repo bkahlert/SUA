@@ -22,6 +22,7 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.StringUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -32,6 +33,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -50,11 +52,13 @@ public class CDViewer extends Viewer {
 
 	private static final Logger LOGGER = Logger.getLogger(CDViewer.class);
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
+	private static final ILocatorService LOCATOR_SERVICE = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
-	private final ICodeService codeService = (ICodeService) PlatformUI
+	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
-	private final IUriPresenterService presenterService = (IUriPresenterService) PlatformUI
+	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
 	private BootstrapBrowser browser;
@@ -66,7 +70,7 @@ public class CDViewer extends Viewer {
 	public CDViewer(final BootstrapBrowser browser) {
 		this.browser = browser;
 
-		this.presenterService.enable(this.browser,
+		PRESENTER_SERVICE.enable(this.browser,
 				new ISubjectInformationProvider<Control, URI>() {
 					private URI hovered = null;
 
@@ -113,7 +117,7 @@ public class CDViewer extends Viewer {
 		browser.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				CDViewer.this.presenterService.disable(browser);
+				PRESENTER_SERVICE.disable(browser);
 			}
 		});
 
@@ -152,8 +156,8 @@ public class CDViewer extends Viewer {
 					@Override
 					public Void call() throws Exception {
 						URI uri = new URI(element.getAttribute("data-focus-id"));
-						final ILocatable locatable = CDViewer.this.locatorService
-								.resolve(uri, null).get();
+						final ILocatable locatable = LOCATOR_SERVICE.resolve(
+								uri, null).get();
 						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
@@ -214,13 +218,13 @@ public class CDViewer extends Viewer {
 
 				List<ICode> documentCodes = new ArrayList<ICode>();
 				try {
-					documentCodes.addAll(this.codeService.getCodes(cdDocument
+					documentCodes.addAll(CODE_SERVICE.getCodes(cdDocument
 							.getUri()));
 				} catch (CodeServiceException e) {
 					LOGGER.warn(e);
 				}
 
-				boolean documentMemoExists = this.codeService.isMemo(cdDocument
+				boolean documentMemoExists = CODE_SERVICE.isMemo(cdDocument
 						.getUri());
 				form.addRaw("<tr><td>");
 				form.addRaw("<h2 tabindex=\""
@@ -246,16 +250,27 @@ public class CDViewer extends Viewer {
 				for (CDDocumentField field : cdDocument) {
 					List<ICode> fieldCodes = new ArrayList<ICode>();
 					try {
-						fieldCodes.addAll(this.codeService.getCodes(field
-								.getUri()));
+						fieldCodes
+								.addAll(CODE_SERVICE.getCodes(field.getUri()));
 					} catch (CodeServiceException e) {
 						LOGGER.warn(e);
 					}
 
-					boolean fieldMemoExists = this.codeService.isMemo(field
+					boolean fieldMemoExists = CODE_SERVICE.isMemo(field
 							.getUri());
 
 					form.addRaw("<tr><td>");
+					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
+					case HIGH:
+						form.addRaw("<span style='font-size: 1.2em; color: "
+								+ RGB.DANGER.toHexString() + "'>");
+						break;
+					case LOW:
+						form.addRaw("<span style='font-weight: 300; font-size: 0.75em;'>");
+						break;
+					default:
+						break;
+					}
 					form.addStaticField(
 							field.getUri().toString(),
 							field.getQuestion()
@@ -264,6 +279,16 @@ public class CDViewer extends Viewer {
 													.createUriFromImage(ImageManager.MEMO)
 											+ "\">"
 											: ""), field.getAnswer(), 0);
+					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
+					case HIGH:
+						form.addRaw("</span>");
+						break;
+					case LOW:
+						form.addRaw("</span>");
+						break;
+					default:
+						break;
+					}
 					form.addRaw("</td><td>");
 					form.addRaw("<a href=\"addcode-"
 							+ field.getUri()
