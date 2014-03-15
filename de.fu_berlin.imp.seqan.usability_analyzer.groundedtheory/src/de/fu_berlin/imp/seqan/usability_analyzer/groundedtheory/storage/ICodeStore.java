@@ -1,12 +1,13 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Set;
 
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -58,6 +59,14 @@ public interface ICodeStore {
 	public void removeAndSaveCodeInstance(ICodeInstance codeInstance)
 			throws CodeStoreWriteException, CodeStoreReadException;
 
+	public File getBackupFile();
+
+	/**
+	 * Saves the {@link ICodeStore} and creates a backup.
+	 * 
+	 * @return
+	 * @throws CodeStoreWriteException
+	 */
 	public void save() throws CodeStoreWriteException;
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)

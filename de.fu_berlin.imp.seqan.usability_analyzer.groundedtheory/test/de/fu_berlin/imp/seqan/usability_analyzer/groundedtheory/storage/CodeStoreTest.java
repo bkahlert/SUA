@@ -1,12 +1,15 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -646,5 +649,21 @@ public class CodeStoreTest extends CodeStoreHelper {
 		// continue here
 
 		return returnedText.get();
+	}
+
+	@Test
+	public void testBackup() throws IOException, CodeHasChildCodesException,
+			CodeDoesNotExistException {
+		ICodeStore codeStore = this.getSmallCodeStore();
+		Calendar now = Calendar.getInstance();
+
+		File backupFile1 = codeStore.getBackupFile();
+		assertTrue(backupFile1.createNewFile());
+		assertTrue(backupFile1.toString().contains(now.get(Calendar.YEAR) + ""));
+
+		File backupFile2 = codeStore.getBackupFile();
+		assertTrue(backupFile1.toString().contains(now.get(Calendar.YEAR) + ""));
+
+		assertFalse(backupFile1.equals(backupFile2));
 	}
 }

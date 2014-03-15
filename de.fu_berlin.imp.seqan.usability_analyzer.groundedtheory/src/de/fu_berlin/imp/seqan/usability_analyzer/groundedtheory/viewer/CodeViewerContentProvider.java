@@ -103,8 +103,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 		@Override
 		public void memoAdded(URI uri) {
-			ViewerUtils
-					.update(CodeViewerContentProvider.this.viewer, uri, null);
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
@@ -113,8 +112,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 		@Override
 		public void memoRemoved(URI uri) {
-			ViewerUtils
-					.update(CodeViewerContentProvider.this.viewer, uri, null);
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 		}
 
 		@Override

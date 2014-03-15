@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,10 +22,12 @@ import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.data.TreeNode;
+import com.bkahlert.nebula.utils.CalendarUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -552,10 +555,34 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
+	public File getBackupFile() {
+		int tries = 0;
+		File backupFile;
+		do {
+			String absPath = this.codeStoreFile.getAbsolutePath();
+			String extension = FilenameUtils.getExtension(absPath);
+			String date = CalendarUtils.toISO8601FileSystemCompatible(Calendar
+					.getInstance());
+			backupFile = new File(absPath.substring(0, absPath.length()
+					- extension.length())
+					+ date + "." + (tries == 0 ? "" : tries + ".") + extension);
+			tries++;
+		} while (backupFile.exists());
+		return backupFile;
+	}
+
+	@Override
 	public void save() throws CodeStoreWriteException {
 		try {
+			File backupFile = this.getBackupFile();
+			FileUtils.moveFile(this.codeStoreFile, backupFile);
 			xstream.toXML(this, new OutputStreamWriter(new FileOutputStream(
 					this.codeStoreFile), "UTF-8"));
+
+			if (FileUtils.readFileToString(backupFile).equals(
+					FileUtils.readFileToString(this.codeStoreFile))) {
+				backupFile.delete();
+			}
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
