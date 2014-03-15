@@ -282,7 +282,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				ILabelProvider lp = this.labelProviderService
 						.getLabelProvider(codeInstance.getUri());
 				if (lp != null) {
-					captions[i] = "[coded instance]";
+					captions[i] = "[" + codeInstance.getCode().getCaption()
+							+ "]";
 					images[i] = lp.getImage(uris.get(i));
 				} else {
 					captions[i] = "UNKNOWN";
@@ -350,8 +351,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				filtered.add(uri);
 			}
 
-			// if a codeInstance is opened also load the referenced object
 			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				// if a codeInstance is opened also load the referenced object
 				try {
 					ICodeInstance codeInstance = LocatorService.INSTANCE
 							.resolve(uri, ICodeInstance.class, null).get();
@@ -361,6 +362,15 @@ public class AbstractMemoView extends UriPresentingEditorView {
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error checking where " + uri + " points to");
+				}
+			} else {
+				// otherwise also open all related instances's memos
+				for (ICodeInstance codeInstance : this.codeService
+						.getInstances()) {
+					if (codeInstance.getId().equals(uri)) {
+						highlight.add(filtered.size());
+						filtered.add(codeInstance.getUri());
+					}
 				}
 			}
 		}
