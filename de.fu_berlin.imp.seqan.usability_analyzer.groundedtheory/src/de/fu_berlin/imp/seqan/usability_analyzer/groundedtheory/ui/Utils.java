@@ -28,7 +28,6 @@ import org.eclipse.ui.commands.ICommandService;
 
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
-import com.bkahlert.nebula.utils.PaintUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -103,13 +102,7 @@ public class Utils {
 					LOGGER.error("Error painting color of " + item.getData());
 				}
 				if (code != null) {
-					GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
-							code.getColor());
-					int oldAlpha = event.gc.getAlpha();
-					event.gc.setAlpha(128);
-					PaintUtils.drawRoundedRectangle(event.gc, bounds,
-							info.getBackgroundColor(), info.getBorderColor());
-					event.gc.setAlpha(oldAlpha);
+					GTLabelProvider.drawCodeImage(code, event.gc, bounds);
 				}
 			}
 		});

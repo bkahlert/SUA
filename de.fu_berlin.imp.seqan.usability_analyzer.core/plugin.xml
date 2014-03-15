@@ -54,6 +54,9 @@
          <service
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService">
          </service>
+         <service
+               serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService">
+         </service>
       </serviceFactory>
    </extension>
 <extension
@@ -82,6 +85,16 @@
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
             name="Highlight">
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance"
+            name="Set Importance">
+         <commandParameter
+               id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance.importance"
+               name="Importance"
+               optional="true"
+               values="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance">
+         </commandParameter>
       </command>
    </extension>
      <extension
@@ -136,6 +149,15 @@
                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.informationIsHasDateRange">
                  </reference>
               </or>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.SetImportanceHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfURIs">
+              </reference>
            </activeWhen>
         </handler>
      </extension>
@@ -201,6 +223,28 @@
                </or>
             </visibleWhen>
          </command>
+         <menu
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance"
+               label="Set Importance">
+            <separator
+                  name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
+                  visible="true">
+            </separator>
+            <dynamic
+                  class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.SetImportanceContributionItem"
+                  id="de.fu_berlin.imp.seqan.usability_analyzer.core.SetImportanceContributionItem">
+            </dynamic>
+            <separator
+                  name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
+                  visible="true">
+            </separator>
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.containsURIs">
+               </reference>
+            </visibleWhen>
+         </menu>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.highlight"
                icon="icons/etool16/mark_occurrences.png"
@@ -456,6 +500,19 @@
                      value="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
                </test>
             </or>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.containsURIs">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
+               </adapt>
+            </iterate>
          </with>
       </definition>
       <definition

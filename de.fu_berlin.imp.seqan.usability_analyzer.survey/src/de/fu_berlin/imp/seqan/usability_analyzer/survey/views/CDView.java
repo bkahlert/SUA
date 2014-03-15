@@ -26,6 +26,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContai
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -61,6 +64,15 @@ public class CDView extends ViewPart {
 
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
+
+	private final IImportanceService importanceService = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
+	private final IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
+		@Override
+		public void importanceChanged(Set<URI> uris, Importance importance) {
+			CDView.this.viewer.refresh();
+		}
+	};
 
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
@@ -137,12 +149,16 @@ public class CDView extends ViewPart {
 
 	public CDView() {
 		this.dataService.addDataServiceListener(this.dataServiceListener);
+		this.importanceService
+				.addImportanceServiceListener(this.importanceServiceListener);
 		this.codeService.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
 	public void dispose() {
 		this.codeService.removeCodeServiceListener(this.codeServiceListener);
+		this.importanceService
+				.removeImportanceServiceListener(this.importanceServiceListener);
 		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}

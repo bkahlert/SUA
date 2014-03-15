@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -31,6 +32,8 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
@@ -91,6 +94,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(GTLabelProvider.class);
 
+	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
+
 	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
@@ -103,10 +109,41 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Map<ICode, Image> codeImages = new HashMap<ICode, Image>();
 
 	/**
-	 * Caches color of {@link ICode} an image was created for. This is used to
-	 * re-create the image if the color changed.
+	 * Caches color and importance of {@link ICode} when image was created for.
+	 * This is used to re-create the image if the color or importance changed.
 	 */
 	private static final Map<ICode, RGB> codeColors = new HashMap<ICode, RGB>();
+	private static final Map<ICode, Importance> codeImportances = new HashMap<ICode, IImportanceService.Importance>();
+
+	public static void drawCodeImage(ICode code, GC gc, Rectangle bounds) {
+		Importance importance = IMPORTANCE_SERVICE.getImportance(code.getUri());
+
+		GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
+				code.getColor());
+
+		int oldAlpha = gc.getAlpha();
+		int backgroundAlpha;
+		int borderAlpha;
+		switch (importance) {
+		case HIGH:
+			backgroundAlpha = 255;
+			borderAlpha = 255;
+			break;
+		case LOW:
+			backgroundAlpha = 0;
+			borderAlpha = 120;
+			break;
+		default:
+			backgroundAlpha = 70;
+			borderAlpha = 100;
+			break;
+		}
+		gc.setAlpha(backgroundAlpha);
+		PaintUtils.drawRoundedRectangle(gc, bounds, info.getBackgroundColor());
+		gc.setAlpha(borderAlpha);
+		PaintUtils.drawRoundedBorder(gc, bounds, info.getBorderColor());
+		gc.setAlpha(oldAlpha);
+	}
 
 	/**
 	 * Returns the image that shows the color of the given {@link ICode}.
@@ -115,23 +152,23 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	 * @return
 	 */
 	public static Image getCodeImage(ICode code) {
-		if (codeColors.containsKey(code)) {
-			if (!codeColors.get(code).equals(code.getColor())) {
+		RGB color = code.getColor();
+		Importance importance = IMPORTANCE_SERVICE.getImportance(code.getUri());
+		if (codeColors.containsKey(code) || codeImportances.containsKey(code)) {
+			if (!codeColors.get(code).equals(color)
+					|| !codeImportances.get(code).equals(importance)) {
 				// we don't dispose the outdated image since it could still be
 				// used. codeImages.get(code).dispose();
 				codeImages.remove(code);
 			}
 		}
-		codeColors.put(code, code.getColor());
+		codeColors.put(code, color);
+		codeImportances.put(code, importance);
 
 		if (!codeImages.containsKey(code)) {
 			Image image = new Image(Display.getCurrent(), 16, 16);
-			GTLabelProvider.CodeColors info = new GTLabelProvider.CodeColors(
-					code.getColor());
 			GC gc = new GC(image);
-			gc.setAlpha(128);
-			PaintUtils.drawRoundedRectangle(gc, image.getBounds(),
-					info.getBackgroundColor(), info.getBorderColor());
+			drawCodeImage(code, gc, image.getBounds());
 			gc.dispose();
 			codeImages.put(code, image);
 		}

@@ -1,8 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ui.services.AbstractServiceFactory;
 import org.eclipse.ui.services.IServiceLocator;
 import org.osgi.framework.BundleEvent;
@@ -11,10 +13,12 @@ import org.osgi.framework.BundleListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.Activator;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IHighlightService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IWorkSessionService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.impl.ImportanceService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.impl.LocatorService;
 
 public class ServiceFactory extends AbstractServiceFactory {
@@ -27,6 +31,7 @@ public class ServiceFactory extends AbstractServiceFactory {
 	private static ILabelProviderService LABELPROVIDER_SERVICE;
 	private static IUriPresenterService URIPRESENTER_SERVICE;
 	private static ILocatorService LOCATOR_SERVICE;
+	private static IImportanceService IMPORTANCE_SERVICE;
 
 	public ServiceFactory() {
 	}
@@ -92,6 +97,24 @@ public class ServiceFactory extends AbstractServiceFactory {
 			return LOCATOR_SERVICE;
 		}
 
+		if (serviceInterface == IImportanceService.class) {
+			if (IMPORTANCE_SERVICE == null) {
+				try {
+					IMPORTANCE_SERVICE = new ImportanceService(
+							this.getImportanceFile());
+				} catch (IOException e) {
+					LOGGER.error("Error creating " + IImportanceService.class,
+							e);
+				}
+			}
+			return IMPORTANCE_SERVICE;
+		}
+
 		return null;
+	}
+
+	public File getImportanceFile() {
+		return new File(new File(ResourcesPlugin.getWorkspace().getRoot()
+				.getLocation().toOSString()), "importance.txt");
 	}
 }

@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
@@ -15,6 +16,9 @@ import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -31,6 +35,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 	private Viewer viewer;
 	private ICodeService codeService;
+	private final IImportanceService importanceService = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
 
 	/**
 	 * If false no {@link ICodeInstance}s are shown.
@@ -129,6 +135,14 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		}
 	};
 
+	IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
+		@Override
+		public void importanceChanged(Set<URI> uris, Importance importance) {
+			ViewerUtils.update(CodeViewerContentProvider.this.viewer,
+					uris.toArray(new URI[0]), null);
+		}
+	};
+
 	/**
 	 * Creates a new {@link CodeViewerContentProvider} that displays all
 	 * {@link ICode}s and optionally {@link ICodeInstance}s.
@@ -138,6 +152,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	 */
 	public CodeViewerContentProvider(boolean showInstances) {
 		this.showInstances = showInstances;
+		this.importanceService
+				.addImportanceServiceListener(this.importanceServiceListener);
 	}
 
 	@Override
@@ -165,6 +181,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 	@Override
 	public void dispose() {
+		this.importanceService
+				.removeImportanceServiceListener(this.importanceServiceListener);
 		if (this.codeService != null) {
 			this.codeService
 					.removeCodeServiceListener(this.codeServiceListener);
