@@ -263,10 +263,11 @@ public class CDViewer extends Viewer {
 					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
 					case HIGH:
 						form.addRaw("<span style='font-size: 1.2em; color: "
-								+ RGB.DANGER.toHexString() + "'>");
+								+ RGB.IMPORTANCE_HIGH.toHexString() + "'>");
 						break;
 					case LOW:
-						form.addRaw("<span style='font-weight: 300; font-size: 0.75em;'>");
+						form.addRaw("<span style='font-weight: 300; font-size: 0.75em; color: "
+								+ RGB.IMPORTANCE_LOW.toHexString() + "''>");
 						break;
 					default:
 						break;

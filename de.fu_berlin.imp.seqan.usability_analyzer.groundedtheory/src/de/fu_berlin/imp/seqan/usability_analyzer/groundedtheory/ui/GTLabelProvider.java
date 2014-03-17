@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -218,22 +219,36 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
 		}
 
+		Importance importance = IMPORTANCE_SERVICE.getImportance(uri);
+		Styler styler;
+		switch (importance) {
+		case HIGH:
+			styler = Stylers.IMPORTANCE_HIGH_STYLER;
+			break;
+		case LOW:
+			styler = Stylers.IMPORTANCE_LOW_STYLER;
+			break;
+		default:
+			styler = null;
+			break;
+		}
+
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;
-			return new StyledString(code.getCaption(), Stylers.DEFAULT_STYLER);
+			return new StyledString(code.getCaption(), styler);
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
 			return (labelProvider != null) ? new StyledString(
-					labelProvider.getText(codeInstance.getId()))
+					labelProvider.getText(codeInstance.getId()), styler)
 					: new StyledString("unknown origin",
 							Stylers.ATTENTION_STYLER);
 		}
 		if (IEpisodes.class.isInstance(locatable)) {
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),
-					Stylers.DEFAULT_STYLER);
+					styler);
 		}
 		if (IEpisode.class.isInstance(locatable)) {
 			IEpisode episode = (IEpisode) locatable;
@@ -251,13 +266,13 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					LOGGER.warn("Could not find the episode's codes", e);
 				}
 			}
-			return new StyledString(name, Stylers.DEFAULT_STYLER);
+			return new StyledString(name, styler);
 		}
 
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(uri);
 		return (labelProvider != null) ? new StyledString(
-				labelProvider.getText(uri)) : new StyledString(
+				labelProvider.getText(uri), styler) : new StyledString(
 				"label provider missing", Stylers.ATTENTION_STYLER);
 	}
 
