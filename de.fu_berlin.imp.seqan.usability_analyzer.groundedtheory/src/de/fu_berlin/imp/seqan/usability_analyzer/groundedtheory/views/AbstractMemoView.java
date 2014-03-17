@@ -386,7 +386,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		this.load(new Runnable() {
 			@Override
 			public void run() {
-				for (int i = 0; i < filtered.size(); i++) {
+				for (int i = 0; i < filtered.size()
+						&& i < AbstractMemoView.this.getEditors().size(); i++) {
 					RGB rgb = null;
 					if (highlight.contains(i)) {
 						rgb = new RGB(252, 248, 227);
