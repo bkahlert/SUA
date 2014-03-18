@@ -552,7 +552,8 @@
          point="org.eclipse.ui.bindings">
       <scheme
             id="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
-            name="SeqAn Usability Analyzer">
+            name="SeqAn Usability Analyzer"
+            parentId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </scheme>
       <key
             commandId="org.eclipse.ui.edit.rename"
