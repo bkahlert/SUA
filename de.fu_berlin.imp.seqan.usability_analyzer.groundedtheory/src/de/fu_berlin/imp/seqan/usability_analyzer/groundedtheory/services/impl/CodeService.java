@@ -8,11 +8,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -20,6 +24,9 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.IdentifierFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.IImportanceInterceptor;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -38,10 +45,31 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.CodeStoreFactory;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl.DuplicateCodeInstanceException;
 
-public class CodeService implements ICodeService {
+public class CodeService implements ICodeService, IDisposable {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
+
+	private final IImportanceService importanceService = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
+	private final IImportanceInterceptor importanceInterceptor = new IImportanceInterceptor() {
+		@Override
+		public void gettingImportance(Map<URI, Importance> uris) {
+			for (Entry<URI, Importance> importance : uris.entrySet()) {
+				try {
+					for (ICode code : CodeService.this.getCodes(importance
+							.getKey())) {
+						Importance codeImportance = CodeService.this.importanceService
+								.getImportance(code.getUri());
+						if (codeImportance == Importance.HIGH) {
+							importance.setValue(Importance.HIGH);
+						}
+					}
+				} catch (CodeServiceException e) {
+					LOGGER.error(e);
+				}
+			}
+		}
+	};
 
 	@SuppressWarnings("unused")
 	private ComponentContext context;
@@ -56,6 +84,14 @@ public class CodeService implements ICodeService {
 		Assert.isNotNull(codeStore);
 		this.codeStore = codeStore;
 		this.codeServiceListenerNotifier = new CodeServiceListenerNotifier();
+		this.importanceService
+				.addImportanceInterceptor(this.importanceInterceptor);
+	}
+
+	@Override
+	public void dispose() {
+		this.importanceService
+				.removeImportanceInterceptor(this.importanceInterceptor);
 	}
 
 	@Override

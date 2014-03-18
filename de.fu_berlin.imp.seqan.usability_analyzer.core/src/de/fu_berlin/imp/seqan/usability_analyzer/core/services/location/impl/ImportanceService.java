@@ -34,6 +34,7 @@ public class ImportanceService implements IImportanceService {
 	private Map<URI, Importance> uris;
 
 	private final List<IImportanceServiceListener> importanceServiceListeners = new ArrayList<IImportanceServiceListener>();
+	private final List<IImportanceInterceptor> importanceInterceptors = new ArrayList<IImportanceInterceptor>();
 
 	public ImportanceService(File file) throws IOException {
 		this.file = file;
@@ -112,12 +113,25 @@ public class ImportanceService implements IImportanceService {
 	}
 
 	@Override
-	public Importance getImportance(URI uri) {
-		Importance importance = this.uris.get(uri);
-		if (importance == null) {
-			importance = Importance.DEFAULT;
+	public Map<URI, Importance> getImportance(Collection<URI> uris) {
+		Map<URI, Importance> map = new HashMap<URI, Importance>();
+		for (URI uri : uris) {
+			Importance importance = this.uris.get(uri);
+			if (importance == null) {
+				importance = Importance.DEFAULT;
+			}
+			map.put(uri, importance);
 		}
-		return importance;
+		for (IImportanceInterceptor interceptor : this.importanceInterceptors) {
+			interceptor.gettingImportance(map);
+		}
+		return map;
+	}
+
+	@Override
+	public Importance getImportance(URI uri) {
+		Map<URI, Importance> map = this.getImportance(Arrays.asList(uri));
+		return map.get(uri);
 	}
 
 	@Override
@@ -130,6 +144,18 @@ public class ImportanceService implements IImportanceService {
 	public void removeImportanceServiceListener(
 			IImportanceServiceListener importanceServiceListener) {
 		this.importanceServiceListeners.remove(importanceServiceListener);
+	}
+
+	@Override
+	public void addImportanceInterceptor(
+			IImportanceInterceptor importanceInterceptor) {
+		this.importanceInterceptors.add(importanceInterceptor);
+	}
+
+	@Override
+	public void removeImportanceInterceptor(
+			IImportanceInterceptor importanceInterceptor) {
+		this.importanceInterceptors.remove(importanceInterceptor);
 	}
 
 }
