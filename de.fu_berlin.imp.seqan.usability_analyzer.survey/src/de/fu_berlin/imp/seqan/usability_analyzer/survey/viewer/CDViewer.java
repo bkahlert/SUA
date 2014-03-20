@@ -227,23 +227,16 @@ public class CDViewer extends Viewer {
 				boolean documentMemoExists = CODE_SERVICE.isMemo(cdDocument
 						.getUri());
 				form.addRaw("<tr><td>");
-				form.addRaw("<h2 tabindex=\""
-						+ 0
-						+ "\" data-focus-id=\""
-						+ cdDocument.getUri()
-						+ "\"><a name=\""
-						+ cdDocument.getUri()
-						+ "\">"
-						+ caption
-						+ "</a>"
-						+ (documentMemoExists ? " <img src=\""
-								+ ImageUtils
-										.createUriFromImage(ImageManager.MEMO)
-								+ "\"> " : " ") + " </h2>");
+				form.addRaw("<h2 tabindex=\"" + 0 + "\" data-focus-id=\""
+						+ cdDocument.getUri() + "\"><a name=\""
+						+ cdDocument.getUri() + "\">" + caption + "</a></h2>");
 				form.addRaw("</td><td>");
 				form.addRaw("<a href=\"addcode-" + cdDocument.getUri()
 						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a>");
 				form.addRaw("</td><td>");
+				if (documentMemoExists) {
+					form.addRaw(this.createMemoIcon() + " ");
+				}
 				form.addRaw(this.createCodeLinks(documentCodes));
 				form.addRaw("</td></tr>");
 
@@ -272,14 +265,8 @@ public class CDViewer extends Viewer {
 					default:
 						break;
 					}
-					form.addStaticField(
-							field.getUri().toString(),
-							field.getQuestion()
-									+ (fieldMemoExists ? " <img src=\""
-											+ ImageUtils
-													.createUriFromImage(ImageManager.MEMO)
-											+ "\">"
-											: ""), field.getAnswer(), 0);
+					form.addStaticField(field.getUri().toString(),
+							field.getQuestion(), field.getAnswer(), 0);
 					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
 					case HIGH:
 						form.addRaw("</span>");
@@ -295,6 +282,9 @@ public class CDViewer extends Viewer {
 							+ field.getUri()
 							+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>");
 					form.addRaw("</td><td>");
+					if (fieldMemoExists) {
+						form.addRaw(this.createMemoIcon() + " ");
+					}
 					form.addRaw(this.createCodeLinks(fieldCodes));
 					form.addRaw("</td></tr>");
 				}
@@ -348,6 +338,12 @@ public class CDViewer extends Viewer {
 	public void setSelection(ISelection selection, boolean reveal) {
 		this.selection = selection;
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
+	}
+
+	private String createMemoIcon() {
+		return "<img src=\""
+				+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+				+ "\" style=\"display: inline-block; margin: 3px; width:16px;\">";
 	}
 
 	private String createCodeLinks(List<ICode> codes) {
