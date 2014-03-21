@@ -96,6 +96,10 @@
                values="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance">
          </commandParameter>
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact"
+            name="Show Artefact">
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -159,6 +163,10 @@
                     definitionId="de.fu_berlin.imp.seqan.usability_analyzer.core.consistsOfURIs">
               </reference>
            </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.ShowArtefactHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact">
         </handler>
      </extension>
    <extension
@@ -294,6 +302,17 @@
                name="de.fu_berlin.imp.seqan.usability_analyzer.core.separator1"
                visible="true">
          </separator>
+      </menuContribution>
+  <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="de.fu_berlin.imp.seqan.usability_analyzer.ui.utilities.menu"
+               label="Utilities">
+            <command
+                  commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact"
+                  style="push">
+            </command>
+         </menu>
       </menuContribution>
    </extension>
    <extension

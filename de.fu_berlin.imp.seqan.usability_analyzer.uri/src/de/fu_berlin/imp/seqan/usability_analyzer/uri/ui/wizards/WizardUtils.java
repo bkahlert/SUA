@@ -81,12 +81,11 @@ public class WizardUtils {
 	}
 
 	public static UriWizard openCreateUriWizard() {
-		return openWizardSuccessfully(new UriWizard(), new Point(500, 220));
+		return openWizardSuccessfully(new UriWizard(), new Point(500, 250));
 	}
 
 	public static UriWizard openEditUriWizard(IUri uri) {
-		return openWizardSuccessfully(new UriWizard(uri), new Point(500,
-				220));
+		return openWizardSuccessfully(new UriWizard(uri), new Point(500, 250));
 	}
 
 }
