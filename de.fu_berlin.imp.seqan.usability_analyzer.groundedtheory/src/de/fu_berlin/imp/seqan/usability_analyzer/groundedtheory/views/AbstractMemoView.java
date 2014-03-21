@@ -347,8 +347,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		final List<Integer> highlight = new ArrayList<Integer>();
 		final List<URI> filtered = new ArrayList<URI>();
 		for (URI uri : uris) {
-			if (!(uri instanceof ViewerURI)) {
-				filtered.add(uri);
+			if (uri instanceof ViewerURI) {
+				continue;
 			}
 
 			// if a codeInstance is opened, open its reference instead
@@ -363,6 +363,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 					LOGGER.error("Error checking where " + uri + " points to");
 				}
 			}
+
+			filtered.add(uri);
 
 			// open all related instances's memos
 			for (ICodeInstance codeInstance : this.codeService.getInstances()) {
