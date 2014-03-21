@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services.impl;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,6 +28,7 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.DetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
@@ -269,7 +268,7 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 			keyLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 			keyLabel.setText(detailEntry.getKey());
 
-			Label valueLabel = new Label(this.l1DetailComposite, SWT.NONE);
+			Label valueLabel = new Label(this.l1DetailComposite, SWT.WRAP);
 			valueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
 					false));
 			valueLabel.setText(detailEntry.getValue());
