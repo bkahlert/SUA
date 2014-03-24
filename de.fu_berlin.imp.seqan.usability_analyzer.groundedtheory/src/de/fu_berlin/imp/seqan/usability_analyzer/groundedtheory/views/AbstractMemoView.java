@@ -302,7 +302,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				}
 			}
 		}
-		String caption = StringUtils.join(captions, ", ");
+		String caption = StringUtils.join(captions, "  |  ");
 		Image image = images[0];
 		for (int i = 1; i < images.length && image != null; i++) {
 			if (image != images[i]) {
