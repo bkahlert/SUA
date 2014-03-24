@@ -9,6 +9,8 @@ public class SUAGTPreferenceConstants {
 
 	public static final String MEMO_AUTOSAVE_AFTER_MILLISECONDS = "memo_autosave_after_milliseconds";
 
+	public static final String LAST_OPENED_MEMOS = "last_opened_memos";
+
 	public static final String LAST_USED_CODES = "last_used_codes";
 
 }

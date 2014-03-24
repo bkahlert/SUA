@@ -48,6 +48,41 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS);
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<URI> getLastOpenedMemos() {
+		try {
+			String pref = this.getPreferenceStore().getString(
+					SUAGTPreferenceConstants.LAST_OPENED_MEMOS);
+			if (pref != null && !pref.isEmpty()) {
+				List<String> strings = (List<String>) SerializationUtils
+						.deserialize(pref.getBytes());
+				List<URI> uris = new ArrayList<URI>(strings.size());
+				for (String string : strings) {
+					uris.add(new URI(string));
+				}
+				return uris;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error getting last opened memos", e);
+		}
+		return new LinkedList<URI>();
+	}
+
+	public void setLastOpenedMemos(List<URI> uris) {
+		List<String> strings = new ArrayList<String>(uris.size());
+		for (URI uri : uris) {
+			strings.add(uri.toString());
+		}
+		try {
+			byte[] pref = SerializationUtils.serialize((Serializable) strings);
+			this.getPreferenceStore().setValue(
+					SUAGTPreferenceConstants.LAST_OPENED_MEMOS,
+					new String(pref));
+		} catch (Exception e) {
+			LOGGER.error("Error saving last opened memos: " + uris, e);
+		}
+	}
+
 	public void setLastUsedCodes(List<URI> codes) {
 		List<String> strings = new ArrayList<String>(codes.size());
 		for (URI code : codes) {
@@ -67,13 +102,15 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 		try {
 			String pref = this.getPreferenceStore().getString(
 					SUAGTPreferenceConstants.LAST_USED_CODES);
-			List<String> strings = (List<String>) SerializationUtils
-					.deserialize(pref.getBytes());
-			List<URI> codes = new ArrayList<URI>(strings.size());
-			for (String string : strings) {
-				codes.add(new URI(string));
+			if (pref != null && !pref.isEmpty()) {
+				List<String> strings = (List<String>) SerializationUtils
+						.deserialize(pref.getBytes());
+				List<URI> codes = new ArrayList<URI>(strings.size());
+				for (String string : strings) {
+					codes.add(new URI(string));
+				}
+				return codes;
 			}
-			return codes;
 		} catch (Exception e) {
 			LOGGER.error("Error getting last used codes", e);
 		}

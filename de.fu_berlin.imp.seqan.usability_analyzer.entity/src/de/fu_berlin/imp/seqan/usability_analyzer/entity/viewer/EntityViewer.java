@@ -115,6 +115,10 @@ public class EntityViewer extends SortableTableViewer implements
 										uri, null).get();
 
 								Entity entity = (Entity) locatable;
+								if (entity == null) {
+									throw new RuntimeException("No entity for "
+											+ uri + " found.");
+								}
 
 								ID id = entity.getId();
 								if (id == null) {

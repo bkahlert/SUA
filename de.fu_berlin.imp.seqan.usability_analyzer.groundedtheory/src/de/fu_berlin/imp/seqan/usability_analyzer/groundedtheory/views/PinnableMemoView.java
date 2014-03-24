@@ -7,8 +7,10 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAGTPreferenceUtil;
 
 public class PinnableMemoView extends AbstractMemoView {
 
@@ -37,8 +39,19 @@ public class PinnableMemoView extends AbstractMemoView {
 	@Override
 	public void postInit() {
 		super.postInit();
-		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
-				.addPostSelectionListener(this.selectionListener);
+
+		List<URI> uris = new SUAGTPreferenceUtil().getLastOpenedMemos();
+		PinnableMemoView.this.loadAndClearHistory(uris.toArray(new URI[0]));
+
+		ExecUtils.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				SelectionUtils.getSelectionService(
+						PinnableMemoView.this.getSite().getWorkbenchWindow())
+						.addPostSelectionListener(
+								PinnableMemoView.this.selectionListener);
+			}
+		}, 1000);
 	}
 
 	@Override
@@ -52,6 +65,7 @@ public class PinnableMemoView extends AbstractMemoView {
 		final List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
 				URI.class);
 
+		new SUAGTPreferenceUtil().setLastOpenedMemos(uris);
 		PinnableMemoView.this.loadAndClearHistory(uris.toArray(new URI[0]));
 	}
 
