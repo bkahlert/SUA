@@ -282,8 +282,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				ILabelProvider lp = this.labelProviderService
 						.getLabelProvider(codeInstance.getUri());
 				if (lp != null) {
-					captions[i] = "[" + codeInstance.getCode().getCaption()
-							+ "]";
+					captions[i] = "→ " + codeInstance.getCode().getCaption();
 					images[i] = lp.getImage(uris.get(i));
 				} else {
 					captions[i] = "UNKNOWN";
