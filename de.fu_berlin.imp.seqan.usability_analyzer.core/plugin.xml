@@ -203,9 +203,6 @@
                  <count
                        value="+">
                  </count>
-                 <reference
-                       definitionId="com.bkahlert.nebula.debug">
-                 </reference>
               </with>
            </activeWhen>
         </handler>
