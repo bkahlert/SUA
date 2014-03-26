@@ -1,12 +1,10 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
@@ -17,6 +15,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.Activator;
 
 public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Logger.class);
 
 	public SUAGTPreferenceUtil() {
@@ -48,71 +47,38 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 				SUAGTPreferenceConstants.MEMO_AUTOSAVE_AFTER_MILLISECONDS);
 	}
 
-	@SuppressWarnings("unchecked")
+	public void setLastOpenedMemos(List<URI> uris) {
+		String pref = de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+				.serialize(uris);
+		this.getPreferenceStore().setValue(
+				SUAGTPreferenceConstants.LAST_OPENED_MEMOS, pref);
+	}
+
 	public List<URI> getLastOpenedMemos() {
-		try {
-			String pref = this.getPreferenceStore().getString(
-					SUAGTPreferenceConstants.LAST_OPENED_MEMOS);
-			if (pref != null && !pref.isEmpty()) {
-				List<String> strings = (List<String>) SerializationUtils
-						.deserialize(pref.getBytes());
-				List<URI> uris = new ArrayList<URI>(strings.size());
-				for (String string : strings) {
-					uris.add(new URI(string));
-				}
-				return uris;
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error getting last opened memos", e);
+		String pref = this.getPreferenceStore().getString(
+				SUAGTPreferenceConstants.LAST_OPENED_MEMOS);
+		if (pref != null && !pref.isEmpty()) {
+			return new ArrayList<URI>(
+					de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+							.deserialize(pref));
 		}
 		return new LinkedList<URI>();
 	}
 
-	public void setLastOpenedMemos(List<URI> uris) {
-		List<String> strings = new ArrayList<String>(uris.size());
-		for (URI uri : uris) {
-			strings.add(uri.toString());
-		}
-		try {
-			byte[] pref = SerializationUtils.serialize((Serializable) strings);
-			this.getPreferenceStore().setValue(
-					SUAGTPreferenceConstants.LAST_OPENED_MEMOS,
-					new String(pref));
-		} catch (Exception e) {
-			LOGGER.error("Error saving last opened memos: " + uris, e);
-		}
-	}
-
 	public void setLastUsedCodes(List<URI> codes) {
-		List<String> strings = new ArrayList<String>(codes.size());
-		for (URI code : codes) {
-			strings.add(code.toString());
-		}
-		try {
-			byte[] pref = SerializationUtils.serialize((Serializable) strings);
-			this.getPreferenceStore().setValue(
-					SUAGTPreferenceConstants.LAST_USED_CODES, new String(pref));
-		} catch (Exception e) {
-			LOGGER.error("Error saving last used codes: " + codes, e);
-		}
+		String pref = de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+				.serialize(codes);
+		this.getPreferenceStore().setValue(
+				SUAGTPreferenceConstants.LAST_USED_CODES, pref);
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<URI> getLastUsedCodes() {
-		try {
-			String pref = this.getPreferenceStore().getString(
-					SUAGTPreferenceConstants.LAST_USED_CODES);
-			if (pref != null && !pref.isEmpty()) {
-				List<String> strings = (List<String>) SerializationUtils
-						.deserialize(pref.getBytes());
-				List<URI> codes = new ArrayList<URI>(strings.size());
-				for (String string : strings) {
-					codes.add(new URI(string));
-				}
-				return codes;
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error getting last used codes", e);
+		String pref = this.getPreferenceStore().getString(
+				SUAGTPreferenceConstants.LAST_USED_CODES);
+		if (pref != null && !pref.isEmpty()) {
+			return new ArrayList<URI>(
+					de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+							.deserialize(pref));
 		}
 		return new LinkedList<URI>();
 	}
