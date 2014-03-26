@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.ISources;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
@@ -339,5 +341,34 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 	public void setLastScrollPosition(Class<?> clazz, Point scrollPosition) {
 		Assert.isNotNull(clazz);
 		this.setLastScrollPosition(clazz.getName(), scrollPosition);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Map getCurrentState() {
+		Map currentState = super.getCurrentState();
+		currentState.put(SUACorePreferenceConstants.FOCUSED_ELEMENTS,
+				this.getFocusedElements());
+		return currentState;
+	}
+
+	public void setFocusedElements(List<URI> elements) {
+		String pref = de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+				.serialize(elements);
+		this.getPreferenceStore().setValue(
+				SUACorePreferenceConstants.FOCUSED_ELEMENTS, pref);
+		this.fireSourceChanged(ISources.WORKBENCH,
+				SUACorePreferenceConstants.FOCUSED_ELEMENTS, elements);
+	}
+
+	public List<URI> getFocusedElements() {
+		String pref = this.getPreferenceStore().getString(
+				SUACorePreferenceConstants.FOCUSED_ELEMENTS);
+		if (pref != null && !pref.isEmpty()) {
+			return new ArrayList<URI>(
+					de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+							.deserialize(pref));
+		}
+		return new LinkedList<URI>();
 	}
 }

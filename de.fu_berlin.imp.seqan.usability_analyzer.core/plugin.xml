@@ -58,6 +58,13 @@
                serviceClass="de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService">
          </service>
       </serviceFactory>
+      <sourceProvider
+            provider="de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil">
+         <variable
+               name="de.fu_berlin.imp.seqan.usability_analyzer.core.focused_elements"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
 <extension
          point="org.eclipse.ui.commands">
@@ -99,6 +106,14 @@
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact"
             name="Show Artefact">
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.saveFocus"
+            name="Save Focus">
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.loadFocus"
+            name="Load Focus">
       </command>
    </extension>
      <extension
@@ -168,6 +183,32 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.ShowArtefactHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact">
         </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.SaveFocusHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.saveFocus">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isILocatable">
+                 </reference>
+              </or>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.LoadFocusHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.loadFocus">
+           <activeWhen>
+              <with
+                    variable="de.fu_berlin.imp.seqan.usability_analyzer.core.focused_elements">
+                 <count
+                       value="+">
+                 </count>
+                 <reference
+                       definitionId="com.bkahlert.nebula.debug">
+                 </reference>
+              </with>
+           </activeWhen>
+        </handler>
      </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -192,6 +233,10 @@
                   </reference>
                </and>
             </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.saveFocus"
+               style="push">
          </command>
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.open"
@@ -310,6 +355,14 @@
                label="Utilities">
             <command
                   commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.showArtefact"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.saveFocus"
+                  style="push">
+            </command>
+            <command
+                  commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.loadFocus"
                   style="push">
             </command>
          </menu>
@@ -615,6 +668,18 @@
                id="de.fu_berlin.imp.seqan.usability_analyzer.core.setImportance.importance"
                value="HIGH">
          </parameter>
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.saveFocus"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="F5">
+      </key>
+      <key
+            commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.loadFocus"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.seqan.usability_analyzer.scheme"
+            sequence="F8">
       </key>
    </extension>
    <extension

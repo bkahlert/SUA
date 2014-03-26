@@ -23,4 +23,6 @@ public class SUACorePreferenceConstants {
 	public static final String COLOR_MISSING = "color_missing";
 
 	public static final String LAST_SCROLL_POSITION = "last_scroll_position";
+
+	public static final String FOCUSED_ELEMENTS = "de.fu_berlin.imp.seqan.usability_analyzer.core.focused_elements";
 }
