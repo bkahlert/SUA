@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +19,7 @@ import org.eclipse.swt.widgets.Display;
 import com.bkahlert.nebula.utils.Stylers;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 
 /**
@@ -443,7 +443,7 @@ public interface ILabelProviderService {
 			List<String> segments = new ArrayList<String>();
 			segments.add(host != null ? host : "");
 			List<String> pathSegments = path != null ? Arrays.asList(path
-					.split("/")) : new ArrayList<String>(null);
+					.split("/")) : new ArrayList<String>();
 			for (int i = 1, m = pathSegments.size(); i < m; i++) {
 				segments.add(pathSegments.get(i));
 			}
