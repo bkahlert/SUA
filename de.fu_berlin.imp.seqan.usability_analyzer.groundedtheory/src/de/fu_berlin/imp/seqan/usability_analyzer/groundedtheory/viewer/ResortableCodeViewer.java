@@ -38,9 +38,9 @@ public class ResortableCodeViewer extends CodeViewer {
 	private static Logger LOGGER = Logger.getLogger(ResortableCodeViewer.class);
 
 	public ResortableCodeViewer(Composite parent, int style,
-			ShowInstances showInstances, String saveExpandedElementsKey,
+			ShowInstances initialShowInstances, String saveExpandedElementsKey,
 			Filterable filterable, QuickSelectionMode quickSelectionMode) {
-		super(parent, style, showInstances, saveExpandedElementsKey,
+		super(parent, style, initialShowInstances, saveExpandedElementsKey,
 				filterable, quickSelectionMode);
 
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;

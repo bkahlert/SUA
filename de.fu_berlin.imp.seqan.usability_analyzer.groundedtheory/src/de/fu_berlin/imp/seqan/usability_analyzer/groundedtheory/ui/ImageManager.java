@@ -46,6 +46,10 @@ public class ImageManager {
 	 */
 	public static final Image ELCL_PIN = getImage("icons/elcl16/pin_tsk.png"); //$NON-NLS-1$
 	public static final Image DLCL_PIN = getImage("icons/dlcl16/pin_tsk.png"); //$NON-NLS-1$
+	public static final Image ELCL_SHOW_INSTANCES = getImage("icons/elcl16/show_instances_tsk.png"); //$NON-NLS-1$
+	public static final Image DLCL_SHOW_INSTANCES = getImage("icons/dlcl16/show_instances_tsk.png"); //$NON-NLS-1$
+	public static final Image ELCL_HIDE_INSTANCES = getImage("icons/elcl16/hide_instances_tsk.png"); //$NON-NLS-1$
+	public static final Image DLCL_HIDE_INSTANCES = getImage("icons/dlcl16/hide_instances_tsk.png"); //$NON-NLS-1$
 
 	/*
 	 * objects

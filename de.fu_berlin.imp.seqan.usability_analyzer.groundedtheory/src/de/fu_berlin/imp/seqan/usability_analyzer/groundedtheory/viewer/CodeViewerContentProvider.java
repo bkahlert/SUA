@@ -41,7 +41,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	/**
 	 * If false no {@link ICodeInstance}s are shown.
 	 */
-	private final boolean showInstances;
+	private boolean showInstances;
 
 	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
@@ -147,11 +147,11 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	 * Creates a new {@link CodeViewerContentProvider} that displays all
 	 * {@link ICode}s and optionally {@link ICodeInstance}s.
 	 * 
-	 * @param showInstances
+	 * @param initialShowInstances
 	 *            false if only {@link ICode}s should be displayed
 	 */
-	public CodeViewerContentProvider(boolean showInstances) {
-		this.showInstances = showInstances;
+	public CodeViewerContentProvider(boolean initialShowInstances) {
+		this.showInstances = initialShowInstances;
 		this.importanceService
 				.addImportanceServiceListener(this.importanceServiceListener);
 	}
@@ -261,5 +261,10 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			return childNodes.toArray(new URI[0]);
 		}
 		return new URI[0];
+	}
+
+	public void setShowInstances(boolean showInstances) {
+		this.showInstances = showInstances;
+		ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 	}
 }

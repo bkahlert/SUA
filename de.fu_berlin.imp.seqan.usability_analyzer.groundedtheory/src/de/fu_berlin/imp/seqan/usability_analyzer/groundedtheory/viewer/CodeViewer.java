@@ -62,7 +62,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private Control focusControl;
 
 	public CodeViewer(Composite parent, int style,
-			final ShowInstances showInstances,
+			final ShowInstances initialShowInstances,
 			final String saveExpandedElementsKey, Filterable filterable,
 			QuickSelectionMode quickSelectionMode) {
 		super(parent, style);
@@ -73,7 +73,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 					| SWT.MULTI | SWT.FULL_SELECTION, new TreeViewerFactory() {
 				@Override
 				public TreeViewer create(Composite parent, int style) {
-					return createViewer(parent, style, showInstances,
+					return createViewer(parent, style, initialShowInstances,
 							saveExpandedElementsKey);
 				}
 			});
@@ -82,14 +82,15 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			this.viewer = filteredTree.getViewer();
 			this.focusControl = filteredTree.getFilterControl();
 		} else {
-			this.viewer = createViewer(this, style, showInstances,
+			this.viewer = createViewer(this, style, initialShowInstances,
 					saveExpandedElementsKey);
 			this.focusControl = this.viewer.getControl();
 		}
 	}
 
 	private static SortableTreeViewer createViewer(Composite parent, int style,
-			ShowInstances showInstances, final String saveExpandedElementsKey) {
+			ShowInstances initialShowInstances,
+			final String saveExpandedElementsKey) {
 		Tree tree = new Tree(parent, style);
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(false);
@@ -113,7 +114,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		});
 		createColumns(viewer);
 		viewer.setContentProvider(new CodeViewerContentProvider(
-				showInstances == ShowInstances.ON));
+				initialShowInstances == ShowInstances.ON));
 		viewer.setInput(PlatformUI.getWorkbench()
 				.getService(ICodeService.class));
 		loadExpandedElements(viewer, saveExpandedElementsKey);
@@ -293,6 +294,23 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						return null;
 					}
 				});
+	}
+
+	/**
+	 * Shows or hides the {@link ICodeInstance}s.
+	 * <p>
+	 * The viewer is automatically refreshed if this method is called.
+	 * 
+	 * @param showInstances
+	 */
+	public void setShowInstances(boolean showInstances) {
+		if (this.viewer.getContentProvider() instanceof CodeViewerContentProvider) {
+			CodeViewerContentProvider contentProvider = (CodeViewerContentProvider) this.viewer
+					.getContentProvider();
+			contentProvider.setShowInstances(showInstances);
+		} else {
+			LOGGER.error("Unexpected content provider; check implementation");
+		}
 	}
 
 	public void refresh() {

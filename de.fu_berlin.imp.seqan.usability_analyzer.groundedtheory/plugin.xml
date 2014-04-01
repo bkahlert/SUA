@@ -98,6 +98,24 @@
 	         </class>
 	         </state>
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showInstances"
+            name="Show Instances">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -202,6 +220,10 @@
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.pinMemo">
         </handler>
         <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ShowInstancesHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showInstances">
+        </handler>
+        <handler
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.NavigateBackMemoViewHandler"
               commandId="org.eclipse.ui.navigate.back">
            <activeWhen>
@@ -245,6 +267,12 @@
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.openCodeStore"
                icon="icons/obj16/code_obj.png"
                style="push">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showInstances"
+               disabledIcon="icons/dlcl16/show_instances_tsk.png"
+               icon="icons/elcl16/show_instances_tsk.png"
+               style="toggle">
          </command>
       </menuContribution>
       <menuContribution
