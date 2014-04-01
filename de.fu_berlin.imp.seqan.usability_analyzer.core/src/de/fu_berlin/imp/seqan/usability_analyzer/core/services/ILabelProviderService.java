@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.core.services;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -422,7 +420,7 @@ public interface ILabelProviderService {
 
 		@Override
 		public ILabelProvider createFor(URI uri) {
-			List<String> segments = getSegments(uri);
+			List<String> segments = uri.getSegments();
 
 			if (segments.size() <= this.pathSegmentIndex) {
 				return null;
@@ -433,21 +431,6 @@ public interface ILabelProviderService {
 			} else {
 				return null;
 			}
-		}
-
-		// TODO move to URIUtils
-		private List<String> getSegments(URI uri) {
-			String host = uri.getHost();
-			String path = uri.getRawPath();
-
-			List<String> segments = new ArrayList<String>();
-			segments.add(host != null ? host : "");
-			List<String> pathSegments = path != null ? Arrays.asList(path
-					.split("/")) : new ArrayList<String>();
-			for (int i = 1, m = pathSegments.size(); i < m; i++) {
-				segments.add(pathSegments.get(i));
-			}
-			return segments;
 		}
 
 		protected abstract ILabelProvider create();

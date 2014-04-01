@@ -2,11 +2,15 @@ package de.fu_berlin.imp.seqan.usability_analyzer.core.model;
 
 import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class URI implements Serializable {
 
 	private static final long serialVersionUID = 8337713802506985728L;
-	private java.net.URI uri;
+	private final java.net.URI uri;
+	private List<String> segments = null;
 
 	public URI(String address) {
 		try {
@@ -38,6 +42,29 @@ public class URI implements Serializable {
 
 	public String getFragment() {
 		return this.uri.getFragment();
+	}
+
+	/**
+	 * Returns the {@link URI}'s host and path portions.
+	 * <p>
+	 * e.g. for protocol://host/a/b/c#d {host, a, b, c} is returned.
+	 * 
+	 * @return
+	 */
+	public List<String> getSegments() {
+		if (this.segments == null) {
+			String host = this.uri.getHost();
+			String path = this.uri.getRawPath();
+
+			this.segments = new ArrayList<String>();
+			this.segments.add(host != null ? host : "");
+			List<String> pathSegments = path != null ? Arrays.asList(path
+					.split("/")) : new ArrayList<String>();
+			for (int i = 1, m = pathSegments.size(); i < m; i++) {
+				this.segments.add(pathSegments.get(i));
+			}
+		}
+		return this.segments;
 	}
 
 	@Override
