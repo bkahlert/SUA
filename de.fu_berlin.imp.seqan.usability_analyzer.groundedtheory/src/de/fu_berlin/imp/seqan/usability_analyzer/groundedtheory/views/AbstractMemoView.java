@@ -259,13 +259,16 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			return this.getDefaultPartInfo();
 		}
 
-		List<ILocatable> locatables;
-		try {
-			locatables = LocatorService.INSTANCE.resolve(uris, null).get();
-		} catch (Exception e) {
-			LOGGER.error("Error retrieving " + PartInfo.class.getSimpleName()
-					+ " for " + uris);
-			return this.getDefaultPartInfo();
+		List<ILocatable> locatables = new ArrayList<ILocatable>(uris.size());
+		for (URI uri : uris) {
+			try {
+				locatables
+						.add(LocatorService.INSTANCE.resolve(uri, null).get());
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving "
+						+ PartInfo.class.getSimpleName() + " for " + uris);
+				locatables.add(null);
+			}
 		}
 
 		Assert.isTrue(uris.size() == locatables.size());
@@ -273,8 +276,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		String[] captions = new String[uris.size()];
 		Image[] images = new Image[uris.size()];
 		for (int i = 0; i < uris.size(); i++) {
-			if (locatables instanceof ICode) {
-				ICode code = (ICode) locatables;
+			if (locatables.get(i) instanceof ICode) {
+				ICode code = (ICode) locatables.get(i);
 				captions[i] = code.getCaption();
 				images[i] = ImageManager.CODE;
 			} else if (locatables.get(i) instanceof ICodeInstance) {
