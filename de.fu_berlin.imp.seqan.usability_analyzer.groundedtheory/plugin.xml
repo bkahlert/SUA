@@ -45,6 +45,22 @@
             name="Episodes"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.seqan.usability_analyzer.category"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView"
+            icon="icons/view/code_misc.png"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView"
+            name="Selective Coding"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.SelectiveCodingPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.SelectiveCodingPerspective"
+            name="Selective Coding">
+      </perspective>
    </extension>
      <extension
          point="org.eclipse.ui.commands">
@@ -101,6 +117,60 @@
       <command
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showInstances"
             name="Show Instances">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomIn"
+            name="Zoom In">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomOut"
+            name="Zoom Out">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.autoLayout"
+            name="Auto Layout">
          <state
                id="org.eclipse.ui.commands.toggleState">
             <class
@@ -256,6 +326,18 @@
                  </and>
               </with>
            </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ZoomInHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomIn">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.ZoomOutHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomOut">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.AutoLayoutHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.autoLayout">
         </handler>
      </extension>
    <extension
@@ -455,6 +537,25 @@
                   name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.showArtifactID.justCopy"
                   value="TRUE">
             </parameter>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView?after=additions">
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomIn"
+               label="+"
+               style="push">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomOut"
+               label="-"
+               style="push">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.autoLayout"
+               label="Auto-Layout"
+               style="toggle">
          </command>
       </menuContribution>
       <menuContribution
@@ -1017,6 +1118,15 @@
                      type="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.viewer.filters.HasDateRange">
                </adapt>
             </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isSelectiveCodingView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView">
+            </equals>
          </with>
       </definition>
    </extension>

@@ -48,35 +48,55 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeIns
 
 public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
+	public static final int HIGH_BACKGROUND_ALPHA = 255;
+	public static final int HIGH_BORDER_ALPHA = 255;
+
+	public static final int LOW_BACKGROUND_ALPHA = 0;
+	public static final int LOW_BORDER_ALPHA = 120;
+
+	public static final int DEFAULT_BACKGROUND_ALPHA = 70;
+	public static final int DEFAULT_BORDER_ALPHA = 100;
+
 	public static class CodeColors {
 		private final RGB backgroundRGB;
+		private final RGB borderRGB;
 		private Color backgroundColor = null;
 		private Color borderColor = null;
 
 		public CodeColors(RGB backgroundRGB) {
-			this.backgroundRGB = backgroundRGB;
+			this.backgroundRGB = backgroundRGB != null ? backgroundRGB
+					: new RGB(EpisodeRenderer.DEFAULT_BACKGROUND_COLOR.getRGB());
+			this.borderRGB = ColorUtils.scaleLightnessBy(this.backgroundRGB,
+					.85f);
 
-			if (backgroundRGB == null) {
-				this.backgroundColor = EpisodeRenderer.DEFAULT_BACKGROUND_COLOR;
-			} else {
-				this.backgroundColor = new Color(Display.getCurrent(),
-						backgroundRGB.toClassicRGB());
-			}
+			this.backgroundColor = new Color(Display.getCurrent(),
+					backgroundRGB.toClassicRGB());
 
-			this.borderColor = new Color(Display.getDefault(), ColorUtils
-					.scaleLightnessBy(new RGB(this.backgroundColor.getRGB()),
-							0.85f).toClassicRGB());
+			this.borderColor = new Color(Display.getDefault(),
+					this.borderRGB.toClassicRGB());
 		}
 
 		public RGB getBackgroundRGB() {
 			return this.backgroundRGB;
 		}
 
+		public RGB getBorderRGB() {
+			return this.borderRGB;
+		}
+
 		public Color getBackgroundColor() {
+			if (this.backgroundColor == null) {
+				this.backgroundColor = new Color(Display.getCurrent(),
+						this.backgroundRGB.toClassicRGB());
+			}
 			return this.backgroundColor;
 		}
 
 		public Color getBorderColor() {
+			if (this.borderColor == null) {
+				this.borderColor = new Color(Display.getCurrent(),
+						this.borderRGB.toClassicRGB());
+			}
 			return this.borderColor;
 		}
 
@@ -127,16 +147,16 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		int borderAlpha;
 		switch (importance) {
 		case HIGH:
-			backgroundAlpha = 255;
-			borderAlpha = 255;
+			backgroundAlpha = HIGH_BACKGROUND_ALPHA;
+			borderAlpha = HIGH_BORDER_ALPHA;
 			break;
 		case LOW:
-			backgroundAlpha = 0;
-			borderAlpha = 120;
+			backgroundAlpha = LOW_BACKGROUND_ALPHA;
+			borderAlpha = LOW_BORDER_ALPHA;
 			break;
 		default:
-			backgroundAlpha = 70;
-			borderAlpha = 100;
+			backgroundAlpha = DEFAULT_BACKGROUND_ALPHA;
+			borderAlpha = DEFAULT_BORDER_ALPHA;
 			break;
 		}
 		gc.setAlpha(backgroundAlpha);
