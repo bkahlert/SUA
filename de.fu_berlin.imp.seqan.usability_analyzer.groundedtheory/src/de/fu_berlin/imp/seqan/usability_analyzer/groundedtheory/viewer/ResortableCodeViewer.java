@@ -2,6 +2,7 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -10,6 +11,7 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -44,8 +46,6 @@ public class ResortableCodeViewer extends CodeViewer {
 				filterable, quickSelectionMode);
 
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;
-		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer
-				.getTransfer() };
 
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
@@ -54,8 +54,10 @@ public class ResortableCodeViewer extends CodeViewer {
 			return;
 		}
 
-		this.getViewer().addDragSupport(operations, transferTypes,
-				new DragSourceListener() {
+		this.getViewer().addDragSupport(
+				operations,
+				new Transfer[] { LocalSelectionTransfer.getTransfer(),
+						TextTransfer.getInstance() }, new DragSourceListener() {
 					final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
 							.getSelectionRetriever(URI.class);
 
@@ -76,6 +78,14 @@ public class ResortableCodeViewer extends CodeViewer {
 
 					@Override
 					public void dragSetData(DragSourceEvent event) {
+						if (TextTransfer.getInstance().isSupportedType(
+								event.dataType)) {
+							event.data = StringUtils
+									.join(((StructuredSelection) LocalSelectionTransfer
+											.getTransfer().getSelection())
+											.toArray(), "|");
+						}
+
 						if (LocalSelectionTransfer.getTransfer()
 								.isSupportedType(event.dataType)) {
 							event.data = LocalSelectionTransfer.getTransfer()
@@ -89,7 +99,8 @@ public class ResortableCodeViewer extends CodeViewer {
 					}
 				});
 
-		this.getViewer().addDropSupport(operations, transferTypes,
+		this.getViewer().addDropSupport(operations,
+				new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new DropTargetAdapter() {
 					@Override
 					public void dragOver(DropTargetEvent event) {
