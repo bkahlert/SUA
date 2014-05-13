@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -8,11 +7,15 @@ import java.util.Set;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeStore;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreWriteException;
 
 public interface ICodeService {
 
@@ -283,6 +286,37 @@ public interface ICodeService {
 
 	public void deleteEpisodeAndSave(List<IEpisode> episodes)
 			throws CodeServiceException;
+
+	/**
+	 * Adds a new {@link IAxialCodingModel} to the {@link ICodeStore}. If a
+	 * {@link IAxialCodingModel} has the same {@link URI} it replaces the
+	 * already set model.
+	 * 
+	 * @param axialCodingModel
+	 * @throws CodeStoreWriteException
+	 */
+	public void addAxialCodingModel(IAxialCodingModel axialCodingModel)
+			throws CodeStoreWriteException;
+
+	/**
+	 * Removes a given {@link IAxialCodingModel} from the {@link ICodeStore} and
+	 * returns it.
+	 * 
+	 * @param uri
+	 * @return
+	 * @throws CodeStoreWriteException
+	 */
+	public void removeAxialCodingModel(URI uri) throws CodeStoreWriteException;
+
+	/**
+	 * Gets a given {@link IAxialCodingModel} from the {@link ICodeStore}.
+	 * 
+	 * @param uri
+	 * @return
+	 * @throws CodeStoreReadException
+	 */
+	public IAxialCodingModel getAxialCodingModel(URI uri)
+			throws CodeStoreReadException;
 
 	/**
 	 * Reattaches all resources (codes and memos) from one to another

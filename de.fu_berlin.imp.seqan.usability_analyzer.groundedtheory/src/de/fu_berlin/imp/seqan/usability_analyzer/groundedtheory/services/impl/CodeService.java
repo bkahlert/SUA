@@ -29,8 +29,10 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServic
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -517,6 +519,32 @@ public class CodeService implements ICodeService, IDisposable {
 		if (notDeletedEpisodes.size() > 0) {
 			throw new EpisodeDoesNotExistException(notDeletedEpisodes);
 		}
+	}
+
+	private static final String AXIAL_CODING_MODEL_TYPE = "acm";
+
+	@Override
+	public IAxialCodingModel getAxialCodingModel(URI uri)
+			throws CodeStoreReadException {
+		String json = this.codeStore.getRaw(AXIAL_CODING_MODEL_TYPE, uri);
+		if (json != null) {
+			return new JointJSAxialCodingModel(uri, json);
+		}
+		return null;
+	}
+
+	@Override
+	public void addAxialCodingModel(IAxialCodingModel axialCodingModel)
+			throws CodeStoreWriteException {
+		Assert.isNotNull(axialCodingModel.getUri());
+		this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE,
+				axialCodingModel.getUri(), axialCodingModel.serialize());
+	}
+
+	@Override
+	public void removeAxialCodingModel(URI uri) throws CodeStoreWriteException {
+		Assert.isNotNull(uri);
+		this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE, uri, null);
 	}
 
 	@Override
