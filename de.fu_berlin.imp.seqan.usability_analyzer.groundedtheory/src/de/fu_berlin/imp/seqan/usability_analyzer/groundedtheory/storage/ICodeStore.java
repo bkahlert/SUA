@@ -99,5 +99,36 @@ public interface ICodeStore {
 
 	public void setMemo(URI uri, String html) throws CodeStoreWriteException;
 
+	/**
+	 * Sets data for a given type and {@link URI}.
+	 * 
+	 * @param type
+	 * @param uri
+	 * @param content
+	 * @throws CodeStoreWriteException
+	 */
+	public void setRaw(String type, URI uri, String content)
+			throws CodeStoreWriteException;
+
+	/**
+	 * Returns all {@link URI}s with set data and a common type.
+	 * 
+	 * @param type
+	 * @return
+	 * @throws CodeStoreReadException
+	 */
+	public List<URI> getRaw(String type) throws CodeStoreReadException;
+
+	/**
+	 * Returns the set data for a given type and {@link URI}.
+	 * 
+	 * @param type
+	 * @param uri
+	 * @return
+	 * @throws CodeStoreReadException
+	 */
+	public String getRaw(String type, URI uri) throws CodeStoreReadException;
+
 	public Set<IEpisode> getEpisodes();
+
 }

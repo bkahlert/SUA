@@ -652,6 +652,41 @@ public class CodeStoreTest extends CodeStoreHelper {
 	}
 
 	@Test
+	public void testRaw() throws Exception {
+		ICodeStore codeStore = this.getSmallCodeStore();
+
+		// all empty
+		assertEquals(0, codeStore.getRaw("1").size());
+		assertEquals(null, codeStore.getRaw("1", new URI("schema://host.com")));
+
+		// create entry #1
+		codeStore.setRaw("1", new URI("schema://host.com"), "abc\ndef");
+		assertEquals(1, codeStore.getRaw("1").size());
+		assertEquals(new URI("schema://host.com"), codeStore.getRaw("1").get(0));
+		assertEquals("abc\ndef",
+				codeStore.getRaw("1", new URI("schema://host.com")));
+
+		// create entry #2
+		codeStore.setRaw("1", new URI("schema://host.de"), "abc\ndef___");
+		assertEquals(2, codeStore.getRaw("1").size());
+		assertEquals(new URI("schema://host.com"), codeStore.getRaw("1").get(0));
+		assertEquals(new URI("schema://host.de"), codeStore.getRaw("1").get(1));
+		assertEquals("abc\ndef",
+				codeStore.getRaw("1", new URI("schema://host.com")));
+		assertEquals("abc\ndef___",
+				codeStore.getRaw("1", new URI("schema://host.de")));
+
+		// remove entry #1
+		codeStore.setRaw("1", new URI("schema://host.de"), null);
+		codeStore.setRaw("1", new URI("schema://host.com"), "abc\ndef");
+		assertEquals(1, codeStore.getRaw("1").size());
+		assertEquals(new URI("schema://host.com"), codeStore.getRaw("1").get(0));
+		assertEquals("abc\ndef",
+				codeStore.getRaw("1", new URI("schema://host.com")));
+		assertEquals(null, codeStore.getRaw("1", new URI("schema://host.de")));
+	}
+
+	@Test
 	public void testBackup() throws IOException, CodeHasChildCodesException,
 			CodeDoesNotExistException {
 		ICodeStore codeStore = this.getSmallCodeStore();

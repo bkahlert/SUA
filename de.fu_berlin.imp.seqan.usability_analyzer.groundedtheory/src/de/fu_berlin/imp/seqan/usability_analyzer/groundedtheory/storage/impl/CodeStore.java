@@ -3,9 +3,11 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -808,6 +810,97 @@ class CodeStore implements ICodeStore {
 			this.memos.remove(uri);
 		}
 		this.save();
+	}
+
+	private String getRawBasename(String type, URI uri)
+			throws UnsupportedEncodingException {
+		return type + "." + URLEncoder.encode(uri.toString(), "UTF-8");
+	}
+
+	private URI getRawUri(String filename) throws UnsupportedEncodingException {
+		int prefixLength = filename.indexOf('.') + 1;
+		return new URI(URLDecoder.decode(filename.substring(prefixLength),
+				"UTF-8"));
+	}
+
+	private File[] getRawFile(String type, URI uri)
+			throws UnsupportedEncodingException {
+		String filename = this.getRawBasename(type, uri);
+		File file = new File(this.codeStoreFile.getParentFile(), filename);
+		File fallback = new File(this.codeStoreFile.getParentFile(),
+				DigestUtils.md5Hex(filename));
+		return new File[] { file, fallback };
+	}
+
+	@Override
+	public List<URI> getRaw(final String type) throws CodeStoreReadException {
+		final String prefix = type + ".";
+
+		List<URI> uris = new LinkedList<URI>();
+		try {
+			for (File file : this.getRawFile(type, new URI(""))[0]
+					.getParentFile().listFiles(new FilenameFilter() {
+						@Override
+						public boolean accept(File arg0, String arg1) {
+							return arg1.startsWith(prefix);
+						}
+					})) {
+				URI uri = this.getRawUri(file.getName());
+				uris.add(uri);
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new CodeStoreReadException(e);
+		}
+		return uris;
+	}
+
+	@Override
+	public String getRaw(String type, URI uri) throws CodeStoreReadException {
+		try {
+			for (File rawFile : this.getRawFile(type, uri)) {
+				try {
+					if (rawFile.exists()) {
+						return FileUtils.readFileToString(rawFile);
+					}
+				} catch (IOException e) {
+					throw new CodeStoreReadException(e);
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new CodeStoreReadException(e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public void setRaw(String type, URI uri, String content)
+			throws CodeStoreWriteException {
+		Assert.isNotNull(type);
+		Assert.isLegal(!type.contains("."));
+		Assert.isNotNull(uri);
+
+		try {
+			for (File rawFile : this.getRawFile(type, uri)) {
+				try {
+					if ((content == null || content.trim().equals(""))
+							&& rawFile.exists()) {
+						rawFile.delete();
+					} else {
+						try {
+							FileUtils.writeStringToFile(rawFile, content,
+									"UTF-8");
+						} catch (FileNotFoundException e) {
+							continue;
+						}
+					}
+				} catch (IOException e) {
+					throw new CodeStoreWriteException(e);
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new CodeStoreWriteException(e);
+		}
 	}
 
 	@Override
