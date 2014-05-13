@@ -47,9 +47,9 @@
       </view>
       <view
             category="de.fu_berlin.imp.seqan.usability_analyzer.category"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView"
             icon="icons/view/code_misc.png"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView"
             name="Selective Coding"
             restorable="true">
       </view>
@@ -57,8 +57,8 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.SelectiveCodingPerspective"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.SelectiveCodingPerspective"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.AxialCodingPerspective"
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.perspectives.AxialCodingPerspective"
             name="Selective Coding">
       </perspective>
    </extension>
@@ -541,7 +541,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView?after=additions">
+            locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView?after=additions">
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.zoomIn"
                label="+"
@@ -1121,11 +1121,11 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isSelectiveCodingView">
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isAxialCodingView">
          <with
                variable="activePartId">
             <equals
-                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView">
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView">
             </equals>
          </with>
       </definition>

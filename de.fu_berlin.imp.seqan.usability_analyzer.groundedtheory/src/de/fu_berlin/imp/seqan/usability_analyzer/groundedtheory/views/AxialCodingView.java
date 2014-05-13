@@ -17,13 +17,13 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.SelectiveCodingContentProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.SelectiveCodingLabelProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.AxialCodingContentProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.AxialCodingLabelProvider;
 
-public class SelectiveCodingView extends ViewPart {
+public class AxialCodingView extends ViewPart {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(SelectiveCodingView.class);
+			.getLogger(AxialCodingView.class);
 
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
@@ -31,7 +31,7 @@ public class SelectiveCodingView extends ViewPart {
 	private JointJS jointjs = null;
 	private JointJSViewer jointjsViewer = null;
 
-	public SelectiveCodingView() {
+	public AxialCodingView() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -39,8 +39,8 @@ public class SelectiveCodingView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		this.jointjs = new JointJS(parent, SWT.NONE, "sua://code/",
 				"sua://code-link");
-		JointJSContentProvider contentProvider = new SelectiveCodingContentProvider();
-		JointJSLabelProvider labelProvider = new SelectiveCodingLabelProvider();
+		JointJSContentProvider contentProvider = new AxialCodingContentProvider();
+		JointJSLabelProvider labelProvider = new AxialCodingLabelProvider();
 		this.jointjsViewer = new JointJSViewer(this.jointjs, contentProvider,
 				labelProvider);
 

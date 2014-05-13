@@ -7,7 +7,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.SelectiveCodingView;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView;
 
 public class ZoomOutHandler extends AbstractHandler {
 
@@ -19,8 +19,8 @@ public class ZoomOutHandler extends AbstractHandler {
 
 		IWorkbenchPart activePart = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
-		if (activePart instanceof SelectiveCodingView) {
-			SelectiveCodingView view = (SelectiveCodingView) activePart;
+		if (activePart instanceof AxialCodingView) {
+			AxialCodingView view = (AxialCodingView) activePart;
 			view.getJointjs().zoomOut();
 			try {
 				System.err.println(view.getJointjs().save().get());

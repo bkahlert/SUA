@@ -21,7 +21,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 
-public class SelectiveCodingContentProvider extends
+public class AxialCodingContentProvider extends
 		URIContentProvider<ICodeService> implements
 		com.bkahlert.nebula.viewer.jointjs.JointJSContentProvider {
 
@@ -35,80 +35,80 @@ public class SelectiveCodingContentProvider extends
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					false);
 		}
 
 		@Override
 		public void memoAdded(URI uri) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void memoModified(URI uri) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void memoRemoved(URI uri) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			ViewerUtils.refresh(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
 					true);
 		}
 	};
@@ -116,12 +116,12 @@ public class SelectiveCodingContentProvider extends
 	private final IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
 		@Override
 		public void importanceChanged(Set<URI> uris, Importance importance) {
-			ViewerUtils.update(SelectiveCodingContentProvider.this.viewer,
+			ViewerUtils.update(AxialCodingContentProvider.this.viewer,
 					uris.toArray(new URI[0]), null);
 		}
 	};
 
-	public SelectiveCodingContentProvider() {
+	public AxialCodingContentProvider() {
 		this.importanceService
 				.addImportanceServiceListener(this.importanceServiceListener);
 	}

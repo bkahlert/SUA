@@ -19,11 +19,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider.CodeColors;
 
-public class SelectiveCodingLabelProvider extends LabelProvider implements
+public class AxialCodingLabelProvider extends LabelProvider implements
 		JointJSLabelProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(SelectiveCodingContentProvider.class);
+			.getLogger(AxialCodingContentProvider.class);
 
 	private final ILocatorService locatorService = (ILocatorService) PlatformUI
 			.getWorkbench().getService(ILocatorService.class);
