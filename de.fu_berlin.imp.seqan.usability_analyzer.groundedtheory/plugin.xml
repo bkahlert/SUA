@@ -1193,6 +1193,12 @@
       </LocatorProvider>
    </extension>
    <extension
+         point="de.fu_berlin.imp.seqan.usability_analyzer.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.AxialCodingModelLocatorProvider">
+      </LocatorProvider>
+   </extension>
+   <extension
          point="de.fu_berlin.imp.seqan.usability_analyzer.timeline">
       <TimelineBandProvider
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.timeline.AnalysisTimelineBandProvider">
