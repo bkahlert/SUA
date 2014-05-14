@@ -127,6 +127,18 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DiffContentProvider.this.viewer);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	private final ICompilationService compilationService = (ICompilationService) PlatformUI

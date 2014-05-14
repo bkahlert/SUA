@@ -92,6 +92,18 @@ public class EntityContentProvider extends
 		public void episodesDeleted(Set<IEpisode> episodes) {
 			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	public EntityContentProvider() {

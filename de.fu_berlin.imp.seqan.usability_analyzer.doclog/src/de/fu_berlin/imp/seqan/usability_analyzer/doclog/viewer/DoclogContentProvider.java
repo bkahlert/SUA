@@ -119,6 +119,18 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	public DoclogContentProvider() {

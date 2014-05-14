@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 import java.util.Set;
 
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 
@@ -61,6 +61,18 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 
 	@Override
 	public void episodesDeleted(Set<IEpisode> episodes) {
+	}
+
+	@Override
+	public void axialCodingModelAdded(URI uri) {
+	}
+
+	@Override
+	public void axialCodingModelUpdated(URI uri) {
+	}
+
+	@Override
+	public void axialCodingModelRemoved(URI uri) {
 	}
 
 }

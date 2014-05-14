@@ -14,6 +14,8 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
  */
 public interface IAxialCodingModel extends ILocatable {
 
+	public String getTitle();
+
 	public List<URI> getCodes();
 
 	public List<ILink> getLinks();

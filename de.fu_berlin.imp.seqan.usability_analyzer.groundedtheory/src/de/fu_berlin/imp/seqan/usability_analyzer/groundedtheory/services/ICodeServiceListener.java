@@ -1,11 +1,11 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.List;
 import java.util.Set;
 
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 
@@ -36,4 +36,10 @@ public interface ICodeServiceListener {
 	public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode);
 
 	public void episodesDeleted(Set<IEpisode> deletedEpisodes);
+
+	public void axialCodingModelAdded(URI uri);
+
+	public void axialCodingModelUpdated(URI uri);
+
+	public void axialCodingModelRemoved(URI uri);
 }

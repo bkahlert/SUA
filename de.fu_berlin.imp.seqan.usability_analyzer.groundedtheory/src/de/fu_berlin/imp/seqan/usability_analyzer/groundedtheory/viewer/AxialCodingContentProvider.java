@@ -35,81 +35,83 @@ public class AxialCodingContentProvider extends
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					false);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, false);
 		}
 
 		@Override
 		public void memoAdded(URI uri) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void memoModified(URI uri) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void memoRemoved(URI uri) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
-			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer,
-					true);
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
+		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+			ViewerUtils.refresh(AxialCodingContentProvider.this.viewer, true);
 		}
 	};
 

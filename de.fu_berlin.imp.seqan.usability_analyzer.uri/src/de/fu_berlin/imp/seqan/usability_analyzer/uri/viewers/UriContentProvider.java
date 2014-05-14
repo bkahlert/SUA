@@ -95,6 +95,18 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(UriContentProvider.this.viewer);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	private final IUriService uriService = (IUriService) PlatformUI

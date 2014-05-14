@@ -537,14 +537,28 @@ public class CodeService implements ICodeService, IDisposable {
 	public void addAxialCodingModel(IAxialCodingModel axialCodingModel)
 			throws CodeStoreWriteException {
 		Assert.isNotNull(axialCodingModel.getUri());
-		this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE,
-				axialCodingModel.getUri(), axialCodingModel.serialize());
+		try {
+			boolean update = this
+					.getAxialCodingModel(axialCodingModel.getUri()) != null;
+			this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE,
+					axialCodingModel.getUri(), axialCodingModel.serialize());
+			if (update) {
+				this.codeServiceListenerNotifier
+						.axialCodingModelUpdated(axialCodingModel.getUri());
+			} else {
+				this.codeServiceListenerNotifier
+						.axialCodingModelAdded(axialCodingModel.getUri());
+			}
+		} catch (CodeStoreReadException e) {
+			throw new CodeStoreWriteException(e);
+		}
 	}
 
 	@Override
 	public void removeAxialCodingModel(URI uri) throws CodeStoreWriteException {
 		Assert.isNotNull(uri);
 		this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE, uri, null);
+		this.codeServiceListenerNotifier.axialCodingModelRemoved(uri);
 	}
 
 	@Override

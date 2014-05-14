@@ -133,6 +133,18 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {

@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.impl;
 
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -213,6 +213,48 @@ public class CodeServiceListenerNotifier {
 						public Void call() throws Exception {
 							codeServiceListener
 									.episodesDeleted(deletedEpisodes);
+							return null;
+						}
+					});
+		}
+	}
+
+	public void axialCodingModelAdded(final URI uri) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
+					"Axial Coding Model Added Notification",
+					new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							codeServiceListener.axialCodingModelAdded(uri);
+							return null;
+						}
+					});
+		}
+	}
+
+	public void axialCodingModelUpdated(final URI uri) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
+					"Axial Coding Model Updated Notification",
+					new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							codeServiceListener.axialCodingModelUpdated(uri);
+							return null;
+						}
+					});
+		}
+	}
+
+	public void axialCodingModelRemoved(final URI uri) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
+					"Axial Coding Model Removed Notification",
+					new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							codeServiceListener.axialCodingModelRemoved(uri);
 							return null;
 						}
 					});

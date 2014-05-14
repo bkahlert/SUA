@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 
 import com.bkahlert.nebula.utils.JSONUtils;
 
@@ -18,10 +19,15 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 	private HashMap<String, Object> json;
 
 	private List<URI> codes;
+	private String title;
 	private List<ILink> links;
 
 	public JointJSAxialCodingModel(URI uri, String json) {
-		Assert.isNotNull(uri);
+		try {
+			Assert.isNotNull(uri);
+		} catch (AssertionFailedException e) {
+			throw new IllegalArgumentException(e);
+		}
 		this.uri = uri;
 		this.update(json);
 	}
@@ -39,6 +45,24 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 	@Override
 	public URI getUri() {
 		return this.uri;
+	}
+
+	@Override
+	public String getTitle() {
+		if (this.title == null) {
+			Object title = this.json.get("title");
+			this.title = title != null ? title.toString() : null;
+		}
+		return this.title;
+	}
+
+	public void setTitle(String title) {
+		try {
+			Assert.isNotNull(title);
+		} catch (AssertionFailedException e) {
+			throw new IllegalArgumentException(e);
+		}
+		this.title = title;
 	}
 
 	@SuppressWarnings("unchecked")

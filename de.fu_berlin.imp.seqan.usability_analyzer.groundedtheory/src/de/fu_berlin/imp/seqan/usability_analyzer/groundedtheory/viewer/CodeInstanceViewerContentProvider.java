@@ -117,6 +117,18 @@ public class CodeInstanceViewerContentProvider extends
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					false);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	@Override

@@ -102,6 +102,18 @@ public class EpisodeViewerContentProvider extends
 			// }
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer);
 		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+		}
 	};
 
 	/**
