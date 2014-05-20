@@ -524,6 +524,11 @@ public class CodeService implements ICodeService, IDisposable {
 	private static final String AXIAL_CODING_MODEL_TYPE = "acm";
 
 	@Override
+	public List<URI> getAxialCodingModels() throws CodeStoreReadException {
+		return this.codeStore.getRaw(AXIAL_CODING_MODEL_TYPE);
+	}
+
+	@Override
 	public IAxialCodingModel getAxialCodingModel(URI uri)
 			throws CodeStoreReadException {
 		String json = this.codeStore.getRaw(AXIAL_CODING_MODEL_TYPE, uri);

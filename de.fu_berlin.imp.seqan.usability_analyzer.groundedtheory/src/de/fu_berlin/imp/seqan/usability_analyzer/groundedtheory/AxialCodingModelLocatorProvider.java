@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
@@ -16,6 +18,11 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodin
 public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 
 	public static final String AXIAL_CODING_MODEL_NAMESPACE = "axialcodingmodel";
+
+	public static final URI createUniqueURI() {
+		return new URI("sua://" + AXIAL_CODING_MODEL_NAMESPACE + "/"
+				+ UUID.randomUUID());
+	}
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AxialCodingModelLocatorProvider.class);

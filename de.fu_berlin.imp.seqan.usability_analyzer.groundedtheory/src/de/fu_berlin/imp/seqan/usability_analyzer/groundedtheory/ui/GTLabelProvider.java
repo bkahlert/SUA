@@ -39,6 +39,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderSer
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisodes;
@@ -285,6 +286,15 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				} catch (CodeServiceException e) {
 					LOGGER.warn("Could not find the episode's codes", e);
 				}
+			}
+			return new StyledString(name, styler);
+		}
+		if (IAxialCodingModel.class.isInstance(locatable)) {
+			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
+			String name = (axialCodingModel != null) ? axialCodingModel
+					.getTitle() : null;
+			if (name == null) {
+				name = uri.toString();
 			}
 			return new StyledString(name, styler);
 		}

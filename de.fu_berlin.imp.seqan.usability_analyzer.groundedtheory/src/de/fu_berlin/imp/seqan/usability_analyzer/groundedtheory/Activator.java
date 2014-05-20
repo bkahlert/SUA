@@ -15,8 +15,13 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 
 	private ILabelProviderService labelProviderService = null;
-	private ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
-			0, new String[] { "code", "codeinstance", "episode" }) {
+	private final ILabelProviderFactory labelProviderFactory = new ILabelProviderService.LocatablePathLabelProviderFactory(
+			0,
+			new String[] {
+					"code",
+					"codeinstance",
+					"episode",
+					AxialCodingModelLocatorProvider.AXIAL_CODING_MODEL_NAMESPACE }) {
 		@Override
 		protected ILabelProvider create() {
 			return new GTLabelProvider();

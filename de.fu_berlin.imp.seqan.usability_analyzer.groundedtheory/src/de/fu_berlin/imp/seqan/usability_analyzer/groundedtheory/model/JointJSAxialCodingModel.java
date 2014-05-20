@@ -15,11 +15,9 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 
 	private static final long serialVersionUID = 1L;
 	private final URI uri;
-	private String rawJson;
 	private HashMap<String, Object> json;
 
 	private List<URI> codes;
-	private String title;
 	private List<ILink> links;
 
 	public JointJSAxialCodingModel(URI uri, String json) {
@@ -39,7 +37,6 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
-		this.rawJson = json;
 	}
 
 	@Override
@@ -49,11 +46,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 
 	@Override
 	public String getTitle() {
-		if (this.title == null) {
-			Object title = this.json.get("title");
-			this.title = title != null ? title.toString() : null;
-		}
-		return this.title;
+		return (String) this.json.get("title");
 	}
 
 	public void setTitle(String title) {
@@ -62,7 +55,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 		} catch (AssertionFailedException e) {
 			throw new IllegalArgumentException(e);
 		}
-		this.title = title;
+		this.json.put("title", title);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -102,7 +95,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 
 	@Override
 	public String serialize() {
-		return this.rawJson;
+		return JSONUtils.buildJson(this.json);
 	}
 
 }

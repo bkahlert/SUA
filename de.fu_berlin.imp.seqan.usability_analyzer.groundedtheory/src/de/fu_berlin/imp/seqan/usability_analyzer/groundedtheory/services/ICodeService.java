@@ -288,6 +288,15 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
+	 * Gets all existing {@link IAxialCodingModel} from the {@link ICodeStore}.
+	 * 
+	 * @return
+	 * 
+	 * @throws CodeStoreWriteException
+	 */
+	public List<URI> getAxialCodingModels() throws CodeStoreReadException;
+
+	/**
 	 * Adds a new {@link IAxialCodingModel} to the {@link ICodeStore}. If a
 	 * {@link IAxialCodingModel} has the same {@link URI} it replaces the
 	 * already set model.

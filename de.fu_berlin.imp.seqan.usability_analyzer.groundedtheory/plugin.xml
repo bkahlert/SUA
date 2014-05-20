@@ -50,7 +50,7 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView"
             icon="icons/view/code_misc.png"
             id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView"
-            name="Selective Coding"
+            name="Axial Coding"
             restorable="true">
       </view>
    </extension>
