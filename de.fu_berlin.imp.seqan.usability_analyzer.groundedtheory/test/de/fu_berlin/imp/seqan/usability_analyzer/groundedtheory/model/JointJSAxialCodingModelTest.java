@@ -41,12 +41,15 @@ public class JointJSAxialCodingModelTest {
 
 		ILink link1 = model.getLinks().get(0);
 		assertEquals("Label2", link1.getTitle());
-		assertEquals(new ILink.CodeEndpoint(code3), link1.getSource());
-		assertEquals(new ILink.CodeEndpoint(code2), link1.getTarget());
+		assertEquals(new ILink.NodeEndpoint(code3.toString()),
+				link1.getSource());
+		assertEquals(new ILink.NodeEndpoint(code2.toString()),
+				link1.getTarget());
 
 		ILink link2 = model.getLinks().get(1);
 		assertEquals("I'm pointing to nowhere", link2.getTitle());
-		assertEquals(new ILink.CodeEndpoint(code3), link2.getSource());
+		assertEquals(new ILink.NodeEndpoint(code3.toString()),
+				link2.getSource());
 		assertEquals(new ILink.CoordinateEndpoint(1000, 250), link2.getTarget());
 	}
 }

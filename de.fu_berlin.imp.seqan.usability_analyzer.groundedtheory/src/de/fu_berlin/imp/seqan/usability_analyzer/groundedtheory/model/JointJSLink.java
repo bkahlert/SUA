@@ -47,7 +47,7 @@ public class JointJSLink implements ILocatable, ILink {
 	private IEndpoint createEndpoint(HashMap<String, Object> endpoint) {
 		if (endpoint.get("id") != null) {
 			final URI id = new URI(endpoint.get("id").toString());
-			return new ILink.CodeEndpoint(id);
+			return new ILink.NodeEndpoint(id.toString());
 		} else {
 			final int x = Integer.valueOf(endpoint.get("x").toString());
 			final int y = Integer.valueOf(endpoint.get("y").toString());

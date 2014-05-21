@@ -18,6 +18,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 	private HashMap<String, Object> json;
 
 	private List<URI> codes;
+	private final List<URI> codesNotInJson = new ArrayList<URI>();
 	private List<ILink> links;
 
 	public JointJSAxialCodingModel(URI uri, String json) {
@@ -74,7 +75,10 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 				}
 			}
 		}
-		return this.codes;
+		List<URI> codes = new ArrayList<URI>();
+		codes.addAll(this.codes);
+		codes.addAll(this.codesNotInJson);
+		return codes;
 	}
 
 	@Override
@@ -85,7 +89,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 				if (cell.get("type").toString().contains("link")
 						&& (cell.get("permanent") == null || !cell
 								.get("permanent").toString().equals("true"))) {
-					JointJSLink link = new JointJSLink(cell);
+					ILink link = new JointJSLink(cell);
 					this.links.add(link);
 				}
 			}

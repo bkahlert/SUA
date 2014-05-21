@@ -6,8 +6,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 /**
- * Instances of this describe a graph of {@link ICode} and connecting
- * {@link ILink}s.
+ * Instances of this describe a graph describing an axial coding model.
  * 
  * @author bkahlert
  * 

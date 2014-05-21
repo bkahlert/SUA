@@ -14,7 +14,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServic
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.ILabelProviderService.LabelProvider;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.ILocatorService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.ui.GTLabelProvider.CodeColors;
@@ -23,20 +23,18 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 		JointJSLabelProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(AxialCodingContentProvider.class);
+			.getLogger(AxialCodingLabelProvider.class);
 
-	private final ILocatorService locatorService = (ILocatorService) PlatformUI
-			.getWorkbench().getService(ILocatorService.class);
 	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
 			.getWorkbench().getService(IImportanceService.class);
-	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
 	private CodeColors getCodeColors(URI uri) {
-		if (this.locatorService.getType(uri) == ICode.class) {
+		if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
 			try {
-				ICode code = this.locatorService
-						.resolve(uri, ICode.class, null).get();
+				ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class,
+						null).get();
 				return new CodeColors(code.getColor());
 			} catch (Exception e) {
 				LOGGER.error("Error getting color for " + uri, e);
@@ -69,7 +67,7 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 
 	@Override
 	public String getText(URI element) throws Exception {
-		ILabelProvider lp = this.labelProviderService.getLabelProvider(element);
+		ILabelProvider lp = LABEL_PROVIDER_SERVICE.getLabelProvider(element);
 		return lp.getText(element);
 	}
 
@@ -87,7 +85,7 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 	public RGB getBackgroundColor(Object element) {
 		if (element instanceof URI) {
 			URI uri = (URI) element;
-			if (this.locatorService.getType(uri) == ICode.class) {
+			if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
 				RGB rgb = this.getCodeColors(uri).getBackgroundRGB();
 				rgb.setAlpha(this.getAlpha(uri)[0]);
 				return rgb;
@@ -100,17 +98,12 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 	public RGB getBorderColor(Object element) {
 		if (element instanceof URI) {
 			URI uri = (URI) element;
-			if (this.locatorService.getType(uri) == ICode.class) {
+			if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
 				RGB rgb = this.getCodeColors((URI) element).getBorderRGB();
 				rgb.setAlpha(this.getAlpha(uri)[1]);
 				return rgb;
 			}
 		}
-		return null;
-	}
-
-	@Override
-	public Point getPosition(Object element) {
 		return null;
 	}
 

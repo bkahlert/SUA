@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
-import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 
 /**
  * Instances of this interface symbolize links between two {@link IEndpoint}s.
@@ -20,8 +19,8 @@ public interface ILink extends ILocatable {
 		public long getY();
 	}
 
-	public static interface ICodeEndpoint extends IEndpoint {
-		public URI getCode();
+	public static interface INodeEndpoint extends IEndpoint {
+		public String getNode();
 	}
 
 	public static class CoordinateEndpoint implements ICoordinateEndpoint {
@@ -79,15 +78,15 @@ public interface ILink extends ILocatable {
 		}
 	}
 
-	public static class CodeEndpoint implements ICodeEndpoint {
-		private final URI id;
+	public static class NodeEndpoint implements INodeEndpoint {
+		private final String id;
 
-		public CodeEndpoint(URI id) {
+		public NodeEndpoint(String id) {
 			this.id = id;
 		}
 
 		@Override
-		public URI getCode() {
+		public String getNode() {
 			return id;
 		}
 
@@ -110,7 +109,7 @@ public interface ILink extends ILocatable {
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			CodeEndpoint other = (CodeEndpoint) obj;
+			NodeEndpoint other = (NodeEndpoint) obj;
 			if (id == null) {
 				if (other.id != null) {
 					return false;
