@@ -542,6 +542,7 @@ public class CodeService implements ICodeService, IDisposable {
 	public void addAxialCodingModel(IAxialCodingModel axialCodingModel)
 			throws CodeStoreWriteException {
 		Assert.isNotNull(axialCodingModel.getUri());
+		LocatorService.INSTANCE.uncache(axialCodingModel.getUri());
 		try {
 			boolean update = this
 					.getAxialCodingModel(axialCodingModel.getUri()) != null;
@@ -562,6 +563,7 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void removeAxialCodingModel(URI uri) throws CodeStoreWriteException {
 		Assert.isNotNull(uri);
+		LocatorService.INSTANCE.uncache(uri);
 		this.codeStore.setRaw(AXIAL_CODING_MODEL_TYPE, uri, null);
 		this.codeServiceListenerNotifier.axialCodingModelRemoved(uri);
 	}
