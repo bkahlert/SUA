@@ -112,26 +112,24 @@ public class AxialCodingView extends ViewPart {
 					return;
 				}
 
-				for (final String uriString : data.split("\\|")) {
-					ExecUtils.nonUIAsyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								System.err.println(AxialCodingView.this.jointjs
-										.getPan().get());
-								xx TODO pan korrekt messen
-								// TODO: letzte Woche abarbeiten
-								// TODO: testen
+				ExecUtils.nonUIAsyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							Point pan = AxialCodingView.this.jointjs.getPan()
+									.get();
+							for (final String uriString : data.split("\\|")) {
 								URI uri = new URI(uriString);
 								AxialCodingView.this.createNode(uri, new Point(
-										10, 10));
-							} catch (Exception e) {
-								LOGGER.error("Error dropping " + data, e);
+										(int) offsetX - pan.x - 10,
+										(int) offsetY - pan.y - 10));
 							}
+						} catch (Exception e) {
+							LOGGER.error("Error dropping " + data, e);
 						}
-					});
+					}
+				});
 
-				}
 			}
 		});
 	}
