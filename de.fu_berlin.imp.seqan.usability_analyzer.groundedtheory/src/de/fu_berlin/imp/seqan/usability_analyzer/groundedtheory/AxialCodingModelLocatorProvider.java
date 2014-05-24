@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory;
 
-import java.util.UUID;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
@@ -9,6 +7,7 @@ import org.eclipse.ui.PlatformUI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.AdaptingLocatorProvider;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.location.URIUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
@@ -20,8 +19,21 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 	public static final String AXIAL_CODING_MODEL_NAMESPACE = "axialcodingmodel";
 
 	public static final URI createUniqueURI() {
-		return new URI("sua://" + AXIAL_CODING_MODEL_NAMESPACE + "/"
-				+ UUID.randomUUID());
+		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+				.getService(ICodeService.class);
+
+		try {
+			int max = -1;
+			for (URI uri : codeService.getAxialCodingModels()) {
+				max = Math
+						.max(max, Integer.valueOf(URIUtils.getIdentifier(uri)
+								.toString()));
+			}
+			return new URI("sua://" + AXIAL_CODING_MODEL_NAMESPACE + "/"
+					+ (max + 1));
+		} catch (CodeStoreReadException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static final Logger LOGGER = Logger
