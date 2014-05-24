@@ -27,7 +27,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.viewer.AxialCodingLabelProvider;
 
@@ -40,12 +42,45 @@ public class AxialCodingView extends ViewPart {
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
+	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+			try {
+				IAxialCodingModel axialCodingModel = CODE_SERVICE
+						.getAxialCodingModel(uri);
+				if (AxialCodingView.this.openedUri != null
+						&& AxialCodingView.this.openedUri.equals(uri)) {
+					AxialCodingView.this.jointjs.setTitle(axialCodingModel
+							.getTitle());
+				}
+			} catch (CodeStoreReadException e) {
+				LOGGER.error("Error setting title of " + uri, e);
+			}
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+			if (AxialCodingView.this.openedUri != null
+					&& AxialCodingView.this.openedUri.equals(uri)) {
+				AxialCodingView.this.openedUri = null;
+				AxialCodingView.this.open(null);
+			}
+		};
+	};
+
 	private JointJS jointjs = null;
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
 
 	private URI openedUri = null;
 
 	public AxialCodingView() {
+		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
+	}
+
+	@Override
+	public void dispose() {
+		CODE_SERVICE.removeCodeServiceListener(this.codeServiceListener);
+		super.dispose();
 	}
 
 	@Override
@@ -70,7 +105,8 @@ public class AxialCodingView extends ViewPart {
 	private void activateDropSupport() {
 		this.jointjs.addDropListener(new IDropListener() {
 			@Override
-			public void drop(long offsetX, long offsetY, final String data) {
+			public void drop(final long offsetX, final long offsetY,
+					final String data) {
 				if (data == null || data.isEmpty()
 						|| AxialCodingView.this.openedUri == null) {
 					return;
@@ -105,13 +141,18 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	public void open(URI uri) {
-		try {
-			IAxialCodingModel axialCodingModel = CODE_SERVICE
-					.getAxialCodingModel(uri);
-			this.openedUri = uri;
-			this.jointjs.load(axialCodingModel.serialize());
-		} catch (CodeStoreReadException e) {
-			throw new IllegalArgumentException(e);
+		this.save();
+		if (uri == null) {
+			this.jointjs.load("{ \"cells\": [] }");
+		} else {
+			try {
+				IAxialCodingModel axialCodingModel = CODE_SERVICE
+						.getAxialCodingModel(uri);
+				this.openedUri = uri;
+				this.jointjs.load(axialCodingModel.serialize());
+			} catch (CodeStoreReadException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 
