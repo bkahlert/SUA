@@ -823,13 +823,11 @@ class CodeStore implements ICodeStore {
 				"UTF-8"));
 	}
 
-	private File[] getRawFile(String type, URI uri)
+	private File getRawFile(String type, URI uri)
 			throws UnsupportedEncodingException {
 		String filename = this.getRawBasename(type, uri);
 		File file = new File(this.codeStoreFile.getParentFile(), filename);
-		File fallback = new File(this.codeStoreFile.getParentFile(),
-				DigestUtils.md5Hex(filename));
-		return new File[] { file, fallback };
+		return file;
 	}
 
 	@Override
@@ -838,8 +836,8 @@ class CodeStore implements ICodeStore {
 
 		List<URI> uris = new LinkedList<URI>();
 		try {
-			for (File file : this.getRawFile(type, new URI(""))[0]
-					.getParentFile().listFiles(new FilenameFilter() {
+			for (File file : this.getRawFile(type, new URI("")).getParentFile()
+					.listFiles(new FilenameFilter() {
 						@Override
 						public boolean accept(File arg0, String arg1) {
 							return arg1.startsWith(prefix);
@@ -857,14 +855,13 @@ class CodeStore implements ICodeStore {
 	@Override
 	public String getRaw(String type, URI uri) throws CodeStoreReadException {
 		try {
-			for (File rawFile : this.getRawFile(type, uri)) {
-				try {
-					if (rawFile.exists()) {
-						return FileUtils.readFileToString(rawFile);
-					}
-				} catch (IOException e) {
-					throw new CodeStoreReadException(e);
+			File rawFile = this.getRawFile(type, uri);
+			try {
+				if (rawFile.exists()) {
+					return FileUtils.readFileToString(rawFile);
 				}
+			} catch (IOException e) {
+				throw new CodeStoreReadException(e);
 			}
 		} catch (UnsupportedEncodingException e) {
 			throw new CodeStoreReadException(e);
@@ -881,22 +878,20 @@ class CodeStore implements ICodeStore {
 		Assert.isNotNull(uri);
 
 		try {
-			for (File rawFile : this.getRawFile(type, uri)) {
-				try {
-					if ((content == null || content.trim().equals(""))
-							&& rawFile.exists()) {
-						rawFile.delete();
-					} else {
-						try {
-							FileUtils.writeStringToFile(rawFile, content,
-									"UTF-8");
-						} catch (FileNotFoundException e) {
-							continue;
-						}
+			File rawFile = this.getRawFile(type, uri);
+			try {
+				if ((content == null || content.trim().equals(""))
+						&& rawFile.exists()) {
+					rawFile.delete();
+				} else {
+					try {
+						FileUtils.writeStringToFile(rawFile, content, "UTF-8");
+					} catch (FileNotFoundException e) {
+						throw new CodeStoreWriteException(e);
 					}
-				} catch (IOException e) {
-					throw new CodeStoreWriteException(e);
 				}
+			} catch (IOException e) {
+				throw new CodeStoreWriteException(e);
 			}
 		} catch (UnsupportedEncodingException e) {
 			throw new CodeStoreWriteException(e);
