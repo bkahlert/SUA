@@ -129,6 +129,7 @@ public class AxialCodingView extends ViewPart {
 				AxialCodingView.this.save();
 			}
 		});
+		this.jointjs.setEnabled(false);
 		this.activateMenu();
 		this.activateDropSupport();
 	}
@@ -190,14 +191,18 @@ public class AxialCodingView extends ViewPart {
 		this.save();
 		if (uri == null) {
 			this.jointjs.load("{ \"cells\": [] }");
+			this.jointjs.setEnabled(false);
 		} else {
 			try {
 				IAxialCodingModel axialCodingModel = CODE_SERVICE
 						.getAxialCodingModel(uri);
 				this.openedUri = uri;
 				this.jointjs.load(axialCodingModel.serialize());
+				this.jointjs.setEnabled(true);
 			} catch (CodeStoreReadException e) {
 				throw new IllegalArgumentException(e);
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing the axial coding model " + uri);
 			}
 		}
 	}
