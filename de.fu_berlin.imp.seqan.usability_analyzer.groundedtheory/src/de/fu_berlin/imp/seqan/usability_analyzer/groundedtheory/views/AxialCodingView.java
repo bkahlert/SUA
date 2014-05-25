@@ -50,8 +50,23 @@ public class AxialCodingView extends ViewPart {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView";
 
+	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
+			.getWorkbench().getService(IImportanceService.class);
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
+
+	private final IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
+		@Override
+		public void importanceChanged(Set<URI> uris, Importance importance) {
+			for (URI uri : uris) {
+				try {
+					AxialCodingView.this.refresh(uri);
+				} catch (Exception e) {
+					LOGGER.error("Error refreshing importance of " + uri, e);
+				}
+			}
+		}
+	};
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
@@ -85,12 +100,16 @@ public class AxialCodingView extends ViewPart {
 	private URI openedUri = null;
 
 	public AxialCodingView() {
+		IMPORTANCE_SERVICE
+				.addImportanceServiceListener(this.importanceServiceListener);
 		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
 	}
 
 	@Override
 	public void dispose() {
 		CODE_SERVICE.removeCodeServiceListener(this.codeServiceListener);
+		IMPORTANCE_SERVICE
+				.removeImportanceServiceListener(this.importanceServiceListener);
 		super.dispose();
 	}
 
