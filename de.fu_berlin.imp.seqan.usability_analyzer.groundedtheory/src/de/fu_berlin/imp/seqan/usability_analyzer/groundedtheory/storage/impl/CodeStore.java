@@ -858,7 +858,7 @@ class CodeStore implements ICodeStore {
 			File rawFile = this.getRawFile(type, uri);
 			try {
 				if (rawFile.exists()) {
-					return FileUtils.readFileToString(rawFile);
+					return FileUtils.readFileToString(rawFile, "UTF-8");
 				}
 			} catch (IOException e) {
 				throw new CodeStoreReadException(e);
