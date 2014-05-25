@@ -69,6 +69,26 @@ public class AxialCodingView extends ViewPart {
 	};
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+
+		@Override
+		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			try {
+				AxialCodingView.this.refresh(code.getUri());
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing " + code.getUri() + " in "
+						+ AxialCodingView.class, e);
+			}
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+			try {
+				AxialCodingView.this.refresh(code.getUri());
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing " + code.getUri() + " in "
+						+ AxialCodingView.class, e);
+			}
+		}
 		@Override
 		public void axialCodingModelUpdated(URI uri) {
 			try {
