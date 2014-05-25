@@ -89,6 +89,28 @@ public class AxialCodingView extends ViewPart {
 						+ AxialCodingView.class, e);
 			}
 		}
+
+		@Override
+		public void codeMoved(ICode code, ICode oldParentCode,
+				ICode newParentCode) {
+			try {
+				AxialCodingView.this.refresh(code.getUri());
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing " + code.getUri() + " in "
+						+ AxialCodingView.class, e);
+			}
+		}
+
+		@Override
+		public void codeDeleted(ICode code) {
+			try {
+				AxialCodingView.this.refresh(code.getUri());
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing " + code.getUri() + " in "
+						+ AxialCodingView.class, e);
+			}
+		}
+
 		@Override
 		public void axialCodingModelUpdated(URI uri) {
 			try {
