@@ -2,27 +2,38 @@ package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
@@ -99,7 +110,25 @@ public class AxialCodingView extends ViewPart {
 				AxialCodingView.this.save();
 			}
 		});
+		this.activateMenu();
 		this.activateDropSupport();
+	}
+
+	private void activateMenu() {
+		this.getSite().setSelectionProvider(this.jointjs);
+
+		MenuManager menuManager = new MenuManager("#PopupMenu");
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				manager.add(new Separator(
+						IWorkbenchActionConstants.MB_ADDITIONS));
+			}
+		});
+		Menu menu = menuManager.createContextMenu(this.jointjs);
+		this.getSite().registerContextMenu(menuManager, this.jointjs);
+		this.jointjs.setMenu(menu);
 	}
 
 	private void activateDropSupport() {

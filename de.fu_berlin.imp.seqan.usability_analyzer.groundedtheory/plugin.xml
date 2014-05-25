@@ -186,6 +186,24 @@
             </class>
          </state>
       </command>
+      <command
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.remove"
+            name="Remove">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -339,6 +357,19 @@
               class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.AutoLayoutHandler"
               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.autoLayout">
         </handler>
+        <handler
+              class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.handlers.RemoveHandler"
+              commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.remove">
+           <activeWhen>
+              <and>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isAxialCodingView">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
+                 </reference>
+              </and></activeWhen>
+        </handler>
      </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -472,6 +503,23 @@
                   </reference>
                   <reference
                         definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isICodes">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.remove"
+               icon="icons/etool16/delete_code_tsk.png"
+               label="Remove..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isAxialCodingView">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.hasICodes">
                   </reference>
                </and>
             </visibleWhen>
@@ -1129,6 +1177,15 @@
             </equals>
          </with>
       </definition>
+      <definition
+            id="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.isAxialCodingView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.AxialCodingView">
+            </equals>
+         </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
@@ -1137,6 +1194,16 @@
             class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.ICodeInstanceAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="java.lang.String"
+            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.StringAdapterFactory">
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
+         </adapter>
+         <adapter
+               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
          </adapter>
       </factory>
    </extension>
