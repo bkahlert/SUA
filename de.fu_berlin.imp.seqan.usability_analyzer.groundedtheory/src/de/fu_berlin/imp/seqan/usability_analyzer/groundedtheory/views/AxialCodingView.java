@@ -115,11 +115,12 @@ public class AxialCodingView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new GridLayout(1, true));
+		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
+				.create());
 		ItemList modelList = new AxialCodingViewModelList(parent, SWT.BORDER);
 		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		this.jointjs = new JointJS(parent, SWT.NONE, "sua://code/",
+		this.jointjs = new JointJS(parent, SWT.BORDER, "sua://code/",
 				"sua://code-link");
 		this.jointjs
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
