@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class AxialCodingView extends ViewPart {
 		public void importanceChanged(Set<URI> uris, Importance importance) {
 			for (URI uri : uris) {
 				try {
-					AxialCodingView.this.refresh(uri);
+					AxialCodingView.this.update(uri);
 				} catch (Exception e) {
 					LOGGER.error("Error refreshing importance of " + uri, e);
 				}
@@ -73,7 +74,7 @@ public class AxialCodingView extends ViewPart {
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
 			try {
-				AxialCodingView.this.refresh(code.getUri());
+				AxialCodingView.this.update(code.getUri());
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing " + code.getUri() + " in "
 						+ AxialCodingView.class, e);
@@ -83,7 +84,7 @@ public class AxialCodingView extends ViewPart {
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
 			try {
-				AxialCodingView.this.refresh(code.getUri());
+				AxialCodingView.this.update(code.getUri());
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing " + code.getUri() + " in "
 						+ AxialCodingView.class, e);
@@ -91,10 +92,19 @@ public class AxialCodingView extends ViewPart {
 		}
 
 		@Override
-		public void codeMoved(ICode code, ICode oldParentCode,
+		public void codeMoved(final ICode code, ICode oldParentCode,
 				ICode newParentCode) {
 			try {
-				AxialCodingView.this.refresh(code.getUri());
+				ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						AxialCodingView.this.deleteIsALinks(code.getUri())
+								.get();
+						AxialCodingView.this.createIsALinks(code.getUri())
+								.get();
+						return null;
+					}
+				});
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing " + code.getUri() + " in "
 						+ AxialCodingView.class, e);
@@ -104,7 +114,7 @@ public class AxialCodingView extends ViewPart {
 		@Override
 		public void codeDeleted(ICode code) {
 			try {
-				AxialCodingView.this.refresh(code.getUri());
+				AxialCodingView.this.jointjs.remove(code.getUri().toString());
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing " + code.getUri() + " in "
 						+ AxialCodingView.class, e);
@@ -241,6 +251,7 @@ public class AxialCodingView extends ViewPart {
 						.getAxialCodingModel(uri);
 				this.openedUri = uri;
 				this.jointjs.load(axialCodingModel.serialize());
+				this.syncModel();
 				this.jointjs.setEnabled(true);
 			} catch (CodeStoreReadException e) {
 				throw new IllegalArgumentException(e);
@@ -264,6 +275,7 @@ public class AxialCodingView extends ViewPart {
 			@Override
 			public void run() {
 				try {
+					System.err.println(json.get());
 					IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
 							uri, json.get());
 					CODE_SERVICE.addAxialCodingModel(axialCodingModel);
@@ -291,20 +303,43 @@ public class AxialCodingView extends ViewPart {
 		});
 	}
 
-	public void refresh() throws Exception {
-		for (URI uri : this.getModelCodes().get()) {
-			this.refresh(uri);
-		}
-	}
-
 	/**
-	 * Refreshed the given Node based on the internal information and returns
-	 * the new size.
+	 * Updates non-structural information all existing nodes based on the
+	 * internal information and returns the new size.
+	 * <p>
+	 * Updated information are:
+	 * <ul>
+	 * <li>title</li>
+	 * <li>content</li>
+	 * <li>colors</li>
+	 * <li>size</li>
+	 * </ul>
 	 * 
 	 * @param uri
 	 * @return
 	 */
-	public Point refresh(URI uri) throws Exception {
+	public void update() throws Exception {
+		for (URI uri : this.getModelCodes().get()) {
+			this.update(uri);
+		}
+	}
+
+	/**
+	 * Updates non-structural information of the given {@link URI} based on the
+	 * internal information and returns the new size.
+	 * <p>
+	 * Updated information are:
+	 * <ul>
+	 * <li>title</li>
+	 * <li>content</li>
+	 * <li>colors</li>
+	 * <li>size</li>
+	 * </ul>
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	public Point update(URI uri) throws Exception {
 		this.jointjs.setNodeTitle(uri.toString(),
 				this.labelProvider.getText(uri));
 		this.jointjs.setNodeContent(uri.toString(),
@@ -320,6 +355,58 @@ public class AxialCodingView extends ViewPart {
 			this.jointjs.setSize(uri.toString(), size.x, size.y);
 		}
 		return size;
+	}
+
+	/**
+	 * Synchronized structural information with the internally saved
+	 * information.
+	 * <p>
+	 * <ul>
+	 * <li>No more existing {@link ICode} get removed.</li>
+	 * <li>Permanent "is a" links are recreated.
+	 * 
+	 * @return
+	 */
+	public Future<Void> syncModel() {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				List<URI> uris = AxialCodingView.this.removeAllInvalidNodes()
+						.get();
+				AxialCodingView.this.deleteAllExistingIsALinks().get();
+				for (URI uri : uris) {
+					AxialCodingView.this.createIsALinks(uri);
+				}
+				return null;
+			}
+
+		});
+	}
+
+	/**
+	 * Removes all nodes that symbolize a no more existing {@link ICode}.
+	 * 
+	 * @return
+	 */
+	private Future<List<URI>> removeAllInvalidNodes() {
+		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
+			@Override
+			public List<URI> call() throws Exception {
+				List<URI> uris = AxialCodingView.this.getModelCodes().get();
+				for (Iterator<URI> iterator = uris.iterator(); iterator
+						.hasNext();) {
+					URI uri = iterator.next();
+					ICode code = LocatorService.INSTANCE.resolve(uri,
+							ICode.class, null).get();
+					if (code == null) {
+						AxialCodingView.this.jointjs.remove(uri.toString())
+								.get();
+						iterator.remove();
+					}
+				}
+				return uris;
+			}
+		});
 	}
 
 	private void createNode(URI uri, Point position) throws Exception {
@@ -343,33 +430,113 @@ public class AxialCodingView extends ViewPart {
 			LOGGER.error("ID missing for created/updated node!");
 		}
 
-		List<URI> existingCodes = this.getModelCodes().get();
-		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
-				.get();
-		ICode parent = CODE_SERVICE.getParent(code);
-		if (parent != null && existingCodes.contains(parent.getUri())) {
-			this.createLink(parent.getUri(), code.getUri());
-		}
-		for (ICode child : CODE_SERVICE.getChildren(code)) {
-			if (existingCodes.contains(child.getUri())) {
-				this.createLink(code.getUri(), child.getUri());
-			}
-		}
-
-		this.refresh(uri);
+		this.createIsALinks(uri);
+		this.update(uri);
 	}
 
-	private void createLink(URI parent, URI child) throws InterruptedException,
-			ExecutionException {
-		String id = parent.toString() + "|" + parent.toString();
+	/**
+	 * Creates in and outgoing "is a" permanent links for the given {@link URI}
+	 * without touching any existing links.
+	 * 
+	 * @param uri
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private Future<Void> createIsALinks(final URI uri)
+			throws InterruptedException, ExecutionException {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				List<URI> existingCodes = AxialCodingView.this.getModelCodes()
+						.get();
+				ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class,
+						null).get();
+				ICode parent = code;
+				while (true) {
+					parent = CODE_SERVICE.getParent(parent);
+					if (parent == null) {
+						break;
+					}
+					AxialCodingView.this.createIsALink(parent.getUri(),
+							code.getUri()).get();
+				}
+				for (ICode child : CODE_SERVICE.getChildren(code)) {
+					if (existingCodes.contains(child.getUri())) {
+						AxialCodingView.this.createIsALink(code.getUri(),
+								child.getUri()).get();
+					}
+				}
+				return null;
+			}
+		});
+	}
 
-		id = this.jointjs.createPermanentLink(id, parent.toString(),
-				child.toString()).get();
+	/**
+	 * Creates a "is a" permanent link between the given parent and child node.
+	 * 
+	 * @param parent
+	 * @param child
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private Future<Void> createIsALink(final URI parent, final URI child)
+			throws InterruptedException, ExecutionException {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				String id = parent.toString() + "|" + child.toString();
 
-		String[] texts = new String[] { "is a" };
-		for (int i = 0; texts != null && i < texts.length; i++) {
-			this.jointjs.setText(id, i, texts[i]);
-		}
+				id = AxialCodingView.this.jointjs.createPermanentLink(id,
+						parent.toString(), child.toString()).get();
+
+				String[] texts = new String[] { "is a" };
+				for (int i = 0; texts != null && i < texts.length; i++) {
+					AxialCodingView.this.jointjs.setText(id, i, texts[i]);
+				}
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Removes all incoming and outgoing "is a" permanent links of the specified
+	 * {@link URI}.
+	 * 
+	 * @return
+	 */
+	private Future<Void> deleteIsALinks(final URI uri) {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				List<String> linkIds = AxialCodingView.this.jointjs
+						.getConnectedPermanentLinks(uri.toString()).get();
+				for (String linkId : linkIds) {
+					AxialCodingView.this.jointjs.remove(linkId).get();
+				}
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Removes all "is a" permanent links from the graph.
+	 * 
+	 * @return
+	 */
+	private Future<Void> deleteAllExistingIsALinks() {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				List<String> linkIds = AxialCodingView.this.jointjs
+						.getPermanentLinks().get();
+				for (String linkId : linkIds) {
+					AxialCodingView.this.jointjs.remove(linkId).get();
+				}
+				return null;
+			}
+		});
 	}
 
 	@Override
