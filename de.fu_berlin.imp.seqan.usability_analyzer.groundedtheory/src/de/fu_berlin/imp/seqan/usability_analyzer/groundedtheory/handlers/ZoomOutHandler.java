@@ -22,15 +22,6 @@ public class ZoomOutHandler extends AbstractHandler {
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView view = (AxialCodingView) activePart;
 			view.getJointjs().zoomOut();
-			try {
-				System.err.println(view.getJointjs().save().get());
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (java.util.concurrent.ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 
 		return null;

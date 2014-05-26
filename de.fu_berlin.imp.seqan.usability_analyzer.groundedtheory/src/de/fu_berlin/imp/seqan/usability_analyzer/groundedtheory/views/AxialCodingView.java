@@ -185,12 +185,7 @@ public class AxialCodingView extends ViewPart {
 						}
 						return null;
 					}
-				}) {
-			@Override
-			public void scriptAboutToBeSentToBrowser(String script) {
-				System.err.println(script);
-			};
-		};
+				});
 		this.jointjs
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		this.jointjs.addDisposeListener(new DisposeListener() {
@@ -292,7 +287,6 @@ public class AxialCodingView extends ViewPart {
 			@Override
 			public void run() {
 				try {
-					System.err.println(json.get());
 					IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
 							uri, json.get());
 					CODE_SERVICE.addAxialCodingModel(axialCodingModel);
