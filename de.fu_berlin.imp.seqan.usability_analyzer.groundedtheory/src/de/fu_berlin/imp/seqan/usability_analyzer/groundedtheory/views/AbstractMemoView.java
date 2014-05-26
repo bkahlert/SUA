@@ -293,14 +293,19 @@ public class AbstractMemoView extends UriPresentingEditorView {
 					return null;
 				}
 			} else {
-				ILabelProvider lp = this.labelProviderService
-						.getLabelProvider(uris.get(i));
-				if (lp == null) {
-					captions[i] = "UNKNOWN";
-					images[i] = null;
+				if (locatables.get(i) != null) {
+					ILabelProvider lp = this.labelProviderService
+							.getLabelProvider(uris.get(i));
+					if (lp == null) {
+						captions[i] = "UNKNOWN";
+						images[i] = null;
+					} else {
+						captions[i] = lp.getText(uris.get(i));
+						images[i] = lp.getImage(uris.get(i));
+					}
 				} else {
-					captions[i] = lp.getText(uris.get(i));
-					images[i] = lp.getImage(uris.get(i));
+					captions[i] = "INVALID";
+					images[i] = null;
 				}
 			}
 		}
