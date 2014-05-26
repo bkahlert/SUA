@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,11 +22,13 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -36,10 +40,12 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IImportanceServiceListener;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IUriPresenterService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.services.ICodeServiceListener;
@@ -56,6 +62,8 @@ public class AxialCodingView extends ViewPart {
 			.getWorkbench().getService(IImportanceService.class);
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
+	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
+			.getWorkbench().getService(IUriPresenterService.class);
 
 	private final IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
 		@Override
@@ -194,14 +202,65 @@ public class AxialCodingView extends ViewPart {
 				AxialCodingView.this.save();
 			}
 		});
+
 		this.jointjs.setEnabled(false);
 		this.activateMenu();
 		this.activateDropSupport();
+		this.activateInformationSupport();
+
 		List<URI> lastOpenedModels = new SUAGTPreferenceUtil()
 				.getLastOpenedAxialCodingModels();
 		if (lastOpenedModels.size() > 0) {
 			this.open(lastOpenedModels.get(0));
 		}
+	}
+
+	private void activateInformationSupport() {
+		PRESENTER_SERVICE.enable(this.jointjs,
+				new ISubjectInformationProvider<Control, URI>() {
+					private URI hovered = null;
+
+					private final JointJS.IJointJSListener listener = new JointJS.JointJSListener() {
+						@Override
+						public void hovered(String id, boolean hoveredIn) {
+							if (hoveredIn && id != null && !id.contains("|")
+									&& id.startsWith("sua://")) {
+								hovered = new URI(id);
+							} else {
+								hovered = null;
+							}
+						}
+					};
+
+					@Override
+					public void register(Control subject) {
+						AxialCodingView.this.jointjs
+								.addJointJSListener(this.listener);
+					}
+
+					@Override
+					public void unregister(Control subject) {
+						AxialCodingView.this.jointjs
+								.removeJointJSListener(this.listener);
+					}
+
+					@Override
+					public Point getHoverArea() {
+						return new Point(20, 10);
+					}
+
+					@Override
+					public URI getInformation() {
+						return this.hovered;
+					}
+				});
+
+		this.jointjs.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				PRESENTER_SERVICE.disable(AxialCodingView.this.jointjs);
+			}
+		});
 	}
 
 	private void activateMenu() {
