@@ -261,13 +261,17 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 		List<ILocatable> locatables = new ArrayList<ILocatable>(uris.size());
 		for (URI uri : uris) {
-			try {
-				locatables
-						.add(LocatorService.INSTANCE.resolve(uri, null).get());
-			} catch (Exception e) {
-				LOGGER.error("Error retrieving "
-						+ PartInfo.class.getSimpleName() + " for " + uris);
+			if (uri == null) {
 				locatables.add(null);
+			} else {
+				try {
+					locatables.add(LocatorService.INSTANCE.resolve(uri, null)
+							.get());
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving "
+							+ PartInfo.class.getSimpleName() + " for " + uris);
+					locatables.add(null);
+				}
 			}
 		}
 
