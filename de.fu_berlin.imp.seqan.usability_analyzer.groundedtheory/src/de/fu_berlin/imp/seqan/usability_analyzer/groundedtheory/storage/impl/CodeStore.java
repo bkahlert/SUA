@@ -44,6 +44,7 @@ import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.TimeZoneDate;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.util.NoNullSet;
+import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.LocatorService;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.Code;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode;
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.IEpisode;
@@ -427,6 +428,8 @@ class CodeStore implements ICodeStore {
 	public void removeAndSaveCode(ICode code, boolean deleteInstance)
 			throws CodeStoreWriteException, CodeHasChildCodesException,
 			CodeDoesNotExistException {
+
+		LocatorService.INSTANCE.uncache(code.getUri());
 
 		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
 		for (ICodeInstance instance : this.codeInstances) {
