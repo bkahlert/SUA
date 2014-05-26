@@ -26,6 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
@@ -173,7 +174,23 @@ public class AxialCodingView extends ViewPart {
 		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		this.jointjs = new JointJS(parent, SWT.BORDER, "sua://code/",
-				"sua://code-link");
+				"sua://code-link", new IConverter<String, URI>() {
+					@Override
+					public URI convert(String returnValue) {
+						if (returnValue.contains("|")) {
+							return null;
+						}
+						if (returnValue.startsWith("sua://")) {
+							return new URI(returnValue);
+						}
+						return null;
+					}
+				}) {
+			@Override
+			public void scriptAboutToBeSentToBrowser(String script) {
+				System.err.println(script);
+			};
+		};
 		this.jointjs
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		this.jointjs.addDisposeListener(new DisposeListener() {

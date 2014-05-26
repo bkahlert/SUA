@@ -1196,16 +1196,6 @@
                type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable">
          </adapter>
       </factory>
-      <factory
-            adaptableType="java.lang.String"
-            class="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.StringAdapterFactory">
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI">
-         </adapter>
-         <adapter
-               type="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.model.ICode">
-         </adapter>
-      </factory>
    </extension>
    <extension
          point="org.eclipse.ui.services">
