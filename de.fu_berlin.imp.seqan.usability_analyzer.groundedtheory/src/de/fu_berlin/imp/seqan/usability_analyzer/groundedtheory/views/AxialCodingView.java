@@ -170,7 +170,7 @@ public class AxialCodingView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.create());
-		ItemList modelList = new AxialCodingViewModelList(parent, SWT.BORDER);
+		ItemList modelList = new AxialCodingViewModelList(parent, SWT.NONE);
 		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		this.jointjs = new JointJS(parent, SWT.BORDER, "sua://code/",
@@ -255,7 +255,7 @@ public class AxialCodingView extends ViewPart {
 	public void open(URI uri) {
 		this.save();
 		if (uri == null) {
-			this.jointjs.load("{ \"cells\": [] }");
+			this.jointjs.load("{ \"cells\": [], \"title\": \"\" }");
 			this.jointjs.setEnabled(false);
 		} else {
 			try {
