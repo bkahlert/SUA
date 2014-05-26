@@ -485,21 +485,22 @@ class CodeStore implements ICodeStore {
 	@Override
 	public ICode setParent(ICode code, ICode parentCode)
 			throws CodeDoesNotExistException, CodeStoreWriteException {
-		TreeNode<ICode> childNode = this.assertiveFind(code);
+		TreeNode<ICode> futureChildNode = this.assertiveFind(code);
 
-		if (childNode == null) {
+		if (futureChildNode == null) {
 			throw new CodeDoesNotExistException(code);
 		}
 
-		TreeNode<ICode> parentNode = this.assertiveFind(parentCode);
-		TreeNode<ICode> oldParentNode = childNode.getParent();
+		TreeNode<ICode> futureParentNode = this.assertiveFind(parentCode);
+		TreeNode<ICode> currentParentNode = futureChildNode.getParent();
 
-		if (childNode == parentNode) {
+		if (futureChildNode == futureParentNode) {
 			throw new CodeStoreIntegrityProtectionException("Child node"
-					+ childNode + " can't be his own parent node");
+					+ futureChildNode + " can't be his own parent node");
 		}
-		if (childNode.isAncestorOf(childNode)) {
-			throw new CodeStoreIntegrityProtectionException("Node" + childNode
+		if (futureChildNode.isAncestorOf(futureParentNode)) {
+			throw new CodeStoreIntegrityProtectionException("Node"
+					+ futureChildNode
 					+ " can't be made a child node of its current child node "
 					+ parentCode);
 		}
@@ -507,23 +508,23 @@ class CodeStore implements ICodeStore {
 		// TODO: Komplexe Schleife
 
 		// remove from old parent
-		if (oldParentNode != null) {
-			childNode.removeFromParent();
-		} else if (this.codeTrees.contains(childNode)) {
-			this.codeTrees.remove(childNode);
+		if (currentParentNode != null) {
+			futureChildNode.removeFromParent();
+		} else if (this.codeTrees.contains(futureChildNode)) {
+			this.codeTrees.remove(futureChildNode);
 		} else {
 			assert false;
 		}
 
 		// add to new parent
-		if (parentNode != null) {
-			parentNode.add(childNode);
+		if (futureParentNode != null) {
+			futureParentNode.add(futureChildNode);
 		} else {
-			this.codeTrees.add(childNode);
+			this.codeTrees.add(futureChildNode);
 		}
 
 		this.save();
-		return (oldParentNode != null) ? oldParentNode.getData() : null;
+		return (currentParentNode != null) ? currentParentNode.getData() : null;
 	}
 
 	@Override

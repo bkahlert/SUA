@@ -152,6 +152,7 @@ public class ResortableCodeViewer extends CodeViewer {
 											event.x, event.y);
 									event.feedback = DND.FEEDBACK_EXPAND
 											| DND.FEEDBACK_SCROLL;
+
 									if (point.y < bounds.y + bounds.height / 3) {
 										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
 									} else if (point.y > bounds.y + 2
@@ -162,9 +163,36 @@ public class ResortableCodeViewer extends CodeViewer {
 									}
 								}
 
-								event.feedback = DND.FEEDBACK_SELECT
-										| DND.FEEDBACK_EXPAND
-										| DND.FEEDBACK_SCROLL;
+								boolean parentToChildException = false;
+								try {
+									ICode destCode = LocatorService.INSTANCE
+											.resolve(destUri, ICode.class, null)
+											.get();
+									for (URI sourceCodeUri : sourceCodeUris) {
+										ICode sourceCode = LocatorService.INSTANCE
+												.resolve(sourceCodeUri,
+														ICode.class, null)
+												.get();
+										if (codeService.getSubCodes(sourceCode)
+												.contains(destCode)) {
+											parentToChildException = true;
+											break;
+										}
+									}
+								} catch (Exception e) {
+									throw new RuntimeException(
+											"Error checking integrity of DND operation",
+											e);
+								}
+
+								if (parentToChildException) {
+									event.feedback = DND.FEEDBACK_NONE;
+								} else {
+									event.feedback = DND.FEEDBACK_SELECT
+											| DND.FEEDBACK_EXPAND
+											| DND.FEEDBACK_SCROLL;
+								}
+
 								event.detail = DND.DROP_MOVE;
 							} else if (sourceCodeInstanceUris.size() > 0) {
 								try {
