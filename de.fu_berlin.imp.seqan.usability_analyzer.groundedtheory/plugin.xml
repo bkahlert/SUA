@@ -603,7 +603,7 @@
          <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.commands.autoLayout"
                label="Auto-Layout"
-               style="toggle">
+               style="push">
          </command>
       </menuContribution>
       <menuContribution
