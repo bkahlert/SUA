@@ -13,4 +13,6 @@ public class SUAGTPreferenceConstants {
 
 	public static final String LAST_USED_CODES = "last_used_codes";
 
+	public static final String LAST_OPENED_CODING_MODELS = "last_opened_axial_coding_models";
+
 }

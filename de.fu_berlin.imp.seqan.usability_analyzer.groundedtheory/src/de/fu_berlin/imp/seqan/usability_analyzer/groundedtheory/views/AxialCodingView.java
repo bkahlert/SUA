@@ -197,6 +197,11 @@ public class AxialCodingView extends ViewPart {
 		this.jointjs.setEnabled(false);
 		this.activateMenu();
 		this.activateDropSupport();
+		List<URI> lastOpenedModels = new SUAGTPreferenceUtil()
+				.getLastOpenedAxialCodingModels();
+		if (lastOpenedModels.size() > 0) {
+			this.open(lastOpenedModels.get(0));
+		}
 	}
 
 	private void activateMenu() {
@@ -257,11 +262,20 @@ public class AxialCodingView extends ViewPart {
 		if (uri == null) {
 			this.jointjs.load("{ \"cells\": [], \"title\": \"\" }");
 			this.jointjs.setEnabled(false);
+			this.jointjs = null;
+			new SUAGTPreferenceUtil()
+					.setLastOpenedAxialCodingModels(new ArrayList<URI>());
 		} else {
 			try {
 				IAxialCodingModel axialCodingModel = CODE_SERVICE
 						.getAxialCodingModel(uri);
+				if (axialCodingModel == null) {
+					this.open(null);
+					return;
+				}
 				this.openedUri = uri;
+				new SUAGTPreferenceUtil().setLastOpenedAxialCodingModels(Arrays
+						.asList(uri));
 				this.jointjs.load(axialCodingModel.serialize());
 				this.syncModel();
 				this.jointjs.setEnabled(true);

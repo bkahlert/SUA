@@ -82,4 +82,22 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 		}
 		return new LinkedList<URI>();
 	}
+
+	public void setLastOpenedAxialCodingModels(List<URI> axialCodingModels) {
+		String pref = de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+				.serialize(axialCodingModels);
+		this.getPreferenceStore().setValue(
+				SUAGTPreferenceConstants.LAST_OPENED_CODING_MODELS, pref);
+	}
+
+	public List<URI> getLastOpenedAxialCodingModels() {
+		String pref = this.getPreferenceStore().getString(
+				SUAGTPreferenceConstants.LAST_OPENED_CODING_MODELS);
+		if (pref != null && !pref.isEmpty()) {
+			return new ArrayList<URI>(
+					de.fu_berlin.imp.seqan.usability_analyzer.core.util.SerializationUtils
+							.deserialize(pref));
+		}
+		return new LinkedList<URI>();
+	}
 }
