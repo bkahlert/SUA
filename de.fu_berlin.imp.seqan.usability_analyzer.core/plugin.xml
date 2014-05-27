@@ -362,6 +362,14 @@
                   commandId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.loadFocus"
                   style="push">
             </command>
+            <separator
+                  name="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.viewSeparator"
+                  visible="true">
+            </separator>
+            <dynamic
+                  class="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ViewMenuContribution"
+                  id="de.fu_berlin.imp.seqan.usability_analyzer.core.ui.ViewMenuContribution">
+            </dynamic>
          </menu>
       </menuContribution>
    </extension>
