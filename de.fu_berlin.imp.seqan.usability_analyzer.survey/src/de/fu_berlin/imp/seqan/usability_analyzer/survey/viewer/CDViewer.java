@@ -69,6 +69,8 @@ public class CDViewer extends Viewer {
 
 	public CDViewer(final BootstrapBrowser browser) {
 		this.browser = browser;
+		this.browser
+				.injectCss("header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }");
 
 		PRESENTER_SERVICE.enable(this.browser,
 				new ISubjectInformationProvider<Control, URI>() {
@@ -192,7 +194,7 @@ public class CDViewer extends Viewer {
 	}
 
 	@Override
-	public void setInput(Object input) {
+	public void setInput(final Object input) {
 		if (input instanceof SurveyContainer) {
 			this.surveyContainer = (SurveyContainer) input;
 
@@ -291,7 +293,7 @@ public class CDViewer extends Viewer {
 			}
 			form.addRaw("</table>");
 
-			StringBuilder html = new StringBuilder();
+			final StringBuilder html = new StringBuilder();
 			BootstrapBuilder bootstrapBuilder = new BootstrapBuilder();
 			bootstrapBuilder.addHeaderNavigation(navigationElements, 0);
 			html.append(bootstrapBuilder.toString());
@@ -300,27 +302,22 @@ public class CDViewer extends Viewer {
 			html.append(form.toString());
 			html.append("</div>");
 
-			this.browser
-					.setBodyHtml("<style>header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }</style>"
-							+ html.toString());
-
-			Point pos = new SUACorePreferenceUtil()
+			final Point pos = new SUACorePreferenceUtil()
 					.getLastScrollPosition(CDViewer.class);
-			try {
-				CDViewer.this.browser.scrollTo(pos).get();
-			} catch (Exception e) {
-				LOGGER.error("Error scrolling to last scroll position");
-			}
 
-			// debug
-			// ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			// @Override
-			// public Void call() throws Exception {
-			// String html = CDViewer.this.browser.getHtml().get();
-			// System.err.println(html);
-			// return null;
-			// }
-			// });
+			ExecUtils.nonUIAsyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						CDViewer.this.browser.setBodyHtml(html.toString())
+								.get();
+						CDViewer.this.browser.scrollTo(pos).get();
+					} catch (Exception e) {
+						LOGGER.error(
+								"Error " + input + " in " + CDViewer.class, e);
+					}
+				}
+			});
 		}
 	}
 

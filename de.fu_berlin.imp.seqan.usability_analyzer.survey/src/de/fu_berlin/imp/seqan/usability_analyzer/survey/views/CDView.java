@@ -182,7 +182,7 @@ public class CDView extends ViewPart {
 		this.browser = new BootstrapBrowser(parent, SWT.NONE);
 		this.browser.deactivateNativeMenu();
 		this.browser.setAllowLocationChange(true);
-		this.browser.openAboutBlank();
+		this.browser.openBlank();
 		this.browser.addAnkerListener(new AnkerAdaptingListener(
 				new URIAdapter() {
 					@Override
