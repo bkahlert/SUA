@@ -113,7 +113,7 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 		Point size = null;
 		try {
 			size = FontUtils.calcSize(text).get();
-			size.x += 40;
+			size.x += 60;
 			size.y += 15;
 		} catch (Exception e) {
 			LOGGER.error("Error calculing size for " + element);
