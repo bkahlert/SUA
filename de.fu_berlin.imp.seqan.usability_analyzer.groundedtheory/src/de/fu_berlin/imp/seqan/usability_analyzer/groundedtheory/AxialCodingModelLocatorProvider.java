@@ -94,7 +94,15 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 			if (uris[0].equals(axialCodingView.getOpenedURI())) {
 				axialCodingView.setFocus();
 			} else if (open) {
-				axialCodingView.open(uris[0]);
+				try {
+					axialCodingView.open(uris[0]).get();
+				} catch (Exception e) {
+					LOGGER.error("Error showing "
+							+ IAxialCodingModel.class.getSimpleName() + " "
+							+ uris[0]);
+					return false;
+				}
+				return true;
 			} else {
 				return false;
 			}

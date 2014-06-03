@@ -29,6 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -146,11 +147,23 @@ public class AxialCodingView extends ViewPart {
 		}
 
 		@Override
-		public void axialCodingModelRemoved(URI uri) {
+		public void axialCodingModelRemoved(final URI uri) {
 			if (AxialCodingView.this.openedUri != null
 					&& AxialCodingView.this.openedUri.equals(uri)) {
 				AxialCodingView.this.openedUri = null;
-				AxialCodingView.this.open(null);
+				final Future<Void> success = AxialCodingView.this.open(null);
+				ExecUtils.nonUIAsyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							success.get();
+						} catch (Exception e) {
+							LOGGER.error("Error removing "
+									+ IAxialCodingModel.class.getSimpleName()
+									+ " " + uri);
+						}
+					}
+				});
 			}
 		};
 	};
@@ -199,7 +212,22 @@ public class AxialCodingView extends ViewPart {
 		this.jointjs.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				AxialCodingView.this.save();
+				final Future<Void> success = AxialCodingView.this.save();
+				ExecUtils.nonUIAsyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							success.get();
+							LOGGER.info("Successfully saved "
+									+ IAxialCodingModel.class.getSimpleName()
+									+ " " + AxialCodingView.this.openedUri);
+						} catch (Exception e) {
+							LOGGER.error("Error saving "
+									+ IAxialCodingModel.class.getSimpleName()
+									+ " " + AxialCodingView.this.openedUri, e);
+						}
+					}
+				});
 			}
 		});
 
@@ -211,7 +239,20 @@ public class AxialCodingView extends ViewPart {
 		List<URI> lastOpenedModels = new SUAGTPreferenceUtil()
 				.getLastOpenedAxialCodingModels();
 		if (lastOpenedModels.size() > 0) {
-			this.open(lastOpenedModels.get(0));
+			final URI uri = lastOpenedModels.get(0);
+			final Future<Void> success = this.open(uri);
+			ExecUtils.nonUIAsyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						success.get();
+					} catch (Exception e) {
+						LOGGER.error("Error opening "
+								+ IAxialCodingModel.class.getSimpleName() + " "
+								+ uri);
+					}
+				}
+			});
 		}
 	}
 
@@ -316,56 +357,64 @@ public class AxialCodingView extends ViewPart {
 		return this.jointjs;
 	}
 
-	public void open(URI uri) {
-		this.save();
-		if (uri == null) {
-			this.jointjs.load("{ \"cells\": [], \"title\": \"\" }");
-			this.jointjs.setEnabled(false);
-			this.jointjs = null;
-			new SUAGTPreferenceUtil()
-					.setLastOpenedAxialCodingModels(new ArrayList<URI>());
-		} else {
-			try {
-				IAxialCodingModel axialCodingModel = CODE_SERVICE
-						.getAxialCodingModel(uri);
-				if (axialCodingModel == null) {
-					this.open(null);
-					return;
+	public Future<Void> open(final URI uri) {
+		return ExecUtils.asyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				AxialCodingView.this.save().get();
+				if (uri == null) {
+					AxialCodingView.this.jointjs
+							.load("{ \"cells\": [], \"title\": \"\" }");
+					AxialCodingView.this.jointjs.setEnabled(false);
+					AxialCodingView.this.jointjs = null;
+					new SUAGTPreferenceUtil()
+							.setLastOpenedAxialCodingModels(new ArrayList<URI>());
+				} else {
+					try {
+						IAxialCodingModel axialCodingModel = CODE_SERVICE
+								.getAxialCodingModel(uri);
+						if (axialCodingModel == null) {
+							return AxialCodingView.this.open(null).get();
+						}
+						AxialCodingView.this.openedUri = uri;
+						new SUAGTPreferenceUtil()
+								.setLastOpenedAxialCodingModels(Arrays
+										.asList(uri));
+						AxialCodingView.this.jointjs.load(axialCodingModel
+								.serialize());
+						AxialCodingView.this.syncModel();
+						AxialCodingView.this.jointjs.setEnabled(true);
+					} catch (CodeStoreReadException e) {
+						throw new IllegalArgumentException(e);
+					} catch (Exception e) {
+						LOGGER.error("Error refreshing the axial coding model "
+								+ uri);
+					}
 				}
-				this.openedUri = uri;
-				new SUAGTPreferenceUtil().setLastOpenedAxialCodingModels(Arrays
-						.asList(uri));
-				this.jointjs.load(axialCodingModel.serialize());
-				this.syncModel();
-				this.jointjs.setEnabled(true);
-			} catch (CodeStoreReadException e) {
-				throw new IllegalArgumentException(e);
-			} catch (Exception e) {
-				LOGGER.error("Error refreshing the axial coding model " + uri);
+				return null;
 			}
-		}
+		});
 	}
 
 	/**
 	 * Saves the currently opened {@link URI}
+	 * 
+	 * @return
 	 */
-	public void save() {
+	public Future<Void> save() {
 		if (this.openedUri == null) {
-			return;
+			return new CompletedFuture<Void>(null, null);
 		}
 
 		final URI uri = this.openedUri;
 		final Future<String> json = this.jointjs.save();
-		ExecUtils.nonUIAsyncExec(new Runnable() {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
-			public void run() {
-				try {
-					IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
-							uri, json.get());
-					CODE_SERVICE.addAxialCodingModel(axialCodingModel);
-				} catch (Exception e) {
-					LOGGER.error("Error saving " + uri);
-				}
+			public Void call() throws Exception {
+				IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
+						uri, json.get());
+				CODE_SERVICE.addAxialCodingModel(axialCodingModel);
+				return null;
 			}
 		});
 	}

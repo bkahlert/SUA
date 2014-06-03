@@ -102,4 +102,11 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 		return JSONUtils.buildJson(this.json);
 	}
 
+	@Override
+	public String toString() {
+		return JointJSAxialCodingModel.class.getSimpleName() + " \""
+				+ this.getTitle() + "\": " + this.codes.size() + " codes, "
+				+ this.links.size() + " links";
+	}
+
 }

@@ -1,13 +1,16 @@
 package de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views;
 
 import java.util.Arrays;
+import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
@@ -25,6 +28,9 @@ import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptio
 import de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.storage.exceptions.CodeStoreWriteException;
 
 class AxialCodingViewModelList extends ItemList {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(AxialCodingViewModelList.class);
 
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
@@ -77,11 +83,24 @@ class AxialCodingViewModelList extends ItemList {
 								+ IAxialCodingModel.class.getSimpleName(), e);
 					}
 				} else {
-					URI uri = new URI(key);
+					final URI uri = new URI(key);
 					AxialCodingView view = (AxialCodingView) WorkbenchUtils
 							.getView(AxialCodingView.ID);
 					if (view != null) {
-						view.open(uri);
+						final Future<Void> success = view.open(uri);
+						ExecUtils.nonUIAsyncExec(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									success.get();
+								} catch (Exception e) {
+									LOGGER.error("Error opening "
+											+ IAxialCodingModel.class
+													.getSimpleName() + " "
+											+ uri);
+								}
+							}
+						});
 					}
 				}
 			}
