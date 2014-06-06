@@ -34,6 +34,7 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
+import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 
@@ -260,8 +261,9 @@ public class AxialCodingView extends ViewPart {
 		PRESENTER_SERVICE.enable(this.jointjs,
 				new ISubjectInformationProvider<Control, URI>() {
 					private URI hovered = null;
+					private boolean isMouseDown = false;
 
-					private final JointJS.IJointJSListener listener = new JointJS.JointJSListener() {
+					private final JointJS.IJointJSListener jointJsListener = new JointJS.JointJSListener() {
 						@Override
 						public void hovered(String id, boolean hoveredIn) {
 							if (hoveredIn && id != null && !id.contains("|")
@@ -273,26 +275,50 @@ public class AxialCodingView extends ViewPart {
 						}
 					};
 
+					private final IMouseListener mouseListener = new IMouseListener() {
+						@Override
+						public void mouseMove(double x, double y) {
+						}
+
+						@Override
+						public void mouseDown(double x, double y) {
+							isMouseDown = true;
+						}
+
+						@Override
+						public void mouseUp(double x, double y) {
+							isMouseDown = false;
+						}
+					};
+
 					@Override
 					public void register(Control subject) {
 						AxialCodingView.this.jointjs
-								.addJointJSListener(this.listener);
+								.addJointJSListener(this.jointJsListener);
+						AxialCodingView.this.jointjs
+								.addMouseListener(this.mouseListener);
+						this.hovered = null;
+						this.isMouseDown = false;
 					}
 
 					@Override
 					public void unregister(Control subject) {
 						AxialCodingView.this.jointjs
-								.removeJointJSListener(this.listener);
+								.removeMouseListener(this.mouseListener);
+						AxialCodingView.this.jointjs
+								.removeJointJSListener(this.jointJsListener);
+						this.hovered = null;
+						this.isMouseDown = false;
 					}
 
 					@Override
 					public Point getHoverArea() {
-						return new Point(20, 10);
+						return new Point(10, 10);
 					}
 
 					@Override
 					public URI getInformation() {
-						return this.hovered;
+						return !this.isMouseDown ? this.hovered : null;
 					}
 				});
 
