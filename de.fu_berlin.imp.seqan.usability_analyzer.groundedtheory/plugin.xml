@@ -377,6 +377,17 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.views.CodeView?after=additions">
          <command
+               commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.createCode"
+               disabledIcon="icons/dtool16/create_code_tsk.png"
+               icon="icons/etool16/create_code_tsk.png"
+               label="Create Code..."
+               style="push">
+         </command>
+         <separator
+               name="de.fu_berlin.imp.seqan.usability_analyzer.groundedtheory.separatorx"
+               visible="true">
+         </separator>
+         <command
                commandId="de.fu_berlin.imp.seqan.usability_analyzer.code.commands.openCodeStore"
                icon="icons/obj16/code_obj.png"
                style="push">
