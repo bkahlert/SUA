@@ -384,7 +384,7 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	public Future<Void> open(final URI uri) {
-		return ExecUtils.asyncExec(new Callable<Void>() {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				AxialCodingView.this.save().get();
@@ -406,8 +406,8 @@ public class AxialCodingView extends ViewPart {
 						new SUAGTPreferenceUtil()
 								.setLastOpenedAxialCodingModels(Arrays
 										.asList(uri));
-						AxialCodingView.this.jointjs.load(axialCodingModel
-								.serialize());
+						AxialCodingView.this.jointjs.load(
+								axialCodingModel.serialize()).get();
 						AxialCodingView.this.syncModel();
 						AxialCodingView.this.jointjs.setEnabled(true);
 					} catch (CodeStoreReadException e) {
