@@ -94,10 +94,11 @@ class AxialCodingViewModelList extends ItemList {
 								try {
 									success.get();
 								} catch (Exception e) {
-									LOGGER.error("Error opening "
-											+ IAxialCodingModel.class
-													.getSimpleName() + " "
-											+ uri);
+									LOGGER.error(
+											"Error opening "
+													+ IAxialCodingModel.class
+															.getSimpleName()
+													+ " " + uri, e);
 								}
 							}
 						});
