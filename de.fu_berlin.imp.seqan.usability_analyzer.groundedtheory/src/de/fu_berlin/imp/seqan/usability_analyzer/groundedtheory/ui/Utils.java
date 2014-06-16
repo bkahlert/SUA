@@ -29,7 +29,9 @@ import org.eclipse.ui.commands.ICommandService;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
@@ -71,7 +73,13 @@ public class Utils {
 				.getService(ICodeService.class);
 		Set<RGB> rgbs = new NoNullSet<RGB>();
 		for (ICode code : codeService.getCodeStore().getCodes()) {
-			if (!code.getColor().equals(new RGB(0, 0, 0))) {
+			RGB rgb = code.getColor();
+			HLS hls = ColorSpaceConverter.RGBtoHLS(rgb);
+
+			double lightness = hls.getLightness();
+			double saturation = hls.getSaturation();
+			if (lightness > 0.4 && lightness < 0.6 && saturation > 0.4
+					&& saturation < 0.6) {
 				rgbs.add(code.getColor());
 			}
 		}
