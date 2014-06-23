@@ -302,22 +302,18 @@ public class CDViewer extends Viewer {
 			html.append(form.toString());
 			html.append("</div>");
 
-			final Point pos = new SUACorePreferenceUtil()
-					.getLastScrollPosition(CDViewer.class);
-
-			ExecUtils.nonUIAsyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						CDViewer.this.browser.setBodyHtml(html.toString())
-								.get();
-						CDViewer.this.browser.scrollTo(pos).get();
-					} catch (Exception e) {
-						LOGGER.error(
-								"Error " + input + " in " + CDViewer.class, e);
+			try {
+				ExecUtils.syncExec(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						CDViewer.this.browser.setBodyHtml(html.toString());
+						return null;
 					}
-				}
-			});
+				});
+			} catch (Exception e) {
+				LOGGER.error("Error loading " + this.surveyContainer, e);
+			}
+
 		}
 	}
 

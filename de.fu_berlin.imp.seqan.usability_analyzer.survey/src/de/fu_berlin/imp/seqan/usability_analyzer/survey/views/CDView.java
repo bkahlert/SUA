@@ -6,7 +6,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -14,6 +19,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector;
@@ -23,6 +29,7 @@ import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.data.IBaseDataContainer;
+import de.fu_berlin.imp.seqan.usability_analyzer.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataService;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.services.IDataServiceListener;
@@ -51,14 +58,7 @@ public class CDView extends ViewPart {
 		@Override
 		public void dataDirectoriesLoaded(
 				List<? extends IBaseDataContainer> dataContainers) {
-			LOGGER.info("Refreshing " + CDView.class.getSimpleName());
-			ExecUtils.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					CDView.this.viewer.setInput(Activator.getDefault()
-							.getSurveyContainer());
-				}
-			});
+			CDView.this.load();
 		}
 	};
 
@@ -203,12 +203,42 @@ public class CDView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		SurveyContainer surveyContainer = Activator.getDefault()
-				.getSurveyContainer();
-		if (this.viewer.getInput() != surveyContainer) {
-			this.viewer.setInput(surveyContainer);
-		}
-		this.browser.setFocus();
+		this.load();
+	}
+
+	public Job load() {
+		Job job = new NamedJob(CDView.class,
+				"Loading Cognitive Dimensions Questionnaire") {
+			@Override
+			protected IStatus runNamed(IProgressMonitor monitor) {
+				LOGGER.info("Refreshing " + CDView.class.getSimpleName());
+
+				final SurveyContainer surveyContainer = Activator.getDefault()
+						.getSurveyContainer();
+				if (CDView.this.viewer.getInput() != surveyContainer) {
+					CDView.this.viewer.setInput(surveyContainer);
+					Point lastScrollPosition = new SUACorePreferenceUtil()
+							.getLastScrollPosition(CDViewer.class);
+					try {
+						CDView.this.browser.scrollTo(lastScrollPosition).get();
+					} catch (Exception e) {
+						LOGGER.error("Error " + surveyContainer + " in "
+								+ CDViewer.class, e);
+					}
+				}
+
+				ExecUtils.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						CDView.this.browser.setFocus();
+					}
+				});
+
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+		return job;
 	}
 
 	/**
