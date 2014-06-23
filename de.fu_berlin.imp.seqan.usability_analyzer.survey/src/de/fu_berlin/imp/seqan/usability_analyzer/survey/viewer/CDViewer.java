@@ -358,10 +358,12 @@ public class CDViewer extends Viewer {
 				new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
+						CDViewer.this.browser.loading(true);
 						Point pos = CDViewer.this.browser.getScrollPosition()
 								.get();
 						CDViewer.this.setInput(CDViewer.this.surveyContainer);
 						CDViewer.this.browser.scrollTo(pos);
+						CDViewer.this.browser.loading(false);
 						return null;
 					}
 				});
