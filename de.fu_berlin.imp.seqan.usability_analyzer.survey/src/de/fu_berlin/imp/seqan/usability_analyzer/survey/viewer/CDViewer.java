@@ -29,6 +29,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.loader.Loader;
 
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.ILocatable;
 import de.fu_berlin.imp.seqan.usability_analyzer.core.model.URI;
@@ -62,12 +63,14 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(IUriPresenterService.class);
 
 	private BootstrapBrowser browser;
+	private Loader loader;
 
 	private SurveyContainer surveyContainer;
 
 	private ISelection selection = null;
 
 	public CDViewer(final BootstrapBrowser browser) {
+		this.loader = new Loader(browser);
 		this.browser = browser;
 		this.browser
 				.injectCss("header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }");
@@ -354,19 +357,15 @@ public class CDViewer extends Viewer {
 
 	@Override
 	public void refresh() {
-		ExecUtils.nonUIAsyncExec(CDViewer.class, "Refresh",
-				new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						CDViewer.this.browser.loading(true);
-						Point pos = CDViewer.this.browser.getScrollPosition()
-								.get();
-						CDViewer.this.setInput(CDViewer.this.surveyContainer);
-						CDViewer.this.browser.scrollTo(pos);
-						CDViewer.this.browser.loading(false);
-						return null;
-					}
-				});
+		this.loader.run(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				Point pos = CDViewer.this.browser.getScrollPosition().get();
+				CDViewer.this.setInput(CDViewer.this.surveyContainer);
+				CDViewer.this.browser.scrollTo(pos);
+				return null;
+			}
+		}, false);
 	}
 
 }
