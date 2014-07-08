@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.fu_berlin.imp.apiua.survey.perspectives.CognitiveDimensionsPerspective"
+            id="de.fu_berlin.imp.apiua.survey.perspectives.CognitiveDimensionsPerspective"
+            name="Cognitive Dimensions">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.fu_berlin.imp.apiua.category"
+            class="de.fu_berlin.imp.apiua.survey.views.SurveyView"
+            id="de.fu_berlin.imp.apiua.survey.views.SurveyView"
+            name="Survey">
+      </view>
+      <view
+            category="de.fu_berlin.imp.apiua.category"
+            class="de.fu_berlin.imp.apiua.survey.views.CDView"
+            id="de.fu_berlin.imp.apiua.survey.views.CDView"
+            name="Cognitive Dimensions"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.apiua.core.dataload">
+      <DataLoadProvider
+            class="de.fu_berlin.imp.apiua.survey.model.SurveyLoader"
+            source="de.fu_berlin.imp.apiua.survey.model.ISurveyLoadDependency">
+      </DataLoadProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertiesView">
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.apiua.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.apiua.survey.SurveyLocatorProvider">
+      </LocatorProvider>
+   </extension>
+
+</plugin>

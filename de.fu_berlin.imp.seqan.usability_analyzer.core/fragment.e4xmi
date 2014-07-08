@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_89EoAOJ0EeGF3akyYwng4Q">
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="__C99gOJ0EeGF3akyYwng4Q" featurename="">
-    <elements xsi:type="commands:Command" xmi:id="_LkJmIOJ1EeGF3akyYwng4Q" elementId="de.fu_berlin.imp.seqan.usability_analyzer.core.commands.startWorkSession" commandName="Start Work Session"/>
-    <elements xsi:type="commands:Handler" xmi:id="_wwZaUOJ1EeGF3akyYwng4Q" contributionURI="bundleclass://de.fu_berlin.imp.seqan.usability_analyzer.core/de.fu_berlin.imp.seqan.usability_analyzer.core.handlers.StartWorkSessionHandler" command="_LkJmIOJ1EeGF3akyYwng4Q"/>
-  </fragments>
-</fragment:ModelFragments>

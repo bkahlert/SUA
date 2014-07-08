@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="SUA Mac OS X - X86_64" sequenceNumber="53">
+<locations>
+<location path="${eclipse_home}" type="Directory"/>
+</locations>
+<includeBundles>
+<plugin id="org.eclipse.swt.tools"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390x"/>
+<plugin id="org.eclipse.equinox.preferences.source"/>
+<plugin id="org.eclipse.ui.editors"/>
+<plugin id="org.eclipse.core.runtime.compatibility.registry.source"/>
+<plugin id="org.apache.commons.io.source"/>
+<plugin id="org.eclipse.core.expressions.source"/>
+<plugin id="org.eclipse.ltk.core.refactoring"/>
+<plugin id="org.eclipse.osgi.services"/>
+<plugin id="org.eclipse.equinox.p2.core.source"/>
+<plugin id="org.eclipse.ltk.ui.refactoring.source"/>
+<plugin id="org.eclipse.core.filesystem.macosx"/>
+<plugin id="org.eclipse.jface.text.source"/>
+<plugin id="org.eclipse.core.runtime.compatibility.auth.source"/>
+<plugin id="org.codehaus.jackson.mapper"/>
+<plugin id="org.eclipse.swt.gtk.aix.ppc64"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86.source"/>
+<plugin id="org.codehaus.jackson.core.source"/>
+<plugin id="org.eclipse.ltk.ui.refactoring"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390x.source"/>
+<plugin id="org.eclipse.jface.databinding.source"/>
+<plugin id="org.eclipse.ui.cocoa.source"/>
+<plugin id="org.eclipse.jdt.compiler.tool"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390"/>
+<plugin id="org.eclipse.ui.workbench"/>
+<plugin id="org.eclipse.team.core.source"/>
+<plugin id="org.eclipse.swt.cocoa.macosx.source"/>
+<plugin id="org.eclipse.equinox.p2.repository.source"/>
+<plugin id="org.eclipse.swt.gtk.linux.ppc64"/>
+<plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+<plugin id="org.eclipse.equinox.launcher"/>
+<plugin id="org.eclipse.ui.ide.source"/>
+<plugin id="org.eclipse.core.filesystem.source"/>
+<plugin id="org.eclipse.core.runtime"/>
+<plugin id="com.ibm.icu.source"/>
+<plugin id="org.eclipse.swt.gtk.linux.ppc64.source"/>
+<plugin id="com.ibm.icu"/>
+<plugin id="org.eclipse.core.resources.source"/>
+<plugin id="org.eclipse.core.expressions"/>
+<plugin id="org.eclipse.core.variables.source"/>
+<plugin id="org.eclipse.swt.cocoa.macosx.x86_64"/>
+<plugin id="org.apache.log4j"/>
+<plugin id="org.apache.commons.io"/>
+<plugin id="org.eclipse.equinox.p2.core"/>
+<plugin id="org.eclipse.text"/>
+<plugin id="org.eclipse.ui.workbench.source"/>
+<plugin id="org.eclipse.swt.win32.win32.x86_64.source"/>
+<plugin id="org.eclipse.equinox.registry"/>
+<plugin id="org.apache.commons.codec.source"/>
+<plugin id="org.eclipse.core.runtime.source"/>
+<plugin id="org.eclipse.ui.workbench.texteditor"/>
+<plugin id="org.junit" version="4.8.2.v4_8_2_v20110321-1705"/>
+<plugin id="org.eclipse.osgi.services.source"/>
+<plugin id="org.eclipse.core.databinding"/>
+<plugin id="org.eclipse.team.core"/>
+<plugin id="org.eclipse.equinox.p2.repository"/>
+<plugin id="org.eclipse.swt.gtk.aix.ppc.source"/>
+<plugin id="org.eclipse.text.source"/>
+<plugin id="org.eclipse.jdt.compiler.apt"/>
+<plugin id="org.eclipse.swt.cocoa.macosx"/>
+<plugin id="org.eclipse.equinox.preferences"/>
+<plugin id="org.eclipse.ui.navigator.resources.source"/>
+<plugin id="org.eclipse.core.jobs"/>
+<plugin id="org.eclipse.swt.gtk.hpux.ia64_32.source"/>
+<plugin id="org.eclipse.swt"/>
+<plugin id="org.eclipse.ui.source"/>
+<plugin id="org.apache.commons.lang"/>
+<plugin id="org.eclipse.ui.views.properties.tabbed"/>
+<plugin id="org.eclipse.ui.navigator.resources"/>
+<plugin id="org.eclipse.ui.views.source"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86"/>
+<plugin id="org.eclipse.swt.carbon.macosx.source"/>
+<plugin id="org.eclipse.search.source"/>
+<plugin id="org.eclipse.core.filesystem"/>
+<plugin id="org.eclipse.cdt.core"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86_64.source"/>
+<plugin id="org.eclipse.core.commands.source"/>
+<plugin id="org.eclipse.core.variables"/>
+<plugin id="org.eclipse.equinox.p2.engine.source"/>
+<plugin id="org.eclipse.equinox.app.source"/>
+<plugin id="javax.servlet"/>
+<plugin id="org.eclipse.cdt.core.source"/>
+<plugin id="org.eclipse.ui.forms.source"/>
+<plugin id="org.eclipse.equinox.security.source"/>
+<plugin id="org.eclipse.ui.ide"/>
+<plugin id="org.eclipse.help"/>
+<plugin id="org.eclipse.ui.views"/>
+<plugin id="org.eclipse.ltk.core.refactoring.source"/>
+<plugin id="com.bkahlert.nebula.utils.selection"/>
+<plugin id="org.eclipse.core.databinding.source"/>
+<plugin id="org.eclipse.core.contenttype.source"/>
+<plugin id="org.eclipse.core.databinding.observable.source"/>
+<plugin id="org.eclipse.equinox.p2.engine"/>
+<plugin id="org.eclipse.equinox.p2.metadata.repository.source"/>
+<plugin id="org.eclipse.cdt.ui"/>
+<plugin id="org.eclipse.swt.gtk.solaris.sparc.source"/>
+<plugin id="org.eclipse.equinox.p2.metadata"/>
+<plugin id="org.eclipse.core.runtime.compatibility.auth"/>
+<plugin id="org.eclipse.equinox.p2.metadata.source"/>
+<plugin id="org.eclipse.swt.gtk.solaris.sparc"/>
+<plugin id="org.eclipse.compare.core.source"/>
+<plugin id="org.eclipse.ui.navigator.source"/>
+<plugin id="org.eclipse.equinox.security.macosx.source"/>
+<plugin id="org.eclipse.ant.core"/>
+<plugin id="org.hamcrest.core"/>
+<plugin id="org.eclipse.core.filebuffers"/>
+<plugin id="org.eclipse.swt.gtk.hpux.ia64_32"/>
+<plugin id="org.eclipse.core.databinding.property"/>
+<plugin id="org.eclipse.swt.win32.win32.x86"/>
+<plugin id="org.eclipse.cdt.ui.source"/>
+<plugin id="org.eclipse.ui.forms"/>
+<plugin id="org.apache.commons.collections"/>
+<plugin id="org.eclipse.jdt.core"/>
+<plugin id="org.eclipse.ui.views.properties.tabbed.source"/>
+<plugin id="org.eclipse.ui.console"/>
+<plugin id="org.eclipse.team.ui.source"/>
+<plugin id="org.eclipse.swt.win32.win32.x86.source"/>
+<plugin id="org.eclipse.equinox.app"/>
+<plugin id="org.eclipse.swt.gtk.solaris.x86.source"/>
+<plugin id="org.eclipse.compare.source"/>
+<plugin id="org.eclipse.equinox.launcher.cocoa.macosx.x86_64"/>
+<plugin id="org.apache.commons.collections.source"/>
+<plugin id="org.eclipse.equinox.security"/>
+<plugin id="org.eclipse.jface.source"/>
+<plugin id="org.eclipse.team.ui"/>
+<plugin id="org.eclipse.equinox.registry.source"/>
+<plugin id="org.eclipse.core.jobs.source"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390.source"/>
+<plugin id="org.eclipse.osgi.source"/>
+<plugin id="org.eclipse.cdt.core.macosx.source"/>
+<plugin id="org.eclipse.equinox.common.source"/>
+<plugin id="org.eclipse.cdt.core.macosx"/>
+<plugin id="org.apache.log4j.source"/>
+<plugin id="org.eclipse.ui.workbench.texteditor.source"/>
+<plugin id="org.eclipse.swt.carbon.macosx"/>
+<plugin id="org.eclipse.ui.cocoa"/>
+<plugin id="org.eclipse.osgi"/>
+<plugin id="org.eclipse.core.databinding.observable"/>
+<plugin id="org.eclipse.jface.text"/>
+<plugin id="org.eclipse.help.source"/>
+<plugin id="org.eclipse.core.resources"/>
+<plugin id="org.eclipse.compare"/>
+<plugin id="org.eclipse.compare.core"/>
+<plugin id="org.eclipse.ui"/>
+<plugin id="org.eclipse.swt.cocoa.macosx.x86_64.source"/>
+<plugin id="org.eclipse.ui.navigator"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86_64"/>
+<plugin id="org.eclipse.jface"/>
+<plugin id="org.eclipse.equinox.launcher.source"/>
+<plugin id="org.eclipse.ui.console.source"/>
+<plugin id="org.eclipse.core.commands"/>
+<plugin id="org.eclipse.core.contenttype"/>
+<plugin id="org.eclipse.swt.win32.win32.x86_64"/>
+<plugin id="org.eclipse.ant.core.source"/>
+<plugin id="org.eclipse.core.filebuffers.source"/>
+<plugin id="org.apache.commons.codec"/>
+<plugin id="org.eclipse.jface.databinding"/>
+<plugin id="org.eclipse.equinox.security.macosx"/>
+<plugin id="org.codehaus.jackson.mapper.source"/>
+<plugin id="org.eclipse.swt.gtk.aix.ppc"/>
+<plugin id="org.eclipse.ui.editors.source"/>
+<plugin id="org.eclipse.swt.gtk.aix.ppc64.source"/>
+<plugin id="org.eclipse.core.runtime.compatibility.registry"/>
+<plugin id="org.eclipse.core.databinding.property.source"/>
+<plugin id="org.eclipse.swt.gtk.solaris.x86"/>
+<plugin id="org.eclipse.equinox.common"/>
+<plugin id="org.codehaus.jackson.core"/>
+<plugin id="org.eclipse.search"/>
+</includeBundles>
+<environment>
+<os>macosx</os>
+<ws>cocoa</ws>
+<arch>x86_64</arch>
+<nl>en_US</nl>
+</environment>
+<launcherArgs>
+<vmArgs>-Xmx1024m</vmArgs>
+</launcherArgs>
+<implicitDependencies>
+<plugin id="org.eclipse.swt.gtk.aix.ppc64"/>
+<plugin id="org.apache.commons.codec"/>
+<plugin id="org.apache.log4j"/>
+<plugin id="org.eclipse.swt.gtk.solaris.sparc"/>
+<plugin id="com.bkahlert.nebula.utils.selection"/>
+<plugin id="org.apache.commons.collections"/>
+<plugin id="org.eclipse.compare"/>
+<plugin id="org.eclipse.swt.carbon.macosx"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86_64"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390"/>
+<plugin id="org.eclipse.swt.gtk.linux.s390x"/>
+<plugin id="org.apache.commons.lang"/>
+<plugin id="org.eclipse.swt.gtk.linux.x86"/>
+<plugin id="org.codehaus.jackson.core"/>
+<plugin id="org.apache.commons.io"/>
+<plugin id="org.eclipse.swt.tools"/>
+<plugin id="org.eclipse.swt.win32.win32.x86_64"/>
+<plugin id="org.eclipse.swt"/>
+<plugin id="org.eclipse.ui"/>
+<plugin id="org.codehaus.jackson.mapper"/>
+<plugin id="org.eclipse.swt.gtk.linux.ppc64"/>
+<plugin id="org.junit"/>
+<plugin id="org.eclipse.swt.gtk.solaris.x86"/>
+<plugin id="org.eclipse.swt.gtk.aix.ppc"/>
+<plugin id="org.eclipse.swt.cocoa.macosx"/>
+<plugin id="org.eclipse.equinox.launcher"/>
+<plugin id="org.eclipse.swt.gtk.hpux.ia64_32"/>
+<plugin id="org.eclipse.swt.win32.win32.x86"/>
+<plugin id="org.eclipse.swt.cocoa.macosx.x86_64"/>
+</implicitDependencies>
+</target>

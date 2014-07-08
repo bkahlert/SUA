@@ -1,0 +1,62 @@
+<codeStore>
+  <createdIDs class="sorted-set">
+    <long>9908372</long>
+    <long>234233209</long>
+  </createdIDs>
+  <createdCodeInstanceIDs>
+    <long>1</long>
+    <long>2</long>
+    <long>3</long>
+  </createdCodeInstanceIDs>
+  <codeTrees>
+    <com.bkahlert.nebula.data.TreeNode>
+      <children/>
+      <data class="codes">
+        <id>234233209</id>
+        <caption>Code #1</caption>
+      </data>
+    </com.bkahlert.nebula.data.TreeNode>
+    <com.bkahlert.nebula.data.TreeNode>
+      <children/>
+      <data class="codes">
+        <id>9908372</id>
+        <caption>Code #2</caption>
+      </data>
+    </com.bkahlert.nebula.data.TreeNode>
+  </codeTrees>
+  <instances>
+    <instance>
+      <codeInstanceId>3</codeInstanceId>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode[2]/data"/>
+      <id>apiua://codeInstance3</id>
+      <creation>
+        <calendar>
+          <time>1032838681000</time>
+          <timezone>GMT-04:30</timezone>
+        </calendar>
+      </creation>
+    </instance>
+    <instance>
+      <codeInstanceId>2</codeInstanceId>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode/data"/>
+      <id>apiua://codeInstance2</id>
+      <creation>
+        <calendar>
+          <time>1320970271000</time>
+          <timezone>GMT+11:00</timezone>
+        </calendar>
+      </creation>
+    </instance>
+    <instance>
+      <codeInstanceId>1</codeInstanceId>
+      <code class="codes" reference="../../../codeTrees/com.bkahlert.nebula.data.TreeNode[2]/data"/>
+      <id>apiua://codeInstance1</id>
+      <creation>
+        <calendar>
+          <time>453472200000</time>
+          <timezone>GMT+02:00</timezone>
+        </calendar>
+      </creation>
+    </instance>
+  </instances>
+</codeStore>
