@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: API Usability Analyzer - Entity
+Bundle-SymbolicName: de.fu_berlin.imp.apiua.entity;singleton:=true
+Bundle-Version: 1.0.0.0
+Bundle-Activator: de.fu_berlin.imp.apiua.entity.Activator
+Bundle-Vendor: Björn Kahlert
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.log4j;bundle-version="1.2.15",
+ de.fu_berlin.imp.apiua.core,
+ de.fu_berlin.imp.apiua.stats,
+ de.fu_berlin.imp.apiua.diff,
+ de.fu_berlin.imp.apiua.doclog;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.survey,
+ org.eclipse.jface.text;bundle-version="3.7.0",
+ org.eclipse.core.resources;bundle-version="3.7.100",
+ org.eclipse.ui.editors;bundle-version="3.7.0",
+ org.eclipse.compare;bundle-version="3.5.200",
+ de.fu_berlin.imp.apiua.groundedtheory,
+ com.bkahlert.nebula;bundle-version="1.0.0",
+ org.apache.commons.collections;bundle-version="3.2.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Export-Package: de.fu_berlin.imp.apiua.entity,
+ de.fu_berlin.imp.apiua.entity.views
+Import-Package: 
+ de.fu_berlin.imp.apiua.groundedtheory.model,
+ de.fu_berlin.imp.apiua.groundedtheory.services

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+   <extension point="org.eclipse.help.contexts">
+      <contexts file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension point="org.eclipse.ui.commands">
+      <command id="de.fu_berlin.imp.apiua.commands.Empty" name="EMPTY">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.fu_berlin.imp.apiua.BrowsingPerspective"
+            id="de.fu_berlin.imp.apiua.BrowsingPerspective"
+            name="Browsing">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.apiua.MemoPerspective"
+            id="de.fu_berlin.imp.apiua.MemoPerspective"
+            name="Memo Writing">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.apiua.TimelinePerspective"
+            id="de.fu_berlin.imp.apiua.TimelinePerspective"
+            name="Timeline">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.apiua.EditorOnlyPerspective"
+            id="de.fu_berlin.imp.apiua.EditorOnlyPerspective"
+            name="Editor Only">
+      </perspective>
+      <perspective
+            class="de.fu_berlin.imp.apiua.AllViewsPerspective"
+            id="de.fu_berlin.imp.apiua.AllViewsPerspective"
+            name="All Views">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.apiua.AllViewsPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.apiua.BrowsingPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.apiua.MemoPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="de.fu_berlin.imp.apiua.TimelinePerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         id="de.fu_berlin.imp.apiua.application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="de.fu_berlin.imp.apiua.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="de.fu_berlin.imp.apiua.application"
+            name="API Usability Analyzer">
+         <property
+               name="startupForegroundColor"
+               value="000000">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="32,268,278,15">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="32,288,278,15">
+         </property>
+         <property
+               name="appName"
+               value="API Usability Analyzer">
+         </property>
+         <property
+               name="aboutImage"
+               value="about.png">
+         </property>
+         <property
+               name="aboutText"
+               value="%productBlurb">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+      </product>
+   </extension>
+</plugin>

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: API Usability Analyzer
+Bundle-SymbolicName: de.fu_berlin.imp.apiua;singleton:=true
+Bundle-Version: 0.1.0.0
+Bundle-Activator: de.fu_berlin.imp.apiua.Activator
+Bundle-Vendor: AG Algorithmic Bioinformatics, Freie Universitität Berlin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ de.fu_berlin.imp.apiua.core;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.groundedtheory;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.diff;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.entity;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.stats;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.doclog;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.survey;bundle-version="1.0.0",
+ de.fu_berlin.imp.apiua.timeline;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Export-Package: de.fu_berlin.imp.apiua

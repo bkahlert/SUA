@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"  name="de.fu_berlin.imp.apiua.groundedtheory.services.CodeService">
+   <implementation class="de.fu_berlin.imp.apiua.groundedtheory.services.impl.CodeService"/>
+   <service>
+      <provide interface="de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService"/>
+   </service>
+</scr:component>
