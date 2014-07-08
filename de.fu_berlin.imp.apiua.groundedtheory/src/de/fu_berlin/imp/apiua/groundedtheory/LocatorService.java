@@ -9,8 +9,12 @@ public class LocatorService {
 	public static ILocatorService INSTANCE;
 
 	static {
-		INSTANCE = (ILocatorService) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getService(ILocatorService.class);
+		try {
+			INSTANCE = (ILocatorService) PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow()
+					.getService(ILocatorService.class);
+		} catch (NoClassDefFoundError e) {
+		}
 	}
 
 }

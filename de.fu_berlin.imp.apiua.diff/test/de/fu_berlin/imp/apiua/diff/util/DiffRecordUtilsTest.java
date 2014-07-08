@@ -27,7 +27,6 @@ import de.fu_berlin.imp.apiua.diff.model.IDiff;
 import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
 import de.fu_berlin.imp.apiua.diff.model.IDiffRecordSegment;
 import de.fu_berlin.imp.apiua.diff.model.impl.DiffRecordSegment;
-import de.fu_berlin.imp.apiua.diff.util.DiffRecordUtils;
 import de.fu_berlin.imp.apiua.diff.util.DiffRecordUtils.DiffRecordDescriptor;
 
 public class DiffRecordUtilsTest {
@@ -45,7 +44,7 @@ public class DiffRecordUtilsTest {
 	private static File getDiffFile() {
 		return FileUtils
 				.getFile(root
-						+ "/diff/axokgsh9f9xk33dk/axokgsh9f9xk33dk_r00000001_2012-04-11T11-12-55+0200.diff");
+						+ "/diff/axokgsh9f9xk33dk/axokgsh9f9xk33dk_r00000001_2012-04-11T11-12-55+0200.diff.zip");
 	}
 
 	private static IData getDiff() {

@@ -429,7 +429,9 @@ class CodeStore implements ICodeStore {
 			throws CodeStoreWriteException, CodeHasChildCodesException,
 			CodeDoesNotExistException {
 
-		LocatorService.INSTANCE.uncache(code.getUri());
+		if (LocatorService.INSTANCE != null) {
+			LocatorService.INSTANCE.uncache(code.getUri());
+		}
 
 		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
 		for (ICodeInstance instance : this.codeInstances) {

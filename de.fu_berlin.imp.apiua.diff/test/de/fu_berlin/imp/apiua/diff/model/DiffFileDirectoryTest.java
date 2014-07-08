@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import junit.framework.Assert;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +16,6 @@ import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.apiua.core.model.data.impl.FileBaseDataContainer;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.core.util.FileUtils;
-import de.fu_berlin.imp.apiua.diff.model.DiffContainer;
-import de.fu_berlin.imp.apiua.diff.model.IDiff;
-import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
-import de.fu_berlin.imp.apiua.diff.model.IDiffs;
 import de.fu_berlin.imp.apiua.diff.model.impl.DiffRecordHistory;
 import de.fu_berlin.imp.apiua.diff.util.ISourceStore;
 import de.fu_berlin.imp.apiua.diff.util.SourceCache;
@@ -98,8 +93,7 @@ public class DiffFileDirectoryTest {
 
 		for (int i = 0; i < diffFiles.length(); i++) {
 			IDiff diff = diffFiles.get(i);
-			Assert.assertEquals(StringUtils.leftPad(i + "", 8, "0"),
-					diff.getRevision());
+			Assert.assertEquals(new Integer(i).toString(), diff.getRevision());
 		}
 	}
 

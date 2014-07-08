@@ -41,7 +41,8 @@ public class CognitiveDimensionsDocumentTest {
 
 		CDDocument cdDoc = new CDDocument(testFile, "en");
 
-		assertEquals(new URI("apiua://survey/cd/2013-09-18T17:45:54.889+02:00"),
+		assertEquals(
+				new URI("apiua://survey/cd/2013-09-18T17:45:54.889+02:00"),
 				cdDoc.getUri());
 
 		assertEquals(
@@ -59,7 +60,7 @@ public class CognitiveDimensionsDocumentTest {
 		// umlauts
 		assertEquals("mainPurpose", cdDoc.getQuestionKey(6));
 		assertEquals(
-				"Bisher für noch nichts. Hoffe bald für Development im Berreich genome assembly",
+				"Bisher f√ºr noch nichts. Hoffe bald f√ºr Development im Berreich genome assembly",
 				cdDoc.getQuestionAnswer(6));
 		assertEquals(null, cdDoc.getQuestionTitle(6)); // no
 														// translation

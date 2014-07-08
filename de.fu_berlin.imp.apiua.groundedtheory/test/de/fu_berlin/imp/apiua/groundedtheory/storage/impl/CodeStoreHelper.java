@@ -65,13 +65,13 @@ public class CodeStoreHelper {
 		this.empty = new File(
 				CodeServiceTest.class
 						.getResource(
-								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.empty.xml")
+								"/de/fu_berlin/imp/apiua/groundedtheory/data/CodeStore.empty.xml")
 						.getFile());
 
 		this.small = new File(
 				CodeServiceTest.class
 						.getResource(
-								"/de/fu_berlin/imp/seqan/usability_analyzer/groundedtheory/data/CodeStore.small.xml")
+								"/de/fu_berlin/imp/apiua/groundedtheory/data/CodeStore.small.xml")
 						.getFile());
 
 		this.code1 = new Code(234233209l, "Code #1", new RGB(1, 0.5, 0),

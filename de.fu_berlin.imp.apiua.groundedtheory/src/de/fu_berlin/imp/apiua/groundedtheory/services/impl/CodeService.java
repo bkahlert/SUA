@@ -51,8 +51,7 @@ public class CodeService implements ICodeService, IDisposable {
 
 	private static final Logger LOGGER = Logger.getLogger(CodeService.class);
 
-	private final IImportanceService importanceService = (IImportanceService) PlatformUI
-			.getWorkbench().getService(IImportanceService.class);
+	private IImportanceService importanceService = null;
 	private final IImportanceInterceptor importanceInterceptor = new IImportanceInterceptor() {
 		@Override
 		public void gettingImportance(Map<URI, Importance> uris) {
@@ -86,14 +85,22 @@ public class CodeService implements ICodeService, IDisposable {
 		Assert.isNotNull(codeStore);
 		this.codeStore = codeStore;
 		this.codeServiceListenerNotifier = new CodeServiceListenerNotifier();
-		this.importanceService
-				.addImportanceInterceptor(this.importanceInterceptor);
+		try {
+			this.importanceService = (IImportanceService) PlatformUI
+					.getWorkbench().getService(IImportanceService.class);
+			this.importanceService
+					.addImportanceInterceptor(this.importanceInterceptor);
+		} catch (NoClassDefFoundError e) {
+			LOGGER.error(e);
+		}
 	}
 
 	@Override
 	public void dispose() {
-		this.importanceService
-				.removeImportanceInterceptor(this.importanceInterceptor);
+		if (this.importanceService != null) {
+			this.importanceService
+					.removeImportanceInterceptor(this.importanceInterceptor);
+		}
 	}
 
 	@Override

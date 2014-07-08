@@ -47,17 +47,17 @@ public class CodeStoreSaveTest extends CodeStoreHelper {
 	public void getBasename() {
 		assertEquals("code_234233209", CodeStore.getMemoBasename(this.code1));
 		assertEquals("code_9908372", CodeStore.getMemoBasename(this.code2));
-		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance1",
+		assertEquals("codeInstance_apiua%3A%2F%2FcodeInstance1",
 				CodeStore.getMemoBasename(this.locatable1.getUri()));
-		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance2",
+		assertEquals("codeInstance_apiua%3A%2F%2FcodeInstance2",
 				CodeStore.getMemoBasename(this.locatable2.getUri()));
-		assertEquals("codeInstance_sua%3A%2F%2FcodeInstance3",
+		assertEquals("codeInstance_apiua%3A%2F%2FcodeInstance3",
 				CodeStore.getMemoBasename(this.locatable3.getUri()));
-		assertEquals("codeInstance_9908372_sua%3A%2F%2FcodeInstance1",
+		assertEquals("codeInstance_9908372_apiua%3A%2F%2FcodeInstance1",
 				CodeStore.getMemoBasename(this.codeInstance1));
-		assertEquals("codeInstance_234233209_sua%3A%2F%2FcodeInstance2",
+		assertEquals("codeInstance_234233209_apiua%3A%2F%2FcodeInstance2",
 				CodeStore.getMemoBasename(this.codeInstance2));
-		assertEquals("codeInstance_9908372_sua%3A%2F%2FcodeInstance3",
+		assertEquals("codeInstance_9908372_apiua%3A%2F%2FcodeInstance3",
 				CodeStore.getMemoBasename(this.codeInstance3));
 	}
 
