@@ -121,7 +121,7 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.apiua.diff.views.CompilerOutputView?after=additions">
          <command
-               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               commandId="com.bkahlert.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>
@@ -129,7 +129,7 @@
             allPopups="false"
             locationURI="toolbar:de.fu_berlin.imp.apiua.diff.views.ExecutionOutputView?after=additions">
          <command
-               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               commandId="com.bkahlert.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>

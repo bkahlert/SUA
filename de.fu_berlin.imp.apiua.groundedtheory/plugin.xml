@@ -641,7 +641,7 @@
                style="toggle">
          </command>
          <command
-               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               commandId="com.bkahlert.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>
@@ -663,7 +663,7 @@
                style="push">
          </command>
          <command
-               commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+               commandId="com.bkahlert.nebula.toggleSourceMode"
                style="toggle">
          </command>
       </menuContribution>

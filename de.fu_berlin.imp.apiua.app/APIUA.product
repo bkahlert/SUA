@@ -58,7 +58,7 @@ Lesser General Public License for more details.
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
       <plugin id="ch.qos.logback.slf4j" fragment="true"/>
-      <plugin id="com.bkahlert.devel.nebula"/>
+      <plugin id="com.bkahlert.nebula"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="com.ning.async-http-client"/>
       <plugin id="de.fu_berlin.imp.apiua"/>
