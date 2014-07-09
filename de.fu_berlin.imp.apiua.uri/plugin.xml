@@ -179,7 +179,7 @@
             adaptableType="de.fu_berlin.imp.apiua.uri.model.IUri"
             class="de.fu_berlin.imp.apiua.uri.model.URIAdapterFactory">
          <adapter
-               type="de.fu_berlin.imp.apiua.core.model">
+               type="de.fu_berlin.imp.apiua.core.model.URI">
          </adapter>
       </factory>
    </extension>
