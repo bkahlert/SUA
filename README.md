@@ -21,17 +21,30 @@ SUA strengths are:
 - joint visualization of the different types of data, e.g. all data are put on a timeline; actions on the web page are rendered to see what the user actually saw in each moment, ... 
 - modular architecture that makes SUA easily extendable
 
+## Screenshots
+
+![Splash Screen](images/logo.jpg)
+Splash Screen
+
+![Open Coding Perspective](images/open-coding.png)
+Open Coding Perspective
+
+![Axial Coding Perspective](images/axial-coding.png)
+Axial Coding Perspective
+
+
 ## Installation
 
 The analyzer is currently pretty much alpha since it has only been tested in the scope of the creator's research.  
 If you still want to try it out you need to:
+
 1. Download Eclipse Java Edition
-2. Add the following third-party projects to your workspace
-  - https://github.com/bkahlert/com.bkahlert.nebula
-  - org.eclipse.nebula.cwt (available on http://www.eclipse.org/nebula/downloads.php)
-  - org.eclipse.nebula.widgets.cdatetime (available on http://www.eclipse.org/nebula/downloads.php)
-3. Checkout and add all projects available on https://github.com/bkahlert/api-usability-analyzer to your workspace
-4. Run the file APIUA.product contained in the project de.fu_berlin.imp.apiua. 
+1. Add the following third-party projects to your workspace
+   - https://github.com/bkahlert/com.bkahlert.nebula
+   - org.eclipse.nebula.cwt (available on http://www.eclipse.org/nebula/downloads.php)
+   - org.eclipse.nebula.widgets.cdatetime (available on http://www.eclipse.org/nebula/downloads.php)
+1. Checkout and add all projects available on https://github.com/bkahlert/api-usability-analyzer to your workspace
+1. Run the file APIUA.product contained in the project de.fu_berlin.imp.apiua. 
 
 ## Research Project
 
