@@ -1,5 +1,4 @@
-API Usability Analyzer
-======================
+# API Usability Analyzer
 
 This tool can be used to qualitatively analyze the API of software fragments (especially software libraries and frameworks).
 It has been implemented to research the API usability of the C++ based software library [SeqAn](http://www.seqan.de) - a library used by bioinformaticists to solve sequence analysis problems.
@@ -13,9 +12,8 @@ SUA currently supports the following data collected during or with respect to pr
 - changes the user made to his code between two moments in time (diff files)
 - broad range of events that occur on instrumented web pages like online documentations (doclog files) - examples: opening, resizing or scrolling on a web page
 
-SUA is accompagnied by a [data collection server](http://github.com/bkahlert/api-usability-analyzer-server) based on Java EE.
-There is also a [data collection client for CMake](http://github.com/bkahlert/api-usability-analyzer-cmake-client) that generically modifies the created build files to transparently enable the data collection.
-The data collection circumvents various problems that arise from browser's security measurements.
+SUA is accompagnied by a [data collection server](https://github.com/bkahlert/api-usability-analyzer-server-java-ee) based on Java EE. It collects the changes made to file and various actions done on observed web pages.
+There is also a [Python based data collection client](https://github.com/bkahlert/api-usability-analyzer-client-python) that checks for changed user file to transmit to the server.
 
 SUA strengths are:
 - support of the GTM elements "open coding", "axial coding", "memos" and "constant comparison"
@@ -23,8 +21,7 @@ SUA strengths are:
 - joint visualization of the different types of data, e.g. all data are put on a timeline; actions on the web page are rendered to see what the user actually saw in each moment, ... 
 - modular architecture that makes SUA easily extendable
 
-Installation
-------------
+## Installation
 
 The analyzer is currently pretty much alpha since it has only been tested in the scope of the creator's research.  
 If you still want to try it out you need to:
@@ -36,9 +33,7 @@ If you still want to try it out you need to:
 3. Checkout and add all projects available on https://github.com/bkahlert/api-usability-analyzer to your workspace
 4. Run the file APIUA.product contained in the project de.fu_berlin.imp.apiua. 
 
-
-Research Project
-----------------
+## Research Project
 
 This project is part of the [BioStore project](http://www.seqan-biostore.de/wp/) sponsored by the [Federal Ministry of Education and Research, Germany](http://www.bmbf.de).
 
@@ -51,8 +46,15 @@ This project is part of the [BioStore project](http://www.seqan-biostore.de/wp/)
     </tr>
 </table>
 
-License
--------
+## Further reading
+
+1. [Eclipse Rich Client Platform](http://wiki.eclipse.org/index.php/Rich_Client_Platform)
+2. [Nebula Widgets for Eclipse](https://github.com/bkahlert/com.bkahlert.nebula)
+3. [API Usability Analyzer Server for Java EE](https://github.com/bkahlert/api-usability-analyzer-server-java-ee)
+4. [Python based Data Collection Client](https://github.com/bkahlert/api-usability-analyzer-client-python)
+5. [Research results of the usability analysis of SeqAn's API](https://github.com/bkahlert/seqan-research)
+
+## License
 
 [The MIT License (MIT)](../../LICENCE)  
 Copyright (c) 2011-2014 [Björn Kahlert, Freie Universität Berlin](http://www.mi.fu-berlin.de/w/Main/BjoernKahlert)
