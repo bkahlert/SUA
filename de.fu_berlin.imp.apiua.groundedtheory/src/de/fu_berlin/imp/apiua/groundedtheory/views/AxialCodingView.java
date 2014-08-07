@@ -40,9 +40,9 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
+import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
-import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
@@ -700,7 +700,9 @@ public class AxialCodingView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		this.jointjs.setFocus();
+		if (this.jointjs != null) {
+			this.jointjs.setFocus();
+		}
 	}
 
 }
