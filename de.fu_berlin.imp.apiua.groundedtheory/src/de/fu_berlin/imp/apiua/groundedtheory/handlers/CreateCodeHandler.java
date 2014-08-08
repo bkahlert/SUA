@@ -27,7 +27,7 @@ public class CreateCodeHandler extends AbstractHandler {
 
 		Collection<?> menus = HandlerUtil.getActiveMenus(event);
 
-		List<ICode> codes = menus.size() > 0 ? SelectionRetrieverFactory
+		List<ICode> codes = menus != null && menus.size() > 0 ? SelectionRetrieverFactory
 				.getSelectionRetriever(ICode.class).getSelection()
 				: new LinkedList<ICode>();
 		assert codes.size() < 2;
