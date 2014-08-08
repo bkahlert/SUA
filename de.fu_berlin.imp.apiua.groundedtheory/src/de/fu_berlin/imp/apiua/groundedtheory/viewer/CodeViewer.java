@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -22,10 +23,11 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.NebulaPreferences;
+import com.bkahlert.nebula.utils.CellLabelClient;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
-import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.FilteredTree;
 import com.bkahlert.nebula.viewer.FilteredTree.TreeViewerFactory;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
@@ -75,6 +77,26 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				public TreeViewer create(Composite parent, int style) {
 					return createViewer(parent, style, initialShowInstances,
 							saveExpandedElementsKey);
+				}
+			}, new IConverter<URI, String>() {
+				ICodeService codeService = (ICodeService) PlatformUI
+						.getWorkbench().getService(ICodeService.class);
+				CellLabelProvider clp = null;
+				CellLabelClient clc = null;
+
+				@Override
+				public String convert(URI uri) {
+					if (this.clp == null) {
+						this.clp = CodeViewer.this.viewer.getLabelProvider(0);
+					}
+					if (this.clc == null) {
+						this.clc = new CellLabelClient(this.clp);
+					}
+					this.clc.setElement(uri);
+					StringBuilder sb = new StringBuilder(this.clc.getText());
+					sb.append(" ");
+					sb.append(this.codeService.loadMemoPlain(uri));
+					return sb.toString();
 				}
 			});
 			filteredTree

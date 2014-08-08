@@ -19,6 +19,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.IdentifierFactory;
@@ -395,6 +396,15 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public String loadMemo(URI uri) {
 		return this.codeStore.getMemo(uri);
+	}
+
+	@Override
+	public String loadMemoPlain(URI uri) {
+		String htmlMemo = this.loadMemo(uri);
+		if (htmlMemo != null && !htmlMemo.trim().isEmpty()) {
+			return StringUtils.htmlToPlain(htmlMemo);
+		}
+		return null;
 	}
 
 	@Override

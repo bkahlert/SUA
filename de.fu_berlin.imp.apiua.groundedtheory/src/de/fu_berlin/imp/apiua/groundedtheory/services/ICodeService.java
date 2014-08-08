@@ -252,6 +252,13 @@ public interface ICodeService {
 	public String loadMemo(URI uri);
 
 	/**
+	 * Returns the memo in plain text for the given {@link URI}.
+	 * 
+	 * @param uri
+	 */
+	public String loadMemoPlain(URI uri);
+
+	/**
 	 * Returns true if the given {@link URI} has a memo.
 	 * 
 	 * @param uri
