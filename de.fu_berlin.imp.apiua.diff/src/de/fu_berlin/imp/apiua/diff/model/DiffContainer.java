@@ -56,7 +56,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
-	 * names (see {@link IIdentifier#isValid(String)}) and maps all containing
+	 * names (see {@link IIdentifier#isLegal(String)}) and maps all containing
 	 * files their corresponding {@link IIdentifier}.
 	 * 
 	 * @param diffContainer
