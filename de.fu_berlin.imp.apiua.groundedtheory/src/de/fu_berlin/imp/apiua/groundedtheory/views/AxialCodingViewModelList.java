@@ -70,7 +70,7 @@ class AxialCodingViewModelList extends ItemList {
 
 		this.addListener(new ItemListAdapter() {
 			@Override
-			public void itemClicked(String key) {
+			public void itemClicked(String key, int i) {
 				if (key.equals(CREATE_ID)) {
 					try {
 						CODE_SERVICE
@@ -84,44 +84,28 @@ class AxialCodingViewModelList extends ItemList {
 					}
 				} else {
 					final URI uri = new URI(key);
-					AxialCodingView view = (AxialCodingView) WorkbenchUtils
-							.getView(AxialCodingView.ID);
-					if (view != null) {
-						final Future<Void> success = view.open(uri);
-						ExecUtils.nonUIAsyncExec(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									success.get();
-								} catch (Exception e) {
-									LOGGER.error(
-											"Error opening "
-													+ IAxialCodingModel.class
-															.getSimpleName()
-													+ " " + uri, e);
-								}
-							}
-						});
-					}
-				}
-			}
-
-			@Override
-			public void itemClicked(String key, int i) {
-				if (key.equals(CREATE_ID)) {
-				} else {
-					URI uri = new URI(key);
 					switch (i) {
-					case 1:
-						try {
-							CODE_SERVICE.removeAxialCodingModel(uri);
-						} catch (CodeStoreWriteException e) {
-							AxialCodingView.LOGGER.error("Error removing "
-									+ IAxialCodingModel.class.getSimpleName()
-									+ " " + uri);
+					case 0:
+						AxialCodingView view = (AxialCodingView) WorkbenchUtils
+								.getView(AxialCodingView.ID);
+						if (view != null) {
+							final Future<Void> success = view.open(uri);
+							ExecUtils.nonUIAsyncExec(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										success.get();
+									} catch (Exception e) {
+										LOGGER.error(
+												"Error opening "
+														+ IAxialCodingModel.class
+																.getSimpleName()
+														+ " " + uri, e);
+									}
+								}
+							});
 						}
-						break;
-					default:
+					case 1:
 						try {
 							AxialCodingViewRenameDialog renameDialog = new AxialCodingViewRenameDialog(
 									AxialCodingViewModelList.this.getShell(),
@@ -144,6 +128,17 @@ class AxialCodingViewModelList extends ItemList {
 									+ uri, e);
 						}
 						break;
+					case 2:
+						try {
+							CODE_SERVICE.removeAxialCodingModel(uri);
+						} catch (CodeStoreWriteException e) {
+							AxialCodingView.LOGGER.error("Error removing "
+									+ IAxialCodingModel.class.getSimpleName()
+									+ " " + uri);
+						}
+						break;
+					default:
+						LOGGER.error("Implementation error");
 					}
 				}
 			}
