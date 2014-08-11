@@ -34,8 +34,8 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -310,17 +310,23 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		Class<? extends ILocatable> type = LocatorService.INSTANCE.getType(uri);
 		if (type == ICode.class) {
-			Image overlay;
+			Image image;
 			try {
-				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
-						: ImageManager.CODE_CODED) : (this.codeService
-						.isMemo(uri) ? ImageManager.CODE_MEMO
-						: ImageManager.CODE);
+				image = this.codeService.getDimension(uri) != null ? ((this.codeService
+						.getCodes(uri).size() > 0) ? (this.codeService
+						.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_CODED_MEMO
+						: ImageManager.CODE_DIMENSIONALIZED_CODED)
+						: (this.codeService.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_MEMO
+								: ImageManager.CODE_DIMENSIONALIZED))
+						: ((this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+								.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
+								: ImageManager.CODE_CODED) : (this.codeService
+								.isMemo(uri) ? ImageManager.CODE_MEMO
+								: ImageManager.CODE));
 			} catch (CodeServiceException e) {
-				overlay = ImageManager.CODE;
+				image = ImageManager.CODE;
 			}
-			return overlay;
+			return image;
 		}
 		if (type == ICodeInstance.class) {
 			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
@@ -334,30 +340,30 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					.getMemoAnnotatedImage(image) : image;
 		}
 		if (type == IEpisodes.class) {
-			Image overlay;
+			Image image;
 			try {
-				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+				image = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
 						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
 						: ImageManager.EPISODE_CODED) : (this.codeService
 						.isMemo(uri) ? ImageManager.EPISODE_MEMO
 						: ImageManager.EPISODE);
 			} catch (CodeServiceException e) {
-				overlay = ImageManager.EPISODE;
+				image = ImageManager.EPISODE;
 			}
-			return overlay;
+			return image;
 		}
 		if (type == IEpisode.class) {
-			Image overlay;
+			Image image;
 			try {
-				overlay = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+				image = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
 						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
 						: ImageManager.EPISODE_CODED) : (this.codeService
 						.isMemo(uri) ? ImageManager.EPISODE_MEMO
 						: ImageManager.EPISODE);
 			} catch (CodeServiceException e) {
-				overlay = ImageManager.EPISODE;
+				image = ImageManager.EPISODE;
 			}
-			return overlay;
+			return image;
 			// Image image = new Image(Display.getCurrent(),
 			// new Rectangle(0, 0, 16, 16));
 			// GC gc = new GC(image);

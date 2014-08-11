@@ -47,6 +47,14 @@
       </view>
       <view
             category="de.fu_berlin.imp.apiua.category"
+            class="de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView"
+            icon="icons/ovr16/dimensionalized.png"
+            id="de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView"
+            name="Dimension"
+            restorable="true">
+      </view>
+      <view
+            category="de.fu_berlin.imp.apiua.category"
             class="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView"
             icon="icons/view/code_misc.png"
             id="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView"
