@@ -23,7 +23,7 @@
             allowMultiple="true"
             category="de.fu_berlin.imp.apiua.category"
             class="de.fu_berlin.imp.apiua.groundedtheory.views.PinnableMemoView"
-            icon="icons/view/code_misc.png"
+            icon="icons/ovr16/memo.png"
             id="de.fu_berlin.imp.apiua.groundedtheory.views.PinnableMemoView"
             name="Memo"
             restorable="true">
@@ -32,7 +32,7 @@
             allowMultiple="true"
             category="de.fu_berlin.imp.apiua.category"
             class="de.fu_berlin.imp.apiua.groundedtheory.views.EditorOnlyMemoView"
-            icon="icons/view/code_misc.png"
+            icon="icons/ovr16/memo.png"
             id="de.fu_berlin.imp.apiua.groundedtheory.views.EditorOnlyMemoView"
             name="Memo (Editor-Only)"
             restorable="true">
@@ -40,7 +40,7 @@
       <view
             category="de.fu_berlin.imp.apiua.category"
             class="de.fu_berlin.imp.apiua.groundedtheory.views.EpisodeView"
-            icon="icons/view/code_misc.png"
+            icon="icons/obj16/episode_obj.png"
             id="de.fu_berlin.imp.apiua.groundedtheory.views.EpisodeView"
             name="Episodes"
             restorable="true">
