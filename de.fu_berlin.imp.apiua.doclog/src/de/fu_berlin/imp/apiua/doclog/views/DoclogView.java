@@ -394,7 +394,7 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 						&& !DoclogView.this.treeViewer.getTree().isDisposed()
 						&& newOpenedDoclogFiles.size() > 0) {
 					DoclogView.this.openedDoclogFiles = newOpenedDoclogFiles;
-					final String partName = "Doclogs - "
+					final String partName = "Doclogs: "
 							+ StringUtils.join(newOpenedDoclogFiles.keySet(),
 									", ");
 					ExecUtils.asyncExec(new Runnable() {

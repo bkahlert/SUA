@@ -418,7 +418,7 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 						&& !DiffView.this.diffViewer.getTree().isDisposed()
 						&& newOpenedDiffFileLists.size() > 0) {
 					DiffView.this.openedDiffs = newOpenedDiffFileLists;
-					final String partName = "Diffs - "
+					final String partName = "Diffs: "
 							+ StringUtils.join(newOpenedDiffFileLists.keySet(),
 									", ");
 					ExecUtils.asyncExec(new Runnable() {

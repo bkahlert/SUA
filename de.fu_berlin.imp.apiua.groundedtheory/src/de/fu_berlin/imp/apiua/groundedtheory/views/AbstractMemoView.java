@@ -8,13 +8,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
@@ -48,7 +45,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
 public class AbstractMemoView extends UriPresentingEditorView {
@@ -108,7 +105,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	private final List<IHistory<URI>> history;
 
 	public AbstractMemoView() {
-		super(2000, ToolbarSet.DEFAULT, true);
+		super(new UriPartRenamerConverter(), 2000, ToolbarSet.DEFAULT, true);
 		this.history = new ArrayList<IHistory<URI>>();
 	}
 
@@ -255,81 +252,6 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	public void dispose() {
 		this.codeService.removeCodeServiceListener(this.codeServiceListener);
 		super.dispose();
-	}
-
-	@Override
-	public PartInfo getDefaultPartInfo() {
-		return new PartInfo("No Memo Support", ImageManager.CODE);
-	}
-
-	@Override
-	public PartInfo getPartInfo(List<URI> uris) throws Exception {
-		if (uris == null || uris.size() == 0) {
-			return this.getDefaultPartInfo();
-		}
-
-		List<ILocatable> locatables = new ArrayList<ILocatable>(uris.size());
-		for (URI uri : uris) {
-			if (uri == null) {
-				locatables.add(null);
-			} else {
-				try {
-					locatables.add(LocatorService.INSTANCE.resolve(uri, null)
-							.get());
-				} catch (Exception e) {
-					LOGGER.error("Error retrieving "
-							+ PartInfo.class.getSimpleName() + " for " + uris);
-					locatables.add(null);
-				}
-			}
-		}
-
-		Assert.isTrue(uris.size() == locatables.size());
-
-		String[] captions = new String[uris.size()];
-		Image[] images = new Image[uris.size()];
-		for (int i = 0; i < uris.size(); i++) {
-			if (locatables.get(i) instanceof ICode) {
-				ICode code = (ICode) locatables.get(i);
-				captions[i] = code.getCaption();
-				images[i] = ImageManager.CODE;
-			} else if (locatables.get(i) instanceof ICodeInstance) {
-				ICodeInstance codeInstance = (ICodeInstance) locatables.get(i);
-				ILabelProvider lp = this.labelProviderService
-						.getLabelProvider(codeInstance.getUri());
-				if (lp != null) {
-					captions[i] = "→ " + codeInstance.getCode().getCaption();
-					images[i] = lp.getImage(uris.get(i));
-				} else {
-					captions[i] = "UNKNOWN";
-					images[i] = null;
-					return null;
-				}
-			} else {
-				if (locatables.get(i) != null) {
-					ILabelProvider lp = this.labelProviderService
-							.getLabelProvider(uris.get(i));
-					if (lp == null) {
-						captions[i] = "UNKNOWN";
-						images[i] = null;
-					} else {
-						captions[i] = lp.getText(uris.get(i));
-						images[i] = lp.getImage(uris.get(i));
-					}
-				} else {
-					captions[i] = "INVALID";
-					images[i] = null;
-				}
-			}
-		}
-		String caption = StringUtils.join(captions, "  |  ");
-		Image image = images[0];
-		for (int i = 1; i < images.length && image != null; i++) {
-			if (image != images[i]) {
-				image = null;
-			}
-		}
-		return new PartInfo(caption, image);
 	}
 
 	// TODO PropertyChangeService implementieren; header wird nicht

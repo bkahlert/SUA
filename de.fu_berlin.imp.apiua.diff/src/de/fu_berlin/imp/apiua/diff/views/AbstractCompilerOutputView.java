@@ -8,7 +8,6 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.diff.model.ICompilable;
-import de.fu_berlin.imp.apiua.diff.ui.ImageManager;
 
 public class AbstractCompilerOutputView extends AbstractOutputView {
 
@@ -22,16 +21,6 @@ public class AbstractCompilerOutputView extends AbstractOutputView {
 	public AbstractCompilerOutputView(boolean selectionSensitive,
 			boolean editorSensitive) {
 		super(selectionSensitive, editorSensitive);
-	}
-
-	@Override
-	public PartInfo getDefaultPartInfo() {
-		return new PartInfo("Compiler Output", ImageManager.COMPILEROUTPUT_MISC);
-	}
-
-	@Override
-	protected String getPartInfoPrefix() {
-		return "Compiler Output - ";
 	}
 
 	@Override

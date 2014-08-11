@@ -165,7 +165,7 @@ public class SurveyView extends ViewPart {
 								&& !SurveyView.this.surveyViewer.getTree()
 										.isDisposed()) {
 							SurveyView.this.openedSurveyRecords = newOpenedSurveyRecords;
-							final String partName = "Survey - "
+							final String partName = "Survey: "
 									+ StringUtils.join(
 											newOpenedSurveyRecords.keySet(),
 											", ");

@@ -3,10 +3,13 @@ package de.fu_berlin.imp.apiua.core.views;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.views.EditorView;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
@@ -43,9 +46,10 @@ public abstract class UriPresentingEditorView extends EditorView<URI> {
 	private final IUriPresenterService informationPresenterService = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
-	public UriPresentingEditorView(long delayChangeEventUpTo,
-			ToolbarSet toolbarSet, boolean autosave) {
-		super(delayChangeEventUpTo, toolbarSet, autosave);
+	public UriPresentingEditorView(
+			IConverter<URI, Pair<String, Image>> converter,
+			long delayChangeEventUpTo, ToolbarSet toolbarSet, boolean autosave) {
+		super(converter, delayChangeEventUpTo, toolbarSet, autosave);
 	}
 
 	@Override

@@ -2,11 +2,9 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -25,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
@@ -35,24 +34,19 @@ import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.itemlist.ItemList.ItemListAdapter;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
-import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 
 public class DimensionView extends ViewPart {
 
 	private static final Logger LOGGER = Logger.getLogger(DimensionView.class);
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView";
-
-	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
-			.getWorkbench().getService(ILabelProviderService.class);
 
 	private final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
 			.getSelectionRetriever(URI.class);
@@ -90,7 +84,7 @@ public class DimensionView extends ViewPart {
 		};
 	}
 
-	private String initPartName;
+	private final PartRenamer<URI> partRenamer;
 	private Combo typeCombo;
 	private ItemList valueList;
 
@@ -98,6 +92,8 @@ public class DimensionView extends ViewPart {
 	private List<String> values = new ArrayList<String>();
 
 	public DimensionView() {
+		this.partRenamer = new PartRenamer<URI>(this,
+				new UriPartRenamerConverter());
 		SelectionUtils.getSelectionService().addSelectionListener(
 				this.selectionListener);
 	}
@@ -112,34 +108,6 @@ public class DimensionView extends ViewPart {
 		SelectionUtils.getSelectionService().removeSelectionListener(
 				this.selectionListener);
 		super.dispose();
-	}
-
-	private void refreshPartName(List<URI> uris) {
-		if (uris == null) {
-			uris = new LinkedList<URI>();
-		}
-
-		if (this.initPartName == null) {
-			this.initPartName = this.getPartName();
-		}
-
-		List<String> labels = new ArrayList<String>(uris.size());
-		for (URI uri : uris) {
-			ILabelProvider lp = this.labelProviderService.getLabelProvider(uri);
-			try {
-				labels.add(lp.getText(uri));
-			} catch (Exception e) {
-				if (uri instanceof ViewerURI) {
-					labels.add("-");
-				} else {
-					LOGGER.error("Error getting label for " + uri);
-					labels.add("ERROR");
-				}
-			}
-		}
-
-		String label = StringUtils.join(labels, ", ");
-		this.setPartName(this.initPartName + ": " + label);
 	}
 
 	@Override
@@ -234,8 +202,7 @@ public class DimensionView extends ViewPart {
 	private void load(URI uri) throws CodeStoreWriteException {
 		this.save();
 
-		DimensionView.this.refreshPartName(uri != null ? Arrays.asList(uri)
-				: null);
+		this.partRenamer.apply(uri);
 
 		if (uri != null && LocatorService.INSTANCE.getType(uri) == ICode.class) {
 			ICode code = null;
