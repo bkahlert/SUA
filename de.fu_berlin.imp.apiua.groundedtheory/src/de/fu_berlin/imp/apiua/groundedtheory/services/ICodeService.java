@@ -299,10 +299,10 @@ public interface ICodeService {
 	/**
 	 * Returns the {@link ICode}'s current {@link IDimension}.
 	 * 
-	 * @param code
+	 * @param uri
 	 * @return <code>null</code> if no {@link IDimension} is set
 	 */
-	public IDimension getDimension(ICode code);
+	public IDimension getDimension(URI uri);
 
 	/**
 	 * Sets the {@link ICode}'s current {@link IDimension}.

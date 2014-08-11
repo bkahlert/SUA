@@ -541,14 +541,14 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public IDimension getDimension(ICode code) {
-		return this.codeStore.getDimension(code.getUri());
+	public IDimension getDimension(URI uri) {
+		return this.codeStore.getDimension(uri);
 	}
 
 	@Override
 	public void setDimension(ICode code, IDimension newDimension)
 			throws CodeStoreWriteException {
-		IDimension oldDimension = this.getDimension(code);
+		IDimension oldDimension = this.getDimension(code.getUri());
 		if (oldDimension == null && newDimension == null) {
 			return;
 		}
@@ -579,10 +579,10 @@ public class CodeService implements ICodeService, IDisposable {
 		Assert.isNotNull(uri);
 		Assert.isNotNull(code);
 		Assert.isTrue(LocatorService.INSTANCE.getType(uri) == ICodeInstance.class);
-		if (this.getDimension(code) == null
-				|| !this.getDimension(code).isLegal(value)) {
-			throw new IllegalDimensionValueException(this.getDimension(code),
-					value);
+		if (this.getDimension(code.getUri()) == null
+				|| !this.getDimension(code.getUri()).isLegal(value)) {
+			throw new IllegalDimensionValueException(this.getDimension(code
+					.getUri()), value);
 		}
 		for (ICodeInstance codeInstance : this.getInstances(code)) {
 			if (codeInstance.getId().equals(uri)) {
