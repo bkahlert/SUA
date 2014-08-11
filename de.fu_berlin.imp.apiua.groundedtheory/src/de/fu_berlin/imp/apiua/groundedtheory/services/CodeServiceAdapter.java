@@ -8,6 +8,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 
 public class CodeServiceAdapter implements ICodeServiceListener {
 
@@ -61,6 +62,15 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 
 	@Override
 	public void episodesDeleted(Set<IEpisode> episodes) {
+	}
+
+	@Override
+	public void dimensionChanged(URI uri, IDimension oldDimension,
+			IDimension newDimension) {
+	}
+
+	@Override
+	public void dimensionValueChanged(URI uri, String oldValue, String value) {
 	}
 
 	@Override

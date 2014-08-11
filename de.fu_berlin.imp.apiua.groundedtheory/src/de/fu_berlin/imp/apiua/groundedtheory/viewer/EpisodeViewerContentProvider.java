@@ -18,6 +18,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.Episodes;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisodes;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
@@ -100,6 +101,17 @@ public class EpisodeViewerContentProvider extends
 			// for (IEpisode episode : episodes) {
 			// ViewerUtils.remove(viewer, episode);
 			// }
+			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer);
 		}
 

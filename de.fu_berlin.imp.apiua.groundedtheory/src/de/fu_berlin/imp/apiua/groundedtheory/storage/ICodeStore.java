@@ -10,6 +10,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
@@ -98,6 +99,37 @@ public interface ICodeStore {
 			throws CodeStoreWriteException;
 
 	public void setMemo(URI uri, String html) throws CodeStoreWriteException;
+
+	/**
+	 * 
+	 * @param uri
+	 *            only URIs of ICodes expected!
+	 * @return
+	 */
+	public IDimension getDimension(URI uri);
+
+	/**
+	 * @param uri
+	 *            only URIs of ICodes expected!
+	 * @param dimension
+	 */
+	public void setDimension(URI uri, IDimension dimension);
+
+	/**
+	 * 
+	 * @param uri
+	 *            only URIs of ICodeInstances expected!
+	 * @return
+	 */
+	public String getDimensionValue(URI uri);
+
+	/**
+	 * 
+	 * @param uri
+	 *            only URIs of ICodeInstances expected!
+	 * @param value
+	 */
+	public void setDimensionValue(URI uri, String value);
 
 	/**
 	 * Sets data for a given type and {@link URI}.

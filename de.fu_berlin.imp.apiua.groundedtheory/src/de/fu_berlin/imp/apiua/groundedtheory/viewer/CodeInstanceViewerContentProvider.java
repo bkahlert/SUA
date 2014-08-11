@@ -18,6 +18,7 @@ import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
@@ -116,6 +117,19 @@ public class CodeInstanceViewerContentProvider extends
 		public void episodesDeleted(Set<IEpisode> episodes) {
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					false);
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
 		}
 
 		@Override

@@ -34,11 +34,12 @@ import de.fu_berlin.imp.apiua.core.services.DataServiceAdapter;
 import de.fu_berlin.imp.apiua.core.services.IDataService;
 import de.fu_berlin.imp.apiua.core.services.IDataServiceListener;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.survey.Activator;
@@ -140,6 +141,17 @@ public class CDView extends ViewPart {
 
 		@Override
 		public void codeDeleted(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			CDView.this.viewer.refresh();
 		}
 

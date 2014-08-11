@@ -13,6 +13,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
 /**
@@ -126,6 +127,17 @@ public class TimelineRefresher implements ICodeServiceListener {
 
 	@Override
 	public void episodesDeleted(Set<IEpisode> deletedEpisodes) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void dimensionChanged(URI uri, IDimension oldDimension,
+			IDimension newDimension) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void dimensionValueChanged(URI uri, String oldValue, String value) {
 		this.scheduleRefresh();
 	}
 

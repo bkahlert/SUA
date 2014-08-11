@@ -20,6 +20,7 @@ import de.fu_berlin.imp.apiua.doclog.model.Doclog;
 import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
@@ -116,6 +117,19 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}

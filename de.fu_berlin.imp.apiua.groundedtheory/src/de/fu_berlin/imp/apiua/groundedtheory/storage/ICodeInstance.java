@@ -26,11 +26,12 @@ public interface ICodeInstance extends ILocatable, HasDateRange, HasIdentifier {
 
 	/**
 	 * Returns the {@link URI} of the resource this {@link ICodeInstance} links
-	 * to the {@link ICode} returned by {@link #getCode()}.
+	 * to.
 	 * 
 	 * @return
 	 */
 	public URI getId();
 
 	public TimeZoneDate getCreation();
+
 }

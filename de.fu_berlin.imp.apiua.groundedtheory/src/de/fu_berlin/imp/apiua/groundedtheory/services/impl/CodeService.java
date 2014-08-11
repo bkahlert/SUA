@@ -34,6 +34,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
@@ -536,6 +538,62 @@ public class CodeService implements ICodeService, IDisposable {
 		if (notDeletedEpisodes.size() > 0) {
 			throw new EpisodeDoesNotExistException(notDeletedEpisodes);
 		}
+	}
+
+	@Override
+	public IDimension getDimension(ICode code) {
+		return this.codeStore.getDimension(code.getUri());
+	}
+
+	@Override
+	public void setDimension(ICode code, IDimension newDimension)
+			throws CodeStoreWriteException {
+		IDimension oldDimension = this.getDimension(code);
+		if (oldDimension == null && newDimension == null) {
+			return;
+		}
+		if (oldDimension != null && oldDimension.equals(newDimension)) {
+			return;
+		}
+		this.codeStore.setDimension(code.getUri(), newDimension);
+		this.codeStore.save();
+		this.codeServiceListenerNotifier.dimensionChanged(code.getUri(),
+				oldDimension, newDimension);
+	}
+
+	@Override
+	public String getDimensionValue(URI uri, ICode code) {
+		Assert.isNotNull(uri);
+		Assert.isTrue(LocatorService.INSTANCE.getType(uri) == ICodeInstance.class);
+		for (ICodeInstance codeInstance : this.getInstances(code)) {
+			if (codeInstance.getId().equals(uri)) {
+				return this.codeStore.getDimensionValue(codeInstance.getUri());
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void setDimensionValue(URI uri, ICode code, String value)
+			throws IllegalDimensionValueException, CodeStoreWriteException {
+		Assert.isNotNull(uri);
+		Assert.isNotNull(code);
+		Assert.isTrue(LocatorService.INSTANCE.getType(uri) == ICodeInstance.class);
+		if (this.getDimension(code) == null
+				|| !this.getDimension(code).isLegal(value)) {
+			throw new IllegalDimensionValueException(this.getDimension(code),
+					value);
+		}
+		for (ICodeInstance codeInstance : this.getInstances(code)) {
+			if (codeInstance.getId().equals(uri)) {
+				String oldValue = this.codeStore.getDimensionValue(codeInstance
+						.getUri());
+				this.codeStore.setDimensionValue(codeInstance.getUri(), value);
+				this.codeServiceListenerNotifier.dimensionValueChanged(
+						code.getUri(), oldValue, value);
+			}
+		}
+		this.codeStore.save();
 	}
 
 	private static final String AXIAL_CODING_MODEL_TYPE = "acm";

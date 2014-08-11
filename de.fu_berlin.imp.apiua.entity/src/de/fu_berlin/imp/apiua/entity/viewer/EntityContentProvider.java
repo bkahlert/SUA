@@ -15,6 +15,7 @@ import de.fu_berlin.imp.apiua.entity.model.Entity;
 import de.fu_berlin.imp.apiua.entity.model.EntityDataContainer;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
@@ -90,6 +91,17 @@ public class EntityContentProvider extends
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 

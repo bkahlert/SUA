@@ -48,6 +48,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Code;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -106,6 +107,12 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("episodes")
 	private Set<IEpisode> episodes;
 
+	@XStreamAlias("dimensions")
+	private HashMap<URI, IDimension> dimensions = null;
+
+	@XStreamAlias("dimensionValues")
+	private HashMap<URI, String> dimensionValues = null;
+
 	private static XStream xstream;
 
 	static {
@@ -148,6 +155,12 @@ class CodeStore implements ICodeStore {
 			}
 			if (codeStore.episodes == null) {
 				codeStore.episodes = new NoNullSet<IEpisode>();
+			}
+			if (codeStore.dimensions == null) {
+				codeStore.dimensions = new HashMap<URI, IDimension>();
+			}
+			if (codeStore.dimensionValues == null) {
+				codeStore.dimensionValues = new HashMap<URI, String>();
 			}
 
 			sanityCheckCodeIds(codeStore);
@@ -816,6 +829,26 @@ class CodeStore implements ICodeStore {
 			this.memos.remove(uri);
 		}
 		this.save();
+	}
+
+	@Override
+	public IDimension getDimension(URI uri) {
+		return this.dimensions.get(uri);
+	}
+
+	@Override
+	public void setDimension(URI uri, IDimension dimension) {
+		this.dimensions.put(uri, dimension);
+	}
+
+	@Override
+	public String getDimensionValue(URI uri) {
+		return this.dimensionValues.get(uri);
+	}
+
+	@Override
+	public void setDimensionValue(URI uri, String value) {
+		this.dimensionValues.get(uri);
 	}
 
 	private String getRawBasename(String type, URI uri)

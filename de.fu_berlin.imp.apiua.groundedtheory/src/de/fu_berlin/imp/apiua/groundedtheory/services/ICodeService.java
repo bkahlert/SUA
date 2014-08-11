@@ -12,6 +12,8 @@ import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -293,6 +295,49 @@ public interface ICodeService {
 
 	public void deleteEpisodeAndSave(List<IEpisode> episodes)
 			throws CodeServiceException;
+
+	/**
+	 * Returns the {@link ICode}'s current {@link IDimension}.
+	 * 
+	 * @param code
+	 * @return <code>null</code> if no {@link IDimension} is set
+	 */
+	public IDimension getDimension(ICode code);
+
+	/**
+	 * Sets the {@link ICode}'s current {@link IDimension}.
+	 * <p>
+	 * <strong>Note:</strong>This automatically resets the currently set value.
+	 * 
+	 * @param code
+	 * @param dimension
+	 * @throws CodeStoreWriteException
+	 */
+	public void setDimension(ICode code, IDimension dimension)
+			throws CodeStoreWriteException;
+
+	/**
+	 * Returns the {@link URI}'s set {@link IDimension} value.
+	 * 
+	 * @param uri
+	 * @param code
+	 * @return
+	 */
+	public String getDimensionValue(URI uri, ICode code);
+
+	/**
+	 * Set's the {@link IDimensionable}'s {@link IDimension} value.
+	 * 
+	 * @param uri
+	 * @param code
+	 * @param value
+	 * @throws IllegalDimensionValueException
+	 *             is thrown if no {@link IDimension} is set or is incompatible
+	 *             with the current {@link IDimension}.
+	 * @throws CodeStoreWriteException
+	 */
+	public void setDimensionValue(URI uri, ICode code, String value)
+			throws IllegalDimensionValueException, CodeStoreWriteException;
 
 	/**
 	 * Gets all existing {@link IAxialCodingModel} from the {@link ICodeStore}.

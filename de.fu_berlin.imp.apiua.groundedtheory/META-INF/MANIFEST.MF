@@ -23,6 +23,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: de.fu_berlin.imp.apiua.groundedtheory,
  de.fu_berlin.imp.apiua.groundedtheory.model,
+ de.fu_berlin.imp.apiua.groundedtheory.model.dimension,
  de.fu_berlin.imp.apiua.groundedtheory.services,
  de.fu_berlin.imp.apiua.groundedtheory.ui,
  de.fu_berlin.imp.apiua.groundedtheory.ui.wizards,
