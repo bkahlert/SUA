@@ -3,10 +3,8 @@ package de.fu_berlin.imp.apiua.groundedtheory.ui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -18,7 +16,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
@@ -59,8 +56,7 @@ public class DimensionComposite extends Composite {
 	public DimensionComposite(Composite parent, int style) {
 		super(parent, style);
 
-		this.setLayout(GridLayoutFactory.fillDefaults().spacing(5, 5)
-				.margins(5, 5).create());
+		this.setLayout(GridLayoutFactory.fillDefaults().spacing(5, 5).create());
 
 		this.typeCombo = new Combo(this, SWT.DROP_DOWN | SWT.BORDER
 				| SWT.READ_ONLY);
@@ -192,8 +188,9 @@ public class DimensionComposite extends Composite {
 		try {
 			code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
 					.get();
-			Assert.isNotNull(code, uri
-					+ " could be loaded but now cannot be resolved anymore.");
+			if (code == null) {
+				return; // deleted
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error", e);
 		}
@@ -214,38 +211,33 @@ public class DimensionComposite extends Composite {
 
 	private void refresh() {
 		this.typeCombo.select(this.dimensionType.ordinal());
-		ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				DimensionComposite.this.valueList.clear().get();
+		DimensionComposite.this.valueList.clear();
 
-				switch (DimensionComposite.this.dimensionType) {
-				case None:
-					DimensionComposite.this.values.clear();
-					DimensionComposite.this.valueList.clear();
-					break;
-				case Nominal:
-					for (int i = 0; i < DimensionComposite.this.values.size(); i++) {
-						DimensionComposite.this.valueList.addItem(i + "",
-								DimensionComposite.this.values.get(i),
-								ButtonOption.PRIMARY, ButtonSize.EXTRA_SMALL,
-								ButtonStyle.HORIZONTAL, Arrays.asList("↩", "⌫"));
-					}
-					DimensionComposite.this.valueList.addItem("add",
-							"Add Nominal", ButtonOption.PRIMARY,
-							ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL,
-							null);
-					DimensionComposite.this.save();
-					break;
-				default:
-					LOGGER.error("Unknown dimension type selected");
-					break;
-				}
-
-				return null;
+		switch (DimensionComposite.this.dimensionType) {
+		case None:
+			DimensionComposite.this.values.clear();
+			DimensionComposite.this.valueList.clear();
+			break;
+		case Nominal:
+			for (int i = 0; i < DimensionComposite.this.values.size(); i++) {
+				DimensionComposite.this.valueList.addItem(i + "",
+						DimensionComposite.this.values.get(i),
+						ButtonOption.PRIMARY, ButtonSize.EXTRA_SMALL,
+						ButtonStyle.HORIZONTAL, Arrays.asList("↩", "⌫"));
 			}
-		});
-
+			DimensionComposite.this.valueList.addItem("add", "Add Nominal",
+					ButtonOption.PRIMARY, ButtonSize.EXTRA_SMALL,
+					ButtonStyle.HORIZONTAL, null);
+			try {
+				DimensionComposite.this.save();
+			} catch (CodeStoreWriteException e) {
+				LOGGER.error(e);
+			}
+			break;
+		default:
+			LOGGER.error("Unknown dimension type selected");
+			break;
+		}
 	}
 
 	@Override

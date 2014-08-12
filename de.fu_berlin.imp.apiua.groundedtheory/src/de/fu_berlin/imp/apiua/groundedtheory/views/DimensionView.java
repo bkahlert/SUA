@@ -3,10 +3,12 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
@@ -17,8 +19,10 @@ import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValueComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 
 public class DimensionView extends ViewPart {
@@ -43,7 +47,7 @@ public class DimensionView extends ViewPart {
 				} else {
 					DimensionView.this.load(null);
 				}
-			} catch (CodeStoreWriteException e) {
+			} catch (Exception e) {
 				LOGGER.error(e);
 			}
 		}
@@ -60,6 +64,7 @@ public class DimensionView extends ViewPart {
 
 	private final PartRenamer<URI> partRenamer;
 	private DimensionComposite dimensionComposite;
+	private DimensionValueComposite dimensionValueComposite;
 
 	public DimensionView() {
 		this.partRenamer = new PartRenamer<URI>(this,
@@ -77,9 +82,20 @@ public class DimensionView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout());
+		parent.setLayout(GridLayoutFactory.fillDefaults().numColumns(2)
+				.spacing(5, 5).margins(5, 5).equalWidth(true).create());
 
 		this.dimensionComposite = new DimensionComposite(parent, SWT.NONE);
+		this.dimensionComposite.setLayoutData(GridDataFactory.fillDefaults()
+				.span(1, 2).grab(true, true).create());
+
+		this.dimensionValueComposite = new DimensionValueComposite(parent,
+				SWT.NONE);
+		this.dimensionValueComposite.setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, false).create());
+
+		new Label(parent, SWT.BORDER).setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, true).create());
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override
@@ -90,9 +106,11 @@ public class DimensionView extends ViewPart {
 
 	}
 
-	private void load(URI uri) throws CodeStoreWriteException {
+	private void load(URI uri) throws CodeStoreWriteException,
+			CodeServiceException {
 		this.partRenamer.apply(uri);
 		this.dimensionComposite.load(uri);
+		this.dimensionValueComposite.load(uri);
 	}
 
 	@Override
