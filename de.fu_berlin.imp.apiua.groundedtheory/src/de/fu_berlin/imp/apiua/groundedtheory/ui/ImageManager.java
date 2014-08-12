@@ -23,7 +23,11 @@ public class ImageManager {
 	public static final Image OVERLAY_PARTIALLY_CODED_IMG = OVERLAY_PARTIALLY_CODED
 			.createImage(); //$NON-NLS-1$
 	public static final ImageDescriptor OVERLAY_DIMENSIONALIZED = getImageDescriptor("icons/ovr16/dimensionalized.png"); //$NON-NLS-1$
+	public static final ImageDescriptor OVERLAY_INDIRECTLYDIMENSIONALIZED = getImageDescriptor("icons/ovr16/indirectly-dimensionalized.png"); //$NON-NLS-1$
+
 	public static final Image OVERLAY_DIMENSIONALIZED_IMG = OVERLAY_DIMENSIONALIZED
+			.createImage(); //$NON-NLS-1$
+	public static final Image OVERLAY_INDIRECTLYDIMENSIONALIZED_IMG = OVERLAY_INDIRECTLYDIMENSIONALIZED
 			.createImage(); //$NON-NLS-1$
 	public static final ImageDescriptor OVERLAY_MEMO = getImageDescriptor("icons/ovr16/memo.png"); //$NON-NLS-1$
 	public static final Image OVERLAY_MEMO_IMG = OVERLAY_MEMO.createImage(); //$NON-NLS-1$
@@ -61,22 +65,34 @@ public class ImageManager {
 	public static final Image CODE = getImage("icons/obj16/code_obj.png");
 	public static final Image CODE_DIMENSIONALIZED = new DecorationOverlayIcon(
 			CODE, OVERLAY_DIMENSIONALIZED, IDecoration.TOP_RIGHT).createImage();
+	public static final Image CODE_INDIRECTLYDIMENSIONALIZED = new DecorationOverlayIcon(
+			CODE, OVERLAY_INDIRECTLYDIMENSIONALIZED, IDecoration.TOP_RIGHT)
+			.createImage();
 	public static final Image CODE_CODED = new DecorationOverlayIcon(CODE,
 			OVERLAY_CODED, IDecoration.BOTTOM_RIGHT).createImage();
 	public static final Image CODE_DIMENSIONALIZED_CODED = new DecorationOverlayIcon(
 			CODE_DIMENSIONALIZED, OVERLAY_CODED, IDecoration.BOTTOM_RIGHT)
 			.createImage();
+	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_CODED = new DecorationOverlayIcon(
+			CODE_INDIRECTLYDIMENSIONALIZED, OVERLAY_CODED,
+			IDecoration.BOTTOM_RIGHT).createImage();
 
 	public static final Image CODE_MEMO = new DecorationOverlayIcon(CODE,
 			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 	public static final Image CODE_DIMENSIONALIZED_MEMO = new DecorationOverlayIcon(
 			CODE_DIMENSIONALIZED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
 			.createImage();
+	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_MEMO = new DecorationOverlayIcon(
+			CODE_INDIRECTLYDIMENSIONALIZED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
+			.createImage();
 	public static final Image CODE_CODED_MEMO = new DecorationOverlayIcon(
 			CODE_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 	public static final Image CODE_DIMENSIONALIZED_CODED_MEMO = new DecorationOverlayIcon(
 			CODE_DIMENSIONALIZED_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
 			.createImage();
+	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_CODED_MEMO = new DecorationOverlayIcon(
+			CODE_INDIRECTLYDIMENSIONALIZED_CODED, OVERLAY_MEMO,
+			IDecoration.TOP_RIGHT).createImage();
 
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
 	public static final Image EPISODE_CODED = new DecorationOverlayIcon(

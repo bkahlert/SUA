@@ -339,18 +339,31 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		Class<? extends ILocatable> type = LocatorService.INSTANCE.getType(uri);
 		if (type == ICode.class) {
 			Image image;
+			boolean indirectlyDimensionalized = false;
+			for (ICode code : this.codeService.getCodes(uri)) {
+				if (this.codeService.getDimension(code.getUri()) != null) {
+					indirectlyDimensionalized = true;
+					break;
+				}
+			}
 			try {
-				image = this.codeService.getDimension(uri) != null ? ((this.codeService
+				image = indirectlyDimensionalized ? ((this.codeService
 						.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_CODED_MEMO
-						: ImageManager.CODE_DIMENSIONALIZED_CODED)
-						: (this.codeService.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_MEMO
-								: ImageManager.CODE_DIMENSIONALIZED))
-						: ((this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-								.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
-								: ImageManager.CODE_CODED) : (this.codeService
-								.isMemo(uri) ? ImageManager.CODE_MEMO
-								: ImageManager.CODE));
+						.isMemo(uri) ? ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_CODED_MEMO
+						: ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_CODED)
+						: (this.codeService.isMemo(uri) ? ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_MEMO
+								: ImageManager.CODE_INDIRECTLYDIMENSIONALIZED))
+						: (this.codeService.getDimension(uri) != null ? ((this.codeService
+								.getCodes(uri).size() > 0) ? (this.codeService
+								.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_CODED_MEMO
+								: ImageManager.CODE_DIMENSIONALIZED_CODED)
+								: (this.codeService.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_MEMO
+										: ImageManager.CODE_DIMENSIONALIZED))
+								: ((this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+										.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
+										: ImageManager.CODE_CODED)
+										: (this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
+												: ImageManager.CODE)));
 			} catch (CodeServiceException e) {
 				image = ImageManager.CODE;
 			}

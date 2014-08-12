@@ -53,15 +53,13 @@ public class DimensionValueComposite extends Composite {
 	private final CodeServiceAdapter codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
-			// TODO Auto-generated method stub
-
+			DimensionValueComposite.this.refresh();
 		}
 
 		@Override
 		public void dimensionChanged(URI uri, IDimension oldDimension,
 				IDimension newDimension) {
-			// TODO Auto-generated method stub
-
+			DimensionValueComposite.this.refresh();
 		}
 	};
 
@@ -176,6 +174,7 @@ public class DimensionValueComposite extends Composite {
 			this.values.add(value);
 		}
 
+		this.layout();
 		this.getParent().layout();
 	}
 
