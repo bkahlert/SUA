@@ -25,7 +25,7 @@ public class NominalDimension implements IDimension {
 
 	@Override
 	public boolean isLegal(String value) {
-		return this.possibleValues.contains(value);
+		return value == null || this.possibleValues.contains(value);
 	}
 
 	public List<String> getPossibleValues() {
