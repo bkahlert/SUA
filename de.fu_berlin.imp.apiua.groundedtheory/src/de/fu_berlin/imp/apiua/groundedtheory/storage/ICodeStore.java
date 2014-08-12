@@ -121,7 +121,7 @@ public interface ICodeStore {
 	 *            only URIs of ICodeInstances expected!
 	 * @return
 	 */
-	public String getDimensionValue(URI uri);
+	public String getDimensionValue(URI valueUri, URI dimensionalizedUri);
 
 	/**
 	 * 
@@ -129,7 +129,8 @@ public interface ICodeStore {
 	 *            only URIs of ICodeInstances expected!
 	 * @param value
 	 */
-	public void setDimensionValue(URI uri, String value);
+	public void setDimensionValue(URI valueUri, URI dimensionalizedUri,
+			String value);
 
 	/**
 	 * Sets data for a given type and {@link URI}.

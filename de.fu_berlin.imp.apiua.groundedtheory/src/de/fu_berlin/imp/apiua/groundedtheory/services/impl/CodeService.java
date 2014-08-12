@@ -564,13 +564,7 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public String getDimensionValue(URI uri, ICode code) {
 		Assert.isNotNull(uri);
-		Assert.isTrue(LocatorService.INSTANCE.getType(uri) == ICodeInstance.class);
-		for (ICodeInstance codeInstance : this.getInstances(code)) {
-			if (codeInstance.getId().equals(uri)) {
-				return this.codeStore.getDimensionValue(codeInstance.getUri());
-			}
-		}
-		return null;
+		return this.codeStore.getDimensionValue(uri, code.getUri());
 	}
 
 	@Override
@@ -578,21 +572,15 @@ public class CodeService implements ICodeService, IDisposable {
 			throws IllegalDimensionValueException, CodeStoreWriteException {
 		Assert.isNotNull(uri);
 		Assert.isNotNull(code);
-		Assert.isTrue(LocatorService.INSTANCE.getType(uri) == ICodeInstance.class);
 		if (this.getDimension(code.getUri()) == null
 				|| !this.getDimension(code.getUri()).isLegal(value)) {
 			throw new IllegalDimensionValueException(this.getDimension(code
 					.getUri()), value);
 		}
-		for (ICodeInstance codeInstance : this.getInstances(code)) {
-			if (codeInstance.getId().equals(uri)) {
-				String oldValue = this.codeStore.getDimensionValue(codeInstance
-						.getUri());
-				this.codeStore.setDimensionValue(codeInstance.getUri(), value);
-				this.codeServiceListenerNotifier.dimensionValueChanged(
-						code.getUri(), oldValue, value);
-			}
-		}
+		String oldValue = this.codeStore.getDimensionValue(uri, code.getUri());
+		this.codeStore.setDimensionValue(uri, code.getUri(), value);
+		this.codeServiceListenerNotifier.dimensionValueChanged(code.getUri(),
+				oldValue, value);
 		this.codeStore.save();
 	}
 

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -30,6 +31,7 @@ import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -111,7 +113,7 @@ class CodeStore implements ICodeStore {
 	private HashMap<URI, IDimension> dimensions = null;
 
 	@XStreamAlias("dimensionValues")
-	private HashMap<URI, String> dimensionValues = null;
+	private HashMap<Pair<URI, URI>, String> dimensionValues = null;
 
 	private static XStream xstream;
 
@@ -160,7 +162,7 @@ class CodeStore implements ICodeStore {
 				codeStore.dimensions = new HashMap<URI, IDimension>();
 			}
 			if (codeStore.dimensionValues == null) {
-				codeStore.dimensionValues = new HashMap<URI, String>();
+				codeStore.dimensionValues = new HashMap<Pair<URI, URI>, String>();
 			}
 
 			sanityCheckCodeIds(codeStore);
@@ -478,6 +480,15 @@ class CodeStore implements ICodeStore {
 		}
 
 		this.setMemo(code, null);
+
+		this.dimensions.remove(code.getUri());
+		for (Iterator<Entry<Pair<URI, URI>, String>> iterator = this.dimensionValues
+				.entrySet().iterator(); iterator.hasNext();) {
+			Entry<Pair<URI, URI>, String> entry = iterator.next();
+			if (entry.getKey().getSecond().equals(code.getUri())) {
+				iterator.remove();
+			}
+		}
 
 		this.save();
 	}
@@ -842,13 +853,16 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public String getDimensionValue(URI uri) {
-		return this.dimensionValues.get(uri);
+	public String getDimensionValue(URI valueUri, URI dimensionalizedUri) {
+		return this.dimensionValues.get(new Pair<URI, URI>(valueUri,
+				dimensionalizedUri));
 	}
 
 	@Override
-	public void setDimensionValue(URI uri, String value) {
-		this.dimensionValues.get(uri);
+	public void setDimensionValue(URI valueUri, URI dimensionalizedUri,
+			String value) {
+		this.dimensionValues.put(new Pair<URI, URI>(valueUri,
+				dimensionalizedUri), value);
 	}
 
 	private String getRawBasename(String type, URI uri)
