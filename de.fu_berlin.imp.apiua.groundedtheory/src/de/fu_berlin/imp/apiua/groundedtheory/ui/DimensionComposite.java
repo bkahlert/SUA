@@ -13,7 +13,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
@@ -82,8 +81,6 @@ public class DimensionComposite extends Composite {
 		this.valueList = new ItemList(this, SWT.NONE);
 		this.valueList.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
-		this.valueList.setBackground(Display.getCurrent().getSystemColor(
-				SWT.COLOR_WIDGET_BACKGROUND));
 		this.valueList.setSpacing(5);
 		this.refresh();
 		this.valueList.addListener(new ItemListAdapter() {
