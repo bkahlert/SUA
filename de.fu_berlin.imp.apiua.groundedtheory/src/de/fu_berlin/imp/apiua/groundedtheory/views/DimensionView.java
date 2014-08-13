@@ -7,7 +7,9 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -63,6 +65,7 @@ public class DimensionView extends ViewPart {
 	}
 
 	private final PartRenamer<URI> partRenamer;
+	private Composite parent;
 	private DimensionComposite dimensionComposite;
 	private DimensionValueComposite dimensionValueComposite;
 
@@ -82,17 +85,25 @@ public class DimensionView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		this.parent = parent;
 		parent.setLayout(GridLayoutFactory.fillDefaults().numColumns(2)
 				.spacing(5, 5).margins(5, 5).equalWidth(true).create());
 
-		this.dimensionComposite = new DimensionComposite(parent, SWT.NONE);
-		this.dimensionComposite.setLayoutData(GridDataFactory.fillDefaults()
-				.span(1, 2).grab(true, true).create());
-
-		this.dimensionValueComposite = new DimensionValueComposite(parent,
+		Group dimensionGroup = new Group(parent, SWT.BORDER);
+		dimensionGroup.setText("Dimension");
+		dimensionGroup.setLayoutData(GridDataFactory.fillDefaults().span(1, 2)
+				.grab(true, true).create());
+		dimensionGroup.setLayout(new FillLayout());
+		this.dimensionComposite = new DimensionComposite(dimensionGroup,
 				SWT.NONE);
-		this.dimensionValueComposite.setLayoutData(GridDataFactory
-				.fillDefaults().grab(true, false).create());
+
+		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
+		dimensionValueGroup.setText("Dimension Values");
+		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
+				.grab(true, false).create());
+		dimensionValueGroup.setLayout(new FillLayout());
+		this.dimensionValueComposite = new DimensionValueComposite(
+				dimensionValueGroup, SWT.NONE);
 
 		new Label(parent, SWT.BORDER).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
@@ -111,6 +122,8 @@ public class DimensionView extends ViewPart {
 		this.partRenamer.apply(uri);
 		this.dimensionComposite.load(uri);
 		this.dimensionValueComposite.load(uri);
+
+		this.parent.layout();
 	}
 
 	@Override

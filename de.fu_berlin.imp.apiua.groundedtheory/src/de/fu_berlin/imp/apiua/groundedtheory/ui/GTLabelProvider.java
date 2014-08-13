@@ -276,6 +276,13 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					sb.append(", ");
 					sb.append(possibleValues.get(1));
 					break;
+				case 3:
+					sb.append(possibleValues.get(0));
+					sb.append(", ");
+					sb.append(possibleValues.get(1));
+					sb.append(", ");
+					sb.append(possibleValues.get(2));
+					break;
 				default:
 					sb.append(possibleValues.get(0));
 					sb.append(", ..., ");
