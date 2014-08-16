@@ -25,6 +25,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValueComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.PropertiesComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 
 public class DimensionView extends ViewPart {
@@ -68,6 +69,7 @@ public class DimensionView extends ViewPart {
 	private Composite parent;
 	private DimensionComposite dimensionComposite;
 	private DimensionValueComposite dimensionValueComposite;
+	private PropertiesComposite propertiesComposite;
 
 	public DimensionView() {
 		this.partRenamer = new PartRenamer<URI>(this,
@@ -105,6 +107,14 @@ public class DimensionView extends ViewPart {
 		this.dimensionValueComposite = new DimensionValueComposite(
 				dimensionValueGroup, SWT.NONE);
 
+		Group propertiesGroup = new Group(parent, SWT.BORDER);
+		propertiesGroup.setText("Properties");
+		propertiesGroup.setLayoutData(GridDataFactory.fillDefaults()
+				.grab(true, false).create());
+		propertiesGroup.setLayout(new FillLayout());
+		this.propertiesComposite = new PropertiesComposite(propertiesGroup,
+				SWT.NONE);
+
 		new Label(parent, SWT.BORDER).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
 
@@ -122,6 +132,7 @@ public class DimensionView extends ViewPart {
 		this.partRenamer.apply(uri);
 		this.dimensionComposite.load(uri);
 		this.dimensionValueComposite.load(uri);
+		this.propertiesComposite.load(uri);
 
 		this.parent.layout();
 	}

@@ -291,6 +291,25 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				sb.append(")");
 				string.append(sb.toString(), Stylers.MINOR_STYLER);
 			}
+			List<ICode> properties = this.codeService.getProperties(code);
+			if (properties.size() > 0) {
+				StringBuilder sb = new StringBuilder(" (");
+				switch (properties.size()) {
+				case 1:
+					sb.append(properties.get(0));
+					break;
+				case 2:
+					sb.append(properties.get(0));
+					sb.append(", ");
+					sb.append(properties.get(1));
+					break;
+				default:
+					sb.append(properties.size());
+					sb.append(" properties");
+				}
+				sb.append(")");
+				string.append(sb.toString(), Stylers.COUNTER_STYLER);
+			}
 			return string;
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {

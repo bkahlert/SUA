@@ -156,6 +156,13 @@ public class CDView extends ViewPart {
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			CDView.this.viewer.refresh();
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

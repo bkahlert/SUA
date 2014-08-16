@@ -340,6 +340,47 @@ public interface ICodeService {
 			throws IllegalDimensionValueException, CodeStoreWriteException;
 
 	/**
+	 * Returns the {@link ICode}s that serve as properties for the given
+	 * {@link ICode}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public List<ICode> getProperties(ICode code);
+
+	/**
+	 * Sets the given {@link ICode}s as the properties to the given
+	 * {@link ICode}.
+	 * 
+	 * @param code
+	 * @param properties
+	 * @throws CodeStoreWriteException
+	 */
+	public void setProperties(ICode code, List<ICode> properties)
+			throws CodeStoreWriteException;
+
+	/**
+	 * Add the given {@link ICode} as a property to the given {@link ICode}.
+	 * 
+	 * @param code
+	 * @param property
+	 * @throws CodeStoreWriteException
+	 */
+	public void addProperty(ICode code, ICode property)
+			throws CodeStoreWriteException;
+
+	/**
+	 * Removes the given {@link ICode} as a property from the given
+	 * {@link ICode}.
+	 * 
+	 * @param code
+	 * @param property
+	 * @throws CodeStoreWriteException
+	 */
+	public void removeProperty(ICode code, ICode property)
+			throws CodeStoreWriteException;
+
+	/**
 	 * Gets all existing {@link IAxialCodingModel} from the {@link ICodeStore}.
 	 * 
 	 * @return

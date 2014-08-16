@@ -147,6 +147,13 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

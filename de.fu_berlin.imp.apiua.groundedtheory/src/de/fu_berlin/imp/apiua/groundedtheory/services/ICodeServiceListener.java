@@ -43,6 +43,9 @@ public interface ICodeServiceListener {
 
 	public void dimensionValueChanged(URI uri, String oldValue, String value);
 
+	public void propertiesChanged(URI uri, List<URI> addedProperties,
+			List<URI> removedProperties);
+
 	public void axialCodingModelAdded(URI uri);
 
 	public void axialCodingModelUpdated(URI uri);

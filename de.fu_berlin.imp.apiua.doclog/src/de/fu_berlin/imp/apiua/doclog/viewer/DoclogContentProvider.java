@@ -135,6 +135,14 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(DoclogContentProvider.this.viewer);
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

@@ -142,6 +142,12 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
+	public void propertiesChanged(URI uri, List<URI> addedProperties,
+			List<URI> removedProperties) {
+		this.scheduleRefresh();
+	}
+
+	@Override
 	public void axialCodingModelAdded(URI uri) {
 		this.scheduleRefresh();
 	}

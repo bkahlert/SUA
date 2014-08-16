@@ -115,6 +115,9 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("dimensionValues")
 	private HashMap<Pair<URI, URI>, String> dimensionValues = null;
 
+	@XStreamAlias("properties")
+	private HashMap<URI, List<URI>> properties = null;
+
 	private static XStream xstream;
 
 	static {
@@ -163,6 +166,9 @@ class CodeStore implements ICodeStore {
 			}
 			if (codeStore.dimensionValues == null) {
 				codeStore.dimensionValues = new HashMap<Pair<URI, URI>, String>();
+			}
+			if (codeStore.properties == null) {
+				codeStore.properties = new HashMap<URI, List<URI>>();
 			}
 
 			sanityCheckCodeIds(codeStore);
@@ -863,6 +869,22 @@ class CodeStore implements ICodeStore {
 			String value) {
 		this.dimensionValues.put(new Pair<URI, URI>(valueUri,
 				dimensionalizedUri), value);
+	}
+
+	@Override
+	public List<URI> getProperties(URI uri) {
+		Assert.isNotNull(uri);
+		return this.properties.containsKey(uri) ? new ArrayList<URI>(
+				this.properties.get(uri)) : new LinkedList<URI>();
+	}
+
+	@Override
+	public void setProperties(URI uri, List<URI> properties) {
+		Assert.isNotNull(uri);
+		if (properties == null) {
+			properties = new LinkedList<URI>();
+		}
+		this.properties.put(uri, properties);
 	}
 
 	private String getRawBasename(String type, URI uri)

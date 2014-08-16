@@ -72,6 +72,13 @@ public class DimensionValueComposite extends Composite {
 				IDimension newDimension) {
 			DimensionValueComposite.this.refresh();
 		}
+
+		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			DimensionValueComposite.this.refresh();
+		};
 	};
 
 	public DimensionValueComposite(Composite parent, int style) {

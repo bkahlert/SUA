@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ui.PlatformUI;
@@ -29,6 +30,7 @@ import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.IImportanceInterceptor;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.util.NoNullSet;
+import de.fu_berlin.imp.apiua.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
@@ -581,6 +583,80 @@ public class CodeService implements ICodeService, IDisposable {
 		this.codeStore.setDimensionValue(uri, code.getUri(), value);
 		this.codeServiceListenerNotifier.dimensionValueChanged(code.getUri(),
 				oldValue, value);
+		this.codeStore.save();
+	}
+
+	@Override
+	public List<ICode> getProperties(ICode code) {
+		Assert.isNotNull(code);
+		List<ICode> properties = new ArrayList<ICode>();
+		CodeLocatorProvider locator = new CodeLocatorProvider();
+		for (URI uri : this.codeStore.getProperties(code.getUri())) {
+			ICode property = (ICode) locator.getObject(uri, null);
+			properties.add(property);
+		}
+		return properties;
+	}
+
+	@Override
+	public void setProperties(ICode code, List<ICode> properties)
+			throws CodeStoreWriteException {
+		List<URI> existing = this.codeStore.getProperties(code.getUri());
+		List<URI> newUris = new ArrayList<URI>();
+		List<URI> uris = new ArrayList<URI>();
+		for (ICode property : properties) {
+			URI uri = property.getUri();
+			uris.add(uri);
+			if (!existing.contains(uri)) {
+				newUris.add(uri);
+			}
+		}
+
+		if (uris.equals(existing)) {
+			return;
+		}
+
+		@SuppressWarnings("unchecked")
+		List<URI> removed = ListUtils.subtract(existing, uris);
+		this.codeStore.setProperties(code.getUri(), uris);
+		this.codeServiceListenerNotifier.propertiesChanged(code.getUri(),
+				newUris, removed);
+		this.codeStore.save();
+	}
+
+	@Override
+	public void addProperty(ICode code, ICode property)
+			throws CodeStoreWriteException {
+		Assert.isNotNull(code);
+		Assert.isNotNull(property);
+		List<ICode> properties = this.getProperties(code);
+		properties.add(property);
+		List<URI> uris = new ArrayList<URI>();
+		for (ICode propertyCode : properties) {
+			uris.add(propertyCode.getUri());
+		}
+		uris.add(property.getUri());
+		this.codeStore.setProperties(code.getUri(), uris);
+		this.codeServiceListenerNotifier.propertiesChanged(code.getUri(),
+				Arrays.asList(property.getUri()), new LinkedList<URI>());
+		this.codeStore.save();
+	}
+
+	@Override
+	public void removeProperty(ICode code, ICode property)
+			throws CodeStoreWriteException {
+		Assert.isNotNull(code);
+		Assert.isNotNull(property);
+		List<ICode> properties = this.getProperties(code);
+		properties.add(property);
+		List<URI> uris = new ArrayList<URI>();
+		for (ICode propertyCode : properties) {
+			uris.add(propertyCode.getUri());
+		}
+		uris.add(property.getUri());
+		this.codeStore.setProperties(code.getUri(), uris);
+		this.codeServiceListenerNotifier.propertiesChanged(code.getUri(),
+				new LinkedList<URI>(), Arrays.asList(property.getUri()));
 		this.codeStore.save();
 	}
 

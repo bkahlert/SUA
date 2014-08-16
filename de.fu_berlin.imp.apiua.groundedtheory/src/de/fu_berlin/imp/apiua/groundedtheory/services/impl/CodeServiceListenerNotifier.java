@@ -251,6 +251,21 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
+	public void propertiesChanged(final URI uri,
+			final List<URI> addedProperties, final List<URI> removedProperties) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
+					"Properties Changed Notification", new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							codeServiceListener.propertiesChanged(uri,
+									addedProperties, removedProperties);
+							return null;
+						}
+					});
+		}
+	}
+
 	public void axialCodingModelAdded(final URI uri) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,

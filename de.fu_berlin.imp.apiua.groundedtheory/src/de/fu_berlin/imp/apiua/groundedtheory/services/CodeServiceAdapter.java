@@ -74,6 +74,11 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
+	public void propertiesChanged(URI uri, List<URI> addedProperties,
+			List<URI> removedProperties) {
+	}
+
+	@Override
 	public void axialCodingModelAdded(URI uri) {
 	}
 

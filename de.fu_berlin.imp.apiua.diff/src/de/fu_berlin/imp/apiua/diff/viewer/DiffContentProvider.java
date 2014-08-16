@@ -143,6 +143,14 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(DiffContentProvider.this.viewer);
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

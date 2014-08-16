@@ -164,4 +164,24 @@ public interface ICodeStore {
 
 	public Set<IEpisode> getEpisodes();
 
+	/**
+	 * Returns the {@link URI}s that serve as properties for the given
+	 * {@link URI}.
+	 * 
+	 * @param uri
+	 * @return a list of the properties. Changes to the list are
+	 *         <strong>not</strong> reflected in the data.
+	 */
+	public List<URI> getProperties(URI uri);
+
+	/**
+	 * Sets the given {@link URI}s as the properties for the given {@link URI}.
+	 * 
+	 * @param uri
+	 * @param properties
+	 *            a copy of this list is saved. Further changes to the passed
+	 *            list are not reflected.
+	 */
+	public void setProperties(URI uri, List<URI> properties);
+
 }

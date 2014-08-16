@@ -106,6 +106,13 @@ public class EntityContentProvider extends
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

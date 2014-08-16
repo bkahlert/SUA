@@ -111,6 +111,13 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		}
 
 		@Override
+		public void propertiesChanged(URI uri, List<URI> addedProperties,
+				List<URI> removedProperties) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 

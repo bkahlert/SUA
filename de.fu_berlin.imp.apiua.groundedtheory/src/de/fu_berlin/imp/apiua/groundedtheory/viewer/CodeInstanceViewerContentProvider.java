@@ -133,6 +133,14 @@ public class CodeInstanceViewerContentProvider extends
 		}
 
 		@Override
+		public void propertiesChanged(URI uri,
+				java.util.List<URI> addedProperties,
+				java.util.List<URI> removedProperties) {
+			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
+					true);
+		};
+
+		@Override
 		public void axialCodingModelAdded(URI uri) {
 		}
 
