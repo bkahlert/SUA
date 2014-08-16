@@ -17,7 +17,7 @@ public class FileDataContainer implements IDataContainer {
 
 	private IBaseDataContainer baseDataContainer;
 	private IDataContainer parentDataContainer;
-	private File file;
+	private final File file;
 
 	public FileDataContainer(IBaseDataContainer baseDataContainer,
 			IDataContainer parentDataContainer, File file) {
@@ -41,7 +41,8 @@ public class FileDataContainer implements IDataContainer {
 		if (!file.isDirectory()) {
 			System.err.println(file);
 		}
-		Assert.isTrue(file.isDirectory());
+		Assert.isTrue(file.isDirectory(), file
+				+ " is expected to be a directory");
 		this.file = file;
 	}
 

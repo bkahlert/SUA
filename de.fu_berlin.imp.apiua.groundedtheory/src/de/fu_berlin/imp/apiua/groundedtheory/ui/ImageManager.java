@@ -1,11 +1,20 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.DecorationOverlayIcon;
-import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import com.bkahlert.nebula.utils.DecorationOverlayIcon;
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlay;
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlay.Quadrant;
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlayImpl;
+import com.bkahlert.nebula.utils.Pair;
 
 import de.fu_berlin.imp.apiua.groundedtheory.Activator;
 
@@ -17,20 +26,18 @@ public class ImageManager {
 	/*
 	 * overlays
 	 */
-	public static final ImageDescriptor OVERLAY_CODED = getImageDescriptor("icons/ovr16/coded.png"); //$NON-NLS-1$
-	public static final Image OVERLAY_CODED_IMG = OVERLAY_CODED.createImage(); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_PARTIALLY_CODED = getImageDescriptor("icons/ovr16/partially_coded.png"); //$NON-NLS-1$
-	public static final Image OVERLAY_PARTIALLY_CODED_IMG = OVERLAY_PARTIALLY_CODED
-			.createImage(); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_DIMENSIONALIZED = getImageDescriptor("icons/ovr16/dimensionalized.png"); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_INDIRECTLYDIMENSIONALIZED = getImageDescriptor("icons/ovr16/indirectly-dimensionalized.png"); //$NON-NLS-1$
-
-	public static final Image OVERLAY_DIMENSIONALIZED_IMG = OVERLAY_DIMENSIONALIZED
-			.createImage(); //$NON-NLS-1$
-	public static final Image OVERLAY_INDIRECTLYDIMENSIONALIZED_IMG = OVERLAY_INDIRECTLYDIMENSIONALIZED
-			.createImage(); //$NON-NLS-1$
-	public static final ImageDescriptor OVERLAY_MEMO = getImageDescriptor("icons/ovr16/memo.png"); //$NON-NLS-1$
-	public static final Image OVERLAY_MEMO_IMG = OVERLAY_MEMO.createImage(); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_CODED = getImageDescriptor(
+			"icons/ovr16/coded.png", Quadrant.BottomRight); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_PARTIALLY_CODED = getImageDescriptor(
+			"icons/ovr16/partially_coded.png", Quadrant.BottomRight); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_DIMENSIONALIZED = getImageDescriptor(
+			"icons/ovr16/dimensionalized.png", Quadrant.TopLeft); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_HAS_DIMENSION_VALUE = getImageDescriptor(
+			"icons/ovr16/has_dimension_value.png", Quadrant.TopLeft); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_HAS_PROPERTIES = getImageDescriptor(
+			"icons/ovr16/has_properties.png", Quadrant.BottomLeft); //$NON-NLS-1$
+	public static final ImageOverlay OVERLAY_MEMO = getImageDescriptor(
+			"icons/ovr16/memo.png", Quadrant.TopRight); //$NON-NLS-1$
 
 	/*
 	 * wizard banners
@@ -61,60 +68,33 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
-	public static final Image MEMO = OVERLAY_MEMO.createImage();
+	public static final Image MEMO = OVERLAY_MEMO.getImageDescriptor()
+			.createImage();
 	public static final Image CODE = getImage("icons/obj16/code_obj.png");
-	public static final Image CODE_DIMENSIONALIZED = new DecorationOverlayIcon(
-			CODE, OVERLAY_DIMENSIONALIZED, IDecoration.TOP_RIGHT).createImage();
-	public static final Image CODE_INDIRECTLYDIMENSIONALIZED = new DecorationOverlayIcon(
-			CODE, OVERLAY_INDIRECTLYDIMENSIONALIZED, IDecoration.TOP_RIGHT)
-			.createImage();
-	public static final Image CODE_CODED = new DecorationOverlayIcon(CODE,
-			OVERLAY_CODED, IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image CODE_DIMENSIONALIZED_CODED = new DecorationOverlayIcon(
-			CODE_DIMENSIONALIZED, OVERLAY_CODED, IDecoration.BOTTOM_RIGHT)
-			.createImage();
-	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_CODED = new DecorationOverlayIcon(
-			CODE_INDIRECTLYDIMENSIONALIZED, OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
-
-	public static final Image CODE_MEMO = new DecorationOverlayIcon(CODE,
-			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
-	public static final Image CODE_DIMENSIONALIZED_MEMO = new DecorationOverlayIcon(
-			CODE_DIMENSIONALIZED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
-			.createImage();
-	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_MEMO = new DecorationOverlayIcon(
-			CODE_INDIRECTLYDIMENSIONALIZED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
-			.createImage();
-	public static final Image CODE_CODED_MEMO = new DecorationOverlayIcon(
-			CODE_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
-	public static final Image CODE_DIMENSIONALIZED_CODED_MEMO = new DecorationOverlayIcon(
-			CODE_DIMENSIONALIZED_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT)
-			.createImage();
-	public static final Image CODE_INDIRECTLYDIMENSIONALIZED_CODED_MEMO = new DecorationOverlayIcon(
-			CODE_INDIRECTLYDIMENSIONALIZED_CODED, OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
 
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
-	public static final Image EPISODE_CODED = new DecorationOverlayIcon(
-			EPISODE, OVERLAY_CODED, IDecoration.BOTTOM_RIGHT).createImage();
-	public static final Image EPISODE_MEMO = new DecorationOverlayIcon(EPISODE,
-			OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
-	public static final Image EPISODE_CODED_MEMO = new DecorationOverlayIcon(
-			EPISODE_CODED, OVERLAY_MEMO, IDecoration.TOP_RIGHT).createImage();
 
-	public static Image applyCodedOverlay(Image image) {
-		return new DecorationOverlayIcon(image, OVERLAY_CODED,
-				IDecoration.BOTTOM_RIGHT).createImage();
-	}
+	private static Map<Pair<Image, List<ImageOverlay>>, Image> overlayed = new HashMap<Pair<Image, List<ImageOverlay>>, Image>();
 
-	public static Image applyMemoOverlay(Image image) {
-		return new DecorationOverlayIcon(image, OVERLAY_MEMO,
-				IDecoration.TOP_RIGHT).createImage();
-	}
-
-	public static Image applyCodedMemoOverlay(Image image) {
-		return new DecorationOverlayIcon(image, new ImageDescriptor[] { null,
-				OVERLAY_MEMO, null, OVERLAY_CODED }).createImage();
+	/**
+	 * The returned image must *not* be disposed!
+	 * 
+	 * @param image
+	 * @param overlays
+	 * @return
+	 */
+	public static Image getImage(Image image, List<ImageOverlay> overlays) {
+		Assert.isNotNull(image);
+		Assert.isNotNull(overlays);
+		Pair<Image, List<ImageOverlay>> key = new Pair<Image, List<ImageOverlay>>(
+				image, overlays);
+		if (overlayed.containsKey(key)) {
+			return overlayed.get(key);
+		}
+		Image icon = new DecorationOverlayIcon(image.getImageData(),
+				overlays.toArray(new ImageOverlay[0])).createImage();
+		overlayed.put(key, icon);
+		return icon;
 	}
 
 	/**
@@ -140,6 +120,11 @@ public class ImageManager {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
 				path);
+	}
+
+	public static ImageOverlay getImageDescriptor(final String path,
+			final Quadrant quadrant) {
+		return new ImageOverlayImpl(getImageDescriptor(path), quadrant);
 	}
 
 }

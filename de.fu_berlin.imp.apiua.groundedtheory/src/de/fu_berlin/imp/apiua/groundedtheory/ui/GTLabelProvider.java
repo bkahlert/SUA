@@ -2,14 +2,15 @@ package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.viewers.DecorationOverlayIcon;
-import org.eclipse.jface.viewers.IDecoration;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
@@ -20,11 +21,14 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlay;
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlay.Quadrant;
+import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlayImpl;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.PaintUtils;
+import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -125,7 +129,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			.getWorkbench().getService(ILabelProviderService.class);
 	private final ICodeService codeService = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
-	private final HashMap<Image, Image> annotatedImages = new HashMap<Image, Image>();
 
 	/**
 	 * Caches image that shows the color of a {@link ICode}.
@@ -208,31 +211,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	 */
 	public static java.net.URI getCodeImageURI(ICode code) {
 		return ImageUtils.createUriFromImage(getCodeImage(code));
-	}
-
-	protected Image getMemoAnnotatedImage(Image image) {
-		if (image == null) {
-			return null;
-		}
-
-		if (!this.annotatedImages.containsKey(image)) {
-			Image annotatedImage = new DecorationOverlayIcon(image,
-					ImageManager.OVERLAY_MEMO, IDecoration.TOP_RIGHT)
-					.createImage();
-			this.annotatedImages.put(image, annotatedImage);
-		}
-
-		return this.annotatedImages.get(image);
-	}
-
-	@Override
-	public void dispose() {
-		for (Image annotatedImage : this.annotatedImages.values()) {
-			if (annotatedImage != null && !annotatedImage.isDisposed()) {
-				annotatedImage.dispose();
-			}
-		}
-		super.dispose();
 	}
 
 	@Override
@@ -360,40 +338,42 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				"label provider missing", Stylers.ATTENTION_STYLER);
 	}
 
+	private boolean isCoded(URI uri) throws CodeServiceException {
+		return this.codeService.getCodes(uri).size() > 0;
+	}
+
+	private boolean hasMemo(URI uri) {
+		return this.codeService.isMemo(uri);
+	}
+
+	private boolean isDimensionalized(URI uri) {
+		return this.codeService.getDimension(uri) != null;
+	}
+
+	private boolean canHaveDimensionValue(URI uri) throws CodeServiceException {
+		for (ICode code : this.codeService.getCodes(uri)) {
+			if (this.codeService.getDimension(code.getUri()) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasProperties(URI uri) throws InterruptedException,
+			ExecutionException {
+		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
+				.get();
+		return code != null ? this.codeService.getProperties(code).size() > 0
+				: false;
+	}
+
 	@Override
 	public Image getImage(URI uri) throws Exception {
 		Class<? extends ILocatable> type = LocatorService.INSTANCE.getType(uri);
+
+		Image image = null;
 		if (type == ICode.class) {
-			Image image;
-			boolean indirectlyDimensionalized = false;
-			for (ICode code : this.codeService.getCodes(uri)) {
-				if (this.codeService.getDimension(code.getUri()) != null) {
-					indirectlyDimensionalized = true;
-					break;
-				}
-			}
-			try {
-				image = indirectlyDimensionalized ? ((this.codeService
-						.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_CODED_MEMO
-						: ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_CODED)
-						: (this.codeService.isMemo(uri) ? ImageManager.CODE_INDIRECTLYDIMENSIONALIZED_MEMO
-								: ImageManager.CODE_INDIRECTLYDIMENSIONALIZED))
-						: (this.codeService.getDimension(uri) != null ? ((this.codeService
-								.getCodes(uri).size() > 0) ? (this.codeService
-								.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_CODED_MEMO
-								: ImageManager.CODE_DIMENSIONALIZED_CODED)
-								: (this.codeService.isMemo(uri) ? ImageManager.CODE_DIMENSIONALIZED_MEMO
-										: ImageManager.CODE_DIMENSIONALIZED))
-								: ((this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-										.isMemo(uri) ? ImageManager.CODE_CODED_MEMO
-										: ImageManager.CODE_CODED)
-										: (this.codeService.isMemo(uri) ? ImageManager.CODE_MEMO
-												: ImageManager.CODE)));
-			} catch (CodeServiceException e) {
-				image = ImageManager.CODE;
-			}
-			return image;
+			image = ImageManager.CODE;
 		}
 		if (type == ICodeInstance.class) {
 			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
@@ -401,58 +381,49 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
-			Image image = (labelProvider != null) ? labelProvider
+			image = (labelProvider != null) ? labelProvider
 					.getImage(codeInstance.getId()) : null;
-			return (this.codeService.isMemo(uri)) ? this
-					.getMemoAnnotatedImage(image) : image;
 		}
 		if (type == IEpisodes.class) {
-			Image image;
-			try {
-				image = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
-						: ImageManager.EPISODE_CODED) : (this.codeService
-						.isMemo(uri) ? ImageManager.EPISODE_MEMO
-						: ImageManager.EPISODE);
-			} catch (CodeServiceException e) {
-				image = ImageManager.EPISODE;
-			}
-			return image;
+			image = ImageManager.EPISODE;
 		}
 		if (type == IEpisode.class) {
-			Image image;
-			try {
-				image = (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.EPISODE_CODED_MEMO
-						: ImageManager.EPISODE_CODED) : (this.codeService
-						.isMemo(uri) ? ImageManager.EPISODE_MEMO
-						: ImageManager.EPISODE);
-			} catch (CodeServiceException e) {
-				image = ImageManager.EPISODE;
+			image = ImageManager.EPISODE;
+		}
+
+		List<ImageOverlay> overlays = new LinkedList<ImageOverlay>();
+		try {
+			if (this.isCoded(uri)) {
+				overlays.add(ImageManager.OVERLAY_CODED);
 			}
-			return image;
-			// Image image = new Image(Display.getCurrent(),
-			// new Rectangle(0, 0, 16, 16));
-			// GC gc = new GC(image);
-			// PaintUtils
-			// .drawRoundedRectangle(
-			// gc,
-			// overlay.getBounds(),
-			// new Color(Display.getDefault(), episode
-			// .getColor()));
-			// gc.copyArea(overlay, 0, 0);
-			// return image;
+			if (this.hasMemo(uri)) {
+				overlays.add(ImageManager.OVERLAY_MEMO);
+			}
+			if (this.isDimensionalized(uri)) {
+				overlays.add(ImageManager.OVERLAY_DIMENSIONALIZED);
+			}
+			if (this.canHaveDimensionValue(uri)) {
+				overlays.add(ImageManager.OVERLAY_HAS_DIMENSION_VALUE);
+			}
+			if (this.hasProperties(uri)) {
+				overlays.add(ImageManager.OVERLAY_HAS_PROPERTIES);
+			}
+		} catch (CodeServiceException e) {
+			LOGGER.error("Error creating appropriate image for " + uri, e);
+			overlays.add(new ImageOverlayImpl(ImageDescriptor
+					.createFromImage(PartRenamer.ERROR), Quadrant.BottomRight));
+		}
+
+		if (image == null) {
+			image = PartRenamer.ERROR;
 		}
 
 		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
 		if (locatable == null) {
-			return PlatformUI.getWorkbench().getSharedImages()
-					.getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+			image = PartRenamer.ERROR;
 		}
 
-		ILabelProvider labelProvider = this.labelProviderService
-				.getLabelProvider(uri);
-		return (labelProvider != null) ? labelProvider.getImage(uri) : null;
+		return ImageManager.getImage(image, overlays);
 	}
 
 	@Override

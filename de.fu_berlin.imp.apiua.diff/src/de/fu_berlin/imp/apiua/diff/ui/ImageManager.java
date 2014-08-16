@@ -49,11 +49,8 @@ public class ImageManager {
 	 * DIFF
 	 */
 	public static final Image DIFF_BASE = getImage("icons/obj16/difffile_obj.png"); //$NON-NLS-1$
-	public static final Image DIFF = new DecorationOverlayIcon(
-			DIFF_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+	public static final Image DIFF = new DecorationOverlayIcon(DIFF_BASE,
+			new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
 					null, null }).createImage();
 	public static final Image DIFF_CODED = new DecorationOverlayIcon(
@@ -62,44 +59,44 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_MEMO = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-					null, null, null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(), null, null, null })
+			.createImage();
 	public static final Image DIFF_CODED_MEMO = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFF_WORKING = new DecorationOverlayIcon(
-			DIFF_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFF_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFF_CODED_WORKING = new DecorationOverlayIcon(
@@ -108,45 +105,45 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFF_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED_WORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFF_NOTWORKING = new DecorationOverlayIcon(
-			DIFF_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFF_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFF_CODED_NOTWORKING = new DecorationOverlayIcon(
@@ -155,49 +152,49 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFF_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED_NOTWORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFF_PARTIALLY_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFF_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	/*
 	 * DIFF RECORD
 	 */
 	public static final Image DIFFRECORD_BASE = getImage("icons/obj16/difffilerecord_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFRECORD = new DecorationOverlayIcon(
-			DIFFRECORD_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORD_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED = new DecorationOverlayIcon(
@@ -206,45 +203,45 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_MEMO = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED_MEMO = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFFRECORD_WORKING = new DecorationOverlayIcon(
-			DIFFRECORD_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORD_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED_WORKING = new DecorationOverlayIcon(
@@ -253,45 +250,45 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED_WORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFFRECORD_NOTWORKING = new DecorationOverlayIcon(
-			DIFFRECORD_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORD_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED_NOTWORKING = new DecorationOverlayIcon(
@@ -300,49 +297,49 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFFRECORD_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORD_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	/*
 	 * DIFF RECORD SEGMENT
 	 */
 	public static final Image DIFFRECORDSEGMENT_BASE = getImage("icons/obj16/difffilerecordsegment_obj.png"); //$NON-NLS-1$
 	public static final Image DIFFRECORDSEGMENT = new DecorationOverlayIcon(
-			DIFFRECORDSEGMENT_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORDSEGMENT_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED = new DecorationOverlayIcon(
@@ -351,45 +348,45 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_MEMO = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED_MEMO = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_DIRTY,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFFRECORDSEGMENT_WORKING = new DecorationOverlayIcon(
-			DIFFRECORDSEGMENT_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORDSEGMENT_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED_WORKING = new DecorationOverlayIcon(
@@ -398,45 +395,45 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED_WORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED_MEMO_WORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_OK,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	public static final Image DIFFRECORDSEGMENT_NOTWORKING = new DecorationOverlayIcon(
-			DIFFRECORDSEGMENT_BASE,
-			new ImageDescriptor[] {
-					null,
-					null,
+			DIFFRECORDSEGMENT_BASE, new ImageDescriptor[] { null, null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED_NOTWORKING = new DecorationOverlayIcon(
@@ -445,39 +442,42 @@ public class ImageManager {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
 					null, null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image DIFFRECORDSEGMENT_PARTIALLY_CODED_MEMO_NOTWORKING = new DecorationOverlayIcon(
 			DIFFRECORDSEGMENT_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					de.fu_berlin.imp.apiua.core.ui.ImageManager.OVERLAY_ERROR,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

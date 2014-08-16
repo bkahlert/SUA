@@ -19,38 +19,41 @@ public class ImageManager {
 					null,
 					null,
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image URI_MEMO = new DecorationOverlayIcon(
 			URI_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-					null, null, null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(), null, null, null })
+			.createImage();
 	public static final Image URI_CODED_MEMO = new DecorationOverlayIcon(
 			URI_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image URI_PARTIALLY_CODED = new DecorationOverlayIcon(
 			URI_BASE,
 			new ImageDescriptor[] {
 					null,
 					null,
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 	public static final Image URI_PARTIALLY_CODED_MEMO = new DecorationOverlayIcon(
 			URI_BASE,
 			new ImageDescriptor[] {
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+							.getImageDescriptor(),
 					null,
-					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED,
-					null }).createImage();
+					de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_PARTIALLY_CODED
+							.getImageDescriptor(), null }).createImage();
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.

@@ -62,6 +62,11 @@ public class EpisodeRenderer implements IDisposable {
 	private static final Logger LOGGER = Logger
 			.getLogger(EpisodeRenderer.class);
 
+	private static Image CODED_OVERLAY = ImageManager.OVERLAY_CODED
+			.getImageDescriptor().createImage();
+	private static Image MEMO_OVERLAY = ImageManager.OVERLAY_MEMO
+			.getImageDescriptor().createImage();
+
 	/**
 	 * This constant is used to tell users that an {@link EpisodeRenderer} event
 	 * occurs.
@@ -462,40 +467,40 @@ public class EpisodeRenderer implements IDisposable {
 				// draw overlay icons
 				try {
 					if (this.codeService.getCodes(episode.getUri()).size() > 0) {
-						Image overlay = ImageManager.OVERLAY_CODED_IMG;
+
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
-								overlay,
+								CODED_OVERLAY,
 								bounds.x
 										+ bounds.width
-										- overlay.getBounds().width
-										- ((bounds.width >= overlay.getBounds().width + 6) ? 3
-												: 0),
+										- CODED_OVERLAY.getBounds().width
+										- ((bounds.width >= CODED_OVERLAY
+												.getBounds().width + 6) ? 3 : 0),
 								bounds.y
 										+ bounds.height
-										- overlay.getBounds().height
-										+ ((bounds.height >= overlay
+										- CODED_OVERLAY.getBounds().height
+										+ ((bounds.height >= CODED_OVERLAY
 												.getBounds().height + 6) ? -3
 												: 0)
-										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
+										- ((bounds.width >= CODED_OVERLAY
+												.getBounds().width + 6) ? 0
 												: -3));
 					}
 					if (this.codeService.isMemo(episode.getUri())) {
-						Image overlay = ImageManager.OVERLAY_MEMO_IMG;
 						e.gc.setAlpha(255);
 						e.gc.drawImage(
-								overlay,
+								MEMO_OVERLAY,
 								bounds.x
 										+ bounds.width
-										- overlay.getBounds().width
-										- ((bounds.width >= overlay.getBounds().width + 6) ? 3
-												: 0),
+										- MEMO_OVERLAY.getBounds().width
+										- ((bounds.width >= MEMO_OVERLAY
+												.getBounds().width + 6) ? 3 : 0),
 								bounds.y
-										+ ((bounds.height >= overlay
+										+ ((bounds.height >= MEMO_OVERLAY
 												.getBounds().height + 6) ? 3
 												: 0)
-										- ((bounds.width >= overlay.getBounds().width + 6) ? 0
-												: 3));
+										- ((bounds.width >= MEMO_OVERLAY
+												.getBounds().width + 6) ? 0 : 3));
 					}
 				} catch (CodeServiceException e1) {
 					LOGGER.warn("Error drawing overlays for " + episode, e1);

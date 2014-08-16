@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.apiua.doclog.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +145,9 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 							return this.cachedImages.get(key);
 						}
 						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.applyCodedMemoOverlay(image);
+								.getImage(
+										image,
+										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
 					} else {
 						if (key != null) {
 							key += ",coded";
@@ -153,7 +156,9 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 							return this.cachedImages.get(key);
 						}
 						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.applyCodedOverlay(image);
+								.getImage(
+										image,
+										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED));
 					}
 				} else {
 					if (this.codeService.isMemo(uri)) {
@@ -164,7 +169,9 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 							return this.cachedImages.get(key);
 						}
 						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.applyMemoOverlay(image);
+								.getImage(
+										image,
+										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
 					}
 				}
 			} catch (CodeServiceException e) {
@@ -195,10 +202,9 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 		List<IllustratedText> metaEntries = new ArrayList<IllustratedText>();
 		if (locatable instanceof DoclogRecord) {
 			DoclogRecord doclogRecord = (DoclogRecord) locatable;
-			metaEntries
-					.add(new IllustratedText(
-							de.fu_berlin.imp.apiua.doclog.ui.ImageManager.DOCLOGRECORD,
-							DoclogRecord.class.getSimpleName()));
+			metaEntries.add(new IllustratedText(
+					de.fu_berlin.imp.apiua.doclog.ui.ImageManager.DOCLOGRECORD,
+					DoclogRecord.class.getSimpleName()));
 
 			String detailText = null;
 			Image detailIcon = null;

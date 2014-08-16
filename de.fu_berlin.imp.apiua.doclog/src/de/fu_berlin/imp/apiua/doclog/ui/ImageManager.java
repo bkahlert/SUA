@@ -37,30 +37,34 @@ public class ImageManager {
 	public static final Image DOCLOGFILE = getImage("icons/obj16/doclogfile_obj.png"); //$NON-NLS-1$
 	public static final Image DOCLOGFILE_CODED = new DecorationOverlayIcon(
 			DOCLOGFILE,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+					.getImageDescriptor(), IDecoration.BOTTOM_RIGHT)
+			.createImage();
 	public static final Image DOCLOGFILE_MEMO = new DecorationOverlayIcon(
 			DOCLOGFILE,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+					.getImageDescriptor(), IDecoration.TOP_RIGHT).createImage();
 	public static final Image DOCLOGFILE_CODED_MEMO = new DecorationOverlayIcon(
 			DOCLOGFILE_MEMO,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+					.getImageDescriptor(), IDecoration.BOTTOM_RIGHT)
+			.createImage();
 
 	public static final Image DOCLOGRECORD = getImage("icons/obj16/doclogrecord_obj.png"); //$NON-NLS-1$
 	public static final Image DOCLOGRECORD_CODED = new DecorationOverlayIcon(
 			DOCLOGRECORD,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+					.getImageDescriptor(), IDecoration.BOTTOM_RIGHT)
+			.createImage();
 	public static final Image DOCLOGRECORD_MEMO = new DecorationOverlayIcon(
 			DOCLOGRECORD,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO,
-			IDecoration.TOP_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO
+					.getImageDescriptor(), IDecoration.TOP_RIGHT).createImage();
 	public static final Image DOCLOGRECORD_CODED_MEMO = new DecorationOverlayIcon(
 			DOCLOGRECORD_MEMO,
-			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED,
-			IDecoration.BOTTOM_RIGHT).createImage();
+			de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED
+					.getImageDescriptor(), IDecoration.BOTTOM_RIGHT)
+			.createImage();
 
 	public static final Image DOCLOGACTION_READY = getImage("icons/obj16/doclogaction_ready_obj.png"); //$NON-NLS-1$
 	public static final Image DOCLOGACTION_UNLOAD = getImage("icons/obj16/doclogaction_unload_obj.png"); //$NON-NLS-1$
