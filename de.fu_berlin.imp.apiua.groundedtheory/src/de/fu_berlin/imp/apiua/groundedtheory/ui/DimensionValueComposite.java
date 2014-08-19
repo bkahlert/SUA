@@ -196,18 +196,17 @@ public class DimensionValueComposite extends Composite {
 				}
 
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
-						image, depth + " - "
-								+ code.getCaption().substring(0, 1));
+						image, depth + " - " + code.getCaption());
 				SimpleIllustratedComposite label = new SimpleIllustratedComposite(
 						this, SWT.CENTER, labelContent);
 				label.setSpacing(0);
 				label.setLayoutData(GridDataFactory.swtDefaults()
-						.align(SWT.RIGHT, SWT.CENTER).create());
+						.align(SWT.FILL, SWT.CENTER).grab(true, false).create());
 				this.labels.add(label);
 
 				Combo value = new Combo(this, SWT.READ_ONLY);
 				value.setLayoutData(GridDataFactory.swtDefaults()
-						.align(SWT.FILL, SWT.CENTER).grab(true, true).create());
+						.align(SWT.FILL, SWT.CENTER).grab(true, false).create());
 				value.setData(code);
 				if (dim instanceof NominalDimension) {
 					List<String> possibleValues = ((NominalDimension) dim)

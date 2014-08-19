@@ -53,6 +53,7 @@ public class PropertiesComposite extends Composite {
 		this.propertiesList = new ItemList(this, SWT.NONE);
 		this.propertiesList.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
+		this.propertiesList.setMargin(5);
 		this.propertiesList.setSpacing(5);
 		this.refresh();
 		this.propertiesList.addListener(new ItemListAdapter() {

@@ -92,27 +92,27 @@ public class DimensionView extends ViewPart {
 
 		Group dimensionGroup = new Group(parent, SWT.BORDER);
 		dimensionGroup.setText("Dimension");
-		dimensionGroup.setLayoutData(GridDataFactory.fillDefaults().span(1, 2)
+		dimensionGroup.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
 		dimensionGroup.setLayout(new FillLayout());
 		this.dimensionComposite = new DimensionComposite(dimensionGroup,
 				SWT.NONE);
 
-		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
-		dimensionValueGroup.setText("Dimension Values");
-		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
-				.grab(true, false).create());
-		dimensionValueGroup.setLayout(new FillLayout());
-		this.dimensionValueComposite = new DimensionValueComposite(
-				dimensionValueGroup, SWT.NONE);
-
 		Group propertiesGroup = new Group(parent, SWT.BORDER);
 		propertiesGroup.setText("Properties");
 		propertiesGroup.setLayoutData(GridDataFactory.fillDefaults()
-				.grab(true, false).create());
+				.grab(true, true).create());
 		propertiesGroup.setLayout(new FillLayout());
 		this.propertiesComposite = new PropertiesComposite(propertiesGroup,
 				SWT.NONE);
+
+		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
+		dimensionValueGroup.setText("Dimension Values");
+		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
+				.span(2, 1).grab(true, false).create());
+		dimensionValueGroup.setLayout(new FillLayout());
+		this.dimensionValueComposite = new DimensionValueComposite(
+				dimensionValueGroup, SWT.NONE);
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override

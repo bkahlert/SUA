@@ -59,7 +59,8 @@ public class DimensionComposite extends Composite {
 
 		this.typeCombo = new Combo(this, SWT.DROP_DOWN | SWT.BORDER
 				| SWT.READ_ONLY);
-		this.typeCombo.setLayoutData(GridDataFactory.fillDefaults().create());
+		this.typeCombo.setLayoutData(GridDataFactory.fillDefaults()
+				.grab(true, false).create());
 		for (DimensionType dimensionType : DimensionType.values()) {
 			this.typeCombo.add(dimensionType.toString());
 		}
@@ -81,6 +82,7 @@ public class DimensionComposite extends Composite {
 		this.valueList = new ItemList(this, SWT.NONE);
 		this.valueList.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
+		this.valueList.setMargin(5);
 		this.valueList.setSpacing(5);
 		this.refresh();
 		this.valueList.addListener(new ItemListAdapter() {
