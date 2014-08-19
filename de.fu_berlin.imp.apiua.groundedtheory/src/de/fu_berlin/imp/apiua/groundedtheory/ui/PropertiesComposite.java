@@ -10,6 +10,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
@@ -104,27 +105,41 @@ public class PropertiesComposite extends Composite {
 	}
 
 	public void load(URI uri) throws CodeStoreWriteException {
-		this.save();
+		boolean load = true;
 
-		if (uri != null && LocatorService.INSTANCE.getType(uri) == ICode.class) {
-			ICode code = null;
-			try {
-				code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
-						.get();
-			} catch (Exception e) {
-				LOGGER.error("Error", e);
-			}
-
-			this.properties = CODE_SERVICE.getProperties(code);
-			this.propertiesList.setEnabled(true);
-			this.loaded = uri;
-		} else {
-			this.properties = null;
-			this.propertiesList.setEnabled(false);
-			this.loaded = null;
+		try {
+			this.save();
+		} catch (CodeStoreWriteException e) {
+			MessageBox box = new MessageBox(this.getShell(), SWT.ICON_WARNING
+					| SWT.YES | SWT.NO);
+			box.setText("Cyclic Dependency");
+			box.setMessage("Saving the changes would result in a cyclic dependency. Do you want to discard your changes?");
+			load = box.open() == SWT.YES;
+			LOGGER.error(e);
 		}
 
-		this.refresh();
+		if (load) {
+			if (uri != null
+					&& LocatorService.INSTANCE.getType(uri) == ICode.class) {
+				ICode code = null;
+				try {
+					code = LocatorService.INSTANCE.resolve(uri, ICode.class,
+							null).get();
+				} catch (Exception e) {
+					LOGGER.error("Error", e);
+				}
+
+				this.properties = CODE_SERVICE.getProperties(code);
+				this.propertiesList.setEnabled(true);
+				this.loaded = uri;
+			} else {
+				this.properties = null;
+				this.propertiesList.setEnabled(false);
+				this.loaded = null;
+			}
+
+			this.refresh();
+		}
 	}
 
 	private void save() throws CodeStoreWriteException {

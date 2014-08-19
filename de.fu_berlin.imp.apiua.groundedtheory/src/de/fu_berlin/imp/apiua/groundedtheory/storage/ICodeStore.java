@@ -181,7 +181,10 @@ public interface ICodeStore {
 	 * @param properties
 	 *            a copy of this list is saved. Further changes to the passed
 	 *            list are not reflected.
+	 * @throws CodeStoreWriteException
+	 *             if a cyclic graph would result
 	 */
-	public void setProperties(URI uri, List<URI> properties);
+	public void setProperties(URI uri, List<URI> properties)
+			throws CodeStoreWriteException;
 
 }

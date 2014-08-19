@@ -10,7 +10,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
@@ -114,9 +113,6 @@ public class DimensionView extends ViewPart {
 		propertiesGroup.setLayout(new FillLayout());
 		this.propertiesComposite = new PropertiesComposite(propertiesGroup,
 				SWT.NONE);
-
-		new Label(parent, SWT.BORDER).setLayoutData(GridDataFactory
-				.fillDefaults().grab(true, true).create());
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override

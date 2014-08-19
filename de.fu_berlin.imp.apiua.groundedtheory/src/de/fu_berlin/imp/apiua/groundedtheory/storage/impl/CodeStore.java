@@ -31,6 +31,8 @@ import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.thoughtworks.xstream.XStream;
@@ -878,11 +880,35 @@ class CodeStore implements ICodeStore {
 				this.properties.get(uri)) : new LinkedList<URI>();
 	}
 
+	private boolean isPartOfPropertyHierarchy(final URI uri, URI property) {
+		for (URI childProperty : IteratorUtils.dfs(property,
+				new IConverter<URI, URI[]>() {
+					@Override
+					public URI[] convert(URI uri) {
+						return CodeStore.this.getProperties(uri).toArray(
+								new URI[0]);
+					}
+				})) {
+			if (childProperty.equals(uri)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
-	public void setProperties(URI uri, List<URI> properties) {
+	public void setProperties(URI uri, List<URI> properties)
+			throws CodeStoreWriteException {
 		Assert.isNotNull(uri);
 		if (properties == null) {
 			properties = new LinkedList<URI>();
+		}
+		for (URI property : properties) {
+			if (this.isPartOfPropertyHierarchy(uri, property)) {
+				throw new CodeStoreWriteException("Saving " + property
+						+ " as a property for " + uri
+						+ " would lead to a cyclic graph.");
+			}
 		}
 		this.properties.put(uri, properties);
 	}
