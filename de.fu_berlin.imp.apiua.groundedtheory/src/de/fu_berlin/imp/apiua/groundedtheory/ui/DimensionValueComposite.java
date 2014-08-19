@@ -1,10 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -23,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
@@ -59,7 +57,7 @@ public class DimensionValueComposite extends Composite {
 	private static final String EXPLANATION = "Code the selected object with a dimensionalized code to set a dimension value.";
 
 	private URI loaded = null;
-	private final Map<Pair<Integer, ICode>, IDimension> dimensions = new HashMap<Pair<Integer, ICode>, IDimension>();
+	private final List<Triple<Integer, ICode, IDimension>> dimensions = new LinkedList<Triple<Integer, ICode, IDimension>>();
 
 	private final List<Control> labels = new LinkedList<Control>();
 	private final List<Combo> values = new LinkedList<Combo>();
@@ -130,7 +128,8 @@ public class DimensionValueComposite extends Composite {
 					})) {
 				IDimension dimension = CODE_SERVICE.getDimension(property
 						.getSecond().getUri());
-				this.dimensions.put(property, dimension);
+				this.dimensions.add(new Triple<Integer, ICode, IDimension>(
+						property.getFirst(), property.getSecond(), dimension));
 			}
 		}
 
@@ -143,22 +142,21 @@ public class DimensionValueComposite extends Composite {
 			return;
 		}
 
-		for (Entry<Pair<Integer, ICode>, IDimension> dimension : this.dimensions
-				.entrySet()) {
-			if (dimension.getValue() == null) {
+		for (Triple<Integer, ICode, IDimension> dimension : this.dimensions) {
+			if (dimension.getThird() == null) {
 				continue;
 			}
 			for (Combo value : this.values) {
-				if (value.getData() == dimension.getKey().getSecond()) {
+				if (value.getData() == dimension.getSecond()) {
 					try {
 						String dimensionValue = value.getText();
-						CODE_SERVICE.setDimensionValue(uri, dimension.getKey()
+						CODE_SERVICE.setDimensionValue(uri, dimension
 								.getSecond(),
 								!dimensionValue.equals(UNSET) ? dimensionValue
 										: null);
 					} catch (IllegalDimensionValueException e) {
 						LOGGER.error("Error saving value " + value.getText()
-								+ " for " + uri + "'s " + dimension.getKey()
+								+ " for " + uri + "'s " + dimension.getSecond()
 								+ " dimension", e);
 					}
 					break;
@@ -184,10 +182,10 @@ public class DimensionValueComposite extends Composite {
 					2));
 			this.labels.add(label);
 		} else {
-			for (Entry<Pair<Integer, ICode>, IDimension> dimension : this.dimensions
-					.entrySet()) {
-				int depth = dimension.getKey().getFirst();
-				ICode code = dimension.getKey().getSecond();
+			for (Triple<Integer, ICode, IDimension> dimension : this.dimensions) {
+				int depth = dimension.getFirst();
+				ICode code = dimension.getSecond();
+				IDimension dim = dimension.getThird();
 
 				Image image = null;
 				try {
@@ -196,9 +194,6 @@ public class DimensionValueComposite extends Composite {
 				} catch (Exception e2) {
 					LOGGER.error(e2);
 				}
-
-				// TODO als liste und nicht als map speichern
-				// TODO speicerhn
 
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
 						image, depth + " - "
@@ -214,9 +209,9 @@ public class DimensionValueComposite extends Composite {
 				value.setLayoutData(GridDataFactory.swtDefaults()
 						.align(SWT.FILL, SWT.CENTER).grab(true, true).create());
 				value.setData(code);
-				if (dimension.getValue() instanceof NominalDimension) {
-					List<String> possibleValues = ((NominalDimension) dimension
-							.getValue()).getPossibleValues();
+				if (dim instanceof NominalDimension) {
+					List<String> possibleValues = ((NominalDimension) dim)
+							.getPossibleValues();
 					value.add(UNSET);
 					for (String possibleValue : possibleValues) {
 						value.add(possibleValue);
