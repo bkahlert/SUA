@@ -20,6 +20,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.IteratorUtils;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
@@ -56,7 +59,7 @@ public class DimensionValueComposite extends Composite {
 	private static final String EXPLANATION = "Code the selected object with a dimensionalized code to set a dimension value.";
 
 	private URI loaded = null;
-	private final Map<ICode, IDimension> dimensions = new HashMap<ICode, IDimension>();
+	private final Map<Pair<Integer, ICode>, IDimension> dimensions = new HashMap<Pair<Integer, ICode>, IDimension>();
 
 	private final List<Control> labels = new LinkedList<Control>();
 	private final List<Combo> values = new LinkedList<Combo>();
@@ -117,8 +120,18 @@ public class DimensionValueComposite extends Composite {
 		this.loaded = uri;
 		this.dimensions.clear();
 		for (ICode code : CODE_SERVICE.getCodes(uri)) {
-			IDimension dimension = CODE_SERVICE.getDimension(code.getUri());
-			this.dimensions.put(code, dimension);
+			for (Pair<Integer, ICode> property : IteratorUtils.bfs(code,
+					new IConverter<ICode, ICode[]>() {
+						@Override
+						public ICode[] convert(ICode property) {
+							return CODE_SERVICE.getProperties(property)
+									.toArray(new ICode[0]);
+						}
+					})) {
+				IDimension dimension = CODE_SERVICE.getDimension(property
+						.getSecond().getUri());
+				this.dimensions.put(property, dimension);
+			}
 		}
 
 		this.refresh();
@@ -130,15 +143,17 @@ public class DimensionValueComposite extends Composite {
 			return;
 		}
 
-		for (Entry<ICode, IDimension> dimension : this.dimensions.entrySet()) {
+		for (Entry<Pair<Integer, ICode>, IDimension> dimension : this.dimensions
+				.entrySet()) {
 			if (dimension.getValue() == null) {
 				continue;
 			}
 			for (Combo value : this.values) {
-				if (value.getData() == dimension.getKey()) {
+				if (value.getData() == dimension.getKey().getSecond()) {
 					try {
 						String dimensionValue = value.getText();
-						CODE_SERVICE.setDimensionValue(uri, dimension.getKey(),
+						CODE_SERVICE.setDimensionValue(uri, dimension.getKey()
+								.getSecond(),
 								!dimensionValue.equals(UNSET) ? dimensionValue
 										: null);
 					} catch (IllegalDimensionValueException e) {
@@ -169,18 +184,25 @@ public class DimensionValueComposite extends Composite {
 					2));
 			this.labels.add(label);
 		} else {
-			for (Entry<ICode, IDimension> dimension : this.dimensions
+			for (Entry<Pair<Integer, ICode>, IDimension> dimension : this.dimensions
 					.entrySet()) {
+				int depth = dimension.getKey().getFirst();
+				ICode code = dimension.getKey().getSecond();
+
 				Image image = null;
 				try {
 					image = LABEL_PROVIDER_SERVICE.getLabelProvider(
-							dimension.getKey().getUri()).getImage(
-							dimension.getKey().getUri());
+							code.getUri()).getImage(code.getUri());
 				} catch (Exception e2) {
 					LOGGER.error(e2);
 				}
+
+				// TODO als liste und nicht als map speichern
+				// TODO speicerhn
+
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
-						image, dimension.getKey().getCaption());
+						image, depth + " - "
+								+ code.getCaption().substring(0, 1));
 				SimpleIllustratedComposite label = new SimpleIllustratedComposite(
 						this, SWT.CENTER, labelContent);
 				label.setSpacing(0);
@@ -191,7 +213,7 @@ public class DimensionValueComposite extends Composite {
 				Combo value = new Combo(this, SWT.READ_ONLY);
 				value.setLayoutData(GridDataFactory.swtDefaults()
 						.align(SWT.FILL, SWT.CENTER).grab(true, true).create());
-				value.setData(dimension.getKey());
+				value.setData(code);
 				if (dimension.getValue() instanceof NominalDimension) {
 					List<String> possibleValues = ((NominalDimension) dimension
 							.getValue()).getPossibleValues();
@@ -200,7 +222,7 @@ public class DimensionValueComposite extends Composite {
 						value.add(possibleValue);
 					}
 					value.select(possibleValues.indexOf(CODE_SERVICE
-							.getDimensionValue(this.loaded, dimension.getKey())) + 1);
+							.getDimensionValue(this.loaded, code)) + 1);
 				} else {
 					value.setEnabled(false);
 				}
