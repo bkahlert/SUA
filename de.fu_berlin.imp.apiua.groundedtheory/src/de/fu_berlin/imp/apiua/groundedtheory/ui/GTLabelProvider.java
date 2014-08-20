@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -142,6 +144,29 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Map<ICode, RGB> codeColors = new HashMap<ICode, RGB>();
 	private static final Map<ICode, Importance> codeImportances = new HashMap<ICode, IImportanceService.Importance>();
 
+	/**
+	 * Returns the {@link ICode}s effective color ... the color also reflecting
+	 * the {@link ICode}'s {@link Importance}.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public static RGB getCodeColor(ICode code) {
+		Importance importance = IMPORTANCE_SERVICE.getImportance(code.getUri());
+		RGB color = code.getColor();
+		switch (importance) {
+		case HIGH:
+			return new RGB(color.getRed(), color.getGreen(), color.getBlue(),
+					HIGH_BACKGROUND_ALPHA / 255f);
+		case LOW:
+			return new RGB(color.getRed(), color.getGreen(), color.getBlue(),
+					LOW_BACKGROUND_ALPHA / 255f);
+		default:
+			return new RGB(color.getRed(), color.getGreen(), color.getBlue(),
+					DEFAULT_BACKGROUND_ALPHA / 255f);
+		}
+	}
+
 	public static void drawCodeImage(ICode code, GC gc, Rectangle bounds) {
 		Importance importance = IMPORTANCE_SERVICE.getImportance(code.getUri());
 
@@ -193,11 +218,28 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		codeImportances.put(code, importance);
 
 		if (!codeImages.containsKey(code)) {
-			Image image = new Image(Display.getCurrent(), 16, 16);
+			int width = 16;
+			int height = 16;
+			Image image = new Image(Display.getCurrent(), width, height);
 			GC gc = new GC(image);
 			drawCodeImage(code, gc, image.getBounds());
 			gc.dispose();
-			codeImages.put(code, image);
+
+			// adds transparency
+			ImageData imageData = image.getImageData();
+			image.dispose();
+			Ellipse2D.Double ellipse = new Ellipse2D.Double(0.0, 0.0, width,
+					height);
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					int alpha = 0;
+					if (ellipse.contains(x + 0.5, y + 0.5)) {
+						alpha = 255;
+					}
+					imageData.setAlpha(x, y, alpha);
+				}
+			}
+			codeImages.put(code, new Image(Display.getCurrent(), imageData));
 		}
 		return codeImages.get(code);
 	}
