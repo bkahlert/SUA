@@ -109,7 +109,7 @@ public class DimensionView extends ViewPart {
 		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
 		dimensionValueGroup.setText("Dimension Values");
 		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
-				.span(2, 1).grab(true, false).create());
+				.span(2, 1).grab(true, true).create());
 		dimensionValueGroup.setLayout(new FillLayout());
 		this.dimensionValueComposite = new DimensionValueComposite(
 				dimensionValueGroup, SWT.NONE);
