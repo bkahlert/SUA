@@ -221,11 +221,12 @@ public class DimensionComposite extends Composite {
 			for (int i = 0; i < DimensionComposite.this.values.size(); i++) {
 				DimensionComposite.this.valueList.addItem(i + "",
 						DimensionComposite.this.values.get(i),
-						ButtonOption.PRIMARY, ButtonSize.EXTRA_SMALL,
-						ButtonStyle.HORIZONTAL, Arrays.asList("↩", "⌫"));
+						ButtonOption.DEFAULT, ButtonSize.EXTRA_SMALL,
+						ButtonStyle.HORIZONTAL,
+						Arrays.asList("<small>↩</small>", "<small>⌫</small>"));
 			}
 			DimensionComposite.this.valueList.addItem("add", "Add Nominal",
-					ButtonOption.PRIMARY, ButtonSize.EXTRA_SMALL,
+					ButtonOption.DEFAULT, ButtonSize.EXTRA_SMALL,
 					ButtonStyle.HORIZONTAL, null);
 			try {
 				DimensionComposite.this.save();

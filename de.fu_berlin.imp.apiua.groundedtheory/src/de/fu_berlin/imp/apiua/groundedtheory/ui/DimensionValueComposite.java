@@ -118,7 +118,7 @@ public class DimensionValueComposite extends Composite {
 		this.loaded = uri;
 		this.dimensions.clear();
 		for (ICode code : CODE_SERVICE.getCodes(uri)) {
-			for (Pair<Integer, ICode> property : IteratorUtils.bfs(code,
+			for (Pair<Integer, ICode> property : IteratorUtils.dfs(code,
 					new IConverter<ICode, ICode[]>() {
 						@Override
 						public ICode[] convert(ICode property) {
@@ -182,21 +182,34 @@ public class DimensionValueComposite extends Composite {
 					2));
 			this.labels.add(label);
 		} else {
-			for (Triple<Integer, ICode, IDimension> dimension : this.dimensions) {
+			for (int i = 0, m = this.dimensions.size(); i < m; i++) {
+				Triple<Integer, ICode, IDimension> dimension = this.dimensions
+						.get(i);
 				int depth = dimension.getFirst();
+				int nextDepth = this.dimensions.size() > i + 1 ? this.dimensions
+						.get(i + 1).getFirst() : -1;
 				ICode code = dimension.getSecond();
 				IDimension dim = dimension.getThird();
 
-				Image image = null;
-				try {
-					image = LABEL_PROVIDER_SERVICE.getLabelProvider(
-							code.getUri()).getImage(code.getUri());
-				} catch (Exception e2) {
-					LOGGER.error(e2);
+				Image image = GTLabelProvider.getCodeImage(code);
+
+				String prefix = "";
+				if (depth > 0) {
+					prefix += "";
+					for (int k = 0; k < depth - 1; k++) {
+						prefix += " ";
+					}
+					if (nextDepth == depth) {
+						prefix += "┣━ ";
+					} else if (nextDepth > depth) {
+						prefix += "┗┳ ";
+					} else {
+						prefix += "┗━ ";
+					}
 				}
 
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
-						image, depth + " - " + code.getCaption());
+						image, prefix + code.getCaption());
 				SimpleIllustratedComposite label = new SimpleIllustratedComposite(
 						this, SWT.CENTER, labelContent);
 				label.setSpacing(0);

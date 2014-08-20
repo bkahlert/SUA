@@ -168,16 +168,19 @@ public class PropertiesComposite extends Composite {
 
 		if (this.properties != null) {
 			for (int i = 0; i < PropertiesComposite.this.properties.size(); i++) {
-				PropertiesComposite.this.propertiesList
-						.addItem(i + "", PropertiesComposite.this.properties
-								.get(i).getCaption(), ButtonOption.PRIMARY,
-								ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL,
-								Arrays.asList("⌫"));
+				ICode code = PropertiesComposite.this.properties.get(i);
+				PropertiesComposite.this.propertiesList.addItem(
+						i + "",
+						"<img src=\"" + GTLabelProvider.getCodeImageURI(code)
+								+ "\" style=\"margin-bottom: 2px;\"/> "
+								+ code.getCaption(), ButtonOption.DEFAULT,
+						ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL,
+						Arrays.asList("<small>⌫</small>"));
 			}
 		}
 		if (this.loaded != null) {
 			PropertiesComposite.this.propertiesList.addItem("add",
-					"Add Property", ButtonOption.PRIMARY,
+					"Add Property", ButtonOption.DEFAULT,
 					ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL, null);
 		}
 		try {
