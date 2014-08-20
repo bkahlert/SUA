@@ -370,8 +370,15 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void deleteCode(ICode code, boolean forceDelete)
 			throws CodeServiceException {
+		List<ICode> properties = this.getProperties(code);
+		List<URI> propertyUris = new LinkedList<URI>();
+		for (ICode propertyCode : properties) {
+			propertyUris.add(propertyCode.getUri());
+		}
 		try {
 			this.codeStore.removeAndSaveCode(code, forceDelete);
+			this.codeServiceListenerNotifier.propertiesChanged(code.getUri(),
+					new LinkedList<URI>(), propertyUris);
 			this.codeServiceListenerNotifier.codeDeleted(code);
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);

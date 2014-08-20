@@ -498,6 +498,24 @@ class CodeStore implements ICodeStore {
 			}
 		}
 
+		for (Iterator<Entry<URI, List<URI>>> iterator = this.properties
+				.entrySet().iterator(); iterator.hasNext();) {
+			Entry<URI, List<URI>> entry = iterator.next();
+			// delete code's property associations
+			if (entry.getKey().equals(code.getUri())) {
+				iterator.remove();
+			} else {
+				// delete all property associations pointing to the delete code
+				for (Iterator<URI> iterator2 = entry.getValue().iterator(); iterator2
+						.hasNext();) {
+					URI property = iterator2.next();
+					if (property.equals(code.getUri())) {
+						iterator2.remove();
+					}
+				}
+			}
+		}
+
 		this.save();
 	}
 

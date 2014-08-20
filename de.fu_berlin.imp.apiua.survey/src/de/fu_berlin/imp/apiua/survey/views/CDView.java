@@ -230,8 +230,6 @@ public class CDView extends ViewPart {
 				"Loading Cognitive Dimensions Questionnaire") {
 			@Override
 			protected IStatus runNamed(IProgressMonitor monitor) {
-				LOGGER.info("Refreshing " + CDView.class.getSimpleName());
-
 				final SurveyContainer surveyContainer = Activator.getDefault()
 						.getSurveyContainer();
 				if (CDView.this.viewer.getInput() != surveyContainer) {
