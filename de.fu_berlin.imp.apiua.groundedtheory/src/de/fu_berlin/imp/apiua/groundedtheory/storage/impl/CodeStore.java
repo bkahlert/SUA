@@ -881,7 +881,7 @@ class CodeStore implements ICodeStore {
 	}
 
 	private boolean isPartOfPropertyHierarchy(final URI uri, URI property) {
-		for (URI childProperty : IteratorUtils.dfs(property,
+		for (Pair<Integer, URI> childProperty : IteratorUtils.dfs(property,
 				new IConverter<URI, URI[]>() {
 					@Override
 					public URI[] convert(URI uri) {
@@ -889,7 +889,7 @@ class CodeStore implements ICodeStore {
 								new URI[0]);
 					}
 				})) {
-			if (childProperty.equals(uri)) {
+			if (childProperty.getSecond().equals(uri)) {
 				return true;
 			}
 		}
