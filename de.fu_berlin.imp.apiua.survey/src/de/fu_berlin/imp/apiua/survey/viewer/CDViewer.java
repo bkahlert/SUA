@@ -354,19 +354,18 @@ public class CDViewer extends Viewer {
 
 	@Override
 	public void refresh() {
-		try {
-			ExecUtils.nonUISyncExec(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
+		ExecUtils.nonUISyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
 					Point pos = CDViewer.this.browser.getScrollPosition().get();
 					CDViewer.this.setInput(CDViewer.this.surveyContainer);
 					CDViewer.this.browser.scrollTo(pos);
-					return null;
+				} catch (Exception e) {
+					LOGGER.error("Error refreshing "
+							+ CDViewer.class.getSimpleName());
 				}
-			}).get();
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
+			}
+		});
 	}
-
 }
