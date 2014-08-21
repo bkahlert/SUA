@@ -1,34 +1,30 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
-import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
-import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
-import com.bkahlert.nebula.widgets.itemlist.ItemList;
-import com.bkahlert.nebula.widgets.itemlist.ItemList.ItemListAdapter;
+import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.SWTUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
-import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension.IDimensionListener;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
-import de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView.DimensionType;
 
 /**
  * Displays and provides editing capabilities for {@link IDimension} for the
@@ -44,16 +40,41 @@ public class DimensionComposite extends Composite {
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
+	private final List<Pair<Class<? extends IDimension>, String>> availableDimensionTypes;
+	private final Map<Class<? extends IDimension>, Integer> dimensionTypeToIndex;
+	private final Map<String, Integer> dimensionTypeNameToIndex;
+
+	private Class<? extends IDimension> getDimensionByName(String name) {
+		for (Pair<Class<? extends IDimension>, String> t : DimensionComposite.this.availableDimensionTypes) {
+			if (t.getSecond().equals(name)) {
+				return t.getFirst();
+			}
+		}
+		throw new RuntimeException("Invalid name for a dimension: " + name);
+	}
+
 	private URI loaded = null;
 
 	private final Combo typeCombo;
-	private final ItemList valueList;
+	private final Composite editComposite;
 
-	private DimensionType dimensionType = DimensionType.None;
-	private List<String> values = new ArrayList<String>();
+	private Class<? extends IDimension> dimensionType = null;
+	private IDimension dimension = null;
 
-	public DimensionComposite(Composite parent, int style) {
+	public DimensionComposite(
+			Composite parent,
+			int style,
+			List<Pair<Class<? extends IDimension>, String>> availableDimensionTypes) {
 		super(parent, style);
+		this.availableDimensionTypes = availableDimensionTypes;
+		this.dimensionTypeToIndex = new HashMap<Class<? extends IDimension>, Integer>();
+		this.dimensionTypeNameToIndex = new HashMap<String, Integer>();
+		for (int i = 0; i < availableDimensionTypes.size(); i++) {
+			Pair<Class<? extends IDimension>, String> x = availableDimensionTypes
+					.get(i);
+			this.dimensionTypeToIndex.put(x.getFirst(), i);
+			this.dimensionTypeNameToIndex.put(x.getSecond(), i);
+		}
 
 		this.setLayout(GridLayoutFactory.fillDefaults().spacing(5, 5).create());
 
@@ -61,15 +82,31 @@ public class DimensionComposite extends Composite {
 				| SWT.READ_ONLY);
 		this.typeCombo.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, false).create());
-		for (DimensionType dimensionType : DimensionType.values()) {
-			this.typeCombo.add(dimensionType.toString());
+		for (Pair<Class<? extends IDimension>, String> dimensionType : availableDimensionTypes) {
+			this.typeCombo.add(dimensionType.getSecond());
 		}
 		this.typeCombo.select(0);
 		this.typeCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				DimensionComposite.this.dimensionType = DimensionType
-						.valueOf(DimensionComposite.this.typeCombo.getText());
+				DimensionComposite.this.dimensionType = DimensionComposite.this
+						.getDimensionByName(DimensionComposite.this.typeCombo
+								.getText());
+				if (DimensionComposite.this.dimensionType == null) {
+					DimensionComposite.this.dimension = null;
+				} else if (DimensionComposite.this.dimensionType
+						.isInstance(DimensionComposite.this.dimension)) {
+					// do nothing
+				} else {
+					try {
+						DimensionComposite.this.dimension = DimensionComposite.this.dimensionType
+								.newInstance();
+					} catch (Exception e1) {
+						LOGGER.error("Error creating "
+								+ DimensionComposite.this.dimensionType
+								+ " for " + DimensionComposite.this.loaded);
+					}
+				}
 				try {
 					DimensionComposite.this.save();
 				} catch (CodeStoreWriteException e1) {
@@ -79,56 +116,10 @@ public class DimensionComposite extends Composite {
 			}
 		});
 
-		this.valueList = new ItemList(this, SWT.NONE);
-		this.valueList.setLayoutData(GridDataFactory.fillDefaults()
+		this.editComposite = new Composite(this, SWT.NONE);
+		this.editComposite.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
-		this.valueList.setMargin(5);
-		this.valueList.setSpacing(5);
-		this.refresh();
-		this.valueList.addListener(new ItemListAdapter() {
-			@Override
-			public void itemClicked(String key, int i) {
-				if (key.equals("add")) {
-					try {
-						DimensionRenameDialog renameDialog = new DimensionRenameDialog(
-								DimensionComposite.this.getShell(), "");
-						renameDialog.create();
-						if (renameDialog.open() == Window.OK) {
-							DimensionComposite.this.values.add(renameDialog
-									.getTitle());
-							DimensionComposite.this.refresh();
-						}
-					} catch (Exception e) {
-						LOGGER.error("Error creating nominal value", e);
-					}
-				} else {
-					try {
-						int idx = Integer.valueOf(key);
-						switch (i) {
-						case 0:
-							break;
-						case 1:
-							DimensionRenameDialog renameDialog = new DimensionRenameDialog(
-									DimensionComposite.this.getShell(),
-									DimensionComposite.this.values.get(idx));
-							renameDialog.create();
-							if (renameDialog.open() == Window.OK) {
-								DimensionComposite.this.values.set(idx,
-										renameDialog.getTitle());
-								DimensionComposite.this.refresh();
-							}
-							break;
-						case 2:
-							DimensionComposite.this.values.remove(idx);
-							DimensionComposite.this.refresh();
-							break;
-						}
-					} catch (Exception e) {
-						LOGGER.error("Error renaming nominal value", e);
-					}
-				}
-			}
-		});
+		this.editComposite.setLayout(new FillLayout());
 	}
 
 	@Override
@@ -138,7 +129,6 @@ public class DimensionComposite extends Composite {
 		} catch (CodeStoreWriteException e) {
 			LOGGER.error(e);
 		}
-		super.dispose();
 	}
 
 	public void load(URI uri) throws CodeStoreWriteException {
@@ -153,24 +143,19 @@ public class DimensionComposite extends Composite {
 				LOGGER.error("Error", e);
 			}
 
-			IDimension dimension = CODE_SERVICE.getDimension(code.getUri());
-			if (dimension == null) {
-				this.dimensionType = DimensionType.None;
-			} else if (dimension.getClass().equals(NominalDimension.class)) {
-				this.dimensionType = DimensionType.Nominal;
-				this.values = ((NominalDimension) dimension)
-						.getPossibleValues();
+			// TODO layout dimension value
+
+			this.dimension = CODE_SERVICE.getDimension(code.getUri());
+			if (this.dimension == null) {
+				this.dimensionType = null;
 			} else {
-				LOGGER.error("Unknown dimension type loaded");
+				this.dimensionType = this.dimension.getClass();
 			}
 
-			this.typeCombo.setEnabled(true);
-			this.valueList.setEnabled(true);
 			this.loaded = uri;
 		} else {
-			this.dimensionType = DimensionType.None;
-			this.typeCombo.setEnabled(false);
-			this.valueList.setEnabled(false);
+			this.dimensionType = null;
+			this.dimension = null;
 			this.loaded = null;
 		}
 
@@ -194,50 +179,38 @@ public class DimensionComposite extends Composite {
 			LOGGER.error("Error", e);
 		}
 
-		switch (this.dimensionType) {
-		case None:
+		if (this.dimensionType == null ^ this.dimension == null) {
+			LOGGER.error("Implementation error");
+		} else {
 			CODE_SERVICE.setDimension(code, null);
-			break;
-		case Nominal:
-			NominalDimension dimension = new NominalDimension(this.values);
-			CODE_SERVICE.setDimension(code, dimension);
-			break;
-		default:
-			LOGGER.error("Unknown dimension type selected");
-			break;
+			CODE_SERVICE.setDimension(code, this.dimension);
 		}
 	}
 
 	private void refresh() {
-		this.typeCombo.select(this.dimensionType.ordinal());
-		DimensionComposite.this.valueList.clear();
+		if (this.dimensionType == null ^ this.dimension == null) {
+			LOGGER.error("Implementation error");
+		} else {
+			SWTUtils.clearControl(this.editComposite);
 
-		switch (DimensionComposite.this.dimensionType) {
-		case None:
-			DimensionComposite.this.values.clear();
-			DimensionComposite.this.valueList.clear();
-			break;
-		case Nominal:
-			for (int i = 0; i < DimensionComposite.this.values.size(); i++) {
-				DimensionComposite.this.valueList.addItem(i + "",
-						DimensionComposite.this.values.get(i),
-						ButtonOption.DEFAULT, ButtonSize.EXTRA_SMALL,
-						ButtonStyle.HORIZONTAL,
-						Arrays.asList("<small>↩</small>", "<small>⌫</small>"));
+			int index = this.dimensionTypeToIndex.get(this.dimensionType);
+			this.typeCombo.select(index);
+			this.typeCombo.setEnabled(this.loaded != null);
+			if (this.dimension != null) {
+				this.dimension.createEditControl(this.editComposite,
+						new IDimensionListener() {
+							@Override
+							public void dimensionChanged(IDimension dimension) {
+								try {
+									DimensionComposite.this.save();
+								} catch (CodeStoreWriteException e) {
+									LOGGER.error(e);
+								}
+							}
+						});
 			}
-			DimensionComposite.this.valueList.addItem("add", "Add Nominal",
-					ButtonOption.DEFAULT, ButtonSize.EXTRA_SMALL,
-					ButtonStyle.HORIZONTAL, null);
-			try {
-				DimensionComposite.this.save();
-			} catch (CodeStoreWriteException e) {
-				LOGGER.error(e);
-			}
-			break;
-		default:
-			LOGGER.error("Unknown dimension type selected");
-			break;
 		}
+		this.layout(false, true);
 	}
 
 	@Override

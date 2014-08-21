@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,12 +15,15 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
@@ -55,14 +59,7 @@ public class DimensionView extends ViewPart {
 		}
 	};
 
-	public static enum DimensionType {
-		None, Nominal;
-
-		@Override
-		public String toString() {
-			return super.toString();
-		};
-	}
+	private final List<Pair<Class<? extends IDimension>, String>> availableDimensionTypes;
 
 	private final PartRenamer<URI> partRenamer;
 	private Composite parent;
@@ -71,6 +68,12 @@ public class DimensionView extends ViewPart {
 	private PropertiesComposite propertiesComposite;
 
 	public DimensionView() {
+		this.availableDimensionTypes = new LinkedList<Pair<Class<? extends IDimension>, String>>();
+		this.availableDimensionTypes
+				.add(new Pair<Class<? extends IDimension>, String>(null, "None"));
+		this.availableDimensionTypes
+				.add(new Pair<Class<? extends IDimension>, String>(
+						NominalDimension.class, "Nominal"));
 		this.partRenamer = new PartRenamer<URI>(this,
 				new UriPartRenamerConverter());
 		SelectionUtils.getSelectionService().addSelectionListener(
@@ -96,7 +99,7 @@ public class DimensionView extends ViewPart {
 				.grab(true, true).create());
 		dimensionGroup.setLayout(new FillLayout());
 		this.dimensionComposite = new DimensionComposite(dimensionGroup,
-				SWT.NONE);
+				SWT.NONE, this.availableDimensionTypes);
 
 		Group propertiesGroup = new Group(parent, SWT.BORDER);
 		propertiesGroup.setText("Properties");

@@ -7,11 +7,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -27,8 +24,8 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension.IDimensionValueListener;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
-import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -43,8 +40,6 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteEx
  */
 public class DimensionValueComposite extends Composite {
 
-	private static final String UNSET = "[unset]";
-
 	private static final Logger LOGGER = Logger
 			.getLogger(DimensionValueComposite.class);
 
@@ -53,11 +48,13 @@ public class DimensionValueComposite extends Composite {
 
 	private static final String EXPLANATION = "Code the selected object with a dimensionalized code to set a dimension value.";
 
+	private static final String DATA_CODE = "code";
+
 	private URI loaded = null;
 	private final List<Triple<Integer, ICode, IDimension>> dimensions = new LinkedList<Triple<Integer, ICode, IDimension>>();
 
 	private final List<Control> labels = new LinkedList<Control>();
-	private final List<Combo> values = new LinkedList<Combo>();
+	private final List<Control> valueEditors = new LinkedList<Control>();
 
 	private final CodeServiceAdapter codeServiceListener = new CodeServiceAdapter() {
 		@Override
@@ -143,16 +140,15 @@ public class DimensionValueComposite extends Composite {
 			if (dimension.getThird() == null) {
 				continue;
 			}
-			for (Combo value : this.values) {
-				if (value.getData() == dimension.getSecond()) {
+			for (Control valueEditor : this.valueEditors) {
+				if (valueEditor.getData(DATA_CODE) == dimension.getSecond()) {
+					String dimensionValue = dimension.getThird()
+							.getValueEditControlValue(valueEditor);
 					try {
-						String dimensionValue = value.getText();
-						CODE_SERVICE.setDimensionValue(uri, dimension
-								.getSecond(),
-								!dimensionValue.equals(UNSET) ? dimensionValue
-										: null);
+						CODE_SERVICE.setDimensionValue(uri,
+								dimension.getSecond(), dimensionValue);
 					} catch (IllegalDimensionValueException e) {
-						LOGGER.error("Error saving value " + value.getText()
+						LOGGER.error("Error saving value " + dimensionValue
 								+ " for " + uri + "'s " + dimension.getSecond()
 								+ " dimension", e);
 					}
@@ -167,10 +163,10 @@ public class DimensionValueComposite extends Composite {
 			label.dispose();
 		}
 		this.labels.clear();
-		for (Combo value : this.values) {
-			value.dispose();
+		for (Control valueEditor : this.valueEditors) {
+			valueEditor.dispose();
 		}
-		this.values.clear();
+		this.valueEditors.clear();
 
 		if (this.dimensions.size() == 0) {
 			Label label = new Label(this, SWT.WRAP);
@@ -179,12 +175,15 @@ public class DimensionValueComposite extends Composite {
 					2));
 			this.labels.add(label);
 		} else {
+			int depths[] = new int[this.dimensions.size()];
+			for (int i = 0, m = this.dimensions.size(); i < m; i++) {
+				depths[i] = this.dimensions.get(i).getFirst();
+			}
 			for (int i = 0, m = this.dimensions.size(); i < m; i++) {
 				Triple<Integer, ICode, IDimension> dimension = this.dimensions
 						.get(i);
+				boolean isLast = this.dimensions.size() == i + 1;
 				int depth = dimension.getFirst();
-				int nextDepth = this.dimensions.size() > i + 1 ? this.dimensions
-						.get(i + 1).getFirst() : -1;
 				ICode code = dimension.getSecond();
 				IDimension dim = dimension.getThird();
 
@@ -194,14 +193,26 @@ public class DimensionValueComposite extends Composite {
 				if (depth > 0) {
 					prefix += "";
 					for (int k = 0; k < depth - 1; k++) {
-						prefix += " ";
+						prefix += "  ";
 					}
-					if (nextDepth == depth) {
+
+					if (!isLast && depths[i + 1] == depth) {
 						prefix += "┣━ ";
-					} else if (nextDepth > depth) {
-						prefix += "┗┳ ";
 					} else {
 						prefix += "┗━ ";
+					}
+
+					for (int k = i + 1; k < depths.length; k++) {
+						if (depths[k] == depth) {
+							StringBuilder sb = new StringBuilder(prefix);
+							sb.setCharAt(depth - 1, '┣');
+							prefix = sb.toString();
+						}
+						if (depths[k] == depth - 1) {
+							StringBuilder sb = new StringBuilder(prefix);
+							sb.setCharAt(depth - 2, '┃');
+							prefix = sb.toString();
+						}
 					}
 				}
 
@@ -214,33 +225,34 @@ public class DimensionValueComposite extends Composite {
 						.align(SWT.FILL, SWT.CENTER).grab(true, false).create());
 				this.labels.add(label);
 
-				Combo value = new Combo(this, SWT.READ_ONLY);
+				Control value;
+				if (dim != null) {
+					value = dim.createValueEditControl(this,
+							new IDimensionValueListener() {
+								@Override
+								public void dimensionValueChanged(
+										IDimension dimension, String newValue) {
+									try {
+										DimensionValueComposite.this.save();
+									} catch (CodeStoreWriteException e) {
+										LOGGER.error(e);
+									}
+								}
+							});
+					dim.setValueEditControlValue(value,
+							CODE_SERVICE.getDimensionValue(this.loaded, code));
+				} else {
+					value = new Label(this, SWT.WRAP);
+					((Label) value).setText("-");
+				}
 				value.setLayoutData(GridDataFactory.swtDefaults()
 						.align(SWT.FILL, SWT.CENTER).grab(true, false).create());
-				value.setData(code);
-				if (dim instanceof NominalDimension) {
-					List<String> possibleValues = ((NominalDimension) dim)
-							.getPossibleValues();
-					value.add(UNSET);
-					for (String possibleValue : possibleValues) {
-						value.add(possibleValue);
-					}
-					value.select(possibleValues.indexOf(CODE_SERVICE
-							.getDimensionValue(this.loaded, code)) + 1);
+				value.setData(DATA_CODE, code);
+				if (dim != null) {
+
 				} else {
-					value.setEnabled(false);
 				}
-				value.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						try {
-							DimensionValueComposite.this.save();
-						} catch (CodeStoreWriteException e1) {
-							LOGGER.error(e1);
-						}
-					}
-				});
-				this.values.add(value);
+				this.valueEditors.add(value);
 			}
 		}
 

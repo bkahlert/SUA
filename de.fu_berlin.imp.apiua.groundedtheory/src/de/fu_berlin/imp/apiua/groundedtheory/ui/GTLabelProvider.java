@@ -50,7 +50,6 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
-import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
@@ -280,36 +279,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			ICode code = (ICode) locatable;
 			StyledString string = new StyledString(code.getCaption(), styler);
 			IDimension dimension = this.codeService.getDimension(uri);
-			if (dimension instanceof NominalDimension) {
-				List<String> possibleValues = ((NominalDimension) dimension)
-						.getPossibleValues();
-				StringBuilder sb = new StringBuilder(" (");
-				switch (possibleValues.size()) {
-				case 0:
-					sb.append("-");
-					break;
-				case 1:
-					sb.append(possibleValues.get(0));
-					break;
-				case 2:
-					sb.append(possibleValues.get(0));
-					sb.append(", ");
-					sb.append(possibleValues.get(1));
-					break;
-				case 3:
-					sb.append(possibleValues.get(0));
-					sb.append(", ");
-					sb.append(possibleValues.get(1));
-					sb.append(", ");
-					sb.append(possibleValues.get(2));
-					break;
-				default:
-					sb.append(possibleValues.get(0));
-					sb.append(", ..., ");
-					sb.append(possibleValues.get(possibleValues.size() - 1));
-				}
-				sb.append(")");
-				string.append(sb.toString(), Stylers.MINOR_STYLER);
+			if (dimension != null) {
+				string.append(" (" + dimension.represent() + ")",
+						Stylers.MINOR_STYLER);
 			}
 			List<ICode> properties = this.codeService.getProperties(code);
 			if (properties.size() > 0) {

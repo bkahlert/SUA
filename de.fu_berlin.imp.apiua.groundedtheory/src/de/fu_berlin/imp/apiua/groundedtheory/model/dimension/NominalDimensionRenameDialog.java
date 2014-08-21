@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.apiua.groundedtheory.ui;
+package de.fu_berlin.imp.apiua.groundedtheory.model.dimension;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-class DimensionRenameDialog extends TitleAreaDialog {
+class NominalDimensionRenameDialog extends TitleAreaDialog {
 
 	private Text titleText;
 
 	private String title;
 
-	public DimensionRenameDialog(Shell parentShell, String title) {
+	public NominalDimensionRenameDialog(Shell parentShell, String title) {
 		super(parentShell);
 		this.title = title;
 	}
