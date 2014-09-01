@@ -94,12 +94,12 @@ public class NominalDimension implements IDimension {
 			public void itemClicked(String key, int i) {
 				if (key.equals("add")) {
 					try {
-						NominalDimensionRenameDialog renameDialog = new NominalDimensionRenameDialog(
+						RenameDialog renameDialog = new RenameDialog(
 								parent.getShell(), "");
 						renameDialog.create();
 						if (renameDialog.open() == Window.OK) {
 							NominalDimension.this.possibleValues
-									.add(renameDialog.getTitle());
+									.add(renameDialog.getCaption());
 							if (dimensionListener != null) {
 								dimensionListener
 										.dimensionChanged(NominalDimension.this);
@@ -116,14 +116,14 @@ public class NominalDimension implements IDimension {
 						case 0:
 							break;
 						case 1:
-							NominalDimensionRenameDialog renameDialog = new NominalDimensionRenameDialog(
+							RenameDialog renameDialog = new RenameDialog(
 									parent.getShell(),
 									NominalDimension.this.possibleValues
 											.get(idx));
 							renameDialog.create();
 							if (renameDialog.open() == Window.OK) {
 								NominalDimension.this.possibleValues.set(idx,
-										renameDialog.getTitle());
+										renameDialog.getCaption());
 								if (dimensionListener != null) {
 									dimensionListener
 											.dimensionChanged(NominalDimension.this);

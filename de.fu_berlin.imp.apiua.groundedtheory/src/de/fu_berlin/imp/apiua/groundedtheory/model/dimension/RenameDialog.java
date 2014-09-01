@@ -10,22 +10,22 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-class NominalDimensionRenameDialog extends TitleAreaDialog {
+class RenameDialog extends TitleAreaDialog {
 
-	private Text titleText;
+	private Text captionText;
 
-	private String title;
+	private String caption;
 
-	public NominalDimensionRenameDialog(Shell parentShell, String title) {
+	public RenameDialog(Shell parentShell, String title) {
 		super(parentShell);
-		this.title = title;
+		this.caption = title;
 	}
 
 	@Override
 	public void create() {
 		super.create();
 		this.setTitle("Rename");
-		this.setMessage("Please enter the new title for this nominal",
+		this.setMessage("Please enter the new caption",
 				IMessageProvider.INFORMATION);
 	}
 
@@ -36,8 +36,8 @@ class NominalDimensionRenameDialog extends TitleAreaDialog {
 		container.setLayoutData(new GridData(GridData.FILL_BOTH));
 		container.setLayout(new FillLayout());
 
-		this.titleText = new Text(container, SWT.BORDER);
-		this.titleText.setText(this.title);
+		this.captionText = new Text(container, SWT.BORDER);
+		this.captionText.setText(this.caption);
 		return area;
 	}
 
@@ -47,7 +47,7 @@ class NominalDimensionRenameDialog extends TitleAreaDialog {
 	}
 
 	private void saveInput() {
-		this.title = this.titleText.getText();
+		this.caption = this.captionText.getText();
 	}
 
 	@Override
@@ -56,7 +56,7 @@ class NominalDimensionRenameDialog extends TitleAreaDialog {
 		super.okPressed();
 	}
 
-	public String getTitle() {
-		return this.title;
+	public String getCaption() {
+		return this.caption;
 	}
 }
