@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import com.bkahlert.nebula.dialogs.RenameDialog;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
