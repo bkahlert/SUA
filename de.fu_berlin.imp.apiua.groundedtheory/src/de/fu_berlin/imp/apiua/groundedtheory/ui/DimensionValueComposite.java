@@ -256,6 +256,6 @@ public class DimensionValueComposite extends Composite {
 			}
 		}
 
-		this.layout();
+		this.layout(true, true);
 	}
 }

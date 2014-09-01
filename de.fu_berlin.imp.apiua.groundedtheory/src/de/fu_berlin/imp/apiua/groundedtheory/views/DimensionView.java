@@ -24,6 +24,7 @@ import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.OrdinalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
@@ -74,6 +75,9 @@ public class DimensionView extends ViewPart {
 		this.availableDimensionTypes
 				.add(new Pair<Class<? extends IDimension>, String>(
 						NominalDimension.class, "Nominal"));
+		this.availableDimensionTypes
+				.add(new Pair<Class<? extends IDimension>, String>(
+						OrdinalDimension.class, "Ordinal"));
 		this.partRenamer = new PartRenamer<URI>(this,
 				new UriPartRenamerConverter());
 		SelectionUtils.getSelectionService().addSelectionListener(
