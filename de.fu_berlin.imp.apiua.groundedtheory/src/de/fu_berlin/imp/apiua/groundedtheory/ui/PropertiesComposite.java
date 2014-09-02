@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
@@ -50,12 +52,22 @@ public class PropertiesComposite extends Composite {
 
 		this.setLayout(GridLayoutFactory.fillDefaults().spacing(5, 5).create());
 
-		this.propertiesList = new ItemList(this, SWT.NONE);
+		this.propertiesList = new ItemList(this, SWT.NONE,
+				new IBrowserCallback() {
+					@Override
+					public void succeeded(Browser browser) {
+						PropertiesComposite.this.propertiesList.setMargin(5);
+						PropertiesComposite.this.propertiesList.setSpacing(5);
+						PropertiesComposite.this.refresh();
+					}
+
+					@Override
+					public void failed(Browser browser, Exception exception) {
+						LOGGER.error(exception);
+					}
+				});
 		this.propertiesList.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
-		this.propertiesList.setMargin(5);
-		this.propertiesList.setSpacing(5);
-		this.refresh();
 		this.propertiesList.addListener(new ItemListAdapter() {
 			@Override
 			public void itemClicked(String key, int i) {
@@ -139,7 +151,16 @@ public class PropertiesComposite extends Composite {
 				this.loaded = null;
 			}
 
-			this.refresh();
+			try {
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						PropertiesComposite.this.refresh();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing", e);
+			}
 		}
 	}
 

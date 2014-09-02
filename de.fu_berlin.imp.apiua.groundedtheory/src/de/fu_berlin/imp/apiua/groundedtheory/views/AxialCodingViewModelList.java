@@ -43,22 +43,38 @@ class AxialCodingViewModelList extends ItemList {
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void axialCodingModelAdded(URI uri) {
-			AxialCodingViewModelList.this.refresh();
+			ExecUtils.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					AxialCodingViewModelList.this.refresh();
+				}
+			});
 		}
 
 		@Override
 		public void axialCodingModelUpdated(URI uri) {
-			AxialCodingViewModelList.this.refresh();
+			ExecUtils.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					AxialCodingViewModelList.this.refresh();
+				}
+			});
 		}
 
 		@Override
 		public void axialCodingModelRemoved(URI uri) {
-			AxialCodingViewModelList.this.refresh();
+			ExecUtils.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					AxialCodingViewModelList.this.refresh();
+				}
+			});
 		}
 	};
 
-	public AxialCodingViewModelList(Composite parent, int style) {
-		super(parent, style);
+	public AxialCodingViewModelList(Composite parent, int style,
+			IBrowserCallback callback) {
+		super(parent, style, callback);
 		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
 		this.addDisposeListener(new DisposeListener() {
 			@Override

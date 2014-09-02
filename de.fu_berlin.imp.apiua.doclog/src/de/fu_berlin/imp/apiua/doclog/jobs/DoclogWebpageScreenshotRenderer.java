@@ -1,7 +1,5 @@
 package de.fu_berlin.imp.apiua.doclog.jobs;
 
-import java.util.concurrent.ExecutionException;
-
 import org.eclipse.swt.widgets.Shell;
 
 import com.bkahlert.nebula.screenshots.impl.webpage.FormContainingWebpageScreenshotRenderer;
@@ -25,22 +23,13 @@ public class DoclogWebpageScreenshotRenderer extends
 		 * field that - for unknown reason - can not be triggered using jQuery.
 		 */
 		if (webpage.getUri().toString().contains("seqan/dev/INDEX_Page.html")) {
-			try {
-				/*
-				 * Take the typed in input and do the search manually without
-				 * using updateSearch in dddoc.js
-				 */
-				browser.run(
-						"var text=$('#search').val();"
-								+ "var s='';count=1;if(text.length>=2){if(text.length<3)reg=new RegExp('^('+text.toLowerCase()+')','gi');else reg=new RegExp('('+text.toLowerCase()+')','gi');for(i=0;i<DB.length-1;++i){entry=DB[i];key=entry[0];if(key.match(reg)){displaytext=entry[0].replace(reg,'<b>$1</b>');s+='<div><nobr><a target=_parent '+entry[2]+displaytext+' '+entry[1]+'</a></nobr></div>';++count;if(count>=MAX_RESULT)break}}}"
-								+ "$('#result').html(s);").get();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			/*
+			 * Take the typed in input and do the search manually without using
+			 * updateSearch in dddoc.js
+			 */
+			browser.run("var text=$('#search').val();"
+					+ "var s='';count=1;if(text.length>=2){if(text.length<3)reg=new RegExp('^('+text.toLowerCase()+')','gi');else reg=new RegExp('('+text.toLowerCase()+')','gi');for(i=0;i<DB.length-1;++i){entry=DB[i];key=entry[0];if(key.match(reg)){displaytext=entry[0].replace(reg,'<b>$1</b>');s+='<div><nobr><a target=_parent '+entry[2]+displaytext+' '+entry[1]+'</a></nobr></div>';++count;if(count>=MAX_RESULT)break}}}"
+					+ "$('#result').html(s);");
 		}
 	}
 
