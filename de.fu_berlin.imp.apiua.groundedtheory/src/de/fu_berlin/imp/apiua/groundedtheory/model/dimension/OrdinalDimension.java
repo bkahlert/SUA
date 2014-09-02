@@ -72,7 +72,7 @@ public class OrdinalDimension implements IDimension {
 			break;
 		default:
 			sb.append(this.ordinals.get(0));
-			sb.append(", ..., ");
+			sb.append(" ... ");
 			sb.append(this.ordinals.get(this.ordinals.size() - 1));
 		}
 		return sb.toString();
