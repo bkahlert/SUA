@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -132,6 +133,10 @@ public class DimensionComposite extends Composite {
 	}
 
 	public void load(URI uri) throws CodeStoreWriteException {
+		if (ObjectUtils.equals(this.loaded, uri)) {
+			return;
+		}
+
 		this.save();
 
 		if (uri != null && LocatorService.INSTANCE.getType(uri) == ICode.class) {

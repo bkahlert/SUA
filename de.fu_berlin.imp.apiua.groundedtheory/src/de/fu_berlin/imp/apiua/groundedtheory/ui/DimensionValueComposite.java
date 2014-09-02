@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.ui;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -103,6 +104,9 @@ public class DimensionValueComposite extends Composite {
 	}
 
 	public void load(URI uri) throws CodeServiceException {
+		if (ObjectUtils.equals(this.loaded, uri)) {
+			return;
+		}
 		try {
 			this.save();
 		} catch (CodeStoreWriteException e) {
