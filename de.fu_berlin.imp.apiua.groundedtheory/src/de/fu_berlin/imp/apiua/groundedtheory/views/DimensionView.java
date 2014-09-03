@@ -8,24 +8,33 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.PartRenamer;
+import com.bkahlert.nebula.utils.SWTUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.OrdinalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValueComposite;
@@ -37,6 +46,15 @@ public class DimensionView extends ViewPart {
 	private static final Logger LOGGER = Logger.getLogger(DimensionView.class);
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView";
+
+	private static Color INFO_COLOR = new Color(Display.getCurrent(),
+			RGB.INFO.toClassicRGB());
+
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+
+	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	private final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
 			.getSelectionRetriever(URI.class);
@@ -65,7 +83,7 @@ public class DimensionView extends ViewPart {
 	private final PartRenamer<URI> partRenamer;
 	private Composite parent;
 	private DimensionComposite dimensionComposite;
-	private DimensionValueComposite dimensionValueComposite;
+	private Group dimensionValueGroup;
 	private PropertiesComposite propertiesComposite;
 
 	public DimensionView() {
@@ -113,13 +131,11 @@ public class DimensionView extends ViewPart {
 		this.propertiesComposite = new PropertiesComposite(propertiesGroup,
 				SWT.NONE);
 
-		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
-		dimensionValueGroup.setText("Dimension Values");
-		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
+		this.dimensionValueGroup = new Group(parent, SWT.BORDER);
+		this.dimensionValueGroup.setText("Dimension Values");
+		this.dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
 				.span(2, 1).grab(true, true).create());
-		dimensionValueGroup.setLayout(new FillLayout());
-		this.dimensionValueComposite = new DimensionValueComposite(
-				dimensionValueGroup, SWT.NONE);
+		this.dimensionValueGroup.setLayout(new FillLayout(SWT.VERTICAL));
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override
@@ -134,7 +150,35 @@ public class DimensionView extends ViewPart {
 			CodeServiceException {
 		this.partRenamer.apply(uri);
 		this.dimensionComposite.load(uri);
-		this.dimensionValueComposite.load(uri);
+		SWTUtils.clearControl(this.dimensionValueGroup);
+		List<URI> valueRelevantUris = new LinkedList<URI>();
+		valueRelevantUris.add(uri);
+		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances()) {
+			if (codeInstance.getId().equals(uri)) {
+				valueRelevantUris.add(codeInstance.getUri());
+			}
+		}
+		ILabelProvider lp = LABEL_PROVIDER_SERVICE.getLabelProvider(uri);
+		for (URI valueRelevantUri : valueRelevantUris) {
+			Group group = new Group(this.dimensionValueGroup, SWT.BORDER);
+			try {
+				group.setText(lp != null ? lp.getText(valueRelevantUri)
+						: valueRelevantUri.toString());
+			} catch (Exception e) {
+				LOGGER.error(e);
+				group.setText(valueRelevantUri.toString());
+			}
+			group.setLayout(new FillLayout());
+
+			DimensionValueComposite dimensionValueComposite = new DimensionValueComposite(
+					group, SWT.NONE);
+			dimensionValueComposite.load(valueRelevantUri);
+
+			if (!uri.equals(valueRelevantUri)) {
+				group.setBackground(INFO_COLOR);
+				dimensionValueComposite.setBackground(INFO_COLOR);
+			}
+		}
 		this.propertiesComposite.load(uri);
 
 		this.parent.layout();

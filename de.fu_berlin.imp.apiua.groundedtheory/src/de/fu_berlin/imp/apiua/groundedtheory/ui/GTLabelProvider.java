@@ -32,6 +32,7 @@ import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.PaintUtils;
 import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
@@ -308,10 +309,32 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = this.labelProviderService
 					.getLabelProvider(codeInstance.getId());
-			return (labelProvider != null) ? new StyledString(
-					labelProvider.getText(codeInstance.getId()), styler)
-					: new StyledString("unknown origin",
-							Stylers.ATTENTION_STYLER);
+			if (labelProvider != null) {
+				StyledString string = new StyledString(
+						labelProvider.getText(codeInstance.getId()), styler);
+				List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
+						.getDimensionValues(codeInstance.getId());
+				if (!dimensionValues.isEmpty()) {
+					StringBuilder sb = new StringBuilder(" (");
+					List<String> dimensionValueStrings = new LinkedList<String>();
+					for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
+						ICode code = LocatorService.INSTANCE.resolve(
+								dimensionValue.getFirst(), ICode.class, null)
+								.get();
+						String owner = code != null ? code.getCaption()
+								: "ERROR";
+						dimensionValueStrings.add(owner + " = "
+								+ dimensionValue.getThird());
+					}
+					sb.append(StringUtils.join(dimensionValueStrings, ", "));
+					sb.append(")");
+					string.append(sb.toString());
+				}
+				return string;
+			} else {
+				return new StyledString("unknown origin",
+						Stylers.ATTENTION_STYLER);
+			}
 		}
 		if (IEpisodes.class.isInstance(locatable)) {
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),

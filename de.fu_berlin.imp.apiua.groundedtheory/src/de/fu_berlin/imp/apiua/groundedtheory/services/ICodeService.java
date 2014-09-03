@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -324,6 +325,22 @@ public interface ICodeService {
 	 * @return
 	 */
 	public String getDimensionValue(URI uri, ICode code);
+
+	/**
+	 * Returns the all {@link IDimension} values associated with the given
+	 * {@link URI}.
+	 * 
+	 * @param uri
+	 * @return a list of triples. Each triple consists of
+	 *         <ol>
+	 *         <li>{@link URI} the {@link IDimension} belongs to</li>
+	 *         <li>the {@link IDimension} the value belongs to</li>
+	 *         <li>the {@link IDimension} value itself</li>
+	 *         </ol>
+	 * @throws CodeServiceException
+	 */
+	public List<Triple<URI, IDimension, String>> getDimensionValues(URI uri)
+			throws CodeServiceException;
 
 	/**
 	 * Set's the {@link IDimensionable}'s {@link IDimension} value.

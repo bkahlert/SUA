@@ -21,6 +21,7 @@ import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.nebula.utils.StringUtils;
+import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.IdentifierFactory;
@@ -591,6 +592,22 @@ public class CodeService implements ICodeService, IDisposable {
 		this.codeServiceListenerNotifier.dimensionValueChanged(code.getUri(),
 				oldValue, value);
 		this.codeStore.save();
+	}
+
+	@Override
+	public List<Triple<URI, IDimension, String>> getDimensionValues(URI uri)
+			throws CodeServiceException {
+		List<Triple<URI, IDimension, String>> values = new ArrayList<Triple<URI, IDimension, String>>();
+		for (ICode code : this.getCodes(uri)) {
+			URI codeUri = code.getUri();
+			IDimension dimension = this.getDimension(codeUri);
+			if (dimension != null) {
+				String value = this.getDimensionValue(codeUri, code);
+				values.add(new Triple<URI, IDimension, String>(codeUri,
+						dimension, value));
+			}
+		}
+		return values;
 	}
 
 	@Override
