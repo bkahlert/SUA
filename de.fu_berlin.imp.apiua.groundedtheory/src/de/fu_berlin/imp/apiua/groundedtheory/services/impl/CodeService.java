@@ -235,6 +235,17 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public List<ICodeInstance> getInstances(URI uri) {
+		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
+			if (codeInstance.getId().equals(uri)) {
+				codeInstances.add(codeInstance);
+			}
+		}
+		return codeInstances;
+	}
+
+	@Override
 	public List<ICodeInstance> getInstances(ICode code) {
 		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
 		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
