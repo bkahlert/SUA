@@ -1,14 +1,5 @@
 package de.fu_berlin.imp.apiua.uri.viewers;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.uri.ImageManager;
-import de.fu_berlin.imp.apiua.uri.model.IUri;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +13,14 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.uri.ImageManager;
+import de.fu_berlin.imp.apiua.uri.model.IUri;
 
 public class UriLabelProvider extends StyledUriInformationLabelProvider {
 
@@ -53,16 +52,12 @@ public class UriLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		if (locatable instanceof IUri) {
-			try {
-				if (this.codeService.getCodes(uri).size() > 0) {
-					return this.codeService.isMemo(uri) ? ImageManager.URI_CODED_MEMO
-							: ImageManager.URI_CODED;
-				} else {
-					return (this.codeService.isMemo(uri) ? ImageManager.URI_MEMO
-							: ImageManager.URI);
-				}
-			} catch (CodeServiceException e) {
-				return ImageManager.URI;
+			if (this.codeService.getCodes(uri).size() > 0) {
+				return this.codeService.isMemo(uri) ? ImageManager.URI_CODED_MEMO
+						: ImageManager.URI_CODED;
+			} else {
+				return (this.codeService.isMemo(uri) ? ImageManager.URI_MEMO
+						: ImageManager.URI);
 			}
 		}
 		return super.getImage(uri);

@@ -11,8 +11,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.uri.model.IUri;
 import de.fu_berlin.imp.apiua.uri.services.IUriService;
@@ -34,16 +32,11 @@ public class DeleteUriHandler extends AbstractHandler {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 		boolean hasCodes = false;
-		try {
-			for (IUri uri : uris) {
-				if (codeService.getCodes(uri.getUri()).size() > 0) {
-					hasCodes = true;
-					break;
-				}
+		for (IUri uri : uris) {
+			if (codeService.getCodes(uri.getUri()).size() > 0) {
+				hasCodes = true;
+				break;
 			}
-		} catch (CodeServiceException e) {
-			LOGGER.error("Could not find the " + ICode.class
-					+ "s for the following URIs: " + uris);
 		}
 
 		boolean delete = false;

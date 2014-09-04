@@ -28,13 +28,13 @@ import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.apiua.doclog.model.DoclogRecordList;
 import de.fu_berlin.imp.apiua.doclog.ui.DoclogLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.timeline.extensionProviders.ITimelineBandProvider;
 
 public class DoclogTimelineBandProvider implements
 		ITimelineBandProvider<IIdentifier> {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogTimelineBandProvider.class);
 
@@ -227,13 +227,9 @@ public class DoclogTimelineBandProvider implements
 				List<RGB> colors = new ArrayList<RGB>();
 				if (event instanceof DoclogRecord) {
 					DoclogRecord doclogRecord = (DoclogRecord) event;
-					try {
-						for (ICode code : this.codeService
-								.getCodes(doclogRecord.getUri())) {
-							colors.add(code.getColor());
-						}
-					} catch (CodeServiceException e) {
-						LOGGER.error(e);
+					for (ICode code : this.codeService.getCodes(doclogRecord
+							.getUri())) {
+						colors.add(code.getColor());
 					}
 				}
 				return colors.toArray(new RGB[0]);

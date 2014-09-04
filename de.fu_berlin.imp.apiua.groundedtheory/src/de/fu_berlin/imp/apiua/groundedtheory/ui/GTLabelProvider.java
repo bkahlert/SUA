@@ -345,16 +345,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
 				List<ICode> codes;
-				try {
-					codes = this.codeService.getCodes(episode.getUri());
-					List<String> codeNames = new ArrayList<String>();
-					for (ICode code : codes) {
-						codeNames.add(code.getCaption());
-					}
-					name = "[" + StringUtils.join(codeNames, ", ") + "]";
-				} catch (CodeServiceException e) {
-					LOGGER.warn("Could not find the episode's codes", e);
+				codes = this.codeService.getCodes(episode.getUri());
+				List<String> codeNames = new ArrayList<String>();
+				for (ICode code : codes) {
+					codeNames.add(code.getCaption());
 				}
+				name = "[" + StringUtils.join(codeNames, ", ") + "]";
 			}
 			return new StyledString(name, styler);
 		}

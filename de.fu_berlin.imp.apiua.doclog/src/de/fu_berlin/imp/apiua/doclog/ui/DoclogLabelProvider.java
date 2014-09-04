@@ -39,7 +39,6 @@ import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.doclog.model.Doclog;
 import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 
 public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
@@ -82,15 +81,11 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public Image getImage(URI uri) throws Exception {
 		if (this.locatorService.getType(uri) == Doclog.class) {
-			try {
-				return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
-						.isMemo(uri) ? ImageManager.DOCLOGFILE_CODED_MEMO
-						: ImageManager.DOCLOGFILE_CODED) : (this.codeService
-						.isMemo(uri) ? ImageManager.DOCLOGFILE_MEMO
-						: ImageManager.DOCLOGFILE);
-			} catch (CodeServiceException e) {
-				return ImageManager.DOCLOGFILE;
-			}
+			return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+					.isMemo(uri) ? ImageManager.DOCLOGFILE_CODED_MEMO
+					: ImageManager.DOCLOGFILE_CODED) : (this.codeService
+					.isMemo(uri) ? ImageManager.DOCLOGFILE_MEMO
+					: ImageManager.DOCLOGFILE);
 		}
 		if (this.locatorService.getType(uri) == DoclogRecord.class) {
 			String key = null;
@@ -135,47 +130,43 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 				image = ImageManager.DOCLOGRECORD;
 			}
 
-			try {
-				if (this.codeService.getCodes(uri).size() > 0) {
-					if (this.codeService.isMemo(uri)) {
-						if (key != null) {
-							key += ",coded,memo";
-						}
-						if (this.cachedImages.containsKey(key)) {
-							return this.cachedImages.get(key);
-						}
-						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.getImage(
-										image,
-										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
-					} else {
-						if (key != null) {
-							key += ",coded";
-						}
-						if (this.cachedImages.containsKey(key)) {
-							return this.cachedImages.get(key);
-						}
-						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.getImage(
-										image,
-										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED));
+			if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.isMemo(uri)) {
+					if (key != null) {
+						key += ",coded,memo";
 					}
+					if (this.cachedImages.containsKey(key)) {
+						return this.cachedImages.get(key);
+					}
+					image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
+							.getImage(
+									image,
+									Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
 				} else {
-					if (this.codeService.isMemo(uri)) {
-						if (key != null) {
-							key += ",memo";
-						}
-						if (this.cachedImages.containsKey(key)) {
-							return this.cachedImages.get(key);
-						}
-						image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
-								.getImage(
-										image,
-										Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
+					if (key != null) {
+						key += ",coded";
 					}
+					if (this.cachedImages.containsKey(key)) {
+						return this.cachedImages.get(key);
+					}
+					image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
+							.getImage(
+									image,
+									Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_CODED));
 				}
-			} catch (CodeServiceException e) {
-				return image;
+			} else {
+				if (this.codeService.isMemo(uri)) {
+					if (key != null) {
+						key += ",memo";
+					}
+					if (this.cachedImages.containsKey(key)) {
+						return this.cachedImages.get(key);
+					}
+					image = de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager
+							.getImage(
+									image,
+									Arrays.asList(de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager.OVERLAY_MEMO));
+				}
 			}
 
 			if (key != null) {

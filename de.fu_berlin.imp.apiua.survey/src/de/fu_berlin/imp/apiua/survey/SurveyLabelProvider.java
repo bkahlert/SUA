@@ -1,17 +1,5 @@
 package de.fu_berlin.imp.apiua.survey;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.survey.model.DateId;
-import de.fu_berlin.imp.apiua.survey.model.cd.CDDocument;
-import de.fu_berlin.imp.apiua.survey.model.cd.CDDocumentField;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +15,17 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.CalendarUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.survey.model.DateId;
+import de.fu_berlin.imp.apiua.survey.model.cd.CDDocument;
+import de.fu_berlin.imp.apiua.survey.model.cd.CDDocumentField;
 
 public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 
@@ -72,29 +71,21 @@ public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == CDDocument.class) {
-			try {
-				if (this.codeService.getCodes(uri).size() > 0) {
-					return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_CODED_MEMO
-							: ImageManager.CDDOCUMENT_CODED;
-				} else {
-					return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_MEMO
-							: ImageManager.CDDOCUMENT);
-				}
-			} catch (CodeServiceException e) {
-				return ImageManager.CDDOCUMENT;
+			if (this.codeService.getCodes(uri).size() > 0) {
+				return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_CODED_MEMO
+						: ImageManager.CDDOCUMENT_CODED;
+			} else {
+				return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_MEMO
+						: ImageManager.CDDOCUMENT);
 			}
 		}
 		if (type == CDDocumentField.class) {
-			try {
-				if (this.codeService.getCodes(uri).size() > 0) {
-					return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_CODED_MEMO
-							: ImageManager.CDDOCUMENTFIELD_CODED;
-				} else {
-					return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_MEMO
-							: ImageManager.CDDOCUMENTFIELD);
-				}
-			} catch (CodeServiceException e) {
-				return ImageManager.CDDOCUMENTFIELD;
+			if (this.codeService.getCodes(uri).size() > 0) {
+				return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_CODED_MEMO
+						: ImageManager.CDDOCUMENTFIELD_CODED;
+			} else {
+				return (this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_MEMO
+						: ImageManager.CDDOCUMENTFIELD);
 			}
 		}
 		return PlatformUI.getWorkbench().getSharedImages()

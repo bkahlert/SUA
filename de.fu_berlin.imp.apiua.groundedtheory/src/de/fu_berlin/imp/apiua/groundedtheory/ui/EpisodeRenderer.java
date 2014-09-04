@@ -412,42 +412,29 @@ public class EpisodeRenderer implements IDisposable {
 				// remove all outdated colors (e.g. because episode got a new
 				// color with different color)
 				if (this.renderingColors.containsKey(episode)) {
-					try {
-						List<ICode> codes = this.codeService.getCodes(episode
-								.getUri());
-						GTLabelProvider.CodeColors renderingColor = this.renderingColors
-								.get(episode);
-						if (codes.size() == 0
-								|| !codes
-										.get(0)
-										.getColor()
-										.equals(renderingColor
-												.getBackgroundRGB())) {
-							renderingColor.dispose();
-							this.renderingColors.remove(episode);
-						}
-					} catch (CodeServiceException e1) {
-						LOGGER.error("Could not find the episode's "
-								+ ICode.class.getSimpleName() + "s.");
+					List<ICode> codes = this.codeService.getCodes(episode
+							.getUri());
+					GTLabelProvider.CodeColors renderingColor = this.renderingColors
+							.get(episode);
+					if (codes.size() == 0
+							|| !codes.get(0).getColor()
+									.equals(renderingColor.getBackgroundRGB())) {
+						renderingColor.dispose();
+						this.renderingColors.remove(episode);
 					}
 				}
 
 				// create all missing colors
 				if (!this.renderingColors.containsKey(episode)) {
-					try {
-						List<ICode> codes = this.codeService.getCodes(episode
-								.getUri());
-						if (codes.size() > 0) {
-							this.renderingColors.put(episode,
-									new GTLabelProvider.CodeColors(codes.get(0)
-											.getColor()));
-						} else {
-							this.renderingColors.put(episode,
-									new GTLabelProvider.CodeColors(null));
-						}
-					} catch (CodeServiceException e1) {
-						LOGGER.error("Could not find the episode's "
-								+ ICode.class.getSimpleName() + "s.");
+					List<ICode> codes = this.codeService.getCodes(episode
+							.getUri());
+					if (codes.size() > 0) {
+						this.renderingColors.put(episode,
+								new GTLabelProvider.CodeColors(codes.get(0)
+										.getColor()));
+					} else {
+						this.renderingColors.put(episode,
+								new GTLabelProvider.CodeColors(null));
 					}
 
 				}
@@ -464,46 +451,37 @@ public class EpisodeRenderer implements IDisposable {
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
 						codeColors.getBackgroundColor());
 
-				// draw overlay icons
-				try {
-					if (this.codeService.getCodes(episode.getUri()).size() > 0) {
-
-						e.gc.setAlpha(255);
-						e.gc.drawImage(
-								CODED_OVERLAY,
-								bounds.x
-										+ bounds.width
-										- CODED_OVERLAY.getBounds().width
-										- ((bounds.width >= CODED_OVERLAY
-												.getBounds().width + 6) ? 3 : 0),
-								bounds.y
-										+ bounds.height
-										- CODED_OVERLAY.getBounds().height
-										+ ((bounds.height >= CODED_OVERLAY
-												.getBounds().height + 6) ? -3
-												: 0)
-										- ((bounds.width >= CODED_OVERLAY
-												.getBounds().width + 6) ? 0
-												: -3));
-					}
-					if (this.codeService.isMemo(episode.getUri())) {
-						e.gc.setAlpha(255);
-						e.gc.drawImage(
-								MEMO_OVERLAY,
-								bounds.x
-										+ bounds.width
-										- MEMO_OVERLAY.getBounds().width
-										- ((bounds.width >= MEMO_OVERLAY
-												.getBounds().width + 6) ? 3 : 0),
-								bounds.y
-										+ ((bounds.height >= MEMO_OVERLAY
-												.getBounds().height + 6) ? 3
-												: 0)
-										- ((bounds.width >= MEMO_OVERLAY
-												.getBounds().width + 6) ? 0 : 3));
-					}
-				} catch (CodeServiceException e1) {
-					LOGGER.warn("Error drawing overlays for " + episode, e1);
+				if (this.codeService.getCodes(episode.getUri()).size() > 0) {
+					e.gc.setAlpha(255);
+					e.gc.drawImage(
+							CODED_OVERLAY,
+							bounds.x
+									+ bounds.width
+									- CODED_OVERLAY.getBounds().width
+									- ((bounds.width >= CODED_OVERLAY
+											.getBounds().width + 6) ? 3 : 0),
+							bounds.y
+									+ bounds.height
+									- CODED_OVERLAY.getBounds().height
+									+ ((bounds.height >= CODED_OVERLAY
+											.getBounds().height + 6) ? -3 : 0)
+									- ((bounds.width >= CODED_OVERLAY
+											.getBounds().width + 6) ? 0 : -3));
+				}
+				if (this.codeService.isMemo(episode.getUri())) {
+					e.gc.setAlpha(255);
+					e.gc.drawImage(
+							MEMO_OVERLAY,
+							bounds.x
+									+ bounds.width
+									- MEMO_OVERLAY.getBounds().width
+									- ((bounds.width >= MEMO_OVERLAY
+											.getBounds().width + 6) ? 3 : 0),
+							bounds.y
+									+ ((bounds.height >= MEMO_OVERLAY
+											.getBounds().height + 6) ? 3 : 0)
+									- ((bounds.width >= MEMO_OVERLAY
+											.getBounds().width + 6) ? 0 : 3));
 				}
 			}
 		}

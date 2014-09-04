@@ -62,17 +62,13 @@ public class CodeService implements ICodeService, IDisposable {
 		@Override
 		public void gettingImportance(Map<URI, Importance> uris) {
 			for (Entry<URI, Importance> importance : uris.entrySet()) {
-				try {
-					for (ICode code : CodeService.this.getCodes(importance
-							.getKey())) {
-						Importance codeImportance = CodeService.this.importanceService
-								.getImportance(code.getUri());
-						if (codeImportance == Importance.HIGH) {
-							importance.setValue(Importance.HIGH);
-						}
+				for (ICode code : CodeService.this
+						.getCodes(importance.getKey())) {
+					Importance codeImportance = CodeService.this.importanceService
+							.getImportance(code.getUri());
+					if (codeImportance == Importance.HIGH) {
+						importance.setValue(Importance.HIGH);
 					}
-				} catch (CodeServiceException e) {
-					LOGGER.error(e);
 				}
 			}
 		}
@@ -146,7 +142,7 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public List<ICode> getCodes(URI uri) throws CodeServiceException {
+	public List<ICode> getCodes(URI uri) {
 		LinkedList<ICode> codes = new LinkedList<ICode>();
 		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
 			if (codeInstance.getId().equals(uri)) {
@@ -607,7 +603,7 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public List<Triple<URI, IDimension, String>> getDimensionValues(
-			ICodeInstance codeInstance) throws CodeServiceException {
+			ICodeInstance codeInstance) {
 		List<Triple<URI, IDimension, String>> values = new ArrayList<Triple<URI, IDimension, String>>();
 		// filter for currently associated codes
 		// otherwise no more associated but dimensionalized codes are still

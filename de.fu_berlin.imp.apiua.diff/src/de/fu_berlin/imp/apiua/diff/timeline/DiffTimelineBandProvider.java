@@ -34,13 +34,13 @@ import de.fu_berlin.imp.apiua.diff.model.impl.Diff;
 import de.fu_berlin.imp.apiua.diff.model.impl.DiffRecord;
 import de.fu_berlin.imp.apiua.diff.ui.DiffLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.timeline.extensionProviders.ITimelineBandProvider;
 
 public class DiffTimelineBandProvider implements
 		ITimelineBandProvider<IIdentifier> {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(DiffTimelineBandProvider.class);
 
@@ -271,24 +271,15 @@ public class DiffTimelineBandProvider implements
 				List<RGB> colors = new ArrayList<RGB>();
 				if (event instanceof IDiff) {
 					IDiff diff = (IDiff) event;
-					try {
-						for (ICode code : this.codeService.getCodes(diff
-								.getUri())) {
-							colors.add(code.getColor());
-						}
-					} catch (CodeServiceException e) {
-						LOGGER.error(e);
+					for (ICode code : this.codeService.getCodes(diff.getUri())) {
+						colors.add(code.getColor());
 					}
 				}
 				if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
-					try {
-						for (ICode code : this.codeService.getCodes(diffRecord
-								.getUri())) {
-							colors.add(code.getColor());
-						}
-					} catch (CodeServiceException e) {
-						LOGGER.error(e);
+					for (ICode code : this.codeService.getCodes(diffRecord
+							.getUri())) {
+						colors.add(code.getColor());
 					}
 				}
 				return colors.toArray(new RGB[0]);

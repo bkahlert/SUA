@@ -29,9 +29,8 @@ public interface ICodeService {
 	 * 
 	 * @param uri
 	 * @return an empty list if no {@link ICode}s were found; never returns null
-	 * @throws CodeServiceException
 	 */
-	public List<ICode> getCodes(URI uri) throws CodeServiceException;
+	public List<ICode> getCodes(URI uri);
 
 	/**
 	 * Registers a {@link ICodeServiceListener}
@@ -350,7 +349,7 @@ public interface ICodeService {
 	 * @throws CodeServiceException
 	 */
 	public List<Triple<URI, IDimension, String>> getDimensionValues(
-			ICodeInstance codeInstance) throws CodeServiceException;
+			ICodeInstance codeInstance);
 
 	/**
 	 * Set's the {@link IDimensionable}'s {@link IDimension} value.

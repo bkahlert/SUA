@@ -22,7 +22,6 @@ import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.diff.model.IDiff;
 import de.fu_berlin.imp.apiua.entity.model.Entity;
 import de.fu_berlin.imp.apiua.entity.ui.ImageManager;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 
 // TODO implement UriLabelProvider
@@ -43,24 +42,19 @@ public class EntityLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		try {
-			if (this.codeService.getCodes(uri).size() > 0) {
-				if (this.codeService.isMemo(uri)) {
-					return ImageManager.ENTITY_CODED_MEMO;
-				} else {
-					return ImageManager.ENTITY_CODED;
-				}
+		if (this.codeService.getCodes(uri).size() > 0) {
+			if (this.codeService.isMemo(uri)) {
+				return ImageManager.ENTITY_CODED_MEMO;
 			} else {
-				if (this.codeService.isMemo(uri)) {
-					return ImageManager.ENTITY_MEMO;
-				} else {
-					return ImageManager.ENTITY;
-				}
+				return ImageManager.ENTITY_CODED;
 			}
-		} catch (CodeServiceException e) {
-			LOGGER.error("Can't access " + ICodeService.class.getSimpleName());
+		} else {
+			if (this.codeService.isMemo(uri)) {
+				return ImageManager.ENTITY_MEMO;
+			} else {
+				return ImageManager.ENTITY;
+			}
 		}
-		return ImageManager.ENTITY;
 	}
 
 	@Override

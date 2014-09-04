@@ -1,22 +1,5 @@
 package de.fu_berlin.imp.apiua.diff.ui;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.diff.Activator;
-import de.fu_berlin.imp.apiua.diff.model.IDiff;
-import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
-import de.fu_berlin.imp.apiua.diff.model.IDiffRecordSegment;
-import de.fu_berlin.imp.apiua.diff.model.IDiffs;
-import de.fu_berlin.imp.apiua.diff.model.impl.DiffRecord;
-import de.fu_berlin.imp.apiua.diff.services.ICompilationService;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +16,22 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.StyledUriInformationLabelProvider;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.diff.Activator;
+import de.fu_berlin.imp.apiua.diff.model.IDiff;
+import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
+import de.fu_berlin.imp.apiua.diff.model.IDiffRecordSegment;
+import de.fu_berlin.imp.apiua.diff.model.IDiffs;
+import de.fu_berlin.imp.apiua.diff.model.impl.DiffRecord;
+import de.fu_berlin.imp.apiua.diff.services.ICompilationService;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 
 public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 	private static final Logger LOGGER = Logger
@@ -99,11 +98,8 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 
 	private boolean hasCodedChildren(IDiff diff) {
 		for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
-			try {
-				if (this.codeService.getCodes(diffRecord.getUri()).size() > 0) {
-					return true;
-				}
-			} catch (CodeServiceException e) {
+			if (this.codeService.getCodes(diffRecord.getUri()).size() > 0) {
+				return true;
 			}
 		}
 		return false;
@@ -129,132 +125,120 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof IDiff) {
 			IDiff diff = (IDiff) locatable;
-			try {
-				Boolean compiles = this.compilationService.compiles(diff);
-				if (compiles == null) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO
-								: ImageManager.DIFF_CODED;
-					} else {
-						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
-									: ImageManager.DIFF_PARTIALLY_CODED;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO
-									: ImageManager.DIFF);
-						}
-					}
-				} else if (compiles == true) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_WORKING
-								: ImageManager.DIFF_CODED_WORKING;
-					} else {
-						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
-									: ImageManager.DIFF_PARTIALLY_CODED_WORKING;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_WORKING
-									: ImageManager.DIFF_WORKING);
-						}
-					}
+			Boolean compiles = this.compilationService.compiles(diff);
+			if (compiles == null) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO
+							: ImageManager.DIFF_CODED;
 				} else {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFF_CODED_NOTWORKING;
+					if (this.hasCodedChildren(diff)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO
+								: ImageManager.DIFF_PARTIALLY_CODED;
 					} else {
-						if (this.hasCodedChildren(diff)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
-									: ImageManager.DIFF_PARTIALLY_CODED_NOTWORKING;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_NOTWORKING
-									: ImageManager.DIFF_NOTWORKING);
-						}
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO
+								: ImageManager.DIFF);
 					}
 				}
-			} catch (CodeServiceException e) {
-				return ImageManager.DIFF;
+			} else if (compiles == true) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_WORKING
+							: ImageManager.DIFF_CODED_WORKING;
+				} else {
+					if (this.hasCodedChildren(diff)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_WORKING
+								: ImageManager.DIFF_PARTIALLY_CODED_WORKING;
+					} else {
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_WORKING
+								: ImageManager.DIFF_WORKING);
+					}
+				}
+			} else {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
+							: ImageManager.DIFF_CODED_NOTWORKING;
+				} else {
+					if (this.hasCodedChildren(diff)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFF_PARTIALLY_CODED_MEMO_NOTWORKING
+								: ImageManager.DIFF_PARTIALLY_CODED_NOTWORKING;
+					} else {
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFF_MEMO_NOTWORKING
+								: ImageManager.DIFF_NOTWORKING);
+					}
+				}
 			}
 		}
 		if (locatable instanceof IDiffRecord) {
 			IDiffRecord diffRecord = (IDiffRecord) locatable;
-			try {
-				Boolean compiles = this.compilationService.compiles(diffRecord);
-				if (compiles == null) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO
-								: ImageManager.DIFFRECORD_CODED;
-					} else {
-						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
-									: ImageManager.DIFFRECORD_PARTIALLY_CODED;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO
-									: ImageManager.DIFFRECORD);
-						}
-					}
-				} else if (compiles == true) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
-								: ImageManager.DIFFRECORD_CODED_WORKING;
-					} else {
-						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
-									: ImageManager.DIFFRECORD_PARTIALLY_CODED_WORKING;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_WORKING
-									: ImageManager.DIFFRECORD_WORKING);
-						}
-					}
+			Boolean compiles = this.compilationService.compiles(diffRecord);
+			if (compiles == null) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO
+							: ImageManager.DIFFRECORD_CODED;
 				} else {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFFRECORD_CODED_NOTWORKING;
+					if (this.hasCodedChildren(diffRecord)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO
+								: ImageManager.DIFFRECORD_PARTIALLY_CODED;
 					} else {
-						if (this.hasCodedChildren(diffRecord)) {
-							return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
-									: ImageManager.DIFFRECORD_PARTIALLY_CODED_NOTWORKING;
-						} else {
-							return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
-									: ImageManager.DIFFRECORD_NOTWORKING);
-						}
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO
+								: ImageManager.DIFFRECORD);
 					}
 				}
-			} catch (CodeServiceException e) {
-				return ImageManager.DIFFRECORD;
+			} else if (compiles == true) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
+							: ImageManager.DIFFRECORD_CODED_WORKING;
+				} else {
+					if (this.hasCodedChildren(diffRecord)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_WORKING
+								: ImageManager.DIFFRECORD_PARTIALLY_CODED_WORKING;
+					} else {
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_WORKING
+								: ImageManager.DIFFRECORD_WORKING);
+					}
+				}
+			} else {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
+							: ImageManager.DIFFRECORD_CODED_NOTWORKING;
+				} else {
+					if (this.hasCodedChildren(diffRecord)) {
+						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_PARTIALLY_CODED_MEMO_NOTWORKING
+								: ImageManager.DIFFRECORD_PARTIALLY_CODED_NOTWORKING;
+					} else {
+						return (this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_MEMO_NOTWORKING
+								: ImageManager.DIFFRECORD_NOTWORKING);
+					}
+				}
 			}
 		}
 		if (locatable instanceof IDiffRecordSegment) {
 			IDiffRecordSegment diffRecordSegment = (IDiffRecordSegment) locatable;
-			try {
-				Boolean compiles = this.compilationService
-						.compiles(diffRecordSegment);
-				if (compiles == null) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
-								: ImageManager.DIFFRECORDSEGMENT_CODED;
-					} else {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO
-								: ImageManager.DIFFRECORDSEGMENT;
-					}
-				} else if (compiles == true) {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
-								: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
-					} else {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
-								: ImageManager.DIFFRECORDSEGMENT_WORKING;
-					}
+			Boolean compiles = this.compilationService
+					.compiles(diffRecordSegment);
+			if (compiles == null) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
+							: ImageManager.DIFFRECORDSEGMENT_CODED;
 				} else {
-					if (this.codeService.getCodes(uri).size() > 0) {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
-								: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
-					} else {
-						return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
-								: ImageManager.DIFFRECORDSEGMENT_NOTWORKING;
-					}
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO
+							: ImageManager.DIFFRECORDSEGMENT;
 				}
-			} catch (CodeServiceException e) {
-				return ImageManager.DIFFRECORDSEGMENT;
+			} else if (compiles == true) {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
+							: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
+				} else {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_WORKING
+							: ImageManager.DIFFRECORDSEGMENT_WORKING;
+				}
+			} else {
+				if (this.codeService.getCodes(uri).size() > 0) {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
+							: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
+				} else {
+					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_MEMO_NOTWORKING
+							: ImageManager.DIFFRECORDSEGMENT_NOTWORKING;
+				}
 			}
 		}
 		return super.getImage(locatable);
