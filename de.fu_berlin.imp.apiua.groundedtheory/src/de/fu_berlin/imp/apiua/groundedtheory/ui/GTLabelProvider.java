@@ -313,7 +313,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				StyledString string = new StyledString(
 						labelProvider.getText(codeInstance.getId()), styler);
 				List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
-						.getDimensionValues(codeInstance.getId());
+						.getDimensionValues(codeInstance);
 				if (!dimensionValues.isEmpty()) {
 					StringBuilder sb = new StringBuilder(" (");
 					List<String> dimensionValueStrings = new LinkedList<String>();

@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,10 +9,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -21,14 +20,13 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.SWTUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.OrdinalDimension;
@@ -47,12 +45,10 @@ public class DimensionView extends ViewPart {
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView";
 
-	private static Color INFO_COLOR = new Color(Display.getCurrent(),
-			RGB.INFO.toClassicRGB());
-
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
+	@SuppressWarnings("unused")
 	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
 
@@ -151,37 +147,44 @@ public class DimensionView extends ViewPart {
 		this.partRenamer.apply(uri);
 		this.dimensionComposite.load(uri);
 		SWTUtils.clearControl(this.dimensionValueGroup);
-		List<URI> valueRelevantUris = new LinkedList<URI>();
-		valueRelevantUris.add(uri);
-		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances()) {
-			if (codeInstance.getId().equals(uri)) {
-				valueRelevantUris.add(codeInstance.getUri());
+		if (uri != null) {
+			List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				try {
+					ICodeInstance codeInstance = LocatorService.INSTANCE
+							.resolve(uri, ICodeInstance.class, null).get();
+					if (codeInstance != null) {
+						codeInstances.add(codeInstance);
+					} else {
+						LOGGER.error("Error resolving " + ICodeInstance.class);
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error resolving " + ICodeInstance.class, e);
+				}
+			} else {
+				for (ICodeInstance codeInstance : CODE_SERVICE.getInstances()) {
+					if (codeInstance.getId().equals(uri)) {
+						codeInstances.add(codeInstance);
+					}
+				}
 			}
-		}
-		ILabelProvider lp = LABEL_PROVIDER_SERVICE.getLabelProvider(uri);
-		for (URI valueRelevantUri : valueRelevantUris) {
-			Group group = new Group(this.dimensionValueGroup, SWT.BORDER);
-			try {
-				group.setText(lp != null ? lp.getText(valueRelevantUri)
-						: valueRelevantUri.toString());
-			} catch (Exception e) {
-				LOGGER.error(e);
-				group.setText(valueRelevantUri.toString());
-			}
-			group.setLayout(new FillLayout());
+			for (ICodeInstance codeInstance : codeInstances) {
+				Composite parent = this.dimensionValueGroup;
+				if (codeInstances.size() > 1) {
+					Group group = new Group(this.dimensionValueGroup,
+							SWT.BORDER);
+					group.setLayout(new FillLayout());
+					parent = group;
+				}
 
-			DimensionValueComposite dimensionValueComposite = new DimensionValueComposite(
-					group, SWT.NONE);
-			dimensionValueComposite.load(valueRelevantUri);
-
-			if (!uri.equals(valueRelevantUri)) {
-				group.setBackground(INFO_COLOR);
-				dimensionValueComposite.setBackground(INFO_COLOR);
+				DimensionValueComposite dimensionValueComposite = new DimensionValueComposite(
+						parent, SWT.NONE);
+				dimensionValueComposite.load(codeInstance);
 			}
 		}
 		this.propertiesComposite.load(uri);
 
-		this.parent.layout();
+		this.parent.layout(true, true);
 	}
 
 	@Override

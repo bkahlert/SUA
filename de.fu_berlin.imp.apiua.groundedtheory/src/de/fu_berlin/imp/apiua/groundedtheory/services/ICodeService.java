@@ -330,7 +330,7 @@ public interface ICodeService {
 	 * Returns the all {@link IDimension} values associated with the given
 	 * {@link URI}.
 	 * 
-	 * @param uri
+	 * @param codeInstance
 	 * @return a list of triples. Each triple consists of
 	 *         <ol>
 	 *         <li>{@link URI} the {@link IDimension} belongs to</li>
@@ -339,8 +339,8 @@ public interface ICodeService {
 	 *         </ol>
 	 * @throws CodeServiceException
 	 */
-	public List<Triple<URI, IDimension, String>> getDimensionValues(URI uri)
-			throws CodeServiceException;
+	public List<Triple<URI, IDimension, String>> getDimensionValues(
+			ICodeInstance codeInstance) throws CodeServiceException;
 
 	/**
 	 * Set's the {@link IDimensionable}'s {@link IDimension} value.

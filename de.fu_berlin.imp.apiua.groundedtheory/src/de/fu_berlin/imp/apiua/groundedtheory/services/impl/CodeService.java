@@ -595,14 +595,18 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public List<Triple<URI, IDimension, String>> getDimensionValues(URI uri)
-			throws CodeServiceException {
+	public List<Triple<URI, IDimension, String>> getDimensionValues(
+			ICodeInstance codeInstance) throws CodeServiceException {
 		List<Triple<URI, IDimension, String>> values = new ArrayList<Triple<URI, IDimension, String>>();
-		for (ICode code : this.getCodes(uri)) {
+		// filter for currently associated codes
+		// otherwise no more associated but dimensionalized codes are still
+		// considered
+		for (ICode code : this.getCodes(codeInstance.getId())) {
 			URI codeUri = code.getUri();
 			IDimension dimension = this.getDimension(codeUri);
 			if (dimension != null) {
-				String value = this.getDimensionValue(codeUri, code);
+				String value = this.getDimensionValue(codeInstance.getUri(),
+						code);
 				values.add(new Triple<URI, IDimension, String>(codeUri,
 						dimension, value));
 			}

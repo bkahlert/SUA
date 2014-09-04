@@ -30,6 +30,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionVal
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 
 /**
@@ -51,7 +52,7 @@ public class DimensionValueComposite extends Composite {
 
 	private static final String DATA_CODE = "code";
 
-	private URI loaded = null;
+	private ICodeInstance loaded = null;
 	private final List<Triple<Integer, ICode, IDimension>> dimensions = new LinkedList<Triple<Integer, ICode, IDimension>>();
 
 	private final List<Control> labels = new LinkedList<Control>();
@@ -84,12 +85,7 @@ public class DimensionValueComposite extends Composite {
 				.margins(0, 0).numColumns(2).create());
 
 		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
-
-		try {
-			this.load(null);
-		} catch (CodeServiceException e) {
-			LOGGER.error(e);
-		}
+		this.refresh();
 	}
 
 	@Override
@@ -103,8 +99,8 @@ public class DimensionValueComposite extends Composite {
 		super.dispose();
 	}
 
-	public void load(URI uri) throws CodeServiceException {
-		if (ObjectUtils.equals(this.loaded, uri)) {
+	public void load(ICodeInstance codeInstance) throws CodeServiceException {
+		if (ObjectUtils.equals(this.loaded, codeInstance)) {
 			return;
 		}
 		try {
@@ -112,10 +108,10 @@ public class DimensionValueComposite extends Composite {
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
+		this.loaded = codeInstance;
 
-		this.loaded = uri;
 		this.dimensions.clear();
-		for (ICode code : CODE_SERVICE.getCodes(uri)) {
+		for (ICode code : CODE_SERVICE.getCodes(codeInstance.getId())) {
 			for (Pair<Integer, ICode> property : IteratorUtils.dfs(code,
 					new IConverter<ICode, ICode[]>() {
 						@Override
@@ -135,8 +131,8 @@ public class DimensionValueComposite extends Composite {
 	}
 
 	private void save() throws CodeStoreWriteException {
-		URI uri = this.loaded;
-		if (uri == null) {
+		ICodeInstance codeInstance = this.loaded;
+		if (codeInstance == null) {
 			return;
 		}
 
@@ -149,12 +145,14 @@ public class DimensionValueComposite extends Composite {
 					String dimensionValue = dimension.getThird()
 							.getValueEditControlValue(valueEditor);
 					try {
-						CODE_SERVICE.setDimensionValue(uri,
+						CODE_SERVICE.setDimensionValue(codeInstance.getUri(),
 								dimension.getSecond(), dimensionValue);
 					} catch (IllegalDimensionValueException e) {
-						LOGGER.error("Error saving value " + dimensionValue
-								+ " for " + uri + "'s " + dimension.getSecond()
-								+ " dimension", e);
+						LOGGER.error(
+								"Error saving value " + dimensionValue
+										+ " for " + codeInstance + "'s "
+										+ dimension.getSecond() + " dimension",
+								e);
 					}
 					break;
 				}
@@ -223,7 +221,8 @@ public class DimensionValueComposite extends Composite {
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
 						image, prefix + code.getCaption());
 				SimpleIllustratedComposite label = new SimpleIllustratedComposite(
-						this, SWT.CENTER, labelContent);
+						this, SWT.CENTER | (i == 0 ? SWT.BOLD : SWT.NONE),
+						labelContent);
 				label.setSpacing(0);
 				label.setLayoutData(GridDataFactory.swtDefaults()
 						.align(SWT.FILL, SWT.CENTER).grab(true, false).create());
@@ -243,8 +242,8 @@ public class DimensionValueComposite extends Composite {
 									}
 								}
 							});
-					dim.setValueEditControlValue(value,
-							CODE_SERVICE.getDimensionValue(this.loaded, code));
+					dim.setValueEditControlValue(value, CODE_SERVICE
+							.getDimensionValue(this.loaded.getUri(), code));
 				} else {
 					value = new Label(this, SWT.WRAP);
 					((Label) value).setText("-");
