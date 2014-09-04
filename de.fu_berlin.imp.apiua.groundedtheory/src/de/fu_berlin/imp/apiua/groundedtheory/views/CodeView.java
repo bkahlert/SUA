@@ -29,7 +29,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IHighlightService;
 import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ResortableCodeViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.Filterable;

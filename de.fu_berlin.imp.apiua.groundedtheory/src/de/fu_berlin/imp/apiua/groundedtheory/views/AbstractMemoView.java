@@ -40,11 +40,11 @@ import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.apiua.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 

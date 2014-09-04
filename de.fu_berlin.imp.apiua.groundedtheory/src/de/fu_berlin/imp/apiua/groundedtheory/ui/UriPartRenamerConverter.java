@@ -15,7 +15,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
 /**
  * Used in conjunction with the {@link PartRenamer} this class enables views to

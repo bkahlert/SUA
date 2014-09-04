@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
 public class DuplicateCodeInstanceException extends Exception {
 	private static final long serialVersionUID = 6180288983403262230L;

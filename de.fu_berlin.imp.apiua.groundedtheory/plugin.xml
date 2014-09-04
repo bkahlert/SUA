@@ -927,7 +927,7 @@
                   ifEmpty="false"
                   operator="or">
                <adapt
-                     type="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance">
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance">
                </adapt>
             </iterate>
          </with>
@@ -1040,7 +1040,7 @@
                   ifEmpty="false"
                   operator="and">
                <adapt
-                     type="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance">
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance">
                </adapt>
             </iterate>
          </with>
@@ -1050,7 +1050,7 @@
          <with
                variable="com.bkahlert.nebula.information.input">
             <instanceof
-                  value="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance">
+                  value="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance">
             </instanceof>
          </with>
       </definition>
@@ -1062,7 +1062,7 @@
                   ifEmpty="false"
                   operator="or">
                <adapt
-                     type="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance">
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance">
                </adapt>
             </iterate>
          </with>
@@ -1209,7 +1209,7 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance"
+            adaptableType="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance"
             class="de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstanceAdapterFactory">
          <adapter
                type="de.fu_berlin.imp.apiua.core.model.ILocatable">

@@ -16,7 +16,7 @@ import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
 class CodeInstance implements ICodeInstance {
 

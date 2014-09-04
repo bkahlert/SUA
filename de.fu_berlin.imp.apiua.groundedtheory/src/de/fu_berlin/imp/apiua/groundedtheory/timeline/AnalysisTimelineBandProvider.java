@@ -30,10 +30,10 @@ import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.timeline.extensionProviders.ITimelineBandProvider;
 

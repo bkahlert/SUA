@@ -1,11 +1,10 @@
-package de.fu_berlin.imp.apiua.groundedtheory.storage;
+package de.fu_berlin.imp.apiua.groundedtheory.model;
 
 import de.fu_berlin.imp.apiua.core.model.HasIdentifier;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 
 public interface ICodeInstance extends ILocatable, HasDateRange, HasIdentifier {
 	/**

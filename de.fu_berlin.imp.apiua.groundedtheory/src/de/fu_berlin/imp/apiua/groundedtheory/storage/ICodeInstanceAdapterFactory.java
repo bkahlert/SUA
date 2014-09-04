@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
 public class ICodeInstanceAdapterFactory implements IAdapterFactory {
 

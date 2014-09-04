@@ -13,8 +13,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeInstance;
 
 public class RemoveCodeHandlerInstanceBased extends AbstractHandler {
 
