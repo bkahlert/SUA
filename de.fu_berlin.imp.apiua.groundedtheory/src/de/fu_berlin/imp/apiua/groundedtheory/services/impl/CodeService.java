@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.ui.PlatformUI;
@@ -566,10 +567,7 @@ public class CodeService implements ICodeService, IDisposable {
 	public void setDimension(ICode code, IDimension newDimension)
 			throws CodeStoreWriteException {
 		IDimension oldDimension = this.getDimension(code.getUri());
-		if (oldDimension == null && newDimension == null) {
-			return;
-		}
-		if (oldDimension != null && oldDimension.equals(newDimension)) {
+		if (ObjectUtils.equals(oldDimension, newDimension)) {
 			return;
 		}
 		this.codeStore.setDimension(code.getUri(), newDimension);
@@ -595,6 +593,9 @@ public class CodeService implements ICodeService, IDisposable {
 					.getUri()), value);
 		}
 		String oldValue = this.codeStore.getDimensionValue(uri, code.getUri());
+		if (ObjectUtils.equals(oldValue, value)) {
+			return;
+		}
 		this.codeStore.setDimensionValue(uri, code.getUri(), value);
 		this.codeServiceListenerNotifier.dimensionValueChanged(code.getUri(),
 				oldValue, value);

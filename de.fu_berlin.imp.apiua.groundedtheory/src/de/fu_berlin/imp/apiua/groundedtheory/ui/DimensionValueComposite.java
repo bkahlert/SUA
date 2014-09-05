@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.Pair;
@@ -61,20 +62,47 @@ public class DimensionValueComposite extends Composite {
 	private final CodeServiceAdapter codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
-			DimensionValueComposite.this.refresh();
+			try {
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						DimensionValueComposite.this.refresh();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		}
 
 		@Override
 		public void dimensionChanged(URI uri, IDimension oldDimension,
 				IDimension newDimension) {
-			DimensionValueComposite.this.refresh();
+			try {
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						DimensionValueComposite.this.refresh();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		}
 
 		@Override
 		public void propertiesChanged(URI uri,
 				java.util.List<URI> addedProperties,
 				java.util.List<URI> removedProperties) {
-			DimensionValueComposite.this.refresh();
+			try {
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						DimensionValueComposite.this.refresh();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		};
 	};
 
@@ -127,7 +155,16 @@ public class DimensionValueComposite extends Composite {
 			}
 		}
 
-		this.refresh();
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					DimensionValueComposite.this.refresh();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
 	}
 
 	private void save() throws CodeStoreWriteException {
