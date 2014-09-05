@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.survey.viewer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,7 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
-import com.bkahlert.nebula.utils.StringUtils;
+import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -36,8 +37,10 @@ import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
@@ -71,6 +74,8 @@ public class CDViewer extends Viewer {
 		this.browser = browser;
 		this.browser
 				.injectCss("header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }");
+		this.browser.injectCss("ul.instances { zoom: .75; }");
+		this.browser.injectCss("ul.instances ul { padding-left: 1.5em; }");
 
 		PRESENTER_SERVICE.enable(this.browser,
 				new ISubjectInformationProvider<Control, URI>() {
@@ -218,13 +223,9 @@ public class CDViewer extends Viewer {
 				navigationElements.add(new NavigationElement(caption, "#"
 						+ cdDocument.getUri()));
 
-				List<ICode> documentCodes = new ArrayList<ICode>();
-				try {
-					documentCodes.addAll(CODE_SERVICE.getCodes(cdDocument
-							.getUri()));
-				} catch (CodeServiceException e) {
-					LOGGER.warn(e);
-				}
+				List<ICodeInstance> documentCodeInstances = new ArrayList<ICodeInstance>();
+				documentCodeInstances.addAll(CODE_SERVICE
+						.getInstances(cdDocument.getUri()));
 
 				boolean documentMemoExists = CODE_SERVICE.isMemo(cdDocument
 						.getUri());
@@ -239,17 +240,13 @@ public class CDViewer extends Viewer {
 				if (documentMemoExists) {
 					form.addRaw(this.createMemoIcon() + " ");
 				}
-				form.addRaw(this.createCodeLinks(documentCodes));
+				form.addRaw(this.createCodeLinks(documentCodeInstances));
 				form.addRaw("</td></tr>");
 
 				for (CDDocumentField field : cdDocument) {
-					List<ICode> fieldCodes = new ArrayList<ICode>();
-					try {
-						fieldCodes
-								.addAll(CODE_SERVICE.getCodes(field.getUri()));
-					} catch (CodeServiceException e) {
-						LOGGER.warn(e);
-					}
+					List<ICodeInstance> fieldCodeInstances = new ArrayList<ICodeInstance>();
+					fieldCodeInstances.addAll(CODE_SERVICE.getInstances(field
+							.getUri()));
 
 					boolean fieldMemoExists = CODE_SERVICE.isMemo(field
 							.getUri());
@@ -287,7 +284,7 @@ public class CDViewer extends Viewer {
 					if (fieldMemoExists) {
 						form.addRaw(this.createMemoIcon() + " ");
 					}
-					form.addRaw(this.createCodeLinks(fieldCodes));
+					form.addRaw(this.createCodeLinks(fieldCodeInstances));
 					form.addRaw("</td></tr>");
 				}
 			}
@@ -339,17 +336,50 @@ public class CDViewer extends Viewer {
 				+ "\" style=\"display: inline-block; margin: 3px; width:16px;\">";
 	}
 
-	private String createCodeLinks(List<ICode> codes) {
-		List<String> html = new ArrayList<String>();
-		for (ICode code : codes) {
-			html.add("<a href=\""
-					+ code.getUri()
+	private String createCodeLinks(List<ICodeInstance> codeInstances) {
+		StringBuilder html = new StringBuilder("<ul class='instances'>");
+
+		for (ICodeInstance codeInstance : codeInstances) {
+			List<Triple<URI, IDimension, String>> dimensionValues = CODE_SERVICE
+					.getDimensionValues(codeInstance);
+			Triple<URI, IDimension, String> immediateDimensionValue = null;
+			for (Iterator<Triple<URI, IDimension, String>> iterator = dimensionValues
+					.iterator(); iterator.hasNext();) {
+				Triple<URI, IDimension, String> triple = iterator.next();
+				if (triple.getFirst().equals(codeInstance.getCode().getUri())) {
+					immediateDimensionValue = triple;
+					iterator.remove();
+				}
+			}
+			html.append("<li style=\"list-style-image: url('"
+					+ GTLabelProvider.getCodeImageURI(codeInstance.getCode())
+					+ "');\"><a href=\"" + codeInstance.getCode().getUri()
 					+ "\" data-focus-id=\""
-					+ code.getUri().toString()
-					+ "\" tabindex=\"-1\" style=\"display: inline-block; margin: 3px;\"><img src=\""
-					+ GTLabelProvider.getCodeImageURI(code) + "\"/></a>");
+					+ codeInstance.getCode().getUri().toString()
+					+ "\" tabindex=\"-1\">"
+					+ codeInstance.getCode().getCaption());
+			if (immediateDimensionValue != null) {
+				html.append(" = ");
+				html.append(immediateDimensionValue.getThird());
+			}
+			html.append("</a><ul>");
+			for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
+				html.append("<li style=\"list-style-image: none;\">");
+				try {
+					html.append(LocatorService.INSTANCE.resolve(
+							dimensionValue.getFirst(), ICode.class, null).get());
+				} catch (Exception e) {
+					LOGGER.error(e);
+					html.append(dimensionValue.getFirst());
+				}
+				html.append(" = ");
+				html.append(dimensionValue.getThird());
+				html.append("</li>");
+			}
+			html.append("</ul></li>");
 		}
-		return StringUtils.join(html, " ");
+		html.append("</ul>");
+		return html.toString();
 	}
 
 	@Override
