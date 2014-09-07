@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
@@ -227,8 +228,6 @@ public class CDViewer extends Viewer {
 				documentCodeInstances.addAll(CODE_SERVICE
 						.getInstances(cdDocument.getUri()));
 
-				boolean documentMemoExists = CODE_SERVICE.isMemo(cdDocument
-						.getUri());
 				form.addRaw("<tr><td>");
 				form.addRaw("<h2 tabindex=\"" + 0 + "\" data-focus-id=\""
 						+ cdDocument.getUri() + "\"><a name=\""
@@ -236,21 +235,11 @@ public class CDViewer extends Viewer {
 				form.addRaw("</td><td>");
 				form.addRaw("<a href=\"addcode-" + cdDocument.getUri()
 						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a>");
-				form.addRaw("</td><td>");
-				if (documentMemoExists) {
-					form.addRaw(this.createMemoIcon() + " ");
-				}
-				form.addRaw(this.createCodeLinks(documentCodeInstances));
+				form.addRaw("</td><td style=\"width:10%;\">");
+				form.addRaw(this.createAnnotations(cdDocument));
 				form.addRaw("</td></tr>");
 
 				for (CDDocumentField field : cdDocument) {
-					List<ICodeInstance> fieldCodeInstances = new ArrayList<ICodeInstance>();
-					fieldCodeInstances.addAll(CODE_SERVICE.getInstances(field
-							.getUri()));
-
-					boolean fieldMemoExists = CODE_SERVICE.isMemo(field
-							.getUri());
-
 					form.addRaw("<tr><td>");
 					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
 					case HIGH:
@@ -280,11 +269,8 @@ public class CDViewer extends Viewer {
 					form.addRaw("<a href=\"addcode-"
 							+ field.getUri()
 							+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>");
-					form.addRaw("</td><td>");
-					if (fieldMemoExists) {
-						form.addRaw(this.createMemoIcon() + " ");
-					}
-					form.addRaw(this.createCodeLinks(fieldCodeInstances));
+					form.addRaw("</td><td style=\"width:10%;\">");
+					form.addRaw(this.createAnnotations(field));
 					form.addRaw("</td></tr>");
 				}
 			}
@@ -330,16 +316,21 @@ public class CDViewer extends Viewer {
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
 	}
 
-	private String createMemoIcon() {
-		return "<img src=\""
-				+ ImageUtils.createUriFromImage(ImageManager.MEMO)
-				+ "\" style=\"display: inline-block; margin: 3px; width:16px;\">";
-	}
-
-	private String createCodeLinks(List<ICodeInstance> codeInstances) {
+	private String createAnnotations(ILocatable locatable) {
 		StringBuilder html = new StringBuilder("<ul class='instances'>");
 
-		for (ICodeInstance codeInstance : codeInstances) {
+		boolean fieldMemoExists = CODE_SERVICE.isMemo(locatable.getUri());
+		if (fieldMemoExists) {
+			html.append("<li style=\"list-style-image: url('"
+					+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+					+ "');\">");
+			html.append(StringUtils.plainToHtml(StringUtils
+					.shorten(CODE_SERVICE.loadMemoPlain(locatable.getUri()), 100)));
+			html.append("</li>");
+		}
+
+		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances(locatable
+				.getUri())) {
 			List<Triple<URI, IDimension, String>> dimensionValues = CODE_SERVICE
 					.getDimensionValues(codeInstance);
 			Triple<URI, IDimension, String> immediateDimensionValue = null;
