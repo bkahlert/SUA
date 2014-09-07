@@ -272,6 +272,9 @@ public class CodeService implements ICodeService, IDisposable {
 	public void renameCode(ICode code, String newCaption)
 			throws CodeServiceException {
 		String oldCaption = code.getCaption();
+		if (ObjectUtils.equals(oldCaption, newCaption)) {
+			return;
+		}
 		try {
 			code.setCaption(newCaption);
 			this.codeStore.save();
