@@ -86,6 +86,7 @@ public class CDView extends ViewPart {
 
 		@Override
 		public void memoModified(URI uri) {
+			CDView.this.viewer.refresh();
 		}
 
 		@Override

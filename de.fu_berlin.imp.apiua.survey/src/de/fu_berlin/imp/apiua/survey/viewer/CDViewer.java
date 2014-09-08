@@ -319,13 +319,12 @@ public class CDViewer extends Viewer {
 	private String createAnnotations(ILocatable locatable) {
 		StringBuilder html = new StringBuilder("<ul class='instances'>");
 
-		boolean fieldMemoExists = CODE_SERVICE.isMemo(locatable.getUri());
-		if (fieldMemoExists) {
+		if (CODE_SERVICE.isMemo(locatable.getUri())) {
 			html.append("<li style=\"list-style-image: url('"
 					+ ImageUtils.createUriFromImage(ImageManager.MEMO)
 					+ "');\">");
-			html.append(StringUtils.plainToHtml(StringUtils
-					.shorten(CODE_SERVICE.loadMemoPlain(locatable.getUri()), 100)));
+			html.append(StringUtils.plainToHtml(StringUtils.shorten(
+					CODE_SERVICE.loadMemoPlain(locatable.getUri()), 100)));
 			html.append("</li>");
 		}
 
@@ -354,6 +353,14 @@ public class CDViewer extends Viewer {
 				html.append(immediateDimensionValue.getThird());
 			}
 			html.append("</a><ul>");
+			if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
+				html.append("<li style=\"list-style-image: url('"
+						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+						+ "');\">");
+				html.append(StringUtils.plainToHtml(StringUtils.shorten(
+						CODE_SERVICE.loadMemoPlain(codeInstance.getUri()), 100)));
+				html.append("</li>");
+			}
 			for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
 				html.append("<li style=\"list-style-image: none;\">");
 				try {
