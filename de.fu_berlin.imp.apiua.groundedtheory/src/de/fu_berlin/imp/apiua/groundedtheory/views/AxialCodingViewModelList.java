@@ -105,6 +105,7 @@ class AxialCodingViewModelList extends ItemList {
 								}
 							});
 						}
+						break;
 					case 1:
 						try {
 							AxialCodingViewRenameDialog renameDialog = new AxialCodingViewRenameDialog(
