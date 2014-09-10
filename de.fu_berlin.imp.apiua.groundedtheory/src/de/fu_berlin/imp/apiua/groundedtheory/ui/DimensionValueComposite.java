@@ -207,6 +207,10 @@ public class DimensionValueComposite extends Composite {
 		}
 		this.valueEditors.clear();
 
+		if (this.isDisposed()) {
+			return;
+		}
+
 		if (this.dimensions.size() == 0) {
 			Label label = new Label(this, SWT.WRAP);
 			label.setText(EXPLANATION);
