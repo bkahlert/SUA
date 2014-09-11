@@ -49,6 +49,9 @@ public class CodeEditingSupport extends URIEditingSupport {
 				.resolve(element, ICode.class, null).get();
 		if (code != null && value instanceof String) {
 			String newCaption = (String) value;
+			if (code.getCaption().equals(newCaption)) {
+				return;
+			}
 			try {
 				ICodeService codeService = (ICodeService) PlatformUI
 						.getWorkbench().getService(ICodeService.class);
