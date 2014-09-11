@@ -321,10 +321,16 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 						ICode code = LocatorService.INSTANCE.resolve(
 								dimensionValue.getFirst(), ICode.class, null)
 								.get();
-						String owner = code != null ? code.getCaption()
-								: "ERROR";
-						dimensionValueStrings.add(owner + " = "
-								+ dimensionValue.getThird());
+						// only show dimension name if the owner is not the
+						// used code
+						if (!dimensionValue.getFirst().equals(
+								codeInstance.getCode().getUri())) {
+							String owner = code != null ? code.getCaption()
+									: "ERROR";
+							dimensionValueStrings.add(owner);
+							dimensionValueStrings.add(" = ");
+						}
+						dimensionValueStrings.add(dimensionValue.getThird());
 					}
 					sb.append(StringUtils.join(dimensionValueStrings, ", "));
 					sb.append(")");
