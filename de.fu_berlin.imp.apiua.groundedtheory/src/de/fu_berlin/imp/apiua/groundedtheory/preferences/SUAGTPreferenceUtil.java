@@ -15,7 +15,6 @@ import de.fu_berlin.imp.apiua.groundedtheory.Activator;
 
 public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Logger.class);
 
 	public SUAGTPreferenceUtil() {
@@ -58,9 +57,13 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 		String pref = this.getPreferenceStore().getString(
 				SUAGTPreferenceConstants.LAST_OPENED_MEMOS);
 		if (pref != null && !pref.isEmpty()) {
-			return new ArrayList<URI>(
-					de.fu_berlin.imp.apiua.core.util.SerializationUtils
-							.deserialize(pref));
+			try {
+				return new ArrayList<URI>(
+						de.fu_berlin.imp.apiua.core.util.SerializationUtils
+								.deserialize(pref));
+			} catch (Exception e) {
+				LOGGER.error("Could not load last opened memos", e);
+			}
 		}
 		return new LinkedList<URI>();
 	}

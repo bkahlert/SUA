@@ -365,9 +365,13 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 		String pref = this.getPreferenceStore().getString(
 				SUACorePreferenceConstants.FOCUSED_ELEMENTS);
 		if (pref != null && !pref.isEmpty()) {
-			return new ArrayList<URI>(
-					de.fu_berlin.imp.apiua.core.util.SerializationUtils
-							.deserialize(pref));
+			try {
+				return new ArrayList<URI>(
+						de.fu_berlin.imp.apiua.core.util.SerializationUtils
+								.deserialize(pref));
+			} catch (Exception e) {
+				// LOGGER.error("Could not load last focused elements", e);
+			}
 		}
 		return new LinkedList<URI>();
 	}
