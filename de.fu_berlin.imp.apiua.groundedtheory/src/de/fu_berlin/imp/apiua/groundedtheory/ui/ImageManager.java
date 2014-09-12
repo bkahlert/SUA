@@ -68,10 +68,8 @@ public class ImageManager {
 	/*
 	 * objects
 	 */
-	public static final Image MEMO = OVERLAY_MEMO.getImageDescriptor()
-			.createImage();
+	public static final Image MEMO = getImage("icons/obj16/memo_obj.png");
 	public static final Image CODE = getImage("icons/obj16/code_obj.png");
-
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
 
 	private static Map<Pair<Image, List<ImageOverlay>>, Image> overlayed = new HashMap<Pair<Image, List<ImageOverlay>>, Image>();
