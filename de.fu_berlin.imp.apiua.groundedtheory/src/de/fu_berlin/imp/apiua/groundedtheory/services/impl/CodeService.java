@@ -609,9 +609,6 @@ public class CodeService implements ICodeService, IDisposable {
 	public List<Triple<URI, IDimension, String>> getDimensionValues(
 			ICodeInstance codeInstance) {
 		List<Triple<URI, IDimension, String>> values = new ArrayList<Triple<URI, IDimension, String>>();
-		// filter for currently associated codes
-		// otherwise no more associated but dimensionalized codes are still
-		// considered
 		for (ICode code : this.getCodes(codeInstance.getId())) {
 			URI codeUri = code.getUri();
 			IDimension dimension = this.getDimension(codeUri);
