@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -26,6 +25,7 @@ import org.eclipse.ui.ISources;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+import com.bkahlert.nebula.utils.SerializationUtils;
 
 import de.fu_berlin.imp.apiua.core.Activator;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -277,8 +277,8 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 
 		try {
 			Map<String, String> map = new HashMap<String, String>();
-			map = (Map<String, String>) SerializationUtils.deserialize(ser
-					.getBytes());
+			map = (Map<String, String>) SerializationUtils.deserialize(ser,
+					Serializable.class);
 			for (Entry<String, String> entry : map.entrySet()) {
 				if (entry.getValue().contains(",")) {
 					String[] split = entry.getValue().split(",");
@@ -307,8 +307,7 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 			}
 		}
 		try {
-			String ser = new String(
-					SerializationUtils.serialize((Serializable) map));
+			String ser = SerializationUtils.serialize((Serializable) map);
 			this.getPreferenceStore().setValue(
 					SUACorePreferenceConstants.LAST_SCROLL_POSITION, ser);
 		} catch (Exception e) {

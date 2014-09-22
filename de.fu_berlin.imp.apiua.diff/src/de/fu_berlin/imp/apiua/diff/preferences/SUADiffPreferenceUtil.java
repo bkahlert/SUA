@@ -18,17 +18,29 @@ public class SUADiffPreferenceUtil extends EclipsePreferenceUtil {
 		super(Activator.getDefault());
 	}
 
-	private HashMap<String, FileFilter> fileFilters = new HashMap<String, FileFilter>();
+	private final HashMap<String, FileFilter> fileFilters = new HashMap<String, FileFilter>();
 
 	public String[] getFileFilterPatterns() {
 		try {
 			String[] fileFilterPatterns = (String[]) SerializationUtils
-					.deserialize(getPreferenceStore().getString(
-							SUADiffPreferenceConstants.FILE_FILTER_PATTERNS)
+					.deserialize(this
+							.getPreferenceStore()
+							.getString(
+									SUADiffPreferenceConstants.FILE_FILTER_PATTERNS)
 							.getBytes());
 			return fileFilterPatterns;
 		} catch (Exception e) {
-			return new String[0];
+			try {
+				String[] fileFilterPatterns = com.bkahlert.nebula.utils.SerializationUtils
+						.deserialize(
+								this.getPreferenceStore()
+										.getString(
+												SUADiffPreferenceConstants.FILE_FILTER_PATTERNS),
+								String[].class);
+				return fileFilterPatterns;
+			} catch (Exception e1) {
+				return new String[0];
+			}
 		}
 	}
 
@@ -37,16 +49,17 @@ public class SUADiffPreferenceUtil extends EclipsePreferenceUtil {
 
 		ArrayList<FileFilter> fileFilters = new ArrayList<FileFilter>();
 		for (String fileFilterPattern : fileFilterPatterns) {
-			if (!this.fileFilters.containsKey(fileFilterPattern))
+			if (!this.fileFilters.containsKey(fileFilterPattern)) {
 				this.fileFilters.put(fileFilterPattern, new RegexFileFilter(
 						fileFilterPattern));
+			}
 			fileFilters.add(this.fileFilters.get(fileFilterPattern));
 		}
 		return fileFilters;
 	}
 
 	public void setFileFilterPatterns(String[] fileFilterPatterns) {
-		getPreferenceStore().setValue(
+		this.getPreferenceStore().setValue(
 				SUADiffPreferenceConstants.FILE_FILTER_PATTERNS,
 				new String(SerializationUtils.serialize(fileFilterPatterns)));
 	}

@@ -79,9 +79,13 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 		String pref = this.getPreferenceStore().getString(
 				SUAGTPreferenceConstants.LAST_USED_CODES);
 		if (pref != null && !pref.isEmpty()) {
-			return new ArrayList<URI>(
-					de.fu_berlin.imp.apiua.core.util.SerializationUtils
-							.deserialize(pref));
+			try {
+				return new ArrayList<URI>(
+						de.fu_berlin.imp.apiua.core.util.SerializationUtils
+								.deserialize(pref));
+			} catch (Exception e) {
+				LOGGER.error("Error loading last used codes", e);
+			}
 		}
 		return new LinkedList<URI>();
 	}
