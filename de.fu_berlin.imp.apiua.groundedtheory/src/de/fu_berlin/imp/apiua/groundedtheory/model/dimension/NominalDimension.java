@@ -19,6 +19,7 @@ import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.itemlist.ItemList.ItemListAdapter;
+import com.bkahlert.nebula.widgets.scale.IScale;
 
 /**
  * A {@link IDimension} with nominals.
@@ -30,8 +31,6 @@ public class NominalDimension implements IDimension {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(NominalDimension.class);
-
-	private static final String UNSET = "[unset]";
 
 	private final List<String> possibleValues;
 
@@ -95,8 +94,8 @@ public class NominalDimension implements IDimension {
 			public void itemClicked(String key, int i) {
 				if (key.equals("add")) {
 					try {
-						RenameDialog renameDialog = new RenameDialog(
-								parent.getShell(), "");
+						RenameDialog renameDialog = new RenameDialog(parent
+								.getShell(), "");
 						renameDialog.create();
 						if (renameDialog.open() == Window.OK) {
 							NominalDimension.this.possibleValues
@@ -117,8 +116,8 @@ public class NominalDimension implements IDimension {
 						case 0:
 							break;
 						case 1:
-							RenameDialog renameDialog = new RenameDialog(
-									parent.getShell(),
+							RenameDialog renameDialog = new RenameDialog(parent
+									.getShell(),
 									NominalDimension.this.possibleValues
 											.get(idx));
 							renameDialog.create();
@@ -193,7 +192,7 @@ public class NominalDimension implements IDimension {
 					+ " instead of " + Combo.class.getSimpleName());
 		}
 		Combo combo = (Combo) control;
-		combo.add(UNSET);
+		combo.add(IScale.UNSET_LABEL);
 		for (String possibleValue : this.possibleValues) {
 			combo.add(possibleValue);
 		}
@@ -208,6 +207,7 @@ public class NominalDimension implements IDimension {
 					+ " instead of " + Combo.class.getSimpleName());
 		}
 		Combo combo = (Combo) control;
-		return combo.getText().equals(UNSET) ? null : combo.getText();
+		return combo.getText().equals(IScale.UNSET_LABEL) ? null : combo
+				.getText();
 	}
 }

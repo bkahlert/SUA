@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import com.bkahlert.nebula.widgets.scale.IScale;
 import com.bkahlert.nebula.widgets.scale.OrdinalScale;
 import com.bkahlert.nebula.widgets.scale.OrdinalScale.EditType;
 import com.bkahlert.nebula.widgets.scale.OrdinalScale.IOrdinalScaleListener;
@@ -153,7 +154,7 @@ public class OrdinalDimension implements IDimension {
 					+ " instead of " + Combo.class.getSimpleName());
 		}
 		Combo combo = (Combo) control;
-		combo.add(OrdinalScale.UNSET_LABEL);
+		combo.add(IScale.UNSET_LABEL);
 		for (String ordinal : this.ordinals) {
 			combo.add(ordinal);
 		}
@@ -168,7 +169,7 @@ public class OrdinalDimension implements IDimension {
 					+ " instead of " + Combo.class.getSimpleName());
 		}
 		Combo combo = (Combo) control;
-		return combo.getText().equals(OrdinalScale.UNSET_LABEL) ? null : combo
+		return combo.getText().equals(IScale.UNSET_LABEL) ? null : combo
 				.getText();
 	}
 }
