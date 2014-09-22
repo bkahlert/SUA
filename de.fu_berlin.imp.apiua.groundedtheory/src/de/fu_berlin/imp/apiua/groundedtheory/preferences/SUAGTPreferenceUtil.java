@@ -97,9 +97,13 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 		String pref = this.getPreferenceStore().getString(
 				SUAGTPreferenceConstants.LAST_OPENED_CODING_MODELS);
 		if (pref != null && !pref.isEmpty()) {
-			return new ArrayList<URI>(
-					de.fu_berlin.imp.apiua.core.util.SerializationUtils
-							.deserialize(pref));
+			try {
+				return new ArrayList<URI>(
+						de.fu_berlin.imp.apiua.core.util.SerializationUtils
+								.deserialize(pref));
+			} catch (Exception e) {
+				LOGGER.error("Could not load last opened axial coding model", e);
+			}
 		}
 		return new LinkedList<URI>();
 	}
