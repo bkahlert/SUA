@@ -3,7 +3,6 @@ package de.fu_berlin.imp.apiua.survey.viewer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,7 +22,6 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.StringUtils;
-import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -38,10 +36,7 @@ import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
@@ -339,17 +334,8 @@ public class CDViewer extends Viewer {
 				html.append("</li>");
 			}
 
-			List<Triple<URI, IDimension, String>> dimensionValues = CODE_SERVICE
-					.getDimensionValues(codeInstance);
-			Triple<URI, IDimension, String> immediateDimensionValue = null;
-			for (Iterator<Triple<URI, IDimension, String>> iterator = dimensionValues
-					.iterator(); iterator.hasNext();) {
-				Triple<URI, IDimension, String> triple = iterator.next();
-				if (triple.getFirst().equals(codeInstance.getCode().getUri())) {
-					immediateDimensionValue = triple;
-					iterator.remove();
-				}
-			}
+			String immediateDimensionValue = CODE_SERVICE.getDimensionValue(
+					codeInstance.getUri(), codeInstance.getCode());
 			html.append("<li style=\"list-style-image: url('"
 					+ GTLabelProvider.getCodeImageURI(codeInstance.getCode())
 					+ "');\"><a href=\"" + codeInstance.getCode().getUri()
@@ -358,8 +344,9 @@ public class CDViewer extends Viewer {
 					+ "\" tabindex=\"-1\">"
 					+ codeInstance.getCode().getCaption());
 			if (immediateDimensionValue != null) {
-				html.append(" = ");
-				html.append(immediateDimensionValue.getThird());
+				html.append("<strong> = ");
+				html.append(immediateDimensionValue);
+				html.append("</strong>");
 			}
 			html.append("</a><ul>");
 			if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
@@ -370,19 +357,20 @@ public class CDViewer extends Viewer {
 						CODE_SERVICE.loadMemoPlain(codeInstance.getUri()), 100)));
 				html.append("</li>");
 			}
-			for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
-				html.append("<li style=\"list-style-image: none;\">");
-				try {
-					html.append(LocatorService.INSTANCE.resolve(
-							dimensionValue.getFirst(), ICode.class, null).get());
-				} catch (Exception e) {
-					LOGGER.error(e);
-					html.append(dimensionValue.getFirst());
-				}
-				html.append(" = ");
-				html.append(dimensionValue.getThird());
-				html.append("</li>");
-			}
+			// for (Triple<URI, IDimension, String> dimensionValue :
+			// dimensionValues) {
+			// html.append("<li style=\"list-style-image: none;\">");
+			// try {
+			// html.append(LocatorService.INSTANCE.resolve(
+			// dimensionValue.getFirst(), ICode.class, null).get());
+			// } catch (Exception e) {
+			// LOGGER.error(e);
+			// html.append(dimensionValue.getFirst());
+			// }
+			// html.append(" = ");
+			// html.append(dimensionValue.getThird());
+			// html.append("</li>");
+			// }
 			html.append("</ul></li>");
 		}
 		html.append("</ul>");
