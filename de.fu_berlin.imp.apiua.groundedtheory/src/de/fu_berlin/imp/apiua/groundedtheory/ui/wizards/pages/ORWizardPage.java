@@ -29,7 +29,7 @@ public abstract class ORWizardPage extends WizardPage {
 				@Override
 				public Font call() throws Exception {
 					return new Font(Display.getCurrent(), FontUtils
-							.getResizedFontData(Display.getCurrent()
+							.resize(Display.getCurrent()
 									.getSystemFont().getFontData(), 2));
 				}
 			});

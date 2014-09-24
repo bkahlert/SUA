@@ -86,8 +86,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 			}
 		});
 
-		this.colorPicker = new ColorPicker(centerWrapper,
-				this.initialRGB.toClassicRGB());
+		this.colorPicker = new ColorPicker(centerWrapper, this.initialRGB);
 		this.colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER,
 				false, false));
 	}
@@ -152,7 +151,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 	}
 
 	public RGB getNewCodeRGB() {
-		return new RGB(this.colorPicker.getRGB());
+		return this.colorPicker.getRGB();
 	}
 
 	public List<URI> getExistingCodes() {

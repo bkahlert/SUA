@@ -24,20 +24,20 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 public class CreateCodeWizardPage extends WizardPage {
 	private static final String DESCRIPTION = "Type in the name for the new code.";
 	private Text newCodeCaption;
-	private RGB initialColor;
+	private final RGB initialColor;
 	private ColorPicker colorPicker;
 
 	public CreateCodeWizardPage(RGB initialColor) {
 		super(CreateCodeWizardPage.class.getName());
-		setTitle("Create Code");
-		setDescription(DESCRIPTION);
+		this.setTitle("Create Code");
+		this.setDescription(DESCRIPTION);
 		this.initialColor = initialColor;
 	}
 
 	@Override
 	public void createControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		setControl(composite);
+		this.setControl(composite);
 
 		composite.setLayout(LayoutUtils.createGridLayout(3, false, 10, 10));
 		int space = new GridLayout().horizontalSpacing;
@@ -59,21 +59,20 @@ public class CreateCodeWizardPage extends WizardPage {
 		this.newCodeCaption.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				updateCompletion();
+				CreateCodeWizardPage.this.updateCompletion();
 			}
 		});
 
-		colorPicker = new ColorPicker(composite,
-				this.initialColor.toClassicRGB());
-		colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
-				false));
+		this.colorPicker = new ColorPicker(composite, this.initialColor);
+		this.colorPicker.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER,
+				false, false));
 	}
 
 	private void updateCompletion() {
-		if (!getNewCodeCaption().isEmpty()) {
+		if (!this.getNewCodeCaption().isEmpty()) {
 			this.setMessage(DESCRIPTION);
 			this.setErrorMessage(null);
-			setPageComplete(true);
+			this.setPageComplete(true);
 		} else {
 			this.setErrorMessage("Please type in a name for the new code!");
 			this.setPageComplete(false);
@@ -85,6 +84,6 @@ public class CreateCodeWizardPage extends WizardPage {
 	}
 
 	public RGB getNewCodeColor() {
-		return new RGB(this.colorPicker.getRGB());
+		return this.colorPicker.getRGB();
 	}
 }
