@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -30,12 +31,14 @@ import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlay.Quadrant;
 import com.bkahlert.nebula.utils.DecorationOverlayIcon.ImageOverlayImpl;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.PaintUtils;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.widgets.scale.IScale;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
@@ -65,6 +68,15 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	public static final int DEFAULT_BACKGROUND_ALPHA = 70;
 	public static final int DEFAULT_BORDER_ALPHA = 100;
+
+	public static final Color VALUE_COLOR = new Color(Display.getDefault(),
+			RGB.SUCCESS.toClassicRGB());
+	public static final Styler VALUE_STYLER = new Styler() {
+		@Override
+		public void applyStyles(TextStyle textStyle) {
+			textStyle.foreground = VALUE_COLOR;
+		}
+	};
 
 	public static class CodeColors {
 		private final RGB backgroundRGB;
@@ -303,6 +315,14 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				sb.append(")");
 				string.append(sb.toString(), Stylers.COUNTER_STYLER);
 			}
+			// for (ICodeInstance codeInstance : this.codeService
+			// .getInstances(uri)) {
+			// String dimensionValues = this.getDimensionValues(codeInstance);
+			// if (dimensionValues != null) {
+			// string.append(" (" + dimensionValues + ")",
+			// Stylers.COUNTER_STYLER);
+			// }
+			// }
 			return string;
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {
@@ -312,29 +332,18 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			if (labelProvider != null) {
 				StyledString string = new StyledString(
 						labelProvider.getText(codeInstance.getId()), styler);
-				List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
+				Pair<String, String> dimensionValues = this
 						.getDimensionValues(codeInstance);
-				if (!dimensionValues.isEmpty()) {
-					StringBuilder sb = new StringBuilder(" (");
-					List<String> dimensionValueStrings = new LinkedList<String>();
-					for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
-						ICode code = LocatorService.INSTANCE.resolve(
-								dimensionValue.getFirst(), ICode.class, null)
-								.get();
-						// only show dimension name if the owner is not the
-						// used code
-						if (!dimensionValue.getFirst().equals(
-								codeInstance.getCode().getUri())) {
-							String owner = code != null ? code.getCaption()
-									: "ERROR";
-							dimensionValueStrings.add(owner);
-							dimensionValueStrings.add(" = ");
-						}
-						dimensionValueStrings.add(dimensionValue.getThird());
+				if (dimensionValues != null) {
+					if (dimensionValues.getFirst() != null) {
+						string.append(" = ");
+						string.append(dimensionValues.getFirst(), VALUE_STYLER);
 					}
-					sb.append(StringUtils.join(dimensionValueStrings, ", "));
-					sb.append(")");
-					string.append(sb.toString());
+					if (dimensionValues.getSecond() != null) {
+						string.append(" ").append(
+								"(" + dimensionValues.getSecond() + ")",
+								Stylers.MINOR_STYLER);
+					}
 				}
 				return string;
 			} else {
@@ -375,6 +384,59 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		return (labelProvider != null) ? new StyledString(
 				labelProvider.getText(uri), styler) : new StyledString(
 				"label provider missing", Stylers.ATTENTION_STYLER);
+	}
+
+	/**
+	 * Returns a string representing the dimension values for the given
+	 * {@link ICodeInstance}.
+	 * 
+	 * @param codeInstance
+	 * @return
+	 */
+	private Pair<String, String> getDimensionValues(ICodeInstance codeInstance) {
+		List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
+				.getDimensionValues(codeInstance);
+
+		if (codeInstance.getUri().toString()
+				.equals("apiua://codeinstance/-9223372036854775419")) {
+			System.err.println("t");
+		}
+
+		String ownValueString = null;
+		List<String> foreignValueStrings = new ArrayList<String>();
+		for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
+
+			ICode code = null;
+			try {
+				code = LocatorService.INSTANCE.resolve(
+						dimensionValue.getFirst(), ICode.class, null).get();
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
+			// only show dimension name if the owner is not the
+			// used code
+			if (!dimensionValue.getFirst().equals(
+					codeInstance.getCode().getUri())) {
+				String string = code != null ? code.getCaption() : "ERROR";
+				string += " = ";
+				string += dimensionValue.getThird() != null ? dimensionValue
+						.getThird() : IScale.UNSET_LABEL;
+				foreignValueStrings.add(string);
+			} else {
+				if (ownValueString != null) {
+					ownValueString = "Implementation Error - two own dimensions values detected";
+					LOGGER.fatal(ownValueString);
+				} else {
+					ownValueString = dimensionValue.getThird() != null ? dimensionValue
+							.getThird() : IScale.UNSET_LABEL;
+				}
+			}
+		}
+		String foreignValuesString = null;
+		if (foreignValueStrings.size() > 0) {
+			foreignValuesString = StringUtils.join(foreignValueStrings, ", ");
+		}
+		return new Pair<String, String>(ownValueString, foreignValuesString);
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {

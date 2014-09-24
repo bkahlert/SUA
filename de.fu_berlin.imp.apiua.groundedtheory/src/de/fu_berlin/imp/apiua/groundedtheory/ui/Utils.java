@@ -192,8 +192,7 @@ public class Utils {
 							ICodeInstance codeInstance = LocatorService.INSTANCE
 									.resolve(element, ICodeInstance.class, null)
 									.get();
-							text.setStyle(0, text.length(),
-									Stylers.SMALL_STYLER);
+							Stylers.rebase(text, Stylers.SMALL_STYLER);
 							if (CodeLocatorProvider.CODE_NAMESPACE
 									.equals(URIUtils.getResource(codeInstance
 											.getId()))) {
