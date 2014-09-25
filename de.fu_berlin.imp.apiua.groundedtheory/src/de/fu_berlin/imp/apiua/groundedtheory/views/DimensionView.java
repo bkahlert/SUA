@@ -4,14 +4,21 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -131,7 +138,8 @@ public class DimensionView extends ViewPart {
 		this.dimensionValueGroup.setText("Dimension Values");
 		this.dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
 				.span(2, 1).grab(true, true).create());
-		this.dimensionValueGroup.setLayout(new FillLayout(SWT.VERTICAL));
+		this.dimensionValueGroup.setLayout(GridLayoutFactory.fillDefaults()
+				.numColumns(2).create());
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override
@@ -151,16 +159,53 @@ public class DimensionView extends ViewPart {
 			List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
 			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
 				try {
-					ICodeInstance codeInstance = LocatorService.INSTANCE
+					final ICodeInstance codeInstance = LocatorService.INSTANCE
 							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
 						codeInstances.add(codeInstance);
+
+						Button button = new Button(this.dimensionValueGroup,
+								SWT.PUSH);
+						button.setLayoutData(GridDataFactory.swtDefaults()
+								.create());
+						button.setText("Show all dimension values...");
+						button.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								try {
+									DimensionView.this.load(codeInstance
+											.getId());
+									for (Control control : DimensionView.this.dimensionValueGroup
+											.getChildren()) {
+										if (ObjectUtils.equals(
+												control.getData(),
+												codeInstance.getUri())) {
+											Group oldGroup = (Group) control;
+											oldGroup.setBackground(Display
+													.getCurrent()
+													.getSystemColor(
+															SWT.COLOR_INFO_BACKGROUND));
+										}
+									}
+								} catch (Exception e1) {
+									LOGGER.error("Error loading "
+											+ codeInstance.getId(), e1);
+								}
+							}
+						});
+
+						Label label = new Label(this.dimensionValueGroup,
+								SWT.WRAP);
+						label.setLayoutData(GridDataFactory.fillDefaults()
+								.grab(true, false).create());
+						label.setText("Currently the association's single dimension value is loaded. To display the dimension values of all the phaenomenons associations, click on the button to the left.");
 					} else {
 						LOGGER.error("Error resolving " + ICodeInstance.class);
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error resolving " + ICodeInstance.class, e);
 				}
+
 			} else {
 				for (ICodeInstance codeInstance : CODE_SERVICE.getInstances()) {
 					if (codeInstance.getId().equals(uri)) {
@@ -170,9 +215,12 @@ public class DimensionView extends ViewPart {
 			}
 			for (ICodeInstance codeInstance : codeInstances) {
 				Composite parent = this.dimensionValueGroup;
-				if (codeInstances.size() > 1) {
+				if (codeInstances.size() > 0 /* 1 */) {
 					Group group = new Group(this.dimensionValueGroup,
 							SWT.BORDER);
+					group.setData(codeInstance.getUri());
+					group.setLayoutData(GridDataFactory.fillDefaults()
+							.grab(true, true).span(2, 1).create());
 					group.setLayout(new FillLayout());
 					parent = group;
 				}
