@@ -139,20 +139,18 @@ public class DimensionValueComposite extends Composite {
 		this.loaded = codeInstance;
 
 		this.dimensions.clear();
-		for (ICode code : CODE_SERVICE.getCodes(codeInstance.getId())) {
-			for (Pair<Integer, ICode> property : IteratorUtils.dfs(code,
-					new IConverter<ICode, ICode[]>() {
-						@Override
-						public ICode[] convert(ICode property) {
-							return CODE_SERVICE.getProperties(property)
-									.toArray(new ICode[0]);
-						}
-					})) {
-				IDimension dimension = CODE_SERVICE.getDimension(property
-						.getSecond().getUri());
-				this.dimensions.add(new Triple<Integer, ICode, IDimension>(
-						property.getFirst(), property.getSecond(), dimension));
-			}
+		for (Pair<Integer, ICode> property : IteratorUtils.dfs(
+				codeInstance.getCode(), new IConverter<ICode, ICode[]>() {
+					@Override
+					public ICode[] convert(ICode property) {
+						return CODE_SERVICE.getProperties(property).toArray(
+								new ICode[0]);
+					}
+				})) {
+			IDimension dimension = CODE_SERVICE.getDimension(property
+					.getSecond().getUri());
+			this.dimensions.add(new Triple<Integer, ICode, IDimension>(property
+					.getFirst(), property.getSecond(), dimension));
 		}
 
 		try {

@@ -397,11 +397,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
 				.getDimensionValues(codeInstance);
 
-		if (codeInstance.getUri().toString()
-				.equals("apiua://codeinstance/-9223372036854775419")) {
-			System.err.println("t");
-		}
-
 		String ownValueString = null;
 		List<String> foreignValueStrings = new ArrayList<String>();
 		for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
