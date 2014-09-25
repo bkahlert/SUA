@@ -325,15 +325,6 @@ public class CDViewer extends Viewer {
 
 		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances(locatable
 				.getUri())) {
-			if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
-				html.append("<li style=\"list-style-image: url('"
-						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
-						+ "');\">");
-				html.append(StringUtils.plainToHtml(StringUtils.shorten(
-						CODE_SERVICE.loadMemoPlain(codeInstance.getUri()), 100)));
-				html.append("</li>");
-			}
-
 			String immediateDimensionValue = CODE_SERVICE.getDimensionValue(
 					codeInstance.getUri(), codeInstance.getCode());
 			html.append("<li style=\"list-style-image: url('"
