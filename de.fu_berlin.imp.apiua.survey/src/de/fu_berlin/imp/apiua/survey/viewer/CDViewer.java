@@ -332,6 +332,7 @@ public class CDViewer extends Viewer {
 					+ "');\"><a href=\"" + codeInstance.getCode().getUri()
 					+ "\" data-focus-id=\""
 					+ codeInstance.getCode().getUri().toString()
+					+ "\" data-workspace=\"" + codeInstance.getUri().toString()
 					+ "\" tabindex=\"-1\">"
 					+ codeInstance.getCode().getCaption());
 			if (immediateDimensionValue != null) {

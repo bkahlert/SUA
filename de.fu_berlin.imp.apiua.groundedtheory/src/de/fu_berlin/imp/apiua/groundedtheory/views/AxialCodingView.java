@@ -33,8 +33,10 @@ import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
+import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 
@@ -275,18 +277,15 @@ public class AxialCodingView extends ViewPart {
 						}
 					};
 
-					private final IMouseListener mouseListener = new IMouseListener() {
+					private final IMouseListener mouseListener = new MouseAdapter() {
 						@Override
-						public void mouseMove(double x, double y) {
-						}
-
-						@Override
-						public void mouseDown(double x, double y) {
+						public void mouseDown(double x, double y,
+								IElement element) {
 							isMouseDown = true;
 						}
 
 						@Override
-						public void mouseUp(double x, double y) {
+						public void mouseUp(double x, double y, IElement element) {
 							isMouseDown = false;
 						}
 					};

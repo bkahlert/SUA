@@ -163,56 +163,54 @@ public class DimensionView extends ViewPart {
 							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
 						codeInstances.add(codeInstance);
-
-						Button button = new Button(this.dimensionValueGroup,
-								SWT.PUSH);
-						button.setLayoutData(GridDataFactory.swtDefaults()
-								.create());
-						button.setText("Show all dimension values...");
-						button.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								try {
-									DimensionView.this.load(codeInstance
-											.getId());
-									for (Control control : DimensionView.this.dimensionValueGroup
-											.getChildren()) {
-										if (ObjectUtils.equals(
-												control.getData(),
-												codeInstance.getUri())) {
-											Group oldGroup = (Group) control;
-											oldGroup.setBackground(Display
-													.getCurrent()
-													.getSystemColor(
-															SWT.COLOR_INFO_BACKGROUND));
+						if (CODE_SERVICE.getInstances(codeInstance.getId())
+								.size() > 1) {
+							Button button = new Button(
+									this.dimensionValueGroup, SWT.PUSH);
+							button.setLayoutData(GridDataFactory.swtDefaults()
+									.create());
+							button.setText("Show all dimension values...");
+							button.addSelectionListener(new SelectionAdapter() {
+								@Override
+								public void widgetSelected(SelectionEvent e) {
+									try {
+										DimensionView.this.load(codeInstance
+												.getId());
+										for (Control control : DimensionView.this.dimensionValueGroup
+												.getChildren()) {
+											if (ObjectUtils.equals(
+													control.getData(),
+													codeInstance.getUri())) {
+												Group oldGroup = (Group) control;
+												oldGroup.setBackground(Display
+														.getCurrent()
+														.getSystemColor(
+																SWT.COLOR_INFO_BACKGROUND));
+											}
 										}
+									} catch (Exception e1) {
+										LOGGER.error("Error loading "
+												+ codeInstance.getId(), e1);
 									}
-								} catch (Exception e1) {
-									LOGGER.error("Error loading "
-											+ codeInstance.getId(), e1);
 								}
-							}
-						});
+							});
 
-						Label label = new Label(this.dimensionValueGroup,
-								SWT.WRAP);
-						label.setLayoutData(GridDataFactory.fillDefaults()
-								.grab(true, false).create());
-						label.setText("Currently the association's single dimension value is loaded. To display the dimension values of all the phaenomenons associations, click on the button to the left.");
+							Label label = new Label(this.dimensionValueGroup,
+									SWT.WRAP);
+							label.setLayoutData(GridDataFactory.fillDefaults()
+									.grab(true, false).create());
+							label.setText("Currently the association's single dimension value is loaded. To display the dimension values of all the phaenomenons associations, click on the button to the left.");
+						}
 					} else {
 						LOGGER.error("Error resolving " + ICodeInstance.class);
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error resolving " + ICodeInstance.class, e);
 				}
-
 			} else {
-				for (ICodeInstance codeInstance : CODE_SERVICE.getInstances()) {
-					if (codeInstance.getId().equals(uri)) {
-						codeInstances.add(codeInstance);
-					}
-				}
+				codeInstances.addAll(CODE_SERVICE.getInstances(uri));
 			}
+
 			for (ICodeInstance codeInstance : codeInstances) {
 				Composite parent = this.dimensionValueGroup;
 				if (codeInstances.size() > 0 /* 1 */) {

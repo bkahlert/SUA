@@ -23,8 +23,8 @@ import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector;
-import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
-import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -203,14 +203,16 @@ public class CDView extends ViewPart {
 		this.browser.deactivateNativeMenu();
 		this.browser.setAllowLocationChange(true);
 		this.browser.openBlank();
-		this.browser.addAnkerListener(new AnkerAdaptingListener(
-				new URIAdapter() {
-					@Override
-					public void uriClicked(java.net.URI uri) {
-						CDView.this.locatorService.showInWorkspace(
-								new URI(uri), false, null);
-					}
-				}));
+		this.browser.addMouseListener(new MouseAdapter() {
+			@Override
+			public void clicked(double x, double y, IElement element) {
+				String uri = element.getAttribute("data-workspace");
+				if (uri != null) {
+					CDView.this.locatorService.showInWorkspace(new URI(uri),
+							false, null);
+				}
+			}
+		});
 
 		this.viewer = new CDViewer(this.browser);
 		new ContextMenu(this.viewer, this.getSite()) {

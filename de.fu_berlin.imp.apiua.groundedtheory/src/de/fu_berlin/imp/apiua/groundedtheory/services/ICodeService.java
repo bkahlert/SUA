@@ -128,8 +128,8 @@ public interface ICodeService {
 	public List<ICodeInstance> getInstances(ICode code);
 
 	/**
-	 * Returns all {@link ICodeInstance}s belonging to an phaenomenon
-	 * {@link URI}. In other words: If uri is associated with c
+	 * Returns all {@link ICodeInstance}s belonging to an phenomenon {@link URI}
+	 * . In other words: If uri is associated with c
 	 * {@link ICodeInstance#getId()} equals p.
 	 * 
 	 * @param code
