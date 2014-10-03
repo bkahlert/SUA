@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -99,15 +100,35 @@ public class ResortableCodeViewer extends CodeViewer {
 					}
 				});
 
-		this.getViewer().addDropSupport(operations,
-				new Transfer[] { LocalSelectionTransfer.getTransfer() },
-				new DropTargetAdapter() {
+		this.getViewer().addDropSupport(
+				operations,
+				new Transfer[] { LocalSelectionTransfer.getTransfer(),
+						TextTransfer.getInstance() }, new DropTargetAdapter() {
+					@Override
+					public void dragEnter(DropTargetEvent event) {
+						event.detail = DND.DROP_COPY;
+					}
+
 					@Override
 					public void dragOver(DropTargetEvent event) {
-						List<URI> sourceUris = SelectionUtils
-								.getAdaptableObjects(LocalSelectionTransfer
-										.getTransfer().getSelection(),
-										URI.class);
+						List<URI> sourceUris = new ArrayList<URI>();
+						if (TextTransfer.getInstance().isSupportedType(
+								event.currentDataType)) {
+							String uri = (String) TextTransfer.getInstance()
+									.nativeToJava(event.currentDataType);
+							if (uri != null) {
+								sourceUris.add(new URI(uri));
+							}
+						}
+						// FIXME: Some parts (e.g. CDViewer) trigger a
+						// TextTransfer but since the data is always null, they
+						// put the data also into the LocalSelectionTransfer
+						if (sourceUris.isEmpty()) {
+							sourceUris.addAll(SelectionUtils
+									.getAdaptableObjects(LocalSelectionTransfer
+											.getTransfer().getSelection(),
+											URI.class));
+						}
 						List<URI> sourceCodeUris = URIUtils.filterByResource(
 								sourceUris, CodeLocatorProvider.CODE_NAMESPACE);
 						sourceUris.removeAll(sourceCodeUris);

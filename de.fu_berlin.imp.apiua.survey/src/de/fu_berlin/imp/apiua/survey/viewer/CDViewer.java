@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -16,6 +18,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
@@ -28,7 +32,9 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -68,6 +74,7 @@ public class CDViewer extends Viewer {
 
 	public CDViewer(final BootstrapBrowser browser) {
 		this.browser = browser;
+		this.browser.setAllowLocationChange(false);
 		this.browser
 				.injectCss("header{opacity:0.7;} .form-horizontal td .form-group { margin: 0; padding-bottom: 10px; }");
 		this.browser.injectCss("ul.instances { zoom: .75; }");
@@ -148,6 +155,22 @@ public class CDViewer extends Viewer {
 			}
 		});
 
+		this.browser.addMouseListener(new MouseAdapter() {
+			@Override
+			public void clicked(double x, double y, IElement element) {
+				boolean draggable = element.getAttribute("draggable") != null
+						&& element.getAttribute("draggable").equals("true");
+				if (ArrayUtils.contains(element.getClasses(),
+						"glyphicon-share-alt") || draggable) {
+					MessageBox box = new MessageBox(Display.getCurrent()
+							.getActiveShell());
+					box.setMessage("You can drag this button in order to code it.");
+					box.open();
+					return;
+				}
+			}
+		});
+
 		this.browser.addFocusListener(new IFocusListener() {
 			@Override
 			public void focusLost(IElement element) {
@@ -172,6 +195,24 @@ public class CDViewer extends Viewer {
 						return null;
 					}
 				});
+			}
+		});
+
+		// FIXME: Couldn't get TextTransfer running (data always null);
+		// emulating LocalTransfer
+		this.browser.addDNDListener(new IDNDListener() {
+			@Override
+			public void dragStart(long offsetX, long offsetY, String mimeType,
+					String data) {
+				if (data != null) {
+					LocalSelectionTransfer.getTransfer().setSelection(
+							new StructuredSelection(new URI(data)));
+				}
+			}
+
+			@Override
+			public void drop(long offsetX, long offsetY, String mimeType,
+					String data) {
 			}
 		});
 
@@ -260,10 +301,13 @@ public class CDViewer extends Viewer {
 					default:
 						break;
 					}
-					form.addRaw("</td><td>");
-					form.addRaw("<a href=\"addcode-"
+					form.addRaw("</td><td style=\"min-width: 6.5em;\">");
+					form.addRaw("<div class=\"btn-group\"><a href=\"addcode-"
 							+ field.getUri()
-							+ "\" class=\" btn btn-primary btn-xs\">Add Code...</a>");
+							+ "\" class=\"btn btn-primary btn-xs\">Add Code...</a>");
+					form.addRaw("<a href=\"#\" class=\"btn btn-primary btn-xs\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+							+ field.getUri()
+							+ "\"><span class=\"glyphicon glyphicon-share-alt\" style=\"height: 1.5em; line-height: 1.4em;\"></span></a></div>");
 					form.addRaw("</td><td style=\"width:10%;\">");
 					form.addRaw(this.createAnnotations(field));
 					form.addRaw("</td></tr>");
