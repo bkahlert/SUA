@@ -34,7 +34,7 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
-import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
@@ -347,10 +347,15 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	private void activateDropSupport() {
-		this.jointjs.addDropListener(new IDropListener() {
+		this.jointjs.addDNDListener(new IDNDListener() {
+			@Override
+			public void dragStart(long offsetX, long offsetY, String mimeType,
+					String data) {
+			}
+
 			@Override
 			public void drop(final long offsetX, final long offsetY,
-					final String data) {
+					String mimeType, final String data) {
 				if (data == null || data.isEmpty()
 						|| AxialCodingView.this.openedUri == null) {
 					return;
@@ -364,9 +369,13 @@ public class AxialCodingView extends ViewPart {
 									.get();
 							for (final String uriString : data.split("\\|")) {
 								URI uri = new URI(uriString);
-								AxialCodingView.this.createNode(uri, new Point(
-										(int) offsetX - pan.x - 10,
-										(int) offsetY - pan.y - 10));
+								if (LocatorService.INSTANCE.resolve(uri, null)
+										.get() != null) {
+									AxialCodingView.this.createNode(uri,
+											new Point((int) offsetX - pan.x
+													- 10, (int) offsetY - pan.y
+													- 10));
+								}
 							}
 						} catch (Exception e) {
 							LOGGER.error("Error dropping " + data, e);
