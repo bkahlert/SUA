@@ -28,6 +28,7 @@ import org.eclipse.ui.commands.ICommandService;
 
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
@@ -61,6 +62,9 @@ public class Utils {
 		String filename = directoryDialog.open();
 		return filename;
 	}
+
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
 
 	/**
 	 * Returns a color that - given the colors of all existing codes - is as
@@ -187,6 +191,33 @@ public class Utils {
 						}
 						StyledString text = labelProvider
 								.getStyledText(element);
+
+						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
+								.getResource(element))) {
+							ICode code = LocatorService.INSTANCE.resolve(
+									element, ICode.class, null).get();
+							for (ICodeInstance codeInstance : CODE_SERVICE
+									.getInstances(code.getUri())) {
+								Pair<String, String> dimensionValues = GTLabelProvider
+										.getDimensionValues(codeInstance);
+								if (dimensionValues != null) {
+									if (dimensionValues.getFirst() != null) {
+										text.append(" = ");
+										text.append(dimensionValues.getFirst(),
+												GTLabelProvider.VALUE_STYLER);
+									}
+									if (dimensionValues.getSecond() != null) {
+										text.append(" ").append(
+												"("
+														+ dimensionValues
+																.getSecond()
+														+ ")",
+												Stylers.MINOR_STYLER);
+									}
+								}
+							}
+						}
+
 						if (CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE
 								.equals(URIUtils.getResource(element))) {
 							ICodeInstance codeInstance = LocatorService.INSTANCE

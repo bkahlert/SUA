@@ -139,9 +139,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
 			.getWorkbench().getService(IImportanceService.class);
 
-	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+	private static final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
-	private final ICodeService codeService = (ICodeService) PlatformUI
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
 	/**
@@ -291,12 +291,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		if (ICode.class.isInstance(locatable)) {
 			ICode code = (ICode) locatable;
 			StyledString string = new StyledString(code.getCaption(), styler);
-			IDimension dimension = this.codeService.getDimension(uri);
+			IDimension dimension = CODE_SERVICE.getDimension(uri);
 			if (dimension != null) {
 				string.append(" (" + dimension.represent() + ")",
 						Stylers.MINOR_STYLER);
 			}
-			List<ICode> properties = this.codeService.getProperties(code);
+			List<ICode> properties = CODE_SERVICE.getProperties(code);
 			if (properties.size() > 0) {
 				StringBuilder sb = new StringBuilder(" (");
 				switch (properties.size()) {
@@ -312,9 +312,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					sb.append(properties.size());
 					sb.append(" properties");
 				}
-				sb.append(")");
-				string.append(sb.toString(), Stylers.COUNTER_STYLER);
 			}
+
 			// for (ICodeInstance codeInstance : this.codeService
 			// .getInstances(uri)) {
 			// String dimensionValues = this.getDimensionValues(codeInstance);
@@ -327,12 +326,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (ICodeInstance.class.isInstance(locatable)) {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
-			ILabelProvider labelProvider = this.labelProviderService
+			ILabelProvider labelProvider = labelProviderService
 					.getLabelProvider(codeInstance.getId());
 			if (labelProvider != null) {
 				StyledString string = new StyledString(
 						labelProvider.getText(codeInstance.getId()), styler);
-				Pair<String, String> dimensionValues = this
+				Pair<String, String> dimensionValues = GTLabelProvider
 						.getDimensionValues(codeInstance);
 				if (dimensionValues != null) {
 					if (dimensionValues.getFirst() != null) {
@@ -360,7 +359,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
 				List<ICode> codes;
-				codes = this.codeService.getCodes(episode.getUri());
+				codes = CODE_SERVICE.getCodes(episode.getUri());
 				List<String> codeNames = new ArrayList<String>();
 				for (ICode code : codes) {
 					codeNames.add(code.getCaption());
@@ -379,76 +378,28 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			return new StyledString(name, styler);
 		}
 
-		ILabelProvider labelProvider = this.labelProviderService
+		ILabelProvider labelProvider = labelProviderService
 				.getLabelProvider(uri);
 		return (labelProvider != null) ? new StyledString(
 				labelProvider.getText(uri), styler) : new StyledString(
 				"label provider missing", Stylers.ATTENTION_STYLER);
 	}
 
-	/**
-	 * Returns a string representing the dimension values for the given
-	 * {@link ICodeInstance}.
-	 * 
-	 * @param codeInstance
-	 * @return
-	 */
-	private Pair<String, String> getDimensionValues(ICodeInstance codeInstance) {
-		List<Triple<URI, IDimension, String>> dimensionValues = this.codeService
-				.getDimensionValues(codeInstance);
-
-		String ownValueString = null;
-		List<String> foreignValueStrings = new ArrayList<String>();
-		for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
-
-			ICode code = null;
-			try {
-				code = LocatorService.INSTANCE.resolve(
-						dimensionValue.getFirst(), ICode.class, null).get();
-			} catch (Exception e) {
-				LOGGER.error(e);
-			}
-			// only show dimension name if the owner is not the
-			// used code
-			if (!dimensionValue.getFirst().equals(
-					codeInstance.getCode().getUri())) {
-				String string = code != null ? code.getCaption() : "ERROR";
-				string += " = ";
-				string += dimensionValue.getThird() != null ? dimensionValue
-						.getThird() : IScale.UNSET_LABEL;
-				foreignValueStrings.add(string);
-			} else {
-				if (ownValueString != null) {
-					ownValueString = "Implementation Error - two own dimensions values detected";
-					LOGGER.fatal(ownValueString);
-				} else {
-					ownValueString = dimensionValue.getThird() != null ? dimensionValue
-							.getThird() : IScale.UNSET_LABEL;
-				}
-			}
-		}
-		String foreignValuesString = null;
-		if (foreignValueStrings.size() > 0) {
-			foreignValuesString = StringUtils.join(foreignValueStrings, ", ");
-		}
-		return new Pair<String, String>(ownValueString, foreignValuesString);
-	}
-
 	private boolean isCoded(URI uri) throws CodeServiceException {
-		return this.codeService.getCodes(uri).size() > 0;
+		return CODE_SERVICE.getCodes(uri).size() > 0;
 	}
 
 	private boolean hasMemo(URI uri) {
-		return this.codeService.isMemo(uri);
+		return CODE_SERVICE.isMemo(uri);
 	}
 
 	private boolean isDimensionalized(URI uri) {
-		return this.codeService.getDimension(uri) != null;
+		return CODE_SERVICE.getDimension(uri) != null;
 	}
 
 	private boolean canHaveDimensionValue(URI uri) throws CodeServiceException {
-		for (ICode code : this.codeService.getCodes(uri)) {
-			if (this.codeService.getDimension(code.getUri()) != null) {
+		for (ICode code : CODE_SERVICE.getCodes(uri)) {
+			if (CODE_SERVICE.getDimension(code.getUri()) != null) {
 				return true;
 			}
 		}
@@ -459,7 +410,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			ExecutionException {
 		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
 				.get();
-		return code != null ? this.codeService.getProperties(code).size() > 0
+		return code != null ? CODE_SERVICE.getProperties(code).size() > 0
 				: false;
 	}
 
@@ -475,7 +426,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
 					.get();
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
-			ILabelProvider labelProvider = this.labelProviderService
+			ILabelProvider labelProvider = labelProviderService
 					.getLabelProvider(codeInstance.getId());
 			image = (labelProvider != null) ? labelProvider
 					.getImage(codeInstance.getId()) : null;
@@ -601,5 +552,58 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public void fill(URI object, ToolBarManager toolBarManager)
 			throws Exception {
+	}
+
+	/**
+	 * Returns a string representing the dimension values for the given
+	 * {@link ICodeInstance}.
+	 * 
+	 * @param codeInstance
+	 *            {@link Pair#getFirst()} returns the value of the
+	 *            {@link ICodeInstance} itself whereas {@link Pair#getSecond()}
+	 *            returns the other values of the {@link ICodeInstance}'s
+	 *            phenomenon.
+	 * @return
+	 */
+	public static Pair<String, String> getDimensionValues(
+			ICodeInstance codeInstance) {
+		List<Triple<URI, IDimension, String>> dimensionValues = CODE_SERVICE
+				.getDimensionValues(codeInstance);
+
+		String ownValueString = null;
+		List<String> foreignValueStrings = new ArrayList<String>();
+		for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
+
+			ICode code = null;
+			try {
+				code = LocatorService.INSTANCE.resolve(
+						dimensionValue.getFirst(), ICode.class, null).get();
+			} catch (Exception e) {
+				Utils.LOGGER.error(e);
+			}
+			// only show dimension name if the owner is not the
+			// used code
+			if (!dimensionValue.getFirst().equals(
+					codeInstance.getCode().getUri())) {
+				String string = code != null ? code.getCaption() : "ERROR";
+				string += " = ";
+				string += dimensionValue.getThird() != null ? dimensionValue
+						.getThird() : IScale.UNSET_LABEL;
+				foreignValueStrings.add(string);
+			} else {
+				if (ownValueString != null) {
+					ownValueString = "Implementation Error - two own dimensions values detected";
+					Utils.LOGGER.fatal(ownValueString);
+				} else {
+					ownValueString = dimensionValue.getThird() != null ? dimensionValue
+							.getThird() : IScale.UNSET_LABEL;
+				}
+			}
+		}
+		String foreignValuesString = null;
+		if (foreignValueStrings.size() > 0) {
+			foreignValuesString = StringUtils.join(foreignValueStrings, ", ");
+		}
+		return new Pair<String, String>(ownValueString, foreignValuesString);
 	}
 }
