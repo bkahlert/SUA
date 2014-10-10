@@ -1,13 +1,13 @@
 package de.fu_berlin.imp.apiua.core.services.location;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.IWorkSession;
-
 import java.util.List;
 import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.IWorkSession;
 
 /**
  * Instances of this class can be part of an {@link IWorkSession}.

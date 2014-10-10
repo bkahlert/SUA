@@ -17,7 +17,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
+import com.bkahlert.nebula.utils.ConvertingFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -37,8 +39,7 @@ public class LocatorService implements ILocatorService {
 
 	private static ILocatorProvider[] getRegisteredLocatorProviders() {
 		if (locatorProviders == null) {
-			IConfigurationElement[] config = Platform
-					.getExtensionRegistry()
+			IConfigurationElement[] config = Platform.getExtensionRegistry()
 					.getConfigurationElementsFor(
 							"de.fu_berlin.imp.apiua.core.locatorprovider");
 			List<ILocatorProvider> registeredLocatableProviders = new ArrayList<ILocatorProvider>();
@@ -266,37 +267,15 @@ public class LocatorService implements ILocatorService {
 	public Future<ILocatable[]> resolve(final URI[] uris,
 			IProgressMonitor monitor) {
 		Assert.isLegal(uris != null);
-
-		boolean runFast = true;
-		for (URI uri : uris) {
-			if (this.getSlowLocatorProviders(uri).size() > 0) {
-				runFast = false;
-				break;
-			}
-		}
-
-		if (runFast) {
-			try {
-				return new CompletedFuture<ILocatable[]>(this.resolveList(
-						Arrays.asList(uris), ILocatable.class, null).toArray(
-						new ILocatable[0]), null);
-			} catch (Exception e) {
-				return new CompletedFuture<ILocatable[]>(null, e);
-			}
-		} else {
-			final SubMonitor subMonitor = SubMonitor.convert(monitor,
-					uris.length);
-			return ExecUtils.nonUIAsyncExec(LocatorService.class, "Resolving "
-					+ StringUtils.join(uris, ", "),
-					new Callable<ILocatable[]>() {
-						@Override
-						public ILocatable[] call() throws Exception {
-							return LocatorService.this.resolveList(
-									Arrays.asList(uris), ILocatable.class,
-									subMonitor).toArray(new ILocatable[0]);
-						}
-					});
-		}
+		final Future<List<ILocatable>> future = this.resolve(
+				Arrays.asList(uris), monitor);
+		return new ConvertingFuture<List<ILocatable>, ILocatable[]>(future,
+				new IConverter<List<ILocatable>, ILocatable[]>() {
+					@Override
+					public ILocatable[] convert(List<ILocatable> returnValue) {
+						return returnValue.toArray(new ILocatable[0]);
+					}
+				});
 	}
 
 	@Override
