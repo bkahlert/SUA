@@ -2,8 +2,14 @@ package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -25,8 +31,11 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.CellLabelClient;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.FilteredTree;
 import com.bkahlert.nebula.viewer.FilteredTree.TreeViewerFactory;
@@ -98,7 +107,69 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 					sb.append(this.codeService.loadMemoPlain(uri));
 					return sb.toString();
 				}
-			});
+			}) {
+				@Override
+				protected Job prefetch(final TreeViewer treeViewer) {
+					NamedJob prefetcher = new NamedJob(
+							CodeViewer.this.getClass(),
+							"Prefetching filterable elements") {
+						@Override
+						protected IStatus runNamed(IProgressMonitor monitor) {
+							try {
+								SubMonitor subMonitor = SubMonitor.convert(
+										monitor, 10);
+								List<URI> uris = ExecUtils
+										.syncExec(new Callable<List<URI>>() {
+											@Override
+											public List<URI> call()
+													throws Exception {
+												List<Object> objects = ViewerUtils
+														.getAllItems(treeViewer);
+												List<URI> uris = new ArrayList<URI>();
+												for (Object object : objects) {
+													if (object instanceof URI) {
+														URI uri = (URI) object;
+														if (!uris.contains(uri)) {
+															uris.add(uri);
+														}
+													}
+												}
+												return uris;
+											}
+										});
+								subMonitor.worked(1);
+								LocatorService.INSTANCE.setCacheSize((int) Math
+										.round(uris.size() * 2.5));
+								List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+								for (ILocatable locatable : LocatorService.INSTANCE
+										.resolve(uris, subMonitor.newChild(8))
+										.get()) {
+									if (locatable instanceof ICodeInstance) {
+										codeInstances
+												.add((ICodeInstance) locatable);
+									}
+								}
+								subMonitor.setWorkRemaining(codeInstances
+										.size());
+								for (ICodeInstance codeInstance : codeInstances) {
+									LocatorService.INSTANCE.resolve(
+											codeInstance.getId(),
+											subMonitor.newChild(1)).get();
+								}
+
+								LocatorService.INSTANCE.resetCacheSize();
+								subMonitor.done();
+							} catch (Exception e) {
+								LOGGER.error(
+										"Error prefetching elements before filtering",
+										e);
+							}
+							return Status.OK_STATUS;
+						}
+					};
+					return prefetcher;
+				}
+			};
 			filteredTree
 					.setQuickSelectionMode(quickSelectionMode == QuickSelectionMode.ON);
 			this.viewer = filteredTree.getViewer();
