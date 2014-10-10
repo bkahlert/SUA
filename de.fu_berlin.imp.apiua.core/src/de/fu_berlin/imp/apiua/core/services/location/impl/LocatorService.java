@@ -170,6 +170,16 @@ public class LocatorService implements ILocatorService {
 			}, CACHE_SIZE);
 
 	@Override
+	public void setCacheSize(int cacheSize) {
+		this.uriCache.setCacheSize(cacheSize);
+	}
+
+	@Override
+	public void resetCacheSize() {
+		this.uriCache.setCacheSize(CACHE_SIZE);
+	}
+
+	@Override
 	public Class<? extends ILocatable> getType(URI uri) {
 		Assert.isLegal(uri != null);
 

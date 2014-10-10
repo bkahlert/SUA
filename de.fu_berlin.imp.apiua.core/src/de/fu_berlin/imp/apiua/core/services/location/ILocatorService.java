@@ -153,4 +153,8 @@ public interface ILocatorService {
 	public Future<Boolean> showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor);
 
+	public void setCacheSize(int cacheSize);
+
+	public void resetCacheSize();
+
 }

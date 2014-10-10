@@ -55,7 +55,7 @@ public class Cache<KEY, PAYLOAD> {
 	}
 
 	private final CacheFetcher<KEY, PAYLOAD> cacheFetcher;
-	private final int cacheSize;
+	private int cacheSize;
 	private final HashMap<KEY, CacheEntry> cache;
 
 	public Cache(CacheFetcher<KEY, PAYLOAD> cacheFetcher, int cacheSize) {
@@ -65,6 +65,10 @@ public class Cache<KEY, PAYLOAD> {
 		this.cache = new HashMap<KEY, CacheEntry>(cacheSize);
 	}
 
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
+	}
+
 	public PAYLOAD getPayload(KEY key, IProgressMonitor progressMonitor) {
 		// TODO insert following line if debugging diffs - makes the diffs be
 		// created on every try
@@ -72,7 +76,7 @@ public class Cache<KEY, PAYLOAD> {
 
 		Assert.isNotNull(key);
 
-		if (DISABLE_CACHE || cacheSize == 0) {
+		if (DISABLE_CACHE || this.cacheSize == 0) {
 			return this.cacheFetcher.fetch(key, progressMonitor);
 		}
 
@@ -104,7 +108,8 @@ public class Cache<KEY, PAYLOAD> {
 
 			TimePassed passed = new TimePassed(true, "cache shrink");
 
-			int numDelete = cacheSize > 10 ? (int) (cacheSize * SHRINK_BY) : 1;
+			int numDelete = this.cacheSize > 10 ? (int) (this.cacheSize * SHRINK_BY)
+					: 1;
 			if (numDelete == 1) {
 				KEY delete = null;
 				int minUsedCount = Integer.MAX_VALUE;
@@ -121,8 +126,8 @@ public class Cache<KEY, PAYLOAD> {
 						this.cache.size(), new Comparator<KEY>() {
 							@Override
 							public int compare(KEY arg0, KEY arg1) {
-								int o1 = cache.get(arg0).usedCount;
-								int o2 = cache.get(arg1).usedCount;
+								int o1 = Cache.this.cache.get(arg0).usedCount;
+								int o2 = Cache.this.cache.get(arg1).usedCount;
 								if (o1 < o2) {
 									return -1;
 								}
