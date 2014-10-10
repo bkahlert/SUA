@@ -379,7 +379,7 @@ public class DiffViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
 			TreeItem[] treeItems, CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.TreeTableUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			IDiffRecord diffRecord = LOCATOR_SERVICE.resolve(
 					(URI) item.getData(), IDiffRecord.class, null).get();
@@ -416,7 +416,7 @@ public class DiffViewer extends SortableTreeViewer {
 			TreeItem[] treeItems, IIdentifier identifier,
 			CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.TreeTableUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			IDiffs diffs = LOCATOR_SERVICE.resolve((URI) item.getData(),
 					IDiffs.class, null).get();

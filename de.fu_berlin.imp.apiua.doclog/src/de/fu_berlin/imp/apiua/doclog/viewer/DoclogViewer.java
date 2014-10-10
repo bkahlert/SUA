@@ -393,7 +393,7 @@ public class DoclogViewer extends SortableTreeViewer {
 	public static List<TreePath> getItemsOfIntersectingDataRanges(
 			TreeItem[] treeItems, CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.TreeTableUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			DoclogRecord doclogRecord = LOCATOR_SERVICE.resolve(
 					(URI) item.getData(), DoclogRecord.class, null).get();
@@ -430,7 +430,7 @@ public class DoclogViewer extends SortableTreeViewer {
 			TreeItem[] treeItems, IIdentifier identifier,
 			CalendarRange[] dataRanges) throws Exception {
 		List<TreePath> treePaths = new ArrayList<TreePath>();
-		for (Item item : com.bkahlert.nebula.utils.ViewerUtils
+		for (Item item : com.bkahlert.nebula.utils.TreeTableUtils
 				.getItemWithDataType(treeItems, URI.class)) {
 			Doclog doclog = LOCATOR_SERVICE.resolve((URI) item.getData(),
 					Doclog.class, null).get();

@@ -374,7 +374,7 @@ public class EpisodeRenderer implements IDisposable {
 
 		@Override
 		public void paintControl(PaintEvent e) {
-			List<Item> items = com.bkahlert.nebula.utils.ViewerUtils
+			List<Item> items = com.bkahlert.nebula.utils.TreeTableUtils
 					.getAllItems((Control) e.widget);
 			if (items.size() == 0) {
 				return;
