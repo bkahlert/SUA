@@ -69,12 +69,22 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	public static final int DEFAULT_BACKGROUND_ALPHA = 70;
 	public static final int DEFAULT_BORDER_ALPHA = 100;
 
-	public static final Color VALUE_COLOR = new Color(Display.getDefault(),
-			RGB.SUCCESS.toClassicRGB());
-	public static final Styler VALUE_STYLER = new Styler() {
+	public static final Color VALID_VALUE_COLOR = new Color(
+			Display.getDefault(), RGB.SUCCESS.toClassicRGB());
+	public static final Color INVALID_VALUE_COLOR = new Color(
+			Display.getDefault(), RGB.DANGER.toClassicRGB());
+
+	public static final Styler VALID_VALUE_STYLER = new Styler() {
 		@Override
 		public void applyStyles(TextStyle textStyle) {
-			textStyle.foreground = VALUE_COLOR;
+			textStyle.foreground = VALID_VALUE_COLOR;
+		}
+	};
+
+	public static final Styler INVALID_VALUE_STYLER = new Styler() {
+		@Override
+		public void applyStyles(TextStyle textStyle) {
+			textStyle.foreground = INVALID_VALUE_COLOR;
 		}
 	};
 
@@ -331,17 +341,20 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			if (labelProvider != null) {
 				StyledString string = new StyledString(
 						labelProvider.getText(codeInstance.getId()), styler);
-				Pair<String, String> dimensionValues = GTLabelProvider
+				Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
 						.getDimensionValues(codeInstance);
 				if (dimensionValues != null) {
 					if (dimensionValues.getFirst() != null) {
 						string.append(" = ");
-						string.append(dimensionValues.getFirst(), VALUE_STYLER);
+						string.append(dimensionValues.getFirst());
 					}
 					if (dimensionValues.getSecond() != null) {
-						string.append(" ").append(
-								"(" + dimensionValues.getSecond() + ")",
-								Stylers.MINOR_STYLER);
+						string.append(" ")
+								.append("(", Stylers.MINOR_STYLER)
+								.append(Stylers.rebase(
+										dimensionValues.getSecond(),
+										Stylers.MINOR_STYLER))
+								.append(")", Stylers.MINOR_STYLER);
 					}
 				}
 				return string;
@@ -565,13 +578,13 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	 *            phenomenon.
 	 * @return
 	 */
-	public static Pair<String, String> getDimensionValues(
+	public static Pair<StyledString, StyledString> getDimensionValues(
 			ICodeInstance codeInstance) {
 		List<Triple<URI, IDimension, String>> dimensionValues = CODE_SERVICE
 				.getDimensionValues(codeInstance);
 
-		String ownValueString = null;
-		List<String> foreignValueStrings = new ArrayList<String>();
+		StyledString ownValueString = null;
+		ArrayList<StyledString> foreignValueStrings = new ArrayList<StyledString>();
 		for (Triple<URI, IDimension, String> dimensionValue : dimensionValues) {
 
 			ICode code = null;
@@ -585,25 +598,48 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			// used code
 			if (!dimensionValue.getFirst().equals(
 					codeInstance.getCode().getUri())) {
-				String string = code != null ? code.getCaption() : "ERROR";
-				string += " = ";
-				string += dimensionValue.getThird() != null ? dimensionValue
-						.getThird() : IScale.UNSET_LABEL;
-				foreignValueStrings.add(string);
+				StyledString string;
+				if (code != null) {
+					string = new StyledString(code.getCaption());
+				} else {
+					string = new StyledString("ERROR", Stylers.ATTENTION_STYLER);
+				}
+
+				string.append(" = ");
+
+				if (dimensionValue.getThird() != null) {
+					String v = dimensionValue.getThird();
+					string.append(
+							v,
+							dimensionValue.getSecond().isLegal(v) ? VALID_VALUE_STYLER
+									: INVALID_VALUE_STYLER);
+				} else {
+					string.append(IScale.UNSET_LABEL);
+				}
 			} else {
 				if (ownValueString != null) {
-					ownValueString = "Implementation Error - two own dimensions values detected";
+					ownValueString = new StyledString(
+							"Implementation Error - two own dimensions values detected",
+							Stylers.ATTENTION_STYLER);
 					Utils.LOGGER.fatal(ownValueString);
 				} else {
-					ownValueString = dimensionValue.getThird() != null ? dimensionValue
-							.getThird() : IScale.UNSET_LABEL;
+					if (dimensionValue.getThird() != null) {
+						String v = dimensionValue.getThird();
+						ownValueString = new StyledString(v, dimensionValue
+								.getSecond().isLegal(v) ? VALID_VALUE_STYLER
+								: INVALID_VALUE_STYLER);
+					} else {
+						ownValueString = new StyledString(IScale.UNSET_LABEL);
+					}
 				}
 			}
 		}
-		String foreignValuesString = null;
+		StyledString foreignValuesString = null;
 		if (foreignValueStrings.size() > 0) {
-			foreignValuesString = StringUtils.join(foreignValueStrings, ", ");
+			foreignValuesString = com.bkahlert.nebula.utils.StringUtils.join(
+					foreignValueStrings, new StyledString(", "));
 		}
-		return new Pair<String, String>(ownValueString, foreignValuesString);
+		return new Pair<StyledString, StyledString>(ownValueString,
+				foreignValuesString);
 	}
 }

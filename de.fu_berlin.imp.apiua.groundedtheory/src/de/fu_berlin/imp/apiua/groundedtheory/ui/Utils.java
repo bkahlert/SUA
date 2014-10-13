@@ -198,21 +198,23 @@ public class Utils {
 									element, ICode.class, null).get();
 							for (ICodeInstance codeInstance : CODE_SERVICE
 									.getInstances(code.getUri())) {
-								Pair<String, String> dimensionValues = GTLabelProvider
+								Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
 										.getDimensionValues(codeInstance);
 								if (dimensionValues != null) {
 									if (dimensionValues.getFirst() != null) {
 										text.append(" = ");
-										text.append(dimensionValues.getFirst(),
-												GTLabelProvider.VALUE_STYLER);
+										text.append(dimensionValues.getFirst());
 									}
 									if (dimensionValues.getSecond() != null) {
-										text.append(" ").append(
-												"("
-														+ dimensionValues
-																.getSecond()
-														+ ")",
-												Stylers.MINOR_STYLER);
+										text.append(" ")
+												.append("(",
+														Stylers.MINOR_STYLER)
+												.append(Stylers.rebase(
+														dimensionValues
+																.getSecond(),
+														Stylers.MINOR_STYLER))
+												.append(")",
+														Stylers.MINOR_STYLER);
 									}
 								}
 							}
