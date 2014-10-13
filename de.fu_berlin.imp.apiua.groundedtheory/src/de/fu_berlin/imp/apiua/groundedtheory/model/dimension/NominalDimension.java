@@ -161,8 +161,9 @@ public class NominalDimension implements IDimension {
 		for (int i = 0; i < this.possibleValues.size(); i++) {
 			itemList.addItem(i + "", this.possibleValues.get(i),
 					ButtonOption.DEFAULT, ButtonSize.EXTRA_SMALL,
-					ButtonStyle.HORIZONTAL,
-					Arrays.asList("<small>↩</small>", "<small>⌫</small>"));
+					ButtonStyle.HORIZONTAL, Arrays.asList(
+							"<small class=\"no_click\">↩</small>",
+							"<small class=\"no_click\">⌫</small>"));
 		}
 		itemList.addItem("add", "Add Nominal", ButtonOption.DEFAULT,
 				ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL, null);
