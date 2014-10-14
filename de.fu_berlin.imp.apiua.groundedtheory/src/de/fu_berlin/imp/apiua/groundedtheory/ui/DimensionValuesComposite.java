@@ -14,12 +14,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.SWTUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -138,8 +138,7 @@ public class DimensionValuesComposite extends Composite {
 
 			if (codeInstance.equals(highlight)) {
 				Group oldGroup = (Group) parent;
-				oldGroup.setBackground(Display.getCurrent().getSystemColor(
-						SWT.COLOR_INFO_BACKGROUND));
+				oldGroup.setBackground(RGB.WARNING_COLOR);
 			}
 		}
 

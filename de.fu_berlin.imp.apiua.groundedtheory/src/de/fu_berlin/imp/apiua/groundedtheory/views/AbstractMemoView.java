@@ -136,7 +136,11 @@ public class AbstractMemoView extends UriPresentingEditorView {
 								return true;
 							}
 						} catch (Exception e) {
-							LOGGER.error("Error handling " + anker.getHref(), e);
+							if (!URISyntaxException.class.isInstance(e
+									.getCause())) {
+								LOGGER.error(
+										"Error handling " + anker.getHref(), e);
+							}
 						}
 					}
 					return false;
@@ -286,61 +290,66 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public void loadAndClearHistory(URI... uris) {
-		final List<Integer> highlight = new ArrayList<Integer>();
-		final List<URI> filtered = new ArrayList<URI>();
+		final List<URI> highlight = new ArrayList<URI>();
+		final List<URI> highlightSpecial = new ArrayList<URI>();
+		final List<URI> toOpen = new ArrayList<URI>();
 		for (URI uri : uris) {
 			if (uri instanceof ViewerURI) {
 				continue;
 			}
 
-			// if a codeInstance is opened, open its reference instead
+			// if a codeInstance is opened, open its reference instead but
+			// highlight the original codeInstance
 			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
 				try {
 					ICodeInstance codeInstance = LocatorService.INSTANCE
 							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
 						uri = codeInstance.getId();
+						highlightSpecial.add(codeInstance.getUri());
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error checking where " + uri + " points to");
 				}
 			}
 
-			filtered.add(uri);
+			toOpen.add(uri);
 
 			// open all related instances's memos
-			for (ICodeInstance codeInstance : this.codeService.getInstances()) {
-				if (codeInstance.getId().equals(uri)) {
-					highlight.add(filtered.size());
-					filtered.add(codeInstance.getUri());
+			for (ICodeInstance codeInstance : this.codeService
+					.getInstances(uri)) {
+				if (!highlightSpecial.contains(codeInstance.getUri())) {
+					highlight.add(codeInstance.getUri());
 				}
+				toOpen.add(codeInstance.getUri());
 			}
 		}
-		while (this.history.size() > filtered.size()) {
+		while (this.history.size() > toOpen.size()) {
 			this.history.remove(this.history.size() - 1);
 		}
-		while (this.history.size() < filtered.size()) {
+		while (this.history.size() < toOpen.size()) {
 			this.history.add(new History<URI>());
 		}
-		for (int i = 0; i < filtered.size(); i++) {
+		for (int i = 0; i < toOpen.size(); i++) {
 			this.history.get(i).clear();
-			this.history.get(i).add(filtered.get(i));
+			this.history.get(i).add(toOpen.get(i));
 		}
 		this.updateNavigation();
 		this.load(new Runnable() {
 			@Override
 			public void run() {
-				for (int i = 0; i < filtered.size()
-						&& i < AbstractMemoView.this.getEditors().size(); i++) {
+				for (Editor<URI> editor : AbstractMemoView.this.getEditors()) {
+					URI uri = editor.getLoadedObject();
 					RGB rgb = null;
-					if (highlight.contains(i)) {
+					if (highlightSpecial.contains(uri)) {
+						rgb = RGB.WARNING;
+					} else if (highlight.contains(uri)) {
 						rgb = RGB.INFO;
 					}
-					AbstractMemoView.this.getEditors().get(i)
-							.setBackground(rgb);
+					editor.setBackground(rgb);
 				}
 			}
-		}, filtered.toArray(new URI[0]));
+		}, toOpen.toArray(new URI[0]));
 	}
 
 	protected void updateNavigation() {
