@@ -95,31 +95,7 @@ public class PropertiesComposite extends Composite {
 		});
 	}
 
-	@Override
-	public void dispose() {
-		try {
-			this.save();
-		} catch (CodeStoreWriteException e) {
-			LOGGER.error(e);
-		}
-		super.dispose();
-	}
-
 	public void load(URI uri) throws CodeStoreWriteException {
-		boolean load = true;
-
-		try {
-			this.save();
-		} catch (CodeStoreWriteException e) {
-			MessageBox box = new MessageBox(this.getShell(), SWT.ICON_WARNING
-					| SWT.YES | SWT.NO);
-			box.setText("Cyclic Dependency");
-			box.setMessage("Saving the changes would result in a cyclic dependency. Do you want to discard your changes?");
-			load = box.open() == SWT.YES;
-			LOGGER.error(e);
-		}
-
-		if (load) {
 			if (uri != null
 					&& LocatorService.INSTANCE.getType(uri) == ICode.class) {
 				ICode code = null;
@@ -140,10 +116,9 @@ public class PropertiesComposite extends Composite {
 			}
 
 			this.refresh();
-		}
 	}
 
-	private void save() throws CodeStoreWriteException {
+	public void save() throws CodeStoreWriteException {
 		URI uri = this.loaded;
 		if (uri == null) {
 			return;
@@ -185,11 +160,6 @@ public class PropertiesComposite extends Composite {
 			PropertiesComposite.this.propertiesList.addItem("add",
 					"Add Property", ButtonOption.DEFAULT,
 					ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL, null);
-		}
-		try {
-			PropertiesComposite.this.save();
-		} catch (CodeStoreWriteException e) {
-			LOGGER.error(e);
 		}
 	}
 

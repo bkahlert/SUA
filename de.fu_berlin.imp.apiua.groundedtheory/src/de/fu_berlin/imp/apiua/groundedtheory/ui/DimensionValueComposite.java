@@ -59,6 +59,8 @@ public class DimensionValueComposite extends Composite {
 	private final List<Control> labels = new LinkedList<Control>();
 	private final List<Control> valueEditors = new LinkedList<Control>();
 
+	private final IDimensionValueListener dimensionValueListener;
+
 	private final CodeServiceAdapter codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
@@ -106,13 +108,15 @@ public class DimensionValueComposite extends Composite {
 		};
 	};
 
-	public DimensionValueComposite(Composite parent, int style) {
+	public DimensionValueComposite(Composite parent, int style,
+			IDimensionValueListener dimensionValueListener) {
 		super(parent, SWT.NONE);
 
 		this.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.margins(0, 0).numColumns(2).create());
 
 		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
+		this.dimensionValueListener = dimensionValueListener;
 		this.refresh();
 	}
 
@@ -131,11 +135,7 @@ public class DimensionValueComposite extends Composite {
 		if (ObjectUtils.equals(this.loaded, codeInstance)) {
 			return;
 		}
-		try {
-			this.save();
-		} catch (CodeStoreWriteException e) {
-			throw new CodeServiceException(e);
-		}
+
 		this.loaded = codeInstance;
 
 		this.dimensions.clear();
@@ -165,7 +165,7 @@ public class DimensionValueComposite extends Composite {
 		}
 	}
 
-	private void save() throws CodeStoreWriteException {
+	public void save() throws CodeStoreWriteException {
 		ICodeInstance codeInstance = this.loaded;
 		if (codeInstance == null) {
 			return;
@@ -270,14 +270,14 @@ public class DimensionValueComposite extends Composite {
 				Control value;
 				if (dim != null) {
 					value = dim.createValueEditControl(this,
-							new IDimensionValueListener() {
+							new IDimension.IDimensionValueListener() {
 								@Override
 								public void dimensionValueChanged(
 										IDimension dimension, String newValue) {
-									try {
-										DimensionValueComposite.this.save();
-									} catch (CodeStoreWriteException e) {
-										LOGGER.error(e);
+									if (DimensionValueComposite.this.dimensionValueListener != null) {
+										DimensionValueComposite.this.dimensionValueListener
+												.dimensionValueChanged(
+														dimension, newValue);
 									}
 								}
 							});

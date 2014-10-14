@@ -1,24 +1,17 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -26,23 +19,21 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.PartRenamer;
-import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.utils.selection.retriever.ISelectionRetriever;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.NominalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.OrdinalDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionComposite;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValueComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValuesComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.DimensionValuesComposite.IDimensionValueListener;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.PropertiesComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 
@@ -51,9 +42,6 @@ public class DimensionView extends ViewPart {
 	private static final Logger LOGGER = Logger.getLogger(DimensionView.class);
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.DimensionView";
-
-	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
-			.getWorkbench().getService(ICodeService.class);
 
 	@SuppressWarnings("unused")
 	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
@@ -86,7 +74,7 @@ public class DimensionView extends ViewPart {
 	private final PartRenamer<URI> partRenamer;
 	private Composite parent;
 	private DimensionComposite dimensionComposite;
-	private Group dimensionValueGroup;
+	private DimensionValuesComposite dimensionValuesComposite;
 	private PropertiesComposite propertiesComposite;
 
 	public DimensionView() {
@@ -134,12 +122,25 @@ public class DimensionView extends ViewPart {
 		this.propertiesComposite = new PropertiesComposite(propertiesGroup,
 				SWT.NONE);
 
-		this.dimensionValueGroup = new Group(parent, SWT.BORDER);
-		this.dimensionValueGroup.setText("Dimension Values");
-		this.dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
+		Group dimensionValueGroup = new Group(parent, SWT.BORDER);
+		dimensionValueGroup.setText("Dimension Values");
+		dimensionValueGroup.setLayoutData(GridDataFactory.fillDefaults()
 				.span(2, 1).grab(true, true).create());
-		this.dimensionValueGroup.setLayout(GridLayoutFactory.fillDefaults()
-				.numColumns(2).create());
+		dimensionValueGroup.setLayout(new FillLayout());
+		this.dimensionValuesComposite = new DimensionValuesComposite(
+				dimensionValueGroup, SWT.NONE, new IDimensionValueListener() {
+					@Override
+					public void dimensionValueChanged(
+							ICodeInstance codeInstance, IDimension dimension,
+							String newValue) {
+						try {
+							DimensionView.this.dimensionValuesComposite
+									.save(codeInstance);
+						} catch (CodeStoreWriteException e) {
+							LOGGER.error(e);
+						}
+					}
+				});
 
 		// new ContextMenu(this.episodeViewer.getViewer(), this.getSite()) {
 		// @Override
@@ -153,84 +154,32 @@ public class DimensionView extends ViewPart {
 	private void load(URI uri) throws CodeStoreWriteException,
 			CodeServiceException {
 		this.partRenamer.apply(uri);
-		this.dimensionComposite.load(uri);
-		SWTUtils.clearControl(this.dimensionValueGroup);
-		if (uri != null) {
-			List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
-				try {
-					final ICodeInstance codeInstance = LocatorService.INSTANCE
-							.resolve(uri, ICodeInstance.class, null).get();
-					if (codeInstance != null) {
-						codeInstances.add(codeInstance);
-						if (CODE_SERVICE.getInstances(codeInstance.getId())
-								.size() > 1) {
-							Button button = new Button(
-									this.dimensionValueGroup, SWT.PUSH);
-							button.setLayoutData(GridDataFactory.swtDefaults()
-									.create());
-							button.setText("Show all dimension values...");
-							button.addSelectionListener(new SelectionAdapter() {
-								@Override
-								public void widgetSelected(SelectionEvent e) {
-									try {
-										DimensionView.this.load(codeInstance
-												.getId());
-										for (Control control : DimensionView.this.dimensionValueGroup
-												.getChildren()) {
-											if (ObjectUtils.equals(
-													control.getData(),
-													codeInstance.getUri())) {
-												Group oldGroup = (Group) control;
-												oldGroup.setBackground(Display
-														.getCurrent()
-														.getSystemColor(
-																SWT.COLOR_INFO_BACKGROUND));
-											}
-										}
-									} catch (Exception e1) {
-										LOGGER.error("Error loading "
-												+ codeInstance.getId(), e1);
-									}
-								}
-							});
 
-							Label label = new Label(this.dimensionValueGroup,
-									SWT.WRAP);
-							label.setLayoutData(GridDataFactory.fillDefaults()
-									.grab(true, false).create());
-							label.setText("Currently the association's single dimension value is loaded. To display the dimension values of all the phaenomenons associations, click on the button to the left.");
-						}
-					} else {
-						LOGGER.error("Error resolving " + ICodeInstance.class);
-					}
-				} catch (Exception e) {
-					LOGGER.error("Error resolving " + ICodeInstance.class, e);
-				}
-			} else {
-				codeInstances.addAll(CODE_SERVICE.getInstances(uri));
-			}
-
-			for (ICodeInstance codeInstance : codeInstances) {
-				Composite parent = this.dimensionValueGroup;
-				if (codeInstances.size() > 0 /* 1 */) {
-					Group group = new Group(this.dimensionValueGroup,
-							SWT.BORDER);
-					group.setData(codeInstance.getUri());
-					group.setLayoutData(GridDataFactory.fillDefaults()
-							.grab(true, true).span(2, 1).create());
-					group.setLayout(new FillLayout());
-					parent = group;
-				}
-
-				DimensionValueComposite dimensionValueComposite = new DimensionValueComposite(
-						parent, SWT.NONE);
-				dimensionValueComposite.load(codeInstance);
-			}
+		boolean load = true;
+		try {
+			this.save();
+		} catch (CodeStoreWriteException e) {
+			MessageBox box = new MessageBox(this.getSite().getShell(),
+					SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			box.setText("Cyclic Dependency");
+			box.setMessage("Saving the changes would result in a cyclic dependency. Do you want to discard your changes?");
+			load = box.open() == SWT.YES;
+			LOGGER.error(e);
 		}
-		this.propertiesComposite.load(uri);
+
+		if (load) {
+			this.dimensionComposite.load(uri);
+			this.dimensionValuesComposite.load(uri);
+			this.propertiesComposite.load(uri);
+		}
 
 		this.parent.layout(true, true);
+	}
+
+	private void save() throws CodeStoreWriteException {
+		// saves automatically this.dimensionComposite.save();
+		this.dimensionValuesComposite.save();
+		this.propertiesComposite.save();
 	}
 
 	@Override
