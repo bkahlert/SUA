@@ -116,49 +116,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						@Override
 						protected IStatus runNamed(IProgressMonitor monitor) {
 							try {
-								SubMonitor subMonitor = SubMonitor.convert(
-										monitor, 10);
-								List<URI> uris = ExecUtils
-										.syncExec(new Callable<List<URI>>() {
-											@Override
-											public List<URI> call()
-													throws Exception {
-												List<Object> objects = ViewerUtils
-														.getAllItems(treeViewer);
-												List<URI> uris = new ArrayList<URI>();
-												for (Object object : objects) {
-													if (object instanceof URI) {
-														URI uri = (URI) object;
-														if (!uris.contains(uri)) {
-															uris.add(uri);
-														}
-													}
-												}
-												return uris;
-											}
-										});
-								subMonitor.worked(1);
-								LocatorService.INSTANCE.setCacheSize((int) Math
-										.round(uris.size() * 2.5));
-								List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-								for (ILocatable locatable : LocatorService.INSTANCE
-										.resolve(uris, subMonitor.newChild(8))
-										.get()) {
-									if (locatable instanceof ICodeInstance) {
-										codeInstances
-												.add((ICodeInstance) locatable);
-									}
-								}
-								subMonitor.setWorkRemaining(codeInstances
-										.size());
-								for (ICodeInstance codeInstance : codeInstances) {
-									LocatorService.INSTANCE.resolve(
-											codeInstance.getId(),
-											subMonitor.newChild(1)).get();
-								}
-
-								LocatorService.INSTANCE.resetCacheSize();
-								subMonitor.done();
+								CodeViewer.this.preload(ViewerUtils
+										.getTopLevelItems(treeViewer), monitor);
 							} catch (Exception e) {
 								LOGGER.error(
 										"Error prefetching elements before filtering",
@@ -387,6 +346,51 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						return null;
 					}
 				});
+	}
+
+	/**
+	 * Resolves (using {@link LocatorService}) all the given objects and their
+	 * descendants. This becomes handy to preload items, so a later running UI
+	 * thread code will not need to spend the time resolving.
+	 * 
+	 * @param parentObjects
+	 * @param monitor
+	 * @return
+	 */
+	/**
+	 * Preloads the given of the
+	 * 
+	 * @param parentElements
+	 * @param monitor
+	 * 
+	 * @throws Exception
+	 */
+	protected void preload(final List<?> parentElements,
+			IProgressMonitor monitor) throws Exception {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+		List<URI> uris = ExecUtils.syncExec(new Callable<List<URI>>() {
+			@Override
+			public List<URI> call() throws Exception {
+				List<Object> elements = new ArrayList<Object>();
+				for (Object parentObject : parentElements) {
+					elements.addAll(ViewerUtils.getDescendants(
+							CodeViewer.this.viewer, parentObject));
+				}
+				List<URI> uris = new ArrayList<URI>();
+				for (Object object : elements) {
+					if (object instanceof URI) {
+						URI uri = (URI) object;
+						if (!uris.contains(uri)) {
+							uris.add(uri);
+						}
+					}
+				}
+				return uris;
+			}
+		});
+		subMonitor.worked(1);
+		LocatorService.preload(uris, subMonitor.newChild(9));
+		subMonitor.done();
 	}
 
 	/**
