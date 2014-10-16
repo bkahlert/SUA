@@ -188,6 +188,49 @@ public interface ICodeService {
 			throws CodeServiceException;
 
 	/**
+	 * Returns the position of an {@link ICode} in the hierarchy compared to its
+	 * siblings.
+	 * <p>
+	 * 
+	 * <pre>
+	 * <code>
+	 * A
+	 * |- B
+	 * |- C</code>
+	 * </pre>
+	 * 
+	 * Here <code>A</code> and <code>B</code> would have position 0 and
+	 * <code>C</code> would have position 1.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public int getPosition(ICode code);
+
+	/**
+	 * Sets the position of an {@link ICode} in the hierarchy compared to its
+	 * siblings. The {@link ICode} will always be positioned before the
+	 * {@link ICode} that it currently at position 0. In order to make an
+	 * element the last one, it can be set to position -1.
+	 * <p>
+	 * 
+	 * <pre>
+	 * <code>
+	 * A
+	 * |- B
+	 * |- C</code>
+	 * </pre>
+	 * 
+	 * Setting <code>B</code>'s position to and <code>B</code> would have
+	 * position 0 and <code>C</code> would have position 1.
+	 * 
+	 * @param code
+	 * @param pos
+	 *            if out of bounds element is made the last element.
+	 */
+	public void setPosition(ICode code, int pos);
+
+	/**
 	 * Removes a {@link ICode} from an {@link ILocatable}
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}

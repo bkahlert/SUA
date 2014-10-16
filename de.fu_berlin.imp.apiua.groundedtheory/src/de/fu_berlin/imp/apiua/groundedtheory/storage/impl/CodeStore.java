@@ -33,8 +33,10 @@ import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.utils.CalendarUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.IteratorUtils;
+import com.bkahlert.nebula.utils.ListUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.utils.selection.ArrayUtils;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
@@ -610,6 +612,49 @@ class CodeStore implements ICodeStore {
 			}
 		}
 		return subCodes;
+	}
+
+	@Override
+	public int getPosition(ICode code) {
+		TreeNode<ICode> treeNode = this.assertiveFind(code);
+		if (treeNode.getParent() == null) {
+			for (int i = 0; i < this.codeTrees.size(); i++) {
+				if (this.codeTrees.get(i).getData().equals(code)) {
+					return i;
+				}
+			}
+		} else {
+			TreeNode<ICode>[] siblings = treeNode.getParent().children();
+			for (int i = 0; i < siblings.length; i++) {
+				if (siblings[i].getData().equals(code)) {
+					return i;
+				}
+			}
+		}
+		throw new RuntimeException("Implementation error");
+	}
+
+	@Override
+	public void setPosition(ICode code, int pos) {
+		System.err.println(code.getCaption() + " -> " + pos);
+		TreeNode<ICode> treeNode = this.assertiveFind(code);
+		if (treeNode.getParent() == null) {
+			for (int i = 0; i < this.codeTrees.size(); i++) {
+				if (this.codeTrees.get(i).getData().equals(code)) {
+					ListUtils.moveElement(this.codeTrees, i, pos);
+					return;
+				}
+			}
+		} else {
+			TreeNode<ICode>[] siblings = treeNode.getParent().children();
+			for (int i = 0; i < siblings.length; i++) {
+				if (siblings[i].getData().equals(code)) {
+					ArrayUtils.moveElement(siblings, i, pos);
+					return;
+				}
+			}
+		}
+		throw new RuntimeException("Implementation error");
 	}
 
 	@Override

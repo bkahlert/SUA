@@ -335,6 +335,17 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public int getPosition(ICode code) {
+		return this.codeStore.getPosition(code);
+	}
+
+	@Override
+	public void setPosition(ICode code, int pos) {
+		this.codeStore.setPosition(code, pos);
+		this.codeServiceListenerNotifier.codeMoved(code, null, null);
+	}
+
+	@Override
 	public void removeCodes(List<ICode> codes, final URI uri)
 			throws CodeServiceException {
 		if (codes.size() == 0) {
