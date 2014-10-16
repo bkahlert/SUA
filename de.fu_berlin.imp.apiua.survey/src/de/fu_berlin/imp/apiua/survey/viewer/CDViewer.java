@@ -160,8 +160,8 @@ public class CDViewer extends Viewer {
 			public void clicked(double x, double y, IElement element) {
 				boolean draggable = element.getAttribute("draggable") != null
 						&& element.getAttribute("draggable").equals("true");
-				if (ArrayUtils.contains(element.getClasses(),
-						"glyphicon-share-alt") || draggable) {
+				if (ArrayUtils.contains(element.getClasses(), "btn")
+						&& draggable) {
 					MessageBox box = new MessageBox(Display.getCurrent()
 							.getActiveShell());
 					box.setMessage("You can drag this button in order to code it.");
@@ -307,7 +307,7 @@ public class CDViewer extends Viewer {
 							+ "\" class=\"btn btn-primary btn-xs\">Add Code...</a>");
 					form.addRaw("<a href=\"#\" class=\"btn btn-primary btn-xs\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
 							+ field.getUri()
-							+ "\"><span class=\"glyphicon glyphicon-share-alt\" style=\"height: 1.5em; line-height: 1.4em;\"></span></a></div>");
+							+ "\"><span class=\"glyphicon glyphicon-share-alt no_click\" style=\"height: 1.5em; line-height: 1.4em;\"></span></a></div>");
 					form.addRaw("</td><td style=\"width:10%;\">");
 					form.addRaw(this.createAnnotations(field));
 					form.addRaw("</td></tr>");
