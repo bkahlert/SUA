@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IWorkSession;
+import de.fu_berlin.imp.apiua.core.util.Cache;
 
 /**
  * Instances of this class can be part of an {@link IWorkSession}.
@@ -153,8 +154,32 @@ public interface ILocatorService {
 	public Future<Boolean> showInWorkspace(URI[] uris, boolean open,
 			IProgressMonitor monitor);
 
-	public void setCacheSize(int cacheSize);
+	/**
+	 * Creates a {@link Cache} that can be used to
+	 * {@link #preload(String, List, IProgressMonitor)} certain objects for a
+	 * specific purpose. This way preloaded objects will always resolve in a
+	 * fast fashion.
+	 * 
+	 * @param key
+	 * @param cacheSize
+	 */
+	public void createCache(String key, int cacheSize);
 
-	public void resetCacheSize();
+	/**
+	 * Destroy a previously created {@link Cache}.
+	 * 
+	 * @param key
+	 */
+	public void destroyCache(String key);
+
+	/**
+	 * Preloads the given {@link URI}s using the cache determined by key.
+	 * 
+	 * @param key
+	 * @param uris
+	 * @param monitor
+	 */
+	public Future<List<ILocatable>> preload(String key, List<URI> uris,
+			IProgressMonitor monitor);
 
 }

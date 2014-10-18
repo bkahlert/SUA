@@ -116,8 +116,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 						@Override
 						protected IStatus runNamed(IProgressMonitor monitor) {
 							try {
-								CodeViewer.this.preload(ViewerUtils
-										.getTopLevelItems(treeViewer), monitor);
+								preload(treeViewer,
+										ViewerUtils
+												.getTopLevelItems(treeViewer),
+										monitor);
 							} catch (Exception e) {
 								LOGGER.error(
 										"Error prefetching elements before filtering",
@@ -169,7 +171,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				initialShowInstances == ShowInstances.ON));
 		viewer.setInput(PlatformUI.getWorkbench()
 				.getService(ICodeService.class));
-		loadExpandedElements(viewer, saveExpandedElementsKey);
+		loadExpandedElementsASync(viewer, saveExpandedElementsKey);
 		tree.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -331,21 +333,43 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void loadExpandedElements(TreeViewer viewer,
-			String saveExpandedElementsKey) {
-		new NebulaPreferences().loadExpandedElements(saveExpandedElementsKey,
-				viewer, new IConverter<String, Object>() {
-					@Override
-					public Object convert(String returnValue) {
-						try {
-							return new URI(returnValue);
-						} catch (Exception e) {
-							LOGGER.error("Error loading expanded element "
-									+ returnValue, e);
-						}
-						return null;
-					}
-				});
+	private static void loadExpandedElementsASync(final TreeViewer viewer,
+			final String saveExpandedElementsKey) {
+		Job job = new NamedJob(CodeViewer.class, "Loading Expanded Elements") {
+			@Override
+			protected IStatus runNamed(IProgressMonitor monitor) {
+				final SubMonitor subMonitor = SubMonitor.convert(monitor);
+				new NebulaPreferences().loadExpandedElements(
+						saveExpandedElementsKey, viewer,
+						new IConverter<String, Object>() {
+							@Override
+							public Object convert(String returnValue) {
+								try {
+									URI uri = new URI(returnValue);
+									subMonitor.setWorkRemaining(2);
+									List<URI> preload = new ArrayList<URI>();
+									preload.add(uri);
+									for (Object descendant : ViewerUtils
+											.getDescendants(viewer, uri)) {
+										if (descendant instanceof URI) {
+											preload.add((URI) descendant);
+										}
+									}
+									preload(viewer, preload,
+											subMonitor.newChild(1));
+									return uri;
+								} catch (Exception e) {
+									LOGGER.error(
+											"Error loading expanded element "
+													+ returnValue, e);
+								}
+								return null;
+							}
+						});
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 	}
 
 	/**
@@ -360,21 +384,24 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	/**
 	 * Preloads the given of the
 	 * 
+	 * @param viewer
+	 * 
 	 * @param parentElements
 	 * @param monitor
 	 * 
 	 * @throws Exception
 	 */
-	protected void preload(final List<?> parentElements,
-			IProgressMonitor monitor) throws Exception {
+	protected static void preload(final TreeViewer viewer,
+			final List<?> parentElements, IProgressMonitor monitor)
+			throws Exception {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
 		List<URI> uris = ExecUtils.syncExec(new Callable<List<URI>>() {
 			@Override
 			public List<URI> call() throws Exception {
 				List<Object> elements = new ArrayList<Object>();
 				for (Object parentObject : parentElements) {
-					elements.addAll(ViewerUtils.getDescendants(
-							CodeViewer.this.viewer, parentObject));
+					elements.addAll(ViewerUtils.getDescendants(viewer,
+							parentObject));
 				}
 				List<URI> uris = new ArrayList<URI>();
 				for (Object object : elements) {
@@ -389,7 +416,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			}
 		});
 		subMonitor.worked(1);
-		LocatorService.preload(uris, subMonitor.newChild(9));
+		LocatorService.preload(CodeViewer.class.toString(), uris,
+				subMonitor.newChild(9));
 		subMonitor.done();
 	}
 

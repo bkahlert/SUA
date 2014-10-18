@@ -2,7 +2,10 @@ package de.fu_berlin.imp.apiua.core.services.location.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -33,7 +36,7 @@ public class LocatorService implements ILocatorService {
 	private static final Logger LOGGER = Logger.getLogger(LocatorService.class);
 	private static final boolean LOG_FAST_RUNTIME = false;
 	private static final boolean LOG_SLOW_RUNTIME = true;
-	private static final int CACHE_SIZE = 500;
+	private static final int DEFAULT_CACHE_SIZE = 500;
 
 	private static ILocatorProvider[] locatorProviders = null;
 
@@ -89,94 +92,133 @@ public class LocatorService implements ILocatorService {
 		return slowLocatorProviders;
 	}
 
-	private final Cache<URI, ILocatable> uriCache = new Cache<URI, ILocatable>(
-			new CacheFetcher<URI, ILocatable>() {
+	private final Map<String, Cache<URI, ILocatable>> caches = new HashMap<String, Cache<URI, ILocatable>>();
 
-				@Override
-				public ILocatable fetch(final URI uri, IProgressMonitor monitor) {
-					Assert.isLegal(uri != null);
-
-					if (getRegisteredLocatorProviders() == null
-							|| getRegisteredLocatorProviders().length == 0) {
-						return null;
-					}
-
-					List<ILocatorProvider> fastLocatorProviders = LocatorService.this
-							.getFastLocatorProviders(uri);
-
-					for (final ILocatorProvider fastLocatorProvider : fastLocatorProviders) {
-						ILocatable locatable = fastLocatorProvider.getObject(
-								uri, null);
-						if (locatable != null) {
-							return locatable;
-						}
-					}
-
-					List<ILocatorProvider> slowLocatorProviders = LocatorService.this
-							.getSlowLocatorProviders(uri);
-					if (slowLocatorProviders.size() > 0
-							&& ExecUtils.isUIThread()) {
-						LOGGER.fatal("Implementation Error - Slow "
-								+ URI.class.getSimpleName()
-								+ " resolution in the UI thread detected!");
-					}
-
-					final SubMonitor subMonitor = SubMonitor.convert(monitor,
-							slowLocatorProviders.size());
-					List<Future<ILocatable>> futureLocatables = new ArrayList<Future<ILocatable>>(
-							slowLocatorProviders.size());
-					for (final ILocatorProvider slowLocatorProvider : slowLocatorProviders) {
-						Future<ILocatable> futureLocatable = ExecUtils
-								.nonUIAsyncExec(LocatorService.class,
-										"Resolving " + uri,
-										new Callable<ILocatable>() {
-											@Override
-											public ILocatable call()
-													throws Exception {
-												return slowLocatorProvider
-														.getObject(
-																uri,
-																subMonitor
-																		.newChild(1));
-											}
-										});
-						futureLocatables.add(futureLocatable);
-					}
-					for (Future<ILocatable> futureLocatable : futureLocatables) {
-						ILocatable finding = null;
-						try {
-							finding = futureLocatable.get();
-						} catch (InterruptedException e) {
-							LOGGER.error(
-									"Error while resolving "
-											+ URI.class.getSimpleName() + " "
-											+ uri + " to "
-											+ ILocatable.class.getSimpleName(),
-									e);
-						} catch (ExecutionException e) {
-							LOGGER.error(
-									"Error while resolving "
-											+ URI.class.getSimpleName() + " "
-											+ uri + " to "
-											+ ILocatable.class.getSimpleName(),
-									e);
-						}
-						if (finding != null) {
-							return finding;
-						}
-					}
-					return null;
-				}
-			}, CACHE_SIZE);
-
-	@Override
-	public void setCacheSize(int cacheSize) {
-		this.uriCache.setCacheSize(cacheSize);
+	public LocatorService() {
+		this.createCache(null, DEFAULT_CACHE_SIZE);
 	}
 
 	@Override
-	public void resetCacheSize() {
-		this.uriCache.setCacheSize(CACHE_SIZE);
+	public void createCache(String key, int cacheSize) {
+		if (this.caches.containsKey(key)) {
+			this.caches.get(key).setCacheSize(cacheSize);
+		} else {
+			this.caches.put(key, new Cache<URI, ILocatable>(
+					new CacheFetcher<URI, ILocatable>() {
+
+						@Override
+						public ILocatable fetch(final URI uri,
+								IProgressMonitor monitor) {
+							Assert.isLegal(uri != null);
+
+							if (getRegisteredLocatorProviders() == null
+									|| getRegisteredLocatorProviders().length == 0) {
+								return null;
+							}
+
+							List<ILocatorProvider> fastLocatorProviders = LocatorService.this
+									.getFastLocatorProviders(uri);
+
+							for (final ILocatorProvider fastLocatorProvider : fastLocatorProviders) {
+								ILocatable locatable = fastLocatorProvider
+										.getObject(uri, null);
+								if (locatable != null) {
+									return locatable;
+								}
+							}
+
+							List<ILocatorProvider> slowLocatorProviders = LocatorService.this
+									.getSlowLocatorProviders(uri);
+							if (slowLocatorProviders.size() > 0
+									&& ExecUtils.isUIThread()) {
+								LOGGER.fatal("Implementation Error - Slow "
+										+ URI.class.getSimpleName()
+										+ " resolution in the UI thread detected!");
+							}
+
+							final SubMonitor subMonitor = SubMonitor.convert(
+									monitor, slowLocatorProviders.size());
+							List<Future<ILocatable>> futureLocatables = new ArrayList<Future<ILocatable>>(
+									slowLocatorProviders.size());
+							for (final ILocatorProvider slowLocatorProvider : slowLocatorProviders) {
+								Future<ILocatable> futureLocatable = ExecUtils
+										.nonUIAsyncExec(LocatorService.class,
+												"Resolving " + uri,
+												new Callable<ILocatable>() {
+													@Override
+													public ILocatable call()
+															throws Exception {
+														return slowLocatorProvider
+																.getObject(
+																		uri,
+																		subMonitor
+																				.newChild(1));
+													}
+												});
+								futureLocatables.add(futureLocatable);
+							}
+							for (Future<ILocatable> futureLocatable : futureLocatables) {
+								ILocatable finding = null;
+								try {
+									finding = futureLocatable.get();
+								} catch (InterruptedException e) {
+									LOGGER.error(
+											"Error while resolving "
+													+ URI.class.getSimpleName()
+													+ " "
+													+ uri
+													+ " to "
+													+ ILocatable.class
+															.getSimpleName(), e);
+								} catch (ExecutionException e) {
+									LOGGER.error(
+											"Error while resolving "
+													+ URI.class.getSimpleName()
+													+ " "
+													+ uri
+													+ " to "
+													+ ILocatable.class
+															.getSimpleName(), e);
+								}
+								if (finding != null) {
+									return finding;
+								}
+							}
+							return null;
+						}
+					}, cacheSize));
+		}
+	}
+
+	@Override
+	public void destroyCache(String key) {
+		if (this.caches.containsKey(key)) {
+			this.caches.remove(key);
+		}
+	}
+
+	@Override
+	public Future<List<ILocatable>> preload(String key, final List<URI> uris,
+			final IProgressMonitor monitor) {
+		if (!this.caches.containsKey(key)) {
+			return new CompletedFuture<List<ILocatable>>(null,
+					new IllegalArgumentException("key is invalid"));
+		}
+		final Cache<URI, ILocatable> cache = this.caches.get(key);
+		return ExecUtils.nonUIAsyncExec(LocatorService.class, "Resolving "
+				+ uris, new Callable<List<ILocatable>>() {
+			@Override
+			public List<ILocatable> call() throws Exception {
+				List<ILocatable> locatables = new ArrayList<ILocatable>();
+				SubMonitor subMonitor = SubMonitor.convert(monitor, uris.size());
+				for (URI uri : uris) {
+					ILocatable locatable = cache.getPayload(uri,
+							subMonitor.newChild(1));
+					locatables.add(locatable);
+				}
+				return locatables;
+			}
+		});
 	}
 
 	@Override
@@ -222,10 +264,21 @@ public class LocatorService implements ILocatorService {
 		@SuppressWarnings("unused")
 		final long start = LOG_FAST_RUNTIME || LOG_SLOW_RUNTIME ? System
 				.currentTimeMillis() : 0l;
-		if (this.uriCache.isCached(uri)
+
+		Cache<URI, ILocatable> cachingCache = null;
+		for (Entry<String, Cache<URI, ILocatable>> entry : this.caches
+				.entrySet()) {
+			if (entry.getValue().isCached(uri)) {
+				cachingCache = entry.getValue();
+				break;
+			}
+		}
+		if (cachingCache != null
 				|| this.getSlowLocatorProviders(uri).size() == 0) {
-			ILocatable locatable = LocatorService.this.uriCache.getPayload(uri,
-					monitor);
+			if (cachingCache == null) {
+				cachingCache = this.caches.get(null);
+			}
+			ILocatable locatable = cachingCache.getPayload(uri, monitor);
 			if (!clazz.isInstance(locatable)) {
 				locatable = null;
 			}
@@ -239,7 +292,7 @@ public class LocatorService implements ILocatorService {
 					+ uri, new Callable<T>() {
 				@Override
 				public T call() throws Exception {
-					ILocatable locatable = LocatorService.this.uriCache
+					ILocatable locatable = LocatorService.this.caches.get(null)
 							.getPayload(uri, monitor);
 					if (!clazz.isInstance(locatable)) {
 						locatable = null;
@@ -336,7 +389,9 @@ public class LocatorService implements ILocatorService {
 	@Override
 	public void uncache(URI[] uris) {
 		for (URI uri : uris) {
-			this.uriCache.removeKey(uri);
+			for (Cache<URI, ILocatable> cache : this.caches.values()) {
+				cache.removeKey(uri);
+			}
 		}
 	}
 

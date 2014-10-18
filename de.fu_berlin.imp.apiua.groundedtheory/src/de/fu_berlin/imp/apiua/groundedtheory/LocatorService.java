@@ -29,17 +29,33 @@ public class LocatorService {
 		}
 	}
 
+	// private static final int CACHE_RESET_DELAY = 2000;
+	//
+	// private static DelayableThread delayableThread = null;
+	//
+	// private static void delayedCacheDestroy() {
+	// if (delayableThread != null) {
+	// delayableThread.setDelay(CACHE_RESET_DELAY);
+	// } else {
+	// delayableThread = new DelayableThread(new Runnable() {
+	// @Override
+	// public void run() {
+	// INSTANCE.resetCacheSize();
+	// delayableThread = null;
+	// }
+	// }, CACHE_RESET_DELAY);
+	// }
+	// }
+
 	/**
 	 * Preloads the given {@link URI}s. This process differs from
 	 * {@link ILocatorService#resolve(URI[], IProgressMonitor)} in the following
 	 * way:
 	 * <ol>
-	 * <li>The cache is resized to the preloaded elements can be accessed in a
-	 * fast fashion.</li>
 	 * <li>If an {@link ICodeInstance} was resolved its content will also be
 	 * preloaded.</li>
 	 * <li>This function does not return a {@link Future} but returns when it
-	 * really preloaded the elements.</li>
+	 * actually preloaded the elements.</li>
 	 * </ol>
 	 * 
 	 * @param uris
@@ -49,34 +65,32 @@ public class LocatorService {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public static void preload(List<URI> uris, IProgressMonitor monitor)
-			throws InterruptedException, ExecutionException {
+	public static void preload(String cacheKey, List<URI> uris,
+			IProgressMonitor monitor) throws InterruptedException,
+			ExecutionException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor,
 				(int) Math.round(uris.size() * 1.3));
-		INSTANCE.setCacheSize((int) Math.round(uris.size() * 2.5));
-		List<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
+		INSTANCE.createCache(cacheKey, (int) Math.round(uris.size() * 2.5));
+		List<URI> codeInstancePhenomenons = new ArrayList<URI>();
 
-		Future<List<ILocatable>> futureLocatables = INSTANCE.resolve(uris,
-				subMonitor.newChild(8));
+		Future<List<ILocatable>> futureLocatables = INSTANCE.preload(cacheKey,
+				uris, subMonitor.newChild(8));
 		if (ExecUtils.isUIThread()) {
 			ExecUtils.busyWait(futureLocatables);
 		}
 		for (ILocatable locatable : futureLocatables.get()) {
 			if (locatable instanceof ICodeInstance) {
-				codeInstances.add((ICodeInstance) locatable);
+				codeInstancePhenomenons
+						.add(((ICodeInstance) locatable).getId());
 			}
 		}
-		subMonitor.setWorkRemaining(codeInstances.size());
-		for (ICodeInstance codeInstance : codeInstances) {
-			Future<ILocatable> future = INSTANCE.resolve(codeInstance.getId(),
-					subMonitor.newChild(1));
-			if (ExecUtils.isUIThread()) {
-				ExecUtils.busyWait(future);
-			}
-			future.get();
+		subMonitor.setWorkRemaining(codeInstancePhenomenons.size());
+		Future<List<ILocatable>> future = INSTANCE.preload(cacheKey,
+				codeInstancePhenomenons, subMonitor.newChild(1));
+		if (ExecUtils.isUIThread()) {
+			ExecUtils.busyWait(future);
 		}
-
-		INSTANCE.resetCacheSize();
+		future.get();
 	}
 
 }

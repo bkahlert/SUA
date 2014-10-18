@@ -636,7 +636,6 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void setPosition(ICode code, int pos) {
-		System.err.println(code.getCaption() + " -> " + pos);
 		TreeNode<ICode> treeNode = this.assertiveFind(code);
 		if (treeNode.getParent() == null) {
 			for (int i = 0; i < this.codeTrees.size(); i++) {
