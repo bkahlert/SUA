@@ -141,12 +141,14 @@ public class ResortableCodeViewer extends CodeViewer {
 						URI destUri = event.item != null
 								&& event.item.getData() instanceof URI ? (URI) event.item
 								.getData() : null;
-						try {
-							ResortableCodeViewer.this.preload(
-									Arrays.asList(destUri), null);
-						} catch (Exception e1) {
-							LOGGER.error("Error preloading " + destUri, e1);
-						}
+
+						// TODO: leads to memo exception
+						// try {
+						// ResortableCodeViewer.this.preload(
+						// Arrays.asList(destUri), null);
+						// } catch (Exception e1) {
+						// LOGGER.error("Error preloading " + destUri, e1);
+						// }
 
 						event.feedback = DND.FEEDBACK_SCROLL;
 						event.detail = DND.DROP_NONE;
