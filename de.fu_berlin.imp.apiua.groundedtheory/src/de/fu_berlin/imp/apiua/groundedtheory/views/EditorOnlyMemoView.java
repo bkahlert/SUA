@@ -35,7 +35,7 @@ public class EditorOnlyMemoView extends AbstractMemoView {
 			}
 			URI uri = this.getLocatable(part);
 			if (uri != null) {
-				EditorOnlyMemoView.this.loadAndClearHistory(uri);
+				EditorOnlyMemoView.this.loadAndClearHistory(null, uri);
 			}
 		}
 

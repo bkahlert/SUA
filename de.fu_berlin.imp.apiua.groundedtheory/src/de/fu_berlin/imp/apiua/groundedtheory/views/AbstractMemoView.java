@@ -289,7 +289,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		}
 	}
 
-	public void loadAndClearHistory(URI... uris) {
+	public void loadAndClearHistory(final Runnable callback, URI... uris) {
 		final List<URI> highlight = new ArrayList<URI>();
 		final List<URI> highlightSpecial = new ArrayList<URI>();
 		final List<URI> toOpen = new ArrayList<URI>();
@@ -347,6 +347,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 						rgb = RGB.INFO;
 					}
 					editor.setBackground(rgb);
+				}
+				if (callback != null) {
+					callback.run();
 				}
 			}
 		}, toOpen.toArray(new URI[0]));

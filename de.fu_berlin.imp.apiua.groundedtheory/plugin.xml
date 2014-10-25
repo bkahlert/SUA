@@ -867,6 +867,12 @@
             schemeId="de.fu_berlin.imp.apiua.scheme"
             sequence="M1++">
       </key>
+      <key
+            commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.pinMemo"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="de.fu_berlin.imp.apiua.scheme"
+            sequence="M1+P">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.services">
