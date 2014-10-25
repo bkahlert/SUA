@@ -9,10 +9,10 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.Activator;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Episode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;

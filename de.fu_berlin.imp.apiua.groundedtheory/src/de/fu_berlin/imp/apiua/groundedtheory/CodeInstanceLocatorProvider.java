@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -16,7 +17,6 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;

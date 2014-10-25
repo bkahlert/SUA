@@ -1,12 +1,12 @@
 package de.fu_berlin.imp.apiua.timeline.handlers;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 
 import de.fu_berlin.imp.apiua.core.model.HasIdentifier;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -33,14 +33,9 @@ public abstract class AbstractNavigateHandler extends AbstractHandler {
 	}
 
 	protected TimelineView getTimelineView() {
-		for (IViewReference viewReference : PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage().getViewReferences()) {
-			IWorkbenchPart part = viewReference.getPart(false);
-			if (part instanceof TimelineView) {
-				return (TimelineView) part;
-			}
-		}
-		return null;
+		List<TimelineView> timelineViews = WorkbenchUtils
+				.getViews(TimelineView.class);
+		return timelineViews.size() > 0 ? timelineViews.get(0) : null;
 	}
 
 	protected InformationPresentingTimeline getTimeline() {

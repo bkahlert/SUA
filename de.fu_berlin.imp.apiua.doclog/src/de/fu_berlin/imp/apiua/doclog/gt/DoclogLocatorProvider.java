@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -23,7 +24,6 @@ import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.doclog.Activator;
 import de.fu_berlin.imp.apiua.doclog.model.Doclog;
 import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;

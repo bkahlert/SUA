@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
@@ -16,14 +15,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
 
@@ -56,35 +54,11 @@ public class EntityView extends ViewPart implements IDataSourceFilterListener,
 	public static class Factory implements IExecutableExtensionFactory {
 		@Override
 		public Object create() throws CoreException {
-			IViewReference[] allViews;
 			try {
-				allViews = ExecUtils.syncExec(new Callable<IViewReference[]>() {
-					@Override
-					public IViewReference[] call() throws Exception {
-						return PlatformUI.getWorkbench()
-								.getActiveWorkbenchWindow().getActivePage()
-								.getViewReferences();
-					}
-				});
+				return WorkbenchUtils.getView(ID);
 			} catch (Exception e) {
-				LOGGER.error("Error enumerating present views");
-				return null;
-			}
-
-			for (final IViewReference viewReference : allViews) {
-				if (viewReference.getId().equals(ID)) {
-					try {
-						return ExecUtils.syncExec(new Callable<IViewPart>() {
-							@Override
-							public IViewPart call() throws Exception {
-								return viewReference.getView(true);
-							}
-						});
-					} catch (Exception e) {
-						LOGGER.fatal("Error retrieving "
-								+ ViewPart.class.getSimpleName() + " " + ID);
-					}
-				}
+				LOGGER.error("Error retrieving "
+						+ ViewPart.class.getSimpleName() + " " + ID);
 			}
 			return null;
 		}

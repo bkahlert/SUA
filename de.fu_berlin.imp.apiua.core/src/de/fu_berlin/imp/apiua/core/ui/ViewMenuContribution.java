@@ -23,8 +23,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.osgi.framework.Bundle;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 
 public class ViewMenuContribution extends ContributionItem {
 

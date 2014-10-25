@@ -1,13 +1,15 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
+
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 
 import de.fu_berlin.imp.apiua.groundedtheory.views.PinnableMemoView;
 
@@ -22,10 +24,9 @@ public class PinMemoHandler extends AbstractHandler {
 		Command command = event.getCommand();
 		boolean oldValue = HandlerUtil.toggleCommandState(command);
 		boolean pin = !oldValue;
-		IWorkbenchPart activePart = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getPartService().getActivePart();
-		if (activePart instanceof PinnableMemoView) {
-			PinnableMemoView pinnableMemoView = (PinnableMemoView) activePart;
+		List<PinnableMemoView> pinnableMemoViews = WorkbenchUtils
+				.getViews(PinnableMemoView.class);
+		for (PinnableMemoView pinnableMemoView : pinnableMemoViews) {
 			pinnableMemoView.setPin(pin);
 		}
 		return null;

@@ -11,13 +11,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.WorkbenchUtils;
+
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.survey.model.cd.CDDocument;
 import de.fu_berlin.imp.apiua.survey.model.cd.CDDocumentField;
 import de.fu_berlin.imp.apiua.survey.views.CDView;

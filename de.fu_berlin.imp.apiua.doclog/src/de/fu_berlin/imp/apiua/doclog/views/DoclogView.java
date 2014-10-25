@@ -31,7 +31,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -40,6 +39,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
 import de.fu_berlin.imp.apiua.core.extensionPoints.IDateRangeListener;
@@ -69,20 +69,7 @@ public class DoclogView extends ViewPart implements IDateRangeListener {
 		@Override
 		public Object create() throws CoreException {
 			try {
-				IViewReference[] allviews = ExecUtils
-						.syncExec(new Callable<IViewReference[]>() {
-							@Override
-							public IViewReference[] call() throws Exception {
-								return PlatformUI.getWorkbench()
-										.getActiveWorkbenchWindow()
-										.getActivePage().getViewReferences();
-							}
-						});
-				for (IViewReference viewReference : allviews) {
-					if (viewReference.getId().equals(ID)) {
-						return viewReference.getView(true);
-					}
-				}
+				WorkbenchUtils.getView(ID);
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}

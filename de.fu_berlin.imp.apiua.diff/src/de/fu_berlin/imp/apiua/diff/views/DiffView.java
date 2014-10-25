@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -46,6 +45,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
@@ -85,14 +85,7 @@ public class DiffView extends ViewPart implements IDateRangeListener,
 		@Override
 		public Object create() throws CoreException {
 			try {
-				IViewReference[] allviews = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage()
-						.getViewReferences();
-				for (IViewReference viewReference : allviews) {
-					if (viewReference.getId().equals(ID)) {
-						return viewReference.getView(true);
-					}
-				}
+				WorkbenchUtils.getView(ID);
 			} catch (Exception e) {
 				return this;
 			}

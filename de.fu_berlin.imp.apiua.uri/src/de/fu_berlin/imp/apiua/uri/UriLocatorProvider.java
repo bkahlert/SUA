@@ -5,7 +5,6 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.core.util.Cache;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.core.util.Cache.CacheFetcher;
 import de.fu_berlin.imp.apiua.uri.model.IUri;
 import de.fu_berlin.imp.apiua.uri.services.IUriService;
@@ -19,6 +18,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 
 public class UriLocatorProvider extends AdaptingLocatorProvider {
 

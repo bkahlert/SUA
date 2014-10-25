@@ -11,12 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.apiua.core.util.WorkbenchUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
