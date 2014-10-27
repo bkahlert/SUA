@@ -103,6 +103,10 @@
             name="Change Color...">
       </command>
       <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.highlightAxialCodingModels"
+            name="Highlight Relevant Axial Coding Models...">
+      </command>
+      <command
             description="Pinned memo stay in this view and won&apos;t be replaced if another memorable object has been selected."
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.pinMemo"
             name="Pin Memo">
@@ -312,6 +316,20 @@
            </activeWhen>
         </handler>
         <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.HighlightAxialCodingModelsHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.highlightAxialCodingModels">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.apiua.groundedtheory.isICode">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.apiua.groundedtheory.informationIsICode">
+                 </reference>
+              </or>
+           </activeWhen>
+        </handler>
+        <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.PinMemoHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.pinMemo">
         </handler>
@@ -507,6 +525,20 @@
                            definitionId="de.fu_berlin.imp.apiua.groundedtheory.isCodeView">
                      </reference></and>
                </or>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.highlightAxialCodingModels"
+               icon="icons/obj16/code_obj.png"
+               label="Highlight Relevant Axial Coding Models..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isICodes">
+                  </reference>
+               </and>
             </visibleWhen>
          </command>
          <command
