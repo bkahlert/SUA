@@ -22,7 +22,7 @@ public class AutoLayoutHandler extends AbstractHandler {
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView view = (AxialCodingView) activePart;
-			view.getJointjs().autoLayout();
+			view.autoLayoutFocussedACM();
 		}
 
 		return null;

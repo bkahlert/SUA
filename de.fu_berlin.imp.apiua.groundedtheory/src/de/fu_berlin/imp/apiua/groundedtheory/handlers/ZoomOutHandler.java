@@ -21,7 +21,7 @@ public class ZoomOutHandler extends AbstractHandler {
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView view = (AxialCodingView) activePart;
-			view.getJointjs().zoomOut();
+			view.zoomOutFocussedACM();
 		}
 
 		return null;

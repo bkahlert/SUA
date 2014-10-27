@@ -21,7 +21,7 @@ public class ZoomInHandler extends AbstractHandler {
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView view = (AxialCodingView) activePart;
-			view.getJointjs().zoomIn();
+			view.zoomInFocussedACM();
 		}
 
 		return null;

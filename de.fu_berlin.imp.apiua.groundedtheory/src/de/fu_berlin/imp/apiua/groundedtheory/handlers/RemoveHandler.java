@@ -29,10 +29,7 @@ public class RemoveHandler extends AbstractHandler {
 		if (codes.size() > 0) {
 			if (part instanceof AxialCodingView) {
 				AxialCodingView axialCodingView = (AxialCodingView) part;
-				for (ICode code : codes) {
-					axialCodingView.getJointjs().remove(
-							code.getUri().toString());
-				}
+				axialCodingView.remove(codes);
 			}
 		} else {
 			LOGGER.warn("Selection did not contain any "
