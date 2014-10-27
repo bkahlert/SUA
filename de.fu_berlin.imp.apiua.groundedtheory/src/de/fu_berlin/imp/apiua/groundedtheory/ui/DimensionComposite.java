@@ -150,14 +150,20 @@ public class DimensionComposite extends Composite {
 
 			// TODO layout dimension value
 
-			this.dimension = CODE_SERVICE.getDimension(code.getUri());
-			if (this.dimension == null) {
-				this.dimensionType = null;
-			} else {
-				this.dimensionType = this.dimension.getClass();
-			}
+			if (code != null) {
+				this.dimension = CODE_SERVICE.getDimension(code.getUri());
+				if (this.dimension == null) {
+					this.dimensionType = null;
+				} else {
+					this.dimensionType = this.dimension.getClass();
+				}
 
-			this.loaded = uri;
+				this.loaded = uri;
+			} else {
+				this.dimensionType = null;
+				this.dimension = null;
+				this.loaded = null;
+			}
 		} else {
 			this.dimensionType = null;
 			this.dimension = null;
