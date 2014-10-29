@@ -352,6 +352,7 @@ public class AxialCodingComposite extends Composite implements
 						AxialCodingComposite.this.jointjs.load(
 								axialCodingModel.serialize()).get();
 						AxialCodingComposite.this.syncModel();
+						AxialCodingComposite.this.updateLabels();
 						AxialCodingComposite.this.jointjs.setEnabled(true);
 					} catch (CodeStoreReadException e) {
 						throw new IllegalArgumentException(e);
