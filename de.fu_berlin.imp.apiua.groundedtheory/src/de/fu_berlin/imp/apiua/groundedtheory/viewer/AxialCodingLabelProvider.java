@@ -10,8 +10,8 @@ import com.bkahlert.nebula.viewer.jointjs.JointJSLabelProvider;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.LabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -78,6 +78,14 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 
 	@Override
 	public RGB getColor(Object element) {
+		if (element instanceof URI) {
+			URI uri = (URI) element;
+			if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
+				RGB rgb = this.getCodeColors(uri).getBackgroundRGB();
+				rgb.setAlpha(this.getAlpha(uri)[0]);
+				return this.getAlpha(uri)[0] < 128 ? RGB.BLACK : RGB.WHITE;
+			}
+		}
 		return RGB.BLACK;
 	}
 
