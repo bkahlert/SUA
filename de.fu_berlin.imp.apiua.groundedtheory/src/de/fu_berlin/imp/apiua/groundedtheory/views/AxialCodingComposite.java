@@ -415,6 +415,16 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
+	public Future<Void> highlight(List<URI> uris) {
+		List<String> ids = new LinkedList<String>();
+		if (ids != null) {
+			for (URI uri : uris) {
+				ids.add(uri.toString());
+			}
+		}
+		return this.jointjs.highlight(ids);
+	}
+
 	/**
 	 * Updates non-structural information all existing nodes based on the
 	 * internal information and returns the new size.
