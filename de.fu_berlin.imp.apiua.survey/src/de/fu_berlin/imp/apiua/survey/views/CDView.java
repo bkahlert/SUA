@@ -206,7 +206,8 @@ public class CDView extends ViewPart {
 		this.browser.addMouseListener(new MouseAdapter() {
 			@Override
 			public void clicked(double x, double y, IElement element) {
-				String uri = element.getAttribute("data-workspace");
+				String uri = element != null ? element
+						.getAttribute("data-workspace") : null;
 				if (uri != null) {
 					CDView.this.locatorService.showInWorkspace(new URI(uri),
 							false, null);

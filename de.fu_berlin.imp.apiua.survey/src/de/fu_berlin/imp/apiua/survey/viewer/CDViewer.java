@@ -158,6 +158,9 @@ public class CDViewer extends Viewer {
 		this.browser.addMouseListener(new MouseAdapter() {
 			@Override
 			public void clicked(double x, double y, IElement element) {
+				if (element == null) {
+					return;
+				}
 				boolean draggable = element.getAttribute("draggable") != null
 						&& element.getAttribute("draggable").equals("true");
 				if (ArrayUtils.contains(element.getClasses(), "btn")
