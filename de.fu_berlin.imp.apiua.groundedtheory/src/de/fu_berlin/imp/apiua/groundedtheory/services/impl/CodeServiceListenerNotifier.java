@@ -1,9 +1,10 @@
 package de.fu_berlin.imp.apiua.groundedtheory.services.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
@@ -21,7 +22,7 @@ public class CodeServiceListenerNotifier {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeServiceListenerNotifier.class);
 
-	private final List<ICodeServiceListener> codeServiceListeners = new ArrayList<ICodeServiceListener>();
+	private final Queue<ICodeServiceListener> codeServiceListeners = new ConcurrentLinkedQueue<ICodeServiceListener>();
 
 	void addCodeServiceListener(ICodeServiceListener codeServiceListener) {
 		if (this.codeServiceListeners.contains(codeServiceListener)) {
