@@ -27,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.IReflexiveConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
@@ -197,7 +197,7 @@ public class AxialCodingComposite extends Composite implements
 		});
 
 		this.jointjs = new JointJS(this, SWT.BORDER, "apiua://code/",
-				"apiua://code-link", new IConverter<String, URI>() {
+				"apiua://code-link", new IReflexiveConverter<String, Object>() {
 					@Override
 					public URI convert(String returnValue) {
 						if (returnValue.contains("|")) {
@@ -207,6 +207,11 @@ public class AxialCodingComposite extends Composite implements
 							return new URI(returnValue);
 						}
 						return null;
+					}
+
+					@Override
+					public String convertBack(Object object) {
+						return object.toString();
 					}
 				});
 

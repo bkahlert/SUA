@@ -2,32 +2,39 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.naming.OperationNotSupportedException;
-
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.SWTUtils;
+import com.bkahlert.nebula.utils.SelectionProviderDelegator;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -41,20 +48,39 @@ public class AxialCodingView extends ViewPart {
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView";
 
+	private final ISelectionListener selectionListener = new ISelectionListener() {
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (part == AxialCodingView.this) {
+				return;
+			}
+
+			List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
+					URI.class);
+			AxialCodingView.this.highlight(uris);
+		}
+	};
+
+	private final SelectionProviderDelegator selectionProviderDelegator;
 	private SashForm axialCodingCompositesContainer;
-	private final List<AxialCodingComposite> axialCodingComposites = new ArrayList<AxialCodingComposite>();
+	private AxialCodingComposite activeAxialCodingComposite = null;
 
 	public AxialCodingView() {
+		this.selectionProviderDelegator = new SelectionProviderDelegator();
+	}
 
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		this.getSite().setSelectionProvider(this.selectionProviderDelegator);
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.addPostSelectionListener(this.selectionListener);
 	}
 
 	@Override
 	public void dispose() {
-		for (AxialCodingComposite axialCodingComposite : this.axialCodingComposites) {
-			System.err.println(axialCodingComposite.isDisposed() + ", "
-					+ axialCodingComposite.getJointjs().isDisposed() + ", "
-					+ axialCodingComposite.getJointjs().getBrowser());
-		}
+		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
+				.removePostSelectionListener(this.selectionListener);
 		this.saveAll();
 		super.dispose();
 	}
@@ -66,7 +92,8 @@ public class AxialCodingView extends ViewPart {
 		ItemList modelList = new AxialCodingViewModelList(parent, SWT.NONE);
 		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		this.axialCodingCompositesContainer = new SashForm(parent, SWT.VERTICAL);
+		this.axialCodingCompositesContainer = new SashForm(parent,
+				SWT.HORIZONTAL);
 		this.axialCodingCompositesContainer.setLayoutData(new GridData(
 				SWT.FILL, SWT.FILL, true, true));
 
@@ -90,9 +117,20 @@ public class AxialCodingView extends ViewPart {
 		}
 	}
 
+	private List<AxialCodingComposite> getAxialCodingComposites() {
+		List<AxialCodingComposite> axialCodingComposites = new ArrayList<AxialCodingComposite>();
+		if (!this.axialCodingCompositesContainer.isDisposed()) {
+			for (Control control : this.axialCodingCompositesContainer
+					.getChildren()) {
+				if (control instanceof AxialCodingComposite) {
+					axialCodingComposites.add((AxialCodingComposite) control);
+				}
+			}
+		}
+		return axialCodingComposites;
+	}
+
 	private void activateMenu() {
-		// this.getSite().setSelectionProvider(this.axialCodingComposite);
-		//
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
@@ -102,46 +140,77 @@ public class AxialCodingView extends ViewPart {
 						IWorkbenchActionConstants.MB_ADDITIONS));
 			}
 		});
-		Menu menu = menuManager.createContextMenu(this.axialCodingComposites
-				.get(0));
-		this.getSite().registerContextMenu(menuManager,
-				this.axialCodingComposites.get(0));
-		this.axialCodingComposites.get(0).setMenu(menu);
+		for (AxialCodingComposite axialCodingComposite : this
+				.getAxialCodingComposites()) {
+			Menu menu = menuManager.createContextMenu(axialCodingComposite);
+			this.getSite().registerContextMenu(menuManager,
+					axialCodingComposite);
+			axialCodingComposite.setMenu(menu);
+		}
+	}
+
+	private void trackActiveAxialCodingComposite() {
+		List<AxialCodingComposite> axialCodingComposites = this
+				.getAxialCodingComposites();
+		for (final AxialCodingComposite axialCodingComposite : axialCodingComposites) {
+			axialCodingComposite.getJointjs().addFocusListener(
+					new FocusAdapter() {
+						@Override
+						public void focusGained(FocusEvent e) {
+							AxialCodingView.this
+									.activateAxialCodingComposite(axialCodingComposite);
+						}
+					});
+		}
+		this.activateAxialCodingComposite(axialCodingComposites.size() > 0 ? axialCodingComposites
+				.get(0) : null);
+	}
+
+	private void activateAxialCodingComposite(
+			AxialCodingComposite activeAxialCodingComposite) {
+		if (this.activeAxialCodingComposite == activeAxialCodingComposite) {
+			return;
+		}
+
+		AxialCodingView.this.activeAxialCodingComposite = activeAxialCodingComposite;
+		AxialCodingView.this.selectionProviderDelegator
+				.setSelectionProvider(activeAxialCodingComposite);
 	}
 
 	public Future<Void> open(final URI... uris) {
-		this.saveAll();
-		this.disposeAll();
-
-		for (int i = 0; i < uris.length; i++) {
-			final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-					this.axialCodingCompositesContainer, SWT.BORDER);
-			axialCodingComposite.setBackground(Display.getCurrent()
-					.getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-			axialCodingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-					true, true));
-			this.axialCodingComposites.add(axialCodingComposite);
-		}
-		this.axialCodingCompositesContainer.layout(true);
-		this.activateMenu();
-		// ExecUtils.asyncExec(new Runnable() {
-		// @Override
-		// public void run() {
-		// axialCodingComposite.getJointjs().setBodyHtml(
-		// "<p>Hello World</p>");
-		// axialCodingComposite.getJointjs().setBackground(
-		// Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
-		// System.err.println("set");
-		// }
-		//
-		// }, 1000);
+		final Future<List<AxialCodingComposite>> ui = ExecUtils
+				.asyncExec(new Callable<List<AxialCodingComposite>>() {
+					@Override
+					public List<AxialCodingComposite> call() throws Exception {
+						AxialCodingView.this.saveAll();
+						AxialCodingView.this.disposeAll();
+						for (int i = 0; i < uris.length; i++) {
+							final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
+									AxialCodingView.this.axialCodingCompositesContainer,
+									SWT.NONE);
+							axialCodingComposite.setBackground(Display
+									.getCurrent().getSystemColor(
+											SWT.COLOR_LIST_BACKGROUND));
+							axialCodingComposite.setLayoutData(new GridData(
+									SWT.FILL, SWT.FILL, true, true));
+						}
+						AxialCodingView.this.axialCodingCompositesContainer
+								.setWeights(SWTUtils
+										.getEvenWeights(uris.length));
+						AxialCodingView.this.axialCodingCompositesContainer
+								.layout(true);
+						AxialCodingView.this.activateMenu();
+						AxialCodingView.this.trackActiveAxialCodingComposite();
+						return AxialCodingView.this.getAxialCodingComposites();
+					}
+				});
 
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
+				List<AxialCodingComposite> axialCodingComposites = ui.get();
 				for (int i = 0; i < uris.length; i++) {
-					AxialCodingView.this.axialCodingComposites.get(i)
-							.open(uris[i]).get();
+					axialCodingComposites.get(i).open(uris[i]).get();
 				}
 				return null;
 			}
@@ -154,13 +223,14 @@ public class AxialCodingView extends ViewPart {
 	 * takes place. The axial coding models are written on the disk not until
 	 * {@link Future#isDone()} returns true.
 	 * 
-	 * @return
+	 * @UIThread
 	 * 
 	 * @return
 	 */
 	public Future<Void> saveAll() {
 		final Map<URI, Future<Void>> success = new HashMap<URI, Future<Void>>();
-		for (final AxialCodingComposite axialCodingComposite : this.axialCodingComposites) {
+		for (final AxialCodingComposite axialCodingComposite : this
+				.getAxialCodingComposites()) {
 			success.put(axialCodingComposite.getOpenedURI(),
 					axialCodingComposite.save());
 		}
@@ -194,31 +264,42 @@ public class AxialCodingView extends ViewPart {
 
 	/**
 	 * Disposes the all opened {@link AxialCodingComposite}s without saving.
+	 * 
+	 * @UIThread
 	 */
 	private void disposeAll() {
-		for (Iterator<AxialCodingComposite> iterator = this.axialCodingComposites
-				.iterator(); iterator.hasNext();) {
-			AxialCodingComposite axialCodingComposite = iterator.next();
+		for (final AxialCodingComposite axialCodingComposite : this
+				.getAxialCodingComposites()) {
 			axialCodingComposite.dispose();
-			iterator.remove();
 		}
-		Assert.isTrue(this.axialCodingCompositesContainer.getChildren().length == 0);
 	}
 
 	public List<URI> getOpenedURIs() {
-		List<URI> uris = new ArrayList<URI>(this.axialCodingComposites.size());
-		for (AxialCodingComposite axialCodingComposite : this.axialCodingComposites) {
+		List<AxialCodingComposite> axialCodingComposites = this
+				.getAxialCodingComposites();
+		List<URI> uris = new ArrayList<URI>(axialCodingComposites.size());
+		for (final AxialCodingComposite axialCodingComposite : axialCodingComposites) {
 			uris.add(axialCodingComposite.getOpenedURI());
 		}
 		return uris;
 	}
 
+	public Future<Void> highlight(final List<URI> uris) {
+		return ExecUtils.asyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				for (final AxialCodingComposite axialCodingComposite : AxialCodingView.this
+						.getAxialCodingComposites()) {
+					axialCodingComposite.highlight(uris);
+				}
+				return null;
+			}
+		});
+	}
+
 	@Override
 	public void setFocus() {
-		if (this.axialCodingComposites != null
-				&& this.axialCodingComposites.size() > 0) {
-			this.axialCodingComposites.get(0).setFocus();
-		}
+		this.axialCodingCompositesContainer.setFocus();
 	}
 
 	/**
@@ -228,21 +309,31 @@ public class AxialCodingView extends ViewPart {
 	 * @param codes
 	 */
 	public void remove(List<ICode> codes) {
-		for (AxialCodingComposite axialCodingComposite : this.axialCodingComposites) {
+		for (final AxialCodingComposite axialCodingComposite : this
+				.getAxialCodingComposites()) {
 			axialCodingComposite.remove(codes);
 		}
 	}
 
 	public void autoLayoutFocussedACM() {
-		throw new RuntimeException(new OperationNotSupportedException());
+		if (this.activeAxialCodingComposite != null
+				&& !this.activeAxialCodingComposite.isDisposed()) {
+			this.activeAxialCodingComposite.autoLayout();
+		}
 	}
 
 	public void zoomOutFocussedACM() {
-		throw new RuntimeException(new OperationNotSupportedException());
+		if (this.activeAxialCodingComposite != null
+				&& !this.activeAxialCodingComposite.isDisposed()) {
+			this.activeAxialCodingComposite.zoomOut();
+		}
 	}
 
 	public void zoomInFocussedACM() {
-		throw new RuntimeException(new OperationNotSupportedException());
+		if (this.activeAxialCodingComposite != null
+				&& !this.activeAxialCodingComposite.isDisposed()) {
+			this.activeAxialCodingComposite.zoomIn();
+		}
 	}
 
 }

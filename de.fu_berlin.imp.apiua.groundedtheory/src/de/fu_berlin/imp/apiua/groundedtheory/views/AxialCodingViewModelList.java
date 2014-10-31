@@ -155,7 +155,16 @@ class AxialCodingViewModelList extends ItemList {
 		this.addExistingModels();
 		this.addCreateItem();
 
-		this.getParent().layout();
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					AxialCodingViewModelList.this.getParent().layout();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
 	}
 
 	public void addExistingModels() {
