@@ -494,10 +494,10 @@ public class AxialCodingComposite extends Composite implements
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				List<URI> uris = AxialCodingComposite.this
+				List<URI> validUris = AxialCodingComposite.this
 						.removeAllInvalidNodes().get();
 				AxialCodingComposite.this.deleteAllExistingIsALinks().get();
-				for (URI uri : uris) {
+				for (URI uri : validUris) {
 					AxialCodingComposite.this.createIsALinks(uri);
 				}
 				return null;
@@ -509,7 +509,7 @@ public class AxialCodingComposite extends Composite implements
 	/**
 	 * Removes all nodes that symbolize a no more existing {@link ICode}.
 	 * 
-	 * @return
+	 * @return the nodes that are kept
 	 */
 	private Future<List<URI>> removeAllInvalidNodes() {
 		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
@@ -582,8 +582,10 @@ public class AxialCodingComposite extends Composite implements
 					if (parent == null) {
 						break;
 					}
-					AxialCodingComposite.this.createIsALink(parent.getUri(),
-							code.getUri()).get();
+					if (existingCodes.contains(parent.getUri())) {
+						AxialCodingComposite.this.createIsALink(
+								parent.getUri(), code.getUri()).get();
+					}
 				}
 				for (ICode child : CODE_SERVICE.getChildren(code)) {
 					if (existingCodes.contains(child.getUri())) {
@@ -610,6 +612,14 @@ public class AxialCodingComposite extends Composite implements
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
+				LOGGER.info("Creating Is-A-Link from "
+						+ LocatorService.INSTANCE
+								.resolve(child, ICode.class, null).get()
+								.getCaption()
+						+ " to "
+						+ LocatorService.INSTANCE
+								.resolve(parent, ICode.class, null).get()
+								.getCaption());
 				String id = parent.toString() + "|" + child.toString();
 
 				id = AxialCodingComposite.this.jointjs.createPermanentLink(id,
