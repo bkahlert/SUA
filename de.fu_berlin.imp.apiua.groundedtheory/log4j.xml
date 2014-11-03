@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender class="org.apache.log4j.ConsoleAppender" name="de.fu_berlin.imp.apiua.groundedtheory.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout" />
+	</appender>
+	<logger name="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite">
+		<level value="warn" />
+	</logger>
+	<root>
+		<level value="warn" />
+		<appender-ref ref="de.fu_berlin.imp.apiua.groundedtheory.ConsoleAppender" />
+	</root>
+</log4j:configuration>

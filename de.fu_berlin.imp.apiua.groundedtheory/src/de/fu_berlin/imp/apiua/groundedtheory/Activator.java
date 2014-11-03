@@ -1,9 +1,12 @@
 package de.fu_berlin.imp.apiua.groundedtheory;
 
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.log4j.xml.DOMConfigurator;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -89,6 +92,9 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
+		URL confURL = context.getBundle().getEntry("log4j.xml");
+		DOMConfigurator.configure(FileLocator.toFileURL(confURL).getFile());
 
 		this.labelProviderService = (ILabelProviderService) PlatformUI
 				.getWorkbench().getService(ILabelProviderService.class);

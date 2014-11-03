@@ -61,7 +61,7 @@ public class AxialCodingComposite extends Composite implements
 		ISelectionProvider {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(AxialCodingView.class);
+			.getLogger(AxialCodingComposite.class);
 
 	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
 			.getWorkbench().getService(IImportanceService.class);
