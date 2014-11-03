@@ -274,12 +274,13 @@ public class AxialCodingView extends ViewPart {
 		}
 	}
 
-	public List<URI> getOpenedURIs() {
+	public Map<URI, AxialCodingComposite> getOpenedURIs() {
 		List<AxialCodingComposite> axialCodingComposites = this
 				.getAxialCodingComposites();
-		List<URI> uris = new ArrayList<URI>(axialCodingComposites.size());
+		Map<URI, AxialCodingComposite> uris = new HashMap<URI, AxialCodingComposite>(
+				axialCodingComposites.size());
 		for (final AxialCodingComposite axialCodingComposite : axialCodingComposites) {
-			uris.add(axialCodingComposite.getOpenedURI());
+			uris.put(axialCodingComposite.getOpenedURI(), axialCodingComposite);
 		}
 		return uris;
 	}

@@ -1,5 +1,10 @@
 package de.fu_berlin.imp.apiua.groundedtheory;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
@@ -14,6 +19,7 @@ import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
+import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
 public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
@@ -89,25 +95,64 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 	public boolean showInWorkspace(final URI[] uris, boolean open,
 			IProgressMonitor monitor) {
 		if (uris.length == 1 && uris[0] != null) {
-			// TODO check for all included URIs and zoom to and select them
+			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+					.getService(ICodeService.class);
 
-			AxialCodingView axialCodingView = (AxialCodingView) WorkbenchUtils
-					.getView(AxialCodingView.ID);
-			if (uris[0].equals(axialCodingView.getOpenedURI())) {
-				axialCodingView.setFocus();
-			} else if (open) {
-				try {
-					axialCodingView.open(uris[0]).get();
-				} catch (Exception e) {
-					LOGGER.error("Error showing "
-							+ IAxialCodingModel.class.getSimpleName() + " "
-							+ uris[0]);
-					return false;
+			Set<URI> openACMs = new HashSet<URI>();
+			Set<URI> highlightACMs = new HashSet<URI>();
+			Set<URI> highlightNodes = new HashSet<URI>();
+			try {
+				for (URI acmUri : codeService.getAxialCodingModels()) {
+					if (ArrayUtils.contains(uris, acmUri)) {
+						highlightACMs.add(acmUri);
+						if (open) {
+							highlightACMs.add(acmUri);
+						}
+					}
+
+					for (URI code : codeService.getAxialCodingModel(acmUri)
+							.getCodes()) {
+						if (ArrayUtils.contains(uris, code)) {
+							highlightNodes.add(code);
+							if (open) {
+								openACMs.add(acmUri);
+							}
+						}
+					}
+
 				}
+
+				AxialCodingView axialCodingView = (AxialCodingView) WorkbenchUtils
+						.getView(AxialCodingView.ID);
+
+				// open ACMs
+				Set<URI> load = axialCodingView.getOpenedURIs().keySet();
+				load.addAll(openACMs);
+				axialCodingView.open(load.toArray(new URI[0])).get();
+
+				// highlight ACMs
+				for (URI acmUri : axialCodingView.getOpenedURIs().keySet()) {
+					if (highlightACMs.contains(acmUri)) {
+						axialCodingView.getOpenedURIs().get(acmUri).setFocus();
+					}
+				}
+
+				// highlight nodes
+				for (AxialCodingComposite axialCodingComposite : axialCodingView
+						.getOpenedURIs().values()) {
+					axialCodingComposite.highlight(new LinkedList<URI>(
+							highlightNodes));
+				}
+
 				return true;
-			} else {
-				return false;
+			} catch (Exception e1) {
+				LOGGER.error(
+						"Error loading "
+								+ IAxialCodingModel.class.getSimpleName()
+								+ "s to show " + uris + " in workspace", e1);
 			}
+
+			return false;
 		}
 		return true;
 	}
