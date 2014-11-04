@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.ui.PlatformUI;
@@ -18,9 +19,15 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
 public class LocatorService {
 
+	@SuppressWarnings("unused")
+	private static Logger LOGGER = Logger.getLogger(LocatorService.class);
+
 	public static ILocatorService INSTANCE;
 
 	static {
+		if (!ExecUtils.isUIThread()) {
+			throw new RuntimeException("Must be called from UI thread");
+		}
 		try {
 			INSTANCE = (ILocatorService) PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow()

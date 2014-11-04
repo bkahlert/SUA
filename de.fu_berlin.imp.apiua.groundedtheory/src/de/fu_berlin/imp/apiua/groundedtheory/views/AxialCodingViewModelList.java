@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.OffWorker;
 import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 
@@ -56,6 +58,10 @@ class AxialCodingViewModelList extends ItemList {
 			AxialCodingViewModelList.this.refresh();
 		}
 	};
+
+	private final OffWorker refresher = new OffWorker(
+			AxialCodingViewModelList.class,
+			"Axial Coding Models List Refresher");
 
 	public AxialCodingViewModelList(Composite parent, int style) {
 		super(parent, style);
@@ -146,25 +152,41 @@ class AxialCodingViewModelList extends ItemList {
 		});
 
 		this.setSpacing(5);
-		this.refresh();
+		this.refresher.start();
+		this.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				AxialCodingViewModelList.this.refresher.shutdown();
+			}
+		});
 
+		LocatorService.INSTANCE.getClass();
+		AxialCodingViewModelList.this.refresh();
 	}
 
 	protected void refresh() {
-		this.clear();
-		this.addExistingModels();
-		this.addCreateItem();
-
-		try {
-			ExecUtils.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					AxialCodingViewModelList.this.getParent().layout();
+		this.refresher.flush();
+		this.refresher.submit(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					// implicitly preload
+					LocatorService.class.getName();
+					AxialCodingViewModelList.this.clear();
+					AxialCodingViewModelList.this.addExistingModels();
+					AxialCodingViewModelList.this.addCreateItem();
+					ExecUtils.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							AxialCodingViewModelList.this.getParent().layout();
+						}
+					});
+				} catch (Exception e) {
+					LOGGER.error(e);
 				}
-			});
-		} catch (Exception e) {
-			LOGGER.error(e);
-		}
+				return null;
+			}
+		});
 	}
 
 	public void addExistingModels() {

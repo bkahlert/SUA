@@ -7,6 +7,9 @@
 	<logger name="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite">
 		<level value="warn" />
 	</logger>
+	<logger name="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView">
+		<level value="warn" />
+	</logger>
 	<root>
 		<level value="warn" />
 		<appender-ref ref="de.fu_berlin.imp.apiua.groundedtheory.ConsoleAppender" />
