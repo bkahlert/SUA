@@ -294,13 +294,13 @@ public class AxialCodingComposite extends Composite implements
 	private void activateDropSupport() {
 		this.jointjs.addDNDListener(new IDNDListener() {
 			@Override
-			public void dragStart(long offsetX, long offsetY, String mimeType,
-					String data) {
+			public void dragStart(long offsetX, long offsetY, IElement element,
+					String mimeType, String data) {
 			}
 
 			@Override
 			public void drop(final long offsetX, final long offsetY,
-					String mimeType, final String data) {
+					IElement element, String mimeType, final String data) {
 				if (data == null || data.isEmpty()
 						|| AxialCodingComposite.this.openedUri == null) {
 					return;

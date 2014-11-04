@@ -205,8 +205,8 @@ public class CDViewer extends Viewer {
 		// emulating LocalTransfer
 		this.browser.addDNDListener(new IDNDListener() {
 			@Override
-			public void dragStart(long offsetX, long offsetY, String mimeType,
-					String data) {
+			public void dragStart(long offsetX, long offsetY, IElement element,
+					String mimeType, String data) {
 				if (data != null) {
 					LocalSelectionTransfer.getTransfer().setSelection(
 							new StructuredSelection(new URI(data)));
@@ -214,8 +214,8 @@ public class CDViewer extends Viewer {
 			}
 
 			@Override
-			public void drop(long offsetX, long offsetY, String mimeType,
-					String data) {
+			public void drop(long offsetX, long offsetY, IElement element,
+					String mimeType, String data) {
 			}
 		});
 
@@ -376,11 +376,14 @@ public class CDViewer extends Viewer {
 					codeInstance.getUri(), codeInstance.getCode());
 			html.append("<li style=\"list-style-image: url('"
 					+ GTLabelProvider.getCodeImageURI(codeInstance.getCode())
-					+ "');\"><a href=\"" + codeInstance.getCode().getUri()
+					+ "');\"><a href=\""
+					+ codeInstance.getCode().getUri()
 					+ "\" data-focus-id=\""
 					+ codeInstance.getCode().getUri().toString()
-					+ "\" data-workspace=\"" + codeInstance.getUri().toString()
-					+ "\" tabindex=\"-1\">"
+					+ "\" data-workspace=\""
+					+ codeInstance.getUri().toString()
+					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+					+ codeInstance.getUri() + "\">"
 					+ codeInstance.getCode().getCaption());
 			if (immediateDimensionValue != null) {
 				html.append("<strong> = ");
