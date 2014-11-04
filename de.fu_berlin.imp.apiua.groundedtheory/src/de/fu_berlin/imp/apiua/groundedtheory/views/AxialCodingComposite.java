@@ -292,7 +292,6 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	private void activateDropSupport() {
-		this.jointjs.run("$('.jointjs svg').attr('droppable', true)");
 		this.jointjs.addDNDListener(new IDNDListener() {
 			@Override
 			public void dragStart(long offsetX, long offsetY, IElement element,
