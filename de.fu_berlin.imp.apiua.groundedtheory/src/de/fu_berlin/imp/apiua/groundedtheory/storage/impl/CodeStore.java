@@ -606,8 +606,12 @@ class CodeStore implements ICodeStore {
 			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
 			assert foundNodes.size() < 2;
 			if (foundNodes.size() == 1) {
-				for (TreeNode<ICode> subCode : foundNodes.get(0).children()) {
-					subCodes.add(subCode.getData());
+				for (Iterator<ICode> iterator = foundNodes.get(0).bfs(); iterator
+						.hasNext();) {
+					ICode subCode = iterator.next();
+					if (!subCode.equals(foundNodes.get(0).getData())) {
+						subCodes.add(subCode);
+					}
 				}
 			}
 		}
