@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -201,6 +202,10 @@ public class AxialCodingComposite extends Composite implements
 				"apiua://code-link", new IReflexiveConverter<String, Object>() {
 					@Override
 					public URI convert(String returnValue) {
+						// default selection
+						if (returnValue == null) {
+							return AxialCodingComposite.this.openedUri;
+						}
 						if (returnValue.contains("|")) {
 							return null;
 						}
@@ -368,41 +373,32 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	public Future<Void> open(final URI uri) {
+		Assert.isNotNull(uri);
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				if (uri == null) {
-					AxialCodingComposite.this.jointjs
-							.load("{ \"cells\": [], \"title\": \"\" }");
-					AxialCodingComposite.this.jointjs.setEnabled(false);
-					AxialCodingComposite.this.jointjs = null;
-					new SUAGTPreferenceUtil()
-							.setLastOpenedAxialCodingModels(new ArrayList<URI>());
-				} else {
-					try {
-						IAxialCodingModel axialCodingModel = CODE_SERVICE
-								.getAxialCodingModel(uri);
-						if (axialCodingModel == null) {
-							return AxialCodingComposite.this.open(null).get();
-						}
-						AxialCodingComposite.this.openedUri = uri;
-						new SUAGTPreferenceUtil()
-								.setLastOpenedAxialCodingModels(Arrays
-										.asList(uri));
-						AxialCodingComposite.this.jointjs.load(
-								axialCodingModel.serialize()).get();
-						List<URI> validUris = AxialCodingComposite.this
-								.syncModel().get();
-						AxialCodingComposite.this.updateLabels(validUris);
-						AxialCodingComposite.this.jointjs
-								.run("$('.jointjs svg .element').attr('droppable', true)");
-						AxialCodingComposite.this.jointjs.setEnabled(true);
-					} catch (CodeStoreReadException e) {
-						throw new IllegalArgumentException(e);
-					} catch (Exception e) {
-						LOGGER.error("Error refreshing the axial coding model "
-								+ uri);
+				try {
+					IAxialCodingModel axialCodingModel = CODE_SERVICE
+							.getAxialCodingModel(uri);
+					if (axialCodingModel == null) {
+						return AxialCodingComposite.this.open(null).get();
 					}
+					AxialCodingComposite.this.openedUri = uri;
+					new SUAGTPreferenceUtil()
+							.setLastOpenedAxialCodingModels(Arrays.asList(uri));
+					AxialCodingComposite.this.jointjs.load(
+							axialCodingModel.serialize()).get();
+					List<URI> validUris = AxialCodingComposite.this.syncModel()
+							.get();
+					AxialCodingComposite.this.updateLabels(validUris);
+					AxialCodingComposite.this.jointjs
+							.run("$('.jointjs svg .element').attr('droppable', true)");
+					AxialCodingComposite.this.jointjs.setEnabled(true);
+				} catch (CodeStoreReadException e) {
+					throw new IllegalArgumentException(e);
+				} catch (Exception e) {
+					LOGGER.error("Error refreshing the axial coding model "
+							+ uri);
 				}
 				return null;
 			}
