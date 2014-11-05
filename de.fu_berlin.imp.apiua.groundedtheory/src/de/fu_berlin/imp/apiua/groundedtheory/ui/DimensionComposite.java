@@ -148,6 +148,11 @@ public class DimensionComposite extends Composite {
 				LOGGER.error("Error", e);
 			}
 
+			if (code == null) {
+				this.load(null);
+				return;
+			}
+
 			// TODO layout dimension value
 
 			if (code != null) {

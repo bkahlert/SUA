@@ -10,7 +10,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
@@ -96,26 +95,30 @@ public class PropertiesComposite extends Composite {
 	}
 
 	public void load(URI uri) throws CodeStoreWriteException {
-			if (uri != null
-					&& LocatorService.INSTANCE.getType(uri) == ICode.class) {
-				ICode code = null;
-				try {
-					code = LocatorService.INSTANCE.resolve(uri, ICode.class,
-							null).get();
-				} catch (Exception e) {
-					LOGGER.error("Error", e);
-				}
-
-				this.properties = CODE_SERVICE.getProperties(code);
-				this.propertiesList.setEnabled(true);
-				this.loaded = uri;
-			} else {
-				this.properties = null;
-				this.propertiesList.setEnabled(false);
-				this.loaded = null;
+		if (uri != null && LocatorService.INSTANCE.getType(uri) == ICode.class) {
+			ICode code = null;
+			try {
+				code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
+						.get();
+			} catch (Exception e) {
+				LOGGER.error("Error", e);
 			}
 
-			this.refresh();
+			if (code == null) {
+				this.load(null);
+				return;
+			}
+
+			this.properties = CODE_SERVICE.getProperties(code);
+			this.propertiesList.setEnabled(true);
+			this.loaded = uri;
+		} else {
+			this.properties = null;
+			this.propertiesList.setEnabled(false);
+			this.loaded = null;
+		}
+
+		this.refresh();
 	}
 
 	public void save() throws CodeStoreWriteException {
