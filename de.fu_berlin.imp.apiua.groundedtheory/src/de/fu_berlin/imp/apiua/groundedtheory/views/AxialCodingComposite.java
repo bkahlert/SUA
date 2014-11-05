@@ -215,6 +215,18 @@ public class AxialCodingComposite extends Composite implements
 					}
 				});
 
+		this.jointjs.injectCss(".html-element.invalid {"
+				+ "background-image: linear-gradient(-45deg,"
+				+ "rgba(255, 255, 255, .2) 25%,"
+				+ "rgba(255, 255, 255, .85) 25%,"
+				+ "rgba(255, 255, 255, .85) 50%,"
+				+ "rgba(255, 255, 255, .2) 50%,"
+				+ "rgba(255, 255, 255, .2) 75%,"
+				+ "rgba(255, 255, 255, .85) 75%,"
+				+ "rgba(255, 255, 255, .85));"
+				+ "background-size: 55px 55px; }");
+		// this.jointjs
+		// .injectCss("[droppable].over rect { stroke:black; stroke-width: 4px; stroke-dasharray:5,5;");
 		this.jointjs.setEnabled(false);
 
 		this.activateDropSupport();
@@ -301,7 +313,7 @@ public class AxialCodingComposite extends Composite implements
 
 			@Override
 			public void drop(final long offsetX, final long offsetY,
-					IElement element, String mimeType, final String data) {
+					final IElement element, String mimeType, final String data) {
 				if (data == null || data.isEmpty()
 						|| AxialCodingComposite.this.openedUri == null) {
 					return;
@@ -311,16 +323,37 @@ public class AxialCodingComposite extends Composite implements
 					@Override
 					public void run() {
 						try {
-							Point pan = AxialCodingComposite.this.jointjs
-									.getPan().get();
-							for (final String uriString : data.split("\\|")) {
-								URI uri = new URI(uriString);
-								if (LocatorService.INSTANCE.resolve(uri, null)
-										.get() != null) {
-									AxialCodingComposite.this.createNode(uri,
-											new Point((int) offsetX - pan.x
-													- 10, (int) offsetY - pan.y
-													- 10));
+							if (element.getAttribute("model-id") != null) {
+								List<URI> modelCodes = AxialCodingComposite.this
+										.getModelCodes().get();
+								for (final String uriString : data.split("\\|")) {
+									URI uri = new URI(uriString);
+									if (LocatorService.INSTANCE.resolve(uri,
+											null).get() != null
+											&& !modelCodes.contains(uri)) {
+										AxialCodingComposite.this.replaceNode(
+												new URI(
+														element.getAttribute("model-id")),
+												uri);
+										break; // only replace using the first
+												// element
+									}
+								}
+							} else {
+								Point pan = AxialCodingComposite.this.jointjs
+										.getPan().get();
+								for (final String uriString : data.split("\\|")) {
+									URI uri = new URI(uriString);
+									if (LocatorService.INSTANCE.resolve(uri,
+											null).get() != null) {
+										AxialCodingComposite.this.createNode(
+												uri, new Point((int) offsetX
+														- pan.x - 10,
+														(int) offsetY - pan.y
+																- 10));
+										AxialCodingComposite.this.jointjs
+												.run("$('.jointjs svg .element').attr('droppable', true)");
+									}
 								}
 							}
 						} catch (Exception e) {
@@ -357,8 +390,11 @@ public class AxialCodingComposite extends Composite implements
 										.asList(uri));
 						AxialCodingComposite.this.jointjs.load(
 								axialCodingModel.serialize()).get();
-						AxialCodingComposite.this.syncModel();
-						AxialCodingComposite.this.updateLabels();
+						List<URI> validUris = AxialCodingComposite.this
+								.syncModel().get();
+						AxialCodingComposite.this.updateLabels(validUris);
+						AxialCodingComposite.this.jointjs
+								.run("$('.jointjs svg .element').attr('droppable', true)");
 						AxialCodingComposite.this.jointjs.setEnabled(true);
 					} catch (CodeStoreReadException e) {
 						throw new IllegalArgumentException(e);
@@ -438,12 +474,12 @@ public class AxialCodingComposite extends Composite implements
 	 * <li>size</li>
 	 * </ul>
 	 * 
-	 * @param uri
+	 * @param uris
 	 * @return
 	 * @throws Exception
 	 */
-	public void updateLabels() throws Exception {
-		for (URI uri : this.getModelCodes().get()) {
+	public void updateLabels(List<URI> uris) throws Exception {
+		for (URI uri : uris) {
 			this.updateLabel(uri);
 		}
 	}
@@ -491,17 +527,18 @@ public class AxialCodingComposite extends Composite implements
 	 * 
 	 * @return
 	 */
-	public Future<Void> syncModel() {
-		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+	public Future<List<URI>> syncModel() {
+		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
 			@Override
-			public Void call() throws Exception {
+			public List<URI> call() throws Exception {
 				List<URI> validUris = AxialCodingComposite.this
-						.removeAllInvalidNodes().get();
-				AxialCodingComposite.this.deleteAllExistingIsALinks().get();
-				for (URI uri : validUris) {
-					AxialCodingComposite.this.createIsALinks(uri);
-				}
-				return null;
+						.markAllInvalidNodes().get();
+				// AxialCodingComposite.this.deleteAllExistingIsALinks().get();
+				// // TODO
+				// for (URI uri : validUris) {
+				// AxialCodingComposite.this.createIsALinks(uri);
+				// }
+				return validUris;
 			}
 
 		});
@@ -512,23 +549,30 @@ public class AxialCodingComposite extends Composite implements
 	 * 
 	 * @return the nodes that are kept
 	 */
-	private Future<List<URI>> removeAllInvalidNodes() {
+	private Future<List<URI>> markAllInvalidNodes() {
 		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
 			@Override
 			public List<URI> call() throws Exception {
 				List<URI> uris = AxialCodingComposite.this.getModelCodes()
 						.get();
+				List<String> validIds = new ArrayList<String>();
+				List<String> invalidIds = new ArrayList<String>();
 				for (Iterator<URI> iterator = uris.iterator(); iterator
 						.hasNext();) {
 					URI uri = iterator.next();
 					ICode code = LocatorService.INSTANCE.resolve(uri,
 							ICode.class, null).get();
 					if (code == null) {
-						AxialCodingComposite.this.jointjs
-								.remove(uri.toString()).get();
+						invalidIds.add(uri.toString());
 						iterator.remove();
+					} else {
+						validIds.add(uri.toString());
 					}
 				}
+				AxialCodingComposite.this.jointjs.addCustomClass(invalidIds,
+						"invalid");
+				AxialCodingComposite.this.jointjs.removeCustomClass(validIds,
+						"invalid");
 				return uris;
 			}
 		});
@@ -557,6 +601,16 @@ public class AxialCodingComposite extends Composite implements
 
 		this.createIsALinks(uri);
 		this.updateLabel(uri);
+	}
+
+	private void replaceNode(URI oldUri, URI newUri) throws Exception {
+		this.deleteIsALinks(oldUri).get();
+		String updatedJson = this.jointjs.save().get()
+				.replace(oldUri.toString(), newUri.toString());
+		this.jointjs.load(updatedJson).get();
+		this.createIsALinks(newUri).get();
+		this.markAllInvalidNodes().get();
+		this.updateLabel(newUri);
 	}
 
 	/**
@@ -588,7 +642,7 @@ public class AxialCodingComposite extends Composite implements
 								parent.getUri(), code.getUri()).get();
 					}
 				}
-				for (ICode child : CODE_SERVICE.getChildren(code)) {
+				for (ICode child : CODE_SERVICE.getSubCodes(code)) {
 					if (existingCodes.contains(child.getUri())) {
 						AxialCodingComposite.this.createIsALink(code.getUri(),
 								child.getUri()).get();
