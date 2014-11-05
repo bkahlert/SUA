@@ -112,7 +112,8 @@ public class AxialCodingComposite extends Composite implements
 				ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						AxialCodingComposite.this.deleteIsALinks(code.getUri())
+						AxialCodingComposite.this
+								.deleteAllOutdatedIsALinksBetweenValidNodes()
 								.get();
 						AxialCodingComposite.this.createIsALinks(code.getUri())
 								.get();
@@ -128,8 +129,8 @@ public class AxialCodingComposite extends Composite implements
 		@Override
 		public void codeDeleted(ICode code) {
 			try {
-				AxialCodingComposite.this.jointjs.remove(code.getUri()
-						.toString());
+				AxialCodingComposite.this.jointjs.addCustomClass(
+						Arrays.asList(code.getUri().toString()), "invalid");
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing " + code.getUri() + " in "
 						+ AxialCodingView.class, e);
@@ -533,11 +534,11 @@ public class AxialCodingComposite extends Composite implements
 			public List<URI> call() throws Exception {
 				List<URI> validUris = AxialCodingComposite.this
 						.markAllInvalidNodes().get();
-				// AxialCodingComposite.this.deleteAllExistingIsALinks().get();
-				// // TODO
-				// for (URI uri : validUris) {
-				// AxialCodingComposite.this.createIsALinks(uri);
-				// }
+				AxialCodingComposite.this
+						.deleteAllOutdatedIsALinksBetweenValidNodes().get();
+				for (URI uri : validUris) {
+					AxialCodingComposite.this.createIsALinks(uri);
+				}
 				return validUris;
 			}
 
@@ -714,14 +715,25 @@ public class AxialCodingComposite extends Composite implements
 	 * 
 	 * @return
 	 */
-	private Future<Void> deleteAllExistingIsALinks() {
+	private Future<Void> deleteAllOutdatedIsALinksBetweenValidNodes() {
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				List<String> linkIds = AxialCodingComposite.this.jointjs
 						.getPermanentLinks().get();
 				for (String linkId : linkIds) {
-					AxialCodingComposite.this.jointjs.remove(linkId).get();
+					URI parentURI = new URI(linkId.split("\\|")[0]);
+					URI subURI = new URI(linkId.split("\\|")[1]);
+					ICode parentCode = LocatorService.INSTANCE.resolve(
+							parentURI, ICode.class, null).get();
+					ICode subCode = LocatorService.INSTANCE.resolve(subURI,
+							ICode.class, null).get();
+					if (parentCode != null
+							&& subCode != null
+							&& !CODE_SERVICE.getSubCodes(parentCode).contains(
+									subCode)) {
+						AxialCodingComposite.this.jointjs.remove(linkId).get();
+					}
 				}
 				return null;
 			}
