@@ -269,43 +269,19 @@ public class CodeServiceListenerNotifier {
 
 	public void axialCodingModelAdded(final URI uri) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Axial Coding Model Added Notification",
-					new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.axialCodingModelAdded(uri);
-							return null;
-						}
-					});
+			codeServiceListener.axialCodingModelAdded(uri);
 		}
 	}
 
 	public void axialCodingModelUpdated(final URI uri) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Axial Coding Model Updated Notification",
-					new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.axialCodingModelUpdated(uri);
-							return null;
-						}
-					});
+			codeServiceListener.axialCodingModelUpdated(uri);
 		}
 	}
 
 	public void axialCodingModelRemoved(final URI uri) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Axial Coding Model Removed Notification",
-					new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.axialCodingModelRemoved(uri);
-							return null;
-						}
-					});
+			codeServiceListener.axialCodingModelRemoved(uri);
 		}
 	}
 

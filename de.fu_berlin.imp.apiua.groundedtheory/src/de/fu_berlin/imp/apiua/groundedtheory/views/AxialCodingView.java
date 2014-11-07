@@ -1,9 +1,12 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -14,6 +17,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusAdapter;
@@ -29,24 +33,43 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.SelectionProviderDelegator;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
-import com.bkahlert.nebula.widgets.itemlist.ItemList;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
+import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingViewModelList.IListener;
 
 public class AxialCodingView extends ViewPart {
 
 	static final Logger LOGGER = Logger.getLogger(AxialCodingView.class);
 
 	public static final String ID = "de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView";
+
+	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
+
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+
+	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+	};
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
@@ -72,6 +95,7 @@ public class AxialCodingView extends ViewPart {
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
+		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
 		this.getSite().setSelectionProvider(this.selectionProviderDelegator);
 		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
 				.addPostSelectionListener(this.selectionListener);
@@ -81,39 +105,110 @@ public class AxialCodingView extends ViewPart {
 	public void dispose() {
 		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
 				.removePostSelectionListener(this.selectionListener);
+		CODE_SERVICE.removeCodeServiceListener(this.codeServiceListener);
 		this.saveAll();
 		super.dispose();
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.create());
-		ItemList modelList = new AxialCodingViewModelList(parent, SWT.NONE);
+
+		final AxialCodingViewModelList modelList = new AxialCodingViewModelList(
+				parent, SWT.NONE);
 		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		modelList.addListener(new IListener() {
+
+			@Override
+			public void createClicked() {
+				try {
+					final URI uri = AxialCodingModelLocatorProvider
+							.createUniqueURI();
+					CODE_SERVICE
+							.addAxialCodingModel(new JointJSAxialCodingModel(
+									uri,
+									"{\"cells\":[],\"title\":\"New Model\"}"));
+
+					ExecUtils.logException(AxialCodingView.this.saveAll());
+					ExecUtils.logException(AxialCodingView.this.open(uri));
+					modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
+				} catch (CodeStoreWriteException e) {
+					AxialCodingView.LOGGER.error("Error creating new "
+							+ IAxialCodingModel.class.getSimpleName(), e);
+				}
+			}
+
+			@Override
+			public void renameClicked(URI uri) {
+				try {
+					AxialCodingViewRenameDialog renameDialog = new AxialCodingViewRenameDialog(
+							parent.getShell(), LABEL_PROVIDER_SERVICE
+									.getLabelProvider(uri).getText(uri));
+					renameDialog.create();
+					if (renameDialog.open() == Window.OK) {
+						IAxialCodingModel axialCodingModel = CODE_SERVICE
+								.getAxialCodingModel(uri);
+						if (axialCodingModel instanceof JointJSAxialCodingModel) {
+							((JointJSAxialCodingModel) axialCodingModel)
+									.setTitle(renameDialog.getTitle());
+							LocatorService.INSTANCE.uncache(uri);
+						}
+						CODE_SERVICE.addAxialCodingModel(axialCodingModel);
+					}
+				} catch (Exception e) {
+					AxialCodingView.LOGGER.error("Error renaming " + uri, e);
+				}
+			}
+
+			@Override
+			public void openClicked(Set<URI> uris) {
+				ExecUtils.logException(AxialCodingView.this.saveAll());
+				ExecUtils.logException(AxialCodingView.this.open(uris
+						.toArray(new URI[0])));
+			}
+
+			@Override
+			public void deleteClicked(URI uri) {
+				try {
+					int pos = CODE_SERVICE.getAxialCodingModels().indexOf(uri);
+					CODE_SERVICE.removeAxialCodingModel(uri);
+					Set<URI> stillOpen = new HashSet<URI>(AxialCodingView.this
+							.getOpenedURIs().keySet());
+					stillOpen.remove(uri);
+					if (stillOpen.isEmpty()) {
+						List<URI> uris = CODE_SERVICE.getAxialCodingModels();
+						if (uris.size() > 0) {
+							pos = Math.max(0, pos - 1);
+							stillOpen.add(uris.get(pos));
+						}
+					}
+					ExecUtils.logException(AxialCodingView.this.save(stillOpen));
+					ExecUtils.logException(AxialCodingView.this.open(stillOpen
+							.toArray(new URI[0])));
+					modelList.setOpened(stillOpen);
+				} catch (CodeStoreWriteException e) {
+					AxialCodingView.LOGGER.error("Error removing "
+							+ IAxialCodingModel.class.getSimpleName() + " "
+							+ uri);
+				} catch (CodeStoreReadException e) {
+					AxialCodingView.LOGGER.error("Error reading "
+							+ IAxialCodingModel.class.getSimpleName() + "s");
+				}
+			}
+		});
 
 		this.axialCodingCompositesContainer = new SashForm(parent,
 				SWT.HORIZONTAL);
 		this.axialCodingCompositesContainer.setLayoutData(new GridData(
 				SWT.FILL, SWT.FILL, true, true));
 
-		List<URI> lastOpenedModels = new SUAGTPreferenceUtil()
-				.getLastOpenedAxialCodingModels();
+		Set<URI> lastOpenedModels = new HashSet<URI>(
+				new SUAGTPreferenceUtil().getLastOpenedAxialCodingModels());
 		if (lastOpenedModels.size() > 0) {
-			final URI uri = lastOpenedModels.get(0);
-			final Future<Void> success = this.open(uri);
-			ExecUtils.nonUIAsyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						success.get();
-					} catch (Exception e) {
-						LOGGER.error("Error opening "
-								+ IAxialCodingModel.class.getSimpleName() + " "
-								+ uri);
-					}
-				}
-			});
+			modelList.setOpened(lastOpenedModels);
+			ExecUtils.logException(AxialCodingView.this.open(lastOpenedModels
+					.toArray(new URI[0])));
 		}
 	}
 
@@ -182,7 +277,6 @@ public class AxialCodingView extends ViewPart {
 				.asyncExec(new Callable<List<AxialCodingComposite>>() {
 					@Override
 					public List<AxialCodingComposite> call() throws Exception {
-						AxialCodingView.this.saveAll();
 						AxialCodingView.this.disposeAll();
 						for (int i = 0; i < uris.length; i++) {
 							final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
@@ -218,21 +312,23 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	/**
-	 * Saves the currently opened {@link URI}s. The {@link Control}s's content
-	 * is immediately saved, so it is save to call this method while disposition
-	 * takes place. The axial coding models are written on the disk not until
-	 * {@link Future#isDone()} returns true.
+	 * Saves the given {@link URI}s (that also need to be opened). The
+	 * {@link Control}s's content is immediately saved, so it is save to call
+	 * this method while disposition takes place. The axial coding models are
+	 * written on the disk not until {@link Future#isDone()} returns true.
 	 * 
 	 * @UIThread
 	 * 
 	 * @return
 	 */
-	public Future<Void> saveAll() {
+	protected Future<Void> save(Set<URI> stillOpen) {
 		final Map<URI, Future<Void>> success = new HashMap<URI, Future<Void>>();
 		for (final AxialCodingComposite axialCodingComposite : this
 				.getAxialCodingComposites()) {
-			success.put(axialCodingComposite.getOpenedURI(),
-					axialCodingComposite.save());
+			if (stillOpen.contains(axialCodingComposite.getOpenedURI())) {
+				success.put(axialCodingComposite.getOpenedURI(),
+						axialCodingComposite.save());
+			}
 		}
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
@@ -260,6 +356,20 @@ public class AxialCodingView extends ViewPart {
 				return null;
 			}
 		});
+	}
+
+	/**
+	 * Saves the currently opened {@link URI}s. The {@link Control}s's content
+	 * is immediately saved, so it is save to call this method while disposition
+	 * takes place. The axial coding models are written on the disk not until
+	 * {@link Future#isDone()} returns true.
+	 * 
+	 * @UIThread
+	 * 
+	 * @return
+	 */
+	public Future<Void> saveAll() {
+		return this.save(this.getOpenedURIs().keySet());
 	}
 
 	/**

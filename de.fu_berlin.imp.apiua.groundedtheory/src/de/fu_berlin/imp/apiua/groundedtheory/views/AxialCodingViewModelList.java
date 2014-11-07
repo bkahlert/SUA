@@ -1,46 +1,78 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.window.Window;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.OffWorker;
-import com.bkahlert.nebula.utils.WorkbenchUtils;
-import com.bkahlert.nebula.widgets.itemlist.ItemList;
+import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
-import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
-import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 
-class AxialCodingViewModelList extends ItemList {
+class AxialCodingViewModelList extends Composite {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AxialCodingViewModelList.class);
 
+	public static interface IListener {
+		/**
+		 * User chose to open the given {@link URI}.
+		 * 
+		 * @param uris
+		 */
+		public void openClicked(Set<URI> uris);
+
+		/**
+		 * User chose to rename the given {@link URI}.
+		 * 
+		 * @param uri
+		 */
+		public void renameClicked(URI uri);
+
+		/**
+		 * User chose to delete the given {@link URI}.
+		 * 
+		 * @param uri
+		 */
+		public void deleteClicked(URI uri);
+
+		/**
+		 * User chose to create a new {@link URI}.
+		 */
+		public void createClicked();
+	}
+
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
-
-	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
-			.getWorkbench().getService(ILabelProviderService.class);
-
-	private static final String CREATE_ID = "create";
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
@@ -59,9 +91,19 @@ class AxialCodingViewModelList extends ItemList {
 		}
 	};
 
-	private final OffWorker refresher = new OffWorker(
-			AxialCodingViewModelList.class,
-			"Axial Coding Models List Refresher");
+	private final List<IListener> listeners = new ArrayList<IListener>();
+	/**
+	 * true if no listeners should be notified
+	 */
+	private boolean mute = false;
+
+	private Combo acmCombo;
+	private ComboViewer acmComboViewer;
+	private URI selected;
+
+	private Button renameButton;
+
+	private Button deleteButton;
 
 	public AxialCodingViewModelList(Composite parent, int style) {
 		super(parent, style);
@@ -74,89 +116,105 @@ class AxialCodingViewModelList extends ItemList {
 			}
 		});
 
-		this.addListener(new ItemListAdapter() {
-			@Override
-			public void itemClicked(String key, int i) {
-				if (key.equals(CREATE_ID)) {
-					try {
-						CODE_SERVICE
-								.addAxialCodingModel(new JointJSAxialCodingModel(
-										AxialCodingModelLocatorProvider
-												.createUniqueURI(),
-										"{\"cells\":[],\"title\":\"New Model\"}"));
-					} catch (CodeStoreWriteException e) {
-						AxialCodingView.LOGGER.error("Error creating new "
-								+ IAxialCodingModel.class.getSimpleName(), e);
+		this.setLayout(GridLayoutFactory.fillDefaults().numColumns(4).create());
+
+		this.acmCombo = new Combo(this, SWT.DROP_DOWN | SWT.BORDER
+				| SWT.READ_ONLY);
+		this.acmCombo.setLayoutData(GridDataFactory.fillDefaults()
+				.grab(true, false).create());
+
+		this.acmComboViewer = new ComboViewer(this.acmCombo);
+		this.acmComboViewer
+				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
+					private final GTLabelProvider gtLabelProvider = new GTLabelProvider();
+
+					@Override
+					public StyledString getStyledText(URI element)
+							throws Exception {
+						StyledString s = this.gtLabelProvider
+								.getStyledText(element);
+						return s;
 					}
-				} else {
-					final URI uri = new URI(key);
-					switch (i) {
-					case 0:
-						AxialCodingView view = (AxialCodingView) WorkbenchUtils
-								.getView(AxialCodingView.ID);
-						if (view != null) {
-							final Future<Void> success = view.open(uri);
-							ExecUtils.nonUIAsyncExec(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										success.get();
-									} catch (Exception e) {
-										LOGGER.error(
-												"Error opening "
-														+ IAxialCodingModel.class
-																.getSimpleName()
-														+ " " + uri, e);
-									}
+				});
+		this.acmComboViewer.setContentProvider(ArrayContentProvider
+				.getInstance());
+		this.acmComboViewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						IStructuredSelection selection = (IStructuredSelection) event
+								.getSelection();
+						if (selection.size() > 0) {
+							AxialCodingViewModelList.this.selected = (URI) selection
+									.getFirstElement();
+							AxialCodingViewModelList.this.renameButton
+									.setEnabled(true);
+							AxialCodingViewModelList.this.deleteButton
+									.setEnabled(true);
+							if (!AxialCodingViewModelList.this.mute) {
+								Set<URI> set = new HashSet<URI>(ArrayUtils
+										.getAdaptableObjects(
+												selection.toArray(), URI.class));
+								for (IListener listener : AxialCodingViewModelList.this.listeners) {
+									listener.openClicked(set);
 								}
-							});
-						}
-						break;
-					case 1:
-						try {
-							AxialCodingViewRenameDialog renameDialog = new AxialCodingViewRenameDialog(
-									AxialCodingViewModelList.this.getShell(),
-									LABEL_PROVIDER_SERVICE
-											.getLabelProvider(uri).getText(uri));
-							renameDialog.create();
-							if (renameDialog.open() == Window.OK) {
-								IAxialCodingModel axialCodingModel = CODE_SERVICE
-										.getAxialCodingModel(uri);
-								if (axialCodingModel instanceof JointJSAxialCodingModel) {
-									((JointJSAxialCodingModel) axialCodingModel)
-											.setTitle(renameDialog.getTitle());
-									LocatorService.INSTANCE.uncache(uri);
-								}
-								CODE_SERVICE
-										.addAxialCodingModel(axialCodingModel);
 							}
-						} catch (Exception e) {
-							AxialCodingView.LOGGER.error("Error renaming "
-									+ uri, e);
+						} else {
+							AxialCodingViewModelList.this.selected = null;
+							AxialCodingViewModelList.this.renameButton
+									.setEnabled(false);
+							AxialCodingViewModelList.this.deleteButton
+									.setEnabled(false);
+							if (!AxialCodingViewModelList.this.mute) {
+								for (IListener listener : AxialCodingViewModelList.this.listeners) {
+									listener.openClicked(null);
+								}
+							}
 						}
-						break;
-					case 2:
-						try {
-							CODE_SERVICE.removeAxialCodingModel(uri);
-						} catch (CodeStoreWriteException e) {
-							AxialCodingView.LOGGER.error("Error removing "
-									+ IAxialCodingModel.class.getSimpleName()
-									+ " " + uri);
-						}
-						break;
-					default:
-						LOGGER.error("Implementation error");
+					}
+				});
+
+		GridDataFactory gridDataFactory = GridDataFactory.fillDefaults();
+
+		this.renameButton = new Button(this, SWT.PUSH);
+		this.renameButton.setLayoutData(gridDataFactory.indent(20, 0).create());
+		this.renameButton.setText("Rename");
+		this.renameButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!AxialCodingViewModelList.this.mute) {
+					for (IListener listener : AxialCodingViewModelList.this.listeners) {
+						listener.renameClicked(AxialCodingViewModelList.this.selected);
 					}
 				}
 			}
 		});
 
-		this.setSpacing(5);
-		this.refresher.start();
-		this.addDisposeListener(new DisposeListener() {
+		this.deleteButton = new Button(this, SWT.PUSH);
+		this.deleteButton.setLayoutData(gridDataFactory.create());
+		this.deleteButton.setText("Delete");
+		this.deleteButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				AxialCodingViewModelList.this.refresher.shutdown();
+			public void widgetSelected(SelectionEvent e) {
+				if (!AxialCodingViewModelList.this.mute) {
+					for (IListener listener : AxialCodingViewModelList.this.listeners) {
+						listener.deleteClicked(AxialCodingViewModelList.this.selected);
+					}
+				}
+			}
+		});
+
+		Button createButton = new Button(this, SWT.PUSH);
+		createButton.setLayoutData(gridDataFactory.indent(20, 0).create());
+		createButton.setText("Create");
+		createButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!AxialCodingViewModelList.this.mute) {
+					for (IListener listener : AxialCodingViewModelList.this.listeners) {
+						listener.createClicked();
+					}
+				}
 			}
 		});
 
@@ -164,58 +222,40 @@ class AxialCodingViewModelList extends ItemList {
 		AxialCodingViewModelList.this.refresh();
 	}
 
+	public void addListener(IListener listener) {
+		this.listeners.add(listener);
+	}
+
+	public void removeListener(IListener listener) {
+		this.listeners.remove(listener);
+	}
+
+	/**
+	 * Show the given {@link URI}s as opened.
+	 * 
+	 * @param uris
+	 */
+	public void setOpened(Set<URI> uris) {
+		this.mute = true;
+		this.acmComboViewer.setSelection(new StructuredSelection(
+				new ArrayList<URI>(uris)));
+		this.mute = false;
+	}
+
 	protected void refresh() {
-		this.refresher.flush();
-		this.refresher.submit(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				try {
-					// implicitly preload
-					LocatorService.class.getName();
-					AxialCodingViewModelList.this.clear();
-					AxialCodingViewModelList.this.addExistingModels();
-					AxialCodingViewModelList.this.addCreateItem();
-					ExecUtils.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							AxialCodingViewModelList.this.getParent().layout();
-						}
-					});
-				} catch (Exception e) {
-					LOGGER.error(e);
-				}
-				return null;
-			}
-		});
-	}
-
-	public void addExistingModels() {
+		// implicitly preload
+		LocatorService.class.getName();
+		this.mute = true;
+		ISelection selection = this.acmComboViewer.getSelection();
 		try {
-			for (URI uri : CODE_SERVICE.getAxialCodingModels()) {
-				this.addModel(uri);
-			}
-		} catch (CodeStoreReadException e1) {
-			AxialCodingView.LOGGER.error("Error getting available "
-					+ IAxialCodingModel.class + "s");
+			List<URI> models = CODE_SERVICE.getAxialCodingModels();
+			this.acmComboViewer.setInput(models.toArray());
+		} catch (CodeStoreReadException e) {
+			LOGGER.error("Error loading axial coding models", e);
 		}
+		this.acmComboViewer.setSelection(selection);
+		ViewerUtils.refresh(this.acmComboViewer);
+		this.mute = false;
 	}
 
-	public void addModel(URI uri) {
-		ILabelProvider labelProvider = LABEL_PROVIDER_SERVICE
-				.getLabelProvider(uri);
-		String title = uri.toString();
-		try {
-			title = labelProvider.getText(uri);
-		} catch (Exception e) {
-			AxialCodingView.LOGGER.warn("Could not retrieve title of " + uri);
-		}
-		this.addItem(uri.toString(), title, ButtonOption.PRIMARY,
-				ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL,
-				Arrays.asList("R", "X"));
-	}
-
-	public void addCreateItem() {
-		this.addItem(CREATE_ID, "Create New Model", ButtonOption.INFO,
-				ButtonSize.EXTRA_SMALL, ButtonStyle.HORIZONTAL, null);
-	}
 }

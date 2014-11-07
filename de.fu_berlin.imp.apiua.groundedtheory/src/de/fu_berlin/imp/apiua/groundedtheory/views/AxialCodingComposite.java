@@ -50,6 +50,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.AxialCodingLabelProvider;
 
 /**
@@ -152,28 +153,6 @@ public class AxialCodingComposite extends Composite implements
 				LOGGER.error("Error setting title of " + uri, e);
 			}
 		}
-
-		@Override
-		public void axialCodingModelRemoved(final URI uri) {
-			if (AxialCodingComposite.this.openedUri != null
-					&& AxialCodingComposite.this.openedUri.equals(uri)) {
-				AxialCodingComposite.this.openedUri = null;
-				final Future<Void> success = AxialCodingComposite.this
-						.open(null);
-				ExecUtils.nonUIAsyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							success.get();
-						} catch (Exception e) {
-							LOGGER.error("Error removing "
-									+ IAxialCodingModel.class.getSimpleName()
-									+ " " + uri);
-						}
-					}
-				});
-			}
-		};
 	};
 
 	private JointJS jointjs = null;
@@ -423,9 +402,20 @@ public class AxialCodingComposite extends Composite implements
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
+				final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
 						uri, json.get());
-				CODE_SERVICE.addAxialCodingModel(axialCodingModel);
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							CODE_SERVICE.addAxialCodingModel(axialCodingModel);
+						} catch (CodeStoreWriteException e) {
+							LOGGER.error("Error saving "
+									+ IAxialCodingModel.class.getSimpleName()
+									+ " " + uri);
+						}
+					}
+				});
 				return null;
 			}
 		});

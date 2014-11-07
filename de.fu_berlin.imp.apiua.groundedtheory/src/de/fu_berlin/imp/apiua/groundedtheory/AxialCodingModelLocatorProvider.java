@@ -128,6 +128,7 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 				// open ACMs
 				Set<URI> load = axialCodingView.getOpenedURIs().keySet();
 				load.addAll(openACMs);
+				axialCodingView.saveAll().get();
 				axialCodingView.open(load.toArray(new URI[0])).get();
 
 				// highlight ACMs
