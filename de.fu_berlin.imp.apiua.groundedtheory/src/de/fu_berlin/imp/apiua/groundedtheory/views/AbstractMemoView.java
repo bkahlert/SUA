@@ -346,7 +346,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 					} else if (highlight.contains(uri)) {
 						rgb = RGB.INFO;
 					}
-					editor.setBackground(rgb);
+					if (!editor.isDisposed()) {
+						editor.setBackground(rgb);
+					}
 				}
 				if (callback != null) {
 					callback.run();

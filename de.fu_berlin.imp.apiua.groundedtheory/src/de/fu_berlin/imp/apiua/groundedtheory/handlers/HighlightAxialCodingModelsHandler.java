@@ -66,7 +66,6 @@ public class HighlightAxialCodingModelsHandler extends AbstractHandler {
 
 					AxialCodingView acmView = (AxialCodingView) WorkbenchUtils
 							.getView(AxialCodingView.ID, true);
-					acmView.saveAll().get();
 					acmView.open(relevantAcmUris.toArray(new URI[0])).get();
 					acmView.highlight(codeUris).get();
 				} else {

@@ -19,15 +19,19 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
-import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IModifiable;
 import com.bkahlert.nebula.utils.IReflexiveConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -35,6 +39,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
+import com.bkahlert.nebula.widgets.jointjs.JointJS.JointJSListener;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
@@ -60,7 +65,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.viewer.AxialCodingLabelProvider;
  * 
  */
 public class AxialCodingComposite extends Composite implements
-		ISelectionProvider {
+		ISelectionProvider, IModifiable {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AxialCodingComposite.class);
@@ -138,22 +143,9 @@ public class AxialCodingComposite extends Composite implements
 						+ AxialCodingView.class, e);
 			}
 		}
-
-		@Override
-		public void axialCodingModelUpdated(URI uri) {
-			try {
-				IAxialCodingModel axialCodingModel = CODE_SERVICE
-						.getAxialCodingModel(uri);
-				if (AxialCodingComposite.this.openedUri != null
-						&& AxialCodingComposite.this.openedUri.equals(uri)) {
-					AxialCodingComposite.this.jointjs.setTitle(axialCodingModel
-							.getTitle());
-				}
-			} catch (CodeStoreReadException e) {
-				LOGGER.error("Error setting title of " + uri, e);
-			}
-		}
 	};
+
+	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 
 	private JointJS jointjs = null;
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
@@ -199,6 +191,20 @@ public class AxialCodingComposite extends Composite implements
 						return object.toString();
 					}
 				});
+		this.jointjs.addJointJSListener(new JointJSListener() {
+			@Override
+			public void modified(String json) {
+				Event event = new Event();
+				event.display = Display.getCurrent();
+				event.widget = AxialCodingComposite.this;
+				event.text = json;
+				event.data = json;
+				ModifyEvent modifyEvent = new ModifyEvent(event);
+				for (ModifyListener modifyListener : AxialCodingComposite.this.modifyListeners) {
+					modifyListener.modifyText(modifyEvent);
+				}
+			}
+		});
 
 		this.jointjs.injectCss(".html-element.invalid {"
 				+ "background-image: linear-gradient(-45deg,"
@@ -352,6 +358,7 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	public Future<Void> open(final URI uri) {
+		System.err.println("open " + uri);
 		Assert.isNotNull(uri);
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
@@ -385,40 +392,27 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Saves the currently opened {@link URI}. The {@link Control}'s content is
-	 * immediately saved, so it is save to call this method while the
-	 * {@link Control} is disposing. The axial coding model is written on the
-	 * disk not until {@link Future#isDone()} returns true.
+	 * Saves the currently opened {@link URI}.
 	 * 
 	 * @return
 	 */
-	public Future<Void> save() {
+	public void save() {
+		System.err.println("Saving (" + Thread.currentThread().getName()
+				+ "): " + this.openedUri);
 		if (this.openedUri == null) {
-			return new CompletedFuture<Void>(null, null);
+			return;
 		}
 
 		final URI uri = this.openedUri;
-		final Future<String> json = this.jointjs.save();
-		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
-						uri, json.get());
-				ExecUtils.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							CODE_SERVICE.addAxialCodingModel(axialCodingModel);
-						} catch (CodeStoreWriteException e) {
-							LOGGER.error("Error saving "
-									+ IAxialCodingModel.class.getSimpleName()
-									+ " " + uri);
-						}
-					}
-				});
-				return null;
-			}
-		});
+		final String json = this.jointjs.getJson();
+		final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
+				uri, json);
+		try {
+			CODE_SERVICE.addAxialCodingModel(axialCodingModel);
+		} catch (CodeStoreWriteException e) {
+			LOGGER.error("Error saving "
+					+ IAxialCodingModel.class.getSimpleName() + " " + uri);
+		}
 	}
 
 	public URI getOpenedURI() {
@@ -437,6 +431,10 @@ public class AxialCodingComposite extends Composite implements
 				return uris;
 			}
 		});
+	}
+
+	public void setTitle(String title) {
+		ExecUtils.logException(this.jointjs.setTitle(title));
 	}
 
 	public Future<Void> highlight(List<URI> uris) {
@@ -801,6 +799,16 @@ public class AxialCodingComposite extends Composite implements
 
 	public void zoomIn() {
 		this.jointjs.zoomIn();
+	}
+
+	@Override
+	public void addModifyListener(ModifyListener modifyListener) {
+		this.modifyListeners.add(modifyListener);
+	}
+
+	@Override
+	public void removeModifyListener(ModifyListener modifyListener) {
+		this.modifyListeners.remove(modifyListener);
 	}
 
 }

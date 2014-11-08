@@ -22,6 +22,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -106,7 +108,6 @@ public class AxialCodingView extends ViewPart {
 		SelectionUtils.getSelectionService(this.getSite().getWorkbenchWindow())
 				.removePostSelectionListener(this.selectionListener);
 		CODE_SERVICE.removeCodeServiceListener(this.codeServiceListener);
-		this.saveAll();
 		super.dispose();
 	}
 
@@ -130,7 +131,6 @@ public class AxialCodingView extends ViewPart {
 									uri,
 									"{\"cells\":[],\"title\":\"New Model\"}"));
 
-					ExecUtils.logException(AxialCodingView.this.saveAll());
 					ExecUtils.logException(AxialCodingView.this.open(uri));
 					modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
 				} catch (CodeStoreWriteException e) {
@@ -147,14 +147,20 @@ public class AxialCodingView extends ViewPart {
 									.getLabelProvider(uri).getText(uri));
 					renameDialog.create();
 					if (renameDialog.open() == Window.OK) {
-						IAxialCodingModel axialCodingModel = CODE_SERVICE
-								.getAxialCodingModel(uri);
-						if (axialCodingModel instanceof JointJSAxialCodingModel) {
-							((JointJSAxialCodingModel) axialCodingModel)
+						if (AxialCodingView.this.getOpenedURIs().keySet()
+								.contains(uri)) {
+							AxialCodingView.this.getOpenedURIs().get(uri)
 									.setTitle(renameDialog.getTitle());
-							LocatorService.INSTANCE.uncache(uri);
+						} else {
+							IAxialCodingModel axialCodingModel = CODE_SERVICE
+									.getAxialCodingModel(uri);
+							if (axialCodingModel instanceof JointJSAxialCodingModel) {
+								((JointJSAxialCodingModel) axialCodingModel)
+										.setTitle(renameDialog.getTitle());
+								LocatorService.INSTANCE.uncache(uri);
+							}
+							CODE_SERVICE.addAxialCodingModel(axialCodingModel);
 						}
-						CODE_SERVICE.addAxialCodingModel(axialCodingModel);
 					}
 				} catch (Exception e) {
 					AxialCodingView.LOGGER.error("Error renaming " + uri, e);
@@ -163,7 +169,6 @@ public class AxialCodingView extends ViewPart {
 
 			@Override
 			public void openClicked(Set<URI> uris) {
-				ExecUtils.logException(AxialCodingView.this.saveAll());
 				ExecUtils.logException(AxialCodingView.this.open(uris
 						.toArray(new URI[0])));
 			}
@@ -183,7 +188,6 @@ public class AxialCodingView extends ViewPart {
 							stillOpen.add(uris.get(pos));
 						}
 					}
-					ExecUtils.logException(AxialCodingView.this.save(stillOpen));
 					ExecUtils.logException(AxialCodingView.this.open(stillOpen
 							.toArray(new URI[0])));
 					modelList.setOpened(stillOpen);
@@ -282,6 +286,13 @@ public class AxialCodingView extends ViewPart {
 							final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 									AxialCodingView.this.axialCodingCompositesContainer,
 									SWT.NONE);
+							axialCodingComposite
+									.addModifyListener(new ModifyListener() {
+										@Override
+										public void modifyText(ModifyEvent e) {
+											axialCodingComposite.save();
+										}
+									});
 							axialCodingComposite.setBackground(Display
 									.getCurrent().getSystemColor(
 											SWT.COLOR_LIST_BACKGROUND));
@@ -309,67 +320,6 @@ public class AxialCodingView extends ViewPart {
 				return null;
 			}
 		});
-	}
-
-	/**
-	 * Saves the given {@link URI}s (that also need to be opened). The
-	 * {@link Control}s's content is immediately saved, so it is save to call
-	 * this method while disposition takes place. The axial coding models are
-	 * written on the disk not until {@link Future#isDone()} returns true.
-	 * 
-	 * @UIThread
-	 * 
-	 * @return
-	 */
-	protected Future<Void> save(Set<URI> stillOpen) {
-		final Map<URI, Future<Void>> success = new HashMap<URI, Future<Void>>();
-		for (final AxialCodingComposite axialCodingComposite : this
-				.getAxialCodingComposites()) {
-			if (stillOpen.contains(axialCodingComposite.getOpenedURI())) {
-				success.put(axialCodingComposite.getOpenedURI(),
-						axialCodingComposite.save());
-			}
-		}
-		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				Exception ex = null;
-				for (URI uri : success.keySet()) {
-					try {
-						success.get(uri).get();
-						LOGGER.info("Successfully saved "
-								+ IAxialCodingModel.class.getSimpleName() + " "
-								+ uri);
-					} catch (Exception e) {
-						if (ex == null) {
-							ex = e;
-						}
-						LOGGER.error(
-								"Error saving "
-										+ IAxialCodingModel.class
-												.getSimpleName() + " " + uri, e);
-					}
-				}
-				if (ex != null) {
-					throw ex;
-				}
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * Saves the currently opened {@link URI}s. The {@link Control}s's content
-	 * is immediately saved, so it is save to call this method while disposition
-	 * takes place. The axial coding models are written on the disk not until
-	 * {@link Future#isDone()} returns true.
-	 * 
-	 * @UIThread
-	 * 
-	 * @return
-	 */
-	public Future<Void> saveAll() {
-		return this.save(this.getOpenedURIs().keySet());
 	}
 
 	/**
