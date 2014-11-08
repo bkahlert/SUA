@@ -29,9 +29,9 @@ import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
 import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IInformationPresenterService.IInformationLabelProvider.DetailEntry;
 import de.fu_berlin.imp.apiua.core.services.IInformationPresenterService.IInformationLabelProvider.IDetailEntry;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService.IUriLabelProvider;
 import de.fu_berlin.imp.apiua.core.services.impl.UriInformationControl.IPostProcessor;
@@ -129,6 +129,10 @@ public class UriInformationControlDelegate implements Delegate<URI> {
 	public boolean load(URI uri, ToolBarManager toolBarManager) {
 		ILabelProvider labelProvider = this.labelProviderService
 				.getLabelProvider(uri);
+		if (labelProvider == null) {
+			return false;
+		}
+
 		if (!IUriLabelProvider.class.isInstance(labelProvider)) {
 			LOGGER.warn(labelProvider.getClass().getSimpleName()
 					+ " is not of type "
