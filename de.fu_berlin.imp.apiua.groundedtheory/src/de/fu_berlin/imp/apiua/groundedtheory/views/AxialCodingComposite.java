@@ -484,24 +484,38 @@ public class AxialCodingComposite extends Composite implements
 	 * </ul>
 	 * 
 	 * @param uri
-	 * @return
 	 */
-	public Point updateLabel(URI uri) throws Exception {
-		this.jointjs.setNodeTitle(uri.toString(),
-				this.labelProvider.getText(uri));
-		this.jointjs.setNodeContent(uri.toString(),
-				this.labelProvider.getContent(uri));
-		this.jointjs.setColor(uri.toString(), this.labelProvider.getColor(uri));
-		this.jointjs.setBackgroundColor(uri.toString(),
-				this.labelProvider.getBackgroundColor(uri));
-		this.jointjs.setBorderColor(uri.toString(),
-				this.labelProvider.getBorderColor(uri));
+	public void updateLabel(final URI uri) throws Exception {
+		ExecUtils.logException(ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				if (!AxialCodingComposite.this.getModelCodes().get()
+						.contains(uri)) {
+					return null;
+				}
+				AxialCodingComposite.this.jointjs.setNodeTitle(uri.toString(),
+						AxialCodingComposite.this.labelProvider.getText(uri));
+				AxialCodingComposite.this.jointjs.setNodeContent(
+						uri.toString(),
+						AxialCodingComposite.this.labelProvider.getContent(uri));
+				AxialCodingComposite.this.jointjs.setColor(uri.toString(),
+						AxialCodingComposite.this.labelProvider.getColor(uri));
+				AxialCodingComposite.this.jointjs.setBackgroundColor(uri
+						.toString(), AxialCodingComposite.this.labelProvider
+						.getBackgroundColor(uri));
+				AxialCodingComposite.this.jointjs.setBorderColor(
+						uri.toString(), AxialCodingComposite.this.labelProvider
+								.getBorderColor(uri));
 
-		Point size = this.labelProvider.getSize(uri);
-		if (size != null) {
-			this.jointjs.setSize(uri.toString(), size.x, size.y);
-		}
-		return size;
+				Point size = AxialCodingComposite.this.labelProvider
+						.getSize(uri);
+				if (size != null) {
+					AxialCodingComposite.this.jointjs.setSize(uri.toString(),
+							size.x, size.y);
+				}
+				return null;
+			}
+		}));
 	}
 
 	/**
