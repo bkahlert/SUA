@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.ui,
  de.fu_berlin.imp.apiua.doclog;bundle-version="1.0.0",
  de.fu_berlin.imp.apiua.survey;bundle-version="1.0.0",
  de.fu_berlin.imp.apiua.timeline;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: de.fu_berlin.imp.apiua
