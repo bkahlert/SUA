@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.bkahlert.nebula.utils.CollectionUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
 import de.fu_berlin.imp.apiua.core.extensionPoints.IDataLoadProvider;
@@ -135,11 +136,11 @@ public class DataService implements IDataService {
 							}
 						}), ", ") + " ...";
 		LOGGER.info(jobName);
-		final Job loader = new Job(jobName) {
+		final NamedJob loader = new NamedJob(DataService.class, jobName) {
 			@Override
-			protected IStatus run(final IProgressMonitor monitor) {
+			protected IStatus runNamed(final IProgressMonitor progressMonitor) {
 				long loadStart = System.currentTimeMillis();
-				monitor.beginTask(this.getName(),
+				SubMonitor monitor = SubMonitor.convert(progressMonitor,
 						dataLoaderManager.getNumDataLoaderProviders());
 				for (List<String> sources : dataLoaderManager
 						.getLoadDependencies()) {
@@ -152,11 +153,12 @@ public class DataService implements IDataService {
 										throws Exception {
 									final IDataLoadProvider dataLoadProvider = dataLoaderManager
 											.getDataLoadProvider(source);
-									Job loader = new Job(
+									NamedJob loader = new NamedJob(
+											DataService.class,
 											dataLoadProvider
-													.getUnloaderJobName(baseDataContainers)) {
+													.getLoaderJobName(baseDataContainers)) {
 										@Override
-										protected IStatus run(
+										protected IStatus runNamed(
 												IProgressMonitor monitor) {
 											final SubMonitor subMonitor = SubMonitor
 													.convert(monitor);
@@ -177,8 +179,6 @@ public class DataService implements IDataService {
 											return Status.OK_STATUS;
 										}
 									};
-									loader.setProgressGroup(monitor, 1);
-									loader.setSystem(true);
 									loader.schedule();
 									return loader;
 								}
@@ -231,7 +231,7 @@ public class DataService implements IDataService {
 											.getDataLoadProvider(source);
 									Job loader = new Job(
 											dataLoadProvider
-													.getLoaderJobName(baseDataContainers)) {
+													.getUnloaderJobName(baseDataContainers)) {
 										@Override
 										protected IStatus run(
 												IProgressMonitor monitor) {
