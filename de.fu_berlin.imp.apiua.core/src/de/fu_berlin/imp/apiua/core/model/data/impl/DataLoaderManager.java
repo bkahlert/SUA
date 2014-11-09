@@ -30,7 +30,7 @@ public class DataLoaderManager {
 	 * last registered {@link IDataLoadProvider}.
 	 */
 	private IDataLoadProvider dataServiceLoaderBracket = new IDataLoadProvider() {
-		private List<? extends IBaseDataContainer> baseDataProviders = null;
+		private List<? extends IBaseDataContainer> baseDataContainer = null;
 
 		@Override
 		public String getLoaderJobName(
@@ -40,23 +40,23 @@ public class DataLoaderManager {
 
 		@Override
 		public String getUnloaderJobName(
-				List<? extends IBaseDataContainer> baseDataProviders) {
+				List<? extends IBaseDataContainer> baseDataContainer) {
 			return "Cleaning up...";
 		}
 
 		@Override
 		public IDataContainer load(
-				List<? extends IBaseDataContainer> baseDataProviders,
+				List<? extends IBaseDataContainer> baseDataContainer,
 				IProgressMonitor progressMonitor) {
-			this.baseDataProviders = baseDataProviders;
-			return new AggregatedBaseDataContainer(baseDataProviders);
+			this.baseDataContainer = baseDataContainer;
+			return new AggregatedBaseDataContainer(baseDataContainer);
 		}
 
 		@Override
 		public void unload(IProgressMonitor progressMonitor) {
-			if (this.baseDataProviders == null)
+			if (this.baseDataContainer == null)
 				return;
-			for (IBaseDataContainer baseDataContainer : this.baseDataProviders) {
+			for (IBaseDataContainer baseDataContainer : this.baseDataContainer) {
 				LOGGER.info("Disposing " + baseDataContainer);
 				baseDataContainer.dispose();
 				LOGGER.info("Disposed " + baseDataContainer);
