@@ -358,7 +358,6 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	public Future<Void> open(final URI uri) {
-		System.err.println("open " + uri);
 		Assert.isNotNull(uri);
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
@@ -397,8 +396,6 @@ public class AxialCodingComposite extends Composite implements
 	 * @return
 	 */
 	public void save() {
-		System.err.println("Saving (" + Thread.currentThread().getName()
-				+ "): " + this.openedUri);
 		if (this.openedUri == null) {
 			return;
 		}
