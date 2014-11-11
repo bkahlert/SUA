@@ -71,12 +71,13 @@ public class ImageManager {
 	public static final Image MEMO = getImage("icons/obj16/memo_obj.png");
 	public static final Image CODE = getImage("icons/obj16/code_obj.png");
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
+	public static final Image AXIAL_CODING_MODEL = getImage("icons/obj16/axial_coding_model_obj.png");
 
 	private static Map<Pair<Image, List<ImageOverlay>>, Image> overlayed = new HashMap<Pair<Image, List<ImageOverlay>>, Image>();
 
 	/**
 	 * The returned image must *not* be disposed!
-	 * 
+	 *
 	 * @param image
 	 * @param overlays
 	 * @return
@@ -97,7 +98,7 @@ public class ImageManager {
 
 	/**
 	 * Returns an image from the file at the given plug-in relative path.
-	 * 
+	 *
 	 * @param path
 	 * @return image; the returned image <b>MUST be disposed after usage</b> to
 	 *         free up memory
@@ -110,7 +111,7 @@ public class ImageManager {
 	/**
 	 * Returns an image descriptor for the image file at the given plug-in
 	 * relative path.
-	 * 
+	 *
 	 * @param path
 	 *            the path
 	 * @return the image descriptor

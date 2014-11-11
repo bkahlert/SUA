@@ -56,7 +56,7 @@
       <view
             category="de.fu_berlin.imp.apiua.category"
             class="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView"
-            icon="icons/view/code_misc.png"
+            icon="icons/obj16/axial_coding_model_obj.png"
             id="de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView"
             name="Axial Coding"
             restorable="true">

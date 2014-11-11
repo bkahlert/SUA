@@ -169,7 +169,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	/**
 	 * Returns the {@link ICode}s effective color ... the color also reflecting
 	 * the {@link ICode}'s {@link Importance}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -221,7 +221,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	/**
 	 * Returns the image that shows the color of the given {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -269,7 +269,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	/**
 	 * Returns the {@link URI} point to the image that shows the color of the
 	 * given {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -350,10 +350,10 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					}
 					if (dimensionValues.getSecond() != null) {
 						string.append(" ")
-								.append("(", Stylers.MINOR_STYLER)
-								.append(Stylers.rebase(
-										dimensionValues.getSecond(),
-										Stylers.MINOR_STYLER))
+						.append("(", Stylers.MINOR_STYLER)
+						.append(Stylers.rebase(
+								dimensionValues.getSecond(),
+								Stylers.MINOR_STYLER))
 								.append(")", Stylers.MINOR_STYLER);
 					}
 				}
@@ -385,17 +385,17 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
 			String name = (axialCodingModel != null) ? axialCodingModel
 					.getTitle() : null;
-			if (name == null) {
-				name = uri.toString();
-			}
-			return new StyledString(name, styler);
+					if (name == null) {
+						name = uri.toString();
+					}
+					return new StyledString(name, styler);
 		}
 
 		ILabelProvider labelProvider = labelProviderService
 				.getLabelProvider(uri);
 		return (labelProvider != null) ? new StyledString(
 				labelProvider.getText(uri), styler) : new StyledString(
-				"label provider missing", Stylers.ATTENTION_STYLER);
+						"label provider missing", Stylers.ATTENTION_STYLER);
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {
@@ -420,7 +420,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	}
 
 	private boolean hasProperties(URI uri) throws InterruptedException,
-			ExecutionException {
+	ExecutionException {
 		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
 				.get();
 		return code != null ? CODE_SERVICE.getProperties(code).size() > 0
@@ -449,6 +449,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (type == IEpisode.class) {
 			image = ImageManager.EPISODE;
+		}
+		if (type == IAxialCodingModel.class) {
+			image = ImageManager.AXIAL_CODING_MODEL;
 		}
 
 		List<ImageOverlay> overlays = new LinkedList<ImageOverlay>();
@@ -537,16 +540,16 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					episode.getCaption() != null ? episode.getCaption() : "-"));
 			detailEntries.add(new DetailEntry("Creation", (episode
 					.getCreation() != null) ? episode.getCreation().toISO8601()
-					: "-"));
+							: "-"));
 
 			detailEntries.add(new DetailEntry("Start",
 					(episode.getDateRange() != null && episode.getDateRange()
-							.getStartDate() != null) ? episode.getDateRange()
+					.getStartDate() != null) ? episode.getDateRange()
 							.getStartDate().toISO8601() : "-"));
 
 			detailEntries.add(new DetailEntry("End",
 					(episode.getDateRange() != null && episode.getDateRange()
-							.getEndDate() != null) ? episode.getDateRange()
+					.getEndDate() != null) ? episode.getDateRange()
 							.getEndDate().toISO8601() : "-"));
 
 			TimeZoneDateRange range = episode.getDateRange();
@@ -570,7 +573,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	/**
 	 * Returns a string representing the dimension values for the given
 	 * {@link ICodeInstance}.
-	 * 
+	 *
 	 * @param codeInstance
 	 *            {@link Pair#getFirst()} returns the value of the
 	 *            {@link ICodeInstance} itself whereas {@link Pair#getSecond()}
@@ -627,7 +630,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 						String v = dimensionValue.getThird();
 						ownValueString = new StyledString(v, dimensionValue
 								.getSecond().isLegal(v) ? VALID_VALUE_STYLER
-								: INVALID_VALUE_STYLER);
+										: INVALID_VALUE_STYLER);
 					} else {
 						ownValueString = new StyledString(IScale.UNSET_LABEL);
 					}
