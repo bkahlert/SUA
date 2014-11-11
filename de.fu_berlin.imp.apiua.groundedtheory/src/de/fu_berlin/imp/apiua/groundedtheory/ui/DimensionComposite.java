@@ -30,9 +30,9 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteEx
 /**
  * Displays and provides editing capabilities for {@link IDimension} for the
  * given objects.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class DimensionComposite extends Composite {
 	private static final Logger LOGGER = Logger
@@ -164,10 +164,6 @@ public class DimensionComposite extends Composite {
 				}
 
 				this.loaded = uri;
-			} else {
-				this.dimensionType = null;
-				this.dimension = null;
-				this.loaded = null;
 			}
 		} else {
 			this.dimensionType = null;
