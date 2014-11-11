@@ -333,15 +333,22 @@ public class AxialCodingComposite extends Composite implements
 							} else {
 								Point pan = AxialCodingComposite.this.jointjs
 										.getPan().get();
+								Double zoom = AxialCodingComposite.this.jointjs
+										.getZoom().get();
+								int dropX = (int) ((offsetX / zoom) - pan.x);
+								int dropY = (int) ((offsetY / zoom) - pan.y);
 								for (final String uriString : data.split("\\|")) {
 									URI uri = new URI(uriString);
+									Point size = AxialCodingComposite.this.labelProvider
+											.getSize(uri);
+									if (size != null) {
+										dropX -= size.x / 2;
+										dropY -= size.y / 2;
+									}
 									if (LocatorService.INSTANCE.resolve(uri,
 											null).get() != null) {
 										AxialCodingComposite.this.createNode(
-												uri, new Point((int) offsetX
-														- pan.x - 10,
-														(int) offsetY - pan.y
-																- 10));
+												uri, new Point(dropX, dropY));
 										AxialCodingComposite.this.jointjs
 												.run("$('.jointjs svg .element').attr('droppable', true)");
 									}
