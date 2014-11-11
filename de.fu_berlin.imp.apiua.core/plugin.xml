@@ -372,6 +372,16 @@
             </dynamic>
          </menu>
       </menuContribution>
+  <menuContribution
+        allPopups="false"
+        locationURI="toolbar:org.eclipse.ui.main.toolbar">
+     <toolbar
+           id="de.fu_berlin.imp.apiua.core.main.toolbar">
+        <control
+              class="de.fu_berlin.imp.apiua.core.SelectionHistoryContribution">
+        </control>
+     </toolbar>
+  </menuContribution>
    </extension>
    <extension
          point="org.eclipse.core.expressions.definitions">

@@ -25,4 +25,6 @@ public class SUACorePreferenceConstants {
 	public static final String LAST_SCROLL_POSITION = "last_scroll_position";
 
 	public static final String FOCUSED_ELEMENTS = "de.fu_berlin.imp.apiua.core.focused_elements";
+
+	public static final String SELECTION_HISTORY = "de.fu_berlin.imp.apiua.core.selection_history";
 }

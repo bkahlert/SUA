@@ -374,4 +374,28 @@ public class SUACorePreferenceUtil extends EclipsePreferenceUtil {
 		}
 		return new LinkedList<URI>();
 	}
+
+	public void setSelectionHistory(List<URI> elements) {
+		String pref = de.fu_berlin.imp.apiua.core.util.SerializationUtils
+				.serialize(elements);
+		this.getPreferenceStore().setValue(
+				SUACorePreferenceConstants.SELECTION_HISTORY, pref);
+		this.fireSourceChanged(ISources.WORKBENCH,
+				SUACorePreferenceConstants.SELECTION_HISTORY, elements);
+	}
+
+	public List<URI> getSelectionHistory() {
+		String pref = this.getPreferenceStore().getString(
+				SUACorePreferenceConstants.SELECTION_HISTORY);
+		if (pref != null && !pref.isEmpty()) {
+			try {
+				return new ArrayList<URI>(
+						de.fu_berlin.imp.apiua.core.util.SerializationUtils
+								.deserialize(pref));
+			} catch (Exception e) {
+				// LOGGER.error("Could not load last focused elements", e);
+			}
+		}
+		return new LinkedList<URI>();
+	}
 }
