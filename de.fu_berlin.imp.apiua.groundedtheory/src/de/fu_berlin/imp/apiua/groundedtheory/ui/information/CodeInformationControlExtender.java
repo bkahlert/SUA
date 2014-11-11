@@ -1,8 +1,5 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui.information;
 
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeInstanceViewer;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +18,9 @@ import org.eclipse.ui.menus.IMenuService;
 
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
+
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeInstanceViewer;
 
 public class CodeInformationControlExtender implements
 		IInformationControlExtender<URI> {
@@ -43,8 +43,8 @@ public class CodeInformationControlExtender implements
 	public void extend(InformationControl<URI> informationControl,
 			Composite parent) {
 		this.codeInstanceViewer = new CodeInstanceViewer(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).hint(350, 350)
-				.minSize(350, 300).applyTo(this.codeInstanceViewer);
+		GridDataFactory.fillDefaults().grab(true, true).minSize(300, 300)
+				.applyTo(this.codeInstanceViewer);
 
 		final MenuManager menuManager = new MenuManager();
 		Menu popupMenu = menuManager.createContextMenu(this.codeInstanceViewer);

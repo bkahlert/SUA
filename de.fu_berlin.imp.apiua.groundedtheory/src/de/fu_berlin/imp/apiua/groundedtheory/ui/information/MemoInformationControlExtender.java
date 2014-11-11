@@ -1,15 +1,15 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui.information;
 
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
+
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 
 public class MemoInformationControlExtender extends
 		EditorInformationControlExtender<URI> {
@@ -21,8 +21,7 @@ public class MemoInformationControlExtender extends
 			.getWorkbench().getService(ICodeService.class);
 
 	public MemoInformationControlExtender() {
-		super(GridDataFactory.fillDefaults().grab(true, true).hint(450, 350)
-				.minSize(450, 300));
+		super(GridDataFactory.fillDefaults().grab(true, true).minSize(450, 300));
 	}
 
 	@Override
