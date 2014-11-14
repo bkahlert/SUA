@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.model;
 import org.eclipse.core.runtime.Assert;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
 
 public class Relation implements ILocatable, IRelation {
@@ -12,6 +13,8 @@ public class Relation implements ILocatable, IRelation {
 	private URI from;
 	private URI to;
 	private String title;
+
+	private TimeZoneDate timeZoneDate;
 
 	@SuppressWarnings("unused")
 	private Relation() {
@@ -29,6 +32,7 @@ public class Relation implements ILocatable, IRelation {
 		this.from = from;
 		this.to = to;
 		this.title = title;
+		this.timeZoneDate = new TimeZoneDate();
 	}
 
 	@Override
@@ -56,11 +60,6 @@ public class Relation implements ILocatable, IRelation {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((this.from == null) ? 0 : this.from.hashCode());
-		result = prime * result
-				+ ((this.title == null) ? 0 : this.title.hashCode());
-		result = prime * result + ((this.to == null) ? 0 : this.to.hashCode());
-		result = prime * result
 				+ ((this.uri == null) ? 0 : this.uri.hashCode());
 		return result;
 	}
@@ -77,27 +76,6 @@ public class Relation implements ILocatable, IRelation {
 			return false;
 		}
 		Relation other = (Relation) obj;
-		if (this.from == null) {
-			if (other.from != null) {
-				return false;
-			}
-		} else if (!this.from.equals(other.from)) {
-			return false;
-		}
-		if (this.title == null) {
-			if (other.title != null) {
-				return false;
-			}
-		} else if (!this.title.equals(other.title)) {
-			return false;
-		}
-		if (this.to == null) {
-			if (other.to != null) {
-				return false;
-			}
-		} else if (!this.to.equals(other.to)) {
-			return false;
-		}
 		if (this.uri == null) {
 			if (other.uri != null) {
 				return false;
@@ -112,6 +90,11 @@ public class Relation implements ILocatable, IRelation {
 	public String toString() {
 		return "Link \"" + this.getTitle() + "\": " + this.getFrom() + " -> "
 				+ this.getTo();
+	}
+
+	@Override
+	public TimeZoneDate getCreation() {
+		return this.timeZoneDate;
 	}
 
 }

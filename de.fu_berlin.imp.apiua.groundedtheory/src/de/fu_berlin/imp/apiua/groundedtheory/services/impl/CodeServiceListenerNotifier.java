@@ -15,6 +15,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
@@ -141,15 +142,33 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	public void relationsAdded(Set<IRelation> uris) {
+	public void relationsAdded(Set<IRelation> relations) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.relationsAdded(uris);
+			codeServiceListener.relationsAdded(relations);
 		}
 	}
 
-	public void relationsDeleted(Set<IRelation> uris) {
+	public void relationsDeleted(Set<IRelation> relations) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.relationsDeleted(uris);
+			codeServiceListener.relationsDeleted(relations);
+		}
+	}
+
+	public void relationsRenamed(Set<IRelation> relations) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			codeServiceListener.relationsRenamed(relations);
+		}
+	}
+
+	public void relationInstancesAdded(Set<IRelationInstance> relations) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			codeServiceListener.relationInstancesAdded(relations);
+		}
+	}
+
+	public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			codeServiceListener.relationInstancesDeleted(relations);
 		}
 	}
 

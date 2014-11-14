@@ -1,6 +1,5 @@
-package de.fu_berlin.imp.apiua.groundedtheory.storage.impl;
+package de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions;
 
-import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 
 public class CodeStoreIntegrityProtectionException extends
 		CodeStoreWriteException {

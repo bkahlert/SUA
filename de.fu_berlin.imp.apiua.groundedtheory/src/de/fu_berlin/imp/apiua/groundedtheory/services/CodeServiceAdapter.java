@@ -8,6 +8,8 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 
 public class CodeServiceAdapter implements ICodeServiceListener {
@@ -41,11 +43,23 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void relationsAdded(List<URI> uris) {
+	public void relationsAdded(Set<IRelation> relations) {
 	}
 
 	@Override
-	public void relationsDeleted(Set<URI> uris) {
+	public void relationsRenamed(Set<IRelation> relations) {
+	}
+
+	@Override
+	public void relationsDeleted(Set<IRelation> relations) {
+	}
+
+	@Override
+	public void relationInstancesAdded(Set<IRelationInstance> relations) {
+	}
+
+	@Override
+	public void relationInstancesDeleted(Set<IRelationInstance> relations) {
 	}
 
 	@Override

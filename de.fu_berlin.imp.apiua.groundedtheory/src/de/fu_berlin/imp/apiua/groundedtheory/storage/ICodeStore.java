@@ -12,6 +12,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
@@ -19,8 +20,11 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoes
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateCodeInstanceException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationInstanceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeInstanceException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 
 public interface ICodeStore {
 
@@ -135,10 +139,21 @@ public interface ICodeStore {
 
 	public Set<IRelation> getRelations();
 
-	public void addRelation(IRelation relation) throws CodeStoreWriteException;
+	public void addRelation(IRelation relation) throws CodeStoreWriteException,
+	DuplicateRelationException;
 
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
+
+	public Set<IRelationInstance> getRelationInstances();
+
+	public void addRelationInstance(IRelationInstance relationInstance)
+			throws CodeStoreWriteException, RelationDoesNotExistException,
+			DuplicateRelationInstanceException;
+
+	public void deleteRelationInstance(IRelationInstance relationInstance)
+			throws CodeStoreWriteException,
+			RelationInstanceDoesNotExistException;
 
 	public String getMemo(ICode code);
 

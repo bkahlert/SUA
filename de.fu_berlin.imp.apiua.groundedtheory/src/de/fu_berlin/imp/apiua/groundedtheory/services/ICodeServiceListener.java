@@ -9,6 +9,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 
 // TODO rewrite everything to URI
@@ -30,6 +31,12 @@ public interface ICodeServiceListener {
 	public void relationsAdded(Set<IRelation> relations);
 
 	public void relationsDeleted(Set<IRelation> relations);
+
+	public void relationsRenamed(Set<IRelation> relations);
+
+	public void relationInstancesAdded(Set<IRelationInstance> relations);
+
+	public void relationInstancesDeleted(Set<IRelationInstance> relations);
 
 	public void memoAdded(URI uri);
 

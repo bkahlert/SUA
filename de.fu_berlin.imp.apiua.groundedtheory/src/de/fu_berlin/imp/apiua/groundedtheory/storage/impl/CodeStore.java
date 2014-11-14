@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,17 +57,24 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.RelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreIntegrityProtectionException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedCodeInstancesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateCodeInstanceException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationInstanceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 
 @XStreamAlias("codeStore")
 class CodeStore implements ICodeStore {
@@ -113,6 +121,9 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("relations")
 	private Set<IRelation> relations = null;
 
+	@XStreamAlias("relationInstances")
+	private Set<IRelationInstance> relationInstances = null;
+
 	@XStreamAlias("memos")
 	private HashMap<Object, String> memos = null;
 
@@ -136,6 +147,8 @@ class CodeStore implements ICodeStore {
 		xstream.alias("instance", CodeInstance.class);
 		xstream.processAnnotations(CodeInstance.class);
 		xstream.alias("relations", Relation.class);
+		xstream.processAnnotations(CodeInstance.class);
+		xstream.alias("relationInstances", RelationInstance.class);
 		xstream.processAnnotations(CodeInstance.class);
 		xstream.processAnnotations(CodeStore.class);
 		xstream.registerConverter(new URIConverter());
@@ -169,6 +182,9 @@ class CodeStore implements ICodeStore {
 			}
 			if (codeStore.relations == null) {
 				codeStore.relations = new HashSet<IRelation>();
+			}
+			if (codeStore.relationInstances == null) {
+				codeStore.relationInstances = new HashSet<IRelationInstance>();
 			}
 			if (codeStore.memos == null) {
 				codeStore.memos = new HashMap<Object, String>();
@@ -733,10 +749,20 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void addRelation(IRelation relation) throws CodeStoreWriteException {
+	public void addRelation(IRelation relation) throws CodeStoreWriteException,
+	DuplicateRelationException {
 		if (!this.relations.contains(relation)) {
 			this.relations.add(relation);
 			this.save();
+		} else {
+			IRelation duplicate = null;
+			for (IRelation r : this.relations) {
+				if (r.equals(relation)) {
+					duplicate = r;
+				}
+			}
+			throw new DuplicateRelationException(Arrays.asList(relation,
+					duplicate));
 		}
 	}
 
@@ -747,6 +773,44 @@ class CodeStore implements ICodeStore {
 			throw new RelationDoesNotExistException();
 		}
 		this.relations.remove(relation);
+		this.save();
+	}
+
+	@Override
+	public Set<IRelationInstance> getRelationInstances() {
+		return new HashSet<>(this.relationInstances);
+	}
+
+	@Override
+	public void addRelationInstance(IRelationInstance relationInstance)
+			throws CodeStoreWriteException, RelationDoesNotExistException,
+			DuplicateRelationInstanceException {
+		if (!this.relations.contains(relationInstance.getRelation())) {
+			throw new RelationDoesNotExistException();
+		}
+		if (!this.relationInstances.contains(relationInstance)) {
+			this.relationInstances.add(relationInstance);
+			this.save();
+		} else {
+			IRelationInstance duplicate = null;
+			for (IRelationInstance r : this.relationInstances) {
+				if (r.equals(relationInstance)) {
+					duplicate = r;
+				}
+			}
+			throw new DuplicateRelationInstanceException(Arrays.asList(
+					relationInstance, duplicate));
+		}
+	}
+
+	@Override
+	public void deleteRelationInstance(IRelationInstance relationInstance)
+			throws RelationInstanceDoesNotExistException,
+			CodeStoreWriteException {
+		if (!this.relationInstances.contains(relationInstance)) {
+			throw new RelationInstanceDoesNotExistException();
+		}
+		this.relationInstances.remove(relationInstance);
 		this.save();
 	}
 

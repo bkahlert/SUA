@@ -1,4 +1,4 @@
-package de.fu_berlin.imp.apiua.groundedtheory.storage.impl;
+package de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions;
 
 import java.util.List;
 

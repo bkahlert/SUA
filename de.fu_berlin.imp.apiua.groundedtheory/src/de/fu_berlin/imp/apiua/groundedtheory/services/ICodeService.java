@@ -15,12 +15,15 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 
 public interface ICodeService {
 
@@ -294,11 +297,22 @@ public interface ICodeService {
 
 	public Set<IRelation> getRelations();
 
-	public void addRelation(IRelation relation)
-			throws RelationDoesNotExistException, CodeStoreWriteException;
+	public void createRelation(URI from, URI to, String title)
+			throws RelationDoesNotExistException, CodeStoreWriteException,
+			DuplicateRelationException;
 
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
+
+	public void renameRelation(IRelation relation, String newName)
+			throws RelationDoesNotExistException, CodeStoreWriteException;
+
+	public void createRelationInstance(URI uri, IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException;
+
+	public void deleteRelationInstance(IRelationInstance relationInstance)
+			throws CodeStoreWriteException,
+			RelationInstanceDoesNotExistException;
 
 	/**
 	 * Sets the memo for the given {@link URI}.

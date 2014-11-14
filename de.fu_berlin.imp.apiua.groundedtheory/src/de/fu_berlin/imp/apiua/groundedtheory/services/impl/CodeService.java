@@ -39,7 +39,10 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.RelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
@@ -52,9 +55,12 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoes
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateCodeInstanceException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationInstanceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStoreFactory;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeInstanceException;
 
 public class CodeService implements ICodeService, IDisposable {
 
@@ -435,9 +441,18 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public void addRelation(IRelation relation)
+	public void createRelation(URI from, URI to, String name)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
-		this.codeStore.addRelation(relation);
+		Relation relation = null;
+		while (true) {
+			try {
+				relation = new Relation(new URI("apiua://relation/"
+						+ StringUtils.createRandomString(32)), from, to, name);
+				this.codeStore.addRelation(relation);
+				break;
+			} catch (DuplicateRelationException e) {
+			}
+		}
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsAdded(set);
@@ -450,6 +465,55 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsDeleted(set);
+	}
+
+	@Override
+	public void renameRelation(IRelation relation, String newName)
+			throws RelationDoesNotExistException, CodeStoreWriteException {
+		if (LocatorService.INSTANCE != null) {
+			LocatorService.INSTANCE.uncache(relation.getUri());
+		}
+		Relation newRelation = new Relation(relation.getUri(),
+				relation.getFrom(), relation.getTo(), newName);
+		this.codeStore.deleteRelation(relation);
+		try {
+			this.codeStore.addRelation(newRelation);
+		} catch (DuplicateRelationException e) {
+			LOGGER.fatal("Implementation error", e);
+		}
+		Set<IRelation> set = new HashSet<IRelation>();
+		set.add(relation);
+		this.codeServiceListenerNotifier.relationsRenamed(set);
+	}
+
+	@Override
+	public void createRelationInstance(URI phenomenon, IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException {
+		RelationInstance relationInstance = null;
+		while (true) {
+			try {
+				relationInstance = new RelationInstance(new URI(
+						"apiua://relationInstance/"
+								+ StringUtils.createRandomString(32)),
+						relation, phenomenon);
+				this.codeStore.addRelationInstance(relationInstance);
+				break;
+			} catch (DuplicateRelationInstanceException e) {
+			}
+		}
+		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
+		set.add(relationInstance);
+		this.codeServiceListenerNotifier.relationInstancesAdded(set);
+	}
+
+	@Override
+	public void deleteRelationInstance(IRelationInstance relationInstance)
+			throws RelationInstanceDoesNotExistException,
+			CodeStoreWriteException {
+		this.codeStore.deleteRelationInstance(relationInstance);
+		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
+		set.add(relationInstance);
+		this.codeServiceListenerNotifier.relationInstancesDeleted(set);
 	}
 
 	@Override
