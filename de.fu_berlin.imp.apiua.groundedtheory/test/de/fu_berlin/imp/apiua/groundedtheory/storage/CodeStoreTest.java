@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +47,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.Code;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Episode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoesNotExistException;
@@ -53,6 +56,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullExc
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedCodeInstancesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStoreHelper;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeInstanceException;
@@ -403,8 +407,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		this.testCodeInstances(codeStore, this.codeInstances);
 
 		final ICodeInstance codeInstance = codeStore.createCodeInstances(
-				new ICode[] { this.code1 },
-				new URI[] { new URI("apiua://new_id") })[0];
+				new ICode[] { this.code1 }, new URI[] { new URI(
+						"apiua://new_id") })[0];
 		codeStore.addAndSaveCodeInstances(new ICodeInstance[] { codeInstance });
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
@@ -548,6 +552,97 @@ public class CodeStoreTest extends CodeStoreHelper {
 		this.testCodes(codeStore, new ICode[] { this.code1 });
 		this.testCodeInstances(codeStore,
 				new ICodeInstance[] { this.codeInstance2 });
+	}
+
+	@Test
+	public void testSaveRelation() throws Exception {
+		ICodeStore codeStore = this.getSmallCodeStore();
+		assertEquals(0, codeStore.getRelations().size());
+
+		try {
+			codeStore.addRelation(new Relation(null, this.code1.getUri(),
+					this.code2.getUri(), "My Relation"));
+			assertFalse(true);
+		} catch (IllegalArgumentException e) {
+
+		}
+
+		try {
+			codeStore.addRelation(new Relation(new URI("apiua://relation/1"),
+					null, this.code2.getUri(), "My Relation"));
+			assertFalse(true);
+		} catch (IllegalArgumentException e) {
+
+		}
+
+		try {
+			codeStore.addRelation(new Relation(new URI("apiua://relation/1"),
+					this.code1.getUri(), null, "My Relation"));
+			assertFalse(true);
+		} catch (IllegalArgumentException e) {
+
+		}
+
+		try {
+			codeStore.addRelation(new Relation(new URI("apiua://relation/1"),
+					this.code1.getUri(), this.code2.getUri(), null));
+			assertFalse(true);
+		} catch (IllegalArgumentException e) {
+
+		}
+
+		assertEquals(
+				new Relation(new URI("apiua://relation/1"),
+						this.code1.getUri(), this.code2.getUri(), "My Relation"),
+				new Relation(new URI("apiua://relation/1"),
+						this.code1.getUri(), this.code2.getUri(), "My Relation"));
+
+		try {
+			codeStore.addRelation(new Relation(new URI("apiua://relation/1"),
+					this.code1.getUri(), this.codeInstance1.getUri(),
+					"Invalid Relation"));
+			assertFalse(true);
+		} catch (IllegalArgumentException e) {
+
+		}
+
+		assertEquals(new Relation(new URI("apiua://relation/1"),
+				this.codeInstance1.getUri(), this.codeInstance2.getUri(),
+				"My Relation"), new Relation(new URI("apiua://relation/1"),
+						this.codeInstance1.getUri(), this.codeInstance2.getUri(),
+				"My Relation"));
+
+		List<IRelation> relations = new LinkedList<IRelation>();
+		relations.add(new Relation(new URI("apiua://relation/1"), this.code1
+				.getUri(), this.code2.getUri(), "Code Relation"));
+		relations.add(new Relation(new URI("apiua://relation/1"),
+				this.codeInstance1.getUri(), this.codeInstance2.getUri(),
+				"CodeInstance Relation"));
+
+		for (IRelation relation : relations) {
+			codeStore.addRelation(relation);
+		}
+		assertEquals(relations, new ArrayList<>(codeStore.getRelations()));
+
+		codeStore.addRelation(relations.get(0));
+		assertEquals(relations, new ArrayList<>(codeStore.getRelations()));
+
+		ICodeStore codeStore2 = this.loadFromCodeStore(codeStore);
+		assertEquals(relations, new ArrayList<>(codeStore2.getRelations()));
+
+		codeStore.deleteRelation(relations.get(0));
+		assertEquals(relations.subList(1, 2),
+				new ArrayList<>(codeStore.getRelations()));
+		codeStore.deleteRelation(relations.get(1));
+		assertEquals(relations.subList(2, 2),
+				new ArrayList<>(codeStore.getRelations()));
+
+		try {
+			codeStore.deleteRelation(relations.get(0));
+			assertFalse(true);
+		} catch (RelationDoesNotExistException e) {
+
+		}
 	}
 
 	@Test

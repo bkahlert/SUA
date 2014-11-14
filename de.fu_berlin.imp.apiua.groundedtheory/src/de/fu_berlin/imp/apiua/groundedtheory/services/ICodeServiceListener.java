@@ -8,6 +8,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 
 // TODO rewrite everything to URI
@@ -25,6 +26,10 @@ public interface ICodeServiceListener {
 	public void codeMoved(ICode code, ICode oldParentCode, ICode newParentCode);
 
 	public void codeDeleted(ICode code);
+
+	public void relationsAdded(Set<IRelation> relations);
+
+	public void relationsDeleted(Set<IRelation> relations);
 
 	public void memoAdded(URI uri);
 

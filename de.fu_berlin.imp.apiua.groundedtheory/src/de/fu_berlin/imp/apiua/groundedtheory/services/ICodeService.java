@@ -14,11 +14,13 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 
 public interface ICodeService {
 
@@ -26,7 +28,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 */
@@ -34,14 +36,14 @@ public interface ICodeService {
 
 	/**
 	 * Registers a {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param codeServiceListener
 	 */
 	public void addCodeServiceListener(ICodeServiceListener codeServiceListener);
 
 	/**
 	 * Unregisters a {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param codeServiceListener
 	 */
 	public void removeCodeServiceListener(
@@ -49,7 +51,7 @@ public interface ICodeService {
 
 	/**
 	 * Creates a {@link ICode} with the given caption.
-	 * 
+	 *
 	 * @param caption
 	 * @param color
 	 * @return
@@ -60,7 +62,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns an existing {@link ICode} based on it's internal id
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -70,7 +72,7 @@ public interface ICodeService {
 	 * TODO
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param codeCaption
 	 * @param rgb
 	 * @param uri
@@ -86,7 +88,7 @@ public interface ICodeService {
 	 * creates whose {@link URI} is returned.
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param code
 	 * @param uri
 	 * @throws CodeServiceException
@@ -100,7 +102,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns all existing {@link ICodeInstance}.
-	 * 
+	 *
 	 * @return
 	 */
 	List<ICodeInstance> getInstances();
@@ -110,7 +112,7 @@ public interface ICodeService {
 	 * the given {@link IIdentifier}.
 	 * <p>
 	 * E.g. {@link ILocatable} belonging to ID 20x13b2.
-	 * 
+	 *
 	 * @param identifier
 	 * @return
 	 */
@@ -121,7 +123,7 @@ public interface ICodeService {
 	 * <p>
 	 * If you also want to consider child {@link ICode}s see
 	 * {@link #getAllInstances(ICode)}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -131,7 +133,7 @@ public interface ICodeService {
 	 * Returns all {@link ICodeInstance}s belonging to an phenomenon {@link URI}
 	 * . In other words: If uri is associated with c
 	 * {@link ICodeInstance#getId()} equals p.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -143,7 +145,7 @@ public interface ICodeService {
 	 * <p>
 	 * If you only want to get immediate {@link ICodeInstance}s use
 	 * {@link #getInstances(ICode)}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -155,7 +157,7 @@ public interface ICodeService {
 	 * Renames a {@link ICode}
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param code
 	 * @param newCaption
 	 * @throws CodeServiceException
@@ -167,7 +169,7 @@ public interface ICodeService {
 	 * Recolors a {@link ICode}
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param code
 	 * @param newColor
 	 * @throws CodeServiceException
@@ -178,7 +180,7 @@ public interface ICodeService {
 	/**
 	 * Sets a parent {@link ICode} for a given {@link ICode} allowing the
 	 * modeling of hierarchies.
-	 * 
+	 *
 	 * @param childNode
 	 * @param parentNode
 	 *            can be null if childNode should be a top level {@link ICode}
@@ -191,17 +193,17 @@ public interface ICodeService {
 	 * Returns the position of an {@link ICode} in the hierarchy compared to its
 	 * siblings.
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * A
 	 * |- B
 	 * |- C</code>
 	 * </pre>
-	 * 
+	 *
 	 * Here <code>A</code> and <code>B</code> would have position 0 and
 	 * <code>C</code> would have position 1.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -213,17 +215,17 @@ public interface ICodeService {
 	 * {@link ICode} that it currently at position 0. In order to make an
 	 * element the last one, it can be set to position -1.
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * A
 	 * |- B
 	 * |- C</code>
 	 * </pre>
-	 * 
+	 *
 	 * Setting <code>B</code>'s position to and <code>B</code> would have
 	 * position 0 and <code>C</code> would have position 1.
-	 * 
+	 *
 	 * @param code
 	 * @param pos
 	 *            if out of bounds element is made the last element.
@@ -234,7 +236,7 @@ public interface ICodeService {
 	 * Removes a {@link ICode} from an {@link ILocatable}
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param codes
 	 * @param uri
 	 * @throws CodeServiceException
@@ -247,7 +249,7 @@ public interface ICodeService {
 	 * {@link ICode} itself
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param code
 	 * @throws CodeServiceException
 	 */
@@ -258,7 +260,7 @@ public interface ICodeService {
 	 * {@link ICode} itself
 	 * <p>
 	 * This operation is broadcasted through {@link ICodeServiceListener}
-	 * 
+	 *
 	 * @param code
 	 * @param forceDelete
 	 * @throws CodeServiceException
@@ -270,7 +272,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns all sub {@link ICode}s of the given {@link ICode} of depth 1.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -279,7 +281,7 @@ public interface ICodeService {
 	/**
 	 * Returns all sub {@link ICode}s of the given {@link ICode} of arbitrary
 	 * depth.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -290,9 +292,17 @@ public interface ICodeService {
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException;
 
+	public Set<IRelation> getRelations();
+
+	public void addRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException;
+
+	public void deleteRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException;
+
 	/**
 	 * Sets the memo for the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 * @param html
 	 * @throws CodeServiceException
@@ -301,35 +311,35 @@ public interface ICodeService {
 
 	/**
 	 * Returns the memo for the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 */
 	public String loadMemo(URI uri);
 
 	/**
 	 * Returns the memo in plain text for the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 */
 	public String loadMemoPlain(URI uri);
 
 	/**
 	 * Returns true if the given {@link URI} has a memo.
-	 * 
+	 *
 	 * @param uri
 	 */
 	public boolean isMemo(URI uri);
 
 	/**
 	 * Returns the {@link IIdentifier}s that have at least one {@link IEpisode}.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<IIdentifier> getEpisodedIdentifiers();
 
 	/**
 	 * Returns the {@link IEpisode}s associated to a given {@link IIdentifier}.
-	 * 
+	 *
 	 * @param identifiers
 	 * @return
 	 */
@@ -337,7 +347,7 @@ public interface ICodeService {
 
 	/**
 	 * Adds an episode to the {@link ICodeStore}.
-	 * 
+	 *
 	 * @param episode
 	 * @throws CodeServiceException
 	 */
@@ -351,7 +361,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns the {@link ICode}'s current {@link IDimension}.
-	 * 
+	 *
 	 * @param uri
 	 * @return <code>null</code> if no {@link IDimension} is set
 	 */
@@ -361,7 +371,7 @@ public interface ICodeService {
 	 * Sets the {@link ICode}'s current {@link IDimension}.
 	 * <p>
 	 * <strong>Note:</strong>This automatically resets the currently set value.
-	 * 
+	 *
 	 * @param code
 	 * @param dimension
 	 * @throws CodeStoreWriteException
@@ -371,7 +381,7 @@ public interface ICodeService {
 
 	/**
 	 * Returns the {@link URI}'s set {@link IDimension} value.
-	 * 
+	 *
 	 * @param uri
 	 * @param code
 	 * @return
@@ -381,7 +391,7 @@ public interface ICodeService {
 	/**
 	 * Returns the all {@link IDimension} values associated with the given
 	 * {@link URI}.
-	 * 
+	 *
 	 * @param codeInstance
 	 * @return a list of triples. Each triple consists of
 	 *         <ol>
@@ -396,7 +406,7 @@ public interface ICodeService {
 
 	/**
 	 * Set's the {@link IDimensionable}'s {@link IDimension} value.
-	 * 
+	 *
 	 * @param uri
 	 * @param code
 	 * @param value
@@ -411,7 +421,7 @@ public interface ICodeService {
 	/**
 	 * Returns the {@link ICode}s that serve as properties for the given
 	 * {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -420,7 +430,7 @@ public interface ICodeService {
 	/**
 	 * Sets the given {@link ICode}s as the properties to the given
 	 * {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @param properties
 	 * @throws CodeStoreWriteException
@@ -430,7 +440,7 @@ public interface ICodeService {
 
 	/**
 	 * Add the given {@link ICode} as a property to the given {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @param property
 	 * @throws CodeStoreWriteException
@@ -441,7 +451,7 @@ public interface ICodeService {
 	/**
 	 * Removes the given {@link ICode} as a property from the given
 	 * {@link ICode}.
-	 * 
+	 *
 	 * @param code
 	 * @param property
 	 * @throws CodeStoreWriteException
@@ -451,9 +461,9 @@ public interface ICodeService {
 
 	/**
 	 * Gets all existing {@link IAxialCodingModel} from the {@link ICodeStore}.
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws CodeStoreWriteException
 	 */
 	public List<URI> getAxialCodingModels() throws CodeStoreReadException;
@@ -462,7 +472,7 @@ public interface ICodeService {
 	 * Adds a new {@link IAxialCodingModel} to the {@link ICodeStore}. If a
 	 * {@link IAxialCodingModel} has the same {@link URI} it replaces the
 	 * already set model.
-	 * 
+	 *
 	 * @param axialCodingModel
 	 * @throws CodeStoreWriteException
 	 */
@@ -472,7 +482,7 @@ public interface ICodeService {
 	/**
 	 * Removes a given {@link IAxialCodingModel} from the {@link ICodeStore} and
 	 * returns it.
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 * @throws CodeStoreWriteException
@@ -481,7 +491,7 @@ public interface ICodeService {
 
 	/**
 	 * Gets a given {@link IAxialCodingModel} from the {@link ICodeStore}.
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 * @throws CodeStoreReadException
@@ -492,7 +502,7 @@ public interface ICodeService {
 	/**
 	 * Reattaches all resources (codes and memos) from one to another
 	 * {@link ILocatable}.
-	 * 
+	 *
 	 * @param src
 	 * @param dest
 	 * @throws CodeServiceException

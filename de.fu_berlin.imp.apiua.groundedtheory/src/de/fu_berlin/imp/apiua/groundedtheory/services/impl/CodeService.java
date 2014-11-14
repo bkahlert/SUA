@@ -38,6 +38,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
@@ -51,6 +52,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoes
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStoreFactory;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeInstanceException;
 
@@ -425,6 +427,29 @@ public class CodeService implements ICodeService, IDisposable {
 		} catch (CodeInstanceDoesNotExistException e) {
 			throw new CodeServiceException(e);
 		}
+	}
+
+	@Override
+	public Set<IRelation> getRelations() {
+		return this.codeStore.getRelations();
+	}
+
+	@Override
+	public void addRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException {
+		this.codeStore.addRelation(relation);
+		Set<IRelation> set = new HashSet<IRelation>();
+		set.add(relation);
+		this.codeServiceListenerNotifier.relationsAdded(set);
+	}
+
+	@Override
+	public void deleteRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException {
+		this.codeStore.deleteRelation(relation);
+		Set<IRelation> set = new HashSet<IRelation>();
+		set.add(relation);
+		this.codeServiceListenerNotifier.relationsDeleted(set);
 	}
 
 	@Override

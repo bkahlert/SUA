@@ -11,6 +11,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
@@ -18,6 +19,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeInstanceDoes
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.DuplicateCodeInstanceException;
 
 public interface ICodeStore {
@@ -28,7 +30,7 @@ public interface ICodeStore {
 
 	/**
 	 * Returns an existing {@link ICode} based on it's internal id
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -65,7 +67,7 @@ public interface ICodeStore {
 
 	/**
 	 * Saves the {@link ICodeStore} and creates a backup.
-	 * 
+	 *
 	 * @return
 	 * @throws CodeStoreWriteException
 	 */
@@ -92,17 +94,17 @@ public interface ICodeStore {
 	 * Returns the position of an {@link ICode} in the hierarchy compared to its
 	 * siblings.
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * A
 	 * |- B
 	 * |- C</code>
 	 * </pre>
-	 * 
+	 *
 	 * Here <code>A</code> and <code>B</code> would have position 0 and
 	 * <code>C</code> would have position 1.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -114,22 +116,29 @@ public interface ICodeStore {
 	 * {@link ICode} that it currently at position 0. In order to make an
 	 * element the last one, it can be set to position -1.
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * A
 	 * |- B
 	 * |- C</code>
 	 * </pre>
-	 * 
+	 *
 	 * Setting <code>B</code>'s position to and <code>B</code> would have
 	 * position 0 and <code>C</code> would have position 1.
-	 * 
+	 *
 	 * @param code
 	 * @param pos
 	 *            if out of bounds element is made the last element.
 	 */
 	public void setPosition(ICode code, int pos);
+
+	public Set<IRelation> getRelations();
+
+	public void addRelation(IRelation relation) throws CodeStoreWriteException;
+
+	public void deleteRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException;
 
 	public String getMemo(ICode code);
 
@@ -145,7 +154,7 @@ public interface ICodeStore {
 	public void setMemo(URI uri, String html) throws CodeStoreWriteException;
 
 	/**
-	 * 
+	 *
 	 * @param uri
 	 *            only URIs of ICodes expected!
 	 * @return
@@ -160,7 +169,7 @@ public interface ICodeStore {
 	public void setDimension(URI uri, IDimension dimension);
 
 	/**
-	 * 
+	 *
 	 * @param uri
 	 *            only URIs of ICodeInstances expected!
 	 * @return
@@ -168,7 +177,7 @@ public interface ICodeStore {
 	public String getDimensionValue(URI valueUri, URI dimensionalizedUri);
 
 	/**
-	 * 
+	 *
 	 * @param uri
 	 *            only URIs of ICodeInstances expected!
 	 * @param value
@@ -178,7 +187,7 @@ public interface ICodeStore {
 
 	/**
 	 * Sets data for a given type and {@link URI}.
-	 * 
+	 *
 	 * @param type
 	 * @param uri
 	 * @param content
@@ -189,7 +198,7 @@ public interface ICodeStore {
 
 	/**
 	 * Returns all {@link URI}s with set data and a common type.
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws CodeStoreReadException
@@ -198,7 +207,7 @@ public interface ICodeStore {
 
 	/**
 	 * Returns the set data for a given type and {@link URI}.
-	 * 
+	 *
 	 * @param type
 	 * @param uri
 	 * @return
@@ -211,7 +220,7 @@ public interface ICodeStore {
 	/**
 	 * Returns the {@link URI}s that serve as properties for the given
 	 * {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 * @return a list of the properties. Changes to the list are
 	 *         <strong>not</strong> reflected in the data.
@@ -220,7 +229,7 @@ public interface ICodeStore {
 
 	/**
 	 * Sets the given {@link URI}s as the properties for the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 * @param properties
 	 *            a copy of this list is saved. Further changes to the passed

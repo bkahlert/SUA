@@ -55,6 +55,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.Code;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
@@ -64,6 +66,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullExc
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedCodeInstancesException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 
 @XStreamAlias("codeStore")
 class CodeStore implements ICodeStore {
@@ -107,6 +110,9 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("instances")
 	private HashSet<ICodeInstance> codeInstances = null;
 
+	@XStreamAlias("relations")
+	private Set<IRelation> relations = null;
+
 	@XStreamAlias("memos")
 	private HashMap<Object, String> memos = null;
 
@@ -128,6 +134,8 @@ class CodeStore implements ICodeStore {
 		xstream = new XStream();
 		xstream.alias("codes", Code.class);
 		xstream.alias("instance", CodeInstance.class);
+		xstream.processAnnotations(CodeInstance.class);
+		xstream.alias("relations", Relation.class);
 		xstream.processAnnotations(CodeInstance.class);
 		xstream.processAnnotations(CodeStore.class);
 		xstream.registerConverter(new URIConverter());
@@ -158,6 +166,9 @@ class CodeStore implements ICodeStore {
 			}
 			if (codeStore.codeInstances == null) {
 				codeStore.codeInstances = new HashSet<ICodeInstance>();
+			}
+			if (codeStore.relations == null) {
+				codeStore.relations = new HashSet<IRelation>();
 			}
 			if (codeStore.memos == null) {
 				codeStore.memos = new HashMap<Object, String>();
@@ -302,7 +313,7 @@ class CodeStore implements ICodeStore {
 
 	/**
 	 * Returns all {@link TreeNode}s that are describe the given {@link ICode}
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -319,7 +330,7 @@ class CodeStore implements ICodeStore {
 	 * <p>
 	 * In contrast to {@link #find(ICode)} this method checks via
 	 * <code>assert</code> if no more than one {@link TreeNode} is found.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -716,9 +727,32 @@ class CodeStore implements ICodeStore {
 		this.save();
 	}
 
+	@Override
+	public Set<IRelation> getRelations() {
+		return new HashSet<>(this.relations);
+	}
+
+	@Override
+	public void addRelation(IRelation relation) throws CodeStoreWriteException {
+		if (!this.relations.contains(relation)) {
+			this.relations.add(relation);
+			this.save();
+		}
+	}
+
+	@Override
+	public void deleteRelation(IRelation relation)
+			throws RelationDoesNotExistException, CodeStoreWriteException {
+		if (!this.relations.contains(relation)) {
+			throw new RelationDoesNotExistException();
+		}
+		this.relations.remove(relation);
+		this.save();
+	}
+
 	/**
 	 * Returns the location of a memo {@link File} for a given basename.
-	 * 
+	 *
 	 * @param basename
 	 * @return
 	 */
@@ -737,7 +771,7 @@ class CodeStore implements ICodeStore {
 	/**
 	 * Returns the basename for the given {@link ICode} for use in conjunction
 	 * {@link #getMemoLocation(String)}.
-	 * 
+	 *
 	 * @param code
 	 * @return
 	 */
@@ -751,7 +785,7 @@ class CodeStore implements ICodeStore {
 	/**
 	 * Returns the basename for the given {@link ICodeInstance} for use in
 	 * conjunction {@link #getMemoLocation(String)}.
-	 * 
+	 *
 	 * @param codeInstance
 	 * @return
 	 */
@@ -773,7 +807,7 @@ class CodeStore implements ICodeStore {
 	/**
 	 * Returns the basename for the given {@link ILocatable} for use in
 	 * conjunction {@link #getMemoLocation(String)}.
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 */
@@ -790,7 +824,7 @@ class CodeStore implements ICodeStore {
 
 	/**
 	 * Loads the memo saved for the given basename.
-	 * 
+	 *
 	 * @param basename
 	 * @return null if no memo exists
 	 * @throws IOException
@@ -810,7 +844,7 @@ class CodeStore implements ICodeStore {
 
 	/**
 	 * Saves the memo to a given basename.
-	 * 
+	 *
 	 * @param basename
 	 * @param memo
 	 *            if null or empty the memo is removed

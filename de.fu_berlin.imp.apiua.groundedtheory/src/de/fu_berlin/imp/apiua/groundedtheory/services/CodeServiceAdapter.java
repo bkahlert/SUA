@@ -41,6 +41,14 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
+	public void relationsAdded(List<URI> uris) {
+	}
+
+	@Override
+	public void relationsDeleted(Set<URI> uris) {
+	}
+
+	@Override
 	public void memoAdded(URI uri) {
 	}
 

@@ -14,6 +14,7 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
@@ -137,6 +138,18 @@ public class CodeServiceListenerNotifier {
 							return null;
 						}
 					});
+		}
+	}
+
+	public void relationsAdded(Set<IRelation> uris) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			codeServiceListener.relationsAdded(uris);
+		}
+	}
+
+	public void relationsDeleted(Set<IRelation> uris) {
+		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
+			codeServiceListener.relationsDeleted(uris);
 		}
 	}
 
