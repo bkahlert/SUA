@@ -243,7 +243,8 @@ public class LocatorService implements ILocatorService {
 		}
 
 		if (types.size() > 1) {
-			LOGGER.warn(types.size() + " possible types found for " + uri);
+			LOGGER.warn(types.size() + " possible types found for " + uri
+					+ ": " + types);
 		}
 		return types.size() == 0 ? null : types.get(0);
 	}
