@@ -7,9 +7,9 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 
 /**
  * Instances of this describe a graph describing an axial coding model.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public interface IAxialCodingModel extends ILocatable {
 
@@ -17,7 +17,7 @@ public interface IAxialCodingModel extends ILocatable {
 
 	public List<URI> getCodes();
 
-	public List<ILink> getLinks();
+	public List<IRelation> getRelations();
 
 	public String serialize();
 

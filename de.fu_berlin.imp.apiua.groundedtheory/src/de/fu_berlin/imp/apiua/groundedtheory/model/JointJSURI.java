@@ -5,7 +5,7 @@ import java.util.HashMap;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 
-public class JointJSCode implements ILocatable {
+public class JointJSURI implements ILocatable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -13,7 +13,7 @@ public class JointJSCode implements ILocatable {
 
 	private URI uri;
 
-	public JointJSCode(HashMap<String, Object> cell) {
+	public JointJSURI(HashMap<String, Object> cell) {
 		this.cell = cell;
 	}
 

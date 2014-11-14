@@ -48,7 +48,6 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -125,7 +124,7 @@ public class AxialCodingView extends ViewPart {
 			public void createClicked() {
 				try {
 					final URI uri = AxialCodingModelLocatorProvider
-							.createUniqueURI();
+							.createUniqueAxialCodingModelURI();
 					CODE_SERVICE
 							.addAxialCodingModel(new JointJSAxialCodingModel(
 									uri,
@@ -324,7 +323,7 @@ public class AxialCodingView extends ViewPart {
 
 	/**
 	 * Disposes the all opened {@link AxialCodingComposite}s without saving.
-	 * 
+	 *
 	 * @UIThread
 	 */
 	private void disposeAll() {
@@ -364,15 +363,15 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	/**
-	 * Removes the given {@link ICode}s from the currently loaded
+	 * Removes the given {@link URI}s from the currently loaded
 	 * {@link IAxialCodingModel}s.
-	 * 
-	 * @param codes
+	 *
+	 * @param uris
 	 */
-	public void remove(List<ICode> codes) {
+	public void remove(List<URI> uris) {
 		for (final AxialCodingComposite axialCodingComposite : this
 				.getAxialCodingComposites()) {
-			axialCodingComposite.remove(codes);
+			axialCodingComposite.remove(uris);
 		}
 	}
 

@@ -8,7 +8,7 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
  * @author bkahlert
  * 
  */
-public interface ILink extends ILocatable {
+public interface IRelation extends ILocatable {
 
 	public static interface IEndpoint {
 	}

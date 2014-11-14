@@ -19,7 +19,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 
 	private List<URI> codes;
 	private final List<URI> codesNotInJson = new ArrayList<URI>();
-	private List<ILink> links;
+	private List<IRelation> links;
 
 	public JointJSAxialCodingModel(URI uri, String json) {
 		try {
@@ -70,7 +70,7 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 			this.codes = new ArrayList<URI>();
 			for (HashMap<String, Object> cell : this.getCells()) {
 				if (!cell.get("type").toString().contains("link")) {
-					JointJSCode code = new JointJSCode(cell);
+					JointJSURI code = new JointJSURI(cell);
 					this.codes.add(code.getUri());
 				}
 			}
@@ -82,14 +82,14 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 	}
 
 	@Override
-	public List<ILink> getLinks() {
+	public List<IRelation> getRelations() {
 		if (this.links == null) {
-			this.links = new ArrayList<ILink>();
+			this.links = new ArrayList<IRelation>();
 			for (HashMap<String, Object> cell : this.getCells()) {
 				if (cell.get("type").toString().contains("link")
 						&& (cell.get("permanent") == null || !cell
 								.get("permanent").toString().equals("true"))) {
-					ILink link = new JointJSLink(cell);
+					IRelation link = new JointJSRelation(cell);
 					this.links.add(link);
 				}
 			}

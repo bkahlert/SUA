@@ -15,47 +15,32 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
-import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
-public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
+public class RelationLocatorProvider extends AdaptingLocatorProvider {
 
-	public static final String AXIAL_CODING_MODEL_NAMESPACE = "axialcodingmodel";
-
-	public static final URI createUniqueAxialCodingModelURI() {
-		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-				.getService(ICodeService.class);
-
-		try {
-			int max = -1;
-			for (URI uri : codeService.getAxialCodingModels()) {
-				max = Math
-						.max(max, Integer.valueOf(URIUtils.getIdentifier(uri)
-								.toString()));
-			}
-			return new URI("apiua://" + AXIAL_CODING_MODEL_NAMESPACE + "/"
-					+ (max + 1));
-		} catch (CodeStoreReadException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	public static final String RELATION_NAMESPACE = "relation";
 
 	private static final Logger LOGGER = Logger
-			.getLogger(AxialCodingModelLocatorProvider.class);
+			.getLogger(RelationLocatorProvider.class);
+
+	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+			.getService(ICodeService.class);
 
 	@SuppressWarnings("unchecked")
-	public AxialCodingModelLocatorProvider() {
+	public RelationLocatorProvider() {
 		super(IAxialCodingModel.class);
 	}
 
 	@Override
 	public boolean isResolvabilityImpossible(URI uri) {
 		return !SUACorePreferences.URI_SCHEME.equalsIgnoreCase(uri.getScheme())
-				|| !AXIAL_CODING_MODEL_NAMESPACE.equals(uri.getHost());
+				|| !RELATION_NAMESPACE.equals(uri.getHost());
 	}
 
 	@Override
@@ -64,7 +49,7 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		return IAxialCodingModel.class;
+		return IRelation.class;
 	}
 
 	@Override
@@ -82,7 +67,14 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 				.getService(ICodeService.class);
 
 		try {
-			return codeService.getAxialCodingModel(uri);
+			for (URI acmUri : codeService.getAxialCodingModels()) {
+				IAxialCodingModel acm = codeService.getAxialCodingModel(acmUri);
+				for (IRelation relation : acm.getRelations()) {
+					if (relation.getUri().equals(uri)) {
+						return relation;
+					}
+				}
+			}
 		} catch (CodeStoreReadException e) {
 			LOGGER.error("Error retrieving " + IAxialCodingModel.class
 					+ " for " + uri);
@@ -97,6 +89,11 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 		if (uris.length == 1 && uris[0] != null) {
 			ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 					.getService(ICodeService.class);
+
+			// TODO
+			if (true) {
+				return false;
+			}
 
 			Set<URI> openACMs = new HashSet<URI>();
 			Set<URI> highlightACMs = new HashSet<URI>();

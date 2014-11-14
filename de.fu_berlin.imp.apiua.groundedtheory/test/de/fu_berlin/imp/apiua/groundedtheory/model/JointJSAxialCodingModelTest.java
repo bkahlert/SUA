@@ -7,8 +7,6 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ILink;
-import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 
 public class JointJSAxialCodingModelTest {
 
@@ -39,19 +37,19 @@ public class JointJSAxialCodingModelTest {
 		assertEquals(Arrays.asList(code1, code2, code3), model.getCodes());
 
 		// contains only 1 non-permanent link
-		assertEquals(2, model.getLinks().size());
+		assertEquals(2, model.getRelations().size());
 
-		ILink link1 = model.getLinks().get(0);
+		IRelation link1 = model.getRelations().get(0);
 		assertEquals("Label2", link1.getTitle());
-		assertEquals(new ILink.NodeEndpoint(code3.toString()),
+		assertEquals(new IRelation.NodeEndpoint(code3.toString()),
 				link1.getSource());
-		assertEquals(new ILink.NodeEndpoint(code2.toString()),
+		assertEquals(new IRelation.NodeEndpoint(code2.toString()),
 				link1.getTarget());
 
-		ILink link2 = model.getLinks().get(1);
+		IRelation link2 = model.getRelations().get(1);
 		assertEquals("I'm pointing to nowhere", link2.getTitle());
-		assertEquals(new ILink.NodeEndpoint(code3.toString()),
+		assertEquals(new IRelation.NodeEndpoint(code3.toString()),
 				link2.getSource());
-		assertEquals(new ILink.CoordinateEndpoint(1000, 250), link2.getTarget());
+		assertEquals(new IRelation.CoordinateEndpoint(1000, 250), link2.getTarget());
 	}
 }

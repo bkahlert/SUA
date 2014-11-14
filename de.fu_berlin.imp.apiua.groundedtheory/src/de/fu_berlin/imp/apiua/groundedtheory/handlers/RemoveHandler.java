@@ -11,6 +11,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
+import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
@@ -23,13 +24,13 @@ public class RemoveHandler extends AbstractHandler {
 
 		IWorkbenchPart part = HandlerUtil.getActivePart(event);
 
-		List<ICode> codes = SelectionRetrieverFactory.getSelectionRetriever(
-				ICode.class).getSelection();
+		List<URI> uris = SelectionRetrieverFactory.getSelectionRetriever(
+				URI.class).getSelection();
 
-		if (codes.size() > 0) {
+		if (uris.size() > 0) {
 			if (part instanceof AxialCodingView) {
 				AxialCodingView axialCodingView = (AxialCodingView) part;
-				axialCodingView.remove(codes);
+				axialCodingView.remove(uris);
 			}
 		} else {
 			LOGGER.warn("Selection did not contain any "

@@ -6,7 +6,7 @@ import java.util.List;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 
-public class JointJSLink implements ILocatable, ILink {
+public class JointJSRelation implements ILocatable, IRelation {
 	private static final long serialVersionUID = 1L;
 
 	private final HashMap<String, Object> cell;
@@ -16,7 +16,7 @@ public class JointJSLink implements ILocatable, ILink {
 	private IEndpoint source;
 	private IEndpoint target;
 
-	public JointJSLink(HashMap<String, Object> cell) {
+	public JointJSRelation(HashMap<String, Object> cell) {
 		this.cell = cell;
 	}
 
@@ -47,11 +47,11 @@ public class JointJSLink implements ILocatable, ILink {
 	private IEndpoint createEndpoint(HashMap<String, Object> endpoint) {
 		if (endpoint.get("id") != null) {
 			final URI id = new URI(endpoint.get("id").toString());
-			return new ILink.NodeEndpoint(id.toString());
+			return new IRelation.NodeEndpoint(id.toString());
 		} else {
 			final int x = Integer.valueOf(endpoint.get("x").toString());
 			final int y = Integer.valueOf(endpoint.get("y").toString());
-			return new ILink.CoordinateEndpoint(x, y);
+			return new IRelation.CoordinateEndpoint(x, y);
 		}
 	}
 

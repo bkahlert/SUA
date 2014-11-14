@@ -391,9 +391,18 @@
                  <reference
                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isAxialCodingView">
                  </reference>
-                 <reference
-                       definitionId="de.fu_berlin.imp.apiua.groundedtheory.isICodes">
-                 </reference>
+                 <with
+                       variable="selection">
+                    <iterate
+                          ifEmpty="false"
+                          operator="and">
+                       <not>
+                          <adapt
+                                type="de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel">
+                          </adapt>
+                       </not>
+                    </iterate>
+                 </with>
               </and></activeWhen>
         </handler>
      </extension>
@@ -568,9 +577,6 @@
                <and>
                   <reference
                         definitionId="de.fu_berlin.imp.apiua.groundedtheory.isAxialCodingView">
-                  </reference>
-                  <reference
-                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.hasICodes">
                   </reference>
                </and>
             </visibleWhen>
@@ -1310,6 +1316,12 @@
          point="de.fu_berlin.imp.apiua.core.locatorprovider">
       <LocatorProvider
             class="de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider">
+      </LocatorProvider>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.apiua.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider">
       </LocatorProvider>
    </extension>
    <extension
