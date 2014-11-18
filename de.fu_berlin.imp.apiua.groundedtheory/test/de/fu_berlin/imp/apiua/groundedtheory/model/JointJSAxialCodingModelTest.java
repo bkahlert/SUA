@@ -6,7 +6,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink;
+
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel.IURIEndpoint;
 
 public class JointJSAxialCodingModelTest {
 
@@ -28,8 +31,6 @@ public class JointJSAxialCodingModelTest {
 		JointJSAxialCodingModel model = new JointJSAxialCodingModel(uri, json);
 
 		assertEquals("Test", model.getTitle());
-		model.setTitle("New Title");
-		assertEquals("New Title", model.getTitle());
 
 		URI code1 = new URI("apiua://code1");
 		URI code2 = new URI("apiua://code2");
@@ -39,17 +40,15 @@ public class JointJSAxialCodingModelTest {
 		// contains only 1 non-permanent link
 		assertEquals(2, model.getRelations().size());
 
-		IRelation link1 = model.getRelations().get(0);
-		assertEquals("Label2", link1.getTitle());
-		assertEquals(new IRelation.NodeEndpoint(code3.toString()),
-				link1.getSource());
-		assertEquals(new IRelation.NodeEndpoint(code2.toString()),
-				link1.getTarget());
+		URI link1 = model.getRelations().get(0);
+		assertEquals("Label2", model.getTitle(link1));
+		assertEquals(code3, ((IURIEndpoint) model.getSource(link1)).getURI());
+		assertEquals(code2, ((IURIEndpoint) model.getTarget(link1)).getURI());
 
-		IRelation link2 = model.getRelations().get(1);
-		assertEquals("I'm pointing to nowhere", link2.getTitle());
-		assertEquals(new IRelation.NodeEndpoint(code3.toString()),
-				link2.getSource());
-		assertEquals(new IRelation.CoordinateEndpoint(1000, 250), link2.getTarget());
+		URI link2 = model.getRelations().get(1);
+		assertEquals("I'm pointing to nowhere", model.getTitle(link2));
+		assertEquals(code3, ((IURIEndpoint) model.getSource(link2)).getURI());
+		assertEquals(new JointJSLink.CoordinateEndpoint(1000, 250),
+				model.getTarget(link2));
 	}
 }

@@ -3,7 +3,6 @@ package de.fu_berlin.imp.apiua.groundedtheory.model;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSRelation.IEndpoint;
 
 /**
  * Instances of this interface symbolize links between two {@link IEndpoint}s.
@@ -17,7 +16,7 @@ public interface IRelation extends ILocatable {
 
 	public URI getTo();
 
-	public String getTitle();
+	public String getName();
 
 	public TimeZoneDate getCreation();
 

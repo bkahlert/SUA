@@ -48,7 +48,7 @@ public class URI implements Serializable {
 	 * Returns the {@link URI}'s host and path portions.
 	 * <p>
 	 * e.g. for protocol://host/a/b/c#d {host, a, b, c} is returned.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<String> getSegments() {

@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
+import java.util.concurrent.ExecutionException;
+
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
@@ -16,6 +18,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.LabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider.CodeColors;
 
@@ -84,9 +87,18 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 				RGB rgb = this.getCodeColors(uri).getBackgroundRGB();
 				rgb.setAlpha(this.getAlpha(uri)[0]);
 				return this.getAlpha(uri)[0] < 128 ? RGB.BLACK : RGB.WHITE;
+			} else if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				try {
+					ICodeInstance codeInstance = LocatorService.INSTANCE
+							.resolve(uri, ICodeInstance.class, null).get();
+					RGB rgb = this.getColor(codeInstance.getCode().getUri());
+					return rgb;
+				} catch (InterruptedException | ExecutionException e) {
+					LOGGER.error("Error resolving " + uri, e);
+				}
 			}
 		}
-		return RGB.BLACK;
+		return RGB.DANGER;
 	}
 
 	@Override
@@ -97,6 +109,8 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 				RGB rgb = this.getCodeColors(uri).getBackgroundRGB();
 				rgb.setAlpha(this.getAlpha(uri)[0]);
 				return rgb;
+			} else if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				return RGB.WHITE;
 			}
 		}
 		return null;
@@ -110,6 +124,16 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 				RGB rgb = this.getCodeColors((URI) element).getBorderRGB();
 				rgb.setAlpha(this.getAlpha(uri)[1]);
 				return rgb;
+			} else if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				try {
+					ICodeInstance codeInstance = LocatorService.INSTANCE
+							.resolve(uri, ICodeInstance.class, null).get();
+					RGB rgb = this.getBorderColor(codeInstance.getCode()
+							.getUri());
+					return rgb;
+				} catch (InterruptedException | ExecutionException e) {
+					LOGGER.error("Error resolving " + uri, e);
+				}
 			}
 		}
 		return null;
@@ -123,6 +147,12 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 			size = FontUtils.calcSize(text).get();
 			size.x += 60;
 			size.y += 15;
+			if (element instanceof URI) {
+				URI uri = (URI) element;
+				if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+					size.y -= 2;
+				}
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error calculing size for " + element);
 		}

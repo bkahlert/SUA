@@ -11,6 +11,8 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
@@ -33,7 +35,7 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		@Override
 		public void codesAssigned(List<ICode> code, List<URI> uris) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
@@ -49,7 +51,7 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
@@ -60,13 +62,43 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		@Override
 		public void codeDeleted(ICode code) {
 			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+					.refresh(UriContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void memoAdded(URI uri) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
@@ -76,45 +108,45 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		@Override
 		public void memoRemoved(URI uri) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeAdded(IEpisode episode) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void episodesDeleted(Set<IEpisode> episodes) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void dimensionChanged(URI uri, IDimension oldDimension,
 				IDimension newDimension) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void propertiesChanged(URI uri, List<URI> addedProperties,
 				List<URI> removedProperties) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
@@ -137,19 +169,19 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		@Override
 		public void urisAdded(Set<IUri> uris) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void uriReplaced(IUri oldUri, IUri newUri) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 		@Override
 		public void urisRemoved(Set<IUri> uris) {
 			com.bkahlert.nebula.utils.ViewerUtils
-					.refresh(UriContentProvider.this.viewer);
+			.refresh(UriContentProvider.this.viewer);
 		}
 
 	};

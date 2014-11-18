@@ -61,6 +61,14 @@
             name="Axial Coding"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.apiua.category"
+            class="de.fu_berlin.imp.apiua.groundedtheory.views.RelationView"
+            icon="icons/obj16/relation_obj.png"
+            id="de.fu_berlin.imp.apiua.groundedtheory.views.RelationView"
+            name="Relations"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -83,6 +91,16 @@
       <command
             id="de.fu_berlin.imp.apiua.code.commands.addCodeInstance"
             name="Add Code...">
+      </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showArtifactID"
+            name="Show Artefact ID...">
+         <commandParameter
+               id="de.fu_berlin.imp.apiua.groundedtheory.commands.showArtifactID.justCopy"
+               name="Just Copy"
+               optional="false"
+               values="de.fu_berlin.imp.apiua.core.commands.BooleanValues">
+         </commandParameter>
       </command>
       <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.showArtifactID"
@@ -581,8 +599,36 @@
                </and>
             </visibleWhen>
          </command>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               label="Delete Relation..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isIRelations">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isRelationView">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
          <separator
                name="de.fu_berlin.imp.apiua.groundedtheory.separator2"
+               visible="true">
+         </separator>
+         <menu
+               icon="icons/obj16/relation_obj.png"
+               label="Create Link">
+            <dynamic
+                  class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateLinkContribution"
+                  id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
+            </dynamic>
+         </menu>
+         <separator
+               name="de.fu_berlin.imp.apiua.groundedtheory.separator3"
                visible="true">
          </separator>
          <command
@@ -612,7 +658,7 @@
             </visibleWhen>
          </command>
          <separator
-               name="de.fu_berlin.imp.apiua.groundedtheory.separator3"
+               name="de.fu_berlin.imp.apiua.groundedtheory.separator4"
                visible="true">
          </separator>
          <command
@@ -874,6 +920,29 @@
          </activeWhen>
       </handler>
       <handler
+            class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RenameRelationHandler"
+            commandId="org.eclipse.ui.edit.rename">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.apiua.groundedtheory.isIRelation">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.fu_berlin.imp.apiua.groundedtheory.handlers.DeleteRelationHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="de.fu_berlin.imp.apiua.groundedtheory.isIRelations">
+               </reference>
+               <reference
+                     definitionId="de.fu_berlin.imp.apiua.groundedtheory.isRelationView">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
             class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RenameEpisodeHandler"
             commandId="org.eclipse.ui.edit.rename">
          <activeWhen>
@@ -1107,6 +1176,73 @@
                   operator="or">
                <adapt
                      type="de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.isRelationView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="de.fu_berlin.imp.apiua.groundedtheory.views.RelationView">
+            </equals>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelation">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelation">
+               </adapt>
+            </iterate>
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelations">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelation">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstance">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance">
+               </adapt>
+            </iterate>
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstance">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance">
                </adapt>
             </iterate>
          </with>

@@ -17,29 +17,30 @@ import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
-public class RelationLocatorProvider extends AdaptingLocatorProvider {
+public class RelationInstanceLocatorProvider extends AdaptingLocatorProvider {
 
-	public static final String RELATION_NAMESPACE = "relation";
+	public static final String RELATION_INSTANCE_NAMESPACE = "relationInstance";
 
 	private static final Logger LOGGER = Logger
-			.getLogger(RelationLocatorProvider.class);
+			.getLogger(RelationInstanceLocatorProvider.class);
 
 	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 
 	@SuppressWarnings("unchecked")
-	public RelationLocatorProvider() {
-		super(IRelation.class);
+	public RelationInstanceLocatorProvider() {
+		super(IRelationInstance.class);
 	}
 
 	@Override
 	public boolean isResolvabilityImpossible(URI uri) {
 		return !SUACorePreferences.URI_SCHEME.equalsIgnoreCase(uri.getScheme())
-				|| !RELATION_NAMESPACE.equals(uri.getHost());
+				|| !RELATION_INSTANCE_NAMESPACE.equals(uri.getHost());
 	}
 
 	@Override
@@ -66,8 +67,11 @@ public class RelationLocatorProvider extends AdaptingLocatorProvider {
 				.getService(ICodeService.class);
 
 		for (IRelation relation : codeService.getRelations()) {
-			if (relation.getUri().equals(uri)) {
-				return relation;
+			for (IRelationInstance relationInstance : codeService
+					.getRelationInstances(relation)) {
+				if (relationInstance.getUri().equals(uri)) {
+					return relationInstance;
+				}
 			}
 		}
 

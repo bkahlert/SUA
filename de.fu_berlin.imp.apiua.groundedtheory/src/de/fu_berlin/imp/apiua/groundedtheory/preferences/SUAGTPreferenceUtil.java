@@ -6,12 +6,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 
+import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
+import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.Activator;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
 
 public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
@@ -110,5 +122,61 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 			}
 		}
 		return new LinkedList<URI>();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void loadExpandedElementsASync(final TreeViewer viewer,
+			final String saveExpandedElementsKey) {
+		Job job = new NamedJob(CodeViewer.class, "Loading Expanded Elements") {
+			@Override
+			protected IStatus runNamed(IProgressMonitor monitor) {
+				final SubMonitor subMonitor = SubMonitor.convert(monitor);
+				new NebulaPreferences().loadExpandedElements(
+						saveExpandedElementsKey, viewer,
+						new IConverter<String, Object>() {
+							@Override
+							public Object convert(String returnValue) {
+								try {
+									URI uri = new URI(returnValue);
+									subMonitor.setWorkRemaining(2);
+									List<URI> preload = new ArrayList<URI>();
+									preload.add(uri);
+									for (Object descendant : ViewerUtils
+											.getDescendants(viewer, uri)) {
+										if (descendant instanceof URI) {
+											preload.add((URI) descendant);
+										}
+									}
+									LocatorService.preload(CodeViewer.class,
+											viewer, preload,
+											subMonitor.newChild(1));
+									return uri;
+								} catch (Exception e) {
+									CodeViewer.LOGGER.error(
+											"Error loading expanded element "
+													+ returnValue, e);
+								}
+								return null;
+							}
+						});
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void saveExpandedElements(TreeViewer viewer,
+			String saveExpandedElementsKey) {
+		new NebulaPreferences().saveExpandedElements(saveExpandedElementsKey,
+				viewer, new IConverter<Object, String>() {
+					@Override
+					public String convert(Object returnValue) {
+						if (returnValue instanceof URI) {
+							return ((URI) returnValue).toString();
+						}
+						return null;
+					}
+				});
 	}
 }

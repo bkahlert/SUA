@@ -41,13 +41,14 @@ import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 
-public class CodeViewer extends Composite implements ISelectionProvider {
+public class RelationViewer extends Composite implements ISelectionProvider {
 
-	public static Logger LOGGER = Logger.getLogger(CodeViewer.class);
+	public static Logger LOGGER = Logger.getLogger(RelationViewer.class);
 	private final static SUACorePreferenceUtil PREFERENCE_UTIL = new SUACorePreferenceUtil();
 
 	public static enum ShowInstances {
@@ -65,7 +66,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private TreeViewer viewer = null;
 	private Control focusControl;
 
-	public CodeViewer(Composite parent, int style,
+	public RelationViewer(Composite parent, int style,
 			final ShowInstances initialShowInstances,
 			final String saveExpandedElementsKey, Filterable filterable,
 			QuickSelectionMode quickSelectionMode) {
@@ -89,7 +90,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				@Override
 				public String convert(URI uri) {
 					if (this.clp == null) {
-						this.clp = CodeViewer.this.viewer.getLabelProvider(0);
+						this.clp = RelationViewer.this.viewer
+								.getLabelProvider(0);
 					}
 					if (this.clc == null) {
 						this.clc = new CellLabelClient(this.clp);
@@ -104,12 +106,12 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				@Override
 				protected Job prefetch(final TreeViewer treeViewer) {
 					NamedJob prefetcher = new NamedJob(
-							CodeViewer.this.getClass(),
+							RelationViewer.this.getClass(),
 							"Prefetching filterable elements") {
 						@Override
 						protected IStatus runNamed(IProgressMonitor monitor) {
 							try {
-								LocatorService.preload(CodeViewer.class,
+								LocatorService.preload(RelationViewer.class,
 										treeViewer, ViewerUtils
 												.getTopLevelItems(treeViewer),
 										monitor);
@@ -160,7 +162,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			}
 		});
 		createColumns(viewer);
-		viewer.setContentProvider(new CodeViewerContentProvider(
+		viewer.setContentProvider(new RelationViewerContentProvider(
 				initialShowInstances == ShowInstances.ON));
 		viewer.setInput(PlatformUI.getWorkbench()
 				.getService(ICodeService.class));
@@ -182,14 +184,14 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 				.getWorkbench().getService(ICodeService.class);
 		Utils.createPimpedColumn(viewer, codeService);
 
-		viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
-				new ILabelProviderService.StyledLabelProvider() {
-					@Override
-					public StyledString getStyledText(URI element)
-							throws Exception {
-						return new StyledString();
-					}
-				});
+		// viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
+		// new ILabelProviderService.StyledLabelProvider() {
+		// @Override
+		// public StyledString getStyledText(URI element)
+		// throws Exception {
+		// return new StyledString();
+		// }
+		// });
 
 		viewer.createColumn("Date Created", new AbsoluteWidth(0)/* 170 */)
 				.setLabelProvider(
@@ -216,6 +218,14 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 											.getDateFormat().format(
 													codeInstance.getCreation()
 															.getDate()));
+								}
+								if (IRelation.class.isInstance(element)) {
+									IRelation relation = (IRelation) element;
+									return new StyledString(PREFERENCE_UTIL
+											.getDateFormat().format(
+													relation.getCreation()
+															.getDate()));
+
 								}
 								return new StyledString("ERROR",
 										Stylers.ATTENTION_STYLER);
@@ -265,8 +275,8 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	 * @param showInstances
 	 */
 	public void setShowInstances(boolean showInstances) {
-		if (this.viewer.getContentProvider() instanceof CodeViewerContentProvider) {
-			CodeViewerContentProvider contentProvider = (CodeViewerContentProvider) this.viewer
+		if (this.viewer.getContentProvider() instanceof RelationViewerContentProvider) {
+			RelationViewerContentProvider contentProvider = (RelationViewerContentProvider) this.viewer
 					.getContentProvider();
 			contentProvider.setShowInstances(showInstances);
 		} else {

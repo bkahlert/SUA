@@ -54,6 +54,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisodes;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -298,7 +300,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			break;
 		}
 
-		if (ICode.class.isInstance(locatable)) {
+		if (locatable instanceof ICode) {
 			ICode code = (ICode) locatable;
 			StyledString string = new StyledString(code.getCaption(), styler);
 			IDimension dimension = CODE_SERVICE.getDimension(uri);
@@ -334,7 +336,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			// }
 			return string;
 		}
-		if (ICodeInstance.class.isInstance(locatable)) {
+		if (locatable instanceof ICodeInstance) {
 			ICodeInstance codeInstance = (ICodeInstance) locatable;
 			ILabelProvider labelProvider = labelProviderService
 					.getLabelProvider(codeInstance.getId());
@@ -350,10 +352,10 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					}
 					if (dimensionValues.getSecond() != null) {
 						string.append(" ")
-						.append("(", Stylers.MINOR_STYLER)
-						.append(Stylers.rebase(
-								dimensionValues.getSecond(),
-								Stylers.MINOR_STYLER))
+								.append("(", Stylers.MINOR_STYLER)
+								.append(Stylers.rebase(
+										dimensionValues.getSecond(),
+										Stylers.MINOR_STYLER))
 								.append(")", Stylers.MINOR_STYLER);
 					}
 				}
@@ -363,11 +365,11 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 						Stylers.ATTENTION_STYLER);
 			}
 		}
-		if (IEpisodes.class.isInstance(locatable)) {
+		if (locatable instanceof IEpisodes) {
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),
 					styler);
 		}
-		if (IEpisode.class.isInstance(locatable)) {
+		if (locatable instanceof IEpisode) {
 			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
@@ -381,21 +383,53 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			}
 			return new StyledString(name, styler);
 		}
-		if (IAxialCodingModel.class.isInstance(locatable)) {
+		if (locatable instanceof IRelation) {
+			if (true) {
+				// return new StyledString("rel");
+			}
+			IRelation relation = (IRelation) locatable;
+			StyledString from = Stylers.shorten(
+					labelProviderService.getStyledText(relation.getFrom()), 16,
+					"...");
+			StyledString to = Stylers.shorten(
+					labelProviderService.getStyledText(relation.getTo()), 16,
+					"...");
+			StyledString label = from.append(" → ")
+					.append(relation.getName(), Stylers.BOLD_STYLER)
+					.append(" → ").append(to);
+			return Stylers.rebase(label, styler);
+		}
+		if (locatable instanceof IRelationInstance) {
+			IRelationInstance relationInstance = (IRelationInstance) locatable;
+			String name = null;
+			if (relationInstance != null) {
+				name = "Instance of "
+						+ relationInstance.getRelation().getName();
+			}
+			return new StyledString(name, styler);
+		}
+		if (locatable instanceof IAxialCodingModel) {
 			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
-			String name = (axialCodingModel != null) ? axialCodingModel
-					.getTitle() : null;
-					if (name == null) {
-						name = uri.toString();
-					}
-					return new StyledString(name, styler);
+			String name = axialCodingModel.getTitle();
+			if (name == null) {
+				name = uri.toString();
+			}
+			return new StyledString(name, styler);
 		}
 
 		ILabelProvider labelProvider = labelProviderService
 				.getLabelProvider(uri);
-		return (labelProvider != null) ? new StyledString(
-				labelProvider.getText(uri), styler) : new StyledString(
-						"label provider missing", Stylers.ATTENTION_STYLER);
+		if (labelProvider != null) {
+			if (labelProvider instanceof GTLabelProvider) {
+				return new StyledString("Recursion for " + uri + " detected!",
+						Stylers.ATTENTION_STYLER);
+			} else {
+				return new StyledString(labelProvider.getText(uri), styler);
+			}
+		} else {
+			return new StyledString("label provider missing",
+					Stylers.ATTENTION_STYLER);
+		}
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {
@@ -420,7 +454,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	}
 
 	private boolean hasProperties(URI uri) throws InterruptedException,
-	ExecutionException {
+			ExecutionException {
 		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
 				.get();
 		return code != null ? CODE_SERVICE.getProperties(code).size() > 0
@@ -449,6 +483,12 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (type == IEpisode.class) {
 			image = ImageManager.EPISODE;
+		}
+		if (type == IRelation.class) {
+			image = ImageManager.RELATION;
+		}
+		if (type == IRelation.class) {
+			image = ImageManager.RELATION_INSTANCE;
 		}
 		if (type == IAxialCodingModel.class) {
 			image = ImageManager.AXIAL_CODING_MODEL;
@@ -540,16 +580,16 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					episode.getCaption() != null ? episode.getCaption() : "-"));
 			detailEntries.add(new DetailEntry("Creation", (episode
 					.getCreation() != null) ? episode.getCreation().toISO8601()
-							: "-"));
+					: "-"));
 
 			detailEntries.add(new DetailEntry("Start",
 					(episode.getDateRange() != null && episode.getDateRange()
-					.getStartDate() != null) ? episode.getDateRange()
+							.getStartDate() != null) ? episode.getDateRange()
 							.getStartDate().toISO8601() : "-"));
 
 			detailEntries.add(new DetailEntry("End",
 					(episode.getDateRange() != null && episode.getDateRange()
-					.getEndDate() != null) ? episode.getDateRange()
+							.getEndDate() != null) ? episode.getDateRange()
 							.getEndDate().toISO8601() : "-"));
 
 			TimeZoneDateRange range = episode.getDateRange();
@@ -630,7 +670,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 						String v = dimensionValue.getThird();
 						ownValueString = new StyledString(v, dimensionValue
 								.getSecond().isLegal(v) ? VALID_VALUE_STYLER
-										: INVALID_VALUE_STYLER);
+								: INVALID_VALUE_STYLER);
 					} else {
 						ownValueString = new StyledString(IScale.UNSET_LABEL);
 					}

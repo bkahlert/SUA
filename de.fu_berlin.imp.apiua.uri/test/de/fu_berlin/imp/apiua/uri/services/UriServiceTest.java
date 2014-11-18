@@ -12,8 +12,6 @@ import org.junit.Test;
 
 import de.fu_berlin.imp.apiua.uri.model.IUri;
 import de.fu_berlin.imp.apiua.uri.model.Uri;
-import de.fu_berlin.imp.apiua.uri.services.IUriService;
-import de.fu_berlin.imp.apiua.uri.services.IUriServiceListener;
 import de.fu_berlin.imp.apiua.uri.services.impl.UriService;
 
 public class UriServiceTest {
@@ -41,7 +39,7 @@ public class UriServiceTest {
 		}
 	}
 
-	public static <T> Set<T> set(T... objects) {
+	public static <T> Set<T> set(@SuppressWarnings("unchecked") T... objects) {
 		Set<T> set = new HashSet<T>();
 		for (T object : objects) {
 			set.add(object);

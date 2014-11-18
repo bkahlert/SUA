@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -8,6 +10,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
@@ -34,6 +37,7 @@ import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -44,10 +48,12 @@ import de.fu_berlin.imp.apiua.core.util.NoNullSet;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.RelationInstanceLocatorProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeEditingSupport;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.EditingSupport;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
 public class Utils {
@@ -69,7 +75,7 @@ public class Utils {
 	/**
 	 * Returns a color that - given the colors of all existing codes - is as
 	 * different as possible.
-	 * 
+	 *
 	 * @return
 	 */
 	public static RGB getFancyCodeColor() {
@@ -173,7 +179,14 @@ public class Utils {
 		});
 	}
 
-	public static void createCodeColumn(SortableTreeViewer treeViewer,
+	/**
+	 * Creates a column that not only shows the pure object but also interesting
+	 * meta data (like assigned dimension values).
+	 *
+	 * @param treeViewer
+	 * @param codeService
+	 */
+	public static void createPimpedColumn(SortableTreeViewer treeViewer,
 			final ICodeService codeService) {
 		TreeViewerColumn codeColumn = treeViewer.createColumn("Code",
 				new RelativeWidth(1.0, 150));
@@ -183,19 +196,25 @@ public class Utils {
 		codeColumn
 				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
 					@Override
-					public StyledString getStyledText(URI element)
-							throws Exception {
-						if (element == ViewerURI.NO_PHENOMENONS_URI) {
+					public StyledString getStyledText(URI uri) throws Exception {
+						if (uri == ViewerURI.NO_CODES_URI) {
+							return new StyledString("no codes",
+									Stylers.MINOR_STYLER);
+						}
+						if (uri == ViewerURI.NO_RELATIONS_URI) {
+							return new StyledString("no relations",
+									Stylers.MINOR_STYLER);
+						}
+						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 							return new StyledString("no phenomenons",
 									Stylers.MINOR_STYLER);
 						}
-						StyledString text = labelProvider
-								.getStyledText(element);
+						StyledString text = labelProvider.getStyledText(uri);
 
 						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
-								.getResource(element))) {
-							ICode code = LocatorService.INSTANCE.resolve(
-									element, ICode.class, null).get();
+								.getResource(uri))) {
+							ICode code = LocatorService.INSTANCE.resolve(uri,
+									ICode.class, null).get();
 							for (ICodeInstance codeInstance : CODE_SERVICE
 									.getInstances(code.getUri())) {
 								Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
@@ -221,9 +240,9 @@ public class Utils {
 						}
 
 						if (CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE
-								.equals(URIUtils.getResource(element))) {
+								.equals(URIUtils.getResource(uri))) {
 							ICodeInstance codeInstance = LocatorService.INSTANCE
-									.resolve(element, ICodeInstance.class, null)
+									.resolve(uri, ICodeInstance.class, null)
 									.get();
 							Stylers.rebase(text, Stylers.SMALL_STYLER);
 							if (CodeLocatorProvider.CODE_NAMESPACE
@@ -233,19 +252,34 @@ public class Utils {
 										Stylers.MINOR_STYLER);
 							}
 						}
+
+						if (RelationLocatorProvider.RELATION_NAMESPACE
+								.equals(URIUtils.getResource(uri))) {
+						}
+
+						if (RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
+								.equals(URIUtils.getResource(uri))) {
+						}
+
 						return text;
 					}
 
 					@Override
-					public Image getImage(URI element) throws Exception {
-						if (element == ViewerURI.NO_PHENOMENONS_URI) {
+					public Image getImage(URI uri) throws Exception {
+						if (uri == ViewerURI.NO_CODES_URI) {
 							return null;
 						}
-						return labelProvider.getImage(element);
+						if (uri == ViewerURI.NO_RELATIONS_URI) {
+							return null;
+						}
+						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
+							return null;
+						}
+						return labelProvider.getImage(uri);
 					}
 				});
 
-		codeColumn.setEditingSupport(new CodeEditingSupport(treeViewer));
+		codeColumn.setEditingSupport(new EditingSupport(treeViewer));
 		TreeViewerEditor.create(treeViewer,
 				new ColumnViewerEditorActivationStrategy(treeViewer) {
 					@Override
@@ -281,5 +315,33 @@ public class Utils {
 						return new StyledString();
 					}
 				});
+	}
+
+	/**
+	 * Returns all {@link URI}s that can be retrieved from an {@link ISelection}
+	 * .
+	 * <p>
+	 * E.g. if you selection contains a {@link ICode} and a
+	 * {@link ICodeInstance} the resulting list contains all occurrences
+	 * instances of the code and the code instance itself.
+	 *
+	 * @param selection
+	 * @return
+	 */
+	public static URI[] getURIs(ISelection selection) {
+		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+				.getService(ICodeService.class);
+
+		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
+				selection, ICodeInstance.class);
+		for (ICode code : SelectionUtils.getAdaptableObjects(selection,
+				ICode.class)) {
+			codeInstances.addAll(codeService.getAllInstances(code));
+		}
+		List<URI> uris = new ArrayList<URI>();
+		for (ICodeInstance codeInstance : codeInstances) {
+			uris.add(codeInstance.getId());
+		}
+		return uris.toArray(new URI[0]);
 	}
 }

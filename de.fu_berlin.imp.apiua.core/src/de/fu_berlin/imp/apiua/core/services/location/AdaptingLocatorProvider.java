@@ -1,12 +1,5 @@
 package de.fu_berlin.imp.apiua.core.services.location;
 
-import de.fu_berlin.imp.apiua.core.model.HasIdentifier;
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.IOpenable;
-import de.fu_berlin.imp.apiua.core.model.IRevealableInOS;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdapterFactory;
@@ -14,6 +7,13 @@ import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.nebula.utils.AdapterFactoryProxy;
+
+import de.fu_berlin.imp.apiua.core.model.HasIdentifier;
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.IOpenable;
+import de.fu_berlin.imp.apiua.core.model.IRevealableInOS;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 
 public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 		IAdapterFactory {
@@ -36,7 +36,7 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	private final Class<? extends ILocatable>[] classes;
 
 	/**
-	 * 
+	 *
 	 * @param classes
 	 *            that can be returned by {@link #getType(URI)} and all possible
 	 *            types of the objects returned by
@@ -45,6 +45,7 @@ public abstract class AdaptingLocatorProvider implements ILocatorProvider,
 	 *            one of the types using
 	 *            {@link #getObject(URI, IProgressMonitor)}.
 	 */
+	@SafeVarargs
 	public AdaptingLocatorProvider(Class<? extends ILocatable>... classes) {
 		this.classes = classes;
 		adapterFactoryProxy.registerAdapters(this);

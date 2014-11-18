@@ -166,9 +166,9 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+	public void relationInstancesDeleted(Set<IRelationInstance> relationInstances) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.relationInstancesDeleted(relations);
+			codeServiceListener.relationInstancesDeleted(relationInstances);
 		}
 	}
 

@@ -23,22 +23,22 @@ import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 /**
  * This service is responsible to make {@link ILabelProvider}s accessible across
  * plugin borders.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public interface ILabelProviderService {
 
 	/**
 	 * Instances of this class may be able to construct a {@link ILabelProvider}
 	 * for the given {@link ILocatable}s.
-	 * 
+	 *
 	 * @author bkahlert
 	 */
 	public static interface ILabelProviderFactory {
 		/**
 		 * Creates an {@link ILabelProvider} for the given {@link URI}.
-		 * 
+		 *
 		 * @param uri
 		 * @return null if this {@link ILabelProvider} can't format the
 		 *         requested object.
@@ -50,9 +50,9 @@ public interface ILabelProviderService {
 	 * {@link ILabelProvider} that can not only retrieve text and {@link Image
 	 * image} for a given value object but also for an {@link URI} pointing to
 	 * it.
-	 * 
+	 *
 	 * @author bjornson
-	 * 
+	 *
 	 */
 	public static interface ILabelProvider extends
 			org.eclipse.jface.viewers.ILabelProvider {
@@ -60,7 +60,7 @@ public interface ILabelProviderService {
 		/**
 		 * Returns the text of the value object the {@link URI} is pointing to.
 		 * If the link can't be resolved <code>null</code> is returned.
-		 * 
+		 *
 		 * @param element
 		 * @return
 		 */
@@ -70,7 +70,7 @@ public interface ILabelProviderService {
 		 * Returns the {@link Image image} of the value object the {@link URI}
 		 * is pointing to. If the link can't be resolved <code>null</code> is
 		 * returned.
-		 * 
+		 *
 		 * @param element
 		 * @return
 		 */
@@ -79,7 +79,7 @@ public interface ILabelProviderService {
 		/**
 		 * Returns the text of the given value object. If there is no text
 		 * <code>null</code> is returned.
-		 * 
+		 *
 		 * @param element
 		 * @return
 		 */
@@ -89,7 +89,7 @@ public interface ILabelProviderService {
 		/**
 		 * Returns the {@link Image image} of the given value object. If there
 		 * is no {@link Image image} <code>null</code> is returned.
-		 * 
+		 *
 		 * @param element
 		 * @return
 		 */
@@ -102,9 +102,9 @@ public interface ILabelProviderService {
 	 * {@link ILabelProvider} that can not only retrieve text and {@link Image
 	 * image} for a given value object but also for an {@link URI} pointing to
 	 * it.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public static interface IStyledLabelProvider
 			extends
@@ -116,7 +116,7 @@ public interface ILabelProviderService {
 	/**
 	 * {@link ILabelProvider} that tries to adapt the given elements to
 	 * {@link URI}s.
-	 * 
+	 *
 	 * @author bkahlert
 	 */
 	public static class LabelProvider extends
@@ -372,7 +372,7 @@ public interface ILabelProviderService {
 	/**
 	 * Instances of this class decide on the provided {@link ILocatable}'s
 	 * specific features whether to return an {@link ILabelProvider} or not.
-	 * 
+	 *
 	 * @author bkahlert
 	 */
 	public static abstract class LocatablePathLabelProviderFactory implements
@@ -388,7 +388,7 @@ public interface ILabelProviderService {
 		 * {@link ILabelProvider} for apiua://foo/bar if it check
 		 * <code>pathSegmentIndex
 		 * = 1</code> and <code>pathSegmentValue = bar</code>.
-		 * 
+		 *
 		 * @param pathSegmentIndex
 		 * @param pathSegmentValue
 		 */
@@ -405,7 +405,7 @@ public interface ILabelProviderService {
 		 * {@link ILabelProvider} for apiua://foo/bar if it check
 		 * <code>pathSegmentIndex
 		 * = 1</code> and <code>pathSegmentValue = bar</code>.
-		 * 
+		 *
 		 * @param pathSegmentIndex
 		 * @param pathSegmentValue
 		 */
@@ -439,7 +439,7 @@ public interface ILabelProviderService {
 	/**
 	 * Adds a {@link ILabelProviderFactory} that is consulted when
 	 * {@link #getLabelProvider(URI)} is called.
-	 * 
+	 *
 	 * @param labelProviderFactory
 	 */
 	public void addLabelProviderFactory(
@@ -449,7 +449,7 @@ public interface ILabelProviderService {
 	 * Removed a {@link ILabelProviderFactory} from the pool of
 	 * {@link ILabelProviderFactory}s that is consulted when
 	 * {@link #getLabelProvider(URI)} is called.
-	 * 
+	 *
 	 * @param labelProviderFactory
 	 */
 	public void removeLabelProviderFactory(
@@ -458,10 +458,39 @@ public interface ILabelProviderService {
 	/**
 	 * Returns the {@link ILabelProvider} than can format the object referenced
 	 * by the given {@link URI}.
-	 * 
+	 *
 	 * @param uri
 	 * @return null if no {@link ILabelProvider} can be provided.
 	 */
 	public ILabelProvider getLabelProvider(URI uri);
+
+	/**
+	 * Returns the styled text label for the resource identified by the given
+	 * {@link URI}.
+	 *
+	 * @param uri
+	 * @return never <code>null</code> but the uri if {@link URI} could not be
+	 *         resolved.
+	 */
+	public StyledString getStyledText(URI uri);
+
+	/**
+	 * Returns the text label for the resource identified by the given
+	 * {@link URI}.
+	 *
+	 * @param uri
+	 * @return never <code>null</code> but the uri if {@link URI} could not be
+	 *         resolved.
+	 */
+	public String getText(URI uri);
+
+	/**
+	 * Returns the image for the resource identified by the given {@link URI}.
+	 *
+	 * @param uri
+	 * @return never <code>null</code> but the uri if {@link URI} could not be
+	 *         resolved.
+	 */
+	public Image getImage(URI uri);
 
 }

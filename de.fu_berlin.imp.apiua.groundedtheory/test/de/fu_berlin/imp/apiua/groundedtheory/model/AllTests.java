@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ EpisodeTest.class })
+@SuiteClasses({ EpisodeTest.class, JointJSAxialCodingModelTest.class })
 public class AllTests {
 
 }

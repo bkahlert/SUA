@@ -3,41 +3,60 @@ package de.fu_berlin.imp.apiua.groundedtheory.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.AssertionFailedException;
 
-import com.bkahlert.nebula.utils.JSONUtils;
+import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
+import com.bkahlert.nebula.widgets.jointjs.JointJSElement;
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink;
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink.CoordinateEndpoint;
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink.IElementEndpoint;
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink.IEndpoint;
+import com.bkahlert.nebula.widgets.jointjs.JointJSModel;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 
 public class JointJSAxialCodingModel implements IAxialCodingModel {
 
+	public static interface IURIEndpoint extends IEndpoint {
+		public URI getURI();
+	}
+
+	public static class URIEndpoint implements IURIEndpoint {
+		private URI uri;
+
+		public URIEndpoint(IElementEndpoint elementEndpoint) {
+			this.uri = new URI(elementEndpoint.getElement());
+		}
+
+		@Override
+		public URI getURI() {
+			return this.uri;
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 	private final URI uri;
-	private HashMap<String, Object> json;
+	private JointJSModel jointJsModel;
 
 	private List<URI> codes;
 	private final List<URI> codesNotInJson = new ArrayList<URI>();
-	private List<IRelation> links;
+	private List<URI> relations;
 
-	public JointJSAxialCodingModel(URI uri, String json) {
+	public JointJSAxialCodingModel(URI uri, JointJSModel jointJsModel) {
 		try {
 			Assert.isNotNull(uri);
 		} catch (AssertionFailedException e) {
 			throw new IllegalArgumentException(e);
 		}
 		this.uri = uri;
-		this.update(json);
+		this.jointJsModel = jointJsModel;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void update(String json) {
-		try {
-			this.json = (HashMap<String, Object>) JSONUtils.parseJson(json);
-		} catch (Exception e) {
-			throw new IllegalArgumentException(e);
-		}
+	public JointJSAxialCodingModel(URI uri, String json) {
+		this(uri, new JointJSModel(json));
 	}
 
 	@Override
@@ -47,31 +66,56 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 
 	@Override
 	public String getTitle() {
-		return (String) this.json.get("title");
+		return this.jointJsModel.getTitle();
 	}
 
-	public void setTitle(String title) {
-		try {
-			Assert.isNotNull(title);
-		} catch (AssertionFailedException e) {
-			throw new IllegalArgumentException(e);
+	@Override
+	public String getTitle(URI uri) {
+		String id = uri != null ? uri.toString() : null;
+		JointJSCell cell = this.jointJsModel.getCell(id);
+		if (cell instanceof JointJSElement) {
+			return ((JointJSElement) cell).getTitle();
+		} else if (cell instanceof JointJSLink) {
+			return ((JointJSLink) cell).getTitle();
 		}
-		this.json.put("title", title);
+		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<HashMap<String, Object>> getCells() {
-		return (List<HashMap<String, Object>>) this.json.get("cells");
+	@Override
+	public Object getAttribute(URI uri, String key) {
+		String id = uri != null ? uri.toString() : null;
+		JointJSCell cell = this.jointJsModel.getCell(id);
+		return cell != null ? cell.getAttribute(key) : null;
+	}
+
+	public IEndpoint getEndpoint(URI uri, String endpointName) {
+		Object endpointAttribute = this.getAttribute(uri, endpointName);
+		@SuppressWarnings("unchecked")
+		IEndpoint endpoint = JointJSLink
+				.createEndpoint((HashMap<String, Object>) endpointAttribute);
+		return endpoint instanceof CoordinateEndpoint ? (CoordinateEndpoint) endpoint
+				: new URIEndpoint((IElementEndpoint) endpoint);
+	}
+
+	@Override
+	public IEndpoint getSource(URI uri) {
+		return this.getEndpoint(uri, "source");
+	}
+
+	@Override
+	public IEndpoint getTarget(URI uri) {
+		return this.getEndpoint(uri, "target");
 	}
 
 	@Override
 	public List<URI> getCodes() {
 		if (this.codes == null) {
 			this.codes = new ArrayList<URI>();
-			for (HashMap<String, Object> cell : this.getCells()) {
-				if (!cell.get("type").toString().contains("link")) {
-					JointJSURI code = new JointJSURI(cell);
-					this.codes.add(code.getUri());
+			for (JointJSElement element : this.jointJsModel.getElements()) {
+				String id = element.getId();
+				URI uri = id != null ? new URI(id) : null;
+				if (uri != null) {
+					this.codes.add(uri);
 				}
 			}
 		}
@@ -82,31 +126,36 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 	}
 
 	@Override
-	public List<IRelation> getRelations() {
-		if (this.links == null) {
-			this.links = new ArrayList<IRelation>();
-			for (HashMap<String, Object> cell : this.getCells()) {
-				if (cell.get("type").toString().contains("link")
-						&& (cell.get("permanent") == null || !cell
-								.get("permanent").toString().equals("true"))) {
-					IRelation link = new JointJSRelation(cell);
-					this.links.add(link);
+	public List<URI> getRelations() {
+		if (this.relations == null) {
+			this.relations = new ArrayList<URI>();
+			for (JointJSLink link : this.jointJsModel.getLinks()) {
+				String id = link.getId();
+				URI uri = id != null ? new URI(id) : null;
+				if (uri != null) {
+					this.relations.add(uri);
 				}
 			}
 		}
-		return this.links;
+		return this.relations;
+	}
+
+	@Override
+	public IAxialCodingModel createCopy(Map<String, Object> customize) {
+		return new JointJSAxialCodingModel(this.uri,
+				this.jointJsModel.createCopy(customize));
 	}
 
 	@Override
 	public String serialize() {
-		return JSONUtils.buildJson(this.json);
+		return this.jointJsModel.serialize();
 	}
 
 	@Override
 	public String toString() {
 		return JointJSAxialCodingModel.class.getSimpleName() + " \""
 				+ this.getTitle() + "\": " + this.codes.size() + " codes, "
-				+ this.links.size() + " links";
+				+ this.relations.size() + " links";
 	}
 
 }

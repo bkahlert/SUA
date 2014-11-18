@@ -307,6 +307,8 @@ public interface ICodeService {
 	public void renameRelation(IRelation relation, String newName)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 
+	public Set<IRelationInstance> getRelationInstances(IRelation relation);
+
 	public void createRelationInstance(URI uri, IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 

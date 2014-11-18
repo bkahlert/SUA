@@ -39,6 +39,8 @@ import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
@@ -142,6 +144,31 @@ public class CDView extends ViewPart {
 
 		@Override
 		public void codeDeleted(ICode code) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			CDView.this.viewer.refresh();
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
 			CDView.this.viewer.refresh();
 		}
 
@@ -264,7 +291,7 @@ public class CDView extends ViewPart {
 
 	/**
 	 * Scrolls to the first {@link ILocatable} given.
-	 * 
+	 *
 	 * @param URIS
 	 * @param callable
 	 * @return

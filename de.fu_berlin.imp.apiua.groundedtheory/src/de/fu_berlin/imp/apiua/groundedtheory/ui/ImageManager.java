@@ -70,6 +70,8 @@ public class ImageManager {
 	 */
 	public static final Image MEMO = getImage("icons/obj16/memo_obj.png");
 	public static final Image CODE = getImage("icons/obj16/code_obj.png");
+	public static final Image RELATION = getImage("icons/obj16/relation_obj.png");
+	public static final Image RELATION_INSTANCE = RELATION;
 	public static final Image EPISODE = getImage("icons/obj16/episode_obj.png");
 	public static final Image AXIAL_CODING_MODEL = getImage("icons/obj16/axial_coding_model_obj.png");
 

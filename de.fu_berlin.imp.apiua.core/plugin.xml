@@ -77,10 +77,6 @@
             name="Open">
       </command>
       <command
-            id="de.fu_berlin.imp.apiua.core.rename"
-            name="Rename...">
-      </command>
-      <command
             description="Change the data directories that are available."
             id="de.fu_berlin.imp.apiua.core.commands.ChangeDataDirectories"
             name="Add/Remove Data Directories">

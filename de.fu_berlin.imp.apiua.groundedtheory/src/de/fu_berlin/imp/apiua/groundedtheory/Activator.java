@@ -37,6 +37,8 @@ public class Activator extends AbstractUIPlugin {
 					"code",
 					"codeinstance",
 					"episode",
+					RelationLocatorProvider.RELATION_NAMESPACE,
+					RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE,
 					AxialCodingModelLocatorProvider.AXIAL_CODING_MODEL_NAMESPACE }) {
 		@Override
 		protected ILabelProvider create() {
@@ -118,7 +120,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {

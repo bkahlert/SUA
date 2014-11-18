@@ -13,15 +13,17 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
 /**
  * Instances of this class are responsible to update a timeline viewer so that
  * it always reflects the model correctly.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 // FIXME let this be implemented by the contributing providers
 public class TimelineRefresher implements ICodeServiceListener {
@@ -46,7 +48,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	 * Creates an {@link TimelineRefresher} that delays the refresh calls by the
 	 * specified delay. This way high frequency refreshments don't affect the
 	 * performance negatively.
-	 * 
+	 *
 	 * @param viewer
 	 * @param delay
 	 */
@@ -98,6 +100,31 @@ public class TimelineRefresher implements ICodeServiceListener {
 
 	@Override
 	public void codeDeleted(ICode code) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void relationsAdded(Set<IRelation> relations) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void relationsRenamed(Set<IRelation> relations) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void relationsDeleted(Set<IRelation> relations) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void relationInstancesAdded(Set<IRelationInstance> relations) {
+		this.scheduleRefresh();
+	}
+
+	@Override
+	public void relationInstancesDeleted(Set<IRelationInstance> relations) {
 		this.scheduleRefresh();
 	}
 

@@ -40,6 +40,8 @@ import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 import com.bkahlert.nebula.widgets.jointjs.JointJS.JointJSListener;
+import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
+import com.bkahlert.nebula.widgets.jointjs.JointJSModel;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -193,13 +195,14 @@ public class AxialCodingComposite extends Composite implements
 					}
 				});
 		this.jointjs.addJointJSListener(new JointJSListener() {
+
 			@Override
-			public void modified(String json) {
+			public void modified(JointJSModel model) {
 				Event event = new Event();
 				event.display = Display.getCurrent();
 				event.widget = AxialCodingComposite.this;
-				event.text = json;
-				event.data = json;
+				event.text = model.serialize();
+				event.data = model;
 				ModifyEvent modifyEvent = new ModifyEvent(event);
 				for (ModifyListener modifyListener : AxialCodingComposite.this.modifyListeners) {
 					modifyListener.modifyText(modifyEvent);
@@ -232,11 +235,14 @@ public class AxialCodingComposite extends Composite implements
 					private boolean isMouseDown = false;
 
 					private final JointJS.IJointJSListener jointJsListener = new JointJS.JointJSListener() {
+
 						@Override
-						public void hovered(String id, boolean hoveredIn) {
-							if (hoveredIn && id != null && !id.contains("|")
-									&& id.startsWith("apiua://")) {
-								hovered = new URI(id);
+						public void hovered(JointJSCell cell, boolean hoveredIn) {
+							if (hoveredIn && cell != null
+									&& cell.getId() != null
+									&& !cell.getId().contains("|")
+									&& cell.getId().startsWith("apiua://")) {
+								hovered = new URI(cell.getId());
 							} else {
 								hovered = null;
 							}
@@ -411,9 +417,8 @@ public class AxialCodingComposite extends Composite implements
 		}
 
 		final URI uri = this.openedUri;
-		final String json = this.jointjs.getJson();
 		final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
-				uri, json);
+				uri, this.jointjs.getModel());
 		try {
 			CODE_SERVICE.addAxialCodingModel(axialCodingModel);
 		} catch (CodeStoreWriteException e) {
@@ -497,9 +502,10 @@ public class AxialCodingComposite extends Composite implements
 				if (!AxialCodingComposite.this.getNodes().get().contains(uri)) {
 					return null;
 				}
-				AxialCodingComposite.this.jointjs.setNodeTitle(uri.toString(),
+				AxialCodingComposite.this.jointjs.setElementTitle(
+						uri.toString(),
 						AxialCodingComposite.this.labelProvider.getText(uri));
-				AxialCodingComposite.this.jointjs.setNodeContent(
+				AxialCodingComposite.this.jointjs.setElementContent(
 						uri.toString(),
 						AxialCodingComposite.this.labelProvider.getContent(uri));
 				AxialCodingComposite.this.jointjs.setColor(uri.toString(),

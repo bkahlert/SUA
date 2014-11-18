@@ -12,7 +12,7 @@ public class Relation implements ILocatable, IRelation {
 	private URI uri;
 	private URI from;
 	private URI to;
-	private String title;
+	private String name;
 
 	private TimeZoneDate timeZoneDate;
 
@@ -21,17 +21,17 @@ public class Relation implements ILocatable, IRelation {
 		// needed by persistence
 	}
 
-	public Relation(URI uri, URI from, URI to, String title) {
+	public Relation(URI uri, URI from, URI to, String name) {
 		super();
 		Assert.isLegal(uri != null);
 		Assert.isLegal(to != null);
 		Assert.isLegal(from != null);
-		Assert.isLegal(title != null);
+		Assert.isLegal(name != null);
 		Assert.isLegal(from.getHost().equals(to.getHost()));
 		this.uri = uri;
 		this.from = from;
 		this.to = to;
-		this.title = title;
+		this.name = name;
 		this.timeZoneDate = new TimeZoneDate();
 	}
 
@@ -51,8 +51,8 @@ public class Relation implements ILocatable, IRelation {
 	}
 
 	@Override
-	public String getTitle() {
-		return this.title;
+	public String getName() {
+		return this.name;
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class Relation implements ILocatable, IRelation {
 
 	@Override
 	public String toString() {
-		return "Link \"" + this.getTitle() + "\": " + this.getFrom() + " -> "
+		return "Link \"" + this.getName() + "\": " + this.getFrom() + " -> "
 				+ this.getTo();
 	}
 

@@ -51,8 +51,9 @@ public class DeleteCodeHandler extends AbstractHandler {
 		}
 
 		List<ICodeInstance> codeInstances = new LinkedList<ICodeInstance>();
-		for (ICode code : codes)
+		for (ICode code : codes) {
 			codeInstances.addAll(codeService.getInstances(code));
+		}
 
 		if (codeInstances.size() == 0) {
 			for (ICode code : codes) {
@@ -73,9 +74,9 @@ public class DeleteCodeHandler extends AbstractHandler {
 							+ " use by the following artefact"
 							+ ((codeInstances.size() != 1) ? "s" : "") + ":\n"
 							+ StringUtils.join(codeInstances.toArray(), ", ")
-							+ "\n\nDo you really want to delete the code?"
-							+ ((codes.size() != 1) ? "s" : ""));
-			if (delete)
+							+ "\n\nDo you really want to delete the code"
+							+ ((codes.size() != 1) ? "s" : "") + "?");
+			if (delete) {
 				for (ICode code : codes) {
 					try {
 						codeService.deleteCode(code, true);
@@ -83,6 +84,7 @@ public class DeleteCodeHandler extends AbstractHandler {
 						LOGGER.error("Error deleting code \"" + code + "\"", e);
 					}
 				}
+			}
 			;
 		}
 

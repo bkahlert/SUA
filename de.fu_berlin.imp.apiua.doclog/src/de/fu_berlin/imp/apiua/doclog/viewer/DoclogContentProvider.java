@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -20,6 +21,8 @@ import de.fu_berlin.imp.apiua.doclog.model.Doclog;
 import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
@@ -81,6 +84,31 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		public void codeDeleted(ICode code) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
 		}
 
 		@Override

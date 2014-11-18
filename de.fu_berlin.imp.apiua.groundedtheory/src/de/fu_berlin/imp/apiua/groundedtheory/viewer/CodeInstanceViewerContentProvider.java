@@ -19,13 +19,15 @@ import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI.State;
 
 public class CodeInstanceViewerContentProvider extends
-		URIContentProvider<URI[]> {
+URIContentProvider<URI[]> {
 
 	public static enum Annotation {
 		PARENT_CODE;
@@ -83,6 +85,36 @@ public class CodeInstanceViewerContentProvider extends
 		public void codeDeleted(ICode code) {
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					true);
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+			com.bkahlert.nebula.utils.ViewerUtils
+			.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
@@ -160,7 +192,7 @@ public class CodeInstanceViewerContentProvider extends
 
 		if (oldInput != null) {
 			this.codeService
-					.removeCodeServiceListener(this.codeServiceListener);
+			.removeCodeServiceListener(this.codeServiceListener);
 		}
 
 		if (newInput != null) {
@@ -175,7 +207,7 @@ public class CodeInstanceViewerContentProvider extends
 	public void dispose() {
 		if (this.uris != null) {
 			this.codeService
-					.removeCodeServiceListener(this.codeServiceListener);
+			.removeCodeServiceListener(this.codeServiceListener);
 		}
 	}
 

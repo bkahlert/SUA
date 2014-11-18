@@ -153,9 +153,11 @@ public class AxialCodingView extends ViewPart {
 						} else {
 							IAxialCodingModel axialCodingModel = CODE_SERVICE
 									.getAxialCodingModel(uri);
-							if (axialCodingModel instanceof JointJSAxialCodingModel) {
-								((JointJSAxialCodingModel) axialCodingModel)
-										.setTitle(renameDialog.getTitle());
+							if (axialCodingModel != null) {
+								Map<String, Object> map = new HashMap<>();
+								map.put("title", renameDialog.getTitle());
+								axialCodingModel = axialCodingModel
+										.createCopy(map);
 								LocatorService.INSTANCE.uncache(uri);
 							}
 							CODE_SERVICE.addAxialCodingModel(axialCodingModel);

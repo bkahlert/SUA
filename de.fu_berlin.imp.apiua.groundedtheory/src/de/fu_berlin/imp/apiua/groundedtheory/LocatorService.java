@@ -2,15 +2,18 @@ package de.fu_berlin.imp.apiua.groundedtheory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -64,7 +67,8 @@ public class LocatorService {
 	 * <li>This function does not return a {@link Future} but returns when it
 	 * actually preloaded the elements.</li>
 	 * </ol>
-	 * 
+	 *
+	 * @param cacheKey
 	 * @param uris
 	 * @param monitor
 	 * @return {@link Future#isDone()} returns <code>true</code> as soon as the
@@ -88,7 +92,7 @@ public class LocatorService {
 		for (ILocatable locatable : futureLocatables.get()) {
 			if (locatable instanceof ICodeInstance) {
 				codeInstancePhenomenons
-						.add(((ICodeInstance) locatable).getId());
+				.add(((ICodeInstance) locatable).getId());
 			}
 		}
 		subMonitor.setWorkRemaining(codeInstancePhenomenons.size());
@@ -98,6 +102,46 @@ public class LocatorService {
 			ExecUtils.busyWait(future);
 		}
 		future.get();
+	}
+
+	/**
+	 * Resolves (using {@link LocatorService}) all the given objects and their
+	 * descendants. This becomes handy to preload items, so a later running UI
+	 * thread code will not need to spend the time resolving.
+	 *
+	 * @param viewer
+	 * @param parentElements
+	 * @param monitor
+	 *
+	 * @throws Exception
+	 */
+	public static void preload(Class<?> clazz, final TreeViewer viewer,
+			final List<?> parentElements, IProgressMonitor monitor)
+					throws Exception {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+		List<URI> uris = ExecUtils.syncExec(new Callable<List<URI>>() {
+			@Override
+			public List<URI> call() throws Exception {
+				List<Object> elements = new ArrayList<Object>();
+				for (Object parentObject : parentElements) {
+					elements.addAll(ViewerUtils.getDescendants(viewer,
+							parentObject));
+				}
+				List<URI> uris = new ArrayList<URI>();
+				for (Object object : elements) {
+					if (object instanceof URI) {
+						URI uri = (URI) object;
+						if (!uris.contains(uri)) {
+							uris.add(uri);
+						}
+					}
+				}
+				return uris;
+			}
+		});
+		subMonitor.worked(1);
+		preload(clazz.toString(), uris, subMonitor.newChild(9));
+		subMonitor.done();
 	}
 
 }

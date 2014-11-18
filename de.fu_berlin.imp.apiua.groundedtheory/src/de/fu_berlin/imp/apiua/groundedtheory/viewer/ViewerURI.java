@@ -4,9 +4,9 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 
 /**
  * Used to enrich an URI with meta information used for display purposes only.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class ViewerURI extends URI {
 
@@ -15,11 +15,14 @@ public class ViewerURI extends URI {
 	public static final ViewerURI NO_CODES_URI = new ViewerURI(new URI(
 			"nocodes"), null);
 
+	public static final ViewerURI NO_RELATIONS_URI = new ViewerURI(new URI(
+			"norelations"), null);
+
 	public static final ViewerURI NO_PHENOMENONS_URI = new ViewerURI(new URI(
 			"nophenomenons"), null);
 
 	public static enum State {
-		PARENT, NO_CODES;
+		PARENT, NO_CODES, NO_RELATIONS;
 	}
 
 	private final State state;

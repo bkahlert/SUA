@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -30,11 +31,13 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
-public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
-		implements IStructuredContentProvider, ITreeContentProvider {
+public class RelationViewerContentProvider extends
+		URIContentProvider<ICodeService> implements IStructuredContentProvider,
+		ITreeContentProvider {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
-			.getLogger(CodeViewerContentProvider.class);
+			.getLogger(RelationViewerContentProvider.class);
 
 	private Viewer viewer;
 	private ICodeService codeService;
@@ -50,94 +53,81 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 		@Override
 		public void codesAdded(List<ICode> codes) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, false);
-			for (ICode code : codes) {
-				ViewerUtils.expandAll(CodeViewerContentProvider.this.viewer,
-						code.getUri());
-			}
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
-			for (ICode code : codes) {
-				ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
-						code.getUri(), true);
-			}
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			ViewerUtils.update(CodeViewerContentProvider.this.viewer,
-					code.getUri(), null);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true); // TODO
-			// check
-			// if
-			// update
-			// is
-			// enough
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codesRemoved(List<ICode> codes, List<URI> uris) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeMoved(ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			if (oldParentCode == null || newParentCode == null) {
-				ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
-						false);
-			} else {
-				if (oldParentCode != null) {
-					ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
-							oldParentCode.getUri(), true);
-				}
-				if (newParentCode != null) {
-					ViewerUtils.refresh(CodeViewerContentProvider.this.viewer,
-							newParentCode.getUri(), true);
-				}
-			}
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			ViewerUtils.remove(CodeViewerContentProvider.this.viewer,
-					code.getUri());
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void relationsAdded(Set<IRelation> relations) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void relationsRenamed(Set<IRelation> relations) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void relationsDeleted(Set<IRelation> relations) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void relationInstancesAdded(Set<IRelationInstance> relations) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void memoAdded(URI uri) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
@@ -146,7 +136,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 		@Override
 		public void memoRemoved(URI uri) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
@@ -155,7 +146,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 		@Override
 		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
@@ -165,19 +157,22 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		@Override
 		public void dimensionChanged(URI uri, IDimension oldDimension,
 				IDimension newDimension) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 
 		@Override
 		public void propertiesChanged(URI uri,
 				java.util.List<URI> addedProperties,
 				java.util.List<URI> removedProperties) {
-			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		};
 
 		@Override
@@ -196,19 +191,19 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
 		@Override
 		public void importanceChanged(Set<URI> uris, Importance importance) {
-			ViewerUtils.update(CodeViewerContentProvider.this.viewer,
-					uris.toArray(new URI[0]), null);
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}
 	};
 
 	/**
-	 * Creates a new {@link CodeViewerContentProvider} that displays all
+	 * Creates a new {@link RelationViewerContentProvider} that displays all
 	 * {@link ICode}s and optionally {@link ICodeInstance}s.
 	 *
 	 * @param initialShowInstances
 	 *            false if only {@link ICode}s should be displayed
 	 */
-	public CodeViewerContentProvider(boolean initialShowInstances) {
+	public RelationViewerContentProvider(boolean initialShowInstances) {
 		this.showInstances = initialShowInstances;
 		this.importanceService
 				.addImportanceServiceListener(this.importanceServiceListener);
@@ -253,65 +248,44 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			return new URI[0];
 		}
 
-		List<ICode> codes = input.getTopLevelCodes();
-		if (codes.size() > 0) {
-			URI[] uris = new URI[codes.size()];
-			for (int i = 0; i < uris.length; i++) {
-				uris[i] = codes.get(i).getUri();
+		Set<IRelation> relations = input.getRelations();
+		if (relations.size() > 0) {
+			URI[] uris = new URI[relations.size()];
+			int i = 0;
+			for (Iterator<IRelation> it = relations.iterator(); it.hasNext();) {
+				IRelation relation = it.next();
+				uris[i] = relation.getUri();
+				i++;
 			}
 			return uris;
 		} else {
-			return new URI[] { ViewerURI.NO_CODES_URI };
+			return new URI[] { ViewerURI.NO_RELATIONS_URI };
 		}
 	}
 
 	@Override
 	public URI getParent(URI uri) {
-		try {
-			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
-					.get();
-			if (ICode.class.isInstance(locatable)) {
-				ICode code = (ICode) locatable;
-				if (this.codeService != null) {
-					ICode parent = this.codeService.getParent(code);
-					if (parent != null) {
-						return parent.getUri();
-					}
-				}
-				return null;
-			}
-			if (ICodeInstance.class.isInstance(locatable)) {
-				ICodeInstance codeInstance = (ICodeInstance) locatable;
-				return codeInstance.getCode().getUri();
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error resolving " + uri);
-		}
 		return null;
 	}
 
 	@Override
 	public boolean hasChildren(URI uri) throws Exception {
-		return this.getChildren(uri).length > 0;
+		return this.showInstances && this.getChildren(uri).length > 0;
 	}
 
 	@Override
 	public URI[] getChildren(URI parentUri) throws Exception {
 		ILocatable locatable = LocatorService.INSTANCE.resolve(parentUri, null)
 				.get();
-		if (ICode.class.isInstance(locatable)) {
-			ICode code = (ICode) locatable;
+		if (IRelation.class.isInstance(locatable)) {
+			IRelation relation = (IRelation) locatable;
 
 			ArrayList<URI> childNodes = new ArrayList<URI>();
-			childNodes.addAll(AdapterUtils.adaptAll(
-					this.codeService.getChildren(code), URI.class));
 			if (this.showInstances) {
-				List<ICodeInstance> instances = this.codeService
-						.getInstances(code);
-				if (instances.size() > 0) {
-					childNodes.addAll(AdapterUtils.adaptAll(instances,
-							URI.class));
-				} else {
+				childNodes.addAll(AdapterUtils.adaptAll(
+						this.codeService.getRelationInstances(relation),
+						URI.class));
+				if (childNodes.size() == 0) {
 					childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
 				}
 			}
@@ -323,6 +297,6 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 
 	public void setShowInstances(boolean showInstances) {
 		this.showInstances = showInstances;
-		ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
+		ViewerUtils.refresh(RelationViewerContentProvider.this.viewer, true);
 	}
 }

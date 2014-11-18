@@ -15,12 +15,14 @@ import de.fu_berlin.imp.apiua.entity.model.Entity;
 import de.fu_berlin.imp.apiua.entity.model.EntityDataContainer;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 
 public class EntityContentProvider extends
-		URIContentProvider<EntityDataContainer> {
+URIContentProvider<EntityDataContainer> {
 
 	private Viewer viewer;
 
@@ -62,6 +64,31 @@ public class EntityContentProvider extends
 
 		@Override
 		public void codeDeleted(ICode code) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			ViewerUtils.refresh(EntityContentProvider.this.viewer);
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
 			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 

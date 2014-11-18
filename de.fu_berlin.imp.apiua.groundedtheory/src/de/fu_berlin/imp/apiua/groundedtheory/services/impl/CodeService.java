@@ -461,9 +461,23 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
+		Set<IRelationInstance> relationInstances = this
+				.getRelationInstances(relation);
+		for (IRelationInstance relationInstance : relationInstances) {
+			try {
+				this.codeStore.deleteRelationInstance(relationInstance);
+			} catch (RelationInstanceDoesNotExistException e) {
+				LOGGER.error(
+						"Error deleting "
+								+ IRelationInstance.class.getSimpleName()
+								+ ": " + relationInstance, e);
+			}
+		}
 		this.codeStore.deleteRelation(relation);
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
+		this.codeServiceListenerNotifier
+				.relationInstancesDeleted(relationInstances);
 		this.codeServiceListenerNotifier.relationsDeleted(set);
 	}
 
@@ -484,6 +498,18 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsRenamed(set);
+	}
+
+	@Override
+	public Set<IRelationInstance> getRelationInstances(IRelation relation) {
+		Set<IRelationInstance> relationInstances = new HashSet<>();
+		for (IRelationInstance relationInstance : this.codeStore
+				.getRelationInstances()) {
+			if (relationInstance.getRelation().equals(relation)) {
+				relationInstances.add(relationInstance);
+			}
+		}
+		return relationInstances;
 	}
 
 	@Override
