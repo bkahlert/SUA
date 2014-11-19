@@ -278,6 +278,11 @@
                        <reference
                              definitionId="de.fu_berlin.imp.apiua.groundedtheory.hasICodeInstances">
                        </reference>
+                    </not>
+                    <not>
+                       <reference
+                             definitionId="de.fu_berlin.imp.apiua.groundedtheory.hasIRelationInstances">
+                       </reference>
                     </not></and>
                  <and>
                     <reference
@@ -286,6 +291,11 @@
                     <not>
                        <reference
                              definitionId="de.fu_berlin.imp.apiua.groundedtheory.informationIsICodeInstance">
+                       </reference>
+                    </not>
+                    <not>
+                       <reference
+                             definitionId="de.fu_berlin.imp.apiua.groundedtheory.informationIsIRelationInstance">
                        </reference>
                     </not></and>
               </or>
@@ -595,6 +605,22 @@
                <and>
                   <reference
                         definitionId="de.fu_berlin.imp.apiua.groundedtheory.isAxialCodingView">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               label="Remove From Relation..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.hasIRelationInstances">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isRelationView">
                   </reference>
                </and>
             </visibleWhen>
@@ -939,6 +965,15 @@
          </activeWhen>
       </handler>
       <handler
+            class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveRelationInstanceHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <reference
+                  definitionId="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstances">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
             class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RenameEpisodeHandler"
             commandId="org.eclipse.ui.edit.rename">
          <activeWhen>
@@ -1215,6 +1250,28 @@
          </with>
       </definition>
       <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.informationIsIRelation">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.apiua.groundedtheory.model.IRelation">
+            </instanceof>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.hasIRelations">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelation">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
             id="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstance">
          <with
                variable="selection">
@@ -1231,12 +1288,34 @@
          </with>
       </definition>
       <definition
-            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstance">
+            id="de.fu_berlin.imp.apiua.groundedtheory.isIRelationInstances">
          <with
                variable="selection">
             <iterate
                   ifEmpty="false"
                   operator="and">
+               <adapt
+                     type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance">
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.informationIsIRelationInstance">
+         <with
+               variable="com.bkahlert.nebula.information.input">
+            <instanceof
+                  value="de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance">
+            </instanceof>
+         </with>
+      </definition>
+      <definition
+            id="de.fu_berlin.imp.apiua.groundedtheory.hasIRelationInstances">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
                <adapt
                      type="de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance">
                </adapt>

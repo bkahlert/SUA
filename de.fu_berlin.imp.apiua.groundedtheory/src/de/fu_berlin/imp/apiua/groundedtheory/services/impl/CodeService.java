@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
@@ -438,6 +439,13 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public Set<IRelation> getRelations() {
 		return this.codeStore.getRelations();
+	}
+
+	@Override
+	public Set<IRelation> getRelations(URI from, URI to) {
+		return this.getRelations().stream()
+				.filter(r -> r.getFrom().equals(from) && r.getTo().equals(to))
+				.collect(Collectors.toSet());
 	}
 
 	@Override

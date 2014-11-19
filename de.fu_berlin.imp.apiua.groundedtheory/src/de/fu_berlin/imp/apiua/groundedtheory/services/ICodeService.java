@@ -297,6 +297,8 @@ public interface ICodeService {
 
 	public Set<IRelation> getRelations();
 
+	public Set<IRelation> getRelations(URI from, URI to);
+
 	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
 			DuplicateRelationException;
