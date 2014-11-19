@@ -486,9 +486,6 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					.getImage(relationInstance != null ? relationInstance
 							.getPhenomenon() : null);
 		}
-		// TODO alles testen
-		// TODO keine doppelten Links (wenn bereits existiert /gegrounded)
-		// erlauben
 		if (type == IAxialCodingModel.class) {
 			image = ImageManager.AXIAL_CODING_MODEL;
 		}
