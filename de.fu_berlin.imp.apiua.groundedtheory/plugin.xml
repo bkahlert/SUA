@@ -619,14 +619,10 @@
                name="de.fu_berlin.imp.apiua.groundedtheory.separator2"
                visible="true">
          </separator>
-         <menu
-               icon="icons/obj16/relation_obj.png"
-               label="Create Link">
-            <dynamic
-                  class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateLinkContribution"
-                  id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
-            </dynamic>
-         </menu>
+         <dynamic
+               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateLinkContribution"
+               id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
+         </dynamic>
          <separator
                name="de.fu_berlin.imp.apiua.groundedtheory.separator3"
                visible="true">
@@ -1458,6 +1454,12 @@
          point="de.fu_berlin.imp.apiua.core.locatorprovider">
       <LocatorProvider
             class="de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider">
+      </LocatorProvider>
+   </extension>
+   <extension
+         point="de.fu_berlin.imp.apiua.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.apiua.groundedtheory.RelationInstanceLocatorProvider">
       </LocatorProvider>
    </extension>
    <extension

@@ -34,7 +34,6 @@ public class EpisodeLocatorProvider extends AdaptingLocatorProvider {
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
 
-	@SuppressWarnings("unchecked")
 	public EpisodeLocatorProvider() {
 		super(IEpisodes.class, IEpisode.class);
 	}

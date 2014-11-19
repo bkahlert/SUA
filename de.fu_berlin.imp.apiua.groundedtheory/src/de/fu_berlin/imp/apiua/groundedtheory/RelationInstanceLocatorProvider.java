@@ -32,7 +32,6 @@ public class RelationInstanceLocatorProvider extends AdaptingLocatorProvider {
 	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
 
-	@SuppressWarnings("unchecked")
 	public RelationInstanceLocatorProvider() {
 		super(IRelationInstance.class);
 	}

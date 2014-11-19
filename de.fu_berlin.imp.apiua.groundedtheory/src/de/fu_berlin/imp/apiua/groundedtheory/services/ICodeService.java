@@ -297,7 +297,7 @@ public interface ICodeService {
 
 	public Set<IRelation> getRelations();
 
-	public void createRelation(URI from, URI to, String title)
+	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
 			DuplicateRelationException;
 
@@ -307,14 +307,54 @@ public interface ICodeService {
 	public void renameRelation(IRelation relation, String newName)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 
+	/**
+	 * Returns all {@link IRelationInstance groundings} for the given
+	 * {@link IRelation}.
+	 *
+	 * @param relation
+	 * @return
+	 */
 	public Set<IRelationInstance> getRelationInstances(IRelation relation);
 
-	public void createRelationInstance(URI uri, IRelation relation)
+	/**
+	 * Returns all {@link IRelationInstance groundings} the given {@link URI} is
+	 * the phenomenon for.
+	 *
+	 * @param uri
+	 * @return
+	 */
+	public Set<IRelationInstance> getRelationInstances(URI uri);
+
+	public IRelationInstance createRelationInstance(URI uri, IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 
 	public void deleteRelationInstance(IRelationInstance relationInstance)
 			throws CodeStoreWriteException,
 			RelationInstanceDoesNotExistException;
+
+	/**
+	 * Returns true is the given {@link IRelation} is grounded (which means that
+	 * there is at least one {@link IRelationInstance} pointing to it.
+	 *
+	 * @param relation
+	 */
+	public boolean isGrounded(IRelation relation);
+
+	/**
+	 * Returns true is the given {@link IRelation} is grounded by the given
+	 * {@link URI phenomenon}.
+	 *
+	 * @param relation
+	 */
+	public boolean isGrounded(URI phenomenon, IRelation relation);
+
+	/**
+	 * Returns true if there is a grounded {@link IRelation} between the two
+	 * {@link URI}s grounded by the given {@link URI phenomenon}.
+	 *
+	 * @param relation
+	 */
+	public boolean isGrounded(URI phenomenon, URI from, URI to);
 
 	/**
 	 * Sets the memo for the given {@link URI}.

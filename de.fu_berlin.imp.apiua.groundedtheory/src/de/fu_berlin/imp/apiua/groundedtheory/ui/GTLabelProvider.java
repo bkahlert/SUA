@@ -401,12 +401,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof IRelationInstance) {
 			IRelationInstance relationInstance = (IRelationInstance) locatable;
-			String name = null;
-			if (relationInstance != null) {
-				name = "Instance of "
-						+ relationInstance.getRelation().getName();
-			}
-			return new StyledString(name, styler);
+			return labelProviderService.getStyledText(relationInstance
+					.getPhenomenon());
 		}
 		if (locatable instanceof IAxialCodingModel) {
 			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
@@ -470,13 +466,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			image = ImageManager.CODE;
 		}
 		if (type == ICodeInstance.class) {
-			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
-					.get();
-			ICodeInstance codeInstance = (ICodeInstance) locatable;
-			ILabelProvider labelProvider = labelProviderService
-					.getLabelProvider(codeInstance.getId());
-			image = (labelProvider != null) ? labelProvider
-					.getImage(codeInstance.getId()) : null;
+			ICodeInstance codeInstance = LocatorService.INSTANCE.resolve(uri,
+					ICodeInstance.class, null).get();
+			return labelProviderService.getImage(codeInstance.getId());
 		}
 		if (type == IEpisodes.class) {
 			image = ImageManager.EPISODE;
@@ -487,8 +479,11 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		if (type == IRelation.class) {
 			image = ImageManager.RELATION;
 		}
-		if (type == IRelation.class) {
-			image = ImageManager.RELATION_INSTANCE;
+		if (type == IRelationInstance.class) {
+			IRelationInstance relationInstance = LocatorService.INSTANCE
+					.resolve(uri, IRelationInstance.class, null).get();
+			return labelProviderService.getImage(relationInstance
+					.getPhenomenon());
 		}
 		if (type == IAxialCodingModel.class) {
 			image = ImageManager.AXIAL_CODING_MODEL;

@@ -441,7 +441,7 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public void createRelation(URI from, URI to, String name)
+	public IRelation createRelation(URI from, URI to, String name)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
 		Relation relation = null;
 		while (true) {
@@ -456,6 +456,7 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsAdded(set);
+		return relation;
 	}
 
 	@Override
@@ -513,8 +514,21 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public void createRelationInstance(URI phenomenon, IRelation relation)
-			throws RelationDoesNotExistException, CodeStoreWriteException {
+	public Set<IRelationInstance> getRelationInstances(URI uri) {
+		Set<IRelationInstance> relationInstances = new HashSet<>();
+		for (IRelationInstance relationInstance : this.codeStore
+				.getRelationInstances()) {
+			if (relationInstance.getPhenomenon().equals(uri)) {
+				relationInstances.add(relationInstance);
+			}
+		}
+		return relationInstances;
+	}
+
+	@Override
+	public IRelationInstance createRelationInstance(URI phenomenon,
+			IRelation relation) throws RelationDoesNotExistException,
+			CodeStoreWriteException {
 		RelationInstance relationInstance = null;
 		while (true) {
 			try {
@@ -530,6 +544,7 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
 		set.add(relationInstance);
 		this.codeServiceListenerNotifier.relationInstancesAdded(set);
+		return relationInstance;
 	}
 
 	@Override
@@ -540,6 +555,29 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
 		set.add(relationInstance);
 		this.codeServiceListenerNotifier.relationInstancesDeleted(set);
+	}
+
+	@Override
+	public boolean isGrounded(IRelation relation) {
+		return this.getRelationInstances(relation).size() > 0;
+	}
+
+	@Override
+	public boolean isGrounded(URI phenomenon, IRelation relation) {
+		return this
+				.isGrounded(phenomenon, relation.getFrom(), relation.getTo());
+	}
+
+	@Override
+	public boolean isGrounded(URI phenomenon, URI from, URI to) {
+		for (IRelationInstance relationInstance : this
+				.getRelationInstances(phenomenon)) {
+			if (relationInstance.getRelation().getFrom().equals(from)
+					&& relationInstance.getRelation().getTo().equals(to)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
