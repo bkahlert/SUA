@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.core.services;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -420,7 +421,8 @@ public interface ILabelProviderService {
 
 		@Override
 		public ILabelProvider createFor(URI uri) {
-			List<String> segments = uri.getSegments();
+			List<String> segments = uri != null ? uri.getSegments()
+					: new LinkedList<>();
 
 			if (segments.size() <= this.pathSegmentIndex) {
 				return null;

@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.core;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ISelection;
@@ -40,7 +41,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 
 public class SelectionHistoryContribution extends
-WorkbenchWindowControlContribution {
+		WorkbenchWindowControlContribution {
 
 	public static final int NUM_ENTRIES = 15;
 
@@ -52,8 +53,13 @@ WorkbenchWindowControlContribution {
 	private ISelectionListener selectionListener = new ISelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
-					URI.class);
+			List<URI> uris = SelectionUtils
+					.getAdaptableObjects(selection, URI.class).stream()
+					.filter(uri -> uri.getClass() == URI.class) // don't allow
+																// sub classes
+																// (like
+																// ViewerURI)
+					.collect(Collectors.toList());
 			for (URI uri : uris) {
 				SelectionHistoryContribution.this.history.remove(uri);
 				SelectionHistoryContribution.this.history.add(0, uri);
@@ -141,73 +147,73 @@ WorkbenchWindowControlContribution {
 					}
 				});
 		this.itemListViewer
-		.setLabelProvider(new ItemListViewer.ButtonLabelProvider() {
-			ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
-					.getWorkbench().getService(
-							ILabelProviderService.class);
+				.setLabelProvider(new ItemListViewer.ButtonLabelProvider() {
+					ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+							.getWorkbench().getService(
+									ILabelProviderService.class);
 
-			@Override
-			public String getText(Object element) {
-				@SuppressWarnings("unchecked")
-				URI uri = ((Pair<Integer, URI>) element).getSecond();
-				ILabelProvider lp = this.labelProviderService
-						.getLabelProvider(uri);
-				try {
-					if (lp != null) {
-						String text = lp.getText(uri);
-						Image image = lp.getImage(uri);
+					@Override
+					public String getText(Object element) {
+						@SuppressWarnings("unchecked")
+						URI uri = ((Pair<Integer, URI>) element).getSecond();
+						ILabelProvider lp = this.labelProviderService
+								.getLabelProvider(uri);
+						try {
+							if (lp != null) {
+								String text = lp.getText(uri);
+								Image image = lp.getImage(uri);
 								// if(true) return text;
-						return "<span class='no_click'>"
-						+ (image != null ? "<img src='"
-								+ ImageUtils
-								.createUriFromImage(image)
-								+ "' class='no_click'/> "
-								: "")
+								return "<span class='no_click'>"
+										+ (image != null ? "<img src='"
+												+ ImageUtils
+														.createUriFromImage(image)
+												+ "' class='no_click'/> "
+												: "")
 										+ "<span class='no_click' style='display: inline-block; position: relative; top: 1px'>"
 										+ text + "</span></span>";
-					} else {
-						return uri.toString();
+							} else {
+								return uri.toString();
+							}
+						} catch (Exception e) {
+							LOGGER.error(e);
+							return "error (" + uri.toString() + ")";
+						}
 					}
-				} catch (Exception e) {
-					LOGGER.error(e);
-					return "error (" + uri.toString() + ")";
-				}
-			}
 
-			@Override
-			public ButtonOption getOption(Object object) {
-				return null;
-			}
+					@Override
+					public ButtonOption getOption(Object object) {
+						return null;
+					}
 
-			@Override
-			public RGB getColor(Object object) {
-				@SuppressWarnings("unchecked")
-				Pair<Integer, Object> element = (Pair<Integer, Object>) object;
-				RGB color = RGB.INFO;
+					@Override
+					public RGB getColor(Object object) {
+						@SuppressWarnings("unchecked")
+						Pair<Integer, Object> element = (Pair<Integer, Object>) object;
+						RGB color = RGB.INFO;
 
-				int stepDifferenceToFirstElement = 15;
-				double steps = (1.0 / (NUM_ENTRIES + stepDifferenceToFirstElement));
-				if (element.getFirst() > 0) {
-					double alpha = 1.0
-							- (element.getFirst() + stepDifferenceToFirstElement)
-							* steps;
-					color.setAlpha(alpha);
-				} else {
-					color.setAlpha(1.0);
-				}
-				return color;
-			}
+						int stepDifferenceToFirstElement = 15;
+						double steps = (1.0 / (NUM_ENTRIES + stepDifferenceToFirstElement));
+						if (element.getFirst() > 0) {
+							double alpha = 1.0
+									- (element.getFirst() + stepDifferenceToFirstElement)
+									* steps;
+							color.setAlpha(alpha);
+						} else {
+							color.setAlpha(1.0);
+						}
+						return color;
+					}
 
-			@Override
-			public ButtonSize getSize(Object object) {
-				return ButtonSize.EXTRA_SMALL;
-			}
+					@Override
+					public ButtonSize getSize(Object object) {
+						return ButtonSize.EXTRA_SMALL;
+					}
 
-			@Override
-			public ButtonStyle getStyle(Object object) {
-				return ButtonStyle.HORIZONTAL;
-			}
-		});
+					@Override
+					public ButtonStyle getStyle(Object object) {
+						return ButtonStyle.HORIZONTAL;
+					}
+				});
 
 		this.itemListViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -227,7 +233,7 @@ WorkbenchWindowControlContribution {
 							itemList.run("var old = $('body').html(); $('body').fadeOut(100).queue(function(n) { $(this).html('"
 									+ "<p class=\"text-success\" style=\"margin-left: 1em;\">"
 									+ uri
-							+ " successfully copied</p>"
+									+ " successfully copied</p>"
 									+ " clicked'); n(); }).fadeIn(100).delay(500).fadeOut(100).queue(function(n) { $(this).html(old); n(); }).fadeIn()");
 						}
 					}
