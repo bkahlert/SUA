@@ -52,6 +52,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.RelationInstanceLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.EditingSupport;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
@@ -318,12 +320,15 @@ public class Utils {
 	}
 
 	/**
-	 * Returns all {@link URI}s that can be retrieved from an {@link ISelection}
-	 * .
+	 * Returns all phenomenon {@link URI}s that can be retrieved from {@ICode
+	 * 
+	 *
+	 *
+	 * }s, {@link ICodeInstance}s, {@link IRelation}s and
+	 * {@link IRelationInstance}s contained in the {@link ISelection} .
 	 * <p>
-	 * E.g. if you selection contains a {@link ICode} and a
-	 * {@link ICodeInstance} the resulting list contains all occurrences
-	 * instances of the code and the code instance itself.
+	 * {@link ICode}s and {@link IRelation}s are treated differently. They are
+	 * not only included but also their instances's phenomenon.
 	 *
 	 * @param selection
 	 * @return
@@ -334,14 +339,20 @@ public class Utils {
 
 		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
 				selection, ICodeInstance.class);
-		for (ICode code : SelectionUtils.getAdaptableObjects(selection,
-				ICode.class)) {
-			codeInstances.addAll(codeService.getAllInstances(code));
-		}
+		SelectionUtils.getAdaptableObjects(selection, ICode.class).stream()
+				.map(code -> codeService.getAllInstances(code))
+				.forEach(codeInstances::addAll);
+
+		List<IRelationInstance> relationInstances = SelectionUtils
+				.getAdaptableObjects(selection, IRelationInstance.class);
+		SelectionUtils.getAdaptableObjects(selection, IRelation.class).stream()
+				.map(relation -> codeService.getRelationInstances(relation))
+				.forEach(relationInstances::addAll);
+
 		List<URI> uris = new ArrayList<URI>();
-		for (ICodeInstance codeInstance : codeInstances) {
-			uris.add(codeInstance.getId());
-		}
+		codeInstances.stream().map(ci -> ci.getId()).forEach(uris::add);
+		relationInstances.stream().map(ri -> ri.getPhenomenon())
+				.forEach(uris::add);
 		return uris.toArray(new URI[0]);
 	}
 }
