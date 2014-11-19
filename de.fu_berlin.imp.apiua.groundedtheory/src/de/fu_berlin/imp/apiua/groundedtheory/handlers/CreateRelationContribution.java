@@ -28,19 +28,19 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
 
-public class CreateLinkContribution extends ContributionItem {
+public class CreateRelationContribution extends ContributionItem {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(CreateLinkContribution.class);
+			.getLogger(CreateRelationContribution.class);
 
 	private ILabelProviderService labelProviderService;
 	private ICodeService codeService;
 
-	public CreateLinkContribution() {
+	public CreateRelationContribution() {
 		this.init();
 	}
 
-	public CreateLinkContribution(String id) {
+	public CreateRelationContribution(String id) {
 		super(id);
 		this.init();
 	}
@@ -61,9 +61,9 @@ public class CreateLinkContribution extends ContributionItem {
 		List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
 				URI.class);
 
-		List<Pair<URI, URI>> creatableLinks = new LinkedList<>();
-		List<Pair<URI, IRelation>> groundableLinks = new LinkedList<>();
-		List<Triple<URI, URI, URI>> creatableGroundedLinks = new LinkedList<>();
+		List<Pair<URI, URI>> creatableRelations = new LinkedList<>();
+		List<Pair<URI, IRelation>> groundableRelations = new LinkedList<>();
+		List<Triple<URI, URI, URI>> creatableGroundedRelations = new LinkedList<>();
 
 		if (codes.size() >= 2) {
 			for (ICode code1 : codes) {
@@ -71,7 +71,7 @@ public class CreateLinkContribution extends ContributionItem {
 					if (code1.equals(code2)) {
 						continue;
 					}
-					creatableLinks.add(new Pair<>(code1.getUri(), code2
+					creatableRelations.add(new Pair<>(code1.getUri(), code2
 							.getUri()));
 				}
 			}
@@ -89,85 +89,88 @@ public class CreateLinkContribution extends ContributionItem {
 						continue;
 					}
 
-					creatableGroundedLinks
-							.add(new Triple<>(uri, fromUri, toUri));
+					creatableGroundedRelations.add(new Triple<>(uri, fromUri,
+							toUri));
 
 					for (IRelation relation : this.codeService.getRelations()) {
 						if (relation.getFrom().equals(fromUri)
 								&& relation.getTo().equals(toUri)) {
-							groundableLinks.add(new Pair<URI, IRelation>(uri,
-									relation));
+							groundableRelations.add(new Pair<URI, IRelation>(
+									uri, relation));
 						}
 					}
 				}
 			}
 		}
 
-		if (creatableLinks.size() == 0 && groundableLinks.size() == 0
-				&& creatableGroundedLinks.size() == 0) {
+		if (creatableRelations.size() == 0 && groundableRelations.size() == 0
+				&& creatableGroundedRelations.size() == 0) {
 			return;
 		}
 
-		MenuItem createLinkItem = new MenuItem(menu, SWT.CASCADE, index);
-		createLinkItem.setText("Create Link");
-		createLinkItem.setImage(ImageManager.RELATION);
-		final Menu createLinkSubMenu = new Menu(createLinkItem);
-		createLinkItem.setMenu(createLinkSubMenu);
+		MenuItem createRelationItem = new MenuItem(menu, SWT.CASCADE, index);
+		createRelationItem.setText("Create Relation");
+		createRelationItem.setImage(ImageManager.RELATION);
+		final Menu createRelationSubMenu = new Menu(createRelationItem);
+		createRelationItem.setMenu(createRelationSubMenu);
 
-		if (creatableLinks.size() > 0) {
-			this.createSpacer(createLinkSubMenu, "New Link:");
+		if (creatableRelations.size() > 0) {
+			this.createSpacer(createRelationSubMenu, "New Relation:");
 
-			for (Pair<URI, URI> creatableLink : creatableLinks) {
-				MenuItem menuItem = new MenuItem(createLinkSubMenu, SWT.PUSH);
+			for (Pair<URI, URI> creatableRelation : creatableRelations) {
+				MenuItem menuItem = new MenuItem(createRelationSubMenu,
+						SWT.PUSH);
 
 				String fromName = this.labelProviderService
-						.getText(creatableLink.getFirst());
-				String toName = this.labelProviderService.getText(creatableLink
-						.getSecond());
+						.getText(creatableRelation.getFirst());
+				String toName = this.labelProviderService
+						.getText(creatableRelation.getSecond());
 
 				menuItem.setText(fromName + " → " + toName);
 				menuItem.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						CreateLinkContribution.this.createRelation(
-								menu.getShell(), creatableLink.getFirst(),
-								creatableLink.getSecond());
+						CreateRelationContribution.this.createRelation(
+								menu.getShell(), creatableRelation.getFirst(),
+								creatableRelation.getSecond());
 					}
 				});
 			}
 		}
 
-		if (creatableGroundedLinks.size() > 0) {
-			this.createSpacer(createLinkSubMenu, "New Grounded Link:");
+		if (creatableGroundedRelations.size() > 0) {
+			this.createSpacer(createRelationSubMenu, "New Grounded Relation:");
 
-			for (Triple<URI, URI, URI> creatableGroundedLink : creatableGroundedLinks) {
-				MenuItem menuItem = new MenuItem(createLinkSubMenu, SWT.PUSH);
+			for (Triple<URI, URI, URI> creatableGroundedRelation : creatableGroundedRelations) {
+				MenuItem menuItem = new MenuItem(createRelationSubMenu,
+						SWT.PUSH);
 
 				String fromName = this.labelProviderService
-						.getText(creatableGroundedLink.getSecond());
+						.getText(creatableGroundedRelation.getSecond());
 				String toName = this.labelProviderService
-						.getText(creatableGroundedLink.getThird());
+						.getText(creatableGroundedRelation.getThird());
 
 				menuItem.setText(fromName + " → " + toName);
 				menuItem.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						IRelation relation = CreateLinkContribution.this
+						IRelation relation = CreateRelationContribution.this
 								.createRelation(menu.getShell(),
-										creatableGroundedLink.getSecond(),
-										creatableGroundedLink.getThird());
+										creatableGroundedRelation.getSecond(),
+										creatableGroundedRelation.getThird());
 						if (relation != null) {
-							CreateLinkContribution.this.groundRelation(
+							CreateRelationContribution.this.groundRelation(
 									menu.getShell(),
-									creatableGroundedLink.getFirst(), relation);
+									creatableGroundedRelation.getFirst(),
+									relation);
 						}
 					}
 				});
 
 				if (this.codeService.isGrounded(
-						creatableGroundedLink.getFirst(),
-						creatableGroundedLink.getSecond(),
-						creatableGroundedLink.getThird())) {
+						creatableGroundedRelation.getFirst(),
+						creatableGroundedRelation.getSecond(),
+						creatableGroundedRelation.getThird())) {
 					menuItem.setText(menuItem.getText() + " (already grounded)");
 					menuItem.setEnabled(false);
 					break;
@@ -175,30 +178,32 @@ public class CreateLinkContribution extends ContributionItem {
 			}
 		}
 
-		if (groundableLinks.size() > 0) {
-			this.createSpacer(createLinkSubMenu, "Ground Link:");
+		if (groundableRelations.size() > 0) {
+			this.createSpacer(createRelationSubMenu, "Ground Relation:");
 
-			for (Pair<URI, IRelation> groundableLink : groundableLinks) {
-				MenuItem menuItem = new MenuItem(createLinkSubMenu, SWT.PUSH);
+			for (Pair<URI, IRelation> groundableRelation : groundableRelations) {
+				MenuItem menuItem = new MenuItem(createRelationSubMenu,
+						SWT.PUSH);
 
 				String fromName = this.labelProviderService
-						.getText(groundableLink.getSecond().getFrom());
+						.getText(groundableRelation.getSecond().getFrom());
 				String toName = this.labelProviderService
-						.getText(groundableLink.getSecond().getTo());
+						.getText(groundableRelation.getSecond().getTo());
 
 				menuItem.setText(fromName + " → "
-						+ groundableLink.getSecond().getName() + " → " + toName);
+						+ groundableRelation.getSecond().getName() + " → "
+						+ toName);
 				menuItem.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						CreateLinkContribution.this.groundRelation(
-								menu.getShell(), groundableLink.getFirst(),
-								groundableLink.getSecond());
+						CreateRelationContribution.this.groundRelation(
+								menu.getShell(), groundableRelation.getFirst(),
+								groundableRelation.getSecond());
 					}
 				});
 
-				if (this.codeService.isGrounded(groundableLink.getFirst(),
-						groundableLink.getSecond())) {
+				if (this.codeService.isGrounded(groundableRelation.getFirst(),
+						groundableRelation.getSecond())) {
 					menuItem.setText(menuItem.getText() + " (already grounded)");
 					menuItem.setEnabled(false);
 					break;
@@ -222,8 +227,8 @@ public class CreateLinkContribution extends ContributionItem {
 		if (renameDialog.open() == Window.OK) {
 			final String relationName = renameDialog.getCaption();
 			try {
-				return CreateLinkContribution.this.codeService.createRelation(
-						from, to, relationName);
+				return CreateRelationContribution.this.codeService
+						.createRelation(from, to, relationName);
 			} catch (Exception e) {
 				LOGGER.error("Error creating relation " + from + " → " + to);
 			}
@@ -233,8 +238,8 @@ public class CreateLinkContribution extends ContributionItem {
 
 	private void groundRelation(Shell shell, URI uri, IRelation relation) {
 		try {
-			CreateLinkContribution.this.codeService.createRelationInstance(uri,
-					relation);
+			CreateRelationContribution.this.codeService.createRelationInstance(
+					uri, relation);
 		} catch (Exception e) {
 			LOGGER.error("Error grounding relation " + uri + " → " + relation);
 		}

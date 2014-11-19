@@ -620,7 +620,7 @@
                visible="true">
          </separator>
          <dynamic
-               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateLinkContribution"
+               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateRelationContribution"
                id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
          </dynamic>
          <separator
