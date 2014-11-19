@@ -275,12 +275,12 @@ public class CDView extends ViewPart {
 					}
 				}
 
-				ExecUtils.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						CDView.this.browser.setFocus();
-					}
-				});
+				// ExecUtils.asyncExec(new Runnable() {
+				// @Override
+				// public void run() {
+				// CDView.this.browser.setFocus();
+				// }
+				// });
 
 				return Status.OK_STATUS;
 			}
