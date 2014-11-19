@@ -173,7 +173,11 @@ public class CreateRelationContribution extends ContributionItem {
 						creatableGroundedRelation.getThird())) {
 					menuItem.setText(menuItem.getText() + " (already grounded)");
 					menuItem.setEnabled(false);
-					break;
+				} else if (this.codeService.getRelations(
+						creatableGroundedRelation.getSecond(),
+						creatableGroundedRelation.getThird()).size() > 0) {
+					menuItem.setText(menuItem.getText() + " (already exists)");
+					menuItem.setEnabled(false);
 				}
 			}
 		}
