@@ -48,7 +48,7 @@ public class RelationInstanceLocatorProvider extends AdaptingLocatorProvider {
 			return null;
 		}
 
-		return IRelation.class;
+		return IRelationInstance.class;
 	}
 
 	@Override
