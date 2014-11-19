@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.viewers.ISelection;
@@ -141,16 +142,27 @@ public class CreateRelationContribution extends ContributionItem {
 		if (creatableGroundedRelations.size() > 0) {
 			this.createSpacer(createRelationSubMenu, "New Grounded Relation:");
 
+			URI lastFrom = null;
+			Menu currentMenu = null;
 			for (Triple<URI, URI, URI> creatableGroundedRelation : creatableGroundedRelations) {
-				MenuItem menuItem = new MenuItem(createRelationSubMenu,
-						SWT.PUSH);
 
 				String fromName = this.labelProviderService
 						.getText(creatableGroundedRelation.getSecond());
 				String toName = this.labelProviderService
 						.getText(creatableGroundedRelation.getThird());
 
-				menuItem.setText(fromName + " → " + toName);
+				if (!ObjectUtils.equals(lastFrom,
+						creatableGroundedRelation.getSecond())) {
+					lastFrom = creatableGroundedRelation.getSecond();
+					MenuItem fromMenuItem = new MenuItem(createRelationSubMenu,
+							SWT.CASCADE);
+					fromMenuItem.setText(fromName);
+					currentMenu = new Menu(fromMenuItem);
+					fromMenuItem.setMenu(currentMenu);
+				}
+
+				MenuItem menuItem = new MenuItem(currentMenu, SWT.PUSH);
+				menuItem.setText(toName);
 				menuItem.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
