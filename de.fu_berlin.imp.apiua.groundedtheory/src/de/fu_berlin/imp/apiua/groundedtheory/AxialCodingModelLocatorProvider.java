@@ -47,7 +47,6 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(AxialCodingModelLocatorProvider.class);
 
-	@SuppressWarnings("unchecked")
 	public AxialCodingModelLocatorProvider() {
 		super(IAxialCodingModel.class);
 	}

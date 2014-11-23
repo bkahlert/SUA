@@ -217,6 +217,24 @@
          </state>
       </command>
       <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.fitOnScreen"
+            name="Fit To Screen">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.remove"
             name="Remove">
          <state
@@ -410,6 +428,10 @@
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.AutoLayoutHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.autoLayout">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.FitOnScreenHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.fitOnScreen">
         </handler>
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveHandler"
@@ -717,17 +739,22 @@
             locationURI="toolbar:de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView?after=additions">
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.zoomIn"
-               label="+"
+               icon="icons/elcl16/zoomin_tsk.png"
                style="push">
          </command>
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.zoomOut"
-               label="-"
+               icon="icons/elcl16/zoomout_tsk.png"
                style="push">
          </command>
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.autoLayout"
-               label="Auto-Layout"
+               icon="icons/elcl16/autolayout_tsk.png"
+               style="push">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.fitOnScreen"
+               icon="icons/elcl16/fit_to_screen_tsk.png"
                style="push">
          </command>
       </menuContribution>

@@ -816,6 +816,10 @@ public class AxialCodingComposite extends Composite implements
 		this.jointjs.zoomIn();
 	}
 
+	public void fitOnScreen() {
+		this.jointjs.fitOnScreen();
+	}
+
 	@Override
 	public void addModifyListener(ModifyListener modifyListener) {
 		this.modifyListeners.add(modifyListener);

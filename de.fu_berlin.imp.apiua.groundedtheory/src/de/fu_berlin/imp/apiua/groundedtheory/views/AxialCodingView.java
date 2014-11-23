@@ -417,4 +417,11 @@ public class AxialCodingView extends ViewPart {
 		}
 	}
 
+	public void fitOnScreenFocussedACM() {
+		if (this.activeAxialCodingComposite != null
+				&& !this.activeAxialCodingComposite.isDisposed()) {
+			this.activeAxialCodingComposite.fitOnScreen();
+		}
+	}
+
 }
