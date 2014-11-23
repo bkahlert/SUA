@@ -140,7 +140,7 @@ public interface ICodeStore {
 	public Set<IRelation> getRelations();
 
 	public void addRelation(IRelation relation) throws CodeStoreWriteException,
-	DuplicateRelationException;
+			DuplicateRelationException;
 
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;

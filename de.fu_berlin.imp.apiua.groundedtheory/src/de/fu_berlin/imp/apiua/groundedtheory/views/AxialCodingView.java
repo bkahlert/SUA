@@ -139,6 +139,25 @@ public class AxialCodingView extends ViewPart {
 			}
 
 			@Override
+			public void copyClicked(URI uri) {
+				try {
+					final URI copy = AxialCodingModelLocatorProvider
+							.createUniqueAxialCodingModelURI();
+					JointJSAxialCodingModel newAcm = new JointJSAxialCodingModel(
+							copy, CODE_SERVICE.getAxialCodingModel(uri)
+									.serialize());
+					newAcm.setTitle(newAcm.getTitle() + " - Copy");
+					CODE_SERVICE.addAxialCodingModel(newAcm);
+					ExecUtils.logException(AxialCodingView.this.open(uri));
+					modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
+				} catch (CodeStoreWriteException | CodeStoreReadException e) {
+					AxialCodingView.LOGGER.error("Error copying "
+							+ IAxialCodingModel.class.getSimpleName() + " "
+							+ uri, e);
+				}
+			}
+
+			@Override
 			public void renameClicked(URI uri) {
 				try {
 					AxialCodingViewRenameDialog renameDialog = new AxialCodingViewRenameDialog(

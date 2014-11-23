@@ -46,21 +46,28 @@ class AxialCodingViewModelList extends Composite {
 	public static interface IListener {
 		/**
 		 * User chose to open the given {@link URI}.
-		 * 
+		 *
 		 * @param uris
 		 */
 		public void openClicked(Set<URI> uris);
 
 		/**
+		 * User chose to make a copy the given {@link URI}.
+		 *
+		 * @param uri
+		 */
+		public void copyClicked(URI uri);
+
+		/**
 		 * User chose to rename the given {@link URI}.
-		 * 
+		 *
 		 * @param uri
 		 */
 		public void renameClicked(URI uri);
 
 		/**
 		 * User chose to delete the given {@link URI}.
-		 * 
+		 *
 		 * @param uri
 		 */
 		public void deleteClicked(URI uri);
@@ -69,6 +76,7 @@ class AxialCodingViewModelList extends Composite {
 		 * User chose to create a new {@link URI}.
 		 */
 		public void createClicked();
+
 	}
 
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
@@ -101,8 +109,8 @@ class AxialCodingViewModelList extends Composite {
 	private ComboViewer acmComboViewer;
 	private URI selected;
 
+	private Button copyButton;
 	private Button renameButton;
-
 	private Button deleteButton;
 
 	public AxialCodingViewModelList(Composite parent, int style) {
@@ -116,7 +124,7 @@ class AxialCodingViewModelList extends Composite {
 			}
 		});
 
-		this.setLayout(GridLayoutFactory.fillDefaults().numColumns(4).create());
+		this.setLayout(GridLayoutFactory.fillDefaults().numColumns(2).create());
 
 		this.acmCombo = new Combo(this, SWT.DROP_DOWN | SWT.BORDER
 				| SWT.READ_ONLY);
@@ -147,6 +155,8 @@ class AxialCodingViewModelList extends Composite {
 						if (selection.size() > 0) {
 							AxialCodingViewModelList.this.selected = (URI) selection
 									.getFirstElement();
+							AxialCodingViewModelList.this.copyButton
+									.setEnabled(true);
 							AxialCodingViewModelList.this.renameButton
 									.setEnabled(true);
 							AxialCodingViewModelList.this.deleteButton
@@ -161,6 +171,8 @@ class AxialCodingViewModelList extends Composite {
 							}
 						} else {
 							AxialCodingViewModelList.this.selected = null;
+							AxialCodingViewModelList.this.copyButton
+									.setEnabled(false);
 							AxialCodingViewModelList.this.renameButton
 									.setEnabled(false);
 							AxialCodingViewModelList.this.deleteButton
@@ -175,9 +187,27 @@ class AxialCodingViewModelList extends Composite {
 				});
 
 		GridDataFactory gridDataFactory = GridDataFactory.fillDefaults();
+		Composite actionComposite = new Composite(this, SWT.NONE);
+		actionComposite.setLayoutData(gridDataFactory.create());
+		actionComposite.setLayout(GridLayoutFactory.fillDefaults()
+				.numColumns(4).create());
 
-		this.renameButton = new Button(this, SWT.PUSH);
-		this.renameButton.setLayoutData(gridDataFactory.indent(20, 0).create());
+		this.copyButton = new Button(actionComposite, SWT.PUSH);
+		this.copyButton.setLayoutData(gridDataFactory.create());
+		this.copyButton.setText("Make Copy");
+		this.copyButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!AxialCodingViewModelList.this.mute) {
+					for (IListener listener : AxialCodingViewModelList.this.listeners) {
+						listener.copyClicked(AxialCodingViewModelList.this.selected);
+					}
+				}
+			}
+		});
+
+		this.renameButton = new Button(actionComposite, SWT.PUSH);
+		this.renameButton.setLayoutData(gridDataFactory.create());
 		this.renameButton.setText("Rename");
 		this.renameButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -190,7 +220,7 @@ class AxialCodingViewModelList extends Composite {
 			}
 		});
 
-		this.deleteButton = new Button(this, SWT.PUSH);
+		this.deleteButton = new Button(actionComposite, SWT.PUSH);
 		this.deleteButton.setLayoutData(gridDataFactory.create());
 		this.deleteButton.setText("Delete");
 		this.deleteButton.addSelectionListener(new SelectionAdapter() {
@@ -204,8 +234,8 @@ class AxialCodingViewModelList extends Composite {
 			}
 		});
 
-		Button createButton = new Button(this, SWT.PUSH);
-		createButton.setLayoutData(gridDataFactory.indent(20, 0).create());
+		Button createButton = new Button(actionComposite, SWT.PUSH);
+		createButton.setLayoutData(gridDataFactory.create());
 		createButton.setText("Create");
 		createButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -232,7 +262,7 @@ class AxialCodingViewModelList extends Composite {
 
 	/**
 	 * Show the given {@link URI}s as opened.
-	 * 
+	 *
 	 * @param uris
 	 */
 	public void setOpened(Set<URI> uris) {

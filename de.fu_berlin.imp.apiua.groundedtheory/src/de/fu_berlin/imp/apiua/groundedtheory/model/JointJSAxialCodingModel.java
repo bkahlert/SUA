@@ -69,6 +69,10 @@ public class JointJSAxialCodingModel implements IAxialCodingModel {
 		return this.jointJsModel.getTitle();
 	}
 
+	public void setTitle(String title) {
+		this.jointJsModel.setTitle(title);
+	}
+
 	@Override
 	public String getTitle(URI uri) {
 		String id = uri != null ? uri.toString() : null;
