@@ -37,6 +37,8 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.SelectionProviderDelegator;
+import com.bkahlert.nebula.utils.history.History;
+import com.bkahlert.nebula.utils.history.IHistory;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -77,6 +79,8 @@ public class AxialCodingView extends ViewPart {
 				URI.class);
 		AxialCodingView.this.highlight(uris);
 	};
+
+	private IHistory<Set<URI>> history = new History<>();
 
 	private AxialCodingViewModelList modelList;
 	private final SelectionProviderDelegator selectionProviderDelegator;
@@ -135,9 +139,7 @@ public class AxialCodingView extends ViewPart {
 									.serialize());
 					newAcm.setTitle(newAcm.getTitle() + " - Copy");
 					CODE_SERVICE.addAxialCodingModel(newAcm);
-					ExecUtils.logException(AxialCodingView.this.open(uri));
-					AxialCodingView.this.modelList.setOpened(new HashSet<URI>(
-							Arrays.asList(uri)));
+					ExecUtils.logException(AxialCodingView.this.open(copy));
 				} catch (CodeStoreWriteException | CodeStoreReadException e) {
 					AxialCodingView.LOGGER.error("Error copying "
 							+ IAxialCodingModel.class.getSimpleName() + " "
@@ -184,28 +186,19 @@ public class AxialCodingView extends ViewPart {
 			@Override
 			public void deleteClicked(URI uri) {
 				try {
-					int pos = CODE_SERVICE.getAxialCodingModels().indexOf(uri);
 					CODE_SERVICE.removeAxialCodingModel(uri);
-					Set<URI> stillOpen = new HashSet<URI>(AxialCodingView.this
-							.getOpenedURIs().keySet());
+					Set<URI> stillOpen = AxialCodingView.this.history.get();
+					Set<URI> open = AxialCodingView.this.history.back();
 					stillOpen.remove(uri);
-					if (stillOpen.isEmpty()) {
-						List<URI> uris = CODE_SERVICE.getAxialCodingModels();
-						if (uris.size() > 0) {
-							pos = Math.max(0, pos - 1);
-							stillOpen.add(uris.get(pos));
-						}
+					if (!stillOpen.isEmpty()) {
+						open = stillOpen;
 					}
-					ExecUtils.logException(AxialCodingView.this.open(stillOpen
+					ExecUtils.logException(AxialCodingView.this.open(open
 							.toArray(new URI[0])));
-					AxialCodingView.this.modelList.setOpened(stillOpen);
 				} catch (CodeStoreWriteException e) {
 					AxialCodingView.LOGGER.error("Error removing "
 							+ IAxialCodingModel.class.getSimpleName() + " "
 							+ uri);
-				} catch (CodeStoreReadException e) {
-					AxialCodingView.LOGGER.error("Error reading "
-							+ IAxialCodingModel.class.getSimpleName() + "s");
 				}
 			}
 		});
@@ -218,7 +211,6 @@ public class AxialCodingView extends ViewPart {
 		Set<URI> lastOpenedModels = new HashSet<URI>(
 				new SUAGTPreferenceUtil().getLastOpenedAxialCodingModels());
 		if (lastOpenedModels.size() > 0) {
-			this.modelList.setOpened(lastOpenedModels);
 			ExecUtils.logException(AxialCodingView.this.open(lastOpenedModels
 					.toArray(new URI[0])));
 		}
@@ -282,7 +274,7 @@ public class AxialCodingView extends ViewPart {
 		final Future<List<AxialCodingComposite>> ui = ExecUtils
 				.asyncExec(() -> {
 					AxialCodingView.this.disposeAll();
-					for (URI uri : uris) {
+					for (int i = 0; i < uris.length; i++) {
 						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 								AxialCodingView.this.axialCodingCompositesContainer,
 								SWT.NONE);
@@ -308,6 +300,11 @@ public class AxialCodingView extends ViewPart {
 			for (int i = 0; i < uris.length; i++) {
 				axialCodingComposites.get(i).open(uris[i]).get();
 			}
+			HashSet<URI> opened = new HashSet<URI>(Arrays.asList(uris));
+			ExecUtils.syncExec(() -> {
+				this.modelList.setOpened(opened);
+			});
+			this.history.add(opened);
 			return uris;
 		});
 	}
@@ -331,9 +328,7 @@ public class AxialCodingView extends ViewPart {
 		CODE_SERVICE.addAxialCodingModel(new JointJSAxialCodingModel(uri,
 				"{\"cells\":[],\"title\":\"" + title + "\"}"));
 
-		Future<URI[]> ft = AxialCodingView.this.open(uri);
-		this.modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
-		return ft;
+		return AxialCodingView.this.open(uri);
 	}
 
 	public void createAxialCodingModel(String title, Set<URI> codes,
