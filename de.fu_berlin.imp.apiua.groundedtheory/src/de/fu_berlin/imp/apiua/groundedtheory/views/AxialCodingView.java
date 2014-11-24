@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -24,6 +25,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -48,6 +50,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -85,6 +88,7 @@ public class AxialCodingView extends ViewPart {
 		}
 	};
 
+	private AxialCodingViewModelList modelList;
 	private final SelectionProviderDelegator selectionProviderDelegator;
 	private SashForm axialCodingCompositesContainer;
 	private AxialCodingComposite activeAxialCodingComposite = null;
@@ -115,24 +119,17 @@ public class AxialCodingView extends ViewPart {
 		parent.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.create());
 
-		final AxialCodingViewModelList modelList = new AxialCodingViewModelList(
-				parent, SWT.NONE);
-		modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		modelList.addListener(new IListener() {
+		this.modelList = new AxialCodingViewModelList(parent, SWT.NONE);
+		this.modelList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+				false));
+		this.modelList.addListener(new IListener() {
 
 			@Override
 			public void createClicked() {
 				try {
-					final URI uri = AxialCodingModelLocatorProvider
-							.createUniqueAxialCodingModelURI();
-					CODE_SERVICE
-							.addAxialCodingModel(new JointJSAxialCodingModel(
-									uri,
-									"{\"cells\":[],\"title\":\"New Model\"}"));
-
-					ExecUtils.logException(AxialCodingView.this.open(uri));
-					modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
-				} catch (CodeStoreWriteException e) {
+					AxialCodingView.this.createAndOpen("New Model").get();
+				} catch (CodeStoreWriteException | InterruptedException
+						| ExecutionException e) {
 					AxialCodingView.LOGGER.error("Error creating new "
 							+ IAxialCodingModel.class.getSimpleName(), e);
 				}
@@ -149,7 +146,8 @@ public class AxialCodingView extends ViewPart {
 					newAcm.setTitle(newAcm.getTitle() + " - Copy");
 					CODE_SERVICE.addAxialCodingModel(newAcm);
 					ExecUtils.logException(AxialCodingView.this.open(uri));
-					modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
+					AxialCodingView.this.modelList.setOpened(new HashSet<URI>(
+							Arrays.asList(uri)));
 				} catch (CodeStoreWriteException | CodeStoreReadException e) {
 					AxialCodingView.LOGGER.error("Error copying "
 							+ IAxialCodingModel.class.getSimpleName() + " "
@@ -210,7 +208,7 @@ public class AxialCodingView extends ViewPart {
 					}
 					ExecUtils.logException(AxialCodingView.this.open(stillOpen
 							.toArray(new URI[0])));
-					modelList.setOpened(stillOpen);
+					AxialCodingView.this.modelList.setOpened(stillOpen);
 				} catch (CodeStoreWriteException e) {
 					AxialCodingView.LOGGER.error("Error removing "
 							+ IAxialCodingModel.class.getSimpleName() + " "
@@ -230,7 +228,7 @@ public class AxialCodingView extends ViewPart {
 		Set<URI> lastOpenedModels = new HashSet<URI>(
 				new SUAGTPreferenceUtil().getLastOpenedAxialCodingModels());
 		if (lastOpenedModels.size() > 0) {
-			modelList.setOpened(lastOpenedModels);
+			this.modelList.setOpened(lastOpenedModels);
 			ExecUtils.logException(AxialCodingView.this.open(lastOpenedModels
 					.toArray(new URI[0])));
 		}
@@ -296,7 +294,7 @@ public class AxialCodingView extends ViewPart {
 				.setSelectionProvider(activeAxialCodingComposite);
 	}
 
-	public Future<Void> open(final URI... uris) {
+	public Future<URI[]> open(final URI... uris) {
 		final Future<List<AxialCodingComposite>> ui = ExecUtils
 				.asyncExec(new Callable<List<AxialCodingComposite>>() {
 					@Override
@@ -330,14 +328,14 @@ public class AxialCodingView extends ViewPart {
 					}
 				});
 
-		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+		return ExecUtils.nonUIAsyncExec(new Callable<URI[]>() {
 			@Override
-			public Void call() throws Exception {
+			public URI[] call() throws Exception {
 				List<AxialCodingComposite> axialCodingComposites = ui.get();
 				for (int i = 0; i < uris.length; i++) {
 					axialCodingComposites.get(i).open(uris[i]).get();
 				}
-				return null;
+				return uris;
 			}
 		});
 	}
@@ -351,6 +349,52 @@ public class AxialCodingView extends ViewPart {
 		for (final AxialCodingComposite axialCodingComposite : this
 				.getAxialCodingComposites()) {
 			axialCodingComposite.dispose();
+		}
+	}
+
+	private Future<URI[]> createAndOpen(String title)
+			throws CodeStoreWriteException {
+		final URI uri = AxialCodingModelLocatorProvider
+				.createUniqueAxialCodingModelURI();
+		CODE_SERVICE.addAxialCodingModel(new JointJSAxialCodingModel(uri,
+				"{\"cells\":[],\"title\":\"" + title + "\"}"));
+
+		Future<URI[]> ft = AxialCodingView.this.open(uri);
+		this.modelList.setOpened(new HashSet<URI>(Arrays.asList(uri)));
+		return ft;
+	}
+
+	public void createAxialCodingModel(String title, Set<URI> codes,
+			List<URI> relations) {
+		try {
+			Future<URI[]> uri = AxialCodingView.this.createAndOpen(title);
+			ExecUtils.logException(ExecUtils
+					.nonUIAsyncExec(new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							uri.get();
+							for (URI code : codes) {
+								AxialCodingView.this.activeAxialCodingComposite
+										.createNode(code, new Point(0, 0));
+							}
+							for (IRelation relation : LocatorService.INSTANCE
+									.resolve(relations, IRelation.class, null)
+									.get()) {
+								AxialCodingView.this.activeAxialCodingComposite
+										.createLink(relation);
+							}
+							AxialCodingView.this.activeAxialCodingComposite
+									.autoLayout();
+							AxialCodingView.this.activeAxialCodingComposite
+									.fitOnScreen();
+							return null;
+						}
+
+					}));
+		} catch (Exception e) {
+			AxialCodingView.LOGGER.error("Error creating new "
+					+ IAxialCodingModel.class.getSimpleName(), e);
+		} finally {
 		}
 	}
 

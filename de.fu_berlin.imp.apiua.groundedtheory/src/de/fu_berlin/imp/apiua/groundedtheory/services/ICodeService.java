@@ -295,6 +295,8 @@ public interface ICodeService {
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException;
 
+	IRelation getRelation(URI uri);
+
 	public Set<IRelation> getRelations();
 
 	public Set<IRelation> getRelations(URI from, URI to);

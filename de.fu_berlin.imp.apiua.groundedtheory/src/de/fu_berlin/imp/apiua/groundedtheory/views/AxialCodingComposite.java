@@ -52,6 +52,7 @@ import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -83,69 +84,46 @@ public class AxialCodingComposite extends Composite implements
 	private final IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
 		@Override
 		public void importanceChanged(Set<URI> uris, Importance importance) {
-			for (URI uri : uris) {
-				try {
-					AxialCodingComposite.this.refreshNode(uri);
-				} catch (Exception e) {
-					LOGGER.error("Error refreshing importance of " + uri, e);
-				}
-			}
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
 	};
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
-
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
-			try {
-				AxialCodingComposite.this.refreshNode(code.getUri());
-			} catch (Exception e) {
-				LOGGER.error("Error refreshing " + code.getUri() + " in "
-						+ AxialCodingView.class, e);
-			}
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
 
 		@Override
 		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
-			try {
-				AxialCodingComposite.this.refreshNode(code.getUri());
-			} catch (Exception e) {
-				LOGGER.error("Error refreshing " + code.getUri() + " in "
-						+ AxialCodingView.class, e);
-			}
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
 
 		@Override
 		public void codeMoved(final ICode code, ICode oldParentCode,
 				ICode newParentCode) {
-			try {
-				ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						AxialCodingComposite.this
-								.deleteAllOutdatedIsALinksBetweenValidNodes()
-								.get();
-						AxialCodingComposite.this.createIsALinks(code.getUri())
-								.get();
-						return null;
-					}
-				});
-			} catch (Exception e) {
-				LOGGER.error("Error refreshing " + code.getUri() + " in "
-						+ AxialCodingView.class, e);
-			}
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
 
 		@Override
 		public void codeDeleted(ICode code) {
-			try {
-				AxialCodingComposite.this.jointjs.addCustomClass(
-						Arrays.asList(code.getUri().toString()), "invalid");
-			} catch (Exception e) {
-				LOGGER.error("Error refreshing " + code.getUri() + " in "
-						+ AxialCodingView.class, e);
-			}
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
+
+		@Override
+		public void relationsAdded(java.util.Set<IRelation> relations) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void relationsRenamed(java.util.Set<IRelation> relations) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void relationsDeleted(java.util.Set<IRelation> relations) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
 	};
 
 	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
@@ -210,16 +188,19 @@ public class AxialCodingComposite extends Composite implements
 			}
 		});
 
-		this.jointjs.injectCss(".html-element.invalid {"
-				+ "background-image: linear-gradient(-45deg,"
-				+ "rgba(255, 255, 255, .2) 25%,"
-				+ "rgba(255, 255, 255, .85) 25%,"
-				+ "rgba(255, 255, 255, .85) 50%,"
-				+ "rgba(255, 255, 255, .2) 50%,"
-				+ "rgba(255, 255, 255, .2) 75%,"
-				+ "rgba(255, 255, 255, .85) 75%,"
-				+ "rgba(255, 255, 255, .85));"
-				+ "background-size: 55px 55px; }");
+		this.jointjs
+				.injectCss(".html-element.invalid {"
+						+ "	background-image: linear-gradient(-45deg,"
+						+ "		rgba(255, 255, 255, .2) 25%,"
+						+ "		rgba(255, 255, 255, .85) 25%,"
+						+ "		rgba(255, 255, 255, .85) 50%,"
+						+ "		rgba(255, 255, 255, .2) 50%,"
+						+ "		rgba(255, 255, 255, .2) 75%,"
+						+ "		rgba(255, 255, 255, .85) 75%,"
+						+ "		rgba(255, 255, 255, .85));"
+						+ "	background-size: 55px 55px;"
+						+ "}"
+						+ ".link.invalid { .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; } }");
 		// this.jointjs
 		// .injectCss("[droppable].over rect { stroke:black; stroke-width: 4px; stroke-dasharray:5,5;");
 		this.jointjs.setEnabled(false);
@@ -389,9 +370,7 @@ public class AxialCodingComposite extends Composite implements
 							.setLastOpenedAxialCodingModels(Arrays.asList(uri));
 					AxialCodingComposite.this.jointjs.load(
 							axialCodingModel.serialize()).get();
-					List<URI> validUris = AxialCodingComposite.this.syncModel()
-							.get();
-					AxialCodingComposite.this.updateLabels(validUris);
+					AxialCodingComposite.this.refresh().get();
 					AxialCodingComposite.this.jointjs
 							.run("$('.jointjs svg .element').attr('droppable', true)");
 					AxialCodingComposite.this.jointjs.setEnabled(true);
@@ -459,136 +438,7 @@ public class AxialCodingComposite extends Composite implements
 		return this.jointjs.highlight(ids);
 	}
 
-	/**
-	 * Updates non-structural information all existing nodes based on the
-	 * internal information and returns the new size.
-	 * <p>
-	 * Updated information are:
-	 * <ul>
-	 * <li>title</li>
-	 * <li>content</li>
-	 * <li>colors</li>
-	 * <li>size</li>
-	 * </ul>
-	 *
-	 * @param uris
-	 * @return
-	 * @throws Exception
-	 */
-	public void updateLabels(List<URI> uris) throws Exception {
-		for (URI uri : uris) {
-			this.refreshNode(uri);
-		}
-	}
-
-	/**
-	 * Updates non-structural information of the given {@link URI} based on the
-	 * internal information and returns the new size.
-	 * <p>
-	 * Updated information are:
-	 * <ul>
-	 * <li>title</li>
-	 * <li>content</li>
-	 * <li>colors</li>
-	 * <li>size</li>
-	 * </ul>
-	 *
-	 * @param uri
-	 */
-	public void refreshNode(final URI uri) throws Exception {
-		ExecUtils.logException(ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				if (!AxialCodingComposite.this.getNodes().get().contains(uri)) {
-					return null;
-				}
-				AxialCodingComposite.this.jointjs.setElementTitle(
-						uri.toString(),
-						AxialCodingComposite.this.labelProvider.getText(uri));
-				AxialCodingComposite.this.jointjs.setElementContent(
-						uri.toString(),
-						AxialCodingComposite.this.labelProvider.getContent(uri));
-				AxialCodingComposite.this.jointjs.setColor(uri.toString(),
-						AxialCodingComposite.this.labelProvider.getColor(uri));
-				AxialCodingComposite.this.jointjs.setBackgroundColor(uri
-						.toString(), AxialCodingComposite.this.labelProvider
-						.getBackgroundColor(uri));
-				AxialCodingComposite.this.jointjs.setBorderColor(
-						uri.toString(), AxialCodingComposite.this.labelProvider
-								.getBorderColor(uri));
-
-				Point size = AxialCodingComposite.this.labelProvider
-						.getSize(uri);
-				if (size != null) {
-					AxialCodingComposite.this.jointjs.setSize(uri.toString(),
-							size.x, size.y);
-				}
-				return null;
-			}
-		}));
-	}
-
-	/**
-	 * Synchronized structural information with the internally saved
-	 * information.
-	 * <p>
-	 * <ul>
-	 * <li>No more existing {@link ICode} get removed.</li>
-	 * <li>Permanent "is a" links are recreated.
-	 *
-	 * @return
-	 */
-	public Future<List<URI>> syncModel() {
-		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
-			@Override
-			public List<URI> call() throws Exception {
-				List<URI> validUris = AxialCodingComposite.this
-						.markAllInvalidNodes().get();
-				AxialCodingComposite.this
-						.deleteAllOutdatedIsALinksBetweenValidNodes().get();
-				for (URI uri : validUris) {
-					AxialCodingComposite.this.createIsALinks(uri);
-				}
-				return validUris;
-			}
-
-		});
-	}
-
-	/**
-	 * Removes all nodes that symbolize a no more existing {@link ICode}.
-	 *
-	 * @return the nodes that are kept
-	 */
-	private Future<List<URI>> markAllInvalidNodes() {
-		return ExecUtils.nonUIAsyncExec(new Callable<List<URI>>() {
-			@Override
-			public List<URI> call() throws Exception {
-				List<URI> uris = AxialCodingComposite.this.getNodes().get();
-				List<String> validIds = new ArrayList<String>();
-				List<String> invalidIds = new ArrayList<String>();
-				for (Iterator<URI> iterator = uris.iterator(); iterator
-						.hasNext();) {
-					URI uri = iterator.next();
-					ILocatable locatable = LocatorService.INSTANCE.resolve(uri,
-							null).get();
-					if (locatable == null) {
-						invalidIds.add(uri.toString());
-						iterator.remove();
-					} else {
-						validIds.add(uri.toString());
-					}
-				}
-				AxialCodingComposite.this.jointjs.addCustomClass(invalidIds,
-						"invalid");
-				AxialCodingComposite.this.jointjs.removeCustomClass(validIds,
-						"invalid");
-				return uris;
-			}
-		});
-	}
-
-	private void createNode(URI uri, Point position) throws Exception {
+	public void createNode(URI uri, Point position) throws Exception {
 		String title = this.labelProvider.getText(uri);
 		String content = this.labelProvider.getContent(uri);
 		Point size = this.labelProvider.getSize(uri);
@@ -609,8 +459,7 @@ public class AxialCodingComposite extends Composite implements
 			LOGGER.error("ID missing for created/updated node!");
 		}
 
-		this.createIsALinks(uri);
-		this.refreshNode(uri);
+		this.refresh();
 	}
 
 	private void replaceNode(URI oldUri, URI newUri) throws Exception {
@@ -618,9 +467,7 @@ public class AxialCodingComposite extends Composite implements
 		String updatedJson = this.jointjs.save().get()
 				.replace(oldUri.toString(), newUri.toString());
 		this.jointjs.load(updatedJson).get();
-		this.createIsALinks(newUri).get();
-		this.markAllInvalidNodes().get();
-		this.refreshNode(newUri);
+		this.refresh().get();
 	}
 
 	/**
@@ -704,6 +551,35 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
+	 * Creates a custom {@link IRelation}.
+	 *
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	public Future<Void> createLink(IRelation relation)
+			throws InterruptedException, ExecutionException {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				LOGGER.info("Creating relation " + relation);
+				String id = AxialCodingComposite.this.jointjs.createLink(
+						relation.getUri().toString(),
+						relation.getFrom().toString(),
+						relation.getTo().toString()).get();
+
+				String[] texts = new String[] { relation.getName() };
+				for (int i = 0; texts != null && i < texts.length; i++) {
+					AxialCodingComposite.this.jointjs.setText(id, i, texts[i]);
+				}
+				return null;
+			}
+		});
+	}
+
+	/**
 	 * Removes all incoming and outgoing "is a" permanent links of the specified
 	 * {@link URI}.
 	 *
@@ -723,34 +599,170 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
-	/**
-	 * Removes all "is a" permanent links from the graph.
-	 *
-	 * @return
-	 */
-	private Future<Void> deleteAllOutdatedIsALinksBetweenValidNodes() {
+	public Future<Void> refresh() {
 		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				List<String> linkIds = AxialCodingComposite.this.jointjs
-						.getPermanentLinks().get();
-				for (String linkId : linkIds) {
-					URI parentURI = new URI(linkId.split("\\|")[0]);
-					URI subURI = new URI(linkId.split("\\|")[1]);
-					ICode parentCode = LocatorService.INSTANCE.resolve(
-							parentURI, ICode.class, null).get();
-					ICode subCode = LocatorService.INSTANCE.resolve(subURI,
-							ICode.class, null).get();
-					if (parentCode != null
-							&& subCode != null
-							&& !CODE_SERVICE.getSubCodes(parentCode).contains(
-									subCode)) {
-						AxialCodingComposite.this.jointjs.remove(linkId).get();
-					}
-				}
+				List<URI> validUris = AxialCodingComposite.this.syncModel();
+				AxialCodingComposite.this.updateLabels(validUris);
+				AxialCodingComposite.this.refreshLinks();
 				return null;
 			}
 		});
+	}
+
+	/**
+	 * Synchronized structural information with the internally saved
+	 * information.
+	 * <p>
+	 * <ul>
+	 * <li>No more existing {@link ICode} get removed.</li>
+	 * <li>Permanent "is a" links are recreated.
+	 *
+	 * @return
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	private List<URI> syncModel() throws InterruptedException,
+			ExecutionException {
+		List<URI> validUris = this.markAllInvalidNodes();
+		this.deleteAllOutdatedIsALinksBetweenValidNodes();
+		for (URI uri : validUris) {
+			this.createIsALinks(uri);
+		}
+		return validUris;
+	}
+
+	/**
+	 * Removes all outdated "is a" permanent links from the graph.
+	 *
+	 * @return
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	private void deleteAllOutdatedIsALinksBetweenValidNodes()
+			throws InterruptedException, ExecutionException {
+		List<String> linkIds = this.jointjs.getPermanentLinks().get();
+		for (String linkId : linkIds) {
+			URI parentURI = new URI(linkId.split("\\|")[0]);
+			URI subURI = new URI(linkId.split("\\|")[1]);
+			ICode parentCode = LocatorService.INSTANCE.resolve(parentURI,
+					ICode.class, null).get();
+			ICode subCode = LocatorService.INSTANCE.resolve(subURI,
+					ICode.class, null).get();
+			if (parentCode != null && subCode != null
+					&& !CODE_SERVICE.getSubCodes(parentCode).contains(subCode)) {
+				this.jointjs.remove(linkId).get();
+			}
+		}
+	}
+
+	/**
+	 * Removes all nodes that symbolize a no more existing {@link ICode}.
+	 *
+	 * @return the nodes that are kept
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	private List<URI> markAllInvalidNodes() throws InterruptedException,
+			ExecutionException {
+		List<URI> uris = this.getNodes().get();
+		List<String> validIds = new ArrayList<String>();
+		List<String> invalidIds = new ArrayList<String>();
+		for (Iterator<URI> iterator = uris.iterator(); iterator.hasNext();) {
+			URI uri = iterator.next();
+			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
+					.get();
+			if (locatable == null) {
+				invalidIds.add(uri.toString());
+				iterator.remove();
+			} else {
+				validIds.add(uri.toString());
+			}
+		}
+		this.jointjs.addCustomClass(invalidIds, "invalid");
+		this.jointjs.removeCustomClass(validIds, "invalid");
+		return uris;
+	}
+
+	/**
+	 * Updates non-structural information all existing nodes based on the
+	 * internal information and returns the new size.
+	 * <p>
+	 * Updated information are:
+	 * <ul>
+	 * <li>title</li>
+	 * <li>content</li>
+	 * <li>colors</li>
+	 * <li>size</li>
+	 * </ul>
+	 *
+	 * @param uris
+	 * @return
+	 * @throws Exception
+	 */
+	public void updateLabels(List<URI> uris) throws Exception {
+		for (URI uri : uris) {
+			this.refreshNode(uri);
+		}
+	}
+
+	/**
+	 * Updates non-structural information of the given {@link URI} based on the
+	 * internal information and returns the new size.
+	 * <p>
+	 * Updated information are:
+	 * <ul>
+	 * <li>title</li>
+	 * <li>content</li>
+	 * <li>colors</li>
+	 * <li>size</li>
+	 * </ul>
+	 *
+	 * @param uri
+	 */
+	private void refreshNode(final URI uri) throws Exception {
+		if (!this.getNodes().get().contains(uri)) {
+			return;
+		}
+		this.jointjs.setElementTitle(uri.toString(),
+				this.labelProvider.getText(uri));
+		this.jointjs.setElementContent(uri.toString(),
+				this.labelProvider.getContent(uri));
+		this.jointjs.setColor(uri.toString(), this.labelProvider.getColor(uri));
+		this.jointjs.setBackgroundColor(uri.toString(),
+				this.labelProvider.getBackgroundColor(uri));
+		this.jointjs.setBorderColor(uri.toString(),
+				this.labelProvider.getBorderColor(uri));
+
+		Point size = this.labelProvider.getSize(uri);
+		if (size != null) {
+			this.jointjs.setSize(uri.toString(), size.x, size.y);
+		}
+	}
+
+	private void refreshLinks() throws Exception {
+		List<String> linkIds = this.jointjs.getLinks().get();
+		for (String linkId : linkIds) {
+			if (linkId.contains("|")) {
+				continue;
+			}
+			IRelation relation = CODE_SERVICE.getRelation(new URI(linkId));
+			if (relation == null) {
+				this.jointjs.addCustomClass(Arrays.asList(linkId), "invalid");
+				// this.jointjs.remove(linkId);
+			} else {
+				this.jointjs.setLinkTitle(linkId, relation.getName());
+			}
+		}
+
+		List<String> elementIds = this.jointjs.getNodes().get();
+		for (IRelation relation : CODE_SERVICE.getRelations()) {
+			if (elementIds.contains(relation.getFrom().toString())
+					&& elementIds.contains(relation.getTo().toString())) {
+				this.createLink(relation);
+			}
+		}
 	}
 
 	@Override

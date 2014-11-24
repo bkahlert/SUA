@@ -154,7 +154,7 @@ public class AxialCodingLabelProvider extends LabelProvider implements
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error calculing size for " + element);
+			LOGGER.error("Error calculing size for " + element, e);
 		}
 		return size != null ? size : new Point(180, 50);
 	}
