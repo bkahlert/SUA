@@ -297,8 +297,29 @@ public interface ICodeService {
 
 	IRelation getRelation(URI uri);
 
+	/**
+	 * Returns all defined {@link IRelation}s.
+	 *
+	 * @return
+	 */
 	public Set<IRelation> getRelations();
 
+	/**
+	 * Returns all {@link IRelation}s that have are grounded by the given
+	 * {@link URI}.
+	 * 
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelation> getRelations(URI phenomenon);
+
+	/**
+	 * Returns all {@link IRelation}s that relate the given {@link URI}s.
+	 * 
+	 * @param from
+	 * @param to
+	 * @return
+	 */
 	public Set<IRelation> getRelations(URI from, URI to);
 
 	public IRelation createRelation(URI from, URI to, String title)

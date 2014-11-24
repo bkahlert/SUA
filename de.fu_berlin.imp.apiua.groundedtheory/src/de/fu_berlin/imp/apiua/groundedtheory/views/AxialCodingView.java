@@ -12,19 +12,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -35,7 +30,6 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -75,17 +69,13 @@ public class AxialCodingView extends ViewPart {
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 	};
 
-	private final ISelectionListener selectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (part == AxialCodingView.this) {
-				return;
-			}
+	private final ISelectionListener selectionListener = (part, selection) -> {
+		if (part == AxialCodingView.this)
+			return;
 
-			List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
-					URI.class);
-			AxialCodingView.this.highlight(uris);
-		}
+		List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
+				URI.class);
+		AxialCodingView.this.highlight(uris);
 	};
 
 	private AxialCodingViewModelList modelList;
@@ -250,13 +240,8 @@ public class AxialCodingView extends ViewPart {
 	private void activateMenu() {
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
-		menuManager.addMenuListener(new IMenuListener() {
-			@Override
-			public void menuAboutToShow(IMenuManager manager) {
-				manager.add(new Separator(
-						IWorkbenchActionConstants.MB_ADDITIONS));
-			}
-		});
+		menuManager.addMenuListener(manager -> manager.add(new Separator(
+				IWorkbenchActionConstants.MB_ADDITIONS)));
 		for (AxialCodingComposite axialCodingComposite : this
 				.getAxialCodingComposites()) {
 			Menu menu = menuManager.createContextMenu(axialCodingComposite);
@@ -285,9 +270,8 @@ public class AxialCodingView extends ViewPart {
 
 	private void activateAxialCodingComposite(
 			AxialCodingComposite activeAxialCodingComposite) {
-		if (this.activeAxialCodingComposite == activeAxialCodingComposite) {
+		if (this.activeAxialCodingComposite == activeAxialCodingComposite)
 			return;
-		}
 
 		AxialCodingView.this.activeAxialCodingComposite = activeAxialCodingComposite;
 		AxialCodingView.this.selectionProviderDelegator
@@ -296,47 +280,35 @@ public class AxialCodingView extends ViewPart {
 
 	public Future<URI[]> open(final URI... uris) {
 		final Future<List<AxialCodingComposite>> ui = ExecUtils
-				.asyncExec(new Callable<List<AxialCodingComposite>>() {
-					@Override
-					public List<AxialCodingComposite> call() throws Exception {
-						AxialCodingView.this.disposeAll();
-						for (int i = 0; i < uris.length; i++) {
-							final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-									AxialCodingView.this.axialCodingCompositesContainer,
-									SWT.NONE);
-							axialCodingComposite
-									.addModifyListener(new ModifyListener() {
-										@Override
-										public void modifyText(ModifyEvent e) {
-											axialCodingComposite.save();
-										}
-									});
-							axialCodingComposite.setBackground(Display
-									.getCurrent().getSystemColor(
-											SWT.COLOR_LIST_BACKGROUND));
-							axialCodingComposite.setLayoutData(new GridData(
-									SWT.FILL, SWT.FILL, true, true));
-						}
-						AxialCodingView.this.axialCodingCompositesContainer
-								.setWeights(SWTUtils
-										.getEvenWeights(uris.length));
-						AxialCodingView.this.axialCodingCompositesContainer
-								.layout(true);
-						AxialCodingView.this.activateMenu();
-						AxialCodingView.this.trackActiveAxialCodingComposite();
-						return AxialCodingView.this.getAxialCodingComposites();
+				.asyncExec(() -> {
+					AxialCodingView.this.disposeAll();
+					for (URI uri : uris) {
+						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
+								AxialCodingView.this.axialCodingCompositesContainer,
+								SWT.NONE);
+						axialCodingComposite
+								.addModifyListener(e -> axialCodingComposite
+										.save());
+						axialCodingComposite.setBackground(Display.getCurrent()
+								.getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+						axialCodingComposite.setLayoutData(new GridData(
+								SWT.FILL, SWT.FILL, true, true));
 					}
+					AxialCodingView.this.axialCodingCompositesContainer
+							.setWeights(SWTUtils.getEvenWeights(uris.length));
+					AxialCodingView.this.axialCodingCompositesContainer
+							.layout(true);
+					AxialCodingView.this.activateMenu();
+					AxialCodingView.this.trackActiveAxialCodingComposite();
+					return AxialCodingView.this.getAxialCodingComposites();
 				});
 
-		return ExecUtils.nonUIAsyncExec(new Callable<URI[]>() {
-			@Override
-			public URI[] call() throws Exception {
-				List<AxialCodingComposite> axialCodingComposites = ui.get();
-				for (int i = 0; i < uris.length; i++) {
-					axialCodingComposites.get(i).open(uris[i]).get();
-				}
-				return uris;
+		return ExecUtils.nonUIAsyncExec((Callable<URI[]>) () -> {
+			List<AxialCodingComposite> axialCodingComposites = ui.get();
+			for (int i = 0; i < uris.length; i++) {
+				axialCodingComposites.get(i).open(uris[i]).get();
 			}
+			return uris;
 		});
 	}
 
@@ -365,31 +337,27 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	public void createAxialCodingModel(String title, Set<URI> codes,
-			List<URI> relations) {
+			Set<URI> relations) {
 		try {
 			Future<URI[]> uri = AxialCodingView.this.createAndOpen(title);
 			ExecUtils.logException(ExecUtils
-					.nonUIAsyncExec(new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							uri.get();
-							for (URI code : codes) {
-								AxialCodingView.this.activeAxialCodingComposite
-										.createNode(code, new Point(0, 0));
-							}
-							for (IRelation relation : LocatorService.INSTANCE
-									.resolve(relations, IRelation.class, null)
-									.get()) {
-								AxialCodingView.this.activeAxialCodingComposite
-										.createLink(relation);
-							}
+					.nonUIAsyncExec((Callable<Void>) () -> {
+						uri.get();
+						for (URI code : codes) {
 							AxialCodingView.this.activeAxialCodingComposite
-									.autoLayout();
-							AxialCodingView.this.activeAxialCodingComposite
-									.fitOnScreen();
-							return null;
+									.createNode(code, new Point(0, 0));
 						}
-
+						for (IRelation relation : LocatorService.INSTANCE
+								.resolve(new ArrayList<>(relations),
+										IRelation.class, null).get()) {
+							AxialCodingView.this.activeAxialCodingComposite
+									.createLink(relation);
+						}
+						AxialCodingView.this.activeAxialCodingComposite
+								.autoLayout();
+						AxialCodingView.this.activeAxialCodingComposite
+								.fitOnScreen();
+						return null;
 					}));
 		} catch (Exception e) {
 			AxialCodingView.LOGGER.error("Error creating new "
@@ -410,16 +378,14 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	public Future<Void> highlight(final List<URI> uris) {
-		return ExecUtils.asyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				for (final AxialCodingComposite axialCodingComposite : AxialCodingView.this
-						.getAxialCodingComposites()) {
-					axialCodingComposite.highlight(uris);
-				}
-				return null;
-			}
-		});
+		return ExecUtils
+				.asyncExec(() -> {
+					for (final AxialCodingComposite axialCodingComposite : AxialCodingView.this
+							.getAxialCodingComposites()) {
+						axialCodingComposite.highlight(uris);
+					}
+					return null;
+				});
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,14 +130,53 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 		}
 	}
 
+	/**
+	 * Creates a new ACM in the ACM view and creates the model itself with the
+	 * given {@link URI} as the {@link ICode} in the center of the graph.
+	 *
+	 * @param uri
+	 * @param phenomenon
+	 *            if not <code>null</code> only relations that are grounded by
+	 *            this {@link URI} are considered
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	private void createAcmFrom(URI uri, URI phenomenon)
 			throws InterruptedException, ExecutionException {
+		Set<IRelation> relations = phenomenon != null ? this.codeService
+				.getRelations(phenomenon) : this.codeService.getRelations();
+		Set<URI> relatedCodes = getRelatedElements(uri, relations);
+		Set<URI> relatingRelations = getNeededRelations(relatedCodes, relations);
+
+		for (AxialCodingView axialCodingView : WorkbenchUtils
+				.getViews(AxialCodingView.class)) {
+			String title = this.labelProviderService.getText(uri);
+			if (phenomenon != null) {
+				title += " (" + this.labelProviderService.getText(phenomenon)
+						+ ")";
+			}
+			axialCodingView.createAxialCodingModel(title, relatedCodes,
+					relatingRelations);
+			break;
+		}
+	}
+
+	/**
+	 * Returns the elements that contained in the {@link IRelation}s that are
+	 * related without any gaps.
+	 *
+	 * @param code
+	 * @param relations
+	 * @return
+	 */
+	private static Set<URI> getRelatedElements(URI element,
+			Collection<IRelation> relations) {
 		Set<URI> codes = new HashSet<>();
-		codes.add(uri);
+		codes.add(element);
 		boolean codesAdded = true;
 		while (codesAdded) {
 			codesAdded = false;
-			for (IRelation relation : this.codeService.getRelations()) {
+			for (IRelation relation : relations) {
 				if (codes.contains(relation.getFrom())
 						&& !codes.contains(relation.getTo())) {
 					codes.add(relation.getTo());
@@ -149,19 +189,24 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 				}
 			}
 		}
-		List<URI> relations = this.codeService
-				.getRelations()
-				.stream()
-				.filter(r -> codes.contains(r.getFrom())
-						|| codes.contains(r.getTo())).map(r -> r.getUri())
-				.collect(Collectors.toList());
+		return codes;
+	}
 
-		for (AxialCodingView axialCodingView : WorkbenchUtils
-				.getViews(AxialCodingView.class)) {
-			axialCodingView.createAxialCodingModel(
-					this.labelProviderService.getText(uri), codes, relations);
-			break;
-		}
+	/**
+	 * Returns the {@link IRelation} that have relate elements contained in the
+	 * given elements.
+	 *
+	 * @param elements
+	 * @param relations
+	 * @return
+	 */
+	private static Set<URI> getNeededRelations(Collection<URI> elements,
+			Collection<IRelation> relations) {
+		return relations
+				.stream()
+				.filter(r -> elements.contains(r.getFrom())
+						&& elements.contains(r.getTo())).map(r -> r.getUri())
+				.collect(Collectors.toSet());
 	}
 
 }
