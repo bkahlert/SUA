@@ -359,10 +359,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 				return string;
-			} else {
-				return new StyledString("unknown origin",
+			} else
+				return new StyledString(codeInstance.getId().toString(),
 						Stylers.ATTENTION_STYLER);
-			}
 		}
 		if (locatable instanceof IEpisodes)
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),
