@@ -462,7 +462,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		if (type == ICodeInstance.class) {
 			ICodeInstance codeInstance = LocatorService.INSTANCE.resolve(uri,
 					ICodeInstance.class, null).get();
-			return labelProviderService.getImage(codeInstance.getId());
+			return codeInstance != null ? labelProviderService
+					.getImage(codeInstance.getId()) : null;
 		}
 		if (type == IEpisodes.class) {
 			image = ImageManager.EPISODE;
