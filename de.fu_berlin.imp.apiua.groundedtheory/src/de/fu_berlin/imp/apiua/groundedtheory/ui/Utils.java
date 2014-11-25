@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.ISelection;
@@ -100,41 +101,39 @@ public class Utils {
 
 	public static void addCodeColorRenderSupport(Tree tree,
 			final int columnNumber) {
-		tree.addListener(SWT.PaintItem, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (!(event.item instanceof TreeItem)
-						|| !(event.item.getData() instanceof URI)) {
-					return;
-				}
-				TreeItem item = (TreeItem) event.item;
-				Rectangle bounds = item.getImageBounds(columnNumber);
-				bounds.width = 14;
-				bounds.height = 14;
-				bounds.y += 2;
-				bounds.x -= 2;
+		tree.addListener(
+				SWT.PaintItem,
+				event -> {
+					if (!(event.item instanceof TreeItem)
+							|| !(event.item.getData() instanceof URI))
+						return;
+					TreeItem item = (TreeItem) event.item;
+					Rectangle bounds = item.getImageBounds(columnNumber);
+					bounds.width = 14;
+					bounds.height = 14;
+					bounds.y += 2;
+					bounds.x -= 2;
 
-				ICode code = null;
-				try {
-					code = LocatorService.INSTANCE.resolve(
-							(URI) item.getData(), ICode.class, null).get();
-				} catch (Exception e) {
-					LOGGER.error("Error painting color of " + item.getData());
-				}
-				if (code != null) {
-					GTLabelProvider.drawCodeImage(code, event.gc, bounds);
-				}
-			}
-		});
+					ICode code = null;
+					try {
+						code = LocatorService.INSTANCE.resolve(
+								(URI) item.getData(), ICode.class, null).get();
+					} catch (Exception e) {
+						LOGGER.error("Error painting color of "
+								+ item.getData());
+					}
+					if (code != null) {
+						GTLabelProvider.drawCodeImage(code, event.gc, bounds);
+					}
+				});
 		tree.addListener(SWT.MouseMove, new Listener() {
 			private final Cursor hand = new Cursor(Display.getCurrent(),
 					SWT.CURSOR_HAND);
 
 			@Override
 			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Tree)) {
+				if (!(event.widget instanceof Tree))
 					return;
-				}
 				Tree tree = ((Tree) event.widget);
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
@@ -158,27 +157,27 @@ public class Utils {
 				}
 			}
 		});
-		tree.addListener(SWT.MouseUp, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Tree)) {
-					return;
-				}
-				Tree tree = ((Tree) event.widget);
-				if (tree.getCursor() != null) {
-					ICommandService cmdService = (ICommandService) PlatformUI
-							.getWorkbench().getService(ICommandService.class);
-					Command cmd = cmdService
-							.getCommand("de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCode");
-					try {
-						cmd.executeWithChecks(new ExecutionEvent());
-					} catch (NotHandledException e) {
-					} catch (Exception e) {
-						LOGGER.error("Error recoloring " + event.item.getData());
+		tree.addListener(
+				SWT.MouseUp,
+				event -> {
+					if (!(event.widget instanceof Tree))
+						return;
+					Tree tree1 = ((Tree) event.widget);
+					if (tree1.getCursor() != null) {
+						ICommandService cmdService = (ICommandService) PlatformUI
+								.getWorkbench().getService(
+										ICommandService.class);
+						Command cmd = cmdService
+								.getCommand("de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCode");
+						try {
+							cmd.executeWithChecks(new ExecutionEvent());
+						} catch (NotHandledException e1) {
+						} catch (Exception e2) {
+							LOGGER.error("Error recoloring "
+									+ event.item.getData());
+						}
 					}
-				}
-			}
-		});
+				});
 	}
 
 	/**
@@ -199,18 +198,15 @@ public class Utils {
 				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						if (uri == ViewerURI.NO_CODES_URI) {
+						if (uri == ViewerURI.NO_CODES_URI)
 							return new StyledString("no codes",
 									Stylers.MINOR_STYLER);
-						}
-						if (uri == ViewerURI.NO_RELATIONS_URI) {
+						if (uri == ViewerURI.NO_RELATIONS_URI)
 							return new StyledString("no relations",
 									Stylers.MINOR_STYLER);
-						}
-						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
+						if (uri == ViewerURI.NO_PHENOMENONS_URI)
 							return new StyledString("no phenomenons",
 									Stylers.MINOR_STYLER);
-						}
 						StyledString text = labelProvider.getStyledText(uri);
 
 						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
@@ -268,15 +264,12 @@ public class Utils {
 
 					@Override
 					public Image getImage(URI uri) throws Exception {
-						if (uri == ViewerURI.NO_CODES_URI) {
+						if (uri == ViewerURI.NO_CODES_URI)
 							return null;
-						}
-						if (uri == ViewerURI.NO_RELATIONS_URI) {
+						if (uri == ViewerURI.NO_RELATIONS_URI)
 							return null;
-						}
-						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
+						if (uri == ViewerURI.NO_PHENOMENONS_URI)
 							return null;
-						}
 						return labelProvider.getImage(uri);
 					}
 				});
@@ -289,7 +282,7 @@ public class Utils {
 							ColumnViewerEditorActivationEvent event) {
 						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
 					}
-				}, TreeViewerEditor.DEFAULT);
+				}, ColumnViewerEditor.DEFAULT);
 	}
 
 	public static void createNumPhaenomenonsColumn(
@@ -322,6 +315,9 @@ public class Utils {
 	/**
 	 * Returns all phenomenon {@link URI}s that can be retrieved from {@ICode
 	 * 
+	 *
+	 *
+	 *
 	 *
 	 *
 	 * }s, {@link ICodeInstance}s, {@link IRelation}s and

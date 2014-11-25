@@ -282,9 +282,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
 		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
-		if (locatable == null) {
+		if (locatable == null)
 			return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
-		}
 
 		Importance importance = IMPORTANCE_SERVICE.getImportance(uri);
 		Styler styler;
@@ -365,10 +364,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 						Stylers.ATTENTION_STYLER);
 			}
 		}
-		if (locatable instanceof IEpisodes) {
+		if (locatable instanceof IEpisodes)
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),
 					styler);
-		}
 		if (locatable instanceof IEpisode) {
 			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
@@ -416,16 +414,14 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		ILabelProvider labelProvider = labelProviderService
 				.getLabelProvider(uri);
 		if (labelProvider != null) {
-			if (labelProvider instanceof GTLabelProvider) {
+			if (labelProvider instanceof GTLabelProvider)
 				return new StyledString("Recursion for " + uri + " detected!",
 						Stylers.ATTENTION_STYLER);
-			} else {
+			else
 				return new StyledString(labelProvider.getText(uri), styler);
-			}
-		} else {
+		} else
 			return new StyledString("label provider missing",
 					Stylers.ATTENTION_STYLER);
-		}
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {
@@ -442,9 +438,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	private boolean canHaveDimensionValue(URI uri) throws CodeServiceException {
 		for (ICode code : CODE_SERVICE.getCodes(uri)) {
-			if (CODE_SERVICE.getDimension(code.getUri()) != null) {
+			if (CODE_SERVICE.getDimension(code.getUri()) != null)
 				return true;
-			}
 		}
 		return false;
 	}

@@ -65,6 +65,8 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(ICodeService.class);
 	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
+	private static final ILabelProviderService LABELPROVIDER_SERVICE = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	private BootstrapBrowser browser;
 
@@ -124,12 +126,8 @@ public class CDViewer extends Viewer {
 					}
 				});
 
-		browser.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				PRESENTER_SERVICE.disable(browser);
-			}
-		});
+		browser.addDisposeListener((DisposeListener) e -> PRESENTER_SERVICE
+				.disable(browser));
 
 		/*
 		 * Handle add code events
@@ -137,20 +135,18 @@ public class CDViewer extends Viewer {
 		this.browser.addAnkerListener(new AnkerAdapter() {
 			@Override
 			public void ankerClicked(IAnker anker) {
-				if (!anker.getHref().startsWith("addcode-")) {
+				if (!anker.getHref().startsWith("addcode-"))
 					return;
-				}
 
 				final AtomicReference<URI> uri = new AtomicReference<URI>();
 				uri.set(new URI(anker.getHref().substring("addcode-".length())));
-				ExecUtils.nonUISyncExec(CDViewer.class,
-						"Opening Add Code Wizard", new Callable<Void>() {
-							@Override
-							public Void call() throws Exception {
-								WizardUtils.openAddCodeWizard(uri.get(),
-										Utils.getFancyCodeColor());
-								return null;
-							}
+				ExecUtils.nonUISyncExec(
+						CDViewer.class,
+						"Opening Add Code Wizard",
+						() -> {
+							WizardUtils.openAddCodeWizard(uri.get(),
+									Utils.getFancyCodeColor());
+							return null;
 						});
 			}
 		});
@@ -158,9 +154,8 @@ public class CDViewer extends Viewer {
 		this.browser.addMouseListener(new MouseAdapter() {
 			@Override
 			public void clicked(double x, double y, IElement element) {
-				if (element == null) {
+				if (element == null)
 					return;
-				}
 				boolean draggable = element.getAttribute("draggable") != null
 						&& element.getAttribute("draggable").equals("true");
 				if (ArrayUtils.contains(element.getClasses(), "btn")
@@ -181,22 +176,13 @@ public class CDViewer extends Viewer {
 
 			@Override
 			public void focusGained(final IElement element) {
-				ExecUtils.nonUISyncExec(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						URI uri = new URI(element.getAttribute("data-focus-id"));
-						final ILocatable locatable = LOCATOR_SERVICE.resolve(
-								uri, null).get();
-						ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								CDViewer.this
-										.setSelection(new StructuredSelection(
-												locatable));
-							}
-						});
-						return null;
-					}
+				ExecUtils.nonUISyncExec(() -> {
+					URI uri = new URI(element.getAttribute("data-focus-id"));
+					final ILocatable locatable = LOCATOR_SERVICE.resolve(uri,
+							null).get();
+					ExecUtils.asyncExec(() -> CDViewer.this
+							.setSelection(new StructuredSelection(locatable)));
+					return null;
 				});
 			}
 		});
@@ -219,16 +205,13 @@ public class CDViewer extends Viewer {
 			}
 		});
 
-		this.browser.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				try {
-					Point scrollPosition = browser.getScrollPosition().get();
-					new SUACorePreferenceUtil().setLastScrollPosition(
-							CDViewer.class, scrollPosition);
-				} catch (Exception e1) {
-					LOGGER.error("Error saving scroll position", e1);
-				}
+		this.browser.addDisposeListener((DisposeListener) e -> {
+			try {
+				Point scrollPosition = browser.getScrollPosition().get();
+				new SUACorePreferenceUtil().setLastScrollPosition(
+						CDViewer.class, scrollPosition);
+			} catch (Exception e1) {
+				LOGGER.error("Error saving scroll position", e1);
 			}
 		});
 	}
@@ -246,12 +229,8 @@ public class CDViewer extends Viewer {
 			// sort
 			List<CDDocument> cdDocuments = new ArrayList<CDDocument>();
 			cdDocuments.addAll(this.surveyContainer.getCDDocuments());
-			Collections.sort(cdDocuments, new Comparator<CDDocument>() {
-				@Override
-				public int compare(CDDocument o1, CDDocument o2) {
-					return o1.getCompleted().compareTo(o2.getCompleted());
-				}
-			});
+			Collections.sort(cdDocuments, (o1, o2) -> o1.getCompleted()
+					.compareTo(o2.getCompleted()));
 
 			List<NavigationElement> navigationElements = new ArrayList<NavigationElement>();
 
@@ -328,12 +307,9 @@ public class CDViewer extends Viewer {
 			html.append("</div>");
 
 			try {
-				ExecUtils.syncExec(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						CDViewer.this.browser.setBodyHtml(html.toString());
-						return null;
-					}
+				ExecUtils.syncExec(() -> {
+					CDViewer.this.browser.setBodyHtml(html.toString());
+					return null;
 				});
 			} catch (Exception e) {
 				LOGGER.error("Error loading " + this.surveyContainer, e);
@@ -421,17 +397,14 @@ public class CDViewer extends Viewer {
 
 	@Override
 	public void refresh() {
-		ExecUtils.nonUISyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Point pos = CDViewer.this.browser.getScrollPosition().get();
-					CDViewer.this.setInput(CDViewer.this.surveyContainer);
-					CDViewer.this.browser.scrollTo(pos);
-				} catch (Exception e) {
-					LOGGER.error("Error refreshing "
-							+ CDViewer.class.getSimpleName());
-				}
+		ExecUtils.nonUISyncExec(() -> {
+			try {
+				Point pos = CDViewer.this.browser.getScrollPosition().get();
+				CDViewer.this.setInput(CDViewer.this.surveyContainer);
+				CDViewer.this.browser.scrollTo(pos);
+			} catch (Exception e) {
+				LOGGER.error("Error refreshing "
+						+ CDViewer.class.getSimpleName());
 			}
 		});
 	}
