@@ -307,6 +307,18 @@ public class Utils {
 							return text;
 						}
 
+						if (IRelation.class.isInstance(element)) {
+							IRelation relation = (IRelation) element;
+							int all = codeService
+									.getRelationInstances(relation).size();
+							// int here = codeService.getInstances(code).size();
+							StyledString text = new StyledString(all + "",
+									Stylers.DEFAULT_STYLER);
+							// text.append("   " + here,
+							// Stylers.COUNTER_STYLER);
+							return text;
+						}
+
 						return new StyledString();
 					}
 				});
