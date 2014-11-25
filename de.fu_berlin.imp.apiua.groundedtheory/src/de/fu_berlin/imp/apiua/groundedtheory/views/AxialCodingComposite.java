@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -17,8 +16,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
@@ -190,7 +187,7 @@ public class AxialCodingComposite extends Composite implements
 						+ "		rgba(255, 255, 255, .85));"
 						+ "	background-size: 55px 55px;"
 						+ "}"
-						+ ".link.invalid { .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; } }");
+						+ ".link.invalid .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; }");
 		// this.jointjs
 		// .injectCss("[droppable].over rect { stroke:black; stroke-width: 4px; stroke-dasharray:5,5;");
 		this.jointjs.setEnabled(false);
@@ -370,9 +367,8 @@ public class AxialCodingComposite extends Composite implements
 	 * @return
 	 */
 	public void save() {
-		if (this.openedUri == null) {
+		if (this.openedUri == null)
 			return;
-		}
 
 		final URI uri = this.openedUri;
 		final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
