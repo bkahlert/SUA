@@ -387,10 +387,10 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			IRelation relation = (IRelation) locatable;
 			StyledString from = Stylers.shorten(
 					labelProviderService.getStyledText(relation.getFrom()), 16,
-					"...");
+					2, "...");
 			StyledString to = Stylers.shorten(
 					labelProviderService.getStyledText(relation.getTo()), 16,
-					"...");
+					2, "...");
 			StyledString label = from.append(" → ")
 					.append(relation.getName(), Stylers.BOLD_STYLER)
 					.append(" → ").append(to);
