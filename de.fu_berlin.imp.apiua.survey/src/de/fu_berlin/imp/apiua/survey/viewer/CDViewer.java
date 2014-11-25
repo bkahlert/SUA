@@ -2,9 +2,7 @@ package de.fu_berlin.imp.apiua.survey.viewer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -14,7 +12,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
@@ -27,6 +24,7 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -40,9 +38,11 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
@@ -391,6 +391,42 @@ public class CDViewer extends Viewer {
 			// }
 			html.append("</ul></li>");
 		}
+
+		for (IRelationInstance relationInstance : CODE_SERVICE
+				.getRelationInstances(locatable.getUri())) {
+			String immediateDimensionValue = null;
+
+			html.append("<li style=\"list-style-image: url('"
+					+ BrowserUtils.createDataUri(ImageManager.RELATION)
+					+ "');\"><a href=\""
+					+ relationInstance.getRelation().getUri()
+					+ "\" data-focus-id=\""
+					+ relationInstance.getRelation().getUri().toString()
+					+ "\" data-workspace=\""
+					+ relationInstance.getUri().toString()
+					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+					+ relationInstance.getUri()
+					+ "\">"
+					+ LABELPROVIDER_SERVICE.getText(relationInstance
+							.getRelation().getUri()));
+			if (immediateDimensionValue != null) {
+				// html.append("<strong> = ");
+				// html.append(immediateDimensionValue);
+				// html.append("</strong>");
+			}
+			html.append("</a><ul>");
+			if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
+				html.append("<li style=\"list-style-image: url('"
+						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+						+ "');\">");
+				html.append(StringUtils.plainToHtml(StringUtils.shorten(
+						CODE_SERVICE.loadMemoPlain(relationInstance.getUri()),
+						100)));
+				html.append("</li>");
+			}
+			html.append("</ul></li>");
+		}
+
 		html.append("</ul>");
 		return html.toString();
 	}
