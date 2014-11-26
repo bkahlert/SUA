@@ -7,16 +7,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -30,7 +26,6 @@ import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.viewer.FilteredTree;
-import com.bkahlert.nebula.viewer.FilteredTree.TreeViewerFactory;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -75,34 +70,32 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 
 		if (filterable == Filterable.ON) {
 			FilteredTree filteredTree = new FilteredTree(this, SWT.BORDER
-					| SWT.MULTI | SWT.FULL_SELECTION, new TreeViewerFactory() {
-				@Override
-				public TreeViewer create(Composite parent, int style) {
-					return createViewer(parent, style, initialShowInstances,
-							saveExpandedElementsKey);
-				}
-			}, new IConverter<URI, String>() {
-				ICodeService codeService = (ICodeService) PlatformUI
-						.getWorkbench().getService(ICodeService.class);
-				CellLabelProvider clp = null;
-				CellLabelClient clc = null;
+					| SWT.MULTI | SWT.FULL_SELECTION,
+					(parent1, style1) -> createViewer(parent1, style1,
+							initialShowInstances, saveExpandedElementsKey),
+					new IConverter<URI, String>() {
+						ICodeService codeService = (ICodeService) PlatformUI
+								.getWorkbench().getService(ICodeService.class);
+						CellLabelProvider clp = null;
+						CellLabelClient clc = null;
 
-				@Override
-				public String convert(URI uri) {
-					if (this.clp == null) {
-						this.clp = RelationViewer.this.viewer
-								.getLabelProvider(0);
-					}
-					if (this.clc == null) {
-						this.clc = new CellLabelClient(this.clp);
-					}
-					this.clc.setElement(uri);
-					StringBuilder sb = new StringBuilder(this.clc.getText());
-					sb.append(" ");
-					sb.append(this.codeService.loadMemoPlain(uri));
-					return sb.toString();
-				}
-			}) {
+						@Override
+						public String convert(URI uri) {
+							if (this.clp == null) {
+								this.clp = RelationViewer.this.viewer
+										.getLabelProvider(0);
+							}
+							if (this.clc == null) {
+								this.clc = new CellLabelClient(this.clp);
+							}
+							this.clc.setElement(uri);
+							StringBuilder sb = new StringBuilder(this.clc
+									.getText());
+							sb.append(" ");
+							sb.append(this.codeService.loadMemoPlain(uri));
+							return sb.toString();
+						}
+					}) {
 				@Override
 				protected Job prefetch(final TreeViewer treeViewer) {
 					NamedJob prefetcher = new NamedJob(
@@ -147,18 +140,15 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 		Utils.addCodeColorRenderSupport(tree, 1);
 
 		final SortableTreeViewer viewer = new SortableTreeViewer(tree);
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				final ISelection selection = event.getSelection();
-				URI[] codeInstanceIDs = Utils.getURIs(selection);
-				if (LocatorService.INSTANCE != null) {
-					LocatorService.INSTANCE.showInWorkspace(codeInstanceIDs,
-							false, null);
-				} else {
-					LOGGER.error("Could not retrieve "
-							+ ILocatorService.class.getSimpleName());
-				}
+		viewer.addDoubleClickListener(event -> {
+			final ISelection selection = event.getSelection();
+			URI[] codeInstanceIDs = Utils.getURIs(selection);
+			if (LocatorService.INSTANCE != null) {
+				LocatorService.INSTANCE.showInWorkspace(codeInstanceIDs, false,
+						null);
+			} else {
+				LOGGER.error("Could not retrieve "
+						+ ILocatorService.class.getSimpleName());
 			}
 		});
 		createColumns(viewer);
@@ -168,13 +158,8 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 				.getService(ICodeService.class));
 		SUAGTPreferenceUtil.loadExpandedElementsASync(viewer,
 				saveExpandedElementsKey);
-		tree.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				SUAGTPreferenceUtil.saveExpandedElements(viewer,
-						saveExpandedElementsKey);
-			}
-		});
+		tree.addDisposeListener(e -> SUAGTPreferenceUtil.saveExpandedElements(
+				viewer, saveExpandedElementsKey));
 
 		return viewer;
 	}
@@ -199,9 +184,8 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
+								if (uri == ViewerURI.NO_PHENOMENONS_URI)
 									return new StyledString("");
-								}
 								ILocatable element = LocatorService.INSTANCE
 										.resolve(uri, null).get();
 
@@ -236,9 +220,8 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 	}
 
 	public Control getControl() {
-		if (this.viewer != null) {
+		if (this.viewer != null)
 			return this.viewer.getTree();
-		}
 		return null;
 	}
 

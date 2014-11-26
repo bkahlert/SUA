@@ -62,6 +62,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 
 public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
+	public static final String RELATION_ARROW = " ";
+
 	public static final int HIGH_BACKGROUND_ALPHA = 255;
 	public static final int HIGH_BORDER_ALPHA = 255;
 
@@ -282,8 +284,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
 		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
-		if (locatable == null)
+		if (locatable == null) {
 			return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
+		}
 
 		Importance importance = IMPORTANCE_SERVICE.getImportance(uri);
 		Styler styler;
@@ -359,13 +362,15 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 				return string;
-			} else
+			} else {
 				return new StyledString(codeInstance.getId().toString(),
 						Stylers.ATTENTION_STYLER);
+			}
 		}
-		if (locatable instanceof IEpisodes)
+		if (locatable instanceof IEpisodes) {
 			return new StyledString(URIUtils.getIdentifier(uri).toString(),
 					styler);
+		}
 		if (locatable instanceof IEpisode) {
 			IEpisode episode = (IEpisode) locatable;
 			String name = (episode != null) ? episode.getCaption() : "";
@@ -385,15 +390,13 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				// return new StyledString("rel");
 			}
 			IRelation relation = (IRelation) locatable;
-			StyledString from = Stylers.shorten(
-					labelProviderService.getStyledText(relation.getFrom()), 16,
-					2, "...");
-			StyledString to = Stylers.shorten(
-					labelProviderService.getStyledText(relation.getTo()), 16,
-					2, "...");
-			StyledString label = from.append(" → ")
+			StyledString from = labelProviderService.getStyledText(relation
+					.getFrom());
+			StyledString to = labelProviderService.getStyledText(relation
+					.getTo());
+			StyledString label = from.append(RELATION_ARROW)
 					.append(relation.getName(), Stylers.BOLD_STYLER)
-					.append(" → ").append(to);
+					.append(RELATION_ARROW).append(to);
 			return Stylers.rebase(label, styler);
 		}
 		if (locatable instanceof IRelationInstance) {
@@ -413,14 +416,16 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		ILabelProvider labelProvider = labelProviderService
 				.getLabelProvider(uri);
 		if (labelProvider != null) {
-			if (labelProvider instanceof GTLabelProvider)
+			if (labelProvider instanceof GTLabelProvider) {
 				return new StyledString("Recursion for " + uri + " detected!",
 						Stylers.ATTENTION_STYLER);
-			else
+			} else {
 				return new StyledString(labelProvider.getText(uri), styler);
-		} else
+			}
+		} else {
 			return new StyledString("label provider missing",
 					Stylers.ATTENTION_STYLER);
+		}
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {
@@ -437,8 +442,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	private boolean canHaveDimensionValue(URI uri) throws CodeServiceException {
 		for (ICode code : CODE_SERVICE.getCodes(uri)) {
-			if (CODE_SERVICE.getDimension(code.getUri()) != null)
+			if (CODE_SERVICE.getDimension(code.getUri()) != null) {
 				return true;
+			}
 		}
 		return false;
 	}

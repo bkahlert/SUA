@@ -307,7 +307,7 @@ public interface ICodeService {
 	/**
 	 * Returns all {@link IRelation}s that have are grounded by the given
 	 * {@link URI}.
-	 * 
+	 *
 	 * @param phenomenon
 	 * @return
 	 */
@@ -315,12 +315,20 @@ public interface ICodeService {
 
 	/**
 	 * Returns all {@link IRelation}s that relate the given {@link URI}s.
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 * @return
 	 */
 	public Set<IRelation> getRelations(URI from, URI to);
+
+	/**
+	 * Returns all {@link IRelation}s starting from the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelation> getRelationsStartingFrom(URI from);
 
 	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
@@ -349,6 +357,15 @@ public interface ICodeService {
 	 * @return
 	 */
 	public Set<IRelationInstance> getRelationInstances(URI uri);
+
+	/**
+	 * Returns all {@link IRelationInstance}s grounding {@link IRelation}s that
+	 * start from the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelationInstance> getRelationInstancesStartingFrom(URI from);
 
 	public IRelationInstance createRelationInstance(URI uri, IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;

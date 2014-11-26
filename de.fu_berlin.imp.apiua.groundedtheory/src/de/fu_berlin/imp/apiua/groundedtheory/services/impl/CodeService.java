@@ -277,8 +277,9 @@ public class CodeService implements ICodeService, IDisposable {
 	public void renameCode(ICode code, String newCaption)
 			throws CodeServiceException {
 		String oldCaption = code.getCaption();
-		if (ObjectUtils.equals(oldCaption, newCaption))
+		if (ObjectUtils.equals(oldCaption, newCaption)) {
 			return;
+		}
 		try {
 			code.setCaption(newCaption);
 			this.codeStore.save();
@@ -352,8 +353,9 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void removeCodes(List<ICode> codes, final URI uri)
 			throws CodeServiceException {
-		if (codes.size() == 0)
+		if (codes.size() == 0) {
 			return;
+		}
 		try {
 			List<ICode> removedCodes = new LinkedList<ICode>();
 			for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
@@ -363,8 +365,9 @@ public class CodeService implements ICodeService, IDisposable {
 					removedCodes.add(codeInstance.getCode());
 				}
 			}
-			if (removedCodes.size() == 0)
+			if (removedCodes.size() == 0) {
 				throw new CodeInstanceDoesNotExistException();
+			}
 
 			this.codeServiceListenerNotifier.codesRemoved(removedCodes,
 					Arrays.asList(uri));
@@ -432,8 +435,9 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public IRelation getRelation(URI uri) {
 		for (IRelation relation : this.codeStore.getRelations()) {
-			if (ObjectUtils.equals(relation.getUri(), uri))
+			if (ObjectUtils.equals(relation.getUri(), uri)) {
 				return relation;
+			}
 		}
 		return null;
 	}
@@ -464,6 +468,13 @@ public class CodeService implements ICodeService, IDisposable {
 	public Set<IRelation> getRelations(URI from, URI to) {
 		return this.getRelations().stream()
 				.filter(r -> r.getFrom().equals(from) && r.getTo().equals(to))
+				.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<IRelation> getRelationsStartingFrom(URI from) {
+		return this.codeStore.getRelations().stream()
+				.filter(r -> r.getFrom().equals(from))
 				.collect(Collectors.toSet());
 	}
 
@@ -554,6 +565,13 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public Set<IRelationInstance> getRelationInstancesStartingFrom(URI from) {
+		return this.codeStore.getRelationInstances().stream()
+				.filter(r -> r.getRelation().getFrom().equals(from))
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public IRelationInstance createRelationInstance(URI phenomenon,
 			IRelation relation) throws RelationDoesNotExistException,
 			CodeStoreWriteException {
@@ -602,8 +620,9 @@ public class CodeService implements ICodeService, IDisposable {
 		for (IRelationInstance relationInstance : this
 				.getRelationInstances(phenomenon)) {
 			if (relationInstance.getRelation().getFrom().equals(from)
-					&& relationInstance.getRelation().getTo().equals(to))
+					&& relationInstance.getRelation().getTo().equals(to)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -616,8 +635,9 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public String loadMemoPlain(URI uri) {
 		String htmlMemo = this.loadMemo(uri);
-		if (htmlMemo != null && !htmlMemo.trim().isEmpty())
+		if (htmlMemo != null && !htmlMemo.trim().isEmpty()) {
 			return StringUtils.htmlToPlain(htmlMemo);
+		}
 		return null;
 	}
 
@@ -631,8 +651,9 @@ public class CodeService implements ICodeService, IDisposable {
 		if (html == null || html.trim().isEmpty()) {
 			html = "";
 		}
-		if (oldHtml.equals(html))
+		if (oldHtml.equals(html)) {
 			return;
+		}
 
 		try {
 			this.codeStore.setMemo(uri, html);
@@ -642,8 +663,9 @@ public class CodeService implements ICodeService, IDisposable {
 				this.codeServiceListenerNotifier.memoModified(uri, html);
 			} else if (!oldHtml.equals("") && html.equals("")) {
 				this.codeServiceListenerNotifier.memoRemoved(uri, html);
-			} else
+			} else {
 				throw new CodeStoreWriteException("STATE ERROR");
+			}
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
 		}
@@ -689,16 +711,18 @@ public class CodeService implements ICodeService, IDisposable {
 			} catch (CodeStoreWriteException e) {
 				throw new CodeServiceException(e);
 			}
-		} else
+		} else {
 			throw new EpisodeAlreadyExistsException(episode);
+		}
 	}
 
 	@Override
 	public void replaceEpisodeAndSave(IEpisode oldEpisode, IEpisode newEpisode)
 			throws CodeServiceException {
-		if (oldEpisode == null || newEpisode == null)
+		if (oldEpisode == null || newEpisode == null) {
 			throw new CodeServiceException(new IllegalArgumentException(
 					"Arguments must not be null"));
+		}
 		Set<IEpisode> episodes = this.codeStore.getEpisodes();
 		if (episodes.contains(oldEpisode)) {
 			if (LocatorService.INSTANCE != null) {
@@ -711,8 +735,9 @@ public class CodeService implements ICodeService, IDisposable {
 
 			this.codeServiceListenerNotifier.episodeReplaced(oldEpisode,
 					newEpisode);
-		} else
+		} else {
 			throw new EpisodeDoesNotExistException(oldEpisode);
+		}
 	}
 
 	@Override
@@ -742,8 +767,9 @@ public class CodeService implements ICodeService, IDisposable {
 		@SuppressWarnings("unchecked")
 		Collection<IEpisode> notDeletedEpisodes = CollectionUtils.disjunction(
 				episodesToDelete, deletedEpisodes);
-		if (notDeletedEpisodes.size() > 0)
+		if (notDeletedEpisodes.size() > 0) {
 			throw new EpisodeDoesNotExistException(notDeletedEpisodes);
+		}
 	}
 
 	@Override
@@ -755,8 +781,9 @@ public class CodeService implements ICodeService, IDisposable {
 	public void setDimension(ICode code, IDimension newDimension)
 			throws CodeStoreWriteException {
 		IDimension oldDimension = this.getDimension(code.getUri());
-		if (ObjectUtils.equals(oldDimension, newDimension))
+		if (ObjectUtils.equals(oldDimension, newDimension)) {
 			return;
+		}
 		this.codeStore.setDimension(code.getUri(), newDimension);
 		this.codeStore.save();
 		this.codeServiceListenerNotifier.dimensionChanged(code.getUri(),
@@ -775,12 +802,14 @@ public class CodeService implements ICodeService, IDisposable {
 		Assert.isNotNull(uri);
 		Assert.isNotNull(code);
 		if (this.getDimension(code.getUri()) == null
-				|| !this.getDimension(code.getUri()).isLegal(value))
+				|| !this.getDimension(code.getUri()).isLegal(value)) {
 			throw new IllegalDimensionValueException(this.getDimension(code
 					.getUri()), value);
+		}
 		String oldValue = this.codeStore.getDimensionValue(uri, code.getUri());
-		if (ObjectUtils.equals(oldValue, value))
+		if (ObjectUtils.equals(oldValue, value)) {
 			return;
+		}
 		this.codeStore.setDimensionValue(uri, code.getUri(), value);
 		this.codeServiceListenerNotifier.dimensionValueChanged(code.getUri(),
 				oldValue, value);
@@ -830,8 +859,9 @@ public class CodeService implements ICodeService, IDisposable {
 			}
 		}
 
-		if (uris.equals(existing))
+		if (uris.equals(existing)) {
 			return;
+		}
 
 		@SuppressWarnings("unchecked")
 		List<URI> removed = ListUtils.subtract(existing, uris);
@@ -888,8 +918,9 @@ public class CodeService implements ICodeService, IDisposable {
 	public IAxialCodingModel getAxialCodingModel(URI uri)
 			throws CodeStoreReadException {
 		String json = this.codeStore.getRaw(AXIAL_CODING_MODEL_TYPE, uri);
-		if (json != null)
+		if (json != null) {
 			return new JointJSAxialCodingModel(uri, json);
+		}
 		return null;
 	}
 
@@ -925,9 +956,10 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public void reattachAndSave(URI src, URI dest) throws CodeServiceException {
-		if (src == null || dest == null)
+		if (src == null || dest == null) {
 			throw new CodeServiceException(new IllegalArgumentException(
 					"Arguments must not be null"));
+		}
 
 		if (LocatorService.INSTANCE != null) {
 			LocatorService.INSTANCE.uncache(src);

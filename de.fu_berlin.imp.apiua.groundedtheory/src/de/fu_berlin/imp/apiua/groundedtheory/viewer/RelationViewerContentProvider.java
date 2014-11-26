@@ -1,9 +1,10 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -18,7 +19,6 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -188,13 +188,8 @@ public class RelationViewerContentProvider extends
 		}
 	};
 
-	IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
-		@Override
-		public void importanceChanged(Set<URI> uris, Importance importance) {
-			ViewerUtils
-					.refresh(RelationViewerContentProvider.this.viewer, true);
-		}
-	};
+	IImportanceServiceListener importanceServiceListener = (uris, importance) -> ViewerUtils
+			.refresh(RelationViewerContentProvider.this.viewer, true);
 
 	/**
 	 * Creates a new {@link RelationViewerContentProvider} that displays all
@@ -250,14 +245,13 @@ public class RelationViewerContentProvider extends
 
 		Set<IRelation> relations = input.getRelations();
 		if (relations.size() > 0) {
-			URI[] uris = new URI[relations.size()];
-			int i = 0;
-			for (Iterator<IRelation> it = relations.iterator(); it.hasNext();) {
-				IRelation relation = it.next();
-				uris[i] = relation.getUri();
-				i++;
+			Set<URI> fromUris = new HashSet<URI>();
+			for (IRelation relation : relations) {
+				if (!fromUris.contains(relation.getFrom())) {
+					fromUris.add(relation.getFrom());
+				}
 			}
-			return uris;
+			return fromUris.toArray(new URI[0]);
 		} else {
 			return new URI[] { ViewerURI.NO_RELATIONS_URI };
 		}
@@ -270,14 +264,22 @@ public class RelationViewerContentProvider extends
 
 	@Override
 	public boolean hasChildren(URI uri) throws Exception {
-		return this.showInstances && this.getChildren(uri).length > 0;
+		if (LocatorService.INSTANCE.getType(uri) == IRelation.class
+				&& !this.showInstances) {
+			return false;
+		}
+		return this.getChildren(uri).length > 0;
 	}
 
 	@Override
 	public URI[] getChildren(URI parentUri) throws Exception {
 		ILocatable locatable = LocatorService.INSTANCE.resolve(parentUri, null)
 				.get();
-		if (IRelation.class.isInstance(locatable)) {
+		if (!(locatable instanceof IRelation)) {
+			return this.codeService.getRelationsStartingFrom(parentUri)
+					.stream().map(r -> r.getUri()).collect(Collectors.toList())
+					.toArray(new URI[0]);
+		} else {
 			IRelation relation = (IRelation) locatable;
 
 			ArrayList<URI> childNodes = new ArrayList<URI>();
@@ -292,7 +294,6 @@ public class RelationViewerContentProvider extends
 
 			return childNodes.toArray(new URI[0]);
 		}
-		return new URI[0];
 	}
 
 	public void setShowInstances(boolean showInstances) {

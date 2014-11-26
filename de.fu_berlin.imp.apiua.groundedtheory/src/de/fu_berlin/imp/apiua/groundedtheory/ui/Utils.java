@@ -33,6 +33,7 @@ import org.eclipse.ui.commands.ICommandService;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
@@ -57,6 +58,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.EditingSupport;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.RelationViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
 public class Utils {
@@ -105,8 +107,9 @@ public class Utils {
 				SWT.PaintItem,
 				event -> {
 					if (!(event.item instanceof TreeItem)
-							|| !(event.item.getData() instanceof URI))
+							|| !(event.item.getData() instanceof URI)) {
 						return;
+					}
 					TreeItem item = (TreeItem) event.item;
 					Rectangle bounds = item.getImageBounds(columnNumber);
 					bounds.width = 14;
@@ -132,8 +135,9 @@ public class Utils {
 
 			@Override
 			public void handleEvent(Event event) {
-				if (!(event.widget instanceof Tree))
+				if (!(event.widget instanceof Tree)) {
 					return;
+				}
 				Tree tree = ((Tree) event.widget);
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
@@ -160,8 +164,9 @@ public class Utils {
 		tree.addListener(
 				SWT.MouseUp,
 				event -> {
-					if (!(event.widget instanceof Tree))
+					if (!(event.widget instanceof Tree)) {
 						return;
+					}
 					Tree tree1 = ((Tree) event.widget);
 					if (tree1.getCursor() != null) {
 						ICommandService cmdService = (ICommandService) PlatformUI
@@ -193,20 +198,25 @@ public class Utils {
 				new RelativeWidth(1.0, 150));
 
 		final GTLabelProvider labelProvider = new GTLabelProvider();
+		boolean relationViewer = SWTUtils.getParent(RelationViewer.class,
+				treeViewer.getTree()) != null;
 
 		codeColumn
 				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
 					@Override
 					public StyledString getStyledText(URI uri) throws Exception {
-						if (uri == ViewerURI.NO_CODES_URI)
+						if (uri == ViewerURI.NO_CODES_URI) {
 							return new StyledString("no codes",
 									Stylers.MINOR_STYLER);
-						if (uri == ViewerURI.NO_RELATIONS_URI)
+						}
+						if (uri == ViewerURI.NO_RELATIONS_URI) {
 							return new StyledString("no relations",
 									Stylers.MINOR_STYLER);
-						if (uri == ViewerURI.NO_PHENOMENONS_URI)
+						}
+						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 							return new StyledString("no phenomenons",
 									Stylers.MINOR_STYLER);
+						}
 						StyledString text = labelProvider.getStyledText(uri);
 
 						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
@@ -251,12 +261,60 @@ public class Utils {
 							}
 						}
 
+						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
+								.getResource(uri))) {
+							ICode code = LocatorService.INSTANCE.resolve(uri,
+									ICode.class, null).get();
+							for (ICodeInstance codeInstance : CODE_SERVICE
+									.getInstances(code.getUri())) {
+								Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
+										.getDimensionValues(codeInstance);
+								if (dimensionValues != null) {
+									if (dimensionValues.getFirst() != null) {
+										text.append(" = ");
+										text.append(dimensionValues.getFirst());
+									}
+									if (dimensionValues.getSecond() != null) {
+										text.append(" ")
+												.append("(",
+														Stylers.MINOR_STYLER)
+												.append(Stylers.rebase(
+														dimensionValues
+																.getSecond(),
+														Stylers.MINOR_STYLER))
+												.append(")",
+														Stylers.MINOR_STYLER);
+									}
+								}
+							}
+						}
+
+						if (relationViewer
+								&& CodeLocatorProvider.CODE_NAMESPACE
+										.equals(URIUtils.getResource(uri))) {
+							text = labelProvider.getStyledText(uri);
+							text = Stylers.append(text, new StyledString(
+									" ...", Stylers.BOLD_STYLER));
+						}
+
 						if (RelationLocatorProvider.RELATION_NAMESPACE
 								.equals(URIUtils.getResource(uri))) {
+							int pos = text.getString().indexOf(
+									GTLabelProvider.RELATION_ARROW);
+							if (pos >= 0) {
+								text = new StyledString("").append(Stylers
+										.substring(
+												text,
+												pos
+														+ GTLabelProvider.RELATION_ARROW
+																.length() - 1,
+												text.length()));
+							}
 						}
 
 						if (RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
 								.equals(URIUtils.getResource(uri))) {
+							text = Stylers.rebase(text, Stylers.SMALL_STYLER);
 						}
 
 						return text;
@@ -264,13 +322,25 @@ public class Utils {
 
 					@Override
 					public Image getImage(URI uri) throws Exception {
-						if (uri == ViewerURI.NO_CODES_URI)
+						if (uri == ViewerURI.NO_CODES_URI) {
 							return null;
-						if (uri == ViewerURI.NO_RELATIONS_URI)
+						}
+						if (uri == ViewerURI.NO_RELATIONS_URI) {
 							return null;
-						if (uri == ViewerURI.NO_PHENOMENONS_URI)
+						}
+						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 							return null;
-						return labelProvider.getImage(uri);
+						}
+
+						Image image = labelProvider.getImage(uri);
+
+						if (relationViewer
+								&& RelationLocatorProvider.RELATION_NAMESPACE
+										.equals(URIUtils.getResource(uri))) {
+							image = null;
+						}
+
+						return image;
 					}
 				});
 
@@ -287,6 +357,10 @@ public class Utils {
 
 	public static void createNumPhaenomenonsColumn(
 			SortableTreeViewer treeViewer, final ICodeService codeService) {
+
+		boolean relationViewer = SWTUtils.getParent(RelationViewer.class,
+				treeViewer.getTree()) != null;
+
 		TreeViewerColumn countColumn = treeViewer.createColumn("# ph",
 				new AbsoluteWidth(60));
 		countColumn.getColumn().setAlignment(SWT.RIGHT);
@@ -296,15 +370,26 @@ public class Utils {
 					public StyledString getStyledText(URI uri) throws Exception {
 						ILocatable element = LocatorService.INSTANCE.resolve(
 								uri, null).get();
+						StyledString text = new StyledString();
 
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
 							int all = codeService.getAllInstances(code).size();
 							int here = codeService.getInstances(code).size();
-							StyledString text = new StyledString(all + "",
+							text = new StyledString(all + "",
 									Stylers.DEFAULT_STYLER);
 							text.append("   " + here, Stylers.COUNTER_STYLER);
-							return text;
+						}
+
+						if (relationViewer && ICode.class.isInstance(element)) {
+							int all = codeService
+									.getRelationInstancesStartingFrom(uri)
+									.size();
+							// int here = codeService.getInstances(code).size();
+							text = new StyledString(all + "",
+									Stylers.DEFAULT_STYLER);
+							// text.append("   " + here,
+							// Stylers.COUNTER_STYLER);
 						}
 
 						if (IRelation.class.isInstance(element)) {
@@ -312,14 +397,13 @@ public class Utils {
 							int all = codeService
 									.getRelationInstances(relation).size();
 							// int here = codeService.getInstances(code).size();
-							StyledString text = new StyledString(all + "",
+							text = new StyledString(all + "",
 									Stylers.DEFAULT_STYLER);
 							// text.append("   " + here,
 							// Stylers.COUNTER_STYLER);
-							return text;
 						}
 
-						return new StyledString();
+						return text;
 					}
 				});
 	}
@@ -327,6 +411,25 @@ public class Utils {
 	/**
 	 * Returns all phenomenon {@link URI}s that can be retrieved from {@ICode
 	 * 
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
 	 *
 	 *
 	 *
