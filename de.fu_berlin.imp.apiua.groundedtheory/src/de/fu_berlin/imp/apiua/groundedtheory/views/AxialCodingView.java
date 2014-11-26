@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -121,9 +120,9 @@ public class AxialCodingView extends ViewPart {
 			@Override
 			public void createClicked() {
 				try {
-					AxialCodingView.this.createAndOpen("New Model").get();
-				} catch (CodeStoreWriteException | InterruptedException
-						| ExecutionException e) {
+					ExecUtils.logException(AxialCodingView.this
+							.createAndOpen("New Model"));
+				} catch (CodeStoreWriteException e) {
 					AxialCodingView.LOGGER.error("Error creating new "
 							+ IAxialCodingModel.class.getSimpleName(), e);
 				}
