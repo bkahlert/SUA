@@ -49,6 +49,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
@@ -279,10 +280,20 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	@Override
 	public String getTitle(URI uri, IProgressMonitor monitor) throws Exception {
 		Pair<String, Image> title = CONVERTER.convert(uri);
-		return (title.getSecond() != null ? "<img src=\""
-				+ ImageUtils.createUriFromImage(title.getSecond())
-				+ "\" style=\"vertical-align: middle;\"/> " : "")
-				+ title.getFirst();
+		if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
+			title = new Pair<String, Image>(title.getFirst(),
+					GTLabelProvider.getCodeImage(LocatorService.INSTANCE
+							.resolve(uri, ICode.class, null).get()));
+		}
+		return "<span alt=\""
+				+ title.getFirst()
+				+ "\" title=\""
+				+ title.getFirst()
+				+ "\">"
+				+ (title.getSecond() != null ? "<img src=\""
+						+ ImageUtils.createUriFromImage(title.getSecond())
+						+ "\" style=\"vertical-align: middle;\"/> " : "")
+				+ title.getFirst() + "</span>";
 	}
 
 	@Override
@@ -343,14 +354,14 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			for (ICodeInstance codeInstance : this.codeService
 					.getInstances(uri)) {
 				if (!colors.containsKey(codeInstance.getUri())) {
-					colors.put(codeInstance.getUri(), RGB.WARNING);
+					colors.put(codeInstance.getUri(), RGB.IMPORTANCE_LOW);
 				}
 				toOpen.add(codeInstance.getUri());
 			}
 			for (IRelationInstance relationInstance : this.codeService
 					.getRelationInstances(uri)) {
 				if (!colors.containsKey(relationInstance.getUri())) {
-					colors.put(relationInstance.getUri(), RGB.WARNING);
+					colors.put(relationInstance.getUri(), RGB.IMPORTANCE_LOW);
 				}
 				toOpen.add(relationInstance.getUri());
 			}
