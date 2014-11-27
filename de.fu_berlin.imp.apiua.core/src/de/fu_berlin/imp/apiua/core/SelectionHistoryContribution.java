@@ -7,9 +7,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -21,7 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
@@ -50,34 +47,31 @@ public class SelectionHistoryContribution extends
 
 	private List<URI> history = new LinkedList<>();
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			List<URI> uris = SelectionUtils
-					.getAdaptableObjects(selection, URI.class).stream()
-					.filter(uri -> uri.getClass() == URI.class) // don't allow
+	private ISelectionListener selectionListener = (part, selection) -> {
+		List<URI> uris = SelectionUtils
+				.getAdaptableObjects(selection, URI.class).stream()
+				.filter(uri1 -> uri1.getClass() == URI.class) // don't allow
 																// sub classes
 																// (like
 																// ViewerURI)
-					.collect(Collectors.toList());
-			for (URI uri : uris) {
-				SelectionHistoryContribution.this.history.remove(uri);
-				SelectionHistoryContribution.this.history.add(0, uri);
-			}
-			if (SelectionHistoryContribution.this.history.size() > NUM_ENTRIES) {
-				SelectionHistoryContribution.this.history = SelectionHistoryContribution.this.history
-						.subList(0, NUM_ENTRIES);
-			}
-			new SUACorePreferenceUtil()
-					.setSelectionHistory(SelectionHistoryContribution.this.history);
-			if (SelectionHistoryContribution.this.itemListViewer != null) {
-				SelectionHistoryContribution.this.itemListViewer
-						.setInput(SelectionHistoryContribution.this.history);
-				SelectionHistoryContribution.this.itemListViewer.refresh();
-				Composite parent = SelectionHistoryContribution.this.itemListViewer
-						.getControl().getParent().getParent();
-				parent.layout(true, true);
-			}
+				.collect(Collectors.toList());
+		for (URI uri2 : uris) {
+			SelectionHistoryContribution.this.history.remove(uri2);
+			SelectionHistoryContribution.this.history.add(0, uri2);
+		}
+		if (SelectionHistoryContribution.this.history.size() > NUM_ENTRIES) {
+			SelectionHistoryContribution.this.history = SelectionHistoryContribution.this.history
+					.subList(0, NUM_ENTRIES);
+		}
+		new SUACorePreferenceUtil()
+				.setSelectionHistory(SelectionHistoryContribution.this.history);
+		if (SelectionHistoryContribution.this.itemListViewer != null) {
+			SelectionHistoryContribution.this.itemListViewer
+					.setInput(SelectionHistoryContribution.this.history);
+			SelectionHistoryContribution.this.itemListViewer.refresh();
+			Composite parent = SelectionHistoryContribution.this.itemListViewer
+					.getControl().getParent().getParent();
+			parent.layout(true, true);
 		}
 	};
 
@@ -189,7 +183,7 @@ public class SelectionHistoryContribution extends
 					public RGB getColor(Object object) {
 						@SuppressWarnings("unchecked")
 						Pair<Integer, Object> element = (Pair<Integer, Object>) object;
-						RGB color = RGB.INFO;
+						RGB color = new RGB(RGB.INFO);
 
 						int stepDifferenceToFirstElement = 15;
 						double steps = (1.0 / (NUM_ENTRIES + stepDifferenceToFirstElement));
@@ -216,26 +210,22 @@ public class SelectionHistoryContribution extends
 				});
 
 		this.itemListViewer
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					@Override
-					public void selectionChanged(SelectionChangedEvent event) {
-						ISelection selection = event.getSelection();
-						List<Pair<Integer, URI>> pairs = SelectionUtils
-								.getAdaptableObjects(selection, Pair.class);
-						if (pairs.size() > 0) {
-							URI uri = pairs.get(0).getSecond();
-							final Clipboard cb = new Clipboard(Display
-									.getCurrent());
-							TextTransfer transfer = TextTransfer.getInstance();
-							cb.setContents(new Object[] { uri.toString() },
-									new Transfer[] { transfer });
+				.addSelectionChangedListener(event -> {
+					ISelection selection = event.getSelection();
+					List<Pair<Integer, URI>> pairs = SelectionUtils
+							.getAdaptableObjects(selection, Pair.class);
+					if (pairs.size() > 0) {
+						URI uri = pairs.get(0).getSecond();
+						final Clipboard cb = new Clipboard(Display.getCurrent());
+						TextTransfer transfer = TextTransfer.getInstance();
+						cb.setContents(new Object[] { uri.toString() },
+								new Transfer[] { transfer });
 
-							itemList.run("var old = $('body').html(); $('body').fadeOut(100).queue(function(n) { $(this).html('"
-									+ "<p class=\"text-success\" style=\"margin-left: 1em;\">"
-									+ uri
-									+ " successfully copied</p>"
-									+ " clicked'); n(); }).fadeIn(100).delay(500).fadeOut(100).queue(function(n) { $(this).html(old); n(); }).fadeIn()");
-						}
+						itemList.run("var old = $('body').html(); $('body').fadeOut(100).queue(function(n) { $(this).html('"
+								+ "<p class=\"text-success\" style=\"margin-left: 1em;\">"
+								+ uri
+								+ " successfully copied</p>"
+								+ " clicked'); n(); }).fadeIn(100).delay(500).fadeOut(100).queue(function(n) { $(this).html(old); n(); }).fadeIn()");
 					}
 				});
 		return itemList;
