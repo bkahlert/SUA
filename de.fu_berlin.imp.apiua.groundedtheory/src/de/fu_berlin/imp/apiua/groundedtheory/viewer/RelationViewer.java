@@ -169,14 +169,14 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 				.getWorkbench().getService(ICodeService.class);
 		Utils.createPimpedColumn(viewer, codeService);
 
-		// viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
-		// new ILabelProviderService.StyledLabelProvider() {
-		// @Override
-		// public StyledString getStyledText(URI element)
-		// throws Exception {
-		// return new StyledString();
-		// }
-		// });
+		viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
+				new ILabelProviderService.StyledLabelProvider() {
+					@Override
+					public StyledString getStyledText(URI element)
+							throws Exception {
+						return new StyledString();
+					}
+				});
 
 		viewer.createColumn("Date Created", new AbsoluteWidth(0)/* 170 */)
 				.setLabelProvider(
@@ -184,8 +184,9 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 							@Override
 							public StyledString getStyledText(URI uri)
 									throws Exception {
-								if (uri == ViewerURI.NO_PHENOMENONS_URI)
+								if (uri == ViewerURI.NO_PHENOMENONS_URI) {
 									return new StyledString("");
+								}
 								ILocatable element = LocatorService.INSTANCE
 										.resolve(uri, null).get();
 
@@ -220,8 +221,9 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 	}
 
 	public Control getControl() {
-		if (this.viewer != null)
+		if (this.viewer != null) {
 			return this.viewer.getTree();
+		}
 		return null;
 	}
 
