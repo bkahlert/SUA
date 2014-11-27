@@ -41,6 +41,7 @@ import de.fu_berlin.imp.apiua.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -52,6 +53,8 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractMemoView.class);
+
+	private static final UriPartRenamerConverter CONVERTER = new UriPartRenamerConverter();
 
 	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
 			.getWorkbench().getService(ILabelProviderService.class);
@@ -105,7 +108,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	private final List<IHistory<URI>> history;
 
 	public AbstractMemoView() {
-		super(new UriPartRenamerConverter(), 2000, ToolbarSet.DEFAULT, true);
+		super(CONVERTER, 2000, ToolbarSet.DEFAULT, true);
 		this.history = new ArrayList<IHistory<URI>>();
 	}
 
@@ -223,21 +226,16 @@ public class AbstractMemoView extends UriPresentingEditorView {
 													KeyboardUtils
 															.isMetaKeyPressed(),
 													null).get()) {
-										ExecUtils.asyncExec(new Runnable() {
-											@Override
-											public void run() {
-												MessageDialog
-														.openInformation(
-																PlatformUI
-																		.getWorkbench()
-																		.getActiveWorkbenchWindow()
-																		.getShell(),
-																"Artefact not found",
-																"The artefact "
-																		+ uri.toString()
-																		+ " could not be found.");
-											}
-										});
+										ExecUtils.asyncExec(() -> MessageDialog
+												.openInformation(
+														PlatformUI
+																.getWorkbench()
+																.getActiveWorkbenchWindow()
+																.getShell(),
+														"Artefact not found",
+														"The artefact "
+																+ uri.toString()
+																+ " could not be found."));
 									}
 								}
 							} catch (InterruptedException e) {
@@ -273,6 +271,11 @@ public class AbstractMemoView extends UriPresentingEditorView {
 				editor.hideSource();
 			}
 		}
+	}
+
+	@Override
+	public String getTitle(URI uri, IProgressMonitor monitor) throws Exception {
+		return CONVERTER.convert(uri).getFirst();
 	}
 
 	@Override
@@ -335,24 +338,21 @@ public class AbstractMemoView extends UriPresentingEditorView {
 			this.history.get(i).add(toOpen.get(i));
 		}
 		this.updateNavigation();
-		this.load(new Runnable() {
-			@Override
-			public void run() {
-				for (Editor<URI> editor : AbstractMemoView.this.getEditors()) {
-					URI uri = editor.getLoadedObject();
-					RGB rgb = null;
-					if (highlightSpecial.contains(uri)) {
-						rgb = RGB.WARNING;
-					} else if (highlight.contains(uri)) {
-						rgb = RGB.INFO;
-					}
-					if (!editor.isDisposed()) {
-						editor.setBackground(rgb);
-					}
+		this.load(() -> {
+			for (Editor<URI> editor : AbstractMemoView.this.getEditors()) {
+				URI uri = editor.getLoadedObject();
+				RGB rgb = null;
+				if (highlightSpecial.contains(uri)) {
+					rgb = RGB.WARNING;
+				} else if (highlight.contains(uri)) {
+					rgb = RGB.INFO;
 				}
-				if (callback != null) {
-					callback.run();
+				if (!editor.isDisposed()) {
+					editor.setBackground(rgb);
 				}
+			}
+			if (callback != null) {
+				callback.run();
 			}
 		}, toOpen.toArray(new URI[0]));
 	}

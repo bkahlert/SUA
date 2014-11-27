@@ -16,13 +16,15 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 
 /**
  * Used in conjunction with the {@link PartRenamer} this class enables views to
  * correctly set they part name based on the displayed URIs.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class UriPartRenamerConverter implements
 		IConverter<URI, Pair<String, Image>> {
@@ -61,6 +63,35 @@ public class UriPartRenamerConverter implements
 					.getLabelProvider(codeInstance.getUri());
 			if (lp != null) {
 				title = "→ " + codeInstance.getCode().getCaption();
+				try {
+					image = lp.getImage(uri);
+				} catch (Exception e) {
+					image = PartRenamer.ERROR;
+				}
+			} else {
+				// TODO check
+				return null;
+			}
+		} else if (locatable instanceof IRelation) {
+			@SuppressWarnings("unused")
+			IRelation relation = (IRelation) locatable;
+			try {
+				title = LABEL_PROVIDER_SERVICE.getLabelProvider(uri).getText(
+						uri);
+				image = LABEL_PROVIDER_SERVICE.getLabelProvider(uri).getImage(
+						uri);
+			} catch (Exception e) {
+				title = "ERROR";
+				image = PartRenamer.ERROR;
+			}
+		} else if (locatable instanceof IRelationInstance) {
+			IRelationInstance relationInstance = (IRelationInstance) locatable;
+			ILabelProvider lp = LABEL_PROVIDER_SERVICE
+					.getLabelProvider(relationInstance.getUri());
+			if (lp != null) {
+				title = "→ "
+						+ LABEL_PROVIDER_SERVICE.getText(relationInstance
+								.getRelation().getUri());
 				try {
 					image = lp.getImage(uri);
 				} catch (Exception e) {

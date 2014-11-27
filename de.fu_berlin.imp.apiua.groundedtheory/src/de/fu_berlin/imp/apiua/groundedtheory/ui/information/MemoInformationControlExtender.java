@@ -30,6 +30,11 @@ public class MemoInformationControlExtender extends
 	}
 
 	@Override
+	public String getTitle(URI objectToLoad, IProgressMonitor monitor) {
+		return null;
+	}
+
+	@Override
 	public String getHtml(URI objectToLoad, IProgressMonitor monitor) {
 		return MemoInformationControlExtender.this.codeService
 				.loadMemo(objectToLoad);

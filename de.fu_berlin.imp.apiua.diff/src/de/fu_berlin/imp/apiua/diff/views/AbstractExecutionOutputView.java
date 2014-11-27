@@ -24,6 +24,12 @@ public abstract class AbstractExecutionOutputView extends AbstractOutputView {
 	}
 
 	@Override
+	public String getTitle(URI objectToLoad, IProgressMonitor monitor)
+			throws Exception {
+		return null;
+	}
+
+	@Override
 	public String getHtml(URI uri, IProgressMonitor monitor) throws Exception {
 		ILocatable compilable = this.locatorService.resolve(uri, monitor).get();
 		if (compilable instanceof ICompilable) {

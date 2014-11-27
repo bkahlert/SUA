@@ -435,6 +435,8 @@ public class Utils {
 	 *
 	 *
 	 *
+	 *
+	 *
 	 * }s, {@link ICodeInstance}s, {@link IRelation}s and
 	 * {@link IRelationInstance}s contained in the {@link ISelection} .
 	 * <p>
