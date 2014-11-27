@@ -12,11 +12,14 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.KeyboardUtils;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.history.History;
 import com.bkahlert.nebula.utils.history.IHistory;
@@ -297,38 +300,59 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public void loadAndClearHistory(final Runnable callback, URI... uris) {
-		final List<URI> highlight = new ArrayList<URI>();
-		final List<URI> highlightSpecial = new ArrayList<URI>();
 		final List<URI> toOpen = new ArrayList<URI>();
+		final Map<URI, RGB> colors = new HashMap<>();
 		for (URI uri : uris) {
 			if (uri instanceof ViewerURI) {
 				continue;
 			}
 
-			// if a codeInstance is opened, open its reference instead but
-			// highlight the original codeInstance
 			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				// if a codeInstance is opened, open its reference instead but
+				// highlight the original codeInstance
 				try {
 					ICodeInstance codeInstance = LocatorService.INSTANCE
 							.resolve(uri, ICodeInstance.class, null).get();
 					if (codeInstance != null) {
 						uri = codeInstance.getId();
-						highlightSpecial.add(codeInstance.getUri());
+						toOpen.add(uri);
+						colors.put(codeInstance.getUri(), RGB.INFO);
 					}
 				} catch (Exception e) {
 					LOGGER.error("Error checking where " + uri + " points to");
 				}
+			} else if (LocatorService.INSTANCE.getType(uri) == IRelationInstance.class) {
+				// if a relationInstance is opened, open its reference instead
+				// but highlight the original codeInstance
+				try {
+					IRelationInstance relationInstance = LocatorService.INSTANCE
+							.resolve(uri, IRelationInstance.class, null).get();
+					if (relationInstance != null) {
+						uri = relationInstance.getPhenomenon();
+						toOpen.add(uri);
+						colors.put(relationInstance.getUri(), RGB.INFO);
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error checking where " + uri + " points to");
+				}
+			} else {
+				toOpen.add(uri);
 			}
-
-			toOpen.add(uri);
 
 			// open all related instances's memos
 			for (ICodeInstance codeInstance : this.codeService
 					.getInstances(uri)) {
-				if (!highlightSpecial.contains(codeInstance.getUri())) {
-					highlight.add(codeInstance.getUri());
+				if (!colors.containsKey(codeInstance.getUri())) {
+					colors.put(codeInstance.getUri(), RGB.WARNING);
 				}
 				toOpen.add(codeInstance.getUri());
+			}
+			for (IRelationInstance relationInstance : this.codeService
+					.getRelationInstances(uri)) {
+				if (!colors.containsKey(relationInstance.getUri())) {
+					colors.put(relationInstance.getUri(), RGB.WARNING);
+				}
+				toOpen.add(relationInstance.getUri());
 			}
 		}
 		while (this.history.size() > toOpen.size()) {
@@ -345,12 +369,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		this.load(() -> {
 			for (Editor<URI> editor : AbstractMemoView.this.getEditors()) {
 				URI uri = editor.getLoadedObject();
-				RGB rgb = null;
-				if (highlightSpecial.contains(uri)) {
-					rgb = RGB.WARNING;
-				} else if (highlight.contains(uri)) {
-					rgb = RGB.INFO;
-				}
+				RGB rgb = colors.get(uri);
 				if (!editor.isDisposed()) {
 					editor.setBackground(rgb);
 				}
