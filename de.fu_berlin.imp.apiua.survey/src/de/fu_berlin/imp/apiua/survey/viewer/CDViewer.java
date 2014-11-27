@@ -135,8 +135,9 @@ public class CDViewer extends Viewer {
 		this.browser.addAnkerListener(new AnkerAdapter() {
 			@Override
 			public void ankerClicked(IAnker anker) {
-				if (!anker.getHref().startsWith("addcode-"))
+				if (!anker.getHref().startsWith("addcode-")) {
 					return;
+				}
 
 				final AtomicReference<URI> uri = new AtomicReference<URI>();
 				uri.set(new URI(anker.getHref().substring("addcode-".length())));
@@ -154,8 +155,9 @@ public class CDViewer extends Viewer {
 		this.browser.addMouseListener(new MouseAdapter() {
 			@Override
 			public void clicked(double x, double y, IElement element) {
-				if (element == null)
+				if (element == null) {
 					return;
+				}
 				boolean draggable = element.getAttribute("draggable") != null
 						&& element.getAttribute("draggable").equals("true");
 				if (ArrayUtils.contains(element.getClasses(), "btn")
@@ -262,11 +264,11 @@ public class CDViewer extends Viewer {
 					switch (IMPORTANCE_SERVICE.getImportance(field.getUri())) {
 					case HIGH:
 						form.addRaw("<span style='font-size: 1.2em; color: "
-								+ RGB.IMPORTANCE_HIGH.toHexString() + "'>");
+								+ RGB.IMPORTANCE_HIGH.toDecString() + "'>");
 						break;
 					case LOW:
 						form.addRaw("<span style='font-weight: 300; font-size: 0.75em; color: "
-								+ RGB.IMPORTANCE_LOW.toHexString() + "''>");
+								+ RGB.IMPORTANCE_LOW.toDecString() + "''>");
 						break;
 					default:
 						break;
