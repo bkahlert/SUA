@@ -275,7 +275,11 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	@Override
 	public String getTitle(URI uri, IProgressMonitor monitor) throws Exception {
-		return CONVERTER.convert(uri).getFirst();
+		Pair<String, Image> title = CONVERTER.convert(uri);
+		return (title.getSecond() != null ? "<img src=\""
+				+ ImageUtils.createUriFromImage(title.getSecond())
+				+ "\" style=\"vertical-align: middle;\"/> " : "")
+				+ title.getFirst();
 	}
 
 	@Override
