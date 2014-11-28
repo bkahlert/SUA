@@ -9,10 +9,13 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.AdapterUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 
@@ -48,6 +51,7 @@ public class RelationViewerContentProvider extends
 	 * If false no {@link ICodeInstance}s are shown.
 	 */
 	private boolean showInstances;
+	private boolean showRelationInstancesToFirst;
 
 	private final ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
 
@@ -245,13 +249,15 @@ public class RelationViewerContentProvider extends
 
 		Set<IRelation> relations = input.getRelations();
 		if (relations.size() > 0) {
-			Set<URI> fromUris = new HashSet<URI>();
+			Set<URI> uris = new HashSet<URI>();
 			for (IRelation relation : relations) {
-				if (!fromUris.contains(relation.getFrom())) {
-					fromUris.add(relation.getFrom());
+				URI uri = this.showRelationInstancesToFirst ? relation.getTo()
+						: relation.getFrom();
+				if (!uris.contains(uri)) {
+					uris.add(uri);
 				}
 			}
-			return fromUris.toArray(new URI[0]);
+			return uris.toArray(new URI[0]);
 		} else {
 			return new URI[] { ViewerURI.NO_RELATIONS_URI };
 		}
@@ -276,9 +282,11 @@ public class RelationViewerContentProvider extends
 		ILocatable locatable = LocatorService.INSTANCE.resolve(parentUri, null)
 				.get();
 		if (!(locatable instanceof IRelation)) {
-			return this.codeService.getRelationsStartingFrom(parentUri)
-					.stream().map(r -> r.getUri()).collect(Collectors.toList())
-					.toArray(new URI[0]);
+			Set<IRelation> uris = this.showRelationInstancesToFirst ? this.codeService
+					.getRelationsEndingAt(parentUri) : this.codeService
+					.getRelationsStartingFrom(parentUri);
+			return uris.stream().map(r -> r.getUri())
+					.collect(Collectors.toList()).toArray(new URI[0]);
 		} else {
 			IRelation relation = (IRelation) locatable;
 
@@ -299,5 +307,58 @@ public class RelationViewerContentProvider extends
 	public void setShowInstances(boolean showInstances) {
 		this.showInstances = showInstances;
 		ViewerUtils.refresh(RelationViewerContentProvider.this.viewer, true);
+	}
+
+	public void setShowRelationInstancesToFirst(
+			boolean showRelationInstancesToFirst) {
+		if (this.showRelationInstancesToFirst == showRelationInstancesToFirst) {
+			return;
+		}
+		this.showRelationInstancesToFirst = showRelationInstancesToFirst;
+
+		ExecUtils.logException(ExecUtils.asyncExec(() -> {
+			TreePath[] reversedTreePaths = this.getReversedTreePaths();
+
+			ViewerUtils
+					.refresh(RelationViewerContentProvider.this.viewer, true);
+
+			if (reversedTreePaths != null) {
+				((TreeViewer) this.viewer)
+						.setExpandedTreePaths(reversedTreePaths);
+			}
+		}));
+	}
+
+	public boolean getShowRelationInstancesToFirst() {
+		return this.showRelationInstancesToFirst;
+	}
+
+	private TreePath[] getReversedTreePaths() {
+		if (!(this.viewer instanceof TreeViewer)) {
+			return null;
+		}
+
+		TreeViewer treeViewer = (TreeViewer) this.viewer;
+		List<TreePath> reversedTreePaths = new ArrayList<>();
+		TreePath[] treePaths = treeViewer.getExpandedTreePaths();
+		for (TreePath treePath : treePaths) {
+			URI uri = (URI) treePath.getFirstSegment();
+			if (this.showRelationInstancesToFirst) {
+				for (IRelation relation1 : RelationViewerContentProvider.this.codeService
+						.getRelationsStartingFrom(uri)) {
+					Object[] segments1 = ViewerUtils.getSegments(treePath);
+					segments1[0] = relation1.getTo();
+					reversedTreePaths.add(new TreePath(segments1));
+				}
+			} else {
+				for (IRelation relation2 : RelationViewerContentProvider.this.codeService
+						.getRelationsEndingAt(uri)) {
+					Object[] segments2 = ViewerUtils.getSegments(treePath);
+					segments2[0] = relation2.getFrom();
+					reversedTreePaths.add(new TreePath(segments2));
+				}
+			}
+		}
+		return reversedTreePaths.toArray(new TreePath[0]);
 	}
 }

@@ -198,8 +198,8 @@ public class Utils {
 				new RelativeWidth(1.0, 150));
 
 		final GTLabelProvider labelProvider = new GTLabelProvider();
-		boolean relationViewer = SWTUtils.getParent(RelationViewer.class,
-				treeViewer.getTree()) != null;
+		RelationViewer relationViewer = SWTUtils.getParent(
+				RelationViewer.class, treeViewer.getTree());
 
 		codeColumn
 				.setLabelProvider(new ILabelProviderService.StyledLabelProvider() {
@@ -289,31 +289,50 @@ public class Utils {
 							}
 						}
 
-						if (relationViewer
+						if (relationViewer != null
 								&& CodeLocatorProvider.CODE_NAMESPACE
 										.equals(URIUtils.getResource(uri))) {
-							text = labelProvider.getStyledText(uri);
-							text = Stylers.append(text, new StyledString(
-									" ...", Stylers.BOLD_STYLER));
-						}
-
-						if (RelationLocatorProvider.RELATION_NAMESPACE
-								.equals(URIUtils.getResource(uri))) {
-							int pos = text.getString().indexOf(
-									GTLabelProvider.RELATION_ARROW);
-							if (pos >= 0) {
-								text = new StyledString("").append(Stylers
-										.substring(
-												text,
-												pos
-														+ GTLabelProvider.RELATION_ARROW
-																.length() - 1,
-												text.length()));
+							if (!relationViewer
+									.getShowRelationInstancesToFirst()) {
+								text = labelProvider.getStyledText(uri);
+								text = Stylers.append(text, new StyledString(
+										" ...", Stylers.BOLD_STYLER));
+							} else {
+								text = labelProvider.getStyledText(uri);
+								text = new StyledString("... ",
+										Stylers.BOLD_STYLER).append(text);
 							}
 						}
 
-						if (RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
-								.equals(URIUtils.getResource(uri))) {
+						if (relationViewer != null
+								&& RelationLocatorProvider.RELATION_NAMESPACE
+										.equals(URIUtils.getResource(uri))) {
+							if (!relationViewer
+									.getShowRelationInstancesToFirst()) {
+								int pos = text.getString().indexOf(
+										GTLabelProvider.RELATION_ARROW);
+								if (pos >= 0) {
+									text = Stylers.substring(
+											text,
+											pos
+													+ GTLabelProvider.RELATION_ARROW
+															.length() - 1,
+											text.length());
+								}
+							} else {
+								int pos = text.getString().lastIndexOf(
+										GTLabelProvider.RELATION_ARROW);
+								if (pos >= 0) {
+									text = Stylers
+											.substring(text, 0, pos)
+											.append("   ⤣", Stylers.BOLD_STYLER);
+								}
+							}
+						}
+
+						if (relationViewer != null
+								&& RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
+										.equals(URIUtils.getResource(uri))) {
 							text = Stylers.rebase(text, Stylers.SMALL_STYLER);
 						}
 
@@ -334,7 +353,7 @@ public class Utils {
 
 						Image image = labelProvider.getImage(uri);
 
-						if (relationViewer
+						if (relationViewer != null
 								&& RelationLocatorProvider.RELATION_NAMESPACE
 										.equals(URIUtils.getResource(uri))) {
 							image = null;
@@ -358,8 +377,8 @@ public class Utils {
 	public static void createNumPhaenomenonsColumn(
 			SortableTreeViewer treeViewer, final ICodeService codeService) {
 
-		boolean relationViewer = SWTUtils.getParent(RelationViewer.class,
-				treeViewer.getTree()) != null;
+		RelationViewer relationViewer = SWTUtils.getParent(
+				RelationViewer.class, treeViewer.getTree());
 
 		TreeViewerColumn countColumn = treeViewer.createColumn("# ph",
 				new AbsoluteWidth(60));
@@ -381,7 +400,8 @@ public class Utils {
 							text.append("   " + here, Stylers.COUNTER_STYLER);
 						}
 
-						if (relationViewer && ICode.class.isInstance(element)) {
+						if (relationViewer != null
+								&& ICode.class.isInstance(element)) {
 							int all = codeService
 									.getRelationInstancesStartingFrom(uri)
 									.size();
@@ -409,35 +429,8 @@ public class Utils {
 	}
 
 	/**
-	 * Returns all phenomenon {@link URI}s that can be retrieved from {@ICode
-	 * 
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * }s, {@link ICodeInstance}s, {@link IRelation}s and
+	 * Returns all {@link URI}s of the phenomenon that can be retrieved from
+	 * {@ICode}s, {@link ICodeInstance}s, {@link IRelation}s and
 	 * {@link IRelationInstance}s contained in the {@link ISelection} .
 	 * <p>
 	 * {@link ICode}s and {@link IRelation}s are treated differently. They are

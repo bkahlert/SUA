@@ -163,6 +163,42 @@
          </state>
       </command>
       <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstances"
+            name="Show Instances">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstancesToFirst"
+            name="Show Relation.To First">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.zoomIn"
             name="Zoom In">
          <state
@@ -384,6 +420,14 @@
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showInstances">
         </handler>
         <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowRelationInstancesHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstances">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowRelationInstancesToFirstHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstancesToFirst">
+        </handler>
+        <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.NavigateBackMemoViewHandler"
               commandId="org.eclipse.ui.navigate.back">
            <activeWhen>
@@ -481,6 +525,21 @@
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showInstances"
                disabledIcon="icons/dlcl16/show_instances_tsk.png"
                icon="icons/elcl16/show_instances_tsk.png"
+               style="toggle">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:de.fu_berlin.imp.apiua.groundedtheory.views.RelationView?after=additions">
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstances"
+               disabledIcon="icons/dlcl16/show_instances_tsk.png"
+               icon="icons/elcl16/show_instances_tsk.png"
+               style="toggle">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstancesToFirst"
+               icon="icons/elcl16/reverse_tsk.png"
                style="toggle">
          </command>
       </menuContribution>

@@ -269,6 +269,33 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 		}
 	}
 
+	public void setShowRelationInstancesToFirst(
+			boolean showRelationInstancesToFirst) {
+		if (this.viewer.getContentProvider() instanceof RelationViewerContentProvider) {
+			RelationViewerContentProvider contentProvider = (RelationViewerContentProvider) this.viewer
+					.getContentProvider();
+			contentProvider
+					.setShowRelationInstancesToFirst(showRelationInstancesToFirst);
+		} else {
+			LOGGER.error("Unexpected content provider; check implementation");
+		}
+	}
+
+	public boolean getShowRelationInstancesToFirst() {
+		if (this.viewer == null) {
+			return false;
+		}
+
+		if (this.viewer.getContentProvider() instanceof RelationViewerContentProvider) {
+			RelationViewerContentProvider contentProvider = (RelationViewerContentProvider) this.viewer
+					.getContentProvider();
+			return contentProvider.getShowRelationInstancesToFirst();
+		} else {
+			LOGGER.error("Unexpected content provider; check implementation");
+			return false;
+		}
+	}
+
 	public void refresh() {
 		this.viewer.refresh();
 	}

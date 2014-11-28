@@ -479,6 +479,12 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public Set<IRelation> getRelationsEndingAt(URI to) {
+		return this.codeStore.getRelations().stream()
+				.filter(r -> r.getTo().equals(to)).collect(Collectors.toSet());
+	}
+
+	@Override
 	public IRelation createRelation(URI from, URI to, String name)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
 		Relation relation = null;

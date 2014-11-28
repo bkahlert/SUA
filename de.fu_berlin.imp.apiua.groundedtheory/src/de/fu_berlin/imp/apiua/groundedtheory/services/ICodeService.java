@@ -330,6 +330,14 @@ public interface ICodeService {
 	 */
 	public Set<IRelation> getRelationsStartingFrom(URI from);
 
+	/**
+	 * Returns all {@link IRelation}s ending at the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelation> getRelationsEndingAt(URI parentUri);
+
 	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
 			DuplicateRelationException;
