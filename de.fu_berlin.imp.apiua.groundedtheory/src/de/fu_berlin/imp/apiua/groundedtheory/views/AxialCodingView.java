@@ -339,13 +339,13 @@ public class AxialCodingView extends ViewPart {
 						uri.get();
 						for (URI code : codes) {
 							AxialCodingView.this.activeAxialCodingComposite
-									.createNode(code, new Point(0, 0));
+									.createElement(code, new Point(0, 0));
 						}
 						for (IRelation relation : LocatorService.INSTANCE
 								.resolve(new ArrayList<>(relations),
 										IRelation.class, null).get()) {
 							AxialCodingView.this.activeAxialCodingComposite
-									.createLink(relation);
+									.createRelation(relation);
 						}
 						AxialCodingView.this.activeAxialCodingComposite
 								.autoLayout();

@@ -145,12 +145,15 @@ public class AxialCodingComposite extends Composite implements
 					@Override
 					public URI convert(String returnValue) {
 						// default selection
-						if (returnValue == null)
+						if (returnValue == null) {
 							return AxialCodingComposite.this.openedUri;
-						if (returnValue.contains("|"))
+						}
+						if (returnValue.contains("|")) {
 							return null;
-						if (returnValue.startsWith("apiua://"))
+						}
+						if (returnValue.startsWith("apiua://")) {
 							return new URI(returnValue);
+						}
 						return null;
 					}
 
@@ -277,20 +280,22 @@ public class AxialCodingComposite extends Composite implements
 			public void drop(final long offsetX, final long offsetY,
 					final IElement element, String mimeType, final String data) {
 				if (data == null || data.isEmpty()
-						|| AxialCodingComposite.this.openedUri == null)
+						|| AxialCodingComposite.this.openedUri == null) {
 					return;
+				}
 
 				ExecUtils.nonUIAsyncExec(() -> {
 					try {
 						if (element.getAttribute("model-id") != null) {
 							// already there
-							List<URI> nodes = AxialCodingComposite.this
-									.getNodes().get();
+							List<URI> elements = AxialCodingComposite.this
+									.getElements().get();
 							for (final String uriString1 : data.split("\\|")) {
 								URI uri1 = new URI(uriString1);
 								if (LocatorService.INSTANCE.resolve(uri1, null)
-										.get() != null && !nodes.contains(uri1)) {
-									AxialCodingComposite.this.replaceNode(
+										.get() != null
+										&& !elements.contains(uri1)) {
+									AxialCodingComposite.this.replaceElement(
 											new URI(element
 													.getAttribute("model-id")),
 											uri1);
@@ -299,7 +304,7 @@ public class AxialCodingComposite extends Composite implements
 								}
 							}
 						} else {
-							// new node
+							// new element
 							Point pan = AxialCodingComposite.this.jointjs
 									.getPan().get();
 							Double zoom = AxialCodingComposite.this.jointjs
@@ -316,8 +321,8 @@ public class AxialCodingComposite extends Composite implements
 								}
 								if (LocatorService.INSTANCE.resolve(uri2, null)
 										.get() != null) {
-									AxialCodingComposite.this.createNode(uri2,
-											new Point(dropX, dropY));
+									AxialCodingComposite.this.createElement(
+											uri2, new Point(dropX, dropY));
 									AxialCodingComposite.this.jointjs
 											.run("$('.jointjs svg .element').attr('droppable', true)");
 								}
@@ -339,8 +344,9 @@ public class AxialCodingComposite extends Composite implements
 					try {
 						IAxialCodingModel axialCodingModel = CODE_SERVICE
 								.getAxialCodingModel(uri);
-						if (axialCodingModel == null)
+						if (axialCodingModel == null) {
 							return AxialCodingComposite.this.open(null).get();
+						}
 						AxialCodingComposite.this.openedUri = uri;
 						new SUAGTPreferenceUtil()
 								.setLastOpenedAxialCodingModels(Arrays
@@ -367,8 +373,9 @@ public class AxialCodingComposite extends Composite implements
 	 * @return
 	 */
 	public void save() {
-		if (this.openedUri == null)
+		if (this.openedUri == null) {
 			return;
+		}
 
 		final URI uri = this.openedUri;
 		final IAxialCodingModel axialCodingModel = new JointJSAxialCodingModel(
@@ -385,16 +392,15 @@ public class AxialCodingComposite extends Composite implements
 		return this.openedUri;
 	}
 
-	public Future<List<URI>> getNodes() {
-		return ExecUtils
-				.nonUIAsyncExec((Callable<List<URI>>) () -> {
-					List<URI> uris = new LinkedList<URI>();
-					for (String id : AxialCodingComposite.this.jointjs
-							.getNodes().get()) {
-						uris.add(new URI(id));
-					}
-					return uris;
-				});
+	public Future<List<URI>> getElements() {
+		return ExecUtils.nonUIAsyncExec((Callable<List<URI>>) () -> {
+			List<URI> uris = new LinkedList<URI>();
+			for (String id : AxialCodingComposite.this.jointjs.getElements()
+					.get()) {
+				uris.add(new URI(id));
+			}
+			return uris;
+		});
 	}
 
 	public void setTitle(String title) {
@@ -411,7 +417,7 @@ public class AxialCodingComposite extends Composite implements
 		return this.jointjs.highlight(ids);
 	}
 
-	public void createNode(URI uri, Point position) throws Exception {
+	public void createElement(URI uri, Point position) throws Exception {
 		String title = this.labelProvider.getText(uri);
 		String content = this.labelProvider.getContent(uri);
 		Point size = this.labelProvider.getSize(uri);
@@ -422,21 +428,21 @@ public class AxialCodingComposite extends Composite implements
 
 		String id = null;
 		try {
-			id = this.jointjs.createNode(uri.toString(), title, content,
+			id = this.jointjs.createElement(uri.toString(), title, content,
 					position, size).get();
 		} catch (Exception e) {
-			LOGGER.error("Error creating node " + id, e);
+			LOGGER.error("Error creating element " + id, e);
 		}
 
 		if (id == null) {
-			LOGGER.error("ID missing for created/updated node!");
+			LOGGER.error("ID missing for created/updated element!");
 		}
 
 		this.refresh();
 	}
 
-	private void replaceNode(URI oldUri, URI newUri) throws Exception {
-		this.deleteIsALinks(oldUri).get();
+	private void replaceElement(URI oldUri, URI newUri) throws Exception {
+		this.deleteIsARelations(oldUri).get();
 		String updatedJson = this.jointjs.save().get()
 				.replace(oldUri.toString(), newUri.toString());
 		this.jointjs.load(updatedJson).get();
@@ -444,19 +450,19 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Creates in and outgoing "is a" permanent links for the given {@link URI}
-	 * without touching any existing links.
+	 * Creates in and outgoing "is a" permanent relations for the given
+	 * {@link URI} without touching any existing relations.
 	 *
 	 * @param uri
 	 * @return
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private Future<Void> createIsALinks(final URI uri)
+	private Future<Void> createIsARelation(final URI uri)
 			throws InterruptedException, ExecutionException {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<URI> existingNodes = AxialCodingComposite.this.getNodes()
-					.get();
+			List<URI> existingElements = AxialCodingComposite.this
+					.getElements().get();
 			ICode code = LocatorService.INSTANCE
 					.resolve(uri, ICode.class, null).get();
 			if (code == null) {
@@ -469,14 +475,14 @@ public class AxialCodingComposite extends Composite implements
 				if (parent == null) {
 					break;
 				}
-				if (existingNodes.contains(parent.getUri())) {
-					AxialCodingComposite.this.createIsALink(parent.getUri(),
-							code.getUri()).get();
+				if (existingElements.contains(parent.getUri())) {
+					AxialCodingComposite.this.createIsARelation(
+							parent.getUri(), code.getUri()).get();
 				}
 			}
 			for (ICode child : CODE_SERVICE.getSubCodes(code)) {
-				if (existingNodes.contains(child.getUri())) {
-					AxialCodingComposite.this.createIsALink(code.getUri(),
+				if (existingElements.contains(child.getUri())) {
+					AxialCodingComposite.this.createIsARelation(code.getUri(),
 							child.getUri()).get();
 				}
 			}
@@ -485,7 +491,8 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Creates a "is a" permanent link between the given parent and child node.
+	 * Creates a "is a" permanent relation between the given parent and child
+	 * element.
 	 *
 	 * @param parent
 	 * @param child
@@ -493,10 +500,10 @@ public class AxialCodingComposite extends Composite implements
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private Future<Void> createIsALink(final URI parent, final URI child)
+	private Future<Void> createIsARelation(final URI parent, final URI child)
 			throws InterruptedException, ExecutionException {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			LOGGER.info("Creating Is-A-Link from "
+			LOGGER.info("Creating Is-A-Relation from "
 					+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
 							.get().getCaption()
 					+ " to "
@@ -525,7 +532,7 @@ public class AxialCodingComposite extends Composite implements
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public Future<Void> createLink(IRelation relation)
+	public Future<Void> createRelation(IRelation relation)
 			throws InterruptedException, ExecutionException {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
 			LOGGER.info("Creating relation " + relation);
@@ -543,17 +550,17 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Removes all incoming and outgoing "is a" permanent links of the specified
-	 * {@link URI}.
+	 * Removes all incoming and outgoing "is a" permanent relations of the
+	 * specified {@link URI}.
 	 *
 	 * @return
 	 */
-	private Future<Void> deleteIsALinks(final URI uri) {
+	private Future<Void> deleteIsARelations(final URI uri) {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<String> linkIds = AxialCodingComposite.this.jointjs
+			List<String> relationIds = AxialCodingComposite.this.jointjs
 					.getConnectedPermanentLinks(uri.toString()).get();
-			for (String linkId : linkIds) {
-				AxialCodingComposite.this.jointjs.remove(linkId).get();
+			for (String relationId : relationIds) {
+				AxialCodingComposite.this.jointjs.remove(relationId).get();
 			}
 			return null;
 		});
@@ -563,7 +570,7 @@ public class AxialCodingComposite extends Composite implements
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
 			List<URI> validUris = AxialCodingComposite.this.syncModel();
 			AxialCodingComposite.this.updateLabels(validUris);
-			AxialCodingComposite.this.refreshLinks();
+			AxialCodingComposite.this.refreshRelations();
 			return null;
 		});
 	}
@@ -574,7 +581,7 @@ public class AxialCodingComposite extends Composite implements
 	 * <p>
 	 * <ul>
 	 * <li>No more existing {@link ICode} get removed.</li>
-	 * <li>Permanent "is a" links are recreated.
+	 * <li>Permanent "is a" relations are recreated.
 	 *
 	 * @return
 	 * @throws ExecutionException
@@ -582,48 +589,48 @@ public class AxialCodingComposite extends Composite implements
 	 */
 	private List<URI> syncModel() throws InterruptedException,
 			ExecutionException {
-		List<URI> validUris = this.markAllInvalidNodes();
-		this.deleteAllOutdatedIsALinksBetweenValidNodes();
+		List<URI> validUris = this.markAllInvalidElements();
+		this.deleteAllOutdatedIsARelationsBetweenValidElements();
 		for (URI uri : validUris) {
-			this.createIsALinks(uri);
+			this.createIsARelation(uri);
 		}
 		return validUris;
 	}
 
 	/**
-	 * Removes all outdated "is a" permanent links from the graph.
+	 * Removes all outdated "is a" permanent relations from the graph.
 	 *
 	 * @return
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private void deleteAllOutdatedIsALinksBetweenValidNodes()
+	private void deleteAllOutdatedIsARelationsBetweenValidElements()
 			throws InterruptedException, ExecutionException {
-		List<String> linkIds = this.jointjs.getPermanentLinks().get();
-		for (String linkId : linkIds) {
-			URI parentURI = new URI(linkId.split("\\|")[0]);
-			URI subURI = new URI(linkId.split("\\|")[1]);
+		List<String> relationIds = this.jointjs.getPermanentLinks().get();
+		for (String relationId : relationIds) {
+			URI parentURI = new URI(relationId.split("\\|")[0]);
+			URI subURI = new URI(relationId.split("\\|")[1]);
 			ICode parentCode = LocatorService.INSTANCE.resolve(parentURI,
 					ICode.class, null).get();
 			ICode subCode = LocatorService.INSTANCE.resolve(subURI,
 					ICode.class, null).get();
 			if (parentCode != null && subCode != null
 					&& !CODE_SERVICE.getSubCodes(parentCode).contains(subCode)) {
-				this.jointjs.remove(linkId).get();
+				this.jointjs.remove(relationId).get();
 			}
 		}
 	}
 
 	/**
-	 * Removes all nodes that symbolize a no more existing {@link ICode}.
+	 * Removes all elements that symbolize a no more existing {@link ICode}.
 	 *
-	 * @return the nodes that are kept
+	 * @return the elements that are kept
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private List<URI> markAllInvalidNodes() throws InterruptedException,
+	private List<URI> markAllInvalidElements() throws InterruptedException,
 			ExecutionException {
-		List<URI> uris = this.getNodes().get();
+		List<URI> uris = this.getElements().get();
 		List<String> validIds = new ArrayList<String>();
 		List<String> invalidIds = new ArrayList<String>();
 		for (Iterator<URI> iterator = uris.iterator(); iterator.hasNext();) {
@@ -643,7 +650,7 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Updates non-structural information all existing nodes based on the
+	 * Updates non-structural information all existing elements based on the
 	 * internal information and returns the new size.
 	 * <p>
 	 * Updated information are:
@@ -660,7 +667,7 @@ public class AxialCodingComposite extends Composite implements
 	 */
 	public void updateLabels(List<URI> uris) throws Exception {
 		for (URI uri : uris) {
-			this.refreshNode(uri);
+			this.refreshElement(uri);
 		}
 	}
 
@@ -678,9 +685,10 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @param uri
 	 */
-	private void refreshNode(final URI uri) throws Exception {
-		if (!this.getNodes().get().contains(uri))
+	private void refreshElement(final URI uri) throws Exception {
+		if (!this.getElements().get().contains(uri)) {
 			return;
+		}
 		this.jointjs.setElementTitle(uri.toString(),
 				this.labelProvider.getText(uri));
 		this.jointjs.setElementContent(uri.toString(),
@@ -697,26 +705,27 @@ public class AxialCodingComposite extends Composite implements
 		}
 	}
 
-	private void refreshLinks() throws Exception {
-		List<String> linkIds = this.jointjs.getLinks().get();
-		for (String linkId : linkIds) {
-			if (linkId.contains("|")) {
+	private void refreshRelations() throws Exception {
+		List<String> relationIds = this.jointjs.getLinks().get();
+		for (String relationId : relationIds) {
+			if (relationId.contains("|")) {
 				continue;
 			}
-			IRelation relation = CODE_SERVICE.getRelation(new URI(linkId));
+			IRelation relation = CODE_SERVICE.getRelation(new URI(relationId));
 			if (relation == null) {
-				this.jointjs.addCustomClass(Arrays.asList(linkId), "invalid");
-				// this.jointjs.remove(linkId);
+				this.jointjs.addCustomClass(Arrays.asList(relationId),
+						"invalid");
+				// this.jointjs.remove(relationId);
 			} else {
-				this.jointjs.setLinkTitle(linkId, relation.getName());
+				this.jointjs.setLinkTitle(relationId, relation.getName());
 			}
 		}
 
-		List<String> elementIds = this.jointjs.getNodes().get();
+		List<String> elementIds = this.jointjs.getElements().get();
 		for (IRelation relation : CODE_SERVICE.getRelations()) {
 			if (elementIds.contains(relation.getFrom().toString())
 					&& elementIds.contains(relation.getTo().toString())) {
-				this.createLink(relation);
+				this.createRelation(relation);
 			}
 		}
 	}
@@ -743,8 +752,9 @@ public class AxialCodingComposite extends Composite implements
 
 	@Override
 	public ISelection getSelection() {
-		if (this.jointjs != null && !this.jointjs.isDisposed())
+		if (this.jointjs != null && !this.jointjs.isDisposed()) {
 			return this.jointjs.getSelection();
+		}
 		return new StructuredSelection();
 	}
 
