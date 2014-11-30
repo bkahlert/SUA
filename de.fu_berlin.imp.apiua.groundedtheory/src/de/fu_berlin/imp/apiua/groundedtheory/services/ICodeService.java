@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 
@@ -375,6 +376,15 @@ public interface ICodeService {
 	 */
 	public Set<IRelationInstance> getRelationInstancesStartingFrom(URI from);
 
+	/**
+	 * Returns all {@link IRelationInstance}s grounding {@link IRelation}s that
+	 * end at the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelationInstance> getRelationInstancesEndingAt(URI from);
+
 	public IRelationInstance createRelationInstance(URI uri, IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 
@@ -523,6 +533,26 @@ public interface ICodeService {
 	 */
 	public void setDimensionValue(URI uri, ICode code, String value)
 			throws IllegalDimensionValueException, CodeStoreWriteException;
+
+	/**
+	 * Returns the {@link IDimension} and its value of the given
+	 * {@link IRelationInstance}'s from and to.
+	 *
+	 * @param relationInstance
+	 * @return
+	 */
+	public Pair<Pair<IDimension, String>, Pair<IDimension, String>> getDimensionValue(
+			IRelationInstance relationInstance);
+
+	/**
+	 * Returns all {@link IDimension} values of the given
+	 * {@link IRelationInstance}s's from and tos.
+	 *
+	 * @param relationInstances
+	 * @return
+	 */
+	public Pair<Set<String>, Set<String>> getDimensionValues(
+			Collection<IRelationInstance> relationInstances);
 
 	/**
 	 * Returns the {@link ICode}s that serve as properties for the given

@@ -180,7 +180,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private static void createColumns(SortableTreeViewer viewer) {
 		final ICodeService codeService = (ICodeService) PlatformUI
 				.getWorkbench().getService(ICodeService.class);
-		Utils.createPimpedColumn(viewer, codeService);
+		Utils.createPimpedColumn(viewer);
 
 		viewer.createColumn("", new AbsoluteWidth(16)).setLabelProvider(
 				new ILabelProviderService.StyledLabelProvider() {

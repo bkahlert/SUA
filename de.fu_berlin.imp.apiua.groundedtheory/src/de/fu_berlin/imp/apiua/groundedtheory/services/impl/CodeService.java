@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -578,6 +579,13 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public Set<IRelationInstance> getRelationInstancesEndingAt(URI to) {
+		return this.codeStore.getRelationInstances().stream()
+				.filter(r -> r.getRelation().getTo().equals(to))
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public IRelationInstance createRelationInstance(URI phenomenon,
 			IRelation relation) throws RelationDoesNotExistException,
 			CodeStoreWriteException {
@@ -837,6 +845,92 @@ public class CodeService implements ICodeService, IDisposable {
 			}
 		}
 		return values;
+	}
+
+	@Override
+	public Pair<Pair<IDimension, String>, Pair<IDimension, String>> getDimensionValue(
+			IRelationInstance relationInstance) {
+		List<ICodeInstance> codeInstances = this.getInstances(relationInstance
+				.getPhenomenon());
+
+		IDimension fromDimension = null;
+		String fromDimensionValue = null;
+		IDimension toDimension = null;
+		String toDimensionValue = null;
+
+		ICodeInstance[] fromCodeInstance = codeInstances
+				.stream()
+				.filter(i -> i.getCode().getUri()
+						.equals(relationInstance.getRelation().getFrom()))
+				.toArray(ICodeInstance[]::new);
+		ICodeInstance[] toCodeInstance = codeInstances
+				.stream()
+				.filter(i -> i.getCode().getUri()
+						.equals(relationInstance.getRelation().getTo()))
+				.toArray(ICodeInstance[]::new);
+
+		if (fromCodeInstance.length == 1) {
+			fromDimension = this.getDimension(fromCodeInstance[0].getCode()
+					.getUri());
+			fromDimensionValue = this
+					.getDimensionValue(fromCodeInstance[0].getUri(),
+							fromCodeInstance[0].getCode());
+		}
+
+		if (toCodeInstance.length == 1) {
+			toDimension = this.getDimension(toCodeInstance[0].getCode()
+					.getUri());
+			toDimensionValue = this.getDimensionValue(
+					toCodeInstance[0].getUri(), toCodeInstance[0].getCode());
+		}
+
+		return new Pair<>(new Pair<>(fromDimension, fromDimensionValue),
+				new Pair<>(toDimension, toDimensionValue));
+	}
+
+	@Override
+	public Pair<Set<String>, Set<String>> getDimensionValues(
+			Collection<IRelationInstance> relationInstances) {
+		List<URI> phenomena = relationInstances.stream()
+				.map(r -> r.getPhenomenon()).collect(Collectors.toList());
+		List<URI> froms = relationInstances.stream()
+				.map(r -> r.getRelation().getFrom())
+				.collect(Collectors.toList());
+		List<URI> tos = relationInstances.stream()
+				.map(r -> r.getRelation().getTo()).collect(Collectors.toList());
+		List<ICodeInstance> codeInstances = this.getInstances().stream()
+				.filter(i -> phenomena.contains(i.getId()))
+				.collect(Collectors.toList());
+
+		Set<String> fromDimensionValues = new HashSet<>();
+		Set<String> toDimensionValues = new HashSet<>();
+
+		ICodeInstance[] fromCodeInstances = codeInstances.stream()
+				.filter(i -> froms.contains(i.getCode().getUri()))
+				.toArray(ICodeInstance[]::new);
+		ICodeInstance[] toCodeInstances = codeInstances.stream()
+				.filter(i -> tos.contains(i.getCode().getUri()))
+				.toArray(ICodeInstance[]::new);
+
+		for (ICodeInstance fromCodeInstance : fromCodeInstances) {
+			String fromDimensionValue = this.getDimensionValue(
+					fromCodeInstance.getUri(), fromCodeInstance.getCode());
+			if (fromDimensionValue != null
+					&& !fromDimensionValues.contains(fromDimensionValue)) {
+				fromDimensionValues.add(fromDimensionValue);
+			}
+		}
+
+		for (ICodeInstance toCodeInstance : toCodeInstances) {
+			String toDimensionValue = this.getDimensionValue(
+					toCodeInstance.getUri(), toCodeInstance.getCode());
+			if (toDimensionValue != null
+					&& !toDimensionValues.contains(toDimensionValue)) {
+				toDimensionValues.add(toDimensionValue);
+			}
+		}
+
+		return new Pair<>(fromDimensionValues, toDimensionValues);
 	}
 
 	@Override

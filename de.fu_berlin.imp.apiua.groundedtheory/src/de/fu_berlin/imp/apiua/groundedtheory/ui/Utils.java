@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.widgets.scale.IScale;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -56,6 +58,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.EditingSupport;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.RelationViewer;
@@ -190,10 +193,8 @@ public class Utils {
 	 * meta data (like assigned dimension values).
 	 *
 	 * @param treeViewer
-	 * @param codeService
 	 */
-	public static void createPimpedColumn(SortableTreeViewer treeViewer,
-			final ICodeService codeService) {
+	public static void createPimpedColumn(SortableTreeViewer treeViewer) {
 		TreeViewerColumn codeColumn = treeViewer.createColumn("Code",
 				new RelativeWidth(1.0, 150));
 
@@ -292,21 +293,35 @@ public class Utils {
 						if (relationViewer != null
 								&& CodeLocatorProvider.CODE_NAMESPACE
 										.equals(URIUtils.getResource(uri))) {
+
 							if (!relationViewer
 									.getShowRelationInstancesToFirst()) {
 								text = labelProvider.getStyledText(uri);
 								text = Stylers.append(text, new StyledString(
 										" ...", Stylers.BOLD_STYLER));
+
+								Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
+										.getRelationInstancesStartingFrom(uri));
+								text = highlightUsedValues(text,
+										dimensionValues.getFirst());
 							} else {
 								text = labelProvider.getStyledText(uri);
 								text = new StyledString("... ",
 										Stylers.BOLD_STYLER).append(text);
+
+								Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
+										.getRelationInstancesEndingAt(uri));
+								text = highlightUsedValues(text,
+										dimensionValues.getSecond());
 							}
 						}
 
 						if (relationViewer != null
 								&& RelationLocatorProvider.RELATION_NAMESPACE
 										.equals(URIUtils.getResource(uri))) {
+							IRelation relation = LocatorService.INSTANCE
+									.resolve(uri, IRelation.class, null).get();
+
 							if (!relationViewer
 									.getShowRelationInstancesToFirst()) {
 								int pos = text.getString().indexOf(
@@ -328,12 +343,54 @@ public class Utils {
 											.append("   ⤣", Stylers.BOLD_STYLER);
 								}
 							}
+
+							Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE
+									.getDimensionValues(CODE_SERVICE
+											.getRelationInstances(relation));
+							text = highlightUsedValues(
+									text,
+									relationViewer
+											.getShowRelationInstancesToFirst() ? dimensionValues
+											.getFirst() : dimensionValues
+											.getSecond());
 						}
 
 						if (relationViewer != null
 								&& RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
 										.equals(URIUtils.getResource(uri))) {
 							text = Stylers.rebase(text, Stylers.SMALL_STYLER);
+
+							IRelationInstance relationInstance = LocatorService.INSTANCE
+									.resolve(uri, IRelationInstance.class, null)
+									.get();
+							Pair<Pair<IDimension, String>, Pair<IDimension, String>> dimensionValue = CODE_SERVICE
+									.getDimensionValue(relationInstance);
+							String fromDimensionValue = dimensionValue
+									.getFirst().getFirst() != null ? dimensionValue
+									.getFirst().getSecond() != null ? dimensionValue
+									.getFirst().getSecond()
+									: IScale.UNSET_LABEL
+									: "—";
+							String toDimensionValue = dimensionValue
+									.getSecond().getFirst() != null ? dimensionValue
+									.getSecond().getSecond() != null ? dimensionValue
+									.getSecond().getSecond()
+									: IScale.UNSET_LABEL
+									: "—";
+							Stylers.setDisableColorMix(true);
+							text = text
+									.append(" (", Stylers.MINOR_STYLER)
+									.append(fromDimensionValue,
+											Stylers.combine(
+													Stylers.MINOR_STYLER,
+													GTLabelProvider.VALID_VALUE_STYLER))
+									.append("; ", Stylers.MINOR_STYLER)
+									.append(toDimensionValue,
+											Stylers.combine(
+													Stylers.MINOR_STYLER,
+													GTLabelProvider.VALID_VALUE_STYLER))
+									.append(")", Stylers.MINOR_STYLER);
+							Stylers.setDisableColorMix(false);
 						}
 
 						return text;
@@ -460,5 +517,27 @@ public class Utils {
 		relationInstances.stream().map(ri -> ri.getPhenomenon())
 				.forEach(uris::add);
 		return uris.toArray(new URI[0]);
+	}
+
+	/**
+	 * Highlights the {@link IDimension} values in the given text. The values
+	 * are retrieved from the {@link IRelationInstance}s.
+	 * <p>
+	 * e.g. &quot;ABC - value1, value2&quot; and the retrieved value
+	 * &quot;value2&quot; will highlight return the string with
+	 * &quot;value2&quot; highlighted.
+	 *
+	 * @param string
+	 * @param relationViewer
+	 * @param relationInstances
+	 * @return
+	 */
+	private static StyledString highlightUsedValues(StyledString string,
+			Collection<String> words) {
+		Stylers.setDisableColorMix(true);
+		string = Stylers.apply(string, GTLabelProvider.VALID_VALUE_STYLER,
+				words);
+		Stylers.setDisableColorMix(false);
+		return string;
 	}
 }
