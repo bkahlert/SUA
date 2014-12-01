@@ -83,4 +83,10 @@ public class RelationInstance implements IRelationInstance {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return this.getUri() + " (" + this.relation.toString()
+				+ ") grounded by " + this.phenomenon.toString();
+	}
+
 }

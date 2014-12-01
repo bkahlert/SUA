@@ -4,12 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -30,7 +30,6 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
-import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI.State;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
@@ -53,7 +52,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		Utils.addCodeColorRenderSupport(tree, 1);
 
 		this.treeViewer = new SortableTreeViewer(tree);
-		this.treeViewer.setAutoExpandLevel(TreeViewer.ALL_LEVELS);
+		this.treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 		this.createColumns();
 		this.treeViewer
 				.setContentProvider(new CodeInstanceViewerContentProvider());
@@ -148,7 +147,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	/**
 	 * Returns the {@link ILocatable} that is the root of the currently selected
 	 * item (e.g. a {@link ICode}).
-	 * 
+	 *
 	 * @return
 	 */
 	public URI getUri() {
@@ -173,7 +172,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 	 * <p>
 	 * If the {@link TreeItem} is itself the representative for a
 	 * {@link ILocatable} it is also returned.
-	 * 
+	 *
 	 * @param treeItem
 	 * @return
 	 */

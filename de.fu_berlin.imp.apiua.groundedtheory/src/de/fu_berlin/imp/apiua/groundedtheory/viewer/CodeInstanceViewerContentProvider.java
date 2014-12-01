@@ -24,10 +24,9 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
-import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI.State;
 
 public class CodeInstanceViewerContentProvider extends
-URIContentProvider<URI[]> {
+		URIContentProvider<URI[]> {
 
 	public static enum Annotation {
 		PARENT_CODE;

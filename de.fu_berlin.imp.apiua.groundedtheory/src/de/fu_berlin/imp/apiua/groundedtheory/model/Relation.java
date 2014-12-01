@@ -88,8 +88,11 @@ public class Relation implements ILocatable, IRelation {
 
 	@Override
 	public String toString() {
-		return "Link \"" + this.getName() + "\": " + this.getFrom() + " -> "
-				+ this.getTo();
+		ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+				.getWorkbench().getService(ILabelProviderService.class);
+		return "Relation \"" + this.getName() + "\": "
+				+ labelProviderService.getText(this.getFrom()) + " -> "
+				+ labelProviderService.getText(this.getTo());
 	}
 
 	@Override
