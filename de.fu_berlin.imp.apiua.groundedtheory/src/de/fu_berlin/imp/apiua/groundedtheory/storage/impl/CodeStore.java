@@ -7,6 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
@@ -32,7 +33,6 @@ import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.utils.CalendarUtils;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.ListUtils;
 import com.bkahlert.nebula.utils.Pair;
@@ -763,6 +763,36 @@ class CodeStore implements ICodeStore {
 			}
 			throw new DuplicateRelationException(Arrays.asList(relation,
 					duplicate));
+		}
+	}
+
+	@Override
+	public void replaceRelation(IRelation relation, Relation newRelation)
+			throws CodeStoreWriteException, RelationDoesNotExistException {
+		this.deleteRelation(relation);
+		try {
+			this.addRelation(newRelation);
+		} catch (DuplicateRelationException e1) {
+			throw new RuntimeException("Implementation error", e1);
+		}
+		for (IRelationInstance relationInstance : this.relationInstances) {
+			if (!relationInstance.getRelation().getUri()
+					.equals(relation.getUri())) {
+				continue;
+			}
+			if (!(relationInstance instanceof RelationInstance)) {
+				throw new RuntimeException("Implementation error");
+			}
+			try {
+				Field relationField = RelationInstance.class
+						.getDeclaredField("relation");
+				relationField.setAccessible(true);
+				relationField.set(relationInstance, newRelation);
+				relationField.setAccessible(false);
+			} catch (NoSuchFieldException | SecurityException
+					| IllegalArgumentException | IllegalAccessException e) {
+				throw new RuntimeException("Implementation error", e);
+			}
 		}
 	}
 

@@ -537,12 +537,7 @@ public class CodeService implements ICodeService, IDisposable {
 		}
 		Relation newRelation = new Relation(relation.getUri(),
 				relation.getFrom(), relation.getTo(), newName);
-		this.codeStore.deleteRelation(relation);
-		try {
-			this.codeStore.addRelation(newRelation);
-		} catch (DuplicateRelationException e) {
-			LOGGER.fatal("Implementation error", e);
-		}
+		this.codeStore.replaceRelation(relation, newRelation);
 		this.codeStore.save();
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
