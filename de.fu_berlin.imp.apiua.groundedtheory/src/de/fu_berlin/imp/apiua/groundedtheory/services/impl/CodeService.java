@@ -497,6 +497,7 @@ public class CodeService implements ICodeService, IDisposable {
 			} catch (DuplicateRelationException e) {
 			}
 		}
+		this.codeStore.save();
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsAdded(set);
@@ -519,6 +520,7 @@ public class CodeService implements ICodeService, IDisposable {
 			}
 		}
 		this.codeStore.deleteRelation(relation);
+		this.codeStore.save();
 		LocatorService.INSTANCE.uncache(relation.getUri());
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
@@ -541,6 +543,7 @@ public class CodeService implements ICodeService, IDisposable {
 		} catch (DuplicateRelationException e) {
 			LOGGER.fatal("Implementation error", e);
 		}
+		this.codeStore.save();
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
 		this.codeServiceListenerNotifier.relationsRenamed(set);
@@ -600,6 +603,7 @@ public class CodeService implements ICodeService, IDisposable {
 			} catch (DuplicateRelationInstanceException e) {
 			}
 		}
+		this.codeStore.save();
 		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
 		set.add(relationInstance);
 		this.codeServiceListenerNotifier.relationInstancesAdded(set);
@@ -611,6 +615,7 @@ public class CodeService implements ICodeService, IDisposable {
 			throws RelationInstanceDoesNotExistException,
 			CodeStoreWriteException {
 		this.codeStore.deleteRelationInstance(relationInstance);
+		this.codeStore.save();
 		LocatorService.INSTANCE.uncache(relationInstance.getUri());
 		Set<IRelationInstance> set = new HashSet<IRelationInstance>();
 		set.add(relationInstance);
