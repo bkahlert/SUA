@@ -76,7 +76,7 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 														uri),
 										Stylers.DEFAULT_STYLER);
 								if (uri instanceof ViewerURI
-										&& ((ViewerURI) uri).getState() == State.PARENT) {
+										&& ((ViewerURI) uri).getFlag("parent")) {
 									text.append("  parent",
 											Stylers.MINOR_STYLER);
 								}

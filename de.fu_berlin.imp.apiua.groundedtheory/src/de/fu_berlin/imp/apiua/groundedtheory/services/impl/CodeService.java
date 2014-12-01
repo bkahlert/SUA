@@ -457,7 +457,6 @@ public class CodeService implements ICodeService, IDisposable {
 				.getRelationInstances()) {
 			IIdentifier id2 = URIUtils.getIdentifier(relationInstance
 					.getPhenomenon());
-			System.err.println(id2);
 			if (id.equals(id2)) {
 				relations.add(relationInstance.getRelation());
 			}

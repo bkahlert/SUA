@@ -254,7 +254,7 @@ URIContentProvider<URI[]> {
 
 			if (this.codeService.getParent(code) != null) {
 				URI parentUri = this.codeService.getParent(code).getUri();
-				children.add(new ViewerURI(parentUri, State.PARENT));
+				children.add(new ViewerURI(parentUri).setFlag("parent", true));
 			}
 		}
 
