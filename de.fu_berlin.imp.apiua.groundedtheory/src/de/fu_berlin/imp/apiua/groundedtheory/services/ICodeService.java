@@ -20,6 +20,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
@@ -350,13 +351,35 @@ public interface ICodeService {
 			throws RelationDoesNotExistException, CodeStoreWriteException;
 
 	/**
-	 * Returns all {@link IRelationInstance groundings} for the given
-	 * {@link IRelation}.
+	 * Returns all <b>direct</b> {@link IRelationInstance groundings} for the
+	 * given {@link IRelation}.
 	 *
 	 * @param relation
 	 * @return
 	 */
 	public Set<IRelationInstance> getRelationInstances(IRelation relation);
+
+	/**
+	 * Returns all <b>direct and indirect</b> {@link IRelationInstance
+	 * groundings} for the given {@link IRelation}.
+	 *
+	 * @param relation
+	 * @return
+	 * @throws CodeDoesNotExistException
+	 */
+	public Set<IRelationInstance> getAllRelationInstances(IRelation relation)
+			throws CodeDoesNotExistException;
+
+	/**
+	 * Returns all <b>indirect</b> {@link IRelationInstance groundings} for the
+	 * given {@link IRelation}.
+	 *
+	 * @param relation
+	 * @return
+	 * @throws CodeDoesNotExistException
+	 */
+	public Set<IRelationInstance> getIndirectRelationInstances(
+			IRelation relation) throws CodeDoesNotExistException;
 
 	/**
 	 * Returns all {@link IRelationInstance groundings} the given {@link URI} is

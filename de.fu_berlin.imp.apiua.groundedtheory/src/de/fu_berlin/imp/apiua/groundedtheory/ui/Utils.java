@@ -290,107 +290,131 @@ public class Utils {
 							}
 						}
 
-						if (relationViewer != null
-								&& CodeLocatorProvider.CODE_NAMESPACE
-										.equals(URIUtils.getResource(uri))) {
+						if (relationViewer != null) {
+							if (CodeLocatorProvider.CODE_NAMESPACE
+									.equals(URIUtils.getResource(uri))) {
+								if (!relationViewer
+										.getShowRelationInstancesToFirst()) {
+									text = labelProvider.getStyledText(uri);
+									text = Stylers.append(text,
+											new StyledString(" ...",
+													Stylers.BOLD_STYLER));
 
-							if (!relationViewer
-									.getShowRelationInstancesToFirst()) {
-								text = labelProvider.getStyledText(uri);
-								text = Stylers.append(text, new StyledString(
-										" ...", Stylers.BOLD_STYLER));
+									Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
+											.getRelationInstancesStartingFrom(uri));
+									text = highlightUsedValues(text,
+											dimensionValues.getFirst());
+								} else {
+									text = labelProvider.getStyledText(uri);
+									text = new StyledString("... ",
+											Stylers.BOLD_STYLER).append(text);
+
+									Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
+											.getRelationInstancesEndingAt(uri));
+									text = highlightUsedValues(text,
+											dimensionValues.getSecond());
+								}
+							} else if (RelationLocatorProvider.RELATION_NAMESPACE
+									.equals(URIUtils.getResource(uri))) {
+								// remove from field
+
+								IRelation relation = LocatorService.INSTANCE
+										.resolve(uri, IRelation.class, null)
+										.get();
+
+								if (!relationViewer
+										.getShowRelationInstancesToFirst()) {
+									int pos = text.getString().indexOf(
+											GTLabelProvider.RELATION_ARROW);
+									if (pos >= 0) {
+										text = Stylers
+												.substring(
+														text,
+														pos
+																+ GTLabelProvider.RELATION_ARROW
+																		.length()
+																- 1, text
+																.length());
+									}
+								} else {
+									int pos = text.getString().lastIndexOf(
+											GTLabelProvider.RELATION_ARROW);
+									if (pos >= 0) {
+										text = Stylers.substring(text, 0, pos)
+												.append("   ⤣",
+														Stylers.BOLD_STYLER);
+									}
+								}
 
 								Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
-										.getRelationInstancesStartingFrom(uri));
-								text = highlightUsedValues(text,
-										dimensionValues.getFirst());
-							} else {
-								text = labelProvider.getStyledText(uri);
-								text = new StyledString("... ",
-										Stylers.BOLD_STYLER).append(text);
+										.getRelationInstances(relation));
+								text = highlightUsedValues(
+										text,
+										relationViewer
+												.getShowRelationInstancesToFirst() ? dimensionValues
+												.getFirst() : dimensionValues
+												.getSecond());
+							} else if (RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
+									.equals(URIUtils.getResource(uri))) {
+								text = Stylers.rebase(text,
+										Stylers.SMALL_STYLER);
 
-								Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
-										.getRelationInstancesEndingAt(uri));
-								text = highlightUsedValues(text,
-										dimensionValues.getSecond());
-							}
-						}
+								IRelationInstance relationInstance = LocatorService.INSTANCE
+										.resolve(uri, IRelationInstance.class,
+												null).get();
+								Pair<Pair<IDimension, String>, Pair<IDimension, String>> dimensionValue = CODE_SERVICE
+										.getDimensionValue(relationInstance);
+								String fromDimensionValue = dimensionValue
+										.getFirst().getFirst() != null ? dimensionValue
+										.getFirst().getSecond() != null ? dimensionValue
+										.getFirst().getSecond()
+										: IScale.UNSET_LABEL
+										: "—";
+								String toDimensionValue = dimensionValue
+										.getSecond().getFirst() != null ? dimensionValue
+										.getSecond().getSecond() != null ? dimensionValue
+										.getSecond().getSecond()
+										: IScale.UNSET_LABEL
+										: "—";
+								Stylers.setDisableColorMix(true);
+								text = text
+										.append(" (", Stylers.MINOR_STYLER)
+										.append(fromDimensionValue,
+												Stylers.combine(
+														Stylers.MINOR_STYLER,
+														GTLabelProvider.VALID_VALUE_STYLER))
+										.append("; ", Stylers.MINOR_STYLER)
+										.append(toDimensionValue,
+												Stylers.combine(
+														Stylers.MINOR_STYLER,
+														GTLabelProvider.VALID_VALUE_STYLER))
+										.append(")", Stylers.MINOR_STYLER);
+								Stylers.setDisableColorMix(false);
 
-						if (relationViewer != null
-								&& RelationLocatorProvider.RELATION_NAMESPACE
-										.equals(URIUtils.getResource(uri))) {
-							IRelation relation = LocatorService.INSTANCE
-									.resolve(uri, IRelation.class, null).get();
+								if (CODE_SERVICE.getIndirectRelationInstances(
+										relationInstance.getRelation())
+										.contains(relationInstance)) {
+									text = Stylers.rebase(text,
+											Stylers.ATTENTION_STYLER);
+								}
 
-							if (!relationViewer
-									.getShowRelationInstancesToFirst()) {
-								int pos = text.getString().indexOf(
-										GTLabelProvider.RELATION_ARROW);
-								if (pos >= 0) {
-									text = Stylers.substring(
+								if (uri instanceof ViewerURI
+										&& ((ViewerURI) uri)
+												.getFlag("indirect")) {
+									text = Stylers.rebase(text,
+											Stylers.IMPORTANCE_LOW_STYLER);
+									text = Stylers.append(
 											text,
-											pos
-													+ GTLabelProvider.RELATION_ARROW
-															.length() - 1,
-											text.length());
-								}
-							} else {
-								int pos = text.getString().lastIndexOf(
-										GTLabelProvider.RELATION_ARROW);
-								if (pos >= 0) {
-									text = Stylers
-											.substring(text, 0, pos)
-											.append("   ⤣", Stylers.BOLD_STYLER);
+											new StyledString(
+													" grounding "
+															+ labelProvider
+																	.getText(relationInstance
+																			.getRelation()
+																			.getUri())
+															+ "",
+													Stylers.ITALIC_STYLER));
 								}
 							}
-
-							Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE
-									.getDimensionValues(CODE_SERVICE
-											.getRelationInstances(relation));
-							text = highlightUsedValues(
-									text,
-									relationViewer
-											.getShowRelationInstancesToFirst() ? dimensionValues
-											.getFirst() : dimensionValues
-											.getSecond());
-						}
-
-						if (relationViewer != null
-								&& RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
-										.equals(URIUtils.getResource(uri))) {
-							text = Stylers.rebase(text, Stylers.SMALL_STYLER);
-
-							IRelationInstance relationInstance = LocatorService.INSTANCE
-									.resolve(uri, IRelationInstance.class, null)
-									.get();
-							Pair<Pair<IDimension, String>, Pair<IDimension, String>> dimensionValue = CODE_SERVICE
-									.getDimensionValue(relationInstance);
-							String fromDimensionValue = dimensionValue
-									.getFirst().getFirst() != null ? dimensionValue
-									.getFirst().getSecond() != null ? dimensionValue
-									.getFirst().getSecond()
-									: IScale.UNSET_LABEL
-									: "—";
-							String toDimensionValue = dimensionValue
-									.getSecond().getFirst() != null ? dimensionValue
-									.getSecond().getSecond() != null ? dimensionValue
-									.getSecond().getSecond()
-									: IScale.UNSET_LABEL
-									: "—";
-							Stylers.setDisableColorMix(true);
-							text = text
-									.append(" (", Stylers.MINOR_STYLER)
-									.append(fromDimensionValue,
-											Stylers.combine(
-													Stylers.MINOR_STYLER,
-													GTLabelProvider.VALID_VALUE_STYLER))
-									.append("; ", Stylers.MINOR_STYLER)
-									.append(toDimensionValue,
-											Stylers.combine(
-													Stylers.MINOR_STYLER,
-													GTLabelProvider.VALID_VALUE_STYLER))
-									.append(")", Stylers.MINOR_STYLER);
-							Stylers.setDisableColorMix(false);
 						}
 
 						return text;
@@ -471,13 +495,13 @@ public class Utils {
 
 						if (IRelation.class.isInstance(element)) {
 							IRelation relation = (IRelation) element;
-							int all = codeService
-									.getRelationInstances(relation).size();
-							// int here = codeService.getInstances(code).size();
+							int all = codeService.getAllRelationInstances(
+									relation).size();
+							int here = codeService.getRelationInstances(
+									relation).size();
 							text = new StyledString(all + "",
 									Stylers.DEFAULT_STYLER);
-							// text.append("   " + here,
-							// Stylers.COUNTER_STYLER);
+							text.append("   " + here, Stylers.COUNTER_STYLER);
 						}
 
 						return text;

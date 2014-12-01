@@ -14,7 +14,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -292,9 +291,15 @@ public class RelationViewerContentProvider extends
 
 			ArrayList<URI> childNodes = new ArrayList<URI>();
 			if (this.showInstances) {
-				childNodes.addAll(AdapterUtils.adaptAll(
-						this.codeService.getRelationInstances(relation),
-						URI.class));
+				childNodes.addAll(this.codeService
+						.getRelationInstances(relation).stream()
+						.map(r -> r.getUri()).collect(Collectors.toList()));
+				for (IRelationInstance indirect : this.codeService
+						.getIndirectRelationInstances(relation)) {
+					ViewerURI uri = new ViewerURI(indirect.getUri());
+					uri.setFlag("indirect", true);
+					childNodes.add(uri);
+				}
 				if (childNodes.size() == 0) {
 					childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
 				}

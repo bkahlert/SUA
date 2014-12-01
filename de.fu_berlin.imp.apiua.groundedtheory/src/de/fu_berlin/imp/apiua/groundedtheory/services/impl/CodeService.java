@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -315,6 +317,54 @@ public class CodeService implements ICodeService, IDisposable {
 		return this.codeStore.getParent(code);
 	}
 
+	/**
+	 * Returns the {@link ICode}'s parent, its parent's parent and so on.
+	 *
+	 * @param code
+	 * @return ascendants are ordered with the first element being the
+	 *         {@link ICode}'s parent and the last element being the top level
+	 *         element.
+	 */
+	private Set<ICode> getAscendants(ICode code) {
+		Set<ICode> ascendants = new LinkedHashSet<ICode>();
+		while (true) {
+			code = this.getParent(code);
+			if (code != null) {
+				ascendants.add(code);
+			} else {
+				return ascendants;
+			}
+		}
+	}
+
+	/**
+	 * Returns the {@link ICode}'s parent, its parent's parent and so on.
+	 *
+	 * @param code
+	 * @return ascendants are ordered with the first element being the
+	 *         {@link ICode}'s parent and the last element being the top level
+	 *         element.
+	 * @throws CodeDoesNotExistException
+	 */
+	private Set<URI> getAscendants(URI uri) throws CodeDoesNotExistException {
+		ICode code;
+		try {
+			code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
+					.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CodeDoesNotExistException();
+		}
+		if (code != null) {
+			Set<URI> ascendants = new LinkedHashSet<URI>();
+			for (ICode ascendant : this.getAscendants(code)) {
+				ascendants.add(ascendant.getUri());
+			}
+			return ascendants;
+		} else {
+			throw new CodeDoesNotExistException();
+		}
+	}
+
 	@Override
 	public void setParent(ICode code, ICode parentCode)
 			throws CodeServiceException {
@@ -554,6 +604,38 @@ public class CodeService implements ICodeService, IDisposable {
 			}
 		}
 		return relationInstances;
+	}
+
+	@Override
+	public Set<IRelationInstance> getAllRelationInstances(IRelation relation)
+			throws CodeDoesNotExistException {
+		Set<IRelationInstance> relationInstances = new HashSet<>();
+		Set<URI> froms = new LinkedHashSet<>();
+		froms.add(relation.getFrom());
+		froms.addAll(this.getAscendants(relation.getFrom()));
+		Set<URI> tos = new LinkedHashSet<>();
+		tos.add(relation.getTo());
+		tos.addAll(this.getAscendants(relation.getTo()));
+		for (IRelationInstance relationInstance : this.codeStore
+				.getRelationInstances()) {
+			if (froms.contains(relationInstance.getRelation().getFrom())
+					&& tos.contains(relationInstance.getRelation().getTo())
+					&& relation.getName().equals(
+							relationInstance.getRelation().getName())) {
+				relationInstances.add(relationInstance);
+			} else {
+			}
+		}
+		return relationInstances;
+	}
+
+	@Override
+	public Set<IRelationInstance> getIndirectRelationInstances(
+			IRelation relation) throws CodeDoesNotExistException {
+		Set<IRelationInstance> indirect = this
+				.getAllRelationInstances(relation);
+		indirect.removeAll(this.getRelationInstances(relation));
+		return indirect;
 	}
 
 	@Override
