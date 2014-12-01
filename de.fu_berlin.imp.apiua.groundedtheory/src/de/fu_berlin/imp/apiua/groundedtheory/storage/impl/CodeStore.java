@@ -750,7 +750,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void addRelation(IRelation relation) throws CodeStoreWriteException,
-	DuplicateRelationException {
+			DuplicateRelationException {
 		if (!this.relations.contains(relation)) {
 			this.relations.add(relation);
 			this.save();
@@ -1046,13 +1046,7 @@ class CodeStore implements ICodeStore {
 
 	private boolean isPartOfPropertyHierarchy(final URI uri, URI property) {
 		for (Pair<Integer, URI> childProperty : IteratorUtils.dfs(property,
-				new IConverter<URI, URI[]>() {
-					@Override
-					public URI[] convert(URI uri) {
-						return CodeStore.this.getProperties(uri).toArray(
-								new URI[0]);
-					}
-				})) {
+				uri1 -> CodeStore.this.getProperties(uri1).toArray(new URI[0]))) {
 			if (childProperty.getSecond().equals(uri)) {
 				return true;
 			}
@@ -1101,13 +1095,12 @@ class CodeStore implements ICodeStore {
 
 		List<URI> uris = new LinkedList<URI>();
 		try {
-			for (File file : this.getRawFile(type, new URI("")).getParentFile()
-					.listFiles(new FilenameFilter() {
-						@Override
-						public boolean accept(File arg0, String arg1) {
-							return arg1.startsWith(prefix);
-						}
-					})) {
+			for (File file : this
+					.getRawFile(type, new URI(""))
+					.getParentFile()
+					.listFiles(
+							(FilenameFilter) (arg0, arg1) -> arg1
+									.startsWith(prefix))) {
 				URI uri = this.getRawUri(file.getName());
 				uris.add(uri);
 			}

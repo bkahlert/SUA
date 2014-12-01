@@ -644,4 +644,5 @@ public interface ICodeService {
 	 * @throws CodeServiceException
 	 */
 	public void reattachAndSave(URI src, URI dest) throws CodeServiceException;
+
 }

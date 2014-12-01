@@ -1,10 +1,12 @@
 package de.fu_berlin.imp.apiua.groundedtheory.model;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 
 public class Relation implements ILocatable, IRelation {
 	private static final long serialVersionUID = 1L;

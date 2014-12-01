@@ -89,31 +89,31 @@ public class CodeInstanceViewerContentProvider extends
 		@Override
 		public void relationsAdded(Set<IRelation> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
-			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
 		public void relationsRenamed(Set<IRelation> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
-			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
 		public void relationsDeleted(Set<IRelation> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
-			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
 		public void relationInstancesAdded(Set<IRelationInstance> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
-			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
 		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
-			.refresh(CodeInstanceViewerContentProvider.this.viewer);
+					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}
 
 		@Override
@@ -191,7 +191,7 @@ public class CodeInstanceViewerContentProvider extends
 
 		if (oldInput != null) {
 			this.codeService
-			.removeCodeServiceListener(this.codeServiceListener);
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 
 		if (newInput != null) {
@@ -206,7 +206,7 @@ public class CodeInstanceViewerContentProvider extends
 	public void dispose() {
 		if (this.uris != null) {
 			this.codeService
-			.removeCodeServiceListener(this.codeServiceListener);
+					.removeCodeServiceListener(this.codeServiceListener);
 		}
 	}
 
