@@ -11,7 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -19,10 +21,14 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Triple;
@@ -36,6 +42,7 @@ import de.fu_berlin.imp.apiua.core.services.IImportanceService.IImportanceInterc
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.core.util.NoNullSet;
+import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
@@ -65,6 +72,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelatio
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStoreFactory;
+import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
 
 public class CodeService implements ICodeService, IDisposable {
 
@@ -658,9 +666,29 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public Set<IRelationInstance> getAllRelationInstancesStartingFrom(URI from)
+			throws CodeDoesNotExistException {
+		Set<URI> froms = this.getAscendants(from);
+		froms.add(from);
+		return this.codeStore.getRelationInstances().stream()
+				.filter(r -> froms.contains(r.getRelation().getFrom()))
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Set<IRelationInstance> getRelationInstancesEndingAt(URI to) {
 		return this.codeStore.getRelationInstances().stream()
 				.filter(r -> r.getRelation().getTo().equals(to))
+				.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<IRelationInstance> getAllRelationInstancesEndingAt(URI to)
+			throws CodeDoesNotExistException {
+		Set<URI> tos = this.getAscendants(to);
+		tos.add(to);
+		return this.codeStore.getRelationInstances().stream()
+				.filter(r -> tos.contains(r.getRelation().getTo()))
 				.collect(Collectors.toSet());
 	}
 
@@ -1125,6 +1153,163 @@ public class CodeService implements ICodeService, IDisposable {
 		} catch (CodeStoreReadException e) {
 			throw new CodeStoreWriteException(e);
 		}
+	}
+
+	@Override
+	public Future<IAxialCodingModel> createAxialCodingModelFrom(URI uri,
+			URI phenomenon, String title) {
+		return ExecUtils.nonUISyncExec(() -> {
+			JointJSAxialCodingModel acm = new JointJSAxialCodingModel(
+					AxialCodingModelLocatorProvider
+							.createUniqueAxialCodingModelURI(),
+					"{ \"cells\": [] }");
+			acm.setOrigin(phenomenon != null ? phenomenon : uri);
+			acm.setTitle(title);
+
+			ExecUtils.syncExec(() -> {
+				CodeService.this.addAxialCodingModel(acm);
+				return null;
+			});
+
+			return CodeService.this.updateAxialCodingModelFrom(acm.getUri())
+					.get();
+		});
+	}
+
+	@Override
+	public Future<IAxialCodingModel> updateAxialCodingModelFrom(URI acmUri) {
+		return ExecUtils
+				.nonUISyncExec((Callable<IAxialCodingModel>) () -> {
+					Pair<Shell, AxialCodingComposite> ui = ExecUtils
+							.asyncExec(
+									() -> {
+										Shell shell = new Shell();
+										AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
+												shell, SWT.NONE);
+										return new Pair<>(shell,
+												axialCodingComposite);
+									}).get();
+
+					ui.getSecond().open(acmUri).get();
+
+					IAxialCodingModel acm = this.updateAxialCodingModelFrom(
+							ui.getSecond(), acmUri).get();
+
+					ExecUtils.asyncExec(() -> ui.getFirst().dispose());
+
+					return acm;
+				});
+	}
+
+	@Override
+	public Future<IAxialCodingModel> updateAxialCodingModelFrom(
+			AxialCodingComposite axialCodingComposite, URI acmUri) {
+		return ExecUtils
+				.nonUISyncExec((Callable<IAxialCodingModel>) () -> {
+					IAxialCodingModel acm = this.getAxialCodingModel(acmUri);
+
+					Set<IRelation> relations = acm.getOrigin() != null
+							&& LocatorService.INSTANCE.getType(acm.getOrigin()) != ICode.class ? this
+							.getRelations(acm.getOrigin()) : this
+							.getRelations();
+
+					Set<URI> neededElements = getRelatedElements(
+							acm.getOrigin(), relations);
+					Set<URI> neededRelations = getNeededRelations(
+							neededElements, relations);
+
+					this.updateAxialCodingModelFrom(axialCodingComposite,
+							neededElements, neededRelations);
+					axialCodingComposite.getJointjs().save().get();
+
+					acm = new JointJSAxialCodingModel(acmUri,
+							axialCodingComposite.getJointjs().getModel());
+
+					return acm;
+				});
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Future<Void> updateAxialCodingModelFrom(AxialCodingComposite acm,
+			Set<URI> elements, Set<URI> relations) {
+		return ExecUtils.nonUISyncExec((Callable<Void>) () -> {
+
+			List<URI> existingElements = acm.getElements().get();
+			List<URI> existingRelations = acm.getRelations().get();
+
+			acm.remove(ListUtils.subtract(existingElements, new ArrayList<>(
+					elements)));
+			acm.remove(ListUtils.subtract(existingRelations, new ArrayList<>(
+					relations)));
+
+			for (Object element : ListUtils.subtract(new ArrayList<>(elements),
+					existingElements)) {
+				acm.createElement((URI) element, new Point(0, 0));
+			}
+			for (Object element : ListUtils.subtract(
+					new ArrayList<>(relations), existingRelations)) {
+				acm.createRelation((URI) element);
+			}
+
+			acm.refresh().get();
+			acm.getJointjs().save().get();
+
+			return null;
+
+		});
+	}
+
+	/**
+	 * Returns the elements that contained in the {@link IRelation}s that are
+	 * related without any gaps.
+	 *
+	 * @param code
+	 * @param relations
+	 * @return
+	 */
+	private static Set<URI> getRelatedElements(URI element,
+			Collection<IRelation> relations) {
+		Set<URI> codes = new HashSet<>();
+		if (element == null) {
+			return codes;
+		}
+
+		codes.add(element);
+		boolean codesAdded = true;
+		while (codesAdded) {
+			codesAdded = false;
+			for (IRelation relation : relations) {
+				if (codes.contains(relation.getFrom())
+						&& !codes.contains(relation.getTo())) {
+					codes.add(relation.getTo());
+					codesAdded = true;
+				}
+				if (codes.contains(relation.getTo())
+						&& !codes.contains(relation.getFrom())) {
+					codes.add(relation.getFrom());
+					codesAdded = true;
+				}
+			}
+		}
+		return codes;
+	}
+
+	/**
+	 * Returns the {@link IRelation} that have relate elements contained in the
+	 * given elements.
+	 *
+	 * @param elements
+	 * @param relations
+	 * @return
+	 */
+	private static Set<URI> getNeededRelations(Collection<URI> elements,
+			Collection<IRelation> relations) {
+		return relations
+				.stream()
+				.filter(r -> elements.contains(r.getFrom())
+						&& elements.contains(r.getTo())).map(r -> r.getUri())
+				.collect(Collectors.toSet());
 	}
 
 	@Override

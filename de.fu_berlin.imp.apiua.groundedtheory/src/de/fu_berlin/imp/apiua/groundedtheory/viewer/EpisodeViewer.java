@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -22,7 +23,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.DNDUtils;
-import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
@@ -71,15 +71,12 @@ public class EpisodeViewer extends Composite implements ISelectionProvider {
 						return event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC
 								|| event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION;
 					}
-				}, TreeViewerEditor.DEFAULT);
+				}, ColumnViewerEditor.DEFAULT);
 
-		DNDUtils.addLocalDragSupport(this.treeViewer, new Oracle() {
-			@Override
-			public boolean allowDND() {
-				return EpisodeViewer.this.getControl().getData(
-						EpisodeRenderer.CONTROL_DATA_STRING) == null;
-			}
-		}, URI.class);
+		DNDUtils.addLocalDragSupport(
+				this.treeViewer,
+				() -> EpisodeViewer.this.getControl().getData(
+						EpisodeRenderer.CONTROL_DATA_STRING) == null, URI.class);
 	}
 
 	private void createColumns() {

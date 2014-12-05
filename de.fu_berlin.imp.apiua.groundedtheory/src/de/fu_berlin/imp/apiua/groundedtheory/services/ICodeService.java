@@ -3,6 +3,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.services;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Triple;
@@ -26,6 +27,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteEx
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
+import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
 
 public interface ICodeService {
 
@@ -391,8 +393,8 @@ public interface ICodeService {
 	public Set<IRelationInstance> getRelationInstances(URI uri);
 
 	/**
-	 * Returns all {@link IRelationInstance}s grounding {@link IRelation}s that
-	 * start from the given {@link URI}.
+	 * Returns all {@link IRelationInstance}s <b>directly</b> grounding
+	 * {@link IRelation}s that start from the given {@link URI}.
 	 *
 	 * @param phenomenon
 	 * @return
@@ -400,13 +402,34 @@ public interface ICodeService {
 	public Set<IRelationInstance> getRelationInstancesStartingFrom(URI from);
 
 	/**
-	 * Returns all {@link IRelationInstance}s grounding {@link IRelation}s that
-	 * end at the given {@link URI}.
+	 * Returns all {@link IRelationInstance}s <b>directly and indirectly</b>
+	 * grounding {@link IRelation}s that start from the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 * @throws CodeDoesNotExistException
+	 */
+	public Set<IRelationInstance> getAllRelationInstancesStartingFrom(URI from)
+			throws CodeDoesNotExistException;
+
+	/**
+	 * Returns all {@link IRelationInstance}s <b>directly</b> grounding
+	 * {@link IRelation}s that end at the given {@link URI}.
 	 *
 	 * @param phenomenon
 	 * @return
 	 */
 	public Set<IRelationInstance> getRelationInstancesEndingAt(URI from);
+
+	/**
+	 * Returns all {@link IRelationInstance}s <b>directly and indirectly</b>
+	 * grounding {@link IRelation}s that end at the given {@link URI}.
+	 *
+	 * @param phenomenon
+	 * @return
+	 */
+	public Set<IRelationInstance> getAllRelationInstancesEndingAt(URI from)
+			throws CodeDoesNotExistException;
 
 	public IRelationInstance createRelationInstance(URI uri, IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;
@@ -637,6 +660,56 @@ public interface ICodeService {
 	 */
 	public void addAxialCodingModel(IAxialCodingModel axialCodingModel)
 			throws CodeStoreWriteException;
+
+	/**
+	 * Creates a new {@link IAxialCodingModel} using the given parameters.
+	 * <p>
+	 * The graph is internally rendered and returned but not added to the
+	 * existing {@link IAxialCodingModel}.
+	 *
+	 * @param uri
+	 *            the core element; the {@link IAxialCodingModel} will contain
+	 *            all links and elements connected with this one
+	 * @param phenomenon
+	 *            if not <code>null</code> only relations that are grounded by
+	 *            this {@link URI} are considered
+	 * @param title
+	 */
+	public Future<IAxialCodingModel> createAxialCodingModelFrom(URI uri,
+			URI phenomenon, String title);
+
+	/**
+	 * Updates the given {@link IAxialCodingModel} based on the origin
+	 * {@link URI} and an optional phenomenon.
+	 *
+	 * @param acmUri
+	 * @param originUri
+	 * @param originPhenomenon
+	 * @param title
+	 * @return
+	 */
+	public Future<IAxialCodingModel> updateAxialCodingModelFrom(URI acmUri);
+
+	/**
+	 *
+	 * @param axialCodingComposite
+	 * @param acmUri
+	 * @return
+	 */
+	public Future<IAxialCodingModel> updateAxialCodingModelFrom(
+			AxialCodingComposite axialCodingComposite, URI acmUri);
+
+	/**
+	 * Updates the given {@link IAxialCodingModel} so the final model contains
+	 * only the given elements and relations.
+	 *
+	 * @param acm
+	 * @param elements
+	 * @param relations
+	 * @return
+	 */
+	public Future<Void> updateAxialCodingModelFrom(AxialCodingComposite acm,
+			Set<URI> elements, Set<URI> relations);
 
 	/**
 	 * Removes a given {@link IAxialCodingModel} from the {@link ICodeStore} and

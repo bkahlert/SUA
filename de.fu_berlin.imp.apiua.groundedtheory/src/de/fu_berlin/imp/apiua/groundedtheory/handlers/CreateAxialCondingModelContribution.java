@@ -1,14 +1,15 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -18,12 +19,15 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
@@ -135,6 +139,8 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 	 * given {@link URI} as the {@link ICode} in the center of the graph.
 	 *
 	 * @param uri
+	 *            the core element; the {@link IAxialCodingModel} will contain
+	 *            all links and elements connected with this one
 	 * @param phenomenon
 	 *            if not <code>null</code> only relations that are grounded by
 	 *            this {@link URI} are considered
@@ -143,70 +149,52 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 	 */
 	private void createAcmFrom(URI uri, URI phenomenon)
 			throws InterruptedException, ExecutionException {
-		Set<IRelation> relations = phenomenon != null ? this.codeService
-				.getRelations(phenomenon) : this.codeService.getRelations();
-		Set<URI> relatedCodes = getRelatedElements(uri, relations);
-		Set<URI> relatingRelations = getNeededRelations(relatedCodes, relations);
+		Job job = new NamedJob(CreateAxialCondingModelContribution.class,
+				"Creating new axial coding model") {
+			@Override
+			protected IStatus runNamed(IProgressMonitor monitor) {
+				SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
-		for (AxialCodingView axialCodingView : WorkbenchUtils
-				.getViews(AxialCodingView.class)) {
-			String title = this.labelProviderService.getText(uri);
-			if (phenomenon != null) {
-				title += " (" + this.labelProviderService.getText(phenomenon)
-						+ ")";
-			}
-			axialCodingView.createAxialCodingModel(title, relatedCodes,
-					relatingRelations);
-			break;
-		}
-	}
-
-	/**
-	 * Returns the elements that contained in the {@link IRelation}s that are
-	 * related without any gaps.
-	 *
-	 * @param code
-	 * @param relations
-	 * @return
-	 */
-	private static Set<URI> getRelatedElements(URI element,
-			Collection<IRelation> relations) {
-		Set<URI> codes = new HashSet<>();
-		codes.add(element);
-		boolean codesAdded = true;
-		while (codesAdded) {
-			codesAdded = false;
-			for (IRelation relation : relations) {
-				if (codes.contains(relation.getFrom())
-						&& !codes.contains(relation.getTo())) {
-					codes.add(relation.getTo());
-					codesAdded = true;
+				StringBuffer title = new StringBuffer(
+						CreateAxialCondingModelContribution.this.labelProviderService
+								.getText(uri));
+				if (phenomenon != null) {
+					title.append(" ("
+							+ CreateAxialCondingModelContribution.this.labelProviderService
+									.getText(phenomenon) + ")");
 				}
-				if (codes.contains(relation.getTo())
-						&& !codes.contains(relation.getFrom())) {
-					codes.add(relation.getFrom());
-					codesAdded = true;
-				}
-			}
-		}
-		return codes;
-	}
+				subMonitor.worked(5);
 
-	/**
-	 * Returns the {@link IRelation} that have relate elements contained in the
-	 * given elements.
-	 *
-	 * @param elements
-	 * @param relations
-	 * @return
-	 */
-	private static Set<URI> getNeededRelations(Collection<URI> elements,
-			Collection<IRelation> relations) {
-		return relations
-				.stream()
-				.filter(r -> elements.contains(r.getFrom())
-						&& elements.contains(r.getTo())).map(r -> r.getUri())
-				.collect(Collectors.toSet());
+				try {
+					IAxialCodingModel acm = CreateAxialCondingModelContribution.this.codeService
+							.createAxialCodingModelFrom(uri, phenomenon,
+									title.toString()).get();
+					subMonitor.worked(80);
+					ExecUtils.syncExec(() -> {
+						CreateAxialCondingModelContribution.this.codeService
+								.addAxialCodingModel(acm);
+						return null;
+					});
+					subMonitor.worked(5);
+					for (AxialCodingView axialCodingView : WorkbenchUtils
+							.getViews(AxialCodingView.class)) {
+						axialCodingView.open(acm.getUri()).get();
+						axialCodingView.autoLayoutFocussedACM();
+						axialCodingView.fitOnScreenFocussedACM();
+						break;
+					}
+					subMonitor.done();
+				} catch (Exception e) {
+					LOGGER.error(
+							"Error creating "
+									+ IAxialCodingModel.class.getSimpleName(),
+							e);
+					return Status.CANCEL_STATUS;
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 	}
 
 }

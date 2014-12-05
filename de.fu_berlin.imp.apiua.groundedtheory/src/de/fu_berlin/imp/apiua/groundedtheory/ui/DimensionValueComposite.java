@@ -16,7 +16,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Triple;
@@ -37,9 +36,9 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteEx
 /**
  * Displays and provides editing capabilities for {@link IDimension} for the
  * given objects.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class DimensionValueComposite extends Composite {
 
@@ -65,12 +64,8 @@ public class DimensionValueComposite extends Composite {
 		@Override
 		public void dimensionValueChanged(URI uri, String oldValue, String value) {
 			try {
-				ExecUtils.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						DimensionValueComposite.this.refresh();
-					}
-				});
+				ExecUtils
+						.syncExec(() -> DimensionValueComposite.this.refresh());
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
@@ -80,12 +75,8 @@ public class DimensionValueComposite extends Composite {
 		public void dimensionChanged(URI uri, IDimension oldDimension,
 				IDimension newDimension) {
 			try {
-				ExecUtils.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						DimensionValueComposite.this.refresh();
-					}
-				});
+				ExecUtils
+						.syncExec(() -> DimensionValueComposite.this.refresh());
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
@@ -96,12 +87,8 @@ public class DimensionValueComposite extends Composite {
 				java.util.List<URI> addedProperties,
 				java.util.List<URI> removedProperties) {
 			try {
-				ExecUtils.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						DimensionValueComposite.this.refresh();
-					}
-				});
+				ExecUtils
+						.syncExec(() -> DimensionValueComposite.this.refresh());
 			} catch (Exception e) {
 				LOGGER.error(e);
 			}
@@ -139,14 +126,9 @@ public class DimensionValueComposite extends Composite {
 		this.loaded = codeInstance;
 
 		this.dimensions.clear();
-		for (Pair<Integer, ICode> property : IteratorUtils.dfs(
-				codeInstance.getCode(), new IConverter<ICode, ICode[]>() {
-					@Override
-					public ICode[] convert(ICode property) {
-						return CODE_SERVICE.getProperties(property).toArray(
-								new ICode[0]);
-					}
-				})) {
+		for (Pair<Integer, ICode> property : IteratorUtils.dfs(codeInstance
+				.getCode(), property1 -> CODE_SERVICE.getProperties(property1)
+				.toArray(new ICode[0]))) {
 			IDimension dimension = CODE_SERVICE.getDimension(property
 					.getSecond().getUri());
 			this.dimensions.add(new Triple<Integer, ICode, IDimension>(property
@@ -154,12 +136,7 @@ public class DimensionValueComposite extends Composite {
 		}
 
 		try {
-			ExecUtils.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					DimensionValueComposite.this.refresh();
-				}
-			});
+			ExecUtils.syncExec(() -> DimensionValueComposite.this.refresh());
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
@@ -269,18 +246,17 @@ public class DimensionValueComposite extends Composite {
 
 				Control value;
 				if (dim != null) {
-					value = dim.createValueEditControl(this,
-							new IDimension.IDimensionValueListener() {
-								@Override
-								public void dimensionValueChanged(
-										IDimension dimension, String newValue) {
-									if (DimensionValueComposite.this.dimensionValueListener != null) {
-										DimensionValueComposite.this.dimensionValueListener
-												.dimensionValueChanged(
-														dimension, newValue);
-									}
-								}
-							});
+					value = dim
+							.createValueEditControl(
+									this,
+									(dimension1, newValue) -> {
+										if (DimensionValueComposite.this.dimensionValueListener != null) {
+											DimensionValueComposite.this.dimensionValueListener
+													.dimensionValueChanged(
+															dimension1,
+															newValue);
+										}
+									});
 					dim.setValueEditControlValue(value, CODE_SERVICE
 							.getDimensionValue(this.loaded.getUri(), code));
 				} else {

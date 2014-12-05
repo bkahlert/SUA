@@ -10,14 +10,11 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.DNDUtils;
-import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.ExecUtils;
@@ -80,24 +77,15 @@ public class EntityViewer extends SortableTableViewer implements
 
 		this.createColumns();
 
-		DNDUtils.addLocalDragSupport(this, new Oracle() {
-			@Override
-			public boolean allowDND() {
-				return EntityViewer.this.getControl().getData(
-						EpisodeRenderer.CONTROL_DATA_STRING) == null;
-			}
-		}, URI.class);
+		DNDUtils.addLocalDragSupport(this, () -> EntityViewer.this.getControl()
+				.getData(EpisodeRenderer.CONTROL_DATA_STRING) == null,
+				URI.class);
 
 		this.sort(0);
 
 		this.dataService.addDataServiceListener(this.dataServiceListener);
-		table.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				EntityViewer.this.dataService
-						.removeDataServiceListener(EntityViewer.this.dataServiceListener);
-			}
-		});
+		table.addDisposeListener(e -> EntityViewer.this.dataService
+				.removeDataServiceListener(EntityViewer.this.dataServiceListener));
 	}
 
 	private void createColumns() {
@@ -325,13 +313,8 @@ public class EntityViewer extends SortableTableViewer implements
 			objectsToBeUpdated.addAll(boldObjects);
 
 			this.boldObjects = boldObjects;
-			ExecUtils.asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					EntityViewer.this.update(objectsToBeUpdated.toArray(), null);
-				}
-			});
+			ExecUtils.asyncExec(() -> EntityViewer.this.update(
+					objectsToBeUpdated.toArray(), null));
 		}
 	}
 }

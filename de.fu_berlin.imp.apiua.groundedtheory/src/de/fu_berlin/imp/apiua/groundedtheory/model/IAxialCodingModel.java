@@ -35,6 +35,13 @@ public interface IAxialCodingModel extends ILocatable {
 	 */
 	public String getTitle(URI uri);
 
+	/**
+	 * Returns the {@link URI} this model is based on.
+	 * 
+	 * @return can <code>null</code>
+	 */
+	public URI getOrigin();
+
 	public Object getAttribute(URI uri, String key);
 
 	/**

@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,7 +30,6 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeLocatorProvider.class);
 
-	@SuppressWarnings("unchecked")
 	public CodeInstanceLocatorProvider() {
 		super(ICodeInstance.class);
 	}
@@ -112,16 +110,12 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 
 	private URI[] selectCodeInstances(final URI[] uris, final CodeView codeView) {
 		try {
-			List<URI> selectedLocatables = ExecUtils
-					.syncExec(new Callable<List<URI>>() {
-						@Override
-						public List<URI> call() throws Exception {
-							final CodeViewer viewer = codeView.getCodeViewer();
-							viewer.setSelection(new StructuredSelection(uris));
-							return SelectionUtils.getAdaptableObjects(
-									viewer.getSelection(), URI.class);
-						}
-					});
+			List<URI> selectedLocatables = ExecUtils.syncExec(() -> {
+				final CodeViewer viewer = codeView.getCodeViewer();
+				viewer.setSelection(new StructuredSelection(uris));
+				return SelectionUtils.getAdaptableObjects(
+						viewer.getSelection(), URI.class);
+			});
 			return selectedLocatables.toArray(new URI[0]);
 		} catch (Exception e) {
 			return new URI[0];

@@ -1,18 +1,5 @@
 package de.fu_berlin.imp.apiua.doclog.viewer;
 
-import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
-import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.doclog.model.Doclog;
-import de.fu_berlin.imp.apiua.doclog.model.DoclogAction;
-import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
-import de.fu_berlin.imp.apiua.doclog.model.DoclogScreenshot.Status;
-import de.fu_berlin.imp.apiua.doclog.ui.DoclogLabelProvider;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,6 +32,19 @@ import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.doclog.model.Doclog;
+import de.fu_berlin.imp.apiua.doclog.model.DoclogAction;
+import de.fu_berlin.imp.apiua.doclog.model.DoclogRecord;
+import de.fu_berlin.imp.apiua.doclog.model.DoclogScreenshot.Status;
+import de.fu_berlin.imp.apiua.doclog.ui.DoclogLabelProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
 
 public class DoclogViewer extends SortableTreeViewer {
 	private final LocalResourceManager resources;
@@ -385,7 +385,7 @@ public class DoclogViewer extends SortableTreeViewer {
 	 * <li>{@link DoclogRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
-	 * 
+	 *
 	 * @param treeItems
 	 * @param dataRanges
 	 * @return
@@ -420,7 +420,7 @@ public class DoclogViewer extends SortableTreeViewer {
 	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
-	 * 
+	 *
 	 * @param treeItems
 	 * @param identifier
 	 * @param dataRanges

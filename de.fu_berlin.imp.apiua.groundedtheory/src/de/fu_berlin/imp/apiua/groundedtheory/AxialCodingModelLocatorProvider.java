@@ -2,9 +2,11 @@ package de.fu_berlin.imp.apiua.groundedtheory;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
@@ -15,7 +17,6 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
-import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
@@ -31,14 +32,15 @@ public class AxialCodingModelLocatorProvider extends AdaptingLocatorProvider {
 				.getService(ICodeService.class);
 
 		try {
-			int max = -1;
-			for (URI uri : codeService.getAxialCodingModels()) {
-				max = Math
-						.max(max, Integer.valueOf(URIUtils.getIdentifier(uri)
-								.toString()));
+			List<URI> uris = codeService.getAxialCodingModels();
+
+			while (true) {
+				URI uri = new URI("apiua://" + AXIAL_CODING_MODEL_NAMESPACE
+						+ "/" + RandomStringUtils.randomAlphanumeric(16));
+				if (!uris.contains(uri)) {
+					return uri;
+				}
 			}
-			return new URI("apiua://" + AXIAL_CODING_MODEL_NAMESPACE + "/"
-					+ (max + 1));
 		} catch (CodeStoreReadException e) {
 			throw new RuntimeException(e);
 		}

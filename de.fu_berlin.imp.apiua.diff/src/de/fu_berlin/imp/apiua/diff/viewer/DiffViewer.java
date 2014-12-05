@@ -1,21 +1,5 @@
 package de.fu_berlin.imp.apiua.diff.viewer;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
-import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
-import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.diff.model.IDiff;
-import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
-import de.fu_berlin.imp.apiua.diff.model.IDiffs;
-import de.fu_berlin.imp.apiua.diff.model.IDiffRecord.FLAGS;
-import de.fu_berlin.imp.apiua.diff.ui.DiffLabelProvider;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,12 +28,28 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.utils.DNDUtils;
-import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
+import de.fu_berlin.imp.apiua.core.model.TimeZoneDateRange;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
+import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
+import de.fu_berlin.imp.apiua.diff.model.IDiff;
+import de.fu_berlin.imp.apiua.diff.model.IDiffRecord;
+import de.fu_berlin.imp.apiua.diff.model.IDiffRecord.FLAGS;
+import de.fu_berlin.imp.apiua.diff.model.IDiffs;
+import de.fu_berlin.imp.apiua.diff.ui.DiffLabelProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
 
 public class DiffViewer extends SortableTreeViewer {
 	private static final Logger LOGGER = Logger.getLogger(DiffViewer.class);
@@ -371,7 +371,7 @@ public class DiffViewer extends SortableTreeViewer {
 	 * <li>{@link IDiffRecord}'s {@link TimeZoneDateRange} intersects one of the
 	 * given {@link TimeZoneDateRange}s
 	 * </ol>
-	 * 
+	 *
 	 * @param treeItems
 	 * @param dataRanges
 	 * @return
@@ -406,7 +406,7 @@ public class DiffViewer extends SortableTreeViewer {
 	 * <li>{@link DoclocRecord}'s {@link TimeZoneDateRange} intersects one of
 	 * the given {@link TimeZoneDateRange}s
 	 * </ol>
-	 * 
+	 *
 	 * @param treeItems
 	 * @param identifier
 	 * @param dataRanges

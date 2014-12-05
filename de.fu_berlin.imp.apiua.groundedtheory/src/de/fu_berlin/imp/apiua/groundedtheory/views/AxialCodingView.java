@@ -19,7 +19,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -45,7 +44,6 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
-import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -71,8 +69,9 @@ public class AxialCodingView extends ViewPart {
 	};
 
 	private final ISelectionListener selectionListener = (part, selection) -> {
-		if (part == AxialCodingView.this)
+		if (part == AxialCodingView.this) {
 			return;
+		}
 
 		List<URI> uris = SelectionUtils.getAdaptableObjects(selection,
 				URI.class);
@@ -119,13 +118,18 @@ public class AxialCodingView extends ViewPart {
 
 			@Override
 			public void createClicked() {
-				try {
-					ExecUtils.logException(AxialCodingView.this
-							.createAndOpen("New Model"));
-				} catch (CodeStoreWriteException e) {
-					AxialCodingView.LOGGER.error("Error creating new "
-							+ IAxialCodingModel.class.getSimpleName(), e);
-				}
+				ExecUtils.logException(ExecUtils
+						.nonUIAsyncExec((Callable<Void>) () -> {
+							IAxialCodingModel acm = CODE_SERVICE
+									.createAxialCodingModelFrom(null, null,
+											"New Model").get();
+							ExecUtils.syncExec(() -> {
+								CODE_SERVICE.addAxialCodingModel(acm);
+								return null;
+							});
+							AxialCodingView.this.open(acm.getUri());
+							return null;
+						}));
 			}
 
 			@Override
@@ -200,6 +204,12 @@ public class AxialCodingView extends ViewPart {
 							+ uri);
 				}
 			}
+
+			@Override
+			public void refreshClicked(URI uri) {
+				CODE_SERVICE.updateAxialCodingModelFrom(
+						AxialCodingView.this.activeAxialCodingComposite, uri);
+			}
 		});
 
 		this.axialCodingCompositesContainer = new SashForm(parent,
@@ -261,8 +271,9 @@ public class AxialCodingView extends ViewPart {
 
 	private void activateAxialCodingComposite(
 			AxialCodingComposite activeAxialCodingComposite) {
-		if (this.activeAxialCodingComposite == activeAxialCodingComposite)
+		if (this.activeAxialCodingComposite == activeAxialCodingComposite) {
 			return;
+		}
 
 		AxialCodingView.this.activeAxialCodingComposite = activeAxialCodingComposite;
 		AxialCodingView.this.selectionProviderDelegator
@@ -317,46 +328,6 @@ public class AxialCodingView extends ViewPart {
 		for (final AxialCodingComposite axialCodingComposite : this
 				.getAxialCodingComposites()) {
 			axialCodingComposite.dispose();
-		}
-	}
-
-	private Future<URI[]> createAndOpen(String title)
-			throws CodeStoreWriteException {
-		final URI uri = AxialCodingModelLocatorProvider
-				.createUniqueAxialCodingModelURI();
-		CODE_SERVICE.addAxialCodingModel(new JointJSAxialCodingModel(uri,
-				"{\"cells\":[],\"title\":\"" + title + "\"}"));
-
-		return AxialCodingView.this.open(uri);
-	}
-
-	public void createAxialCodingModel(String title, Set<URI> codes,
-			Set<URI> relations) {
-		try {
-			Future<URI[]> uri = AxialCodingView.this.createAndOpen(title);
-			ExecUtils.logException(ExecUtils
-					.nonUIAsyncExec((Callable<Void>) () -> {
-						uri.get();
-						for (URI code : codes) {
-							AxialCodingView.this.activeAxialCodingComposite
-									.createElement(code, new Point(0, 0));
-						}
-						for (IRelation relation : LocatorService.INSTANCE
-								.resolve(new ArrayList<>(relations),
-										IRelation.class, null).get()) {
-							AxialCodingView.this.activeAxialCodingComposite
-									.createRelation(relation);
-						}
-						AxialCodingView.this.activeAxialCodingComposite
-								.autoLayout();
-						AxialCodingView.this.activeAxialCodingComposite
-								.fitOnScreen();
-						return null;
-					}));
-		} catch (Exception e) {
-			AxialCodingView.LOGGER.error("Error creating new "
-					+ IAxialCodingModel.class.getSimpleName(), e);
-		} finally {
 		}
 	}
 

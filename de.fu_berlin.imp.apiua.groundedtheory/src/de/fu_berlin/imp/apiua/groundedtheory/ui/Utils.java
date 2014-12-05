@@ -483,8 +483,11 @@ public class Utils {
 
 						if (relationViewer != null
 								&& ICode.class.isInstance(element)) {
-							int all = codeService
-									.getRelationInstancesStartingFrom(uri)
+							int all = !relationViewer
+									.getShowRelationInstancesToFirst() ? codeService
+									.getAllRelationInstancesStartingFrom(uri)
+									.size() : codeService
+									.getAllRelationInstancesEndingAt(uri)
 									.size();
 							// int here = codeService.getInstances(code).size();
 							text = new StyledString(all + "",

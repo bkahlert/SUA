@@ -1,8 +1,5 @@
 package de.fu_berlin.imp.apiua.uri.viewers;
 
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
-
 import java.text.DateFormat;
 
 import org.apache.log4j.Logger;
@@ -12,14 +9,14 @@ import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.DNDUtils;
-import com.bkahlert.nebula.utils.DNDUtils.Oracle;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.EpisodeRenderer;
 
 public class UriViewer extends SortableTreeViewer {
 
@@ -33,22 +30,13 @@ public class UriViewer extends SortableTreeViewer {
 
 		this.resources = new LocalResourceManager(
 				JFaceResources.getResources(), parent);
-		parent.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				UriViewer.this.resources.dispose();
-			}
-		});
+		parent.addDisposeListener(e -> UriViewer.this.resources.dispose());
 
 		this.initColumns(dateFormat);
 
-		DNDUtils.addLocalDragSupport(this, new Oracle() {
-			@Override
-			public boolean allowDND() {
-				return UriViewer.this.getControl().getData(
-						EpisodeRenderer.CONTROL_DATA_STRING) == null;
-			}
-		}, URI.class);
+		DNDUtils.addLocalDragSupport(this, () -> UriViewer.this.getControl()
+				.getData(EpisodeRenderer.CONTROL_DATA_STRING) == null,
+				URI.class);
 
 		this.sort(0);
 	}

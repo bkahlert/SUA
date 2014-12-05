@@ -2,12 +2,12 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -30,6 +30,7 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IModifiable;
 import com.bkahlert.nebula.utils.IReflexiveConverter;
+import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
@@ -40,7 +41,6 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS.JointJSListener;
 import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
 import com.bkahlert.nebula.widgets.jointjs.JointJSModel;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
@@ -190,7 +190,10 @@ public class AxialCodingComposite extends Composite implements
 						+ "		rgba(255, 255, 255, .85));"
 						+ "	background-size: 55px 55px;"
 						+ "}"
-						+ ".link.invalid .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; }");
+						+ ".link.invalid .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; }"
+						+ ".link .labels tspan+tspan { fill: "
+						+ new RGB(Stylers.COUNTER_COLOR.getRGB()).toDecString()
+						+ "; }");
 		// this.jointjs
 		// .injectCss("[droppable].over rect { stroke:black; stroke-width: 4px; stroke-dasharray:5,5;");
 		this.jointjs.setEnabled(false);
@@ -403,6 +406,32 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
+	public Future<List<URI>> getRelations() {
+		return ExecUtils
+				.nonUIAsyncExec((Callable<List<URI>>) () -> {
+					List<URI> uris = new LinkedList<URI>();
+					for (String id : AxialCodingComposite.this.jointjs
+							.getLinks().get()) {
+						if (id.contains("|")) {
+							continue;
+						}
+						uris.add(new URI(id));
+					}
+					return uris;
+				});
+	}
+
+	public Future<List<URI>> getIsARelations() {
+		return ExecUtils.nonUIAsyncExec((Callable<List<URI>>) () -> {
+			List<URI> uris = new LinkedList<URI>();
+			for (String id : AxialCodingComposite.this.jointjs
+					.getPermanentLinks().get()) {
+				uris.add(new URI(id));
+			}
+			return uris;
+		});
+	}
+
 	public void setTitle(String title) {
 		ExecUtils.logException(this.jointjs.setTitle(title));
 	}
@@ -417,6 +446,14 @@ public class AxialCodingComposite extends Composite implements
 		return this.jointjs.highlight(ids);
 	}
 
+	/**
+	 *
+	 * @param uri
+	 * @param position
+	 * @throws Exception
+	 *
+	 * @NonUIThread
+	 */
 	public void createElement(URI uri, Point position) throws Exception {
 		String title = this.labelProvider.getText(uri);
 		String content = this.labelProvider.getContent(uri);
@@ -438,15 +475,42 @@ public class AxialCodingComposite extends Composite implements
 			LOGGER.error("ID missing for created/updated element!");
 		}
 
-		this.refresh();
+		this.refresh().get();
 	}
 
+	/**
+	 *
+	 * @param oldUri
+	 * @param newUri
+	 * @throws Exception
+	 *
+	 * @NonUIThread
+	 */
 	private void replaceElement(URI oldUri, URI newUri) throws Exception {
 		this.deleteIsARelations(oldUri).get();
 		String updatedJson = this.jointjs.save().get()
 				.replace(oldUri.toString(), newUri.toString());
 		this.jointjs.load(updatedJson).get();
 		this.refresh().get();
+	}
+
+	/**
+	 *
+	 * @param uri
+	 * @param position
+	 * @throws Exception
+	 *
+	 * @NonUIThread
+	 */
+	public void createRelation(URI uri) throws Exception {
+		IRelation relation = CODE_SERVICE.getRelation(uri);
+		if (relation == null) {
+			return;
+		}
+
+		this.jointjs.createLink(uri.toString(), relation.getFrom().toString(),
+				relation.getTo().toString());
+		this.refreshRelation(uri);
 	}
 
 	/**
@@ -457,37 +521,36 @@ public class AxialCodingComposite extends Composite implements
 	 * @return
 	 * @throws InterruptedException
 	 * @throws ExecutionException
+	 *
+	 * @NonUIThread
 	 */
-	private Future<Void> createIsARelation(final URI uri)
-			throws InterruptedException, ExecutionException {
-		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<URI> existingElements = AxialCodingComposite.this
-					.getElements().get();
-			ICode code = LocatorService.INSTANCE
-					.resolve(uri, ICode.class, null).get();
-			if (code == null) {
-				LOGGER.warn(uri + " is no valid code");
-				return null;
+	private void createIsARelations(final URI uri) throws InterruptedException,
+			ExecutionException {
+		List<URI> existingElements = AxialCodingComposite.this.getElements()
+				.get();
+		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
+				.get();
+		if (code == null) {
+			LOGGER.warn(uri + " is no valid code");
+			return;
+		}
+		ICode parent = code;
+		while (true) {
+			parent = CODE_SERVICE.getParent(parent);
+			if (parent == null) {
+				break;
 			}
-			ICode parent = code;
-			while (true) {
-				parent = CODE_SERVICE.getParent(parent);
-				if (parent == null) {
-					break;
-				}
-				if (existingElements.contains(parent.getUri())) {
-					AxialCodingComposite.this.createIsARelation(
-							parent.getUri(), code.getUri()).get();
-				}
+			if (existingElements.contains(parent.getUri())) {
+				AxialCodingComposite.this.createIsARelation(parent.getUri(),
+						code.getUri());
 			}
-			for (ICode child : CODE_SERVICE.getSubCodes(code)) {
-				if (existingElements.contains(child.getUri())) {
-					AxialCodingComposite.this.createIsARelation(code.getUri(),
-							child.getUri()).get();
-				}
+		}
+		for (ICode child : CODE_SERVICE.getSubCodes(code)) {
+			if (existingElements.contains(child.getUri())) {
+				AxialCodingComposite.this.createIsARelation(code.getUri(),
+						child.getUri());
 			}
-			return null;
-		});
+		}
 	}
 
 	/**
@@ -499,54 +562,26 @@ public class AxialCodingComposite extends Composite implements
 	 * @return
 	 * @throws InterruptedException
 	 * @throws ExecutionException
-	 */
-	private Future<Void> createIsARelation(final URI parent, final URI child)
-			throws InterruptedException, ExecutionException {
-		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			LOGGER.info("Creating Is-A-Relation from "
-					+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
-							.get().getCaption()
-					+ " to "
-					+ LocatorService.INSTANCE
-							.resolve(parent, ICode.class, null).get()
-							.getCaption());
-			String id = parent.toString() + "|" + child.toString();
-
-			id = AxialCodingComposite.this.jointjs.createPermanentLink(id,
-					parent.toString(), child.toString()).get();
-
-			String[] texts = new String[] { "is a" };
-			for (int i = 0; texts != null && i < texts.length; i++) {
-				AxialCodingComposite.this.jointjs.setText(id, i, texts[i]);
-			}
-			return null;
-		});
-	}
-
-	/**
-	 * Creates a custom {@link IRelation}.
 	 *
-	 * @param from
-	 * @param to
-	 * @return
-	 * @throws InterruptedException
-	 * @throws ExecutionException
+	 * @NonUIThread
 	 */
-	public Future<Void> createRelation(IRelation relation)
+	private void createIsARelation(final URI parent, final URI child)
 			throws InterruptedException, ExecutionException {
-		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			LOGGER.info("Creating relation " + relation);
-			String id = AxialCodingComposite.this.jointjs.createLink(
-					relation.getUri().toString(),
-					relation.getFrom().toString(), relation.getTo().toString())
-					.get();
+		LOGGER.info("Creating Is-A-Relation from "
+				+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
+						.get().getCaption()
+				+ " to "
+				+ LocatorService.INSTANCE.resolve(parent, ICode.class, null)
+						.get().getCaption());
+		String id = parent.toString() + "|" + child.toString();
 
-			String[] texts = new String[] { relation.getName() };
-			for (int i = 0; texts != null && i < texts.length; i++) {
-				AxialCodingComposite.this.jointjs.setText(id, i, texts[i]);
-			}
-			return null;
-		});
+		id = AxialCodingComposite.this.jointjs.createPermanentLink(id,
+				parent.toString(), child.toString()).get();
+
+		String[] texts = new String[] { "is a" };
+		for (int i = 0; texts != null && i < texts.length; i++) {
+			AxialCodingComposite.this.jointjs.setText(id, i, texts[i]);
+		}
 	}
 
 	/**
@@ -554,6 +589,8 @@ public class AxialCodingComposite extends Composite implements
 	 * specified {@link URI}.
 	 *
 	 * @return
+	 *
+	 * @NonUIThread
 	 */
 	private Future<Void> deleteIsARelations(final URI uri) {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
@@ -566,43 +603,14 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
-	public Future<Void> refresh() {
-		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<URI> validUris = AxialCodingComposite.this.syncModel();
-			AxialCodingComposite.this.updateLabels(validUris);
-			AxialCodingComposite.this.refreshRelations();
-			return null;
-		});
-	}
-
-	/**
-	 * Synchronized structural information with the internally saved
-	 * information.
-	 * <p>
-	 * <ul>
-	 * <li>No more existing {@link ICode} get removed.</li>
-	 * <li>Permanent "is a" relations are recreated.
-	 *
-	 * @return
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 */
-	private List<URI> syncModel() throws InterruptedException,
-			ExecutionException {
-		List<URI> validUris = this.markAllInvalidElements();
-		this.deleteAllOutdatedIsARelationsBetweenValidElements();
-		for (URI uri : validUris) {
-			this.createIsARelation(uri);
-		}
-		return validUris;
-	}
-
 	/**
 	 * Removes all outdated "is a" permanent relations from the graph.
 	 *
 	 * @return
 	 * @throws ExecutionException
 	 * @throws InterruptedException
+	 *
+	 * @NonUIThread
 	 */
 	private void deleteAllOutdatedIsARelationsBetweenValidElements()
 			throws InterruptedException, ExecutionException {
@@ -610,6 +618,7 @@ public class AxialCodingComposite extends Composite implements
 		for (String relationId : relationIds) {
 			URI parentURI = new URI(relationId.split("\\|")[0]);
 			URI subURI = new URI(relationId.split("\\|")[1]);
+
 			ICode parentCode = LocatorService.INSTANCE.resolve(parentURI,
 					ICode.class, null).get();
 			ICode subCode = LocatorService.INSTANCE.resolve(subURI,
@@ -621,32 +630,17 @@ public class AxialCodingComposite extends Composite implements
 		}
 	}
 
-	/**
-	 * Removes all elements that symbolize a no more existing {@link ICode}.
-	 *
-	 * @return the elements that are kept
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 */
-	private List<URI> markAllInvalidElements() throws InterruptedException,
-			ExecutionException {
-		List<URI> uris = this.getElements().get();
-		List<String> validIds = new ArrayList<String>();
-		List<String> invalidIds = new ArrayList<String>();
-		for (Iterator<URI> iterator = uris.iterator(); iterator.hasNext();) {
-			URI uri = iterator.next();
-			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
-					.get();
-			if (locatable == null) {
-				invalidIds.add(uri.toString());
-				iterator.remove();
-			} else {
-				validIds.add(uri.toString());
+	public Future<Void> refresh() {
+		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
+			List<URI> validUris = this.refreshElements();
+			AxialCodingComposite.this
+					.deleteAllOutdatedIsARelationsBetweenValidElements();
+			for (URI uri : validUris) {
+				AxialCodingComposite.this.createIsARelations(uri);
 			}
-		}
-		this.jointjs.addCustomClass(invalidIds, "invalid");
-		this.jointjs.removeCustomClass(validIds, "invalid");
-		return uris;
+			AxialCodingComposite.this.refreshRelations();
+			return null;
+		});
 	}
 
 	/**
@@ -661,19 +655,20 @@ public class AxialCodingComposite extends Composite implements
 	 * <li>size</li>
 	 * </ul>
 	 *
-	 * @param uris
 	 * @return
 	 * @throws Exception
+	 *
+	 * @NonUIThread
 	 */
-	public void updateLabels(List<URI> uris) throws Exception {
-		for (URI uri : uris) {
-			this.refreshElement(uri);
-		}
+	public List<URI> refreshElements() throws Exception {
+		return this.getElements().get().stream()
+				.filter(e -> this.refreshElement(e))
+				.collect(Collectors.toList());
 	}
 
 	/**
 	 * Updates non-structural information of the given {@link URI} based on the
-	 * internal information and returns the new size.
+	 * internal information.
 	 * <p>
 	 * Updated information are:
 	 * <ul>
@@ -684,49 +679,110 @@ public class AxialCodingComposite extends Composite implements
 	 * </ul>
 	 *
 	 * @param uri
+	 *
+	 * @NonUIThread
 	 */
-	private void refreshElement(final URI uri) throws Exception {
-		if (!this.getElements().get().contains(uri)) {
-			return;
-		}
-		this.jointjs.setElementTitle(uri.toString(),
-				this.labelProvider.getText(uri));
-		this.jointjs.setElementContent(uri.toString(),
-				this.labelProvider.getContent(uri));
-		this.jointjs.setColor(uri.toString(), this.labelProvider.getColor(uri));
-		this.jointjs.setBackgroundColor(uri.toString(),
-				this.labelProvider.getBackgroundColor(uri));
-		this.jointjs.setBorderColor(uri.toString(),
-				this.labelProvider.getBorderColor(uri));
+	public boolean refreshElement(final URI uri) {
+		try {
+			if (!this.getElements().get().contains(uri)) {
+				return false;
+			}
 
-		Point size = this.labelProvider.getSize(uri);
-		if (size != null) {
-			this.jointjs.setSize(uri.toString(), size.x, size.y);
+			if (LocatorService.INSTANCE.resolve(uri, null).get() == null) {
+				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
+						"invalid");
+				return false;
+			}
+
+			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
+					"invalid");
+
+			this.jointjs.setElementTitle(uri.toString(),
+					this.labelProvider.getText(uri));
+			this.jointjs.setElementContent(uri.toString(),
+					this.labelProvider.getContent(uri));
+			this.jointjs.setColor(uri.toString(),
+					this.labelProvider.getColor(uri));
+			this.jointjs.setBackgroundColor(uri.toString(),
+					this.labelProvider.getBackgroundColor(uri));
+			this.jointjs.setBorderColor(uri.toString(),
+					this.labelProvider.getBorderColor(uri));
+
+			Point size = this.labelProvider.getSize(uri);
+			if (size != null) {
+				this.jointjs.setSize(uri.toString(), size.x, size.y);
+			}
+
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	private void refreshRelations() throws Exception {
-		List<String> relationIds = this.jointjs.getLinks().get();
-		for (String relationId : relationIds) {
-			if (relationId.contains("|")) {
-				continue;
-			}
-			IRelation relation = CODE_SERVICE.getRelation(new URI(relationId));
-			if (relation == null) {
-				this.jointjs.addCustomClass(Arrays.asList(relationId),
-						"invalid");
-				// this.jointjs.remove(relationId);
-			} else {
-				this.jointjs.setLinkTitle(relationId, relation.getName());
-			}
-		}
+	/**
+	 * Update all {@link IRelation}s in the loaded {@link IAxialCodingModel}.
+	 *
+	 * @param from
+	 * @param to
+	 * @return the valid {@link IRelation}s
+	 *
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 *
+	 * @NonUIThread
+	 */
+	public List<URI> refreshRelations() throws Exception {
+		return this.getRelations().get().stream()
+				.filter(r -> this.refreshRelation(r))
+				.collect(Collectors.toList());
+	}
 
-		List<String> elementIds = this.jointjs.getElements().get();
-		for (IRelation relation : CODE_SERVICE.getRelations()) {
-			if (elementIds.contains(relation.getFrom().toString())
-					&& elementIds.contains(relation.getTo().toString())) {
-				this.createRelation(relation);
+	/**
+	 * Update the given {@link IRelation} in the loaded
+	 * {@link IAxialCodingModel}.
+	 *
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 *
+	 * @NonUIThread
+	 */
+	public boolean refreshRelation(URI uri) {
+		try {
+			if (!this.getRelations().get().contains(uri)) {
+				return false;
 			}
+
+			IRelation relation = CODE_SERVICE.getRelation(uri);
+			if (relation == null) {
+				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
+						"invalid");
+				return false;
+			}
+
+			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
+					"invalid");
+
+			int groundingAll = CODE_SERVICE.getAllRelationInstances(relation)
+					.size();
+			int groundingImmediate = CODE_SERVICE
+					.getRelationInstances(relation).size();
+
+			StringBuffer caption = new StringBuffer();
+			caption.append(relation.getName());
+			caption.append("\\n");
+			caption.append(groundingAll + " (" + groundingImmediate + ")");
+
+			String[] texts = new String[] { caption.toString() };
+			for (int i = 0; texts != null && i < texts.length; i++) {
+				AxialCodingComposite.this.jointjs.setText(uri.toString(), i,
+						texts[i]);
+			}
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
