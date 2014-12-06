@@ -38,7 +38,6 @@ public class RelationViewerContentProvider extends
 		URIContentProvider<ICodeService> implements IStructuredContentProvider,
 		ITreeContentProvider {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(RelationViewerContentProvider.class);
 

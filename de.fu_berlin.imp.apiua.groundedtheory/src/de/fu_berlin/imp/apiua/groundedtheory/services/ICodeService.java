@@ -311,6 +311,10 @@ public interface ICodeService {
 	/**
 	 * Returns all {@link IRelation}s that have are grounded by the given
 	 * {@link URI}.
+	 * <p>
+	 * Considers only the {@link IIdentifier} portion of the {@link URI}. E.g.
+	 * if you pass sua://one/ID/two all {@link IRelation}s based on {@link URI}
+	 *  of the form sua://*\/ID/** are returned.
 	 *
 	 * @param phenomenon
 	 * @return
@@ -670,13 +674,10 @@ public interface ICodeService {
 	 * @param uri
 	 *            the core element; the {@link IAxialCodingModel} will contain
 	 *            all links and elements connected with this one
-	 * @param phenomenon
-	 *            if not <code>null</code> only relations that are grounded by
-	 *            this {@link URI} are considered
 	 * @param title
 	 */
 	public Future<IAxialCodingModel> createAxialCodingModelFrom(URI uri,
-			URI phenomenon, String title);
+			String title);
 
 	/**
 	 * Updates the given {@link IAxialCodingModel} based on the origin

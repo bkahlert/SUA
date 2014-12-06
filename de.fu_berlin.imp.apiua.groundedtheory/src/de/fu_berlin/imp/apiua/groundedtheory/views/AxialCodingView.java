@@ -121,8 +121,7 @@ public class AxialCodingView extends ViewPart {
 				ExecUtils.logException(ExecUtils
 						.nonUIAsyncExec((Callable<Void>) () -> {
 							IAxialCodingModel acm = CODE_SERVICE
-									.createAxialCodingModelFrom(null, null,
-											"New Model").get();
+									.createAxialCodingModelFrom(null, "New Model").get();
 							ExecUtils.syncExec(() -> {
 								CODE_SERVICE.addAxialCodingModel(acm);
 								return null;

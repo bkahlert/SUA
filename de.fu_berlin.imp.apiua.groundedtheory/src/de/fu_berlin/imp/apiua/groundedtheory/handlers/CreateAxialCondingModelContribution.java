@@ -21,12 +21,13 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
-import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
@@ -71,40 +72,36 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 				.getAdaptableObjects(selection, IRelationInstance.class);
 
 		String menuName = "";
-		List<Pair<URI, URI>> uris = new LinkedList<>();
+		List<URI> uris = new LinkedList<>();
 
 		if (codes.size() > 0) {
 			menuName = "Create ACM from Code";
 			for (ICode code : codes) {
-				uris.add(new Pair<>(code.getUri(), null));
+				uris.add(code.getUri());
 			}
 		} else if (relations.size() > 0) {
 			menuName = "Create ACM from Relation";
 			for (IRelation relation : relations) {
-				uris.add(new Pair<>(relation.getFrom(), null));
-				uris.add(new Pair<>(relation.getTo(), null));
+				uris.add(relation.getUri());
 			}
 		} else if (relationInstances.size() > 0) {
-			menuName = "Create ACM from Phenomenon";
+			menuName = "Create ACM from Relation Grounded by";
 			for (IRelationInstance relationInstance : relationInstances) {
-				uris.add(new Pair<>(relationInstance.getRelation().getFrom(),
-						relationInstance.getPhenomenon()));
-				uris.add(new Pair<>(relationInstance.getRelation().getTo(),
-						relationInstance.getPhenomenon()));
+				uris.add(relationInstance.getUri());
 			}
 		}
 
 		if (uris.size() > 0) {
 			Menu createAcmSubMenu = null;
 
-			for (Pair<URI, URI> uri : uris) {
-				String phenomenonName = this.labelProviderService.getText(uri
-						.getFirst());
+			for (URI uri : uris) {
+				String name = this.labelProviderService.getText(uri);
 
 				MenuItem menuItem;
 				if (uris.size() == 1) {
 					menuItem = new MenuItem(menu, SWT.PUSH, index);
-					menuItem.setText(menuName + " using " + phenomenonName);
+					menuItem.setText(menuName + " \"" + name + "\"");
+					menuItem.setImage(ImageManager.RELATION);
 				} else {
 					if (createAcmSubMenu == null) {
 						MenuItem createAcmItem = new MenuItem(menu,
@@ -115,7 +112,7 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 						createAcmItem.setMenu(createAcmSubMenu);
 					}
 					menuItem = new MenuItem(createAcmSubMenu, SWT.PUSH);
-					menuItem.setText("using " + phenomenonName);
+					menuItem.setText(name);
 				}
 
 				menuItem.addSelectionListener(new SelectionAdapter() {
@@ -123,8 +120,7 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 					public void widgetSelected(SelectionEvent e) {
 						try {
 							CreateAxialCondingModelContribution.this
-									.createAcmFrom(uri.getFirst(),
-											uri.getSecond());
+									.createAcmFrom(uri);
 						} catch (InterruptedException | ExecutionException e1) {
 							LOGGER.error("Error creating ACM for " + uri);
 						}
@@ -141,34 +137,38 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 	 * @param uri
 	 *            the core element; the {@link IAxialCodingModel} will contain
 	 *            all links and elements connected with this one
-	 * @param phenomenon
-	 *            if not <code>null</code> only relations that are grounded by
-	 *            this {@link URI} are considered
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private void createAcmFrom(URI uri, URI phenomenon)
-			throws InterruptedException, ExecutionException {
+	private void createAcmFrom(URI uri) throws InterruptedException,
+			ExecutionException {
 		Job job = new NamedJob(CreateAxialCondingModelContribution.class,
 				"Creating new axial coding model") {
 			@Override
 			protected IStatus runNamed(IProgressMonitor monitor) {
 				SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
-				StringBuffer title = new StringBuffer(
-						CreateAxialCondingModelContribution.this.labelProviderService
-								.getText(uri));
-				if (phenomenon != null) {
-					title.append(" ("
-							+ CreateAxialCondingModelContribution.this.labelProviderService
-									.getText(phenomenon) + ")");
-				}
-				subMonitor.worked(5);
-
 				try {
+					ILocatable locatable = LocatorService.INSTANCE.resolve(uri,
+							null).get();
+
+					String title = null;
+					if (locatable instanceof IRelationInstance) {
+						IRelationInstance relationInstance = (IRelationInstance) locatable;
+						title = CreateAxialCondingModelContribution.this.labelProviderService
+								.getText(relationInstance.getRelation()
+										.getUri());
+						title += " (grounded by "
+								+ CreateAxialCondingModelContribution.this.labelProviderService
+										.getText(uri) + ")";
+					} else {
+						title = CreateAxialCondingModelContribution.this.labelProviderService
+								.getText(uri);
+					}
+					subMonitor.worked(5);
+
 					IAxialCodingModel acm = CreateAxialCondingModelContribution.this.codeService
-							.createAxialCodingModelFrom(uri, phenomenon,
-									title.toString()).get();
+							.createAxialCodingModelFrom(uri, title.toString()).get();
 					subMonitor.worked(80);
 					ExecUtils.syncExec(() -> {
 						CreateAxialCondingModelContribution.this.codeService

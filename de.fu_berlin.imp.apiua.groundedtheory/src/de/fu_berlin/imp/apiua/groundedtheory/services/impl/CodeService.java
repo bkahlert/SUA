@@ -34,6 +34,7 @@ import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.IdentifierFactory;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
@@ -1157,13 +1158,13 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public Future<IAxialCodingModel> createAxialCodingModelFrom(URI uri,
-			URI phenomenon, String title) {
+			String title) {
 		return ExecUtils.nonUISyncExec(() -> {
 			JointJSAxialCodingModel acm = new JointJSAxialCodingModel(
 					AxialCodingModelLocatorProvider
 							.createUniqueAxialCodingModelURI(),
 					"{ \"cells\": [] }");
-			acm.setOrigin(phenomenon != null ? phenomenon : uri);
+			acm.setOrigin(uri);
 			acm.setTitle(title);
 
 			ExecUtils.syncExec(() -> {
@@ -1208,13 +1209,40 @@ public class CodeService implements ICodeService, IDisposable {
 				.nonUISyncExec((Callable<IAxialCodingModel>) () -> {
 					IAxialCodingModel acm = this.getAxialCodingModel(acmUri);
 
-					Set<IRelation> relations = acm.getOrigin() != null
-							&& LocatorService.INSTANCE.getType(acm.getOrigin()) != ICode.class ? this
-							.getRelations(acm.getOrigin()) : this
-							.getRelations();
+					Set<IRelation> relations = new HashSet<>();
+					Set<URI> neededElements = new HashSet<>();
+					if (acm.getOrigin() != null) {
+						Class<? extends ILocatable> type = LocatorService.INSTANCE
+								.getType(acm.getOrigin());
 
-					Set<URI> neededElements = getRelatedElements(
-							acm.getOrigin(), relations);
+						if (type == ICode.class) {
+							relations = this.getRelations();
+							neededElements = getRelatedElements(
+									acm.getOrigin(), relations);
+						} else if (type == IRelation.class) {
+							IRelation relation = LocatorService.INSTANCE
+									.resolve(acm.getOrigin(), IRelation.class,
+											null).get();
+							relations = this.getRelations();
+							neededElements = getRelatedElements(
+									relation.getFrom(), relations);
+						} else if (type == IRelationInstance.class) {
+							IRelationInstance relationInstance = LocatorService.INSTANCE
+									.resolve(acm.getOrigin(),
+											IRelationInstance.class, null)
+									.get();
+							relations = this.getRelations(relationInstance
+									.getPhenomenon());
+							neededElements = getRelatedElements(
+									relationInstance.getRelation().getFrom(),
+									relations);
+						} else {
+							throw new RuntimeException("Unsupported type "
+									+ type + " (" + acm.getOrigin() + ") for "
+									+ IAxialCodingModel.class + " creation");
+						}
+					}
+
 					Set<URI> neededRelations = getNeededRelations(
 							neededElements, relations);
 
