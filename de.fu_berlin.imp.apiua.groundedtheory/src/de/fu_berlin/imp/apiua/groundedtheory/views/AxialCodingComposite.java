@@ -2,8 +2,10 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -41,6 +43,7 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS.JointJSListener;
 import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
 import com.bkahlert.nebula.widgets.jointjs.JointJSModel;
 
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
@@ -49,6 +52,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -178,8 +182,12 @@ public class AxialCodingComposite extends Composite implements
 			}
 		});
 
-		this.jointjs
-				.injectCss(".html-element.invalid {"
+		String originColor = new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB())
+				.toDecString();
+
+		this.jointjs.injectCss(
+		// invalid elements / relations
+				".html-element.invalid {"
 						+ "	background-image: linear-gradient(-45deg,"
 						+ "		rgba(255, 255, 255, .2) 25%,"
 						+ "		rgba(255, 255, 255, .85) 25%,"
@@ -191,7 +199,23 @@ public class AxialCodingComposite extends Composite implements
 						+ "	background-size: 55px 55px;"
 						+ "}"
 						+ ".link.invalid .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; }"
-						+ ".link .labels tspan+tspan { fill: "
+
+						// highlight origin element / relation
+						+ ".html-element.origin { border-color: "
+						+ originColor
+						+ " !important; border-width: 5px; }"
+						+ ".html-element.origin h1 { -webkit-text-stroke: 1px "
+						+ originColor
+						+ "; text-transform: uppercase; font-weight: 700; }"
+						+ ".link.origin .connection { stroke-width: 5px; stroke: "
+						+ originColor
+						+ "; }"
+						+ ".link.origin .labels text { stroke: "
+						+ originColor
+						+ "; text-transform: uppercase; }"
+
+						// num groundings
+						+ ".link .labels tspan+tspan { stroke: none; text-transform: none; fill: "
 						+ new RGB(Stylers.COUNTER_COLOR.getRGB()).toDecString()
 						+ "; }");
 		// this.jointjs
@@ -393,6 +417,35 @@ public class AxialCodingComposite extends Composite implements
 
 	public URI getOpenedURI() {
 		return this.openedUri;
+	}
+
+	public Set<URI> getOriginCells() {
+		Set<URI> uris = new HashSet<>();
+		try {
+			IAxialCodingModel acm = CODE_SERVICE
+					.getAxialCodingModel(this.openedUri);
+			if (acm.getOrigin() != null) {
+				uris.add(acm.getOrigin());
+				ILocatable locatable = LocatorService.INSTANCE.resolve(
+						acm.getOrigin(), null).get();
+				if (locatable instanceof IRelation) {
+					uris.add(((IRelation) locatable).getFrom());
+					uris.add(((IRelation) locatable).getTo());
+				} else if (locatable instanceof IRelationInstance) {
+					uris.add(((IRelationInstance) locatable).getRelation()
+							.getUri());
+					uris.add(((IRelationInstance) locatable).getRelation()
+							.getFrom());
+					uris.add(((IRelationInstance) locatable).getRelation()
+							.getTo());
+					uris.add(((IRelationInstance) locatable).getPhenomenon());
+				}
+			}
+		} catch (CodeStoreReadException | InterruptedException
+				| ExecutionException e) {
+			LOGGER.error("Can't retrieve origin cells", e);
+		}
+		return uris;
 	}
 
 	public Future<List<URI>> getElements() {
@@ -710,6 +763,15 @@ public class AxialCodingComposite extends Composite implements
 
 			Point size = this.labelProvider.getSize(uri);
 			if (size != null) {
+				if (this.getOriginCells().contains(uri)) {
+					this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
+							"origin");
+					size.x += 50;
+					size.y += 5;
+				} else {
+					this.jointjs.removeCustomClass(
+							Arrays.asList(uri.toString()), "origin");
+				}
 				this.jointjs.setSize(uri.toString(), size.x, size.y);
 			}
 
@@ -764,6 +826,13 @@ public class AxialCodingComposite extends Composite implements
 
 			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
 					"invalid");
+			if (this.getOriginCells().contains(uri)) {
+				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
+						"origin");
+			} else {
+				this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
+						"origin");
+			}
 
 			int groundingAll = CODE_SERVICE.getAllRelationInstances(relation)
 					.size();
