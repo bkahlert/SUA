@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -264,6 +265,20 @@ public class RelationViewerContentProvider extends
 
 	@Override
 	public URI getParent(URI uri) {
+		try {
+			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
+					.get();
+			if (locatable instanceof IRelation) {
+				IRelation relation = (IRelation) locatable;
+				return this.showRelationInstancesToFirst ? relation.getTo()
+						: relation.getFrom();
+			} else if (locatable instanceof IRelationInstance) {
+				IRelationInstance relationInstance = (IRelationInstance) locatable;
+				return relationInstance.getRelation().getUri();
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error("Error finding parent of " + uri, e);
+		}
 		return null;
 	}
 
