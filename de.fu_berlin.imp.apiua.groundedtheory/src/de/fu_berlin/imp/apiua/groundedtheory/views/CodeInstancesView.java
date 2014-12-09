@@ -3,12 +3,10 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.nebula.utils.PartRenamer;
@@ -34,20 +32,16 @@ public class CodeInstancesView extends ViewPart {
 	private final ISelectionRetriever<URI> uriRetriever = SelectionRetrieverFactory
 			.getSelectionRetriever(URI.class);
 
-	private final ISelectionListener selectionListener = new ISelectionListener() {
-		@Override
-		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (part == CodeInstancesView.this) {
-				return;
-			}
-			List<URI> uris = CodeInstancesView.this.uriRetriever.getSelection();
-			CodeInstancesView.this.partRenamer.apply(uris);
-			if (uris.size() > 0) {
-				if (CodeInstancesView.this.codeInstanceViewer != null
-						&& !CodeInstancesView.this.codeInstanceViewer
-								.isDisposed()) {
-					CodeInstancesView.this.codeInstanceViewer.setInput(uris);
-				}
+	private final ISelectionListener selectionListener = (part, selection) -> {
+		if (part == CodeInstancesView.this) {
+			return;
+		}
+		List<URI> uris = CodeInstancesView.this.uriRetriever.getSelection();
+		CodeInstancesView.this.partRenamer.apply(uris);
+		if (uris.size() > 0) {
+			if (CodeInstancesView.this.codeInstanceViewer != null
+					&& !CodeInstancesView.this.codeInstanceViewer.isDisposed()) {
+				CodeInstancesView.this.codeInstanceViewer.setInput(uris);
 			}
 		}
 	};
@@ -76,7 +70,6 @@ public class CodeInstancesView extends ViewPart {
 		new ContextMenu(this.codeInstanceViewer.getViewer(), this.getSite()) {
 			@Override
 			protected String getDefaultCommandID() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};

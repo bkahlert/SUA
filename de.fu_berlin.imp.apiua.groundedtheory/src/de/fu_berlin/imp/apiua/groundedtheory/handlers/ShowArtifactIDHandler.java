@@ -1,9 +1,5 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.groundedtheory.dialogs.ShowArtefactIDDialog;
-
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -17,6 +13,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.dialogs.ShowArtefactIDDialog;
 
 public class ShowArtifactIDHandler extends AbstractHandler {
 

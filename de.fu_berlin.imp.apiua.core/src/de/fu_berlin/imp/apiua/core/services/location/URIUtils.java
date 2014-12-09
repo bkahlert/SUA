@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.ISelection;
 
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.IdentifierFactory;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
@@ -24,7 +25,7 @@ public class URIUtils {
 	 * Tries to extract the resource from the given {@link URI}.
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in diff
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 */
@@ -36,7 +37,7 @@ public class URIUtils {
 	 * Tries to extract the resources from the given {@link URI}s.
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in diff
-	 * 
+	 *
 	 * @param uris
 	 * @return
 	 */
@@ -59,7 +60,7 @@ public class URIUtils {
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in !sg2h, since this is
 	 * detected as a valid {@link IIdentifier}
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 */
@@ -83,7 +84,7 @@ public class URIUtils {
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in !sg2h, since this is
 	 * detected as a valid {@link IIdentifier}
-	 * 
+	 *
 	 * @param uris
 	 * @return
 	 */
@@ -107,7 +108,7 @@ public class URIUtils {
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in a list with the
 	 * elements "resource" and "abc"
-	 * 
+	 *
 	 * @param uri
 	 * @return an empty list if no trail is found
 	 */
@@ -125,7 +126,7 @@ public class URIUtils {
 	 * <p>
 	 * e.g. apiua://diff/!sg2h/resource/abc will result in a list with the
 	 * elements "resource" and "abc"
-	 * 
+	 *
 	 * @param uri
 	 * @return an empty list if no trail is found
 	 */
@@ -147,6 +148,9 @@ public class URIUtils {
 		if (element instanceof URI) {
 			return (URI) element;
 		}
+		if (element instanceof ILocatable) {
+			return ((ILocatable) element).getUri();
+		}
 		URI uri = (URI) Platform.getAdapterManager().getAdapter(element,
 				URI.class);
 		return uri;
@@ -154,7 +158,7 @@ public class URIUtils {
 
 	/**
 	 * Filters the given {@link URI}s by the given resources.
-	 * 
+	 *
 	 * @param uris
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
@@ -186,7 +190,7 @@ public class URIUtils {
 
 	/**
 	 * Filters the given {@link URI}s by the given resource.
-	 * 
+	 *
 	 * @param uris
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
@@ -199,7 +203,7 @@ public class URIUtils {
 
 	/**
 	 * Filters the given {@link URI}s by the given resources.
-	 * 
+	 *
 	 * @param uris
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
@@ -216,7 +220,7 @@ public class URIUtils {
 
 	/**
 	 * Filters the given {@link URI}s by the given resource.
-	 * 
+	 *
 	 * @param uris
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
@@ -230,7 +234,7 @@ public class URIUtils {
 	/**
 	 * Tries to adapt all element of the given {@link ISelection} to an
 	 * {@link URI} and returns the ones with the given resource.
-	 * 
+	 *
 	 * @param selection
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
@@ -246,7 +250,7 @@ public class URIUtils {
 	/**
 	 * Tries to adapt all element of the given {@link ISelection} to an
 	 * {@link URI} and returns the ones with the given resources.
-	 * 
+	 *
 	 * @param selection
 	 * @param resource
 	 *            a value of null and an empty string are treated equally (no
