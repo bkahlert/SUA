@@ -27,13 +27,14 @@ import com.bkahlert.nebula.viewer.SortableTreeViewer;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 
 public class CodeInstanceViewer extends Composite implements ISelectionProvider {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(CodeInstanceViewer.class);
 
@@ -52,6 +53,16 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		Utils.addCodeColorRenderSupport(tree, 1);
 
 		this.treeViewer = new SortableTreeViewer(tree);
+		this.treeViewer.addDoubleClickListener(event -> {
+			final ISelection selection = event.getSelection();
+			URI[] uris = Utils.getURIs(selection);
+			if (LocatorService.INSTANCE != null) {
+				LocatorService.INSTANCE.showInWorkspace(uris, false, null);
+			} else {
+				LOGGER.error("Could not retrieve "
+						+ ILocatorService.class.getSimpleName());
+			}
+		});
 		this.treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 		this.createColumns();
 		this.treeViewer
