@@ -35,6 +35,7 @@ import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.SWTUtils;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
@@ -60,6 +61,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.EditingSupport;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.RelationViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
@@ -199,6 +201,8 @@ public class Utils {
 				new RelativeWidth(1.0, 150));
 
 		final GTLabelProvider labelProvider = new GTLabelProvider();
+		CodeViewer codeViewer = SWTUtils.getParent(CodeViewer.class,
+				treeViewer.getTree());
 		RelationViewer relationViewer = SWTUtils.getParent(
 				RelationViewer.class, treeViewer.getTree());
 
@@ -254,6 +258,11 @@ public class Utils {
 									.resolve(uri, ICodeInstance.class, null)
 									.get();
 							Stylers.rebase(text, Stylers.SMALL_STYLER);
+
+							if (codeViewer != null) {
+								text = removeGroundingInformation(text);
+							}
+
 							if (CodeLocatorProvider.CODE_NAMESPACE
 									.equals(URIUtils.getResource(codeInstance
 											.getId()))) {
@@ -359,6 +368,10 @@ public class Utils {
 								text = Stylers.rebase(text,
 										Stylers.SMALL_STYLER);
 
+								if (relationViewer != null) {
+									text = removeGroundingInformation(text);
+								}
+
 								IRelationInstance relationInstance = LocatorService.INSTANCE
 										.resolve(uri, IRelationInstance.class,
 												null).get();
@@ -433,6 +446,22 @@ public class Utils {
 						}
 
 						Image image = labelProvider.getImage(uri);
+
+						// codeInstances pointing to relationInstances
+						// if (codeViewer != null
+						// &&
+						// CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE
+						// .equals(URIUtils.getResource(uri))) {
+						// ICodeInstance codeInstance = LocatorService.INSTANCE
+						// .resolve(uri, ICodeInstance.class, null)
+						// .get();
+						// if
+						// (RelationInstanceLocatorProvider.RELATION_INSTANCE_NAMESPACE
+						// .equals(URIUtils.getResource(codeInstance
+						// .getId()))) {
+						// image = ImageManager.RELATION_INSTANCE;
+						// }
+						// }
 
 						if (relationViewer != null
 								&& RelationLocatorProvider.RELATION_NAMESPACE
@@ -566,5 +595,22 @@ public class Utils {
 				words);
 		Stylers.setDisableColorMix(false);
 		return string;
+	}
+
+/**
+	 * Removed the (grounding ...) portion from a {@link StyledString).
+	 * @param text
+	 * @return
+	 */
+	private static StyledString removeGroundingInformation(StyledString text) {
+		int pos = text.getString().indexOf("(grounding ");
+		if (pos >= 0) {
+			int end = StringUtils.findClosingParenthese(text.getString(), pos);
+			if (end > pos) {
+				return Stylers.substring(text, 0, pos).append(
+						Stylers.substring(text, end + 1, text.length()));
+			}
+		}
+		return text;
 	}
 }

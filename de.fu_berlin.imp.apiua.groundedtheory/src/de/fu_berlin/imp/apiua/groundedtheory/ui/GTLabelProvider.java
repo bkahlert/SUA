@@ -361,7 +361,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 								.append(")", Stylers.MINOR_STYLER);
 					}
 				}
-				return string;
+				return string.append(" (grounding "
+						+ this.getText(codeInstance.getCode()) + ")");
 			} else {
 				return new StyledString(codeInstance.getId().toString(),
 						Stylers.ATTENTION_STYLER);
@@ -401,8 +402,11 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof IRelationInstance) {
 			IRelationInstance relationInstance = (IRelationInstance) locatable;
-			return labelProviderService.getStyledText(relationInstance
-					.getPhenomenon());
+			return labelProviderService.getStyledText(
+					relationInstance.getPhenomenon()).append(
+					" (grounding "
+							+ this.getText(relationInstance.getRelation())
+							+ ")", styler);
 		}
 		if (locatable instanceof IAxialCodingModel) {
 			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
