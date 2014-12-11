@@ -3,8 +3,10 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -311,7 +313,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	}
 
 	public void loadAndClearHistory(final Runnable callback, URI... uris) {
-		final List<URI> toOpen = new ArrayList<URI>();
+		final Set<URI> toOpen = new LinkedHashSet<URI>();
 		final Map<URI, RGB> colors = new HashMap<>();
 		for (URI uri : uris) {
 			if (uri instanceof ViewerURI) {
@@ -372,9 +374,11 @@ public class AbstractMemoView extends UriPresentingEditorView {
 		while (this.history.size() < toOpen.size()) {
 			this.history.add(new History<URI>());
 		}
-		for (int i = 0; i < toOpen.size(); i++) {
+		int i = 0;
+		for (URI x : toOpen) {
 			this.history.get(i).clear();
-			this.history.get(i).add(toOpen.get(i));
+			this.history.get(i).add(x);
+			i++;
 		}
 		this.updateNavigation();
 		this.load(() -> {
