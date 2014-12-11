@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 
+import com.bkahlert.nebula.utils.HashUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -69,7 +70,15 @@ public class URIUtils {
 				: new String[0];
 
 		if (parts.length > 1) {
-			IIdentifier identifier = IdentifierFactory.createFrom(parts[1]);
+			IIdentifier identifier;
+			// FIXME apiua://survey/cd/id should be of the format
+			// apiua://survey-cd/id
+			if ("cd".equals(parts[1])) {
+				identifier = IdentifierFactory.createFrom(HashUtils
+						.md5(parts[2]));
+			} else {
+				identifier = IdentifierFactory.createFrom(parts[1]);
+			}
 			if (identifier != null) {
 				return identifier;
 			}
