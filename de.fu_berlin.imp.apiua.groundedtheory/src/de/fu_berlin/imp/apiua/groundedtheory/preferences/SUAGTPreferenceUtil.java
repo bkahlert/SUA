@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 
 import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.ViewerUtils;
 
@@ -60,7 +59,7 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
 	public void setLastOpenedMemos(List<URI> uris) {
 		String pref = de.fu_berlin.imp.apiua.core.util.SerializationUtils
-				.serialize(uris);
+				.serialize(uris != null ? uris : new LinkedList<>());
 		this.getPreferenceStore().setValue(
 				SUAGTPreferenceConstants.LAST_OPENED_MEMOS, pref);
 	}
@@ -82,7 +81,7 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 
 	public void setLastUsedCodes(List<URI> codes) {
 		String pref = de.fu_berlin.imp.apiua.core.util.SerializationUtils
-				.serialize(codes);
+				.serialize(codes != null ? codes : new LinkedList<>());
 		this.getPreferenceStore().setValue(
 				SUAGTPreferenceConstants.LAST_USED_CODES, pref);
 	}
@@ -131,34 +130,33 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 			@Override
 			protected IStatus runNamed(IProgressMonitor monitor) {
 				final SubMonitor subMonitor = SubMonitor.convert(monitor);
-				new NebulaPreferences().loadExpandedElements(
-						saveExpandedElementsKey, viewer,
-						new IConverter<String, Object>() {
-							@Override
-							public Object convert(String returnValue) {
-								try {
-									URI uri = new URI(returnValue);
-									subMonitor.setWorkRemaining(2);
-									List<URI> preload = new ArrayList<URI>();
-									preload.add(uri);
-									for (Object descendant : ViewerUtils
-											.getDescendants(viewer, uri)) {
-										if (descendant instanceof URI) {
-											preload.add((URI) descendant);
+				new NebulaPreferences()
+						.loadExpandedElements(
+								saveExpandedElementsKey,
+								viewer,
+								returnValue -> {
+									try {
+										URI uri = new URI(returnValue);
+										subMonitor.setWorkRemaining(2);
+										List<URI> preload = new ArrayList<URI>();
+										preload.add(uri);
+										for (Object descendant : ViewerUtils
+												.getDescendants(viewer, uri)) {
+											if (descendant instanceof URI) {
+												preload.add((URI) descendant);
+											}
 										}
+										LocatorService.preload(
+												CodeViewer.class, viewer,
+												preload, subMonitor.newChild(1));
+										return uri;
+									} catch (Exception e) {
+										CodeViewer.LOGGER.error(
+												"Error loading expanded element "
+														+ returnValue, e);
 									}
-									LocatorService.preload(CodeViewer.class,
-											viewer, preload,
-											subMonitor.newChild(1));
-									return uri;
-								} catch (Exception e) {
-									CodeViewer.LOGGER.error(
-											"Error loading expanded element "
-													+ returnValue, e);
-								}
-								return null;
-							}
-						});
+									return null;
+								});
 				return Status.OK_STATUS;
 			}
 		};
@@ -169,14 +167,11 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 	public static void saveExpandedElements(TreeViewer viewer,
 			String saveExpandedElementsKey) {
 		new NebulaPreferences().saveExpandedElements(saveExpandedElementsKey,
-				viewer, new IConverter<Object, String>() {
-					@Override
-					public String convert(Object returnValue) {
-						if (returnValue instanceof URI) {
-							return ((URI) returnValue).toString();
-						}
-						return null;
+				viewer, returnValue -> {
+					if (returnValue instanceof URI) {
+						return ((URI) returnValue).toString();
 					}
+					return null;
 				});
 	}
 }
