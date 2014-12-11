@@ -602,13 +602,31 @@ public class Utils {
 	 * @param text
 	 * @return
 	 */
-	private static StyledString removeGroundingInformation(StyledString text) {
-		int pos = text.getString().indexOf("(grounding ");
+	public static StyledString removeGroundingInformation(StyledString text) {
+		int pos = text.getString().indexOf(" (grounding ");
 		if (pos >= 0) {
-			int end = StringUtils.findClosingParenthese(text.getString(), pos);
+			int end = StringUtils.findClosingParenthese(text.getString(),
+					pos + 1);
 			if (end > pos) {
 				return Stylers.substring(text, 0, pos).append(
 						Stylers.substring(text, end + 1, text.length()));
+			}
+		}
+		return text;
+	}
+
+/**
+	 * Removed the (grounding ...) portion from a {@link String).
+	 * @param text
+	 * @return
+	 */
+	public static String removeGroundingInformation(String text) {
+		int pos = text.indexOf(" (grounding ");
+		if (pos >= 0) {
+			int end = StringUtils.findClosingParenthese(text, pos + 1);
+			if (end > pos) {
+				return text.substring(0, pos)
+						+ text.substring(end + 1, text.length());
 			}
 		}
 		return text;

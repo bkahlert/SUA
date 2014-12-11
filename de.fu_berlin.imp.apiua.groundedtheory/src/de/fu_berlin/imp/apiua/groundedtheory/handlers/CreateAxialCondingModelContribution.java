@@ -34,6 +34,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
 public class CreateAxialCondingModelContribution extends ContributionItem {
@@ -95,7 +96,9 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 			Menu createAcmSubMenu = null;
 
 			for (URI uri : uris) {
-				String name = this.labelProviderService.getText(uri);
+				String name = Utils
+						.removeGroundingInformation(CreateAxialCondingModelContribution.this.labelProviderService
+								.getText(uri));
 
 				MenuItem menuItem;
 				if (uris.size() == 1) {
@@ -159,8 +162,8 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 								.getText(relationInstance.getRelation()
 										.getUri());
 						title += " (grounded by "
-								+ CreateAxialCondingModelContribution.this.labelProviderService
-										.getText(uri) + ")";
+								+ Utils.removeGroundingInformation(CreateAxialCondingModelContribution.this.labelProviderService
+										.getText(uri)) + ")";
 					} else {
 						title = CreateAxialCondingModelContribution.this.labelProviderService
 								.getText(uri);
@@ -168,7 +171,8 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 					subMonitor.worked(5);
 
 					IAxialCodingModel acm = CreateAxialCondingModelContribution.this.codeService
-							.createAxialCodingModelFrom(uri, title.toString()).get();
+							.createAxialCodingModelFrom(uri, title.toString())
+							.get();
 					subMonitor.worked(80);
 					ExecUtils.syncExec(() -> {
 						CreateAxialCondingModelContribution.this.codeService
