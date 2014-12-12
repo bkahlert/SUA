@@ -48,6 +48,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
@@ -167,7 +168,6 @@ public class AxialCodingComposite extends Composite implements
 					}
 				});
 		this.jointjs.addJointJSListener(new JointJSListener() {
-
 			@Override
 			public void modified(JointJSModel model) {
 				Event event = new Event();
@@ -178,6 +178,17 @@ public class AxialCodingComposite extends Composite implements
 				ModifyEvent modifyEvent = new ModifyEvent(event);
 				for (ModifyListener modifyListener : AxialCodingComposite.this.modifyListeners) {
 					modifyListener.modifyText(modifyEvent);
+				}
+			}
+
+			@Override
+			public void doubleClicked(JointJSCell cell) {
+				if (LocatorService.INSTANCE != null) {
+					LocatorService.INSTANCE.showInWorkspace(
+							new URI(cell.getId()), false, null);
+				} else {
+					LOGGER.error("Could not retrieve "
+							+ ILocatorService.class.getSimpleName());
 				}
 			}
 		});
