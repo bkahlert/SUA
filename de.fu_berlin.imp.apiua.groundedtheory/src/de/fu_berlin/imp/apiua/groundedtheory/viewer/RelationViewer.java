@@ -59,7 +59,6 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 	}
 
 	private TreeViewer viewer = null;
-	private Control focusControl;
 
 	public RelationViewer(Composite parent, int style,
 			final ShowInstances initialShowInstances,
@@ -122,11 +121,9 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 			filteredTree
 					.setQuickSelectionMode(quickSelectionMode == QuickSelectionMode.ON);
 			this.viewer = filteredTree.getViewer();
-			this.focusControl = filteredTree.getFilterControl();
 		} else {
 			this.viewer = createViewer(this, style, initialShowInstances,
 					saveExpandedElementsKey);
-			this.focusControl = this.viewer.getControl();
 		}
 	}
 
@@ -302,7 +299,7 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 
 	@Override
 	public boolean setFocus() {
-		return this.focusControl.setFocus();
+		return this.viewer.getControl().setFocus();
 	}
 
 }
