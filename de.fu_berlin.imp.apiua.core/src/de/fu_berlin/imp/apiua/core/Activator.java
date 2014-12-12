@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -40,46 +39,40 @@ public class Activator extends AbstractUIPlugin {
 	private TimeZoneDate oldDateRangeEnd;
 	private boolean oldDateRangeStartEnabled;
 	private boolean oldDateRangeEndEnabled;
-	private final IPropertyChangeListener dateRangeChangeListener = new IPropertyChangeListener() {
-		@Override
-		public void propertyChange(PropertyChangeEvent event) {
-			TimeZoneDateRange oldDateRange = new TimeZoneDateRange(
-					Activator.this.oldDateRangeStartEnabled ? Activator.this.oldDateRangeStart
-							: null,
-					Activator.this.oldDateRangeEndEnabled ? Activator.this.oldDateRangeEnd
-							: null);
-			TimeZoneDateRange newDateRange = null;
+	private final IPropertyChangeListener dateRangeChangeListener = event -> {
+		TimeZoneDateRange oldDateRange = new TimeZoneDateRange(
+				Activator.this.oldDateRangeStartEnabled ? Activator.this.oldDateRangeStart
+						: null,
+				Activator.this.oldDateRangeEndEnabled ? Activator.this.oldDateRangeEnd
+						: null);
+		TimeZoneDateRange newDateRange = null;
 
-			TimeZoneDate newDateRangeStart = Activator.this.oldDateRangeStart;
-			TimeZoneDate newDateRangeEnd = Activator.this.oldDateRangeEnd;
-			boolean newDateRangeStartEnabled = Activator.this.oldDateRangeStartEnabled;
-			boolean newDateRangeEndEnabled = Activator.this.oldDateRangeEndEnabled;
+		TimeZoneDate newDateRangeStart = Activator.this.oldDateRangeStart;
+		TimeZoneDate newDateRangeEnd = Activator.this.oldDateRangeEnd;
+		boolean newDateRangeStartEnabled = Activator.this.oldDateRangeStartEnabled;
+		boolean newDateRangeEndEnabled = Activator.this.oldDateRangeEndEnabled;
 
-			if (Activator.this.corePreferenceUtil.dateRangeStartChanged(event)) {
-				newDateRangeStart = new TimeZoneDate(
-						(String) event.getNewValue());
-			} else if (Activator.this.corePreferenceUtil
-					.dateRangeEndChanged(event)) {
-				newDateRangeEnd = new TimeZoneDate((String) event.getNewValue());
-			} else if (Activator.this.corePreferenceUtil
-					.dateRangeStartEnabledChanged(event)) {
-				newDateRangeStartEnabled = (Boolean) event.getNewValue();
-			} else if (Activator.this.corePreferenceUtil
-					.dateRangeEndEnabledChanged(event)) {
-				newDateRangeEndEnabled = (Boolean) event.getNewValue();
-			}
-
-			newDateRange = new TimeZoneDateRange(
-					newDateRangeStartEnabled ? newDateRangeStart : null,
-					newDateRangeEndEnabled ? newDateRangeEnd : null);
-			DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange,
-					newDateRange);
-
-			Activator.this.oldDateRangeStart = newDateRangeStart;
-			Activator.this.oldDateRangeEnd = newDateRangeEnd;
-			Activator.this.oldDateRangeStartEnabled = newDateRangeStartEnabled;
-			Activator.this.oldDateRangeEndEnabled = newDateRangeEndEnabled;
+		if (Activator.this.corePreferenceUtil.dateRangeStartChanged(event)) {
+			newDateRangeStart = new TimeZoneDate((String) event.getNewValue());
+		} else if (Activator.this.corePreferenceUtil.dateRangeEndChanged(event)) {
+			newDateRangeEnd = new TimeZoneDate((String) event.getNewValue());
+		} else if (Activator.this.corePreferenceUtil
+				.dateRangeStartEnabledChanged(event)) {
+			newDateRangeStartEnabled = (Boolean) event.getNewValue();
+		} else if (Activator.this.corePreferenceUtil
+				.dateRangeEndEnabledChanged(event)) {
+			newDateRangeEndEnabled = (Boolean) event.getNewValue();
 		}
+
+		newDateRange = new TimeZoneDateRange(
+				newDateRangeStartEnabled ? newDateRangeStart : null,
+				newDateRangeEndEnabled ? newDateRangeEnd : null);
+		DateRangeUtil.notifyDataSourceFilterChanged(oldDateRange, newDateRange);
+
+		Activator.this.oldDateRangeStart = newDateRangeStart;
+		Activator.this.oldDateRangeEnd = newDateRangeEnd;
+		Activator.this.oldDateRangeStartEnabled = newDateRangeStartEnabled;
+		Activator.this.oldDateRangeEndEnabled = newDateRangeEndEnabled;
 	};
 
 	public static final Color COLOR_STANDARD = new Color(Display.getDefault(),
@@ -94,7 +87,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
@@ -122,7 +115,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
 	 * )
@@ -137,7 +130,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 * 
+	 *
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {
