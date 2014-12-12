@@ -76,7 +76,6 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 						ICodeService codeService = (ICodeService) PlatformUI
 								.getWorkbench().getService(ICodeService.class);
 						CellLabelProvider clp = null;
-						CellLabelClient clc = null;
 
 						@Override
 						public String convert(URI uri) {
@@ -84,12 +83,9 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 								this.clp = RelationViewer.this.viewer
 										.getLabelProvider(0);
 							}
-							if (this.clc == null) {
-								this.clc = new CellLabelClient(this.clp);
-							}
-							this.clc.setElement(uri);
-							StringBuilder sb = new StringBuilder(this.clc
-									.getText());
+							CellLabelClient.INSTANCE.setElement(this.clp, uri);
+							StringBuilder sb = new StringBuilder(
+									CellLabelClient.INSTANCE.getText());
 							sb.append(" ");
 							sb.append(this.codeService.loadMemoPlain(uri));
 							return sb.toString();
