@@ -215,13 +215,13 @@ public class AxialCodingComposite extends Composite implements
 						+ ".html-element.origin { border-color: "
 						+ originColor
 						+ " !important; border-width: 5px; }"
-						+ ".html-element.origin h1 { -webkit-text-stroke: 1px "
+						+ ".html-element.origin h1 { color: "
 						+ originColor
 						+ "; text-transform: uppercase; font-weight: 700; }"
 						+ ".link.origin .connection { stroke-width: 5px; stroke: "
 						+ originColor
 						+ "; }"
-						+ ".link.origin .labels text { stroke: "
+						+ ".link.origin .labels text { fill: "
 						+ originColor
 						+ "; text-transform: uppercase; }"
 
@@ -777,7 +777,7 @@ public class AxialCodingComposite extends Composite implements
 				if (this.getOriginCells().contains(uri)) {
 					this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
 							"origin");
-					size.x += 50;
+					size.x += 100;
 					size.y += 5;
 				} else {
 					this.jointjs.removeCustomClass(
