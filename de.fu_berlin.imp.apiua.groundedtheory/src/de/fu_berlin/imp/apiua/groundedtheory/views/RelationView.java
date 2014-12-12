@@ -10,10 +10,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -45,7 +43,6 @@ public class RelationView extends ViewPart {
 	private final IHighlightService highlightService = (IHighlightService) PlatformUI
 			.getWorkbench().getService(IHighlightService.class);
 	private Job highlighter = null;
-
 	private RelationViewer relationViewer;
 
 	@Override
@@ -56,89 +53,82 @@ public class RelationView extends ViewPart {
 				ShowInstances.ON, RelationView.class.getName(), Filterable.ON,
 				QuickSelectionMode.OFF);
 		this.relationViewer
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					@Override
-					public void selectionChanged(
-							final SelectionChangedEvent event) {
-						if (RelationView.this.highlightService == null
-								|| RelationView.this.getSite()
-										.getWorkbenchWindow().getActivePage()
-										.getActivePart() != RelationView.this) {
-							return;
-						}
+				.addSelectionChangedListener(event -> {
+					if (RelationView.this.highlightService == null
+							|| RelationView.this.getSite().getWorkbenchWindow()
+									.getActivePage().getActivePart() != RelationView.this) {
+						return;
+					}
 
-						if (RelationView.this.highlighter != null) {
-							RelationView.this.highlighter.cancel();
-						}
-						if (!(event.getSelection() instanceof IStructuredSelection)) {
-							return;
-						}
+					if (RelationView.this.highlighter != null) {
+						RelationView.this.highlighter.cancel();
+					}
+					if (!(event.getSelection() instanceof IStructuredSelection)) {
+						return;
+					}
 
-						RelationView.this.highlighter = new NamedJob(
-								RelationView.class, "Highlight") {
-							@Override
-							protected IStatus runNamed(IProgressMonitor monitor) {
-								List<URI> uris = ArrayUtils
-										.getAdaptableObjects(
-												((ITreeSelection) event
-														.getSelection())
-														.toArray(), URI.class);
+					RelationView.this.highlighter = new NamedJob(
+							RelationView.class, "Highlight") {
+						@Override
+						protected IStatus runNamed(IProgressMonitor monitor) {
+							List<URI> uris = ArrayUtils.getAdaptableObjects(
+									((ITreeSelection) event.getSelection())
+											.toArray(), URI.class);
 
-								SubMonitor subMonitor = SubMonitor.convert(
-										monitor, uris.size() * 2);
-								if (subMonitor.isCanceled()) {
-									return Status.CANCEL_STATUS;
-								}
-								List<ICodeInstance> codeInstances;
+							SubMonitor subMonitor = SubMonitor.convert(monitor,
+									uris.size() * 2);
+							if (subMonitor.isCanceled()) {
+								return Status.CANCEL_STATUS;
+							}
+							List<ICodeInstance> codeInstances;
+							try {
+								codeInstances = LocatorService.INSTANCE
+										.resolve(
+												uris,
+												ICodeInstance.class,
+												subMonitor.newChild(uris.size()))
+										.get();
+							} catch (Exception e) {
+								LOGGER.error(
+										"Error resolving "
+												+ StringUtils.join(uris, ", "),
+										e);
+								return Status.CANCEL_STATUS;
+							}
+							if (subMonitor.isCanceled()) {
+								return Status.CANCEL_STATUS;
+							}
+							List<CalendarRange> ranges = new ArrayList<CalendarRange>();
+							for (ICodeInstance codeInstance : codeInstances) {
+								ILocatable locatable;
 								try {
-									codeInstances = LocatorService.INSTANCE
-											.resolve(
-													uris,
-													ICodeInstance.class,
-													subMonitor.newChild(uris
-															.size())).get();
+									locatable = LocatorService.INSTANCE
+											.resolve(codeInstance.getId(),
+													subMonitor.newChild(1))
+											.get();
 								} catch (Exception e) {
 									LOGGER.error("Error resolving "
-											+ StringUtils.join(uris, ", "), e);
-									return Status.CANCEL_STATUS;
+											+ codeInstance.getId(), e);
+									continue;
+								}
+								if (locatable instanceof HasDateRange) {
+									ranges.add(((HasDateRange) locatable)
+											.getDateRange().getCalendarRange());
 								}
 								if (subMonitor.isCanceled()) {
 									return Status.CANCEL_STATUS;
 								}
-								List<CalendarRange> ranges = new ArrayList<CalendarRange>();
-								for (ICodeInstance codeInstance : codeInstances) {
-									ILocatable locatable;
-									try {
-										locatable = LocatorService.INSTANCE
-												.resolve(codeInstance.getId(),
-														subMonitor.newChild(1))
-												.get();
-									} catch (Exception e) {
-										LOGGER.error("Error resolving "
-												+ codeInstance.getId(), e);
-										continue;
-									}
-									if (locatable instanceof HasDateRange) {
-										ranges.add(((HasDateRange) locatable)
-												.getDateRange()
-												.getCalendarRange());
-									}
-									if (subMonitor.isCanceled()) {
-										return Status.CANCEL_STATUS;
-									}
-								}
-								if (ranges.size() > 0) {
-									RelationView.this.highlightService
-											.highlight(
-													RelationView.class,
-													ranges.toArray(new CalendarRange[ranges
-															.size()]), false);
-								}
-								return Status.OK_STATUS;
 							}
-						};
-						RelationView.this.highlighter.schedule();
-					}
+							if (ranges.size() > 0) {
+								RelationView.this.highlightService.highlight(
+										RelationView.class,
+										ranges.toArray(new CalendarRange[ranges
+												.size()]), false);
+							}
+							return Status.OK_STATUS;
+						}
+					};
+					RelationView.this.highlighter.schedule();
 				});
 
 		new ContextMenu(this.relationViewer.getViewer(), this.getSite()) {
