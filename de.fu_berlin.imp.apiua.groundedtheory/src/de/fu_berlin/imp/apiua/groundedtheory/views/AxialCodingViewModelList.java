@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
@@ -350,17 +351,27 @@ class AxialCodingViewModelList extends Composite {
 	}
 
 	protected void refresh() {
-		// implicitly preload
-		LocatorService.class.getName();
 		this.mute = true;
-		ISelection selection = this.acmComboViewer.getSelection();
 		try {
-			List<URI> models = CODE_SERVICE.getAxialCodingModels();
-			this.acmComboViewer.setInput(models.toArray());
-		} catch (CodeStoreReadException e) {
-			LOGGER.error("Error loading axial coding models", e);
+			ExecUtils.syncExec(() -> {
+				// implicitly preload
+					LocatorService.class.getName();
+					ISelection selection = AxialCodingViewModelList.this.acmComboViewer
+							.getSelection();
+					try {
+						List<URI> models = CODE_SERVICE.getAxialCodingModels();
+						AxialCodingViewModelList.this.acmComboViewer
+								.setInput(models.toArray());
+					} catch (CodeStoreReadException e) {
+						LOGGER.error("Error loading axial coding models", e);
+					}
+					AxialCodingViewModelList.this.acmComboViewer
+							.setSelection(selection);
+					return null;
+				});
+		} catch (Exception e) {
+			LOGGER.error(e);
 		}
-		this.acmComboViewer.setSelection(selection);
 		ViewerUtils.refresh(this.acmComboViewer);
 		this.mute = false;
 	}
