@@ -154,7 +154,7 @@ public class AxialCodingComposite extends Composite implements
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
 
 	private URI openedUri = null;
-	private boolean showMemos = false;
+	private boolean showMemos = true;
 
 	public AxialCodingComposite(Composite parent, int style) {
 		super(parent, style);
@@ -1066,6 +1066,15 @@ public class AxialCodingComposite extends Composite implements
 	@Override
 	public void removeModifyListener(ModifyListener modifyListener) {
 		this.modifyListeners.remove(modifyListener);
+	}
+
+	public void setShowMemos(boolean showMemos) {
+		if (this.showMemos != showMemos) {
+			this.showMemos = showMemos;
+			if (this.openedUri != null) {
+				this.refresh();
+			}
+		}
 	}
 
 }

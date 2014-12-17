@@ -271,6 +271,24 @@
          </state>
       </command>
       <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos"
+            name="Show Memos">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.remove"
             name="Remove">
          <state
@@ -476,6 +494,10 @@
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.FitOnScreenHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.fitOnScreen">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowMemosHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos">
         </handler>
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveHandler"
@@ -819,6 +841,11 @@
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.fitOnScreen"
                icon="icons/elcl16/fit_to_screen_tsk.png"
                style="push">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos"
+               icon="icons/obj16/memo_obj.png"
+               style="toggle">
          </command>
       </menuContribution>
       <menuContribution
