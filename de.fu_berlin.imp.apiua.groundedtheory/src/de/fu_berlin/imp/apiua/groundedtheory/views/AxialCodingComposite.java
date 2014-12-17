@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -32,6 +33,9 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IModifiable;
 import com.bkahlert.nebula.utils.IReflexiveConverter;
+import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -47,11 +51,13 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
@@ -61,6 +67,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.AxialCodingLabelProvider;
 
 /**
@@ -81,6 +88,8 @@ public class AxialCodingComposite extends Composite implements
 			.getWorkbench().getService(ICodeService.class);
 	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
+	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	private final IImportanceServiceListener importanceServiceListener = (uris,
 			importance) -> ExecUtils.logException(AxialCodingComposite.this
@@ -122,6 +131,21 @@ public class AxialCodingComposite extends Composite implements
 		public void relationsDeleted(java.util.Set<IRelation> relations) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		};
+
+		@Override
+		public void memoAdded(URI uri) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void memoModified(URI uri) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void memoRemoved(URI uri) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
 	};
 
 	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
@@ -130,6 +154,7 @@ public class AxialCodingComposite extends Composite implements
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
 
 	private URI openedUri = null;
+	private boolean showMemos = false;
 
 	public AxialCodingComposite(Composite parent, int style) {
 		super(parent, style);
@@ -224,6 +249,11 @@ public class AxialCodingComposite extends Composite implements
 						+ ".link.origin .labels text { fill: "
 						+ originColor
 						+ "; text-transform: uppercase; }"
+
+						// memos
+						+ ".memo { position: relative; color: black; text-transform: none; font-weight: normal; text-align: left; "
+						+ " margin-top: 18px; padding-left: 20px; max-width: 300px; text-shadow: 0 0 5px white; }"
+						+ ".memo img:first-child { position: absolute; left: 0; top: 0; }"
 
 						// num groundings
 						+ ".link .labels tspan+tspan { stroke: none; text-transform: none; fill: "
@@ -430,15 +460,25 @@ public class AxialCodingComposite extends Composite implements
 		return this.openedUri;
 	}
 
-	public Set<URI> getOriginCells() {
-		Set<URI> uris = new HashSet<>();
+	public URI getOrigin() {
 		try {
 			IAxialCodingModel acm = CODE_SERVICE
 					.getAxialCodingModel(this.openedUri);
-			if (acm.getOrigin() != null) {
-				uris.add(acm.getOrigin());
-				ILocatable locatable = LocatorService.INSTANCE.resolve(
-						acm.getOrigin(), null).get();
+			return acm.getOrigin();
+		} catch (CodeStoreReadException e) {
+			LOGGER.error("Can't retrieve origin", e);
+		}
+		return null;
+	}
+
+	public Set<URI> getOriginCells() {
+		Set<URI> uris = new HashSet<>();
+		try {
+			URI origin = this.getOrigin();
+			if (origin != null) {
+				uris.add(origin);
+				ILocatable locatable = LocatorService.INSTANCE.resolve(origin,
+						null).get();
 				if (locatable instanceof IRelation) {
 					uris.add(((IRelation) locatable).getFrom());
 					uris.add(((IRelation) locatable).getTo());
@@ -452,8 +492,7 @@ public class AxialCodingComposite extends Composite implements
 					uris.add(((IRelationInstance) locatable).getPhenomenon());
 				}
 			}
-		} catch (CodeStoreReadException | InterruptedException
-				| ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			LOGGER.error("Can't retrieve origin cells", e);
 		}
 		return uris;
@@ -758,11 +797,53 @@ public class AxialCodingComposite extends Composite implements
 				return false;
 			}
 
+			String memo = null;
+			if (this.showMemos) {
+				List<Pair<Image, String>> memos = new ArrayList<>();
+				if (CODE_SERVICE.isMemo(uri)) {
+					memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
+							.loadMemoPlain(uri)));
+				}
+				URI origin = this.getOrigin();
+				if (origin != null) {
+					if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
+						origin = LocatorService.INSTANCE
+								.resolve(origin, IRelationInstance.class, null)
+								.get().getPhenomenon();
+					}
+					List<ICodeInstance> codeInstances = CODE_SERVICE
+							.getInstances(origin).stream()
+							.filter(i -> i.getCode().getUri().equals(uri))
+							.collect(Collectors.toList());
+					for (ICodeInstance codeInstance : codeInstances) {
+						if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
+							memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
+									.getImage(codeInstance.getUri()),
+									CODE_SERVICE.loadMemoPlain(codeInstance
+											.getUri())));
+						}
+					}
+				}
+
+				if (memos.size() > 0) {
+					memo = "";
+					for (Pair<Image, String> m : memos) {
+						memo += "<div class=\"memo\"><img src=\""
+								+ ImageUtils.createUriFromImage(m.getFirst())
+								+ "\">"
+								+ StringUtils.shorten(m.getSecond().replace(
+										"\n", "")) + "</div>";
+					}
+				}
+			}
+
 			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
 					"invalid");
 
 			this.jointjs.setElementTitle(uri.toString(),
-					this.labelProvider.getText(uri));
+					this.labelProvider.getText(uri)
+							+ (memo != null ? "<div class=\"memos\">" + memo
+									+ "</div>" : ""));
 			this.jointjs.setElementContent(uri.toString(),
 					this.labelProvider.getContent(uri));
 			this.jointjs.setColor(uri.toString(),
@@ -854,6 +935,50 @@ public class AxialCodingComposite extends Composite implements
 			caption.append(relation.getName());
 			caption.append("\\n");
 			caption.append(groundingAll + " (" + groundingImmediate + ")");
+
+			if (this.showMemos) {
+				List<Pair<Image, String>> memos = new ArrayList<>();
+				if (CODE_SERVICE.isMemo(uri)) {
+					memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
+							.loadMemoPlain(uri)));
+				}
+				URI origin = this.getOrigin();
+				if (origin != null) {
+					if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
+						origin = LocatorService.INSTANCE
+								.resolve(origin, IRelationInstance.class, null)
+								.get().getPhenomenon();
+					}
+					List<IRelationInstance> relationInstances = CODE_SERVICE
+							.getRelationInstances(origin).stream()
+							.filter(i -> i.getRelation().getUri().equals(uri))
+							.collect(Collectors.toList());
+					for (IRelationInstance relationInstance : relationInstances) {
+						if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
+							memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
+									.getImage(relationInstance.getUri()),
+									CODE_SERVICE.loadMemoPlain(relationInstance
+											.getUri())));
+						}
+					}
+				}
+
+				String memo = null;
+				if (memos.size() > 0) {
+					memo = "";
+					for (Pair<Image, String> m : memos) {
+						memo += ""
+								+ StringUtils.shorten(
+										m.getSecond().replace("\n", ""), 15)
+								+ "";
+					}
+				}
+
+				if (memo != null) {
+					caption.append("\\n");
+					caption.append(memo);
+				}
+			}
 
 			String[] texts = new String[] { caption.toString() };
 			for (int i = 0; texts != null && i < texts.length; i++) {
