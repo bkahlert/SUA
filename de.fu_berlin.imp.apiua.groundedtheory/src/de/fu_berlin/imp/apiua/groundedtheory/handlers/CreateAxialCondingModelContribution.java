@@ -71,6 +71,8 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 				selection, IRelation.class);
 		List<IRelationInstance> relationInstances = SelectionUtils
 				.getAdaptableObjects(selection, IRelationInstance.class);
+		List<URI> phenomenons = SelectionUtils.getAdaptableObjects(selection,
+				URI.class);
 
 		String menuName = "";
 		List<URI> uris = new LinkedList<>();
@@ -90,6 +92,9 @@ public class CreateAxialCondingModelContribution extends ContributionItem {
 			for (IRelationInstance relationInstance : relationInstances) {
 				uris.add(relationInstance.getUri());
 			}
+		} else if (phenomenons.size() > 0) {
+			menuName = "Create ACM from Phenomenon";
+			uris.add(phenomenons.get(0));
 		}
 
 		if (uris.size() > 0) {

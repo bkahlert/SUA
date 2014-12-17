@@ -1237,9 +1237,12 @@ public class CodeService implements ICodeService, IDisposable {
 									relationInstance.getRelation().getFrom(),
 									relations);
 						} else {
-							throw new RuntimeException("Unsupported type "
-									+ type + " (" + acm.getOrigin() + ") for "
-									+ IAxialCodingModel.class + " creation");
+							relations = this.getRelations(acm.getOrigin());
+							neededElements = new HashSet<>();
+							for (IRelation relation : relations) {
+								neededElements.add(relation.getFrom());
+								neededElements.add(relation.getTo());
+							}
 						}
 					}
 
