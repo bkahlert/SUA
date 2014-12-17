@@ -2,6 +2,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -532,9 +533,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public boolean hasInformation(URI uri) throws Exception {
-		ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null).get();
-		return locatable instanceof ICode || locatable instanceof ICodeInstance
-				|| locatable instanceof IEpisode;
+		return Arrays.asList(ICode.class, ICodeInstance.class, IRelation.class,
+				IRelationInstance.class, IEpisode.class).contains(
+				LocatorService.INSTANCE.getType(uri));
 	}
 
 	@Override
@@ -552,6 +553,18 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof ICodeInstance) {
 			metaEntries.add(new IllustratedText(ICodeInstance.class
+					.getSimpleName().substring(1)));
+		}
+		if (locatable instanceof IRelation) {
+			IRelation relation = (IRelation) locatable;
+			metaEntries.add(new IllustratedText(ImageManager.RELATION, relation
+					.getClass().getSimpleName()
+					+ " \""
+					+ relation.getName()
+					+ "\""));
+		}
+		if (locatable instanceof IRelationInstance) {
+			metaEntries.add(new IllustratedText(IRelationInstance.class
 					.getSimpleName().substring(1)));
 		}
 		if (locatable instanceof IEpisode) {
