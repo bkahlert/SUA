@@ -85,6 +85,8 @@ public class AxialCodingView extends ViewPart {
 	private SashForm axialCodingCompositesContainer;
 	private AxialCodingComposite activeAxialCodingComposite = null;
 
+	private boolean showMemos = true;
+
 	public AxialCodingView() {
 		this.selectionProviderDelegator = new SelectionProviderDelegator();
 	}
@@ -287,7 +289,7 @@ public class AxialCodingView extends ViewPart {
 					for (int i = 0; i < uris.length; i++) {
 						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 								AxialCodingView.this.axialCodingCompositesContainer,
-								SWT.NONE);
+								SWT.NONE, this.showMemos);
 						axialCodingComposite
 								.addModifyListener(e -> axialCodingComposite
 										.save());
@@ -400,6 +402,7 @@ public class AxialCodingView extends ViewPart {
 	}
 
 	public void setShowMemos(boolean showMemos) {
+		this.showMemos = showMemos;
 		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
 				.values()) {
 			axialCodingComposite.setShowMemos(showMemos);

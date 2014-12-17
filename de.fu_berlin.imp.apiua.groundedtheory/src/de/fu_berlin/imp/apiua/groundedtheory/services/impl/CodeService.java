@@ -1186,7 +1186,7 @@ public class CodeService implements ICodeService, IDisposable {
 									() -> {
 										Shell shell = new Shell();
 										AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-												shell, SWT.NONE);
+												shell, SWT.NONE, false);
 										return new Pair<>(shell,
 												axialCodingComposite);
 									}).get();

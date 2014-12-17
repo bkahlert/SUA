@@ -154,10 +154,13 @@ public class AxialCodingComposite extends Composite implements
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
 
 	private URI openedUri = null;
-	private boolean showMemos = true;
+	private boolean showMemos;
 
-	public AxialCodingComposite(Composite parent, int style) {
+	public AxialCodingComposite(Composite parent, int style, boolean showMemos) {
 		super(parent, style);
+
+		this.showMemos = showMemos;
+
 		IMPORTANCE_SERVICE
 				.addImportanceServiceListener(this.importanceServiceListener);
 		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
