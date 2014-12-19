@@ -200,7 +200,6 @@ public class CreateRelationContribution extends ContributionItem {
 			for (Pair<URI, IRelation> groundableRelation : groundableRelations) {
 				MenuItem menuItem = new MenuItem(createRelationSubMenu,
 						SWT.PUSH);
-
 				String fromName = this.labelProviderService
 						.getText(groundableRelation.getSecond().getFrom());
 				String toName = this.labelProviderService
@@ -222,7 +221,6 @@ public class CreateRelationContribution extends ContributionItem {
 						groundableRelation.getSecond())) {
 					menuItem.setText(menuItem.getText() + " (already grounded)");
 					menuItem.setEnabled(false);
-					break;
 				}
 			}
 		}
