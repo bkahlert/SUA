@@ -1,10 +1,15 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -13,6 +18,11 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -25,6 +35,7 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.FilteredTree;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
@@ -33,12 +44,19 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
+import de.fu_berlin.imp.apiua.groundedtheory.CodeInstanceLocatorProvider;
+import de.fu_berlin.imp.apiua.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 
 public class RelationViewer extends Composite implements ISelectionProvider {
@@ -121,6 +139,110 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 			this.viewer = createViewer(this, style, initialShowInstances,
 					saveExpandedElementsKey);
 		}
+
+		this.viewer.addDropSupport(DND.DROP_LINK,
+				new Transfer[] { LocalSelectionTransfer.getTransfer(),
+						TextTransfer.getInstance() }, new DropTargetAdapter() {
+					@Override
+					public void dragEnter(DropTargetEvent event) {
+						event.detail = DND.DROP_LINK;
+					}
+
+					@Override
+					public void dragOver(DropTargetEvent event) {
+						List<URI> sourceUris = new ArrayList<URI>();
+						if (TextTransfer.getInstance().isSupportedType(
+								event.currentDataType)) {
+							String uri = (String) TextTransfer.getInstance()
+									.nativeToJava(event.currentDataType);
+							if (uri != null) {
+								sourceUris.add(new URI(uri));
+							}
+						}
+						// FIXME: Some parts (e.g. CDViewer) trigger a
+						// TextTransfer but since the data is always null, they
+						// put the data also into the LocalSelectionTransfer
+						if (sourceUris.isEmpty()) {
+							sourceUris.addAll(SelectionUtils
+									.getAdaptableObjects(LocalSelectionTransfer
+											.getTransfer().getSelection(),
+											URI.class));
+						}
+
+						URI destUri = event.item != null
+								&& event.item.getData() instanceof URI ? (URI) event.item
+								.getData() : null;
+
+						event.feedback = DND.FEEDBACK_SCROLL;
+						event.detail = DND.DROP_NONE;
+						if (RelationLocatorProvider.RELATION_NAMESPACE
+								.equals(URIUtils.getResource(destUri))) {
+							// target: Relation
+
+							event.feedback = DND.FEEDBACK_SELECT
+									| DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL;
+							event.detail = DND.DROP_LINK;
+						}
+					}
+
+					@Override
+					public void drop(DropTargetEvent event) {
+						if (event.data == null) {
+							event.detail = DND.DROP_NONE;
+							return;
+						}
+
+						List<URI> sourceUris = SelectionUtils
+								.getAdaptableObjects(LocalSelectionTransfer
+										.getTransfer().getSelection(),
+										URI.class);
+						List<URI> sourceCodeUris = URIUtils.filterByResource(
+								sourceUris, CodeLocatorProvider.CODE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeUris);
+						List<URI> sourceCodeInstanceUris = URIUtils
+								.filterByResource(
+										sourceUris,
+										CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE);
+						sourceUris.removeAll(sourceCodeInstanceUris);
+
+						URI destUri = event.item != null
+								&& event.item.getData() instanceof URI ? (URI) event.item
+								.getData() : null;
+
+						event.feedback = DND.FEEDBACK_SCROLL;
+						event.detail = DND.DROP_NONE;
+						if (RelationLocatorProvider.RELATION_NAMESPACE
+								.equals(URIUtils.getResource(destUri))) {
+							// target: Relation
+
+							event.feedback = DND.FEEDBACK_SELECT
+									| DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL;
+							event.detail = DND.DROP_LINK;
+
+							ICodeService codeService = (ICodeService) PlatformUI
+									.getWorkbench().getService(
+											ICodeService.class);
+							IRelation relation = codeService
+									.getRelation(destUri);
+							Set<IRelationInstance> relationInstances = codeService
+									.getRelationInstances(relation);
+							for (URI sourceUri : sourceUris) {
+								if (!relationInstances.stream().anyMatch(
+										i -> i.getPhenomenon()
+												.equals(sourceUri))) {
+									try {
+										codeService.createRelationInstance(
+												sourceUri, relation);
+									} catch (CodeStoreWriteException
+											| RelationDoesNotExistException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+
+					}
+				});
 	}
 
 	private static SortableTreeViewer createViewer(Composite parent, int style,
