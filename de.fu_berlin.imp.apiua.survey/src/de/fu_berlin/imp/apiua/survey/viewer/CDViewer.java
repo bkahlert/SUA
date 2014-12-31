@@ -89,9 +89,14 @@ public class CDViewer extends Viewer {
 					private final IAnkerListener ankerListener = new AnkerAdapter() {
 						@Override
 						public void ankerHovered(IAnker anker, boolean entered) {
-							URI uri = new URI(anker.getHref());
+							URI uri = null;
+							try {
+								uri = new URI(anker.getHref());
+							} catch (Exception e) {
 
-							if (uri.getScheme() != null
+							}
+
+							if (uri != null && uri.getScheme() != null
 									&& !uri.getScheme().contains("-")
 									&& entered) {
 								try {
