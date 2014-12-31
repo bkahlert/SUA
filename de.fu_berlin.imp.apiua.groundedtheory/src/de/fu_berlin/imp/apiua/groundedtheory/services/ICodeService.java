@@ -281,7 +281,7 @@ public interface ICodeService {
 	 * Returns all sub {@link ICode}s of the given {@link ICode} of depth 1.
 	 *
 	 * @param code
-	 * @return
+	 * @return never returns <code>null</code>
 	 */
 	public List<ICode> getChildren(ICode code);
 
@@ -299,6 +299,13 @@ public interface ICodeService {
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException;
 
+	/**
+	 * Returns the {@link IRelation} with the given {@link URI}.
+	 *
+	 * @param uri
+	 *            of the {@link IRelation} (not of its grounding, etc.)
+	 * @return
+	 */
 	IRelation getRelation(URI uri);
 
 	/**
