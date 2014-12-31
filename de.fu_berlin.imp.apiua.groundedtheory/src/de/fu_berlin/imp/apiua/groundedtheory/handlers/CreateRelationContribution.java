@@ -11,6 +11,8 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -152,8 +154,10 @@ public class CreateRelationContribution extends ContributionItem {
 					menuItem.addSelectionListener(new SelectionAdapter() {
 						@Override
 						public void widgetSelected(SelectionEvent e) {
-							CreateRelationContribution.this.createRelation(
-									menu.getShell(), from, to);
+							IRelation relation = CreateRelationContribution.this
+									.createRelation(menu.getShell(), from, to);
+							CreateRelationContribution.this.groundRelation(
+									null, codeInstance.getId(), relation);
 						}
 					});
 				}
@@ -329,13 +333,9 @@ public class CreateRelationContribution extends ContributionItem {
 
 	private void addFullMenu(URI from, URI to, URI phenomenon, Menu menu,
 			ICode parent) {
-		List<ICode> children = this.codeService.getChildren(parent);
-
-		MenuItem menuItem = new MenuItem(menu,
-				children.size() > 0 ? SWT.CASCADE : SWT.NONE);
-		menuItem.setText(this.labelProviderService.getText(parent.getUri()));
-		menuItem.setImage(this.labelProviderService.getImage(parent.getUri()));
-		menuItem.addSelectionListener(new SelectionAdapter() {
+		String text = this.labelProviderService.getText(parent.getUri());
+		Image image = this.labelProviderService.getImage(parent.getUri());
+		SelectionListener selectionListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new SUAGTPreferenceUtil().setLastCreatedRelation(from != null,
@@ -349,11 +349,25 @@ public class CreateRelationContribution extends ContributionItem {
 							phenomenon, relation);
 				}
 			}
-		});
+		};
+		List<ICode> children = this.codeService.getChildren(parent);
+
+		MenuItem menuItem = new MenuItem(menu,
+				children.size() > 0 ? SWT.CASCADE : SWT.NONE);
+		menuItem.setText(text);
+		menuItem.setImage(image);
+		menuItem.addSelectionListener(selectionListener);
 
 		if (children.size() > 0) {
 			final Menu subMenu = new Menu(menuItem);
 			menuItem.setMenu(subMenu);
+
+			MenuItem subMenuItem = new MenuItem(subMenu, SWT.NONE);
+			subMenuItem.setText(text);
+			subMenuItem.setImage(image);
+			subMenuItem.addSelectionListener(selectionListener);
+
+			new MenuItem(subMenu, SWT.SEPARATOR);
 			for (ICode code : children) {
 				this.addFullMenu(from, to, phenomenon, subMenu, code);
 			}
