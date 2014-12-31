@@ -315,13 +315,17 @@ public class CreateRelationContribution extends ContributionItem {
 	}
 
 	private IRelation createRelation(Shell shell, URI from, URI to) {
-		RenameDialog renameDialog = new RenameDialog(shell, "");
+		SUAGTPreferenceUtil gt = new SUAGTPreferenceUtil();
+		RenameDialog renameDialog = new RenameDialog(shell,
+				gt.getLastCreatedRelationName());
 		renameDialog.create();
 		if (renameDialog.open() == Window.OK) {
 			final String relationName = renameDialog.getCaption();
+			gt.setLastCreatedRelationName(relationName);
 			try {
-				return CreateRelationContribution.this.codeService
+				IRelation relation = CreateRelationContribution.this.codeService
 						.createRelation(from, to, relationName);
+				return relation;
 			} catch (Exception e) {
 				LOGGER.error("Error creating relation " + from + " → " + to);
 			}

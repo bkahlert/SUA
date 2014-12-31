@@ -15,4 +15,6 @@ public class SUAGTPreferenceConstants {
 
 	public static final String LAST_OPENED_CODING_MODELS = "last_opened_axial_coding_models";
 
+
+	public static final String LAST_CREATED_RELATION_NAME = "last_created_relation_name";
 }

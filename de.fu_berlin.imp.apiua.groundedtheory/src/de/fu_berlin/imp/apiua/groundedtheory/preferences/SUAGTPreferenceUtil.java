@@ -174,4 +174,19 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 					return null;
 				});
 	}
+	public String getLastCreatedRelationName() {
+		String s = this.getPreferenceStore().getString(
+				SUAGTPreferenceConstants.LAST_CREATED_RELATION_NAME);
+		if (s == null) {
+			s = "";
+		}
+		return s;
+	}
+
+	public void setLastCreatedRelationName(String name) {
+		this.getPreferenceStore().setValue(
+				SUAGTPreferenceConstants.LAST_CREATED_RELATION_NAME,
+				name != null ? name : "");
+	}
+
 }
