@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import com.bkahlert.nebula.NebulaPreferences;
 import com.bkahlert.nebula.utils.EclipsePreferenceUtil;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.ViewerUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -174,6 +175,29 @@ public class SUAGTPreferenceUtil extends EclipsePreferenceUtil {
 					return null;
 				});
 	}
+
+	public Pair<Boolean, URI> getLastCreatedRelation() {
+		String serialized = this.getPreferenceStore().getString(
+				SUAGTPreferenceConstants.LAST_CREATED_RELATION);
+		if (serialized == null || serialized.isEmpty()) {
+			return null;
+		}
+
+		String[] parts = serialized.split(";;;");
+		if (parts.length != 2) {
+			return null;
+		}
+
+		return new Pair<Boolean, URI>("from".equals(parts[0]),
+				new URI(parts[1]));
+	}
+
+	public void setLastCreatedRelation(boolean from, URI uri) {
+		this.getPreferenceStore().setValue(
+				SUAGTPreferenceConstants.LAST_CREATED_RELATION,
+				(from ? "from" : "to") + ";;;" + uri.toString());
+	}
+
 	public String getLastCreatedRelationName() {
 		String s = this.getPreferenceStore().getString(
 				SUAGTPreferenceConstants.LAST_CREATED_RELATION_NAME);

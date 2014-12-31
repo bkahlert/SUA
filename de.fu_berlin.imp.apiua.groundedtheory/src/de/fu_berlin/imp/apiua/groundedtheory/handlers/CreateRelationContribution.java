@@ -26,6 +26,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
 
@@ -115,6 +116,49 @@ public class CreateRelationContribution extends ContributionItem {
 		createRelationItem.setImage(ImageManager.RELATION);
 		final Menu createRelationSubMenu = new Menu(createRelationItem);
 		createRelationItem.setMenu(createRelationSubMenu);
+
+		if (true) {
+			this.createSpacer(createRelationSubMenu, "Recent:");
+			Pair<Boolean, URI> lastCreatedRelation = new SUAGTPreferenceUtil()
+					.getLastCreatedRelation();
+			if (lastCreatedRelation != null) {
+				URI uri1 = lastCreatedRelation.getSecond();
+				String name1 = this.labelProviderService
+						.getText(lastCreatedRelation.getSecond());
+
+				for (ICodeInstance codeInstance : codeInstances) {
+					URI uri2 = codeInstance.getCode().getUri();
+					String name2 = this.labelProviderService
+							.getText(codeInstance.getCode().getUri());
+
+					URI from;
+					URI to;
+					String fromName;
+					String toName;
+					if (lastCreatedRelation.getFirst()) {
+						from = uri2;
+						to = uri1;
+						fromName = name2;
+						toName = name1;
+					} else {
+						from = uri1;
+						to = uri2;
+						fromName = name1;
+						toName = name2;
+					}
+					MenuItem menuItem = new MenuItem(createRelationSubMenu,
+							SWT.PUSH);
+					menuItem.setText(fromName + " → " + toName);
+					menuItem.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							CreateRelationContribution.this.createRelation(
+									menu.getShell(), from, to);
+						}
+					});
+				}
+			}
+		}
 
 		if (creatableRelations.size() > 0) {
 			this.createSpacer(createRelationSubMenu, "New Relation:");
@@ -294,6 +338,8 @@ public class CreateRelationContribution extends ContributionItem {
 		menuItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				new SUAGTPreferenceUtil().setLastCreatedRelation(from != null,
+						parent.getUri());
 				IRelation relation = CreateRelationContribution.this
 						.createRelation(null,
 								from != null ? from : parent.getUri(),
