@@ -78,10 +78,10 @@ public class CreateRelationContribution extends ContributionItem {
 			}
 		}
 
+		List<ICodeInstance> codeInstances = new LinkedList<>();
 		if (uris.size() == 1) {
 			URI uri = uris.get(0);
-			List<ICodeInstance> codeInstances = this.codeService
-					.getInstances(uri);
+			codeInstances = this.codeService.getInstances(uri);
 			for (ICodeInstance codeInstance1 : codeInstances) {
 				for (ICodeInstance codeInstance2 : codeInstances) {
 					URI fromUri = codeInstance1.getCode().getUri();
@@ -104,7 +104,8 @@ public class CreateRelationContribution extends ContributionItem {
 			}
 		}
 
-		if (creatableRelations.size() == 0 && groundableRelations.size() == 0
+		if (codeInstances.size() == 0 && creatableRelations.size() == 0
+				&& groundableRelations.size() == 0
 				&& creatableGroundedRelations.size() == 0) {
 			return;
 		}
@@ -224,6 +225,11 @@ public class CreateRelationContribution extends ContributionItem {
 				}
 			}
 		}
+
+		if (codeInstances.size() > 0) {
+			this.fillFromMenu(codeInstances, createRelationSubMenu);
+			this.fillToMenu(codeInstances, createRelationSubMenu);
+		}
 	}
 
 	private void createSpacer(Menu menu, String text) {
@@ -233,6 +239,79 @@ public class CreateRelationContribution extends ContributionItem {
 		MenuItem item = new MenuItem(menu, SWT.NONE);
 		item.setEnabled(false);
 		item.setText(text);
+	}
+
+	private void fillFromMenu(List<ICodeInstance> codeInstances, Menu menu) {
+		if (codeInstances.size() == 0) {
+			return;
+		}
+
+		this.createSpacer(menu, "From Here:");
+
+		for (ICodeInstance codeInstance : codeInstances) {
+			MenuItem menuItem = new MenuItem(menu, SWT.CASCADE);
+			menuItem.setText(this.labelProviderService.getText(codeInstance
+					.getCode().getUri()));
+			final Menu subMenu = new Menu(menuItem);
+			menuItem.setMenu(subMenu);
+			this.addFullMenu(codeInstance.getCode().getUri(), null,
+					codeInstance.getId(), subMenu);
+		}
+	}
+
+	private void fillToMenu(List<ICodeInstance> codeInstances, Menu menu) {
+		if (codeInstances.size() == 0) {
+			return;
+		}
+
+		this.createSpacer(menu, "To Here:");
+
+		for (ICodeInstance codeInstance : codeInstances) {
+			MenuItem menuItem = new MenuItem(menu, SWT.CASCADE);
+			menuItem.setText(this.labelProviderService.getText(codeInstance
+					.getCode().getUri()));
+			final Menu subMenu = new Menu(menuItem);
+			menuItem.setMenu(subMenu);
+			this.addFullMenu(null, codeInstance.getCode().getUri(),
+					codeInstance.getId(), subMenu);
+		}
+	}
+
+	private void addFullMenu(URI from, URI to, URI phenomenon, Menu menu) {
+		for (ICode code : this.codeService.getTopLevelCodes()) {
+			this.addFullMenu(from, to, phenomenon, menu, code);
+		}
+	}
+
+	private void addFullMenu(URI from, URI to, URI phenomenon, Menu menu,
+			ICode parent) {
+		List<ICode> children = this.codeService.getChildren(parent);
+
+		MenuItem menuItem = new MenuItem(menu,
+				children.size() > 0 ? SWT.CASCADE : SWT.NONE);
+		menuItem.setText(this.labelProviderService.getText(parent.getUri()));
+		menuItem.setImage(this.labelProviderService.getImage(parent.getUri()));
+		menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IRelation relation = CreateRelationContribution.this
+						.createRelation(null,
+								from != null ? from : parent.getUri(),
+								to != null ? to : parent.getUri());
+				if (phenomenon != null) {
+					CreateRelationContribution.this.groundRelation(null,
+							phenomenon, relation);
+				}
+			}
+		});
+
+		if (children.size() > 0) {
+			final Menu subMenu = new Menu(menuItem);
+			menuItem.setMenu(subMenu);
+			for (ICode code : children) {
+				this.addFullMenu(from, to, phenomenon, subMenu, code);
+			}
+		}
 	}
 
 	private IRelation createRelation(Shell shell, URI from, URI to) {
