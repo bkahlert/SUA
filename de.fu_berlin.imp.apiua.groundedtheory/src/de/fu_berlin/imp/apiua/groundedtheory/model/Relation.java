@@ -1,6 +1,8 @@
 package de.fu_berlin.imp.apiua.groundedtheory.model;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -90,8 +92,43 @@ public class Relation implements ILocatable, IRelation {
 
 	@Override
 	public String toString() {
-		ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
-				.getWorkbench().getService(ILabelProviderService.class);
+		ILabelProviderService labelProviderService = null;
+		try {
+			labelProviderService = (ILabelProviderService) PlatformUI
+					.getWorkbench().getService(ILabelProviderService.class);
+		} catch (NoClassDefFoundError e) {
+			labelProviderService = new ILabelProviderService() {
+				@Override
+				public void addLabelProviderFactory(
+						ILabelProviderFactory labelProviderFactory) {
+				}
+
+				@Override
+				public void removeLabelProviderFactory(
+						ILabelProviderFactory labelProviderFactory) {
+				}
+
+				@Override
+				public ILabelProvider getLabelProvider(URI uri) {
+					return null;
+				}
+
+				@Override
+				public StyledString getStyledText(URI uri) {
+					return new StyledString(uri.toString(), null);
+				}
+
+				@Override
+				public String getText(URI uri) {
+					return uri.toString();
+				}
+
+				@Override
+				public Image getImage(URI uri) {
+					return null;
+				}
+			};
+		}
 		return "Relation \"" + this.getName() + "\": "
 				+ labelProviderService.getText(this.getFrom()) + " -> "
 				+ labelProviderService.getText(this.getTo());

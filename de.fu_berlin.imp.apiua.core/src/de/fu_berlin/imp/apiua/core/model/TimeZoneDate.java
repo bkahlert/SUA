@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.core.model;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,14 +17,15 @@ import de.fu_berlin.imp.apiua.core.util.DateUtil;
  * <li>contains a format method that properly considers the {@link TimeZone}
  * portion
  * </ol>
- * 
+ *
  * TODO extends Calendar
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
-public class TimeZoneDate implements Comparable<TimeZoneDate> {
+public class TimeZoneDate implements Comparable<TimeZoneDate>, Serializable {
 
+	private static final long serialVersionUID = -798327031434010157L;
 	private final Calendar calendar;
 
 	/**
@@ -37,7 +39,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * Constructs a new instance based on a ISO8601 date representation.
 	 * <p>
 	 * e.g. 1984-05-15T14:30:00+01:00
-	 * 
+	 *
 	 * @param lexicalRepresentation
 	 */
 	public TimeZoneDate(String lexicalRepresentation)
@@ -47,7 +49,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	/**
 	 * Constructs a new instance based on a {@link Date} and a {@link TimeZone}.
-	 * 
+	 *
 	 * @param date
 	 *            milliseconds passed since 1.1.1970 00:00:00.000 GMT
 	 * @param timeZone
@@ -61,7 +63,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	/**
 	 * Constructs a new instance based on a {@link Calendar}.
-	 * 
+	 *
 	 * @param calendar
 	 * @param timeZone
 	 */
@@ -75,7 +77,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	/**
 	 * Formats this {@link TimeZoneDate} while considering the time zone
 	 * information.
-	 * 
+	 *
 	 * @param pattern
 	 * @return
 	 */
@@ -86,7 +88,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	/**
 	 * Formats this {@link TimeZoneDate} while considering the time zone
 	 * information.
-	 * 
+	 *
 	 * @param dateFormat2
 	 * @return
 	 */
@@ -97,7 +99,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	/**
 	 * Returns an equivalent {@link Calendar} describing the same moment in
 	 * time.
-	 * 
+	 *
 	 * @return
 	 */
 	public Calendar getCalendar() {
@@ -107,7 +109,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	/**
 	 * Returns the {@link Date) portion without any {@link TimeZone}
 	 * information.
-	 * 
+	 *
 	 * @return milliseconds passed since 1.1.1970 00:00:00.000 GMT
 	 */
 	public Date getDate() {
@@ -116,7 +118,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	/**
 	 * Returns the milliseconds passed since 1.1.1970 00:00:00.000 GMT
-	 * 
+	 *
 	 * @return
 	 */
 	public long getTime() {
@@ -137,7 +139,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	/**
 	 * Return the milliseconds passed since 1.1.1970 00:00:00.000 [TimeZone]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getLocalTime() {
@@ -146,7 +148,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 
 	/**
 	 * Returns the {@link TimeZone} of the associated date.
-	 * 
+	 *
 	 * @return
 	 */
 	public TimeZone getTimeZone() {
@@ -180,7 +182,7 @@ public class TimeZoneDate implements Comparable<TimeZoneDate> {
 	 * Returns the ISO 8601 representation
 	 * <p>
 	 * e.g. 1984-05-15T14:30:00+01:00
-	 * 
+	 *
 	 * @return
 	 */
 	public String toISO8601() {
