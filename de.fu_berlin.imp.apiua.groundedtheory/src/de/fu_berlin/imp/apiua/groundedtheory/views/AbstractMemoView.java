@@ -282,7 +282,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 	@Override
 	public String getTitle(URI uri, IProgressMonitor monitor) throws Exception {
 		Pair<String, Image> title = CONVERTER.convert(uri);
-		if (LocatorService.INSTANCE.getType(uri) == ICode.class) {
+		if (LocatorService.INSTANCE.resolve(uri, monitor).get() instanceof ICode) {
 			title = new Pair<String, Image>(title.getFirst(),
 					GTLabelProvider.getCodeImage(LocatorService.INSTANCE
 							.resolve(uri, ICode.class, null).get()));
