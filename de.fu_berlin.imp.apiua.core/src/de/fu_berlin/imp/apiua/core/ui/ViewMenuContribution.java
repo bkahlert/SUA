@@ -11,8 +11,6 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -78,10 +76,11 @@ public class ViewMenuContribution extends ContributionItem {
 			menuItem.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					ExecUtils.nonUIAsyncExec(new Runnable() {
-						@Override
-						public void run() {
+					ExecUtils.nonUIAsyncExec(() -> {
+						try {
 							WorkbenchUtils.getView(id);
+						} catch (Exception e1) {
+							LOGGER.error(e1);
 						}
 					});
 				}
@@ -97,12 +96,7 @@ public class ViewMenuContribution extends ContributionItem {
 					final Image image = new Image(Display.getCurrent(),
 							new ImageData(file.getAbsolutePath()));
 					menuItem.setImage(image);
-					menuItem.addDisposeListener(new DisposeListener() {
-						@Override
-						public void widgetDisposed(DisposeEvent e) {
-							image.dispose();
-						}
-					});
+					menuItem.addDisposeListener(e -> image.dispose());
 				} catch (Exception e) {
 					LOGGER.warn("Error loading icon for " + id);
 				}
