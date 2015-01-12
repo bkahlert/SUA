@@ -34,14 +34,22 @@ public class UriLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public StyledString getStyledText(URI uri) throws Exception {
+		int maxUriLength = 20;
+
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		if (locatable instanceof IUri) {
 			IUri uri_ = (IUri) locatable;
 			StyledString text = new StyledString();
-			text.append(uri_.getUri().toString());
+			String uriString = uri_.getUri().toString().length() > maxUriLength ? uri_
+					.getUri().toString().substring(0, maxUriLength)
+					+ "..."
+					: uri_.getUri().toString();
 			if (uri_.getTitle() != null) {
+				text.append(uri_.getTitle());
 				text.append("  ");
-				text.append(uri_.getTitle(), Stylers.MINOR_STYLER);
+				text.append(uriString, Stylers.MINOR_STYLER);
+			} else {
+				text.append(uriString);
 			}
 			return text;
 		}
