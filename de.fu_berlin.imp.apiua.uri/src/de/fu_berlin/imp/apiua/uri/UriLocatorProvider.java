@@ -1,17 +1,5 @@
 package de.fu_berlin.imp.apiua.uri;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
-import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.core.util.Cache;
-import de.fu_berlin.imp.apiua.core.util.Cache.CacheFetcher;
-import de.fu_berlin.imp.apiua.uri.model.IUri;
-import de.fu_berlin.imp.apiua.uri.services.IUriService;
-import de.fu_berlin.imp.apiua.uri.views.UriView;
-
-import java.util.concurrent.Callable;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -19,6 +7,15 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.WorkbenchUtils;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
+import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
+import de.fu_berlin.imp.apiua.core.util.Cache;
+import de.fu_berlin.imp.apiua.uri.model.IUri;
+import de.fu_berlin.imp.apiua.uri.services.IUriService;
+import de.fu_berlin.imp.apiua.uri.views.UriView;
 
 public class UriLocatorProvider extends AdaptingLocatorProvider {
 
@@ -28,21 +25,16 @@ public class UriLocatorProvider extends AdaptingLocatorProvider {
 	private final IUriService uriService = (IUriService) PlatformUI
 			.getWorkbench().getService(IUriService.class);
 
-	private final Cache<URI, ILocatable> cache = new Cache<URI, ILocatable>(
-			new CacheFetcher<URI, ILocatable>() {
-				@Override
-				public ILocatable fetch(URI uri,
-						IProgressMonitor progressMonitor) {
-					for (IUri iuri : UriLocatorProvider.this.uriService.getUris()) {
-						if (iuri.getUri().equals(uri)) {
-							return iuri;
-						}
-					}
-					return null;
-				};
-			}, 1000);
+	private final Cache<URI, ILocatable> cache = new Cache<URI, ILocatable>((
+			uri, progressMonitor) -> {
+		for (IUri iuri : UriLocatorProvider.this.uriService.getUris()) {
+			if (iuri.getUri().equals(uri)) {
+				return iuri;
+			}
+		}
+		return null;
+	}, 1000);
 
-	@SuppressWarnings("unchecked")
 	public UriLocatorProvider() {
 		super(IUri.class);
 	}
@@ -95,12 +87,8 @@ public class UriLocatorProvider extends AdaptingLocatorProvider {
 
 			URI[] selection;
 			try {
-				selection = ExecUtils.syncExec(new Callable<URI[]>() {
-					@Override
-					public URI[] call() throws Exception {
-						return uriView.select(locatables);
-					}
-				});
+				selection = ExecUtils
+						.syncExec(() -> uriView.select(locatables));
 			} catch (Exception e) {
 				LOGGER.error("Error selecting " + uris);
 				return false;
