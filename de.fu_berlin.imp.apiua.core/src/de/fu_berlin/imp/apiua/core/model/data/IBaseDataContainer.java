@@ -13,13 +13,12 @@ public interface IBaseDataContainer extends IDataContainer {
 	 * <p>
 	 * The {@link File} is read-only, must not be edited and lives outside the
 	 * {@link IBaseDataContainer}'s life cycle.
-	 * 
+	 *
 	 * @param scope
 	 * @param name
 	 * @return
-	 * @throws IOException
 	 */
-	public File getStaticFile(String scope, String name) throws IOException;
+	public File getStaticFile(String scope, String name);
 
 	/**
 	 * Resets a static {@link File}.
@@ -34,7 +33,7 @@ public interface IBaseDataContainer extends IDataContainer {
 	 * <p>
 	 * In order to save the changes made to the file use
 	 * {@link #putFile(String, String, File)}.
-	 * 
+	 *
 	 * @param scope
 	 * @param filename
 	 * @return
@@ -47,7 +46,7 @@ public interface IBaseDataContainer extends IDataContainer {
 	 * <p>
 	 * In order to get a previously put {@link File} use
 	 * {@link #getFile(String, String)}.
-	 * 
+	 *
 	 * @param scope
 	 * @param name
 	 * @param file
@@ -61,7 +60,7 @@ public interface IBaseDataContainer extends IDataContainer {
 
 	/**
 	 * Deleted all {@link File}s in the given scope.
-	 * 
+	 *
 	 * @param scope
 	 */
 	public void deleteScope(String scope);

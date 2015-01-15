@@ -12,9 +12,9 @@ import de.fu_berlin.imp.apiua.core.model.data.IDataContainer;
  * This class can be used to extend an {@link IData} instance and add
  * functionality to it without having to know the {@link IData}'s
  * implementation.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public abstract class WrappingData implements IData {
 
@@ -74,7 +74,7 @@ public abstract class WrappingData implements IData {
 	}
 
 	@Override
-	public File getStaticFile() throws IOException {
+	public File getStaticFile() {
 		return this.data.getStaticFile();
 	}
 

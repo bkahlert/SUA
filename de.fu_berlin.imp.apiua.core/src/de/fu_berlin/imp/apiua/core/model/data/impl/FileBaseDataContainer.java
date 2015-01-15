@@ -23,7 +23,7 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	private List<File> returnedFiles;
 	private IDataSetInfo info;
 
-	protected FileBaseDataContainer(File file, boolean expectDataSetInfo) {
+	public FileBaseDataContainer(File file, boolean expectDataSetInfo) {
 		super(file);
 		this.returnedFiles = new ArrayList<File>();
 		this.info = expectDataSetInfo ? new DataSetInfo(
@@ -81,17 +81,23 @@ public class FileBaseDataContainer extends FileDataContainer implements
 	}
 
 	@Override
-	public File getStaticFile(String scope, String name) throws IOException {
+	public File getStaticFile(String scope, String name) {
 		File file = this.getLocation(scope, name);
 		if (!file.exists()) {
 			return null;
 		}
 
-		File staticFile = new File(new File(new File(this.getTempDirectory(),
-				"static-files"), scope), name);
+		File staticFiles = new File(this.getTempDirectory(), "static-files");
+		File staticScopedFile = scope != null ? new File(staticFiles, scope)
+				: staticFiles;
+		File staticFile = new File(staticScopedFile, name);
 		if (!staticFile.exists()
 				|| staticFile.lastModified() != file.lastModified()) {
-			FileUtils.copyFile(file, staticFile);
+			try {
+				FileUtils.copyFile(file, staticFile);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		return staticFile;

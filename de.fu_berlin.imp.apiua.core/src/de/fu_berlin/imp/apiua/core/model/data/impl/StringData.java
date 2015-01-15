@@ -119,7 +119,7 @@ public class StringData implements IData {
 
 	// TODO
 	@Override
-	public File getStaticFile() throws IOException {
+	public File getStaticFile() {
 		List<String> path = new LinkedList<String>();
 		path.add(this.getName());
 		IDataContainer container = this.getParentDataContainer();

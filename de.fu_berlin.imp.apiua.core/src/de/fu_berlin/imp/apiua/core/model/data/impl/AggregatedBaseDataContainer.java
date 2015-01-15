@@ -32,7 +32,8 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 
 		final List<String> names = new ArrayList<String>();
 		for (IBaseDataContainer container : baseContainers) {
-			names.add(container.getInfo().getName());
+			names.add(container.getInfo() != null ? container.getInfo()
+					.getName() : "[unknown]");
 		}
 
 		final TimeZoneDateRange range = TimeZoneDateRange
@@ -70,7 +71,7 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	}
 
 	@Override
-	public File getStaticFile(String scope, String name) throws IOException {
+	public File getStaticFile(String scope, String name) {
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
 			File staticFile = baseDataContainer.getStaticFile(scope, name);
 			if (staticFile != null && staticFile.exists()) {
@@ -105,7 +106,7 @@ public class AggregatedBaseDataContainer extends AggregatedDataContainer
 	 * multiple containers.
 	 * <p>
 	 * If no file could be found, null is returned.
-	 * 
+	 *
 	 * @param scope
 	 * @param name
 	 * @return

@@ -78,8 +78,8 @@ public class FileData implements IData {
 	public String read(long from, long to) {
 		try {
 			return new String(
-					de.fu_berlin.imp.apiua.core.util.FileUtils
-							.readBytesFromTo(this.file, from, to));
+					de.fu_berlin.imp.apiua.core.util.FileUtils.readBytesFromTo(
+							this.file, from, to));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -199,7 +199,7 @@ public class FileData implements IData {
 	}
 
 	@Override
-	public File getStaticFile() throws IOException {
+	public File getStaticFile() {
 		List<String> path = new LinkedList<String>();
 		path.add(this.getName());
 		IDataContainer container = this.getParentDataContainer();

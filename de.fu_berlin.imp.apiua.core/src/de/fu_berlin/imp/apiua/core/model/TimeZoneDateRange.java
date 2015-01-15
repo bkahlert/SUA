@@ -12,7 +12,7 @@ import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 /**
  * This class describes a range defined by two {@link TimeZoneDate}s. To define
  * a unbounded range, simply pass <code>null</code> as one argument.
- * 
+ *
  * @author bkahlert
  */
 public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
@@ -45,7 +45,8 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 			List<? extends HasDateRange> hasDateRanges) {
 		List<TimeZoneDateRange> dateRanges = new LinkedList<TimeZoneDateRange>();
 		for (HasDateRange hasDateRange : hasDateRanges) {
-			dateRanges.add(hasDateRange.getDateRange());
+			dateRanges.add(hasDateRange != null ? hasDateRange.getDateRange()
+					: new TimeZoneDateRange(null, null));
 		}
 		return calculateOuterDateRange(dateRanges
 				.toArray(new TimeZoneDateRange[0]));
@@ -149,7 +150,7 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	/**
 	 * Returns true if the given {@link TimeZoneDateRange} intersects the
 	 * current {@link TimeZoneDateRange}.
-	 * 
+	 *
 	 * @param dateRange
 	 * @return
 	 */
@@ -173,7 +174,7 @@ public class TimeZoneDateRange implements Comparable<TimeZoneDateRange> {
 	 * not count exact matches as intersected. This means the the case in which
 	 * one {@link TimeZoneDateRange} ends at the very moment the second one
 	 * starts is not considered intersected.
-	 * 
+	 *
 	 * @param dateRange
 	 * @return
 	 */
