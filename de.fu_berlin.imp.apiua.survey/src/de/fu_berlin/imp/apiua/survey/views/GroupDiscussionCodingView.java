@@ -103,11 +103,6 @@ public class GroupDiscussionCodingView extends ViewPart {
 												return null;
 											}
 										};
-										GroupDiscussionCodingView.this.htmlCodingComposite
-												.setCodeMarkup(3, "testXXX");
-										GroupDiscussionCodingView.this.htmlCodingComposite
-												.setCodeMarkup(4,
-														"<b>Hello World!</b>");
 									}
 									GroupDiscussionCodingView.this.composite
 											.layout(true, true);

@@ -3,7 +3,11 @@ package de.fu_berlin.imp.apiua.survey.viewer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -20,6 +24,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
@@ -30,13 +37,153 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
+import de.fu_berlin.imp.apiua.survey.model.groupdiscussion.GroupDiscussionDocumentField;
 
 public class HtmlCodingComposite extends Composite implements
 		ISelectionProvider {
+
+	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
+			.getWorkbench().getService(ICodeService.class);
+	private ICodeServiceListener codeServiceListener = new ICodeServiceListener() {
+
+		@Override
+		public void codesAdded(List<ICode> codes) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codesAssigned(List<ICode> codes, List<URI> uris) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codesRemoved(List<ICode> removedCodes, List<URI> uris) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codeMoved(ICode code, ICode oldParentCode,
+				ICode newParentCode) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void codeDeleted(ICode code) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void relationsAdded(Set<IRelation> relations) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void relationsDeleted(Set<IRelation> relations) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void relationsRenamed(Set<IRelation> relations) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void relationInstancesAdded(Set<IRelationInstance> relations) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void relationInstancesDeleted(Set<IRelationInstance> relations) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void memoAdded(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void memoModified(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void memoRemoved(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void episodeAdded(IEpisode episode) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void episodeReplaced(IEpisode oldEpisode, IEpisode newEpisode) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void episodesDeleted(Set<IEpisode> deletedEpisodes) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void dimensionChanged(URI uri, IDimension oldDimension,
+				IDimension newDimension) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void dimensionValueChanged(URI uri, String oldValue, String value) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void propertiesChanged(URI uri, List<URI> addedProperties,
+				List<URI> removedProperties) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void axialCodingModelAdded(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void axialCodingModelUpdated(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+
+		@Override
+		public void axialCodingModelRemoved(URI uri) {
+			HtmlCodingComposite.this.refreshAnnotations();
+		}
+	};
 
 	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
@@ -77,7 +224,6 @@ public class HtmlCodingComposite extends Composite implements
 			public void focusGained(IElement element) {
 				if (Arrays.asList(element.getClasses()).contains("codeable")) {
 					URI selectedUri = new URI(element.getAttribute("id"));
-					System.err.println(selectedUri);
 					HtmlCodingComposite.this.selection = new StructuredSelection(
 							selectedUri);
 					HtmlCodingComposite.this
@@ -87,6 +233,10 @@ public class HtmlCodingComposite extends Composite implements
 				}
 			}
 		});
+
+		CODE_SERVICE.addCodeServiceListener(this.codeServiceListener);
+		parent.addDisposeListener(e -> CODE_SERVICE
+				.removeCodeServiceListener(HtmlCodingComposite.this.codeServiceListener));
 
 		PRESENTER_SERVICE.enable(this.browser,
 				new ISubjectInformationProvider<Control, URI>() {
@@ -98,8 +248,15 @@ public class HtmlCodingComposite extends Composite implements
 							URI uri = null;
 							try {
 								uri = new URI(anker.getAttribute("id"));
+								if (LocatorService.INSTANCE.getType(uri) == GroupDiscussionDocumentField.class) {
+									uri = null;
+								}
 							} catch (Exception e) {
+								try {
+									uri = new URI(anker.getAttribute("href"));
+								} catch (Exception e1) {
 
+								}
 							}
 
 							if (uri != null && entered) {
@@ -137,13 +294,53 @@ public class HtmlCodingComposite extends Composite implements
 				.addDisposeListener((DisposeListener) e -> PRESENTER_SERVICE
 						.disable(this.browser));
 
+		// FIXME: Couldn't get TextTransfer running (data always null);
+		// emulating LocalTransfer
+		this.browser.addDNDListener(new IDNDListener() {
+			@Override
+			public void dragStart(long offsetX, long offsetY, IElement element,
+					String mimeType, String data) {
+				if (data != null) {
+					LocalSelectionTransfer.getTransfer().setSelection(
+							new StructuredSelection(new URI(data)));
+				}
+			}
+
+			@Override
+			public void drop(long offsetX, long offsetY, IElement element,
+					String mimeType, String data) {
+			}
+		});
+
 		this.browser.open(uri, 60000);
 	}
 
-	public void setCodeMarkup(int fragment, String html) {
-		this.browser.run("setCodeMarkup(" + fragment + ", "
-				+ (html != null ? "\"" + Browser.escape(html) + "\"" : "null")
-				+ ");");
+	protected void refreshAnnotations() {
+		ExecUtils.logException(ExecUtils
+				.nonUIAsyncExec((Callable<Void>) () -> {
+					for (String id : HtmlCodingComposite.this.getIds().get()) {
+						ILocatable locatable = LocatorService.INSTANCE.resolve(
+								new URI(id), null).get();
+						this.setCodeMarkup(
+								id,
+								locatable != null ? Utils
+										.createAnnotations(locatable) : null);
+					}
+					return null;
+				}));
+	}
+
+	public void setCodeMarkup(String id, String html) {
+		this.browser.run("setCodeMarkup(\""
+				+ id
+				+ "\", "
+				+ (html != null && !html.isEmpty() ? "\""
+						+ Browser.escape(html) + "\"" : "null") + ");");
+	}
+
+	private Future<List<String>> getIds() {
+		return this.browser.run("return getCodeableIds()",
+				IConverter.CONVERTER_STRINGLIST);
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import org.eclipse.ui.commands.ICommandService;
 
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
+import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.StringUtils;
@@ -43,6 +44,7 @@ import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.scale.IScale;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -81,6 +83,9 @@ public class Utils {
 
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
+
+	private static final ILabelProviderService LABELPROVIDER_SERVICE = (ILabelProviderService) PlatformUI
+			.getWorkbench().getService(ILabelProviderService.class);
 
 	/**
 	 * Returns a color that - given the colors of all existing codes - is as
@@ -630,5 +635,113 @@ public class Utils {
 			}
 		}
 		return text;
+	}
+
+	/**
+	 * Generates an unordered html list (<code>&lt;ul&gt;</code>) containing the
+	 * codes and memos applied to the given element.
+	 *
+	 * @param locatable
+	 * @return
+	 */
+	public static String createAnnotations(ILocatable locatable) {
+		StringBuilder html = new StringBuilder("<ul class='instances'>");
+		boolean empty = true;
+
+		if (CODE_SERVICE.isMemo(locatable.getUri())) {
+			html.append("<li style=\"list-style-image: url('"
+					+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+					+ "');\">");
+			html.append(StringUtils.plainToHtml(StringUtils.shorten(
+					CODE_SERVICE.loadMemoPlain(locatable.getUri()), 100)));
+			html.append("</li>");
+			empty = false;
+		}
+
+		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances(locatable
+				.getUri())) {
+			String immediateDimensionValue = CODE_SERVICE.getDimensionValue(
+					codeInstance.getUri(), codeInstance.getCode());
+			html.append("<li style=\"list-style-image: url('"
+					+ GTLabelProvider.getCodeImageURI(codeInstance.getCode())
+					+ "');\"><a href=\""
+					+ codeInstance.getCode().getUri()
+					+ "\" data-focus-id=\""
+					+ codeInstance.getCode().getUri().toString()
+					+ "\" data-workspace=\""
+					+ codeInstance.getUri().toString()
+					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+					+ codeInstance.getUri() + "\">"
+					+ codeInstance.getCode().getCaption());
+			if (immediateDimensionValue != null) {
+				html.append("<strong> = ");
+				html.append(immediateDimensionValue);
+				html.append("</strong>");
+			}
+			html.append("</a><ul>");
+			if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
+				html.append("<li style=\"list-style-image: url('"
+						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+						+ "');\">");
+				html.append(StringUtils.plainToHtml(StringUtils.shorten(
+						CODE_SERVICE.loadMemoPlain(codeInstance.getUri()), 100)));
+				html.append("</li>");
+			}
+			// for (Triple<URI, IDimension, String> dimensionValue :
+			// dimensionValues) {
+			// html.append("<li style=\"list-style-image: none;\">");
+			// try {
+			// html.append(LocatorService.INSTANCE.resolve(
+			// dimensionValue.getFirst(), ICode.class, null).get());
+			// } catch (Exception e) {
+			// LOGGER.error(e);
+			// html.append(dimensionValue.getFirst());
+			// }
+			// html.append(" = ");
+			// html.append(dimensionValue.getThird());
+			// html.append("</li>");
+			// }
+			html.append("</ul></li>");
+			empty = false;
+		}
+
+		for (IRelationInstance relationInstance : CODE_SERVICE
+				.getRelationInstances(locatable.getUri())) {
+			String immediateDimensionValue = null;
+
+			html.append("<li style=\"list-style-image: url('"
+					+ BrowserUtils.createDataUri(ImageManager.RELATION)
+					+ "');\"><a href=\""
+					+ relationInstance.getRelation().getUri()
+					+ "\" data-focus-id=\""
+					+ relationInstance.getRelation().getUri().toString()
+					+ "\" data-workspace=\""
+					+ relationInstance.getUri().toString()
+					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+					+ relationInstance.getUri()
+					+ "\">"
+					+ LABELPROVIDER_SERVICE.getText(relationInstance
+							.getRelation().getUri()));
+			if (immediateDimensionValue != null) {
+				// html.append("<strong> = ");
+				// html.append(immediateDimensionValue);
+				// html.append("</strong>");
+			}
+			html.append("</a><ul>");
+			if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
+				html.append("<li style=\"list-style-image: url('"
+						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
+						+ "');\">");
+				html.append(StringUtils.plainToHtml(StringUtils.shorten(
+						CODE_SERVICE.loadMemoPlain(relationInstance.getUri()),
+						100)));
+				html.append("</li>");
+			}
+			html.append("</ul></li>");
+			empty = false;
+		}
+
+		html.append("</ul>");
+		return !empty ? html.toString() : "";
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.EncoderException;
@@ -46,10 +47,32 @@ public class HtmlDocument extends WrappingData implements IHtmlDocument {
 			for (Element element : document.select(cssQuery)) {
 				String fieldUri = this.uri + "/" + urlCodec.encode(cssQuery)
 						+ "/" + i;
-				element.html("<a id=\"" + fieldUri + "\" href=\"#" + fieldUri
-						+ "\" class=\"codeable\" tabindex=\"" + i
-						+ "\" data-fragment=\"" + i + "\">" + element.html()
-						+ "</a>");
+				List<Element> children = element.children();
+				Element a = element
+						.prepend(
+								"<a id=\""
+										+ fieldUri
+										+ "\" href=\"#"
+										+ fieldUri
+										+ "\" class=\"codeable\" tabindex=\""
+										+ i
+										+ "\" data-fragment=\""
+										+ i
+										+ "\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+										+ fieldUri + "\"></a>").child(0);
+
+				for (Element child : children) {
+					if (!child.equals(a)) {
+						a.appendChild(child);
+					}
+				}
+
+				// DND handle
+				// a.append(" <span draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
+				// + fieldUri
+				// +
+				// "\"><span class=\"glyphicon glyphicon-share-alt no_click\" style=\"height: 1.5em; line-height: 1.4em;\"></span></span>");
+
 				this.fields.put(new URI(fieldUri), element.text());
 				i++;
 			}

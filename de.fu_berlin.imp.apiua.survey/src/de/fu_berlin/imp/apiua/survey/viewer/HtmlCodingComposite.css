@@ -1,9 +1,18 @@
-a.codable {
+a.codeable {
   text-decoration: inherit;
   color: inherit;
   cursor: default;
+  
+  clear: both;
+  display: block;
 }
 
 .coded {
-  outline: #f00 dotted 1px;
+}
+
+.codeable .markup {
+  display:block;
+  float:right;
+  margin-left: 1em;
+  margin-right: 1em;
 }

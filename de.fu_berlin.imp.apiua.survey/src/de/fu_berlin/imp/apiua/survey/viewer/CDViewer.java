@@ -21,10 +21,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.ImageUtils;
-import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
-import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -38,14 +35,10 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
-import de.fu_berlin.imp.apiua.groundedtheory.ui.ImageManager;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.wizards.WizardUtils;
 import de.fu_berlin.imp.apiua.survey.model.SurveyContainer;
@@ -65,8 +58,6 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(ICodeService.class);
 	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
-	private static final ILabelProviderService LABELPROVIDER_SERVICE = (ILabelProviderService) PlatformUI
-			.getWorkbench().getService(ILabelProviderService.class);
 
 	private BootstrapBrowser browser;
 
@@ -261,7 +252,7 @@ public class CDViewer extends Viewer {
 				form.addRaw("<a href=\"addcode-" + cdDocument.getUri()
 						+ "\" class=\"btn btn-primary btn-sm\">Add Code...</a>");
 				form.addRaw("</td><td style=\"width:10%;\">");
-				form.addRaw(this.createAnnotations(cdDocument));
+				form.addRaw(Utils.createAnnotations(cdDocument));
 				form.addRaw("</td></tr>");
 
 				for (CDDocumentField field : cdDocument) {
@@ -298,7 +289,7 @@ public class CDViewer extends Viewer {
 							+ field.getUri()
 							+ "\"><span class=\"glyphicon glyphicon-share-alt no_click\" style=\"height: 1.5em; line-height: 1.4em;\"></span></a></div>");
 					form.addRaw("</td><td style=\"width:10%;\">");
-					form.addRaw(this.createAnnotations(field));
+					form.addRaw(Utils.createAnnotations(field));
 					form.addRaw("</td></tr>");
 				}
 			}
@@ -339,103 +330,6 @@ public class CDViewer extends Viewer {
 	public void setSelection(ISelection selection, boolean reveal) {
 		this.selection = selection;
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
-	}
-
-	private String createAnnotations(ILocatable locatable) {
-		StringBuilder html = new StringBuilder("<ul class='instances'>");
-
-		if (CODE_SERVICE.isMemo(locatable.getUri())) {
-			html.append("<li style=\"list-style-image: url('"
-					+ ImageUtils.createUriFromImage(ImageManager.MEMO)
-					+ "');\">");
-			html.append(StringUtils.plainToHtml(StringUtils.shorten(
-					CODE_SERVICE.loadMemoPlain(locatable.getUri()), 100)));
-			html.append("</li>");
-		}
-
-		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances(locatable
-				.getUri())) {
-			String immediateDimensionValue = CODE_SERVICE.getDimensionValue(
-					codeInstance.getUri(), codeInstance.getCode());
-			html.append("<li style=\"list-style-image: url('"
-					+ GTLabelProvider.getCodeImageURI(codeInstance.getCode())
-					+ "');\"><a href=\""
-					+ codeInstance.getCode().getUri()
-					+ "\" data-focus-id=\""
-					+ codeInstance.getCode().getUri().toString()
-					+ "\" data-workspace=\""
-					+ codeInstance.getUri().toString()
-					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
-					+ codeInstance.getUri() + "\">"
-					+ codeInstance.getCode().getCaption());
-			if (immediateDimensionValue != null) {
-				html.append("<strong> = ");
-				html.append(immediateDimensionValue);
-				html.append("</strong>");
-			}
-			html.append("</a><ul>");
-			if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
-				html.append("<li style=\"list-style-image: url('"
-						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
-						+ "');\">");
-				html.append(StringUtils.plainToHtml(StringUtils.shorten(
-						CODE_SERVICE.loadMemoPlain(codeInstance.getUri()), 100)));
-				html.append("</li>");
-			}
-			// for (Triple<URI, IDimension, String> dimensionValue :
-			// dimensionValues) {
-			// html.append("<li style=\"list-style-image: none;\">");
-			// try {
-			// html.append(LocatorService.INSTANCE.resolve(
-			// dimensionValue.getFirst(), ICode.class, null).get());
-			// } catch (Exception e) {
-			// LOGGER.error(e);
-			// html.append(dimensionValue.getFirst());
-			// }
-			// html.append(" = ");
-			// html.append(dimensionValue.getThird());
-			// html.append("</li>");
-			// }
-			html.append("</ul></li>");
-		}
-
-		for (IRelationInstance relationInstance : CODE_SERVICE
-				.getRelationInstances(locatable.getUri())) {
-			String immediateDimensionValue = null;
-
-			html.append("<li style=\"list-style-image: url('"
-					+ BrowserUtils.createDataUri(ImageManager.RELATION)
-					+ "');\"><a href=\""
-					+ relationInstance.getRelation().getUri()
-					+ "\" data-focus-id=\""
-					+ relationInstance.getRelation().getUri().toString()
-					+ "\" data-workspace=\""
-					+ relationInstance.getUri().toString()
-					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
-					+ relationInstance.getUri()
-					+ "\">"
-					+ LABELPROVIDER_SERVICE.getText(relationInstance
-							.getRelation().getUri()));
-			if (immediateDimensionValue != null) {
-				// html.append("<strong> = ");
-				// html.append(immediateDimensionValue);
-				// html.append("</strong>");
-			}
-			html.append("</a><ul>");
-			if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
-				html.append("<li style=\"list-style-image: url('"
-						+ ImageUtils.createUriFromImage(ImageManager.MEMO)
-						+ "');\">");
-				html.append(StringUtils.plainToHtml(StringUtils.shorten(
-						CODE_SERVICE.loadMemoPlain(relationInstance.getUri()),
-						100)));
-				html.append("</li>");
-			}
-			html.append("</ul></li>");
-		}
-
-		html.append("</ul>");
-		return html.toString();
 	}
 
 	@Override
