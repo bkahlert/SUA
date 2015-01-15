@@ -75,7 +75,7 @@
       <perspective
             class="de.fu_berlin.imp.apiua.groundedtheory.perspectives.AxialCodingPerspective"
             id="de.fu_berlin.imp.apiua.groundedtheory.perspectives.AxialCodingPerspective"
-            name="Selective Coding">
+            name="Axial Coding">
       </perspective>
    </extension>
      <extension
