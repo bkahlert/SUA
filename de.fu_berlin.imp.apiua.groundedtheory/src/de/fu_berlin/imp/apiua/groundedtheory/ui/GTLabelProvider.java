@@ -488,9 +488,8 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		if (type == IRelationInstance.class) {
 			IRelationInstance relationInstance = LocatorService.INSTANCE
 					.resolve(uri, IRelationInstance.class, null).get();
-			return labelProviderService
-					.getImage(relationInstance != null ? relationInstance
-							.getPhenomenon() : null);
+			return relationInstance != null ? labelProviderService
+					.getImage(relationInstance.getPhenomenon()) : null;
 		}
 		if (type == IAxialCodingModel.class) {
 			image = ImageManager.AXIAL_CODING_MODEL;
