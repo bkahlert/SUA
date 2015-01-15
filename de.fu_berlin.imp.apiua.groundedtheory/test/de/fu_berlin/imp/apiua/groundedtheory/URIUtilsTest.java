@@ -29,6 +29,8 @@ public class URIUtilsTest {
 				this.add(new URI("apiua://resource/!hhh/aaa/lll#hash"));
 				this.add(new URI(
 						"apiua://doclog/0meio6dzt3eo1wj7/2011-09-10T10-20-59%2B02%3A00%09ready%09http%3A%2F%2Fwww.seqan.de%2F%0985.179.79.188%09-%090%090%091263%09607"));
+				this.add(new URI(
+						"apiua://groupDiscussion/workshop%2712+-+Interview+Gruppendiskussion+%282012-09-06T13-01-28%2B0200%29.html"));
 			} catch (Exception e) {
 				System.err.println("ERROR");
 			}

@@ -8,6 +8,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class ImageManager {
 
+	public static final Image GROUP_DISCUSSION = getImage("icons/view/group_discussion_misc.png");
+
 	private static final Image CDDOCUMENT_BASE = getImage("icons/obj16/cddocument_obj.png");
 	public static final Image CDDOCUMENT = CDDOCUMENT_BASE;
 	public static final Image CDDOCUMENT_CODED = new DecorationOverlayIcon(

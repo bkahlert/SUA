@@ -1,0 +1,9 @@
+a.codable {
+  text-decoration: inherit;
+  color: inherit;
+  cursor: default;
+}
+
+.coded {
+  outline: #f00 dotted 1px;
+}

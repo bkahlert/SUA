@@ -24,6 +24,14 @@
             name="Cognitive Dimensions"
             restorable="true">
       </view>
+      <view
+            category="de.fu_berlin.imp.apiua.category"
+            class="de.fu_berlin.imp.apiua.survey.views.GroupDiscussionCodingView"
+            icon="icons/view/group_discussion_misc.png"
+            id="de.fu_berlin.imp.apiua.survey.views.GroupDiscussionCodingView"
+            name="Group Discussions"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="de.fu_berlin.imp.apiua.core.dataload">
@@ -41,5 +49,10 @@
             class="de.fu_berlin.imp.apiua.survey.SurveyLocatorProvider">
       </LocatorProvider>
    </extension>
-
+   <extension
+         point="de.fu_berlin.imp.apiua.core.locatorprovider">
+      <LocatorProvider
+            class="de.fu_berlin.imp.apiua.survey.GroupDiscussionLocatorProvider">
+      </LocatorProvider>
+   </extension>
 </plugin>

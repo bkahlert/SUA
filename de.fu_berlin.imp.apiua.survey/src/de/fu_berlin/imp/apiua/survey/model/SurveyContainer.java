@@ -4,28 +4,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.SubMonitor;
 
+import de.fu_berlin.imp.apiua.core.model.HtmlManager;
 import de.fu_berlin.imp.apiua.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.apiua.core.model.data.IData;
 import de.fu_berlin.imp.apiua.core.model.data.IDataContainer;
 import de.fu_berlin.imp.apiua.core.model.data.impl.AggregatedBaseDataContainer;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.core.model.identifier.Token;
+import de.fu_berlin.imp.apiua.survey.GroupDiscussionLocatorProvider;
 import de.fu_berlin.imp.apiua.survey.model.cd.CDDocument;
 import de.fu_berlin.imp.apiua.survey.model.cd.CDDocumentManager;
 import de.fu_berlin.imp.apiua.survey.model.csv.CSVSurveyManager;
 import de.fu_berlin.imp.apiua.survey.model.csv.CSVSurveyRecord;
+import de.fu_berlin.imp.apiua.survey.model.groupdiscussion.GroupDiscussionDocument;
 
 /**
  * Encapsulates multiple {@link IBaseDataContainer}s containing surveys.
  * <p>
  * Each survey is managed by a {@link XMLSurveyManager}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class SurveyContainer extends AggregatedBaseDataContainer {
 
@@ -36,6 +40,7 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 	private List<CSVSurveyManager> cSVSurveyManagers;
 	private List<CDDocumentManager> cdDocumentManagers;
+	private List<HtmlManager> groupDiscussionManagers;
 
 	public SurveyContainer(List<? extends IBaseDataContainer> baseContainers) {
 		super(baseContainers);
@@ -44,6 +49,10 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 	public IData getSurveyData(IBaseDataContainer baseDataContainer) {
 		IData surveyData = null;
+		if (baseDataContainer.getInfo() == null) {
+			return null;
+		}
+
 		Map<String, String> props = baseDataContainer.getInfo()
 				.getUnknownProperties();
 		for (String key : props.keySet()) {
@@ -57,7 +66,7 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 	public void scan(SubMonitor subMonitor) {
 		SubMonitor monitor = SubMonitor.convert(subMonitor,
-				this.baseContainers.size() * 2);
+				this.baseContainers.size() * 3);
 
 		List<CSVSurveyManager> cSVSurveyManagers = new ArrayList<CSVSurveyManager>();
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
@@ -88,12 +97,28 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 		}
 		this.cdDocumentManagers = cdDocumentManagers;
 
+		List<HtmlManager> groupDiscussionManagers = new ArrayList<HtmlManager>();
+		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
+			System.err.println(baseDataContainer);
+			IDataContainer groupDiscussionsContainer = baseDataContainer
+					.getSubContainer("group-discussions");
+			if (groupDiscussionsContainer != null) {
+				HtmlManager cdDocumentManager = new HtmlManager(
+						groupDiscussionsContainer,
+						"apiua://"
+								+ GroupDiscussionLocatorProvider.GROUP_DISCUSSION_NAMESPACE);
+				cdDocumentManager.scan(monitor.newChild(1));
+				groupDiscussionManagers.add(cdDocumentManager);
+			}
+		}
+		this.groupDiscussionManagers = groupDiscussionManagers;
+
 		monitor.done();
 	}
 
 	/**
 	 * TODO aggregate in case of multiple hits
-	 * 
+	 *
 	 * @param identifier
 	 * @return
 	 */
@@ -125,5 +150,15 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 			cdDocuments.addAll(manager.getDocuments());
 		}
 		return cdDocuments;
+	}
+
+	public Collection<GroupDiscussionDocument> getGroupDiscussionDocuments() {
+		Collection<GroupDiscussionDocument> groupDiscussionDocuments = new ArrayList<>();
+		for (HtmlManager manager : this.groupDiscussionManagers) {
+			groupDiscussionDocuments.addAll(manager.getDocuments().stream()
+					.map(html -> new GroupDiscussionDocument(html))
+					.collect(Collectors.toList()));
+		}
+		return groupDiscussionDocuments;
 	}
 }
