@@ -616,15 +616,22 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public Set<IRelationInstance> getAllRelationInstances(IRelation relation)
-			throws CodeDoesNotExistException {
+	public Set<IRelationInstance> getAllRelationInstances(IRelation relation) {
 		Set<IRelationInstance> relationInstances = new HashSet<>();
 		Set<URI> froms = new LinkedHashSet<>();
 		froms.add(relation.getFrom());
-		froms.addAll(this.getAscendants(relation.getFrom()));
 		Set<URI> tos = new LinkedHashSet<>();
 		tos.add(relation.getTo());
-		tos.addAll(this.getAscendants(relation.getTo()));
+		try {
+			froms.addAll(this.getAscendants(relation.getFrom()));
+		} catch (CodeDoesNotExistException e) {
+			LOGGER.error("Could not find code for " + relation.getFrom());
+		}
+		try {
+			tos.addAll(this.getAscendants(relation.getTo()));
+		} catch (CodeDoesNotExistException e) {
+			LOGGER.error("Could not find code for " + relation.getTo());
+		}
 		for (IRelationInstance relationInstance : this.codeStore
 				.getRelationInstances()) {
 			if (froms.contains(relationInstance.getRelation().getFrom())

@@ -69,6 +69,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreFullExc
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreIntegrityProtectionException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedCodeInstancesException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteAbandonedRelationsException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateCodeInstanceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationException;
@@ -271,6 +272,17 @@ class CodeStore implements ICodeStore {
 		for (TreeNode<ICode> codeTree : this.codeTrees) {
 			for (ICode code : codeTree) {
 				if (code.getId() == id) {
+					return code;
+				}
+			}
+		}
+		return null;
+	}
+
+	private ICode getCode(URI uri) {
+		for (TreeNode<ICode> codeTree : this.codeTrees) {
+			for (ICode code : codeTree) {
+				if (code.getUri().equals(uri)) {
 					return code;
 				}
 			}
@@ -485,19 +497,31 @@ class CodeStore implements ICodeStore {
 			LocatorService.INSTANCE.uncache(code.getUri());
 		}
 
-		List<ICodeInstance> abandoned = new LinkedList<ICodeInstance>();
+		List<IRelation> abandonedRelations = new LinkedList<>();
+		for (IRelation relation : this.relations) {
+			if (relation.getFrom().equals(code.getUri())
+					|| relation.getTo().equals(code.getUri())) {
+				abandonedRelations.add(relation);
+			}
+		}
+		if (abandonedRelations.size() > 0) {
+			throw new CodeStoreWriteAbandonedRelationsException(this.relations);
+		}
+
+		List<ICodeInstance> abandonedInstances = new LinkedList<ICodeInstance>();
 		for (ICodeInstance instance : this.codeInstances) {
 			if (instance.getCode().equals(code)) {
-				abandoned.add(instance);
+				abandonedInstances.add(instance);
 			}
 		}
 		if (deleteInstance) {
-			for (ICodeInstance instance : abandoned) {
+			for (ICodeInstance instance : abandonedInstances) {
 				this.codeInstances.remove(instance);
 				this.setMemo(instance, null);
 			}
-		} else if (abandoned.size() > 0) {
-			throw new CodeStoreWriteAbandonedCodeInstancesException(abandoned);
+		} else if (abandonedInstances.size() > 0) {
+			throw new CodeStoreWriteAbandonedCodeInstancesException(
+					abandonedInstances);
 		}
 
 		List<TreeNode<ICode>> codeNodes = this.find(code);
