@@ -39,6 +39,7 @@ import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -230,6 +231,27 @@ public class HtmlCodingComposite extends Composite implements
 							.fireSelectionChanged(new SelectionChangedEvent(
 									HtmlCodingComposite.this,
 									HtmlCodingComposite.this.selection));
+				}
+			}
+		});
+		this.browser.addMouseListener(new IMouseListener() {
+			@Override
+			public void mouseUp(double x, double y, IElement element) {
+			}
+
+			@Override
+			public void mouseMove(double x, double y) {
+			}
+
+			@Override
+			public void mouseDown(double x, double y, IElement element) {
+			}
+
+			@Override
+			public void clicked(double x, double y, IElement element) {
+				if (element.getData("workspace") != null) {
+					LocatorService.INSTANCE.showInWorkspace(
+							new URI(element.getData("workspace")), false, null);
 				}
 			}
 		});
