@@ -1,9 +1,11 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.Command;
@@ -45,11 +47,15 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
+import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.nebula.widgets.scale.IScale;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.core.util.NoNullSet;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeInstanceLocatorProvider;
@@ -69,6 +75,68 @@ import de.fu_berlin.imp.apiua.groundedtheory.viewer.RelationViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
 public class Utils {
+
+	public static final class AnkerLabelProvider implements IAnkerLabelProvider {
+
+		private static final Logger LOGGER = Logger
+				.getLogger(AnkerAdaptingListener.class);
+
+		public static final AnkerLabelProvider INSTANCE = new AnkerLabelProvider();
+
+		private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
+				.getWorkbench().getService(ILabelProviderService.class);
+
+		private AnkerLabelProvider() {
+		}
+
+		@Override
+		public boolean isResponsible(IAnker anker) {
+			if (anker.getHref() != null) {
+				try {
+					URI uri = new URI(anker.getHref());
+					Future<ILocatable> locatable = LocatorService.INSTANCE
+							.resolve(uri, null);
+					if (locatable.get() != null) {
+						return true;
+					}
+				} catch (Exception e) {
+					if (!URISyntaxException.class.isInstance(e.getCause())) {
+						LOGGER.error("Error handling " + anker.getHref(), e);
+					}
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public String getHref(IAnker anker) {
+			return anker.getHref();
+		}
+
+		@Override
+		public String[] getClasses(IAnker anker) {
+			return new String[] { "special" };
+		}
+
+		@Override
+		public String getContent(IAnker anker) {
+			if (anker.getHref() != null) {
+				try {
+					URI uri = new URI(anker.getHref());
+					ILabelProvider labelProvider = this.labelProviderService
+							.getLabelProvider(uri);
+					if (labelProvider != null) {
+						return labelProvider.getText(uri);
+					}
+				} catch (URISyntaxException e) {
+
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			}
+			return "!!! " + anker.getHref() + " !!!";
+		}
+	}
 
 	public static final Logger LOGGER = Logger.getLogger(Utils.class);
 

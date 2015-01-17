@@ -3,13 +3,17 @@ package de.fu_berlin.imp.apiua.groundedtheory.ui.information;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
+import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils.AnkerLabelProvider;
 
 public class MemoInformationControlExtender extends
 		EditorInformationControlExtender<URI> {
@@ -27,6 +31,15 @@ public class MemoInformationControlExtender extends
 	@Override
 	public Class<URI> getInformationClass() {
 		return URI.class;
+	}
+
+	@Override
+	public void extend(InformationControl<URI> informationControl,
+			Composite parent) {
+		super.extend(informationControl, parent);
+		for (Editor<URI> editor : this.editors.values()) {
+			editor.addAnkerLabelProvider(AnkerLabelProvider.INSTANCE);
+		}
 	}
 
 	@Override

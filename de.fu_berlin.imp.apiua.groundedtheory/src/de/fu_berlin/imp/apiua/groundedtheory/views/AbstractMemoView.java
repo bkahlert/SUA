@@ -1,6 +1,5 @@
 package de.fu_berlin.imp.apiua.groundedtheory.views;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -8,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,22 +23,18 @@ import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.history.History;
 import com.bkahlert.nebula.utils.history.IHistory;
-import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.listener.AnkerAdaptingListener;
 import com.bkahlert.nebula.widgets.browser.listener.BrowserOpeningAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.SchemeAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.URIAdapter;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.nebula.widgets.editor.Editor;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.IHighlightService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.core.ui.viewer.filters.HasDateRange;
 import de.fu_berlin.imp.apiua.core.views.UriPresentingEditorView;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -53,6 +47,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeServiceListener;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.UriPartRenamerConverter;
+import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils.AnkerLabelProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.ViewerURI;
 
 public class AbstractMemoView extends UriPresentingEditorView {
@@ -62,11 +57,9 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	private static final UriPartRenamerConverter CONVERTER = new UriPartRenamerConverter();
 
-	private final ILabelProviderService labelProviderService = (ILabelProviderService) PlatformUI
-			.getWorkbench().getService(ILabelProviderService.class);
-
-	ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
+	private ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 			.getService(ICodeService.class);
+
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		@Override
 		public void codesAssigned(List<ICode> codes, List<URI> uris) {
@@ -133,57 +126,7 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 	private void addAnkerLabelProviders(List<Editor<URI>> editors) {
 		for (Editor<URI> editor : editors) {
-			editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
-				@Override
-				public boolean isResponsible(IAnker anker) {
-					if (anker.getHref() != null) {
-						try {
-							URI uri = new URI(anker.getHref());
-							Future<ILocatable> locatable = LocatorService.INSTANCE
-									.resolve(uri, null);
-							if (locatable.get() != null) {
-								return true;
-							}
-						} catch (Exception e) {
-							if (!URISyntaxException.class.isInstance(e
-									.getCause())) {
-								LOGGER.error(
-										"Error handling " + anker.getHref(), e);
-							}
-						}
-					}
-					return false;
-				}
-
-				@Override
-				public String getHref(IAnker anker) {
-					return anker.getHref();
-				}
-
-				@Override
-				public String[] getClasses(IAnker anker) {
-					return new String[] { "special" };
-				}
-
-				@Override
-				public String getContent(IAnker anker) {
-					if (anker.getHref() != null) {
-						try {
-							URI uri = new URI(anker.getHref());
-							ILabelProvider labelProvider = AbstractMemoView.this.labelProviderService
-									.getLabelProvider(uri);
-							if (labelProvider != null) {
-								return labelProvider.getText(uri);
-							}
-						} catch (URISyntaxException e) {
-
-						} catch (Exception e) {
-							LOGGER.error(e);
-						}
-					}
-					return "!!! " + anker.getHref() + " !!!";
-				}
-			});
+			editor.addAnkerLabelProvider(AnkerLabelProvider.INSTANCE);
 		}
 	}
 
