@@ -33,7 +33,11 @@ import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.itemlist.ItemListViewer;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.model.data.IBaseDataContainer;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
+import de.fu_berlin.imp.apiua.core.services.DataServiceAdapter;
+import de.fu_berlin.imp.apiua.core.services.IDataService;
+import de.fu_berlin.imp.apiua.core.services.IDataServiceListener;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 
@@ -46,6 +50,16 @@ public class SelectionHistoryContribution extends
 			.getLogger(SelectionHistoryContribution.class);
 
 	private List<URI> history = new LinkedList<>();
+
+	private IDataService dataService = (IDataService) PlatformUI.getWorkbench()
+			.getService(IDataService.class);
+	private IDataServiceListener dataServiceListener = new DataServiceAdapter() {
+		@Override
+		public void dataDirectoriesLoaded(
+				List<? extends IBaseDataContainer> dataContainers) {
+			SelectionHistoryContribution.this.refresh();
+		}
+	};
 
 	private ISelectionListener selectionListener = (part, selection) -> {
 		List<URI> uris = SelectionUtils
@@ -65,14 +79,7 @@ public class SelectionHistoryContribution extends
 		}
 		new SUACorePreferenceUtil()
 				.setSelectionHistory(SelectionHistoryContribution.this.history);
-		if (SelectionHistoryContribution.this.itemListViewer != null) {
-			SelectionHistoryContribution.this.itemListViewer
-					.setInput(SelectionHistoryContribution.this.history);
-			SelectionHistoryContribution.this.itemListViewer.refresh();
-			Composite parent = SelectionHistoryContribution.this.itemListViewer
-					.getControl().getParent().getParent();
-			parent.layout(true, true);
-		}
+		this.refresh();
 	};
 
 	private ItemListViewer itemListViewer = null;
@@ -87,6 +94,7 @@ public class SelectionHistoryContribution extends
 	}
 
 	private void init() {
+		this.dataService.addDataServiceListener(this.dataServiceListener);
 		SelectionUtils.getSelectionService().addSelectionListener(
 				this.selectionListener);
 		this.history = new SUACorePreferenceUtil().getSelectionHistory();
@@ -97,6 +105,7 @@ public class SelectionHistoryContribution extends
 		new SUACorePreferenceUtil().setSelectionHistory(this.history);
 		SelectionUtils.getSelectionService().addSelectionListener(
 				this.selectionListener);
+		this.dataService.removeDataServiceListener(this.dataServiceListener);
 		super.dispose();
 	}
 
@@ -150,6 +159,11 @@ public class SelectionHistoryContribution extends
 					public String getText(Object element) {
 						@SuppressWarnings("unchecked")
 						URI uri = ((Pair<Integer, URI>) element).getSecond();
+						if (SelectionHistoryContribution.this.dataService
+								.getActiveDataDirectories().isEmpty()) {
+							return uri.toString();
+						}
+
 						ILabelProvider lp = this.labelProviderService
 								.getLabelProvider(uri);
 						try {
@@ -229,6 +243,17 @@ public class SelectionHistoryContribution extends
 					}
 				});
 		return itemList;
+	}
+
+	private void refresh() {
+		if (SelectionHistoryContribution.this.itemListViewer != null) {
+			SelectionHistoryContribution.this.itemListViewer
+					.setInput(SelectionHistoryContribution.this.history);
+			SelectionHistoryContribution.this.itemListViewer.refresh();
+			Composite parent = SelectionHistoryContribution.this.itemListViewer
+					.getControl().getParent().getParent();
+			parent.layout(true, true);
+		}
 	}
 
 }
