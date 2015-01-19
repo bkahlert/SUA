@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.survey.viewer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
@@ -340,24 +342,30 @@ public class HtmlCodingComposite extends Composite implements
 	protected void refreshAnnotations() {
 		ExecUtils.logException(ExecUtils
 				.nonUIAsyncExec((Callable<Void>) () -> {
+					List<Pair<String, String>> content = new ArrayList<>();
 					for (String id : HtmlCodingComposite.this.getIds().get()) {
 						ILocatable locatable = LocatorService.INSTANCE.resolve(
 								new URI(id), null).get();
-						this.setCodeMarkup(
-								id,
-								locatable != null ? Utils
-										.createAnnotations(locatable) : null);
+						content.add(new Pair<>(id, locatable != null ? Utils
+								.createAnnotations(locatable) : null));
 					}
+					this.setCodeMarkups(content);
 					return null;
 				}));
 	}
 
-	public void setCodeMarkup(String id, String html) {
-		this.browser.run("setCodeMarkup(\""
-				+ id
-				+ "\", "
-				+ (html != null && !html.isEmpty() ? "\""
-						+ Browser.escape(html) + "\"" : "null") + ");");
+	public void setCodeMarkups(List<Pair<String, String>> content) {
+		StringBuffer js = new StringBuffer();
+		for (Pair<String, String> c : content) {
+			String id = c.getFirst();
+			String html = c.getSecond();
+			js.append("setCodeMarkup(\""
+					+ id
+					+ "\", "
+					+ (html != null && !html.isEmpty() ? "\""
+							+ Browser.escape(html) + "\"" : "null") + ");");
+		}
+		this.browser.run(js.toString(), 500, "setCodeMarkups");
 	}
 
 	private Future<List<String>> getIds() {
