@@ -514,10 +514,16 @@ public class CodeService implements ICodeService, IDisposable {
 		Set<IRelation> relations = new HashSet<>();
 		for (IRelationInstance relationInstance : this.codeStore
 				.getRelationInstances()) {
-			IIdentifier id2 = URIUtils.getIdentifier(relationInstance
-					.getPhenomenon());
-			if (id.equals(id2)) {
-				relations.add(relationInstance.getRelation());
+			if (id == null) {
+				if (relationInstance.getPhenomenon().equals(phenomenon)) {
+					relations.add(relationInstance.getRelation());
+				}
+			} else {
+				IIdentifier id2 = URIUtils.getIdentifier(relationInstance
+						.getPhenomenon());
+				if (id.equals(id2)) {
+					relations.add(relationInstance.getRelation());
+				}
 			}
 		}
 		return relations;
