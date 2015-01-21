@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.dialogs;
 
-import de.fu_berlin.imp.apiua.core.model.URI;
-import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import java.util.concurrent.ExecutionException;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -20,6 +19,13 @@ import org.eclipse.ui.PlatformUI;
 import com.bkahlert.nebula.utils.FontUtils;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+
+import de.fu_berlin.imp.apiua.core.model.ILocatable;
+import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 
 public class ShowArtefactIDDialog extends TitleAreaDialog {
 
@@ -91,6 +97,41 @@ public class ShowArtefactIDDialog extends TitleAreaDialog {
 		uriLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
 		uriLabel.setText(this.uri.toString());
 		FontUtils.changeFontSizeBy(uriLabel, 2);
+
+		Class<? extends ILocatable> type = LocatorService.INSTANCE
+				.getType(this.uri);
+		if (type == ICodeInstance.class || type == IRelationInstance.class) {
+			Label grounding = new Label(composite, SWT.NONE);
+			grounding.setText("Grounding");
+			grounding.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
+					false));
+			FontUtils.changeFontSizeBy(grounding, -1);
+
+			Label phenomenon = new Label(composite, SWT.NONE);
+			phenomenon.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
+					false));
+			FontUtils.changeFontSizeBy(phenomenon, -1);
+
+			if (type == ICodeInstance.class) {
+				ICodeInstance codeInstance = null;
+				try {
+					codeInstance = LocatorService.INSTANCE.resolve(this.uri,
+							ICodeInstance.class, null).get();
+				} catch (InterruptedException | ExecutionException e) {
+				}
+				phenomenon.setText(codeInstance != null ? codeInstance.getId()
+						.toString() : "ERROR");
+			} else if (type == IRelationInstance.class) {
+				IRelationInstance relationInstance = null;
+				try {
+					relationInstance = LocatorService.INSTANCE.resolve(
+							this.uri, IRelationInstance.class, null).get();
+				} catch (InterruptedException | ExecutionException e) {
+				}
+				phenomenon.setText(relationInstance != null ? relationInstance
+						.getPhenomenon().toString() : "ERROR");
+			}
+		}
 
 		parent.pack();
 		return composite;
