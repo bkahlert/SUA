@@ -20,7 +20,6 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
-import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -132,7 +131,7 @@ public class CDView extends ViewPart {
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			CDView.this.viewer.refresh();
 		}
 

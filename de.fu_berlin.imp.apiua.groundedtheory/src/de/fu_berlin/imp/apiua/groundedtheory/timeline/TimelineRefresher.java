@@ -8,7 +8,6 @@ import org.eclipse.jface.viewers.Viewer;
 
 import com.bkahlert.nebula.utils.ExecUtils.DelayableThread;
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
@@ -84,7 +83,7 @@ public class TimelineRefresher implements ICodeServiceListener {
 	}
 
 	@Override
-	public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+	public void codesRecolored(List<ICode> codes) {
 		this.scheduleRefresh();
 	}
 

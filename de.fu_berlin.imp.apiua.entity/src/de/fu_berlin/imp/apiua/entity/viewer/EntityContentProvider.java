@@ -7,7 +7,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
@@ -47,7 +46,7 @@ URIContentProvider<EntityDataContainer> {
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			ViewerUtils.refresh(EntityContentProvider.this.viewer);
 		}
 

@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
@@ -47,12 +46,9 @@ public class CodeServiceListenerNotifier {
 	void codesCreated(final List<ICode> codes) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Codes Created Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codesAdded(codes);
-							return null;
-						}
+					"Codes Created Notification", (Callable<Void>) () -> {
+						codeServiceListener.codesAdded(codes);
+						return null;
 					});
 		}
 	}
@@ -60,12 +56,9 @@ public class CodeServiceListenerNotifier {
 	void codesAssigned(final List<ICode> codes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Codes Assigned Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codesAssigned(codes, uris);
-							return null;
-						}
+					"Codes Assigned Notification", (Callable<Void>) () -> {
+						codeServiceListener.codesAssigned(codes, uris);
+						return null;
 					});
 		}
 	}
@@ -74,28 +67,20 @@ public class CodeServiceListenerNotifier {
 			final String newCaption) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Code Renamed Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codeRenamed(code, oldCaption,
-									newCaption);
-							return null;
-						}
+					"Code Renamed Notification", (Callable<Void>) () -> {
+						codeServiceListener.codeRenamed(code, oldCaption,
+								newCaption);
+						return null;
 					});
 		}
 	}
 
-	public void codeRecolored(final ICode code, final RGB oldColor,
-			final RGB newColor) {
+	public void codesRecolored(List<ICode> codes) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Code Recolored Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codeRecolored(code, oldColor,
-									newColor);
-							return null;
-						}
+					"Code Recolored Notification", (Callable<Void>) () -> {
+						codeServiceListener.codesRecolored(codes);
+						return null;
 					});
 		}
 	}
@@ -103,13 +88,9 @@ public class CodeServiceListenerNotifier {
 	void codesRemoved(final List<ICode> removedCodes, final List<URI> uris) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Codes Removed Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener
-									.codesRemoved(removedCodes, uris);
-							return null;
-						}
+					"Codes Removed Notification", (Callable<Void>) () -> {
+						codeServiceListener.codesRemoved(removedCodes, uris);
+						return null;
 					});
 		}
 	}
@@ -118,13 +99,10 @@ public class CodeServiceListenerNotifier {
 			final ICode newParentCode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Code Moved Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codeMoved(code, oldParentCode,
-									newParentCode);
-							return null;
-						}
+					"Code Moved Notification", (Callable<Void>) () -> {
+						codeServiceListener.codeMoved(code, oldParentCode,
+								newParentCode);
+						return null;
 					});
 		}
 	}
@@ -132,12 +110,9 @@ public class CodeServiceListenerNotifier {
 	void codeDeleted(final ICode code) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Code Deleted Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.codeDeleted(code);
-							return null;
-						}
+					"Code Deleted Notification", (Callable<Void>) () -> {
+						codeServiceListener.codeDeleted(code);
+						return null;
 					});
 		}
 	}
@@ -166,7 +141,8 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	public void relationInstancesDeleted(Set<IRelationInstance> relationInstances) {
+	public void relationInstancesDeleted(
+			Set<IRelationInstance> relationInstances) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			codeServiceListener.relationInstancesDeleted(relationInstances);
 		}
@@ -175,12 +151,9 @@ public class CodeServiceListenerNotifier {
 	void memoAdded(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Memo Added Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.memoAdded(uri);
-							return null;
-						}
+					"Memo Added Notification", (Callable<Void>) () -> {
+						codeServiceListener.memoAdded(uri);
+						return null;
 					});
 		}
 	}
@@ -188,12 +161,9 @@ public class CodeServiceListenerNotifier {
 	void memoModified(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Memo Modified Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.memoModified(uri);
-							return null;
-						}
+					"Memo Modified Notification", (Callable<Void>) () -> {
+						codeServiceListener.memoModified(uri);
+						return null;
 					});
 		}
 	}
@@ -201,12 +171,9 @@ public class CodeServiceListenerNotifier {
 	void memoRemoved(final URI uri, String html) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Memo Removed Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.memoRemoved(uri);
-							return null;
-						}
+					"Memo Removed Notification", (Callable<Void>) () -> {
+						codeServiceListener.memoRemoved(uri);
+						return null;
 					});
 		}
 	}
@@ -214,12 +181,9 @@ public class CodeServiceListenerNotifier {
 	public void episodeAdded(final IEpisode episode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Episode Added Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.episodeAdded(episode);
-							return null;
-						}
+					"Episode Added Notification", (Callable<Void>) () -> {
+						codeServiceListener.episodeAdded(episode);
+						return null;
 					});
 		}
 	}
@@ -228,13 +192,10 @@ public class CodeServiceListenerNotifier {
 			final IEpisode newEpisode) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Episode Replaced Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.episodeReplaced(oldEpisode,
-									newEpisode);
-							return null;
-						}
+					"Episode Replaced Notification", (Callable<Void>) () -> {
+						codeServiceListener.episodeReplaced(oldEpisode,
+								newEpisode);
+						return null;
 					});
 		}
 	}
@@ -242,13 +203,9 @@ public class CodeServiceListenerNotifier {
 	public void episodesDeleted(final Set<IEpisode> deletedEpisodes) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Episodes Deleted Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener
-									.episodesDeleted(deletedEpisodes);
-							return null;
-						}
+					"Episodes Deleted Notification", (Callable<Void>) () -> {
+						codeServiceListener.episodesDeleted(deletedEpisodes);
+						return null;
 					});
 		}
 	}
@@ -257,13 +214,10 @@ public class CodeServiceListenerNotifier {
 			final IDimension newDimension) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Dimension Changed Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.dimensionChanged(uri,
-									oldDimension, newDimension);
-							return null;
-						}
+					"Dimension Changed Notification", (Callable<Void>) () -> {
+						codeServiceListener.dimensionChanged(uri, oldDimension,
+								newDimension);
+						return null;
 					});
 		}
 	}
@@ -273,13 +227,10 @@ public class CodeServiceListenerNotifier {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
 					"Dimension Value Change Notification",
-					new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.dimensionValueChanged(uri,
-									oldValue, value);
-							return null;
-						}
+					(Callable<Void>) () -> {
+						codeServiceListener.dimensionValueChanged(uri,
+								oldValue, value);
+						return null;
 					});
 		}
 	}
@@ -288,13 +239,10 @@ public class CodeServiceListenerNotifier {
 			final List<URI> addedProperties, final List<URI> removedProperties) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
 			ExecUtils.nonUIAsyncExec(CodeServiceListenerNotifier.class,
-					"Properties Changed Notification", new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							codeServiceListener.propertiesChanged(uri,
-									addedProperties, removedProperties);
-							return null;
-						}
+					"Properties Changed Notification", (Callable<Void>) () -> {
+						codeServiceListener.propertiesChanged(uri,
+								addedProperties, removedProperties);
+						return null;
 					});
 		}
 	}

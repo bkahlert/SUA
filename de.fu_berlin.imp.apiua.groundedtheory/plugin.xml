@@ -103,22 +103,16 @@
          </commandParameter>
       </command>
       <command
-            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showArtifactID"
-            name="Show Artefact ID...">
-         <commandParameter
-               id="de.fu_berlin.imp.apiua.groundedtheory.commands.showArtifactID.justCopy"
-               name="Just Copy"
-               optional="false"
-               values="de.fu_berlin.imp.apiua.core.commands.BooleanValues">
-         </commandParameter>
-      </command>
-      <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.createEpisode"
             name="Create Episode...">
       </command>
       <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCode"
             name="Change Color...">
+      </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCodes"
+            name="Recolor Selected...">
       </command>
       <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.highlightAxialCodingModels"
@@ -416,6 +410,20 @@
            </activeWhen>
         </handler>
         <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RecolorCodesHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCodes">
+           <activeWhen>
+              <or>
+                 <reference
+                       definitionId="de.fu_berlin.imp.apiua.groundedtheory.isICode">
+                 </reference>
+                 <reference
+                       definitionId="de.fu_berlin.imp.apiua.groundedtheory.informationIsICode">
+                 </reference>
+              </or>
+           </activeWhen>
+        </handler>
+        <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.HighlightAxialCodingModelsHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.highlightAxialCodingModels">
            <activeWhen>
@@ -613,6 +621,23 @@
                disabledIcon="icons/dtool16/edit_code_tsk.png"
                icon="icons/etool16/edit_code_tsk.png"
                label="Change Color..."
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.isICode">
+                  </reference>
+                  <reference
+                        definitionId="de.fu_berlin.imp.apiua.groundedtheory.informationIsICode">
+                  </reference>
+               </or>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.recolorCodes"
+               disabledIcon="icons/dtool16/edit_code_tsk.png"
+               icon="icons/etool16/edit_code_tsk.png"
                style="push">
             <visibleWhen
                   checkEnabled="false">

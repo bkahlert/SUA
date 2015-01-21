@@ -7,7 +7,6 @@ import java.util.Set;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
@@ -48,7 +47,7 @@ public class EpisodeViewerContentProvider extends
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 

@@ -305,12 +305,26 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void recolorCode(ICode code, RGB newColor)
 			throws CodeServiceException {
-		RGB oldColor = code.getColor();
 		try {
 			code.setColor(newColor);
 			this.codeStore.save();
-			this.codeServiceListenerNotifier.codeRecolored(code, oldColor,
-					newColor);
+			this.codeServiceListenerNotifier
+					.codesRecolored(Arrays.asList(code));
+		} catch (Exception e) {
+			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void recolorCode(List<Pair<ICode, RGB>> newColors)
+			throws CodeServiceException {
+		for (Pair<ICode, RGB> newColor : newColors) {
+			newColor.getFirst().setColor(newColor.getSecond());
+		}
+		try {
+			this.codeStore.save();
+			this.codeServiceListenerNotifier.codesRecolored(newColors.stream()
+					.map(c -> c.getFirst()).collect(Collectors.toList()));
 		} catch (Exception e) {
 			throw new CodeServiceException(e);
 		}

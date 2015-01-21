@@ -3,8 +3,6 @@ package de.fu_berlin.imp.apiua.groundedtheory.services;
 import java.util.List;
 import java.util.Set;
 
-import com.bkahlert.nebula.utils.colors.RGB;
-
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
@@ -20,7 +18,7 @@ public interface ICodeServiceListener {
 
 	public void codeRenamed(ICode code, String oldCaption, String newCaption);
 
-	public void codeRecolored(ICode code, RGB oldColor, RGB newColor);
+	public void codesRecolored(List<ICode> codes);
 
 	public void codesRemoved(List<ICode> removedCodes, List<URI> uris);
 

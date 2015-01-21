@@ -10,7 +10,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -62,7 +61,7 @@ public class CodeInstanceViewerContentProvider extends
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			ViewerUtils.refresh(CodeInstanceViewerContentProvider.this.viewer,
 					true);
 		}

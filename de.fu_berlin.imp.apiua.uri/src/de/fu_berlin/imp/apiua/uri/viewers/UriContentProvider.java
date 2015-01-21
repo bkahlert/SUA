@@ -43,9 +43,7 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		}
 
 		@Override
-		public void codeRecolored(ICode code,
-				com.bkahlert.nebula.utils.colors.RGB oldColor,
-				com.bkahlert.nebula.utils.colors.RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 		}
 
 		@Override

@@ -99,7 +99,6 @@ public class SurveyContainer extends AggregatedBaseDataContainer {
 
 		List<HtmlManager> groupDiscussionManagers = new ArrayList<HtmlManager>();
 		for (IBaseDataContainer baseDataContainer : this.baseContainers) {
-			System.err.println(baseDataContainer);
 			IDataContainer groupDiscussionsContainer = baseDataContainer
 					.getSubContainer("group-discussions");
 			if (groupDiscussionsContainer != null) {

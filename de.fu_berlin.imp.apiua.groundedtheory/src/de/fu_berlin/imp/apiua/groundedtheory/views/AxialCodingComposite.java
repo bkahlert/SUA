@@ -102,7 +102,7 @@ public class AxialCodingComposite extends Composite implements
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		}
 

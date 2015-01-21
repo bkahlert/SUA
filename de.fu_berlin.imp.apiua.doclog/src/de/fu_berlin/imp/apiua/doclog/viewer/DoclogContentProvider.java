@@ -10,7 +10,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
@@ -62,7 +61,7 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DoclogContentProvider.this.viewer);
 		}

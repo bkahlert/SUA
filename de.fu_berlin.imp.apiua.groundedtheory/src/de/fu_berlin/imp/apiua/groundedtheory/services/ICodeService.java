@@ -184,6 +184,9 @@ public interface ICodeService {
 	public void recolorCode(ICode code, RGB newColor)
 			throws CodeServiceException;
 
+	public void recolorCode(List<Pair<ICode, RGB>> newColors)
+			throws CodeServiceException;
+
 	/**
 	 * Sets a parent {@link ICode} for a given {@link ICode} allowing the
 	 * modeling of hierarchies.

@@ -28,7 +28,6 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Pair;
-import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
@@ -80,7 +79,7 @@ public class HtmlCodingComposite extends Composite implements
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			HtmlCodingComposite.this.refreshAnnotations();
 		}
 

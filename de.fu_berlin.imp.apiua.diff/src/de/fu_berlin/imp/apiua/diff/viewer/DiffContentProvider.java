@@ -10,7 +10,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ViewerUtils;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -70,7 +69,7 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
-		public void codeRecolored(ICode code, RGB oldColor, RGB newColor) {
+		public void codesRecolored(List<ICode> codes) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(DiffContentProvider.this.viewer);
 		}
