@@ -739,7 +739,7 @@ public class Utils {
 					+ "\" data-workspace=\""
 					+ codeInstance.getUri().toString()
 					+ "\" tabindex=\"-1\" draggable=\"true\" data-dnd-mime=\"text/plain\" data-dnd-data=\""
-					+ codeInstance.getUri() + "\">"
+					+ codeInstance.getCode().getUri() + "\">"
 					+ codeInstance.getCode().getCaption());
 			if (immediateDimensionValue != null) {
 				html.append("<strong> = ");
