@@ -341,7 +341,8 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	private void activateDropSupport() {
-		this.jointjs.run("$('.jointjs svg').attr('droppable', true)");
+		ExecUtils.logException(this.jointjs
+				.run("$('.jointjs svg').attr('droppable', true)"));
 		this.jointjs.addDNDListener(new IDNDListener() {
 			@Override
 			public void dragStart(long offsetX, long offsetY, IElement element,
@@ -393,8 +394,10 @@ public class AxialCodingComposite extends Composite implements
 								}
 								if (LocatorService.INSTANCE.resolve(uri2, null)
 										.get() != null) {
-									AxialCodingComposite.this.createElement(
-											uri2, new Point(dropX, dropY));
+									AxialCodingComposite.this.createElements(Arrays
+											.asList(new Pair<URI, Point>(uri2,
+													new Point(dropX, dropY))));
+									AxialCodingComposite.this.refresh();
 									AxialCodingComposite.this.jointjs
 											.run("$('.jointjs svg .element').attr('droppable', true)");
 								}
@@ -558,31 +561,31 @@ public class AxialCodingComposite extends Composite implements
 	 * @param uri
 	 * @param position
 	 * @throws Exception
+	 *             <p>
+	 *             Important: You need to call {@link #refresh()} manually.
 	 *
 	 * @NonUIThread
 	 */
-	public void createElement(URI uri, Point position) throws Exception {
-		String title = this.labelProvider.getText(uri);
-		String content = this.labelProvider.getContent(uri);
-		Point size = this.labelProvider.getSize(uri);
+	public void createElements(List<Pair<URI, Point>> urisAndPositions)
+			throws Exception {
+		StringBuilder js = new StringBuilder();
+		for (Pair<URI, Point> uriAndPosition : urisAndPositions) {
+			URI uri = uriAndPosition.getFirst();
+			Point position = uriAndPosition.getSecond();
+			Assert.isLegal(uri != null);
 
-		if (position == null) {
-			position = new Point(10, 10);
+			String title = this.labelProvider.getText(uri);
+			String content = this.labelProvider.getContent(uri);
+			Point size = this.labelProvider.getSize(uri);
+
+			if (position == null) {
+				position = new Point(10, 10);
+			}
+
+			js.append(JointJS.createElementStatement(uri.toString(), title,
+					content, position, size));
 		}
-
-		String id = null;
-		try {
-			id = this.jointjs.createElement(uri.toString(), title, content,
-					position, size).get();
-		} catch (Exception e) {
-			LOGGER.error("Error creating element " + id, e);
-		}
-
-		if (id == null) {
-			LOGGER.error("ID missing for created/updated element!");
-		}
-
-		this.refresh().get();
+		this.jointjs.run(js.toString()).get();
 	}
 
 	/**
@@ -605,19 +608,27 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @param uri
 	 * @param position
+	 * @return
 	 * @throws Exception
 	 *
 	 * @NonUIThread
 	 */
-	public void createRelation(URI uri) throws Exception {
+	public static String createRelationStatement(URI uri) {
 		IRelation relation = CODE_SERVICE.getRelation(uri);
 		if (relation == null) {
-			return;
+			return "";
 		}
 
-		this.jointjs.createLink(uri.toString(), relation.getFrom().toString(),
-				relation.getTo().toString());
-		this.refreshRelation(uri);
+		return JointJS.createLinkStatement(uri.toString(), relation.getFrom()
+				.toString(), relation.getTo().toString());
+	}
+
+	public void createRelations(List<URI> relations) {
+		StringBuilder js = new StringBuilder();
+		for (URI relation : relations) {
+			js.append(createRelationStatement(relation));
+		}
+		ExecUtils.logException(this.jointjs.run(js.toString()));
 	}
 
 	/**
@@ -631,15 +642,16 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	private void createIsARelations(final URI uri) throws InterruptedException,
+	private String createIsARelationsStatement(final URI uri,
+			List<URI> existingElements) throws InterruptedException,
 			ExecutionException {
-		List<URI> existingElements = AxialCodingComposite.this.getElements()
-				.get();
+		StringBuilder js = new StringBuilder();
+
 		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
 				.get();
 		if (code == null) {
 			LOGGER.warn(uri + " is no valid code");
-			return;
+			return js.toString();
 		}
 		ICode parent = code;
 		while (true) {
@@ -648,16 +660,18 @@ public class AxialCodingComposite extends Composite implements
 				break;
 			}
 			if (existingElements.contains(parent.getUri())) {
-				AxialCodingComposite.this.createIsARelation(parent.getUri(),
-						code.getUri());
+				js.append(AxialCodingComposite.this.createIsARelationStatement(
+						parent.getUri(), code.getUri()));
 			}
 		}
 		for (ICode child : CODE_SERVICE.getSubCodes(code)) {
 			if (existingElements.contains(child.getUri())) {
-				AxialCodingComposite.this.createIsARelation(code.getUri(),
-						child.getUri());
+				js.append(AxialCodingComposite.this.createIsARelationStatement(
+						code.getUri(), child.getUri()));
 			}
 		}
+
+		return js.toString();
 	}
 
 	/**
@@ -672,7 +686,7 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	private void createIsARelation(final URI parent, final URI child)
+	private String createIsARelationStatement(final URI parent, final URI child)
 			throws InterruptedException, ExecutionException {
 		LOGGER.info("Creating Is-A-Relation from "
 				+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
@@ -680,15 +694,18 @@ public class AxialCodingComposite extends Composite implements
 				+ " to "
 				+ LocatorService.INSTANCE.resolve(parent, ICode.class, null)
 						.get().getCaption());
+
+		StringBuilder js = new StringBuilder();
 		String id = parent.toString() + "|" + child.toString();
 
-		id = AxialCodingComposite.this.jointjs.createPermanentLink(id,
-				parent.toString(), child.toString()).get();
+		js.append(JointJS.createPermanentLinkStatement(id, parent.toString(),
+				child.toString()));
 
 		String[] texts = new String[] { "is a" };
 		for (int i = 0; texts != null && i < texts.length; i++) {
-			AxialCodingComposite.this.jointjs.setText(id, i, texts[i]);
+			js.append(JointJS.setTextStatement(id, i, texts[i]));
 		}
+		return js.toString();
 	}
 
 	/**
@@ -719,9 +736,10 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	private void deleteAllOutdatedIsARelationsBetweenValidElements()
-			throws InterruptedException, ExecutionException {
-		List<String> relationIds = this.jointjs.getPermanentLinks().get();
+	private String deleteAllOutdatedIsARelationsBetweenValidElementsStatement(
+			List<String> relationIds) throws InterruptedException,
+			ExecutionException {
+		StringBuilder js = new StringBuilder();
 		for (String relationId : relationIds) {
 			URI parentURI = new URI(relationId.split("\\|")[0]);
 			URI subURI = new URI(relationId.split("\\|")[1]);
@@ -732,22 +750,36 @@ public class AxialCodingComposite extends Composite implements
 					ICode.class, null).get();
 			if (parentCode != null && subCode != null
 					&& !CODE_SERVICE.getSubCodes(parentCode).contains(subCode)) {
-				this.jointjs.remove(relationId).get();
+				js.append(this.jointjs.remove(relationId).get());
 			}
 		}
+		return js.toString();
 	}
 
 	public Future<Void> refresh() {
-		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<URI> validUris = this.refreshElements();
-			AxialCodingComposite.this
-					.deleteAllOutdatedIsARelationsBetweenValidElements();
-			for (URI uri : validUris) {
-				AxialCodingComposite.this.createIsARelations(uri);
-			}
-			AxialCodingComposite.this.refreshRelations();
-			return null;
-		});
+		return ExecUtils
+				.nonUIAsyncExec((Callable<Void>) () -> {
+					List<URI> element = AxialCodingComposite.this.getElements()
+							.get();
+					List<String> permanentLinks = this.jointjs
+							.getPermanentLinks().get();
+
+					StringBuilder js = new StringBuilder();
+					Pair<String, List<URI>> rs = this
+							.createRefreshElementsStatement();
+					js.append(rs.getFirst());
+					js.append(AxialCodingComposite.this
+							.deleteAllOutdatedIsARelationsBetweenValidElementsStatement(permanentLinks));
+					List<URI> validUris = rs.getSecond();
+					for (URI uri : validUris) {
+						js.append(AxialCodingComposite.this
+								.createIsARelationsStatement(uri, element));
+					}
+					js.append(AxialCodingComposite.this
+							.refreshRelationsStatements().getFirst());
+					ExecUtils.logException(this.jointjs.run(js.toString()));
+					return null;
+				});
 	}
 
 	/**
@@ -767,15 +799,14 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	public List<URI> refreshElements() throws Exception {
-		return this.getElements().get().stream()
-				.filter(e -> this.refreshElement(e))
-				.collect(Collectors.toList());
+	public Pair<String, List<URI>> createRefreshElementsStatement()
+			throws Exception {
+		return this.createRefreshElementsStatement(this.getElements().get());
 	}
 
 	/**
-	 * Updates non-structural information of the given {@link URI} based on the
-	 * internal information.
+	 * Creates a JS script that updates non-structural information of the given
+	 * {@link URI}s based on the internal information.
 	 * <p>
 	 * Updated information are:
 	 * <ul>
@@ -789,89 +820,124 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	public boolean refreshElement(final URI uri) {
+	private Pair<String, List<URI>> createRefreshElementsStatement(
+			final List<URI> uris) {
 		try {
-			if (!this.getElements().get().contains(uri)) {
-				return false;
-			}
-
-			if (LocatorService.INSTANCE.resolve(uri, null).get() == null) {
-				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
-						"invalid");
-				return false;
-			}
-
-			String memo = null;
-			List<Pair<Image, String>> memos = new ArrayList<>();
-			if (CODE_SERVICE.isMemo(uri)) {
-				memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
-						.loadMemoPlain(uri)));
-			}
+			StringBuilder js = new StringBuilder();
 			URI origin = this.getOrigin();
-			if (origin != null) {
-				if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
-					origin = LocatorService.INSTANCE
-							.resolve(origin, IRelationInstance.class, null)
-							.get().getPhenomenon();
-				}
-				List<ICodeInstance> codeInstances = CODE_SERVICE
-						.getInstances(origin).stream()
-						.filter(i -> i.getCode().getUri().equals(uri))
-						.collect(Collectors.toList());
-				for (ICodeInstance codeInstance : codeInstances) {
-					if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
-						memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
-								.getImage(codeInstance.getUri()), CODE_SERVICE
-								.loadMemoPlain(codeInstance.getUri())));
-					}
+			Set<URI> originCells = this.getOriginCells();
+
+			List<URI> validUris = new ArrayList<>();
+			for (URI uri : uris) {
+				Pair<String, Boolean> rs = AxialCodingComposite
+						.createRefreshElementStatement(uri, origin,
+								originCells, this.labelProvider);
+				js.append(rs.getFirst());
+				if (rs.getSecond()) {
+					validUris.add(uri);
 				}
 			}
-
-			if (memos.size() > 0) {
-				memo = "";
-				for (Pair<Image, String> m : memos) {
-					memo += "<div class=\"memo\"><img src=\""
-							+ ImageUtils.createUriFromImage(m.getFirst())
-							+ "\">"
-							+ StringUtils.shorten(m.getSecond().replace("\n",
-									"")) + "</div>";
-				}
-			}
-
-			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
-					"invalid");
-
-			this.jointjs.setElementTitle(uri.toString(),
-					this.labelProvider.getText(uri)
-							+ (memo != null ? "<div class=\"details\">" + memo
-									+ "</div>" : ""));
-			this.jointjs.setElementContent(uri.toString(),
-					this.labelProvider.getContent(uri));
-			this.jointjs.setColor(uri.toString(),
-					this.labelProvider.getColor(uri));
-			this.jointjs.setBackgroundColor(uri.toString(),
-					this.labelProvider.getBackgroundColor(uri));
-			this.jointjs.setBorderColor(uri.toString(),
-					this.labelProvider.getBorderColor(uri));
-
-			Point size = this.labelProvider.getSize(uri);
-			if (size != null) {
-				if (this.getOriginCells().contains(uri)) {
-					this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
-							"origin");
-					size.x += 100;
-					size.y += 5;
-				} else {
-					this.jointjs.removeCustomClass(
-							Arrays.asList(uri.toString()), "origin");
-				}
-				this.jointjs.setSize(uri.toString(), size.x, size.y);
-			}
-
-			return true;
+			return new Pair<>(js.toString(), validUris);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Creates a JS script that updates the non-structural information of the
+	 * given {@link URI}.
+	 *
+	 * @param uri
+	 *            in question
+	 * @param origin
+	 *            the {@link URI} this ACM is based on
+	 * @param originCells
+	 *            the {@link URI}s to be formated is if directly connected to
+	 *            the origin.
+	 * @param labelProvider
+	 * @return
+	 * @throws Exception
+	 */
+	private static Pair<String, Boolean> createRefreshElementStatement(URI uri,
+			URI origin, Set<URI> originCells,
+			AxialCodingLabelProvider labelProvider) throws Exception {
+		boolean isValid = true;
+		StringBuilder js = new StringBuilder();
+
+		if (LocatorService.INSTANCE.resolve(uri, null).get() == null) {
+			js.append(JointJS.addCustomClassStatement(
+					Arrays.asList(uri.toString()), "invalid"));
+			isValid = false;
+		} else {
+			js.append(JointJS.removeCustomClassStatement(
+					Arrays.asList(uri.toString()), "invalid"));
+		}
+
+		List<Pair<Image, String>> memos = new ArrayList<>();
+		if (CODE_SERVICE.isMemo(uri)) {
+			memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
+					.loadMemoPlain(uri)));
+		}
+
+		if (origin != null) {
+			if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
+				origin = LocatorService.INSTANCE
+						.resolve(origin, IRelationInstance.class, null).get()
+						.getPhenomenon();
+			}
+			List<ICodeInstance> codeInstances = CODE_SERVICE
+					.getInstances(origin).stream()
+					.filter(i -> i.getCode().getUri().equals(uri))
+					.collect(Collectors.toList());
+			for (ICodeInstance codeInstance : codeInstances) {
+				if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
+					memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
+							.getImage(codeInstance.getUri()), CODE_SERVICE
+							.loadMemoPlain(codeInstance.getUri())));
+				}
+			}
+		}
+
+		StringBuilder memo = new StringBuilder();
+		if (memos.size() > 0) {
+			for (Pair<Image, String> m : memos) {
+				memo.append("<div class=\"memo\">");
+				memo.append("<img src=\""
+						+ ImageUtils.createUriFromImage(m.getFirst()) + "\">");
+				memo.append(StringUtils
+						.shorten(m.getSecond().replace("\n", "")));
+				memo.append("</div>");
+			}
+		}
+
+		js.append(JointJS.setElementTitleStatement(uri.toString(),
+				labelProvider.getText(uri)
+						+ (memo != null ? "<div class=\"details\">" + memo
+								+ "</div>" : "")));
+		js.append(JointJS.setElementContentStatement(uri.toString(),
+				labelProvider.getContent(uri)));
+		js.append(JointJS.setColorStatement(uri.toString(),
+				labelProvider.getColor(uri)));
+		js.append(JointJS.setBackgroundColorStatement(uri.toString(),
+				labelProvider.getBackgroundColor(uri)));
+		js.append(JointJS.setBorderColorStatement(uri.toString(),
+				labelProvider.getBorderColor(uri)));
+
+		Point size = labelProvider.getSize(uri);
+		if (size != null) {
+			if (originCells.contains(uri)) {
+				js.append(JointJS.addCustomClassStatement(
+						Arrays.asList(uri.toString()), "origin"));
+				size.x += 100;
+				size.y += 5;
+			} else {
+				js.append(JointJS.removeCustomClassStatement(
+						Arrays.asList(uri.toString()), "origin"));
+			}
+			js.append(JointJS.setSizeStatement(uri.toString(), size.x, size.y));
+		}
+
+		return new Pair<String, Boolean>(js.toString(), isValid);
 	}
 
 	/**
@@ -886,10 +952,37 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	public List<URI> refreshRelations() throws Exception {
-		return this.getRelations().get().stream()
-				.filter(r -> this.refreshRelation(r))
-				.collect(Collectors.toList());
+	public Pair<String, List<URI>> refreshRelationsStatements()
+			throws Exception {
+		return this.refreshRelationsStatements(this.getRelations().get());
+	}
+
+	/**
+	 * Update all {@link IRelation}s in the loaded {@link IAxialCodingModel}.
+	 *
+	 * @param from
+	 * @param to
+	 * @return the valid {@link IRelation}s
+	 *
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 *
+	 * @NonUIThread
+	 */
+	public Pair<String, List<URI>> refreshRelationsStatements(
+			List<URI> relations) throws Exception {
+		StringBuilder js = new StringBuilder();
+		List<URI> validRelations = new ArrayList<>();
+		Set<URI> originCells = this.getOriginCells();
+		for (URI relation : relations) {
+			Pair<String, Boolean> rs = this.refreshRelationStatement(relation,
+					relations, originCells);
+			js.append(rs.getFirst());
+			if (rs.getSecond()) {
+				validRelations.add(relation);
+			}
+		}
+		return new Pair<String, List<URI>>(js.toString(), validRelations);
 	}
 
 	/**
@@ -904,27 +997,27 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	public boolean refreshRelation(URI uri) {
+	public Pair<String, Boolean> refreshRelationStatement(URI uri,
+			List<URI> relations, Set<URI> originCells) {
 		try {
-			if (!this.getRelations().get().contains(uri)) {
-				return false;
-			}
-
 			IRelation relation = CODE_SERVICE.getRelation(uri);
 			if (relation == null) {
-				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
-						"invalid");
-				return false;
+				return new Pair<String, Boolean>(
+						JointJS.addCustomClassStatement(
+								Arrays.asList(uri.toString()), "invalid"),
+						false);
 			}
 
-			this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
-					"invalid");
-			if (this.getOriginCells().contains(uri)) {
-				this.jointjs.addCustomClass(Arrays.asList(uri.toString()),
-						"origin");
+			StringBuilder js = new StringBuilder();
+
+			js.append(JointJS.removeCustomClassStatement(
+					Arrays.asList(uri.toString()), "invalid"));
+			if (originCells.contains(uri)) {
+				js.append(JointJS.addCustomClassStatement(
+						Arrays.asList(uri.toString()), "origin"));
 			} else {
-				this.jointjs.removeCustomClass(Arrays.asList(uri.toString()),
-						"origin");
+				js.append(JointJS.removeCustomClassStatement(
+						Arrays.asList(uri.toString()), "origin"));
 			}
 
 			int groundingAll = CODE_SERVICE.getAllRelationInstances(relation)
@@ -980,10 +1073,9 @@ public class AxialCodingComposite extends Composite implements
 
 			String[] texts = new String[] { caption.toString() };
 			for (int i = 0; texts != null && i < texts.length; i++) {
-				AxialCodingComposite.this.jointjs.setText(uri.toString(), i,
-						texts[i]);
+				js.append(JointJS.setTextStatement(uri.toString(), i, texts[i]));
 			}
-			return true;
+			return new Pair<String, Boolean>(js.toString(), true);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -1035,9 +1127,11 @@ public class AxialCodingComposite extends Composite implements
 	 * @param uris
 	 */
 	public void remove(List<URI> uris) {
+		StringBuilder js = new StringBuilder();
 		for (URI uri : uris) {
-			this.jointjs.remove(uri.toString());
+			js.append(JointJS.removeStatement(uri.toString()));
 		}
+		ExecUtils.logException(this.jointjs.run(js.toString()));
 	}
 
 	public void autoLayout() {

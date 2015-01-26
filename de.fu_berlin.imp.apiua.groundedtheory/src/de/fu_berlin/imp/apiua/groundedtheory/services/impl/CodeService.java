@@ -1325,19 +1325,27 @@ public class CodeService implements ICodeService, IDisposable {
 			List<URI> existingElements = acm.getElements().get();
 			List<URI> existingRelations = acm.getRelations().get();
 
-			acm.remove(ListUtils.subtract(existingElements, new ArrayList<>(
+			List<URI> remove = new ArrayList<>();
+			remove.addAll(ListUtils.subtract(existingElements, new ArrayList<>(
 					elements)));
-			acm.remove(ListUtils.subtract(existingRelations, new ArrayList<>(
-					relations)));
+			remove.addAll(ListUtils.subtract(existingRelations,
+					new ArrayList<>(relations)));
+			acm.remove(remove);
 
-			for (Object element : ListUtils.subtract(new ArrayList<>(elements),
-					existingElements)) {
-				acm.createElement((URI) element, new Point(0, 0));
+			List<Pair<URI, Point>> elementsToBeCreated = new ArrayList<>();
+			for (Object elementToBeCreated : ListUtils.subtract(
+					new ArrayList<>(elements), existingElements)) {
+				elementsToBeCreated.add(new Pair<>((URI) elementToBeCreated,
+						new Point(0, 0)));
 			}
-			for (Object element : ListUtils.subtract(
+			acm.createElements(elementsToBeCreated);
+
+			List<URI> relationsToBeCreated = new ArrayList<>();
+			for (Object relationToBeCreated : ListUtils.subtract(
 					new ArrayList<>(relations), existingRelations)) {
-				acm.createRelation((URI) element);
+				relationsToBeCreated.add((URI) relationToBeCreated);
 			}
+			acm.createRelations(relationsToBeCreated);
 
 			acm.refresh().get();
 			acm.getJointjs().save().get();
