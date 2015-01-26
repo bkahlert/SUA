@@ -154,12 +154,9 @@ public class AxialCodingComposite extends Composite implements
 	private final AxialCodingLabelProvider labelProvider = new AxialCodingLabelProvider();
 
 	private URI openedUri = null;
-	private boolean showMemos;
 
-	public AxialCodingComposite(Composite parent, int style, boolean showMemos) {
+	public AxialCodingComposite(Composite parent, int style) {
 		super(parent, style);
-
-		this.showMemos = showMemos;
 
 		IMPORTANCE_SERVICE
 				.addImportanceServiceListener(this.importanceServiceListener);
@@ -257,6 +254,10 @@ public class AxialCodingComposite extends Composite implements
 						+ ".memo { position: relative; color: black; text-transform: none; font-weight: normal; text-align: left; "
 						+ " margin-top: 18px; padding-left: 20px; max-width: 300px; text-shadow: 0 0 5px white; }"
 						+ ".memo img:first-child { position: absolute; left: 0; top: 0; }"
+
+						// details
+						+ "html.detailsHidden .details { display: none; }"
+						+ ".link .labels tspan+tspan+tspan { display: none; }"
 
 						// num groundings
 						+ ".link .labels tspan+tspan { stroke: none; text-transform: none; fill: "
@@ -801,42 +802,39 @@ public class AxialCodingComposite extends Composite implements
 			}
 
 			String memo = null;
-			if (this.showMemos) {
-				List<Pair<Image, String>> memos = new ArrayList<>();
-				if (CODE_SERVICE.isMemo(uri)) {
-					memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
-							.loadMemoPlain(uri)));
+			List<Pair<Image, String>> memos = new ArrayList<>();
+			if (CODE_SERVICE.isMemo(uri)) {
+				memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
+						.loadMemoPlain(uri)));
+			}
+			URI origin = this.getOrigin();
+			if (origin != null) {
+				if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
+					origin = LocatorService.INSTANCE
+							.resolve(origin, IRelationInstance.class, null)
+							.get().getPhenomenon();
 				}
-				URI origin = this.getOrigin();
-				if (origin != null) {
-					if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
-						origin = LocatorService.INSTANCE
-								.resolve(origin, IRelationInstance.class, null)
-								.get().getPhenomenon();
-					}
-					List<ICodeInstance> codeInstances = CODE_SERVICE
-							.getInstances(origin).stream()
-							.filter(i -> i.getCode().getUri().equals(uri))
-							.collect(Collectors.toList());
-					for (ICodeInstance codeInstance : codeInstances) {
-						if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
-							memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
-									.getImage(codeInstance.getUri()),
-									CODE_SERVICE.loadMemoPlain(codeInstance
-											.getUri())));
-						}
+				List<ICodeInstance> codeInstances = CODE_SERVICE
+						.getInstances(origin).stream()
+						.filter(i -> i.getCode().getUri().equals(uri))
+						.collect(Collectors.toList());
+				for (ICodeInstance codeInstance : codeInstances) {
+					if (CODE_SERVICE.isMemo(codeInstance.getUri())) {
+						memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
+								.getImage(codeInstance.getUri()), CODE_SERVICE
+								.loadMemoPlain(codeInstance.getUri())));
 					}
 				}
+			}
 
-				if (memos.size() > 0) {
-					memo = "";
-					for (Pair<Image, String> m : memos) {
-						memo += "<div class=\"memo\"><img src=\""
-								+ ImageUtils.createUriFromImage(m.getFirst())
-								+ "\">"
-								+ StringUtils.shorten(m.getSecond().replace(
-										"\n", "")) + "</div>";
-					}
+			if (memos.size() > 0) {
+				memo = "";
+				for (Pair<Image, String> m : memos) {
+					memo += "<div class=\"memo\"><img src=\""
+							+ ImageUtils.createUriFromImage(m.getFirst())
+							+ "\">"
+							+ StringUtils.shorten(m.getSecond().replace("\n",
+									"")) + "</div>";
 				}
 			}
 
@@ -845,7 +843,7 @@ public class AxialCodingComposite extends Composite implements
 
 			this.jointjs.setElementTitle(uri.toString(),
 					this.labelProvider.getText(uri)
-							+ (memo != null ? "<div class=\"memos\">" + memo
+							+ (memo != null ? "<div class=\"details\">" + memo
 									+ "</div>" : ""));
 			this.jointjs.setElementContent(uri.toString(),
 					this.labelProvider.getContent(uri));
@@ -939,48 +937,45 @@ public class AxialCodingComposite extends Composite implements
 			caption.append("\\n");
 			caption.append(groundingAll + " (" + groundingImmediate + ")");
 
-			if (this.showMemos) {
-				List<Pair<Image, String>> memos = new ArrayList<>();
-				if (CODE_SERVICE.isMemo(uri)) {
-					memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
-							.loadMemoPlain(uri)));
+			List<Pair<Image, String>> memos = new ArrayList<>();
+			if (CODE_SERVICE.isMemo(uri)) {
+				memos.add(new Pair<>(ImageManager.MEMO, CODE_SERVICE
+						.loadMemoPlain(uri)));
+			}
+			URI origin = this.getOrigin();
+			if (origin != null) {
+				if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
+					origin = LocatorService.INSTANCE
+							.resolve(origin, IRelationInstance.class, null)
+							.get().getPhenomenon();
 				}
-				URI origin = this.getOrigin();
-				if (origin != null) {
-					if (LocatorService.INSTANCE.getType(origin) == IRelationInstance.class) {
-						origin = LocatorService.INSTANCE
-								.resolve(origin, IRelationInstance.class, null)
-								.get().getPhenomenon();
-					}
-					List<IRelationInstance> relationInstances = CODE_SERVICE
-							.getRelationInstances(origin).stream()
-							.filter(i -> i.getRelation().getUri().equals(uri))
-							.collect(Collectors.toList());
-					for (IRelationInstance relationInstance : relationInstances) {
-						if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
-							memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
-									.getImage(relationInstance.getUri()),
-									CODE_SERVICE.loadMemoPlain(relationInstance
-											.getUri())));
-						}
+				List<IRelationInstance> relationInstances = CODE_SERVICE
+						.getRelationInstances(origin).stream()
+						.filter(i -> i.getRelation().getUri().equals(uri))
+						.collect(Collectors.toList());
+				for (IRelationInstance relationInstance : relationInstances) {
+					if (CODE_SERVICE.isMemo(relationInstance.getUri())) {
+						memos.add(new Pair<>(LABEL_PROVIDER_SERVICE
+								.getImage(relationInstance.getUri()),
+								CODE_SERVICE.loadMemoPlain(relationInstance
+										.getUri())));
 					}
 				}
+			}
 
-				String memo = null;
-				if (memos.size() > 0) {
-					memo = "";
-					for (Pair<Image, String> m : memos) {
-						memo += ""
-								+ StringUtils.shorten(
-										m.getSecond().replace("\n", ""), 15)
-								+ "";
-					}
+			String memo = null;
+			if (memos.size() > 0) {
+				memo = "";
+				for (Pair<Image, String> m : memos) {
+					memo += ""
+							+ StringUtils.shorten(
+									m.getSecond().replace("\n", ""), 15) + "";
 				}
+			}
 
-				if (memo != null) {
-					caption.append("\\n");
-					caption.append(memo);
-				}
+			if (memo != null) {
+				caption.append("\\n");
+				caption.append(memo);
 			}
 
 			String[] texts = new String[] { caption.toString() };
@@ -1072,11 +1067,12 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	public void setShowMemos(boolean showMemos) {
-		if (this.showMemos != showMemos) {
-			this.showMemos = showMemos;
-			if (this.openedUri != null) {
-				this.refresh();
-			}
+		if (showMemos) {
+			this.jointjs
+					.run("document.getElementsByTagName(\"html\")[0].classList.remove(\"detailsHidden\");");
+		} else {
+			this.jointjs
+					.run("document.getElementsByTagName(\"html\")[0].classList.add(\"detailsHidden\");");
 		}
 	}
 

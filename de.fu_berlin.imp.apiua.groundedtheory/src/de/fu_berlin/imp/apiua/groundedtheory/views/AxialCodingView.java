@@ -295,7 +295,7 @@ public class AxialCodingView extends ViewPart {
 					for (int i = 0; i < uris.length; i++) {
 						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 								AxialCodingView.this.axialCodingCompositesContainer,
-								SWT.NONE, this.showMemos);
+								SWT.NONE);
 						axialCodingComposite
 								.addModifyListener(e -> axialCodingComposite
 										.save());
@@ -317,6 +317,7 @@ public class AxialCodingView extends ViewPart {
 			List<AxialCodingComposite> axialCodingComposites = ui.get();
 			for (int i = 0; i < uris.length; i++) {
 				axialCodingComposites.get(i).open(uris[i]).get();
+				axialCodingComposites.get(i).setShowMemos(this.showMemos);
 			}
 			HashSet<URI> opened = new HashSet<URI>(Arrays.asList(uris));
 			ExecUtils.syncExec(() -> {
