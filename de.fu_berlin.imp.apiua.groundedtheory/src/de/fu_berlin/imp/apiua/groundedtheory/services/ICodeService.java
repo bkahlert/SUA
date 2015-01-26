@@ -711,6 +711,16 @@ public interface ICodeService {
 			AxialCodingComposite axialCodingComposite, URI acmUri);
 
 	/**
+	 * Removes all invalid relations, refreshed existing relations and adds
+	 * missing relations.
+	 *
+	 * @param activeAxialCodingComposite
+	 * @return
+	 */
+	public Future<Void> updateAxialCodingRelationsFrom(
+			AxialCodingComposite activeAxialCodingComposite);
+
+	/**
 	 * Updates the given {@link IAxialCodingModel} so the final model contains
 	 * only the given elements and relations.
 	 *

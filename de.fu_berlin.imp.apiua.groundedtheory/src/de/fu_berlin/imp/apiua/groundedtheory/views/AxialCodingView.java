@@ -212,6 +212,12 @@ public class AxialCodingView extends ViewPart {
 				CODE_SERVICE.updateAxialCodingModelFrom(
 						AxialCodingView.this.activeAxialCodingComposite, uri);
 			}
+
+			@Override
+			public void updateRelationsClicked() {
+				CODE_SERVICE
+						.updateAxialCodingRelationsFrom(AxialCodingView.this.activeAxialCodingComposite);
+			}
 		});
 
 		this.axialCodingCompositesContainer = new SashForm(parent,

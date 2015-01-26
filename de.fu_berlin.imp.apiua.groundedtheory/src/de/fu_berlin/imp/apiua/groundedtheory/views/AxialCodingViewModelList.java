@@ -86,6 +86,11 @@ class AxialCodingViewModelList extends Composite {
 		 */
 		public void refreshClicked(URI uri);
 
+		/**
+		 * User chose to sync relations
+		 */
+		public void updateRelationsClicked();
+
 	}
 
 	private static final ILabelProviderService LABEL_PROVIDER_SERVICE = (ILabelProviderService) PlatformUI
@@ -263,6 +268,20 @@ class AxialCodingViewModelList extends Composite {
 				if (!AxialCodingViewModelList.this.mute) {
 					for (IListener listener : AxialCodingViewModelList.this.listeners) {
 						listener.createClicked();
+					}
+				}
+			}
+		});
+
+		Button syncRelationsButton = new Button(this.actionComposite, SWT.PUSH);
+		syncRelationsButton.setLayoutData(gridDataFactory.create());
+		syncRelationsButton.setText("Sync Relations");
+		syncRelationsButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!AxialCodingViewModelList.this.mute) {
+					for (IListener listener : AxialCodingViewModelList.this.listeners) {
+						listener.updateRelationsClicked();
 					}
 				}
 			}

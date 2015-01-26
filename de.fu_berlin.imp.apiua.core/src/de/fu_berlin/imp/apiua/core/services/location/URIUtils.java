@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 
@@ -271,6 +272,32 @@ public class URIUtils {
 		URI[] uris = SelectionUtils.getAdaptableObjects(selection, URI.class)
 				.toArray(new URI[0]);
 		return filterByResource(uris, resources);
+	}
+
+	/**
+	 * Returns a new {@link URI} based on the given one but not containing the
+	 * last path element of it.
+	 * <p>
+	 * Examples:
+	 * <ul>
+	 * <li>a://b/c will return a://b</li>
+	 * <li>a://b/c#d will return a://b</li>
+	 * </ul>
+	 *
+	 * @param uri
+	 * @return
+	 */
+	public static URI shorten(URI uri) {
+		Assert.isLegal(uri != null);
+		String uri_ = uri.toString();
+		if (uri_.contains("/")) {
+			uri_ = uri_.substring(0, uri_.lastIndexOf("/"));
+			if (uri_.endsWith(":/")) {
+				uri_ = uri_.substring(0, uri_.length() - 2);
+			}
+			return new URI(uri_);
+		}
+		return null;
 	}
 
 }

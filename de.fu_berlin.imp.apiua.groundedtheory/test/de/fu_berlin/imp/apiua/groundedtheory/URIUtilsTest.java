@@ -161,4 +161,15 @@ public class URIUtilsTest {
 		}
 	}
 
+	@Test
+	public void testShorten() {
+		assertEquals(new URI("a://b/c"), URIUtils.shorten(new URI("a://b/c/d")));
+		assertEquals(new URI("a://b"), URIUtils.shorten(new URI("a://b/c")));
+		assertEquals(new URI("a"), URIUtils.shorten(new URI("a://b")));
+		assertEquals(null, URIUtils.shorten(new URI("a")));
+		assertEquals(new URI("a://b"), URIUtils.shorten(new URI("a://b/c#d")));
+		assertEquals(new URI("a://b"), URIUtils.shorten(new URI("a://b/c?d")));
+		assertEquals(new URI("a://b"), URIUtils.shorten(new URI("a://b/c?d#e")));
+	}
+
 }

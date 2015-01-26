@@ -526,13 +526,25 @@ public class CodeService implements ICodeService, IDisposable {
 		Assert.isLegal(phenomenon != null);
 		IIdentifier id = URIUtils.getIdentifier(phenomenon);
 		Set<IRelation> relations = new HashSet<>();
-		for (IRelationInstance relationInstance : this.codeStore
-				.getRelationInstances()) {
-			if (id == null) {
-				if (relationInstance.getPhenomenon().equals(phenomenon)) {
-					relations.add(relationInstance.getRelation());
+		if (id == null) {
+			for (URI shortenedPhenomenon = URIUtils.shorten(phenomenon); shortenedPhenomenon != null; shortenedPhenomenon = URIUtils
+					.shorten(shortenedPhenomenon)) {
+				for (IRelationInstance relationInstance : this.codeStore
+						.getRelationInstances()) {
+					if (relationInstance.getPhenomenon().toString()
+							.startsWith(shortenedPhenomenon.toString())
+							&& !relations.contains(relationInstance
+									.getRelation())) {
+						relations.add(relationInstance.getRelation());
+					}
 				}
-			} else {
+				if (relations.size() > 0) {
+					break;
+				}
+			}
+		} else {
+			for (IRelationInstance relationInstance : this.codeStore
+					.getRelationInstances()) {
 				IIdentifier id2 = URIUtils.getIdentifier(relationInstance
 						.getPhenomenon());
 				if (id.equals(id2)) {
@@ -1213,7 +1225,7 @@ public class CodeService implements ICodeService, IDisposable {
 									() -> {
 										Shell shell = new Shell();
 										AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-												shell, SWT.NONE, false);
+												shell, SWT.NONE);
 										return new Pair<>(shell,
 												axialCodingComposite);
 									}).get();
@@ -1285,6 +1297,23 @@ public class CodeService implements ICodeService, IDisposable {
 
 					return acm;
 				});
+	}
+
+	@Override
+	public Future<Void> updateAxialCodingRelationsFrom(
+			AxialCodingComposite axialCodingComposite) {
+		return ExecUtils.nonUISyncExec((Callable<Void>) () -> {
+			Set<URI> existingElements = new HashSet<URI>(axialCodingComposite
+					.getElements().get());
+			Set<URI> relations = getNeededRelations(existingElements,
+					this.getRelations());
+
+			this.updateAxialCodingModelFrom(axialCodingComposite,
+					existingElements, relations);
+			axialCodingComposite.getJointjs().save().get();
+
+			return null;
+		});
 	}
 
 	@Override
