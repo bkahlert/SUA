@@ -44,21 +44,21 @@ import de.fu_berlin.imp.apiua.diff.util.Trunk;
  * {@link IIdentifier} as its name must exist. Each of those sub
  * {@link IDataContainer} contains the {@link IDiff}s belonging to this
  * {@link IIdentifier}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class DiffContainer extends AggregatedBaseDataContainer {
 
 	private static final Logger LOGGER = Logger.getLogger(DiffContainer.class);
 
-	public static final int DIFF_CACHE_SIZE = 5;
+	public static final int DIFF_CACHE_SIZE = 10;
 
 	/**
 	 * Scans through the given directory, looks for sub directories with valid
 	 * names (see {@link IIdentifier#isLegal(String)}) and maps all containing
 	 * files their corresponding {@link IIdentifier}.
-	 * 
+	 *
 	 * @param diffContainer
 	 * @return
 	 */
@@ -117,7 +117,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns a {@link DiffContainer} instance that can handle contained
 	 * {@link Diff}s
-	 * 
+	 *
 	 * @param baseDataContainers
 	 *            containing {@link Diff}s
 	 * @param originalSourcesDirectory
@@ -190,7 +190,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns a list of all {@link IIdentifier}s occurring in the managed
 	 * {@link Diff}s.
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<ID> getIDs() {
@@ -201,7 +201,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Return the {@link TimeZoneDateRange} determined by the earliest and
 	 * latest {@link Diff}
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -224,11 +224,11 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * If the {@link Diffs} is already in the cached the cached version is
 	 * returned. Otherwise a new {@link Diffs} is constructed and added to the
 	 * cache.
-	 * 
+	 *
 	 * @param id
 	 * @param progressMonitor
 	 * @return
-	 * 
+	 *
 	 * @see DiffCache
 	 */
 	public IDiffs getDiffFiles(IIdentifier id, IProgressMonitor progressMonitor) {
@@ -241,7 +241,7 @@ public class DiffContainer extends AggregatedBaseDataContainer {
 	 * In contrast to {@link #getDiffFiles(IIdentifier, IProgressMonitor)} this
 	 * method always creates the objects anew and does not use any caching
 	 * functionality.
-	 * 
+	 *
 	 * @param identifier
 	 * @param progressMonitor
 	 * @return

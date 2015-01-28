@@ -27,9 +27,9 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreWriteEx
 /**
  * Displays and provides editing capabilities for properties of the given
  * objects.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class PropertiesComposite extends Composite {
 	private static final Logger LOGGER = Logger

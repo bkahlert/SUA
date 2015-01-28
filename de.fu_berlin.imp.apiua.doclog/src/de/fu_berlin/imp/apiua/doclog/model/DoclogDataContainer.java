@@ -27,7 +27,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	private static final Logger LOGGER = Logger
 			.getLogger(DoclogDataContainer.class);
 
-	public static final int DOCLOG_CACHE_SIZE = 10;
+	public static final int DOCLOG_CACHE_SIZE = 20;
 
 	private static Map<IIdentifier, IData> readDoclogFileMappings(
 			DoclogDataContainer directory) {
@@ -127,7 +127,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns a list of all {@link IIdentifier}s occurring in the managed
 	 * {@link Doclog}s
-	 * 
+	 *
 	 * @return
 	 */
 	public IIdentifier[] getIdentifiers() {
@@ -137,7 +137,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns a list of the {@link IIdentifier}s that are associated to a
 	 * {@link Doclog} containing the specified {@link Token}.
-	 * 
+	 *
 	 * @param token
 	 * @return
 	 */
@@ -176,7 +176,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	/**
 	 * Returns the {@link Doclog} associated with a given key using an internal
 	 * {@link DoclogCache}.
-	 * 
+	 *
 	 * @param identifier
 	 * @param progressMonitor
 	 * @return
@@ -191,7 +191,7 @@ public class DoclogDataContainer extends AggregatedBaseDataContainer {
 	 * <p>
 	 * In contrast to {@link #getDoclogFile(Object, IProgressMonitor)} this
 	 * method always creates the needed objects anew without using any cache.
-	 * 
+	 *
 	 * @param identifier
 	 * @param progressMonitor
 	 * @return

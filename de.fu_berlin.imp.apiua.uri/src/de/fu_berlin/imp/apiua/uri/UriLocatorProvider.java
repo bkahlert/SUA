@@ -33,7 +33,7 @@ public class UriLocatorProvider extends AdaptingLocatorProvider {
 			}
 		}
 		return null;
-	}, 1000);
+	}, 5000);
 
 	public UriLocatorProvider() {
 		super(IUri.class);
