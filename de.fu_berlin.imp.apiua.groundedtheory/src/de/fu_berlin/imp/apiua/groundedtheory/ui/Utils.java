@@ -344,34 +344,6 @@ public class Utils {
 							}
 						}
 
-						if (CodeLocatorProvider.CODE_NAMESPACE.equals(URIUtils
-								.getResource(uri))) {
-							ICode code = LocatorService.INSTANCE.resolve(uri,
-									ICode.class, null).get();
-							for (ICodeInstance codeInstance : CODE_SERVICE
-									.getInstances(code.getUri())) {
-								Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
-										.getDimensionValues(codeInstance);
-								if (dimensionValues != null) {
-									if (dimensionValues.getFirst() != null) {
-										text.append(" = ");
-										text.append(dimensionValues.getFirst());
-									}
-									if (dimensionValues.getSecond() != null) {
-										text.append(" ")
-												.append("(",
-														Stylers.MINOR_STYLER)
-												.append(Stylers.rebase(
-														dimensionValues
-																.getSecond(),
-														Stylers.MINOR_STYLER))
-												.append(")",
-														Stylers.MINOR_STYLER);
-									}
-								}
-							}
-						}
-
 						if (relationViewer != null) {
 							if (CodeLocatorProvider.CODE_NAMESPACE
 									.equals(URIUtils.getResource(uri))) {
