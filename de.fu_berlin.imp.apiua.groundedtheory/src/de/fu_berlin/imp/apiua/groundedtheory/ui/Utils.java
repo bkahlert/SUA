@@ -1,9 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -14,7 +12,6 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
@@ -44,7 +41,6 @@ import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
-import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -584,40 +580,6 @@ public class Utils {
 						return text;
 					}
 				});
-	}
-
-	/**
-	 * Returns all {@link URI}s of the phenomenon that can be retrieved from
-	 * {@ICode}s, {@link ICodeInstance}s, {@link IRelation}s and
-	 * {@link IRelationInstance}s contained in the {@link ISelection} .
-	 * <p>
-	 * {@link ICode}s and {@link IRelation}s are treated differently. They are
-	 * not only included but also their instances's phenomenon.
-	 *
-	 * @param selection
-	 * @return
-	 */
-	public static URI[] getURIs(ISelection selection) {
-		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
-				.getService(ICodeService.class);
-
-		List<ICodeInstance> codeInstances = SelectionUtils.getAdaptableObjects(
-				selection, ICodeInstance.class);
-		SelectionUtils.getAdaptableObjects(selection, ICode.class).stream()
-				.map(code -> codeService.getAllInstances(code))
-				.forEach(codeInstances::addAll);
-
-		List<IRelationInstance> relationInstances = SelectionUtils
-				.getAdaptableObjects(selection, IRelationInstance.class);
-		SelectionUtils.getAdaptableObjects(selection, IRelation.class).stream()
-				.map(relation -> codeService.getRelationInstances(relation))
-				.forEach(relationInstances::addAll);
-
-		List<URI> uris = new ArrayList<URI>();
-		codeInstances.stream().map(ci -> ci.getId()).forEach(uris::add);
-		relationInstances.stream().map(ri -> ri.getPhenomenon())
-				.forEach(uris::add);
-		return uris.toArray(new URI[0]);
 	}
 
 	/**

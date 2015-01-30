@@ -1,5 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
+import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -25,6 +27,7 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.FilteredTree;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
@@ -134,10 +137,12 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		final SortableTreeViewer viewer = new SortableTreeViewer(tree);
 		viewer.addDoubleClickListener(event -> {
 			final ISelection selection = event.getSelection();
-			URI[] codeInstanceIDs = Utils.getURIs(selection);
+			URI[] uris = SelectionUtils
+					.getAdaptableObjects(selection, ICodeInstance.class)
+					.stream().map(i -> i.getId()).collect(Collectors.toList())
+					.toArray(new URI[0]);
 			if (LocatorService.INSTANCE != null) {
-				LocatorService.INSTANCE.showInWorkspace(codeInstanceIDs, false,
-						null);
+				LocatorService.INSTANCE.showInWorkspace(uris, false, null);
 			} else {
 				LOGGER.error("Could not retrieve "
 						+ ILocatorService.class.getSimpleName());

@@ -2,6 +2,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
@@ -22,6 +23,7 @@ import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.SortableTreeViewer;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
@@ -30,6 +32,7 @@ import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 
@@ -55,7 +58,10 @@ public class CodeInstanceViewer extends Composite implements ISelectionProvider 
 		this.treeViewer = new SortableTreeViewer(tree);
 		this.treeViewer.addDoubleClickListener(event -> {
 			final ISelection selection = event.getSelection();
-			URI[] uris = Utils.getURIs(selection);
+			URI[] uris = SelectionUtils
+					.getAdaptableObjects(selection, ICodeInstance.class)
+					.stream().map(i -> i.getId()).collect(Collectors.toList())
+					.toArray(new URI[0]);
 			if (LocatorService.INSTANCE != null) {
 				LocatorService.INSTANCE.showInWorkspace(uris, false, null);
 			} else {
