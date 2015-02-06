@@ -15,9 +15,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.bkahlert.nebula.utils.CollectionUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.ExecUtils.ParametrizedCallable;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
@@ -126,15 +125,10 @@ public class DataService implements IDataService {
 	private static void loadData(final DataLoaderManager dataLoaderManager,
 			final List<IBaseDataContainer> baseDataContainers) {
 		String jobName = "Loading "
-				+ StringUtils.join(CollectionUtils.apply(baseDataContainers,
-						new IConverter<IBaseDataContainer, String>() {
-							@Override
-							public String convert(IBaseDataContainer container) {
-								String name = FilenameUtils.getName(container
-										.getName());
-								return name;
-							}
-						}), ", ") + " ...";
+				+ StringUtils.join(
+						baseDataContainers.stream()
+								.map(c -> FilenameUtils.getName(c.getName()))
+								.toArray(String[]::new), ", ") + " ...";
 		LOGGER.info(jobName);
 		final NamedJob loader = new NamedJob(DataService.class, jobName) {
 			@Override
@@ -145,44 +139,43 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getLoadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecUtils.nonUIAsyncExec(
-							DataService.class, this.getName(), sources,
-							new ExecUtils.ParametrizedCallable<String, Job>() {
-								@Override
-								public Job call(final String source)
-										throws Exception {
-									final IDataLoadProvider dataLoadProvider = dataLoaderManager
-											.getDataLoadProvider(source);
-									NamedJob loader = new NamedJob(
-											DataService.class,
-											dataLoadProvider
-													.getLoaderJobName(baseDataContainers)) {
-										@Override
-										protected IStatus runNamed(
-												IProgressMonitor monitor) {
-											final SubMonitor subMonitor = SubMonitor
-													.convert(monitor);
+					List<Future<Job>> futures = ExecUtils
+							.nonUIAsyncExec(
+									DataService.class,
+									this.getName(),
+									sources,
+									(ParametrizedCallable<String, Job>) source -> {
+										final IDataLoadProvider dataLoadProvider = dataLoaderManager
+												.getDataLoadProvider(source);
+										NamedJob loader1 = new NamedJob(
+												DataService.class,
+												dataLoadProvider
+														.getLoaderJobName(baseDataContainers)) {
+											@Override
+											protected IStatus runNamed(
+													IProgressMonitor monitor) {
+												final SubMonitor subMonitor = SubMonitor
+														.convert(monitor);
 
-											long start = System
-													.currentTimeMillis();
-											dataLoadProvider.load(
-													baseDataContainers,
-													subMonitor);
-											LOGGER.info("---- loaded "
-													+ source
-													+ " within "
-													+ (System
-															.currentTimeMillis() - start)
-													+ "ms");
+												long start = System
+														.currentTimeMillis();
+												dataLoadProvider.load(
+														baseDataContainers,
+														subMonitor);
+												LOGGER.info("---- loaded "
+														+ source
+														+ " within "
+														+ (System
+																.currentTimeMillis() - start)
+														+ "ms");
 
-											subMonitor.done();
-											return Status.OK_STATUS;
-										}
-									};
-									loader.schedule();
-									return loader;
-								}
-							});
+												subMonitor.done();
+												return Status.OK_STATUS;
+											}
+										};
+										loader1.schedule();
+										return loader1;
+									});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();
@@ -221,43 +214,43 @@ public class DataService implements IDataService {
 				for (List<String> sources : dataLoaderManager
 						.getUnloadDependencies()) {
 					LOGGER.info("-- set: " + sources);
-					List<Future<Job>> futures = ExecUtils.nonUIAsyncExec(
-							DataService.class, this.getName(), sources,
-							new ExecUtils.ParametrizedCallable<String, Job>() {
-								@Override
-								public Job call(final String source)
-										throws Exception {
-									final IDataLoadProvider dataLoadProvider = dataLoaderManager
-											.getDataLoadProvider(source);
-									Job loader = new Job(
-											dataLoadProvider
-													.getUnloaderJobName(baseDataContainers)) {
-										@Override
-										protected IStatus run(
-												IProgressMonitor monitor) {
-											final SubMonitor subMonitor = SubMonitor
-													.convert(monitor);
+					List<Future<Job>> futures = ExecUtils
+							.nonUIAsyncExec(
+									DataService.class,
+									this.getName(),
+									sources,
+									(ParametrizedCallable<String, Job>) source -> {
+										final IDataLoadProvider dataLoadProvider = dataLoaderManager
+												.getDataLoadProvider(source);
+										Job loader = new Job(
+												dataLoadProvider
+														.getUnloaderJobName(baseDataContainers)) {
+											@Override
+											protected IStatus run(
+													IProgressMonitor monitor) {
+												final SubMonitor subMonitor = SubMonitor
+														.convert(monitor);
 
-											long start = System
-													.currentTimeMillis();
-											dataLoadProvider.unload(subMonitor);
-											LOGGER.info("---- unloaded "
-													+ source
-													+ " within "
-													+ (System
-															.currentTimeMillis() - start)
-													+ "ms");
+												long start = System
+														.currentTimeMillis();
+												dataLoadProvider
+														.unload(subMonitor);
+												LOGGER.info("---- unloaded "
+														+ source
+														+ " within "
+														+ (System
+																.currentTimeMillis() - start)
+														+ "ms");
 
-											subMonitor.done();
-											return Status.OK_STATUS;
-										}
-									};
-									loader.setProgressGroup(monitor, 1);
-									loader.setSystem(true);
-									loader.schedule();
-									return loader;
-								}
-							});
+												subMonitor.done();
+												return Status.OK_STATUS;
+											}
+										};
+										loader.setProgressGroup(monitor, 1);
+										loader.setSystem(true);
+										loader.schedule();
+										return loader;
+									});
 					for (Future<Job> future : futures) {
 						try {
 							future.get().join();
