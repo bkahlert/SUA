@@ -89,7 +89,7 @@ public class URI implements Serializable {
 		if (obj == null) {
 			return false;
 		}
-		if (!this.getClass().isInstance(obj)) {
+		if (!(obj instanceof URI)) {
 			return false;
 		}
 		URI other = (URI) obj;
