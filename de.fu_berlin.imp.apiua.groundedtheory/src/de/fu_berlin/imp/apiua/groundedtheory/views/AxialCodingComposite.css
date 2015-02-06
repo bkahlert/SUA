@@ -1,0 +1,82 @@
+.html-element.invalid {
+	background-image: linear-gradient(-45deg,
+		rgba(255, 255, 255, .2) 25%,
+		rgba(255, 255, 255, .85) 25%,
+		rgba(255, 255, 255, .85) 50%,
+		rgba(255, 255, 255, .2) 50%,
+		rgba(255, 255, 255, .2) 75%,
+		rgba(255, 255, 255, .85) 75%,
+		rgba(255, 255, 255, .85));
+	background-size: 55px 55px;
+}
+
+.link.invalid .connection {
+	stroke: rgba(0,0,0,.2);
+	stroke-dasharray: 27,27;
+}
+
+/* highlight origin element / relation */
+.html-element.origin {
+	border-color: rgb(127, 64, 195) !important; /* new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB()).toDecString(); */
+	border-width: 5px;
+
+}
+.html-element.origin h1 {
+	color: rgb(127, 64, 195); /* new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB()).toDecString(); */
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+.link.origin .connection {
+	stroke-width: 5px;
+	stroke: rgb(127, 64, 195); /* new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB()).toDecString(); */
+
+}
+.link.origin .labels text {
+	fill: rgb(127, 64, 195); /* new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB()).toDecString(); */
+	text-transform: uppercase;
+}
+
+/* implicit relations */
+.link.implicit .connection {
+	stroke: #aaa;
+}
+
+.link.implicit .labels text {
+	fill: #999;
+}
+
+/* memos */
+.memo {
+	position: relative;
+	color: black;
+	text-transform: none;
+	font-weight: normal;
+	text-align: left; 
+	margin-top: 18px;
+	padding-left: 20px;
+	max-width: 300px;
+	text-shadow: 0 0 5px white;
+
+}
+.memo img:first-child {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+/* details */
+html.detailsHidden .details {
+	display: none;
+
+}
+.link .labels tspan+tspan+tspan {
+	display: none;
+}
+
+/* num groundings */
+.link .labels tspan+tspan {
+	stroke: none;
+	text-transform: none;
+	fill: rgb(0, 128, 170); /* new RGB(Stylers.COUNTER_COLOR.getRGB()).toDecString() */
+}

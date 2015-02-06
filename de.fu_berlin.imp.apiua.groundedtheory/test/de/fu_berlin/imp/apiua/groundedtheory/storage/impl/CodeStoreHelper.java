@@ -22,8 +22,6 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceTest;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeStoreReadException;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStore;
 
 public class CodeStoreHelper {
 	private static File getTempFile() throws IOException {
@@ -123,7 +121,7 @@ public class CodeStoreHelper {
 	/**
 	 * Tests whether the {@link ICodeStore} only contains all given
 	 * {@link ICode}s.
-	 * 
+	 *
 	 * @param codeStore
 	 * @param codes
 	 * @throws IOException
@@ -160,8 +158,8 @@ public class CodeStoreHelper {
 	protected void testCodeInstances(ICodeStore actualCodeInstances,
 			ICodeInstance[] expectedCodeInstances)
 			throws CodeStoreReadException {
-		this.testCodeInstances(actualCodeInstances.getInstances(),
-				expectedCodeInstances);
+		this.testCodeInstances(actualCodeInstances.getCodeInstanceView()
+				.getExplicitCodeInstances(), expectedCodeInstances);
 	}
 
 	protected void testCodeInstances(Set<ICodeInstance> actualCodeInstances,

@@ -36,8 +36,7 @@ import com.bkahlert.nebula.utils.IReflexiveConverter;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.StringUtils;
-import com.bkahlert.nebula.utils.Stylers;
-import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
@@ -60,6 +59,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
@@ -218,51 +218,10 @@ public class AxialCodingComposite extends Composite implements
 			}
 		});
 
-		String originColor = new RGB(Stylers.IMPORTANCE_HIGH_COLOR.getRGB())
-				.toDecString();
+		this.jointjs.injectCssFile(BrowserUtils.getFileUrl(
+				AxialCodingComposite.class, this.getClass().getSimpleName()
+						+ ".css"));
 
-		this.jointjs.injectCss(
-		// invalid elements / relations
-				".html-element.invalid {"
-						+ "	background-image: linear-gradient(-45deg,"
-						+ "		rgba(255, 255, 255, .2) 25%,"
-						+ "		rgba(255, 255, 255, .85) 25%,"
-						+ "		rgba(255, 255, 255, .85) 50%,"
-						+ "		rgba(255, 255, 255, .2) 50%,"
-						+ "		rgba(255, 255, 255, .2) 75%,"
-						+ "		rgba(255, 255, 255, .85) 75%,"
-						+ "		rgba(255, 255, 255, .85));"
-						+ "	background-size: 55px 55px;"
-						+ "}"
-						+ ".link.invalid .connection { stroke: rgba(0,0,0,.2); stroke-dasharray: 27,27; }"
-
-						// highlight origin element / relation
-						+ ".html-element.origin { border-color: "
-						+ originColor
-						+ " !important; border-width: 5px; }"
-						+ ".html-element.origin h1 { color: "
-						+ originColor
-						+ "; text-transform: uppercase; font-weight: 700; }"
-						+ ".link.origin .connection { stroke-width: 5px; stroke: "
-						+ originColor
-						+ "; }"
-						+ ".link.origin .labels text { fill: "
-						+ originColor
-						+ "; text-transform: uppercase; }"
-
-						// memos
-						+ ".memo { position: relative; color: black; text-transform: none; font-weight: normal; text-align: left; "
-						+ " margin-top: 18px; padding-left: 20px; max-width: 300px; text-shadow: 0 0 5px white; }"
-						+ ".memo img:first-child { position: absolute; left: 0; top: 0; }"
-
-						// details
-						+ "html.detailsHidden .details { display: none; }"
-						+ ".link .labels tspan+tspan+tspan { display: none; }"
-
-						// num groundings
-						+ ".link .labels tspan+tspan { stroke: none; text-transform: none; fill: "
-						+ new RGB(Stylers.COUNTER_COLOR.getRGB()).toDecString()
-						+ "; }");
 		// this.jointjs
 		// .injectCss("[droppable].over rect { stroke:black; stroke-width: 4px; stroke-dasharray:5,5;");
 		this.jointjs.setEnabled(false);
@@ -664,7 +623,7 @@ public class AxialCodingComposite extends Composite implements
 						parent.getUri(), code.getUri()));
 			}
 		}
-		for (ICode child : CODE_SERVICE.getSubCodes(code)) {
+		for (ICode child : CODE_SERVICE.getDescendents(code)) {
 			if (existingElements.contains(child.getUri())) {
 				js.append(AxialCodingComposite.this.createIsARelationStatement(
 						code.getUri(), child.getUri()));
@@ -748,8 +707,10 @@ public class AxialCodingComposite extends Composite implements
 					ICode.class, null).get();
 			ICode subCode = LocatorService.INSTANCE.resolve(subURI,
 					ICode.class, null).get();
-			if (parentCode != null && subCode != null
-					&& !CODE_SERVICE.getSubCodes(parentCode).contains(subCode)) {
+			if (parentCode != null
+					&& subCode != null
+					&& !CODE_SERVICE.getDescendents(parentCode).contains(
+							subCode)) {
 				js.append(this.jointjs.remove(relationId).get());
 			}
 		}
@@ -886,7 +847,7 @@ public class AxialCodingComposite extends Composite implements
 						.getPhenomenon();
 			}
 			List<ICodeInstance> codeInstances = CODE_SERVICE
-					.getInstances(origin).stream()
+					.getAllInstances(origin).stream()
 					.filter(i -> i.getCode().getUri().equals(uri))
 					.collect(Collectors.toList());
 			for (ICodeInstance codeInstance : codeInstances) {
@@ -1019,11 +980,18 @@ public class AxialCodingComposite extends Composite implements
 				js.append(JointJS.removeCustomClassStatement(
 						Arrays.asList(uri.toString()), "origin"));
 			}
+			if (relation instanceof ImplicitRelation) {
+				js.append(JointJS.addCustomClassStatement(
+						Arrays.asList(uri.toString()), "implicit"));
+			} else {
+				js.append(JointJS.removeCustomClassStatement(
+						Arrays.asList(uri.toString()), "implicit"));
+			}
 
 			int groundingAll = CODE_SERVICE.getAllRelationInstances(relation)
 					.size();
-			int groundingImmediate = CODE_SERVICE
-					.getRelationInstances(relation).size();
+			int groundingImmediate = CODE_SERVICE.getExplicitRelationInstances(
+					relation).size();
 
 			StringBuffer caption = new StringBuffer();
 			caption.append(relation.getName());
@@ -1043,7 +1011,7 @@ public class AxialCodingComposite extends Composite implements
 							.get().getPhenomenon();
 				}
 				List<IRelationInstance> relationInstances = CODE_SERVICE
-						.getRelationInstances(origin).stream()
+						.getAllRelationInstances(origin).stream()
 						.filter(i -> i.getRelation().getUri().equals(uri))
 						.collect(Collectors.toList());
 				for (IRelationInstance relationInstance : relationInstances) {

@@ -15,7 +15,6 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
-import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.RelationViewer;
@@ -65,16 +64,7 @@ public class RelationInstanceLocatorProvider extends AdaptingLocatorProvider {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 
-		for (IRelation relation : codeService.getRelations()) {
-			for (IRelationInstance relationInstance : codeService
-					.getRelationInstances(relation)) {
-				if (relationInstance.getUri().equals(uri)) {
-					return relationInstance;
-				}
-			}
-		}
-
-		return null;
+		return codeService.getRelationInstance(uri);
 	}
 
 	@Override

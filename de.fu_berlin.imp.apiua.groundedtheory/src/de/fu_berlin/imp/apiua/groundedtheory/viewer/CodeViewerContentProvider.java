@@ -16,7 +16,6 @@ import com.bkahlert.nebula.utils.ViewerUtils;
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
-import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.services.IImportanceServiceListener;
 import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -192,13 +191,9 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		}
 	};
 
-	IImportanceServiceListener importanceServiceListener = new IImportanceServiceListener() {
-		@Override
-		public void importanceChanged(Set<URI> uris, Importance importance) {
-			ViewerUtils.update(CodeViewerContentProvider.this.viewer,
+	IImportanceServiceListener importanceServiceListener = (uris, importance) -> ViewerUtils
+			.update(CodeViewerContentProvider.this.viewer,
 					uris.toArray(new URI[0]), null);
-		}
-	};
 
 	/**
 	 * Creates a new {@link CodeViewerContentProvider} that displays all
@@ -305,8 +300,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			childNodes.addAll(AdapterUtils.adaptAll(
 					this.codeService.getChildren(code), URI.class));
 			if (this.showInstances) {
-				List<ICodeInstance> instances = this.codeService
-						.getInstances(code);
+				Set<ICodeInstance> instances = this.codeService
+						.getExplicitInstances(code);
 				if (instances.size() > 0) {
 					childNodes.addAll(AdapterUtils.adaptAll(instances,
 							URI.class));

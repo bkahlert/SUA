@@ -202,7 +202,7 @@ public class ResortableCodeViewer extends CodeViewer {
 												.resolve(sourceCodeUri,
 														ICode.class, null)
 												.get();
-										if (codeService.getSubCodes(sourceCode)
+										if (codeService.getDescendents(sourceCode)
 												.contains(destCode)) {
 											parentToChildException = true;
 											break;

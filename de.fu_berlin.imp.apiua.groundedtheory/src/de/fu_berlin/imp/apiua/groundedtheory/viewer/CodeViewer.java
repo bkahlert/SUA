@@ -70,9 +70,9 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		this.setLayout(new FillLayout());
 
 		if (filterable == Filterable.ON) {
-			FilteredTree filteredTree = new FilteredTree(this, SWT.BORDER
-					| SWT.MULTI | SWT.FULL_SELECTION,
-					(parent1, style1) -> createViewer(parent1, style1,
+			FilteredTree<SortableTreeViewer> filteredTree = new FilteredTree<SortableTreeViewer>(
+					this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION, (
+							parent1, style1) -> createViewer(parent1, style1,
 							initialShowInstances, saveExpandedElementsKey),
 					new IConverter<URI, String>() {
 						ICodeService codeService = (ICodeService) PlatformUI

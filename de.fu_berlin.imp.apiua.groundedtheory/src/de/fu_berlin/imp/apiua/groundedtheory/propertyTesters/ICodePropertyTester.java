@@ -16,7 +16,7 @@ public class ICodePropertyTester extends PropertyTester {
 					.getActiveWorkbenchWindow().getService(ICodeService.class);
 			ICode code = (ICode) receiver;
 			if ("hasInstances".equals(property)) {
-				return codeService.getInstances(code).size() > 0;
+				return codeService.getAllInstances(code).size() > 0;
 			}
 		}
 		return false;

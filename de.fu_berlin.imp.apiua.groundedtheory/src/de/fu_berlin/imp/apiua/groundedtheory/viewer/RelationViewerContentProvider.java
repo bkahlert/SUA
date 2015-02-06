@@ -245,7 +245,7 @@ public class RelationViewerContentProvider extends
 			return new URI[0];
 		}
 
-		Set<IRelation> relations = input.getRelations();
+		Set<IRelation> relations = input.getExplicitRelations();
 		if (relations.size() > 0) {
 			Set<URI> uris = new HashSet<URI>();
 			for (IRelation relation : relations) {
@@ -295,24 +295,20 @@ public class RelationViewerContentProvider extends
 				.get();
 		if (!(locatable instanceof IRelation)) {
 			Set<IRelation> uris = this.showRelationInstancesToFirst ? this.codeService
-					.getRelationsEndingAt(parentUri) : this.codeService
-					.getRelationsStartingFrom(parentUri);
+					.getExplicitRelationsEndingAt(parentUri) : this.codeService
+					.getExplicitRelationsStartingFrom(parentUri);
 			return uris.stream().map(r -> r.getUri())
 					.collect(Collectors.toList()).toArray(new URI[0]);
 		} else {
 			IRelation relation = (IRelation) locatable;
-
 			ArrayList<URI> childNodes = new ArrayList<URI>();
 			if (this.showInstances) {
 				childNodes.addAll(this.codeService
-						.getRelationInstances(relation).stream()
+						.getExplicitRelationInstances(relation).stream()
 						.map(r -> r.getUri()).collect(Collectors.toList()));
-				for (IRelationInstance indirect : this.codeService
-						.getIndirectRelationInstances(relation)) {
-					ViewerURI uri = new ViewerURI(indirect.getUri());
-					uri.setFlag("indirect", true);
-					childNodes.add(uri);
-				}
+				childNodes.addAll(this.codeService
+						.getImplicitRelationInstances(relation).stream()
+						.map(r -> r.getUri()).collect(Collectors.toList()));
 				if (childNodes.size() == 0) {
 					childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
 				}
@@ -363,14 +359,14 @@ public class RelationViewerContentProvider extends
 			URI uri = (URI) treePath.getFirstSegment();
 			if (this.showRelationInstancesToFirst) {
 				for (IRelation relation1 : RelationViewerContentProvider.this.codeService
-						.getRelationsStartingFrom(uri)) {
+						.getExplicitRelationsStartingFrom(uri)) {
 					Object[] segments1 = ViewerUtils.getSegments(treePath);
 					segments1[0] = relation1.getTo();
 					reversedTreePaths.add(new TreePath(segments1));
 				}
 			} else {
 				for (IRelation relation2 : RelationViewerContentProvider.this.codeService
-						.getRelationsEndingAt(uri)) {
+						.getAllRelationsEndingAt(uri)) {
 					Object[] segments2 = ViewerUtils.getSegments(treePath);
 					segments2[0] = relation2.getFrom();
 					reversedTreePaths.add(new TreePath(segments2));

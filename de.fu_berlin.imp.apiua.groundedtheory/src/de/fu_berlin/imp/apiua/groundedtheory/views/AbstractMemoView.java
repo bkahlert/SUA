@@ -297,14 +297,14 @@ public class AbstractMemoView extends UriPresentingEditorView {
 
 			// open all related instances's memos
 			for (ICodeInstance codeInstance : this.codeService
-					.getInstances(uri)) {
+					.getExplicitInstances(uri)) {
 				if (!colors.containsKey(codeInstance.getUri())) {
 					colors.put(codeInstance.getUri(), RGB.IMPORTANCE_LOW);
 				}
 				toOpen.add(codeInstance.getUri());
 			}
 			for (IRelationInstance relationInstance : this.codeService
-					.getRelationInstances(uri)) {
+					.getExplicitRelationInstances(uri)) {
 				if (!colors.containsKey(relationInstance.getUri())) {
 					colors.put(relationInstance.getUri(), RGB.IMPORTANCE_LOW);
 				}

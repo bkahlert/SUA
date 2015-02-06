@@ -66,9 +66,11 @@ public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 			GroupDiscussionDocumentField discussionDocumentField = this.locatorService
 					.resolve(uri, GroupDiscussionDocumentField.class, null)
 					.get();
-			String excerpt = StringUtils.shorten(
-					discussionDocumentField.getValue(), 50);
-			return new StyledString(excerpt);
+			if (discussionDocumentField != null) {
+				String excerpt = StringUtils.shorten(
+						discussionDocumentField.getValue(), 50);
+				return new StyledString(excerpt);
+			}
 		}
 		return new StyledString(uri.toString(), Stylers.ATTENTION_STYLER);
 	}

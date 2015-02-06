@@ -77,7 +77,7 @@ public class DimensionValuesComposite extends Composite {
 						.resolve(uri, ICodeInstance.class, null).get();
 				if (codeInstance != null) {
 					codeInstances.add(codeInstance);
-					if (CODE_SERVICE.getInstances(codeInstance.getId()).size() > 1) {
+					if (CODE_SERVICE.getAllInstances(codeInstance.getId()).size() > 1) {
 						Button button = new Button(this, SWT.PUSH);
 						button.setLayoutData(GridDataFactory.swtDefaults()
 								.create());
@@ -107,7 +107,7 @@ public class DimensionValuesComposite extends Composite {
 				LOGGER.error("Error resolving " + ICodeInstance.class, e);
 			}
 		} else {
-			codeInstances.addAll(CODE_SERVICE.getInstances(uri));
+			codeInstances.addAll(CODE_SERVICE.getAllInstances(uri));
 		}
 
 		for (final ICodeInstance codeInstance : codeInstances) {

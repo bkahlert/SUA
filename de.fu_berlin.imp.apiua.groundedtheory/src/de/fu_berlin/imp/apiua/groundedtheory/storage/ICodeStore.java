@@ -26,24 +26,24 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelatio
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelationInstanceException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeHierarchyView;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeInstanceView;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.RelationHierarchyView;
+import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.RelationInstanceView;
 
 public interface ICodeStore {
 
+	public CodeHierarchyView getCodeHierarchyView();
+
+	public CodeInstanceView getCodeInstanceView();
+
+	public RelationHierarchyView getRelationHierarchyView();
+
+	public RelationInstanceView getRelationInstanceView();
+
 	public List<ICode> getTopLevelCodes();
 
-	public Set<ICodeInstance> getInstances();
-
-	/**
-	 * Returns an existing {@link ICode} based on it's internal id
-	 *
-	 * @param id
-	 * @return
-	 */
-	public ICode getCode(long id);
-
-	public ICodeInstance getCodeInstance(long id);
-
-	public ICode[] getCodes();
+	public Set<ICode> getCodes();
 
 	public ICode createCode(String caption, RGB color)
 			throws CodeStoreFullException;
@@ -88,10 +88,6 @@ public interface ICodeStore {
 
 	public ICode setParent(ICode childNode, ICode newParentNode)
 			throws CodeDoesNotExistException, CodeStoreWriteException;
-
-	public List<ICode> getChildren(ICode code);
-
-	public List<ICode> getSubCodes(ICode code);
 
 	public boolean codeExists(ICode code);
 

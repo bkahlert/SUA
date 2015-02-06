@@ -77,7 +77,7 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 		ON, OFF;
 	}
 
-	private TreeViewer viewer = null;
+	private SortableTreeViewer viewer = null;
 
 	public RelationViewer(Composite parent, int style,
 			final ShowInstances initialShowInstances,
@@ -87,9 +87,9 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 		this.setLayout(new FillLayout());
 
 		if (filterable == Filterable.ON) {
-			FilteredTree filteredTree = new FilteredTree(this, SWT.BORDER
-					| SWT.MULTI | SWT.FULL_SELECTION,
-					(parent1, style1) -> createViewer(parent1, style1,
+			FilteredTree<SortableTreeViewer> filteredTree = new FilteredTree<SortableTreeViewer>(
+					this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION, (
+							parent1, style1) -> createViewer(parent1, style1,
 							initialShowInstances, saveExpandedElementsKey),
 					new IConverter<URI, String>() {
 						ICodeService codeService = (ICodeService) PlatformUI
@@ -226,7 +226,7 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 							IRelation relation = codeService
 									.getRelation(destUri);
 							Set<IRelationInstance> relationInstances = codeService
-									.getRelationInstances(relation);
+									.getExplicitRelationInstances(relation);
 							for (URI sourceUri : sourceUris) {
 								if (!relationInstances.stream().anyMatch(
 										i -> i.getPhenomenon()
@@ -244,6 +244,8 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 
 					}
 				});
+
+		this.viewer.sort(0);
 	}
 
 	private static SortableTreeViewer createViewer(Composite parent, int style,

@@ -20,8 +20,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -80,14 +78,15 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test(expected = CodeStoreReadException.class)
 	public void testNonExistingLoadCodes() throws IOException,
-	SAXParseException {
+			SAXParseException {
 		this.getNonExistingCodeStore().getTopLevelCodes();
 	}
 
 	@Test(expected = CodeStoreReadException.class)
 	public void testNonExistingLoadCodeInstances() throws IOException,
-	SAXParseException {
-		this.getNonExistingCodeStore().getInstances();
+			SAXParseException {
+		this.getNonExistingCodeStore().getCodeInstanceView()
+				.getExplicitCodeInstances();
 	}
 
 	@Test
@@ -98,9 +97,9 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testEmptyLoadCodeInstances() throws IOException,
-	SAXParseException {
+			SAXParseException {
 		Set<ICodeInstance> loadedCodeInstances = this.getEmptyCodeStore()
-				.getInstances();
+				.getCodeInstanceView().getExplicitCodeInstances();
 		assertEquals(0, loadedCodeInstances.size());
 	}
 
@@ -112,12 +111,12 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testLoadCodes() throws IOException, DuplicateCodeException,
-	DuplicateCodeInstanceException {
+			DuplicateCodeInstanceException {
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		codeStore.addAndSaveCode(this.code1);
 		codeStore.addAndSaveCode(this.code2);
 		codeStore
-		.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
+				.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
 		codeStore.addAndSaveCodeInstances(new ICodeInstance[] {
 				this.codeInstance2, this.codeInstance3 });
 		codeStore.save();
@@ -131,15 +130,15 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testNewFileSave() throws IOException, SAXException,
-	ParserConfigurationException, DuplicateCodeException,
-	DuplicateCodeInstanceException {
+			ParserConfigurationException, DuplicateCodeException,
+			DuplicateCodeInstanceException {
 		ICodeStore newCodeStore = this.getEmptyCodeStore();
 		for (ICode code : this.codes) {
 			newCodeStore.addAndSaveCode(code);
 		}
 		for (ICodeInstance instance : this.codeInstances) {
 			newCodeStore
-			.addAndSaveCodeInstances(new ICodeInstance[] { instance });
+					.addAndSaveCodeInstances(new ICodeInstance[] { instance });
 		}
 		this.testCodes(newCodeStore, this.codes);
 		this.testCodeInstances(newCodeStore, this.codeInstances);
@@ -147,7 +146,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testNewFileSaveCodes() throws IOException, SAXException,
-	ParserConfigurationException, DuplicateCodeException {
+			ParserConfigurationException, DuplicateCodeException {
 		ICodeStore newCodeStore = this.getEmptyCodeStore();
 		for (ICode code : this.codes) {
 			newCodeStore.addAndSaveCode(code);
@@ -158,21 +157,22 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testNewFileSaveCodeInstances() throws IOException,
-	DuplicateCodeException, DuplicateCodeInstanceException {
+			DuplicateCodeException, DuplicateCodeInstanceException {
 		ICodeStore newCodeStore = this.getEmptyCodeStore();
 		newCodeStore.addAndSaveCode(this.code2);
 		newCodeStore.addAndSaveCodeInstances(new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
-		assertEquals(2, newCodeStore.getInstances().size());
+		assertEquals(2, newCodeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(newCodeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 	}
 
 	@Test(expected = CodeStoreWriteException.class)
 	public void testNewFileSaveCodeInstancesWithoutCodes() throws IOException,
-	SAXException, ParserConfigurationException,
-	DuplicateCodeInstanceException {
+			SAXException, ParserConfigurationException,
+			DuplicateCodeInstanceException {
 		ICodeStore newCodeStore = this.getEmptyCodeStore();
 		newCodeStore.addAndSaveCodeInstances(new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3, this.codeInstance2 });
@@ -181,27 +181,29 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testNewFileAddAndSaveCodeInstances() throws IOException,
-	DuplicateCodeException, DuplicateCodeInstanceException {
+			DuplicateCodeException, DuplicateCodeInstanceException {
 		ICodeStore newCodeStore = this.getEmptyCodeStore();
 		newCodeStore.addAndSaveCode(this.code2);
 		newCodeStore
-		.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
+				.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
 		newCodeStore
-		.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance3 });
+				.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance3 });
 
-		assertEquals(2, newCodeStore.getInstances().size());
+		assertEquals(2, newCodeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(newCodeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
 		newCodeStore.addAndSaveCode(this.code2);
-		assertEquals(2, newCodeStore.getInstances().size());
+		assertEquals(2, newCodeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(newCodeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 	}
 
 	@Test
 	public void testSmallFileSaveCodes() throws IOException,
-	DuplicateCodeException {
+			DuplicateCodeException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 
 		this.testCodes(codeStore, this.codes);
@@ -212,7 +214,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		codeStore.addAndSaveCode(code3);
 		assertEquals(3, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, new ICode[] { this.code1, this.code2, code3 });
-		assertEquals(3, codeStore.getInstances().size());
+		assertEquals(3, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, this.codeInstances);
 	}
 
@@ -229,8 +232,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testSmallFileSaveCodeInstances() throws IOException,
-	CodeHasChildCodesException, CodeDoesNotExistException,
-	DuplicateCodeInstanceException {
+			CodeHasChildCodesException, CodeDoesNotExistException,
+			DuplicateCodeInstanceException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, this.codeInstances);
@@ -238,29 +241,33 @@ public class CodeStoreTest extends CodeStoreHelper {
 		codeStore.removeAndSaveCodeInstance(this.codeInstance2);
 		assertEquals(2, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, this.codes);
-		assertEquals(2, codeStore.getInstances().size());
+		assertEquals(2, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
 		codeStore.removeAndSaveCode(this.code1);
 		assertEquals(1, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, new ICode[] { this.code2 });
-		assertEquals(2, codeStore.getInstances().size());
+		assertEquals(2, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
 		codeStore.removeAndSaveCodeInstance(this.codeInstance3);
 		assertEquals(1, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, new ICode[] { this.code2 });
-		assertEquals(1, codeStore.getInstances().size());
+		assertEquals(1, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore,
 				new ICodeInstance[] { this.codeInstance1 });
 
 		codeStore
-		.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance3 });
+				.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance3 });
 		assertEquals(1, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, new ICode[] { this.code2 });
-		assertEquals(2, codeStore.getInstances().size());
+		assertEquals(2, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 	}
@@ -276,19 +283,21 @@ public class CodeStoreTest extends CodeStoreHelper {
 		codeStore.removeAndSaveCodeInstance(this.codeInstance2);
 		assertEquals(2, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, this.codes);
-		assertEquals(2, codeStore.getInstances().size());
+		assertEquals(2, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
 		codeStore.removeAndSaveCode(this.code1);
 		assertEquals(1, codeStore.getTopLevelCodes().size());
 		this.testCodes(codeStore, new ICode[] { this.code2 });
-		assertEquals(2, codeStore.getInstances().size());
+		assertEquals(2, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
 				this.codeInstance1, this.codeInstance3 });
 
 		codeStore
-		.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
+				.addAndSaveCodeInstances(new ICodeInstance[] { this.codeInstance1 });
 		codeStore.addAndSaveCodeInstances(new ICodeInstance[] {
 				this.codeInstance2, this.codeInstance3 });
 	}
@@ -297,7 +306,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 	public void testCreateCode() throws IOException, CodeStoreFullException {
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		ICode code = codeStore.createCode("Code #1", RGB.WHITE);
 		assertEquals(Long.MIN_VALUE, code.getId());
@@ -306,17 +316,18 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testNonExistingCreateCode() throws IOException,
-	CodeStoreFullException, IllegalArgumentException,
-	DuplicateCodeException {
+			CodeStoreFullException, IllegalArgumentException,
+			DuplicateCodeException {
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		assertEquals(new Code(Long.MIN_VALUE, "Code #1", RGB.WHITE,
 				new TimeZoneDate()), codeStore.createCode("Code #1", RGB.WHITE));
 		assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2", new RGB(1.0, 1.0,
 				1.0), new TimeZoneDate()), codeStore.createCode("Code #2",
-						RGB.WHITE));
+				RGB.WHITE));
 		codeStore.addAndSaveCode(new Code(5l, "Code #3", RGB.WHITE,
 				new TimeZoneDate()));
 		assertEquals(new Code(6l, "Code #4", RGB.WHITE, new TimeZoneDate()),
@@ -325,17 +336,18 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testEmptyCreateCode() throws IOException,
-	CodeStoreFullException, IllegalArgumentException,
-	DuplicateCodeException {
+			CodeStoreFullException, IllegalArgumentException,
+			DuplicateCodeException {
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		assertEquals(new Code(Long.MIN_VALUE, "Code #1", RGB.WHITE,
 				new TimeZoneDate()), codeStore.createCode("Code #1", RGB.WHITE));
 		assertEquals(new Code(Long.MIN_VALUE + 1, "Code #2", new RGB(1.0, 1.0,
 				1.0), new TimeZoneDate()), codeStore.createCode("Code #2",
-						RGB.WHITE));
+				RGB.WHITE));
 		codeStore.addAndSaveCode(new Code(5l, "Code #3", RGB.WHITE,
 				new TimeZoneDate()));
 		assertEquals(new Code(6l, "Code #4", RGB.WHITE, new TimeZoneDate()),
@@ -344,8 +356,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testSmallCreateCode() throws IOException,
-	CodeStoreFullException, IllegalArgumentException,
-	DuplicateCodeException {
+			CodeStoreFullException, IllegalArgumentException,
+			DuplicateCodeException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, this.codeInstances);
@@ -358,13 +370,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 				1.0, 1.0), new TimeZoneDate()));
 		assertEquals(new Code(300000001l, "Code #4", RGB.WHITE,
 				new TimeZoneDate()), codeStore.createCode("Code #4", new RGB(
-						1.0, 1.0, 1.0)));
+				1.0, 1.0, 1.0)));
 	}
 
 	@Test(expected = CodeStoreFullException.class)
 	public void testOverflowCreateCode() throws IOException,
-	CodeStoreFullException, IllegalArgumentException,
-	DuplicateCodeException {
+			CodeStoreFullException, IllegalArgumentException,
+			DuplicateCodeException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, this.codeInstances);
@@ -376,13 +388,14 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test(expected = InvalidParameterException.class)
 	public void testNonExistingCreateCodeInstance() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException,
-	URISyntaxException, CodeStoreFullException {
+			InvalidParameterException, DuplicateCodeInstanceException,
+			URISyntaxException, CodeStoreFullException {
 		final ICode code = this.context.mock(ICode.class);
 
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
 				new URI[] { new URI("abc://def") });
@@ -390,13 +403,14 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test(expected = InvalidParameterException.class)
 	public void testEmptyCreateCodeInstance() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException,
-	URISyntaxException, CodeStoreFullException {
+			InvalidParameterException, DuplicateCodeInstanceException,
+			URISyntaxException, CodeStoreFullException {
 		final ICode code = this.context.mock(ICode.class);
 
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		codeStore.createCodeInstances(new ICode[] { code },
 				new URI[] { new URI("abc://def") });
@@ -404,8 +418,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testSmallCreateCodeInstance() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException,
-	URISyntaxException, CodeStoreFullException {
+			InvalidParameterException, DuplicateCodeInstanceException,
+			URISyntaxException, CodeStoreFullException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		this.testCodes(codeStore, this.codes);
 		this.testCodeInstances(codeStore, this.codeInstances);
@@ -423,7 +437,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 	@Test
 	public void testLoadInstances() throws IOException {
 		ICodeStore codeStore = this.getSmallCodeStore();
-		this.testCodeInstances(codeStore.getInstances(), this.codeInstances);
+		this.testCodeInstances(codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances(), this.codeInstances);
 	}
 
 	@Test(expected = CodeInstanceDoesNotExistException.class)
@@ -472,7 +487,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testEmptyDeleteCodeInstances() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException {
+			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
 		this.context.checking(new Expectations() {
 			{
@@ -483,17 +498,19 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		codeStore.deleteCodeInstances(code);
 
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 	}
 
 	@Test
 	public void testSmallDeleteInexistingCodeInstances() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException {
+			InvalidParameterException, DuplicateCodeInstanceException {
 		final ICode code = this.context.mock(ICode.class);
 		this.context.checking(new Expectations() {
 			{
@@ -514,7 +531,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testSmallDeleteExistingCodeInstances() throws IOException,
-	InvalidParameterException, DuplicateCodeInstanceException {
+			InvalidParameterException, DuplicateCodeInstanceException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		this.testCodes(codeStore, new ICode[] { this.code1, this.code2 });
 		this.testCodeInstances(codeStore, new ICodeInstance[] {
@@ -539,7 +556,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		ICodeStore codeStore = this.getEmptyCodeStore();
 		assertEquals(0, codeStore.getTopLevelCodes().size());
-		assertEquals(0, codeStore.getInstances().size());
+		assertEquals(0, codeStore.getCodeInstanceView()
+				.getExplicitCodeInstances().size());
 
 		codeStore.removeAndSaveCode(code);
 	}
@@ -598,8 +616,8 @@ public class CodeStoreTest extends CodeStoreHelper {
 		assertEquals(
 				new Relation(new URI("apiua://relation/1"),
 						this.code1.getUri(), this.code2.getUri(), "My Relation"),
-						new Relation(new URI("apiua://relation/1"),
-								this.code1.getUri(), this.code2.getUri(), "My Relation"));
+				new Relation(new URI("apiua://relation/1"),
+						this.code1.getUri(), this.code2.getUri(), "My Relation"));
 
 		try {
 			codeStore.addRelation(new Relation(new URI("apiua://relation/1"),
@@ -614,7 +632,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 				this.codeInstance1.getUri(), this.codeInstance2.getUri(),
 				"My Relation"), new Relation(new URI("apiua://relation/1"),
 				this.codeInstance1.getUri(), this.codeInstance2.getUri(),
-						"My Relation"));
+				"My Relation"));
 
 		List<IRelation> relations = new LinkedList<IRelation>();
 		relations.add(new Relation(new URI("apiua://relation/1"), this.code1
@@ -657,19 +675,19 @@ public class CodeStoreTest extends CodeStoreHelper {
 		List<IRelationInstance> relationInstances = new LinkedList<IRelationInstance>();
 		relationInstances.add(new RelationInstance(new URI(
 				"apiua://relationInstance/1"), relations.get(0), new URI(
-						"apiua://ph/1")));
+				"apiua://ph/1")));
 		relationInstances.add(new RelationInstance(new URI(
 				"apiua://relationInstance/2"), relations.get(0), new URI(
-						"apiua://ph/2")));
+				"apiua://ph/2")));
 		for (IRelationInstance relationInstance : relationInstances) {
 			codeStore2.addRelationInstance(relationInstance);
 		}
 		try {
 			codeStore2.addRelationInstance(new RelationInstance(new URI(
 					"apiua://relationInstance/2"), new Relation(new URI(
-							"apiua://relation/2"), this.codeInstance1.getUri(),
-							this.codeInstance2.getUri(), "Non existant relation"),
-							new URI("apiua://ph/2")));
+					"apiua://relation/2"), this.codeInstance1.getUri(),
+					this.codeInstance2.getUri(), "Non existant relation"),
+					new URI("apiua://ph/2")));
 			assertFalse(true);
 		} catch (DuplicateRelationInstanceException e) {
 
@@ -677,9 +695,9 @@ public class CodeStoreTest extends CodeStoreHelper {
 		try {
 			codeStore2.addRelationInstance(new RelationInstance(new URI(
 					"apiua://relationInstance/3"), new Relation(new URI(
-							"apiua://relation/x"), this.codeInstance1.getUri(),
-							this.codeInstance2.getUri(), "Non existant relation"),
-							new URI("apiua://ph/2")));
+					"apiua://relation/x"), this.codeInstance1.getUri(),
+					this.codeInstance2.getUri(), "Non existant relation"),
+					new URI("apiua://ph/2")));
 			assertFalse(true);
 		} catch (RelationDoesNotExistException e) {
 
@@ -726,7 +744,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 		Episode episode = new Episode(IdentifierFactory.createFrom("id"),
 				new TimeZoneDateRange(new TimeZoneDate(
 						"2000-01-02T14:00:00.000+02:00"), new TimeZoneDate(
-								"2000-01-02T14:30:00.000+02:00")), "TimelineViewer");
+						"2000-01-02T14:30:00.000+02:00")), "TimelineViewer");
 		codeStore.getEpisodes().add(episode);
 		assertEquals(1, codeStore.getEpisodes().size());
 		assertEquals(episode, codeStore.getEpisodes().iterator().next());
@@ -761,22 +779,13 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 		styledText.setText(text);
 		final AtomicReference<String> returnedText = new AtomicReference<String>();
-		styledText.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				returnedText.set(styledText.getText());
-			}
-		});
+		styledText.addDisposeListener(e -> returnedText.set(styledText
+				.getText()));
 
 		shell.setSize(300, 120);
 		shell.open();
 
-		ExecUtils.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				shell.close();
-			}
-		}, 500);
+		ExecUtils.asyncExec(() -> shell.close(), 500);
 
 		// Set up the event loop.
 		while (!shell.isDisposed()) {
@@ -829,7 +838,7 @@ public class CodeStoreTest extends CodeStoreHelper {
 
 	@Test
 	public void testBackup() throws IOException, CodeHasChildCodesException,
-	CodeDoesNotExistException {
+			CodeDoesNotExistException {
 		ICodeStore codeStore = this.getSmallCodeStore();
 		Calendar now = Calendar.getInstance();
 

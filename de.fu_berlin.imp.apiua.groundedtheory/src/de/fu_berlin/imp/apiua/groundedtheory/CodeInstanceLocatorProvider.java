@@ -16,7 +16,6 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferences;
 import de.fu_berlin.imp.apiua.core.services.location.AdaptingLocatorProvider;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
@@ -63,14 +62,7 @@ public class CodeInstanceLocatorProvider extends AdaptingLocatorProvider {
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
 
-		for (ICode code : codeService.getCodeStore().getTopLevelCodes()) {
-			for (ICodeInstance codeInstance : codeService.getAllInstances(code)) {
-				if (codeInstance.getUri().equals(uri)) {
-					return codeInstance;
-				}
-			}
-		}
-		return null;
+		return codeService.getCodeStore().getCodeInstanceView().getByUri(uri);
 	}
 
 	@Override

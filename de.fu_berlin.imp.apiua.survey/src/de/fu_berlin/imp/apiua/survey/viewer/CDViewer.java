@@ -37,8 +37,6 @@ import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IUriPresenterService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
-import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.Utils;
 import de.fu_berlin.imp.apiua.groundedtheory.ui.wizards.WizardUtils;
 import de.fu_berlin.imp.apiua.survey.model.SurveyContainer;
@@ -54,8 +52,6 @@ public class CDViewer extends Viewer {
 			.getWorkbench().getService(ILocatorService.class);
 	private static final IImportanceService IMPORTANCE_SERVICE = (IImportanceService) PlatformUI
 			.getWorkbench().getService(IImportanceService.class);
-	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
-			.getWorkbench().getService(ICodeService.class);
 	private static final IUriPresenterService PRESENTER_SERVICE = (IUriPresenterService) PlatformUI
 			.getWorkbench().getService(IUriPresenterService.class);
 
@@ -239,10 +235,6 @@ public class CDViewer extends Viewer {
 
 				navigationElements.add(new NavigationElement(caption, "#"
 						+ cdDocument.getUri()));
-
-				List<ICodeInstance> documentCodeInstances = new ArrayList<ICodeInstance>();
-				documentCodeInstances.addAll(CODE_SERVICE
-						.getInstances(cdDocument.getUri()));
 
 				form.addRaw("<tr><td>");
 				form.addRaw("<h2 tabindex=\"" + 0 + "\" data-focus-id=\""

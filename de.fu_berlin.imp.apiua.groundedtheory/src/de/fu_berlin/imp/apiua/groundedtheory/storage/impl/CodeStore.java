@@ -33,6 +33,8 @@ import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.Dirtiable;
+import com.bkahlert.nebula.utils.IDirtiable;
 import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.ListUtils;
 import com.bkahlert.nebula.utils.Pair;
@@ -125,6 +127,23 @@ class CodeStore implements ICodeStore {
 	@XStreamAlias("relationInstances")
 	private Set<IRelationInstance> relationInstances = null;
 
+	@XStreamOmitField
+	private IDirtiable codeHierarchyViewDirtiable = null;
+	@XStreamOmitField
+	private CodeHierarchyView codeHierarchyView = null;
+	@XStreamOmitField
+	private IDirtiable codeInstanceViewDirtiable = null;
+	@XStreamOmitField
+	private CodeInstanceView codeInstanceView = null;
+	@XStreamOmitField
+	private IDirtiable relationHierarchyViewDirtiable = null;
+	@XStreamOmitField
+	private RelationHierarchyView relationHierarchyView = null;
+	@XStreamOmitField
+	private IDirtiable relationInstanceViewDirtiable = null;
+	@XStreamOmitField
+	private RelationInstanceView relationInstanceView = null;
+
 	@XStreamAlias("memos")
 	private HashMap<Object, String> memos = null;
 
@@ -187,6 +206,24 @@ class CodeStore implements ICodeStore {
 			if (codeStore.relationInstances == null) {
 				codeStore.relationInstances = new HashSet<IRelationInstance>();
 			}
+
+			codeStore.codeHierarchyViewDirtiable = new Dirtiable();
+			codeStore.codeHierarchyView = new CodeHierarchyView(
+					codeStore.codeTrees, codeStore.codeHierarchyViewDirtiable);
+			codeStore.codeInstanceViewDirtiable = new Dirtiable();
+			codeStore.codeInstanceView = new CodeInstanceView(
+					codeStore.codeHierarchyView, codeStore.codeInstances,
+					codeStore.codeInstanceViewDirtiable);
+			codeStore.relationHierarchyViewDirtiable = new Dirtiable();
+			codeStore.relationHierarchyView = new RelationHierarchyView(
+					codeStore.codeHierarchyView, codeStore.relations,
+					codeStore.relationHierarchyViewDirtiable);
+			codeStore.relationInstanceViewDirtiable = new Dirtiable();
+			codeStore.relationInstanceView = new RelationInstanceView(
+					codeStore.relationHierarchyView,
+					codeStore.relationInstances,
+					codeStore.relationInstanceViewDirtiable);
+
 			if (codeStore.memos == null) {
 				codeStore.memos = new HashMap<Object, String>();
 			}
@@ -264,62 +301,54 @@ class CodeStore implements ICodeStore {
 		this.createdCodeInstanceIds = new HashSet<Long>();
 		this.codeTrees = new LinkedList<TreeNode<ICode>>();
 		this.codeInstances = new HashSet<ICodeInstance>();
+		this.relations = new HashSet<IRelation>();
+		this.relationInstances = new HashSet<IRelationInstance>();
 		this.episodes = new NoNullSet<IEpisode>();
+
+		this.codeHierarchyViewDirtiable = new Dirtiable();
+		this.codeHierarchyView = new CodeHierarchyView(this.codeTrees,
+				this.codeHierarchyViewDirtiable);
+		this.codeInstanceViewDirtiable = new Dirtiable();
+		this.codeInstanceView = new CodeInstanceView(this.codeHierarchyView,
+				this.codeInstances, this.codeInstanceViewDirtiable);
+		this.relationHierarchyViewDirtiable = new Dirtiable();
+		this.relationHierarchyView = new RelationHierarchyView(
+				this.codeHierarchyView, this.relations,
+				this.relationHierarchyViewDirtiable);
+		this.relationInstanceViewDirtiable = new Dirtiable();
+		this.relationInstanceView = new RelationInstanceView(
+				this.relationHierarchyView, this.relationInstances,
+				this.relationInstanceViewDirtiable);
 	}
 
 	@Override
-	public ICode getCode(long id) {
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			for (ICode code : codeTree) {
-				if (code.getId() == id) {
-					return code;
-				}
-			}
-		}
-		return null;
-	}
-
-	private ICode getCode(URI uri) {
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			for (ICode code : codeTree) {
-				if (code.getUri().equals(uri)) {
-					return code;
-				}
-			}
-		}
-		return null;
+	public CodeHierarchyView getCodeHierarchyView() {
+		return this.codeHierarchyView;
 	}
 
 	@Override
-	public ICodeInstance getCodeInstance(long id) {
-		for (ICodeInstance codeInstance : this.codeInstances) {
-			if (codeInstance.getCodeInstanceID() == id) {
-				return codeInstance;
-			}
-		}
-		return null;
+	public CodeInstanceView getCodeInstanceView() {
+		return this.codeInstanceView;
 	}
 
 	@Override
-	public ICode[] getCodes() {
-		List<ICode> codes = new ArrayList<ICode>();
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			for (Iterator<ICode> iterator = codeTree.bfs(); iterator.hasNext();) {
-				ICode code = iterator.next();
-				codes.add(code);
-			}
-		}
-		return codes.toArray(new ICode[0]);
+	public RelationHierarchyView getRelationHierarchyView() {
+		return this.relationHierarchyView;
+	}
+
+	@Override
+	public RelationInstanceView getRelationInstanceView() {
+		return this.relationInstanceView;
+	}
+
+	@Override
+	public Set<ICode> getCodes() {
+		return this.codeHierarchyView.getCodes();
 	}
 
 	@Override
 	public boolean codeExists(ICode code) {
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			if (codeTree.find(code).size() > 0) {
-				return true;
-			}
-		}
-		return false;
+		return this.codeHierarchyView.getCodes().contains(code);
 	}
 
 	private void setCodeStoreFile(File codeStoreFile) {
@@ -368,12 +397,6 @@ class CodeStore implements ICodeStore {
 		return treeNodes.size() == 0 ? null : treeNodes.get(0);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Set<ICodeInstance> getInstances() {
-		return (Set<ICodeInstance>) this.codeInstances.clone();
-	}
-
 	@Override
 	public ICode createCode(String caption, RGB color)
 			throws CodeStoreFullException {
@@ -389,6 +412,9 @@ class CodeStore implements ICodeStore {
 
 		ICode code = new Code(id, caption, color, new TimeZoneDate());
 		this.codeTrees.add(new TreeNode<ICode>(code));
+
+		this.codeHierarchyViewDirtiable.modified();
+
 		return code;
 	}
 
@@ -448,6 +474,8 @@ class CodeStore implements ICodeStore {
 			}
 		}
 
+		this.codeInstanceViewDirtiable.modified();
+
 		return generatedCodeInstances.toArray(new ICodeInstance[0]);
 	}
 
@@ -456,6 +484,7 @@ class CodeStore implements ICodeStore {
 			CodeStoreReadException {
 		this.createdIds.add(code.getId());
 		this.codeTrees.add(new TreeNode<ICode>(code));
+		this.codeHierarchyViewDirtiable.modified();
 		this.save();
 	}
 
@@ -478,6 +507,8 @@ class CodeStore implements ICodeStore {
 			this.createdCodeInstanceIds.add(codeInstance.getCodeInstanceID());
 			this.codeInstances.add(codeInstance);
 		}
+
+		this.codeInstanceViewDirtiable.modified();
 
 		this.save();
 	}
@@ -569,6 +600,8 @@ class CodeStore implements ICodeStore {
 			}
 		}
 
+		this.codeHierarchyViewDirtiable.modified();
+
 		this.save();
 	}
 
@@ -576,18 +609,13 @@ class CodeStore implements ICodeStore {
 	public void removeAndSaveCodeInstance(ICodeInstance codeInstance)
 			throws CodeStoreWriteException, CodeStoreReadException {
 		this.codeInstances.remove(codeInstance);
+		this.codeInstanceViewDirtiable.modified();
 		this.save();
 	}
 
 	@Override
 	public ICode getParent(ICode code) {
-		List<TreeNode<ICode>> foundNodes = this.find(code);
-		assert foundNodes.size() < 2;
-		if (foundNodes.size() == 1) {
-			TreeNode<ICode> parent = foundNodes.get(0).getParent();
-			return parent != null ? parent.getData() : null;
-		}
-		return null;
+		return this.codeHierarchyView.getParent(code);
 	}
 
 	@Override
@@ -631,42 +659,10 @@ class CodeStore implements ICodeStore {
 			this.codeTrees.add(futureChildNode);
 		}
 
+		this.codeHierarchyViewDirtiable.modified();
+
 		this.save();
 		return (currentParentNode != null) ? currentParentNode.getData() : null;
-	}
-
-	@Override
-	public List<ICode> getChildren(ICode code) {
-		List<ICode> childCodes = new ArrayList<ICode>();
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
-			assert foundNodes.size() < 2;
-			if (foundNodes.size() == 1) {
-				for (TreeNode<ICode> childNode : foundNodes.get(0).children()) {
-					childCodes.add(childNode.getData());
-				}
-			}
-		}
-		return childCodes;
-	}
-
-	@Override
-	public List<ICode> getSubCodes(ICode code) {
-		List<ICode> subCodes = new ArrayList<ICode>();
-		for (TreeNode<ICode> codeTree : this.codeTrees) {
-			List<TreeNode<ICode>> foundNodes = codeTree.find(code);
-			assert foundNodes.size() < 2;
-			if (foundNodes.size() == 1) {
-				for (Iterator<ICode> iterator = foundNodes.get(0).bfs(); iterator
-						.hasNext();) {
-					ICode subCode = iterator.next();
-					if (!subCode.equals(foundNodes.get(0).getData())) {
-						subCodes.add(subCode);
-					}
-				}
-			}
-		}
-		return subCodes;
 	}
 
 	@Override
@@ -696,6 +692,7 @@ class CodeStore implements ICodeStore {
 			for (int i = 0; i < this.codeTrees.size(); i++) {
 				if (this.codeTrees.get(i).getData().equals(code)) {
 					ListUtils.moveElement(this.codeTrees, i, pos);
+					this.codeHierarchyViewDirtiable.modified();
 					return;
 				}
 			}
@@ -704,6 +701,7 @@ class CodeStore implements ICodeStore {
 			for (int i = 0; i < siblings.length; i++) {
 				if (siblings[i].getData().equals(code)) {
 					ArrayUtils.moveElement(siblings, i, pos);
+					this.codeHierarchyViewDirtiable.modified();
 					return;
 				}
 			}
@@ -730,6 +728,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void save() throws CodeStoreWriteException {
+		this.codeHierarchyViewDirtiable.modified();
 		try {
 			File backupFile = this.getBackupFile();
 			FileUtils.moveFile(this.codeStoreFile, backupFile);
@@ -752,6 +751,7 @@ class CodeStore implements ICodeStore {
 			throw new CodeInstanceDoesNotExistException();
 		}
 		this.codeInstances.remove(codeInstance);
+		this.codeInstanceViewDirtiable.modified();
 		this.save();
 	}
 
@@ -764,6 +764,7 @@ class CodeStore implements ICodeStore {
 				iter.remove();
 			}
 		}
+		this.codeInstanceViewDirtiable.modified();
 		this.save();
 	}
 
@@ -777,6 +778,7 @@ class CodeStore implements ICodeStore {
 			DuplicateRelationException {
 		if (!this.relations.contains(relation)) {
 			this.relations.add(relation);
+			this.relationHierarchyViewDirtiable.modified();
 			this.save();
 		} else {
 			IRelation duplicate = null;
@@ -818,6 +820,7 @@ class CodeStore implements ICodeStore {
 				throw new RuntimeException("Implementation error", e);
 			}
 		}
+		this.relationHierarchyViewDirtiable.modified();
 	}
 
 	@Override
@@ -827,6 +830,7 @@ class CodeStore implements ICodeStore {
 			throw new RelationDoesNotExistException();
 		}
 		this.relations.remove(relation);
+		this.relationHierarchyViewDirtiable.modified();
 		this.save();
 	}
 
@@ -844,6 +848,7 @@ class CodeStore implements ICodeStore {
 		}
 		if (!this.relationInstances.contains(relationInstance)) {
 			this.relationInstances.add(relationInstance);
+			this.relationInstanceViewDirtiable.modified();
 			this.save();
 		} else {
 			IRelationInstance duplicate = null;
@@ -865,6 +870,7 @@ class CodeStore implements ICodeStore {
 			throw new RelationInstanceDoesNotExistException();
 		}
 		this.relationInstances.remove(relationInstance);
+		this.relationInstanceViewDirtiable.modified();
 		this.save();
 	}
 
@@ -1217,10 +1223,10 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public String toString() {
-		ICode[] codes = this.getCodes();
+		Set<ICode> codes = this.getCodes();
 
 		StringBuilder sb = new StringBuilder("Code Store - #codes: "
-				+ codes.length + ", #instances: " + this.codeInstances.size());
+				+ codes.size() + ", #instances: " + this.codeInstances.size());
 		sb.append("\n");
 		sb.append("- Codes IDs:");
 		for (ICode code : codes) {
@@ -1234,4 +1240,5 @@ class CodeStore implements ICodeStore {
 
 		return sb.toString();
 	}
+
 }

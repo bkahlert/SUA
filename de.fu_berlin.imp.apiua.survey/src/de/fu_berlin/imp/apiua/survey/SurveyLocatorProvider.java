@@ -2,7 +2,6 @@ package de.fu_berlin.imp.apiua.survey;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -119,20 +118,7 @@ public class SurveyLocatorProvider extends AdaptingLocatorProvider {
 			final CDView cdView) {
 
 		// open
-		Future<ILocatable[]> rt = cdView.open(locatables,
-				new Callable<ILocatable[]>() {
-					@Override
-					public ILocatable[] call() {
-						// TreeViewer viewer = cdView.getDoclogFilesViewer();
-						// viewer.setSelection(
-						// new StructuredSelection(URIS), true);
-						// List<ILocatable> selectedLocatables = SelectionUtils
-						// .getAdaptableObjects(viewer.getSelection(),
-						// ILocatable.class);
-						// return selectedLocatables.toArray(new ILocatable[0]);
-						return null;
-					}
-				});
+		Future<ILocatable[]> rt = cdView.open(locatables, () -> null);
 		try {
 			return rt.get();
 		} catch (InterruptedException e) {

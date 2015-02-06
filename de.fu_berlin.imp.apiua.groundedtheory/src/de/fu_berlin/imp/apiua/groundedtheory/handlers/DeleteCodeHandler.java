@@ -52,7 +52,7 @@ public class DeleteCodeHandler extends AbstractHandler {
 
 		List<ICodeInstance> codeInstances = new LinkedList<ICodeInstance>();
 		for (ICode code : codes) {
-			codeInstances.addAll(codeService.getInstances(code));
+			codeInstances.addAll(codeService.getExplicitInstances(code));
 		}
 
 		if (codeInstances.size() == 0) {

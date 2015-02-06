@@ -53,9 +53,9 @@ public class Activator extends AbstractUIPlugin {
 				java.util.List<de.fu_berlin.imp.apiua.groundedtheory.model.ICode> codes,
 				java.util.List<de.fu_berlin.imp.apiua.core.model.URI> uris) {
 			for (URI uri : uris) {
-				if (Activator.this.codeService.getInstances(uri).size() > 0) {
+				if (Activator.this.codeService.getAllInstances(uri).size() > 0) {
 					List<ICodeInstance> codeInstances = Activator.this.codeService
-							.getInstances(uri);
+							.getAllInstances(uri);
 					final AtomicReference<ICodeInstance> created = new AtomicReference<ICodeInstance>();
 					for (ICodeInstance codeInstance : codeInstances) {
 						if (codes.contains(codeInstance.getCode())) {

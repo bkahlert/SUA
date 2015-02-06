@@ -57,6 +57,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisodes;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -311,7 +313,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 				string.append(" (" + dimension.represent() + ")",
 						Stylers.MINOR_STYLER);
 			}
-			List<ICode> properties = CODE_SERVICE.getProperties(code);
+			List<ICode> properties = CODE_SERVICE.getEffectiveProperties(code);
 			if (properties.size() > 0) {
 				StringBuilder sb = new StringBuilder(" (");
 				switch (properties.size()) {
@@ -388,14 +390,34 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			return new StyledString(name, styler);
 		}
 		if (locatable instanceof IRelation) {
-			if (true) {
-				// return new StyledString("rel");
-			}
 			IRelation relation = (IRelation) locatable;
+			IRelation explicitRelation = relation;
+			if (relation instanceof ImplicitRelation) {
+				explicitRelation = ((ImplicitRelation) relation)
+						.getExplicitRelation();
+				relation = ((ImplicitRelation) relation).getImplicitFor();
+			}
+
 			StyledString from = labelProviderService.getStyledText(relation
 					.getFrom());
+			if (!explicitRelation.getFrom().equals(relation.getFrom())) {
+				StyledString append = new StyledString(" (originally ");
+				append.append(labelProviderService
+						.getStyledText(explicitRelation.getFrom()));
+				append.append(")");
+				from.append(Stylers.rebase(append, Stylers.MINOR_STYLER));
+			}
+
 			StyledString to = labelProviderService.getStyledText(relation
 					.getTo());
+			if (!explicitRelation.getTo().equals(relation.getTo())) {
+				StyledString append = new StyledString(" (originally ");
+				append.append(labelProviderService
+						.getStyledText(explicitRelation.getTo()));
+				append.append(")");
+				to.append(Stylers.rebase(append, Stylers.MINOR_STYLER));
+			}
+
 			StyledString label = from.append(RELATION_ARROW)
 					.append(relation.getName(), Stylers.BOLD_STYLER)
 					.append(RELATION_ARROW).append(to);
@@ -403,11 +425,19 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof IRelationInstance) {
 			IRelationInstance relationInstance = (IRelationInstance) locatable;
-			return labelProviderService.getStyledText(
-					relationInstance.getPhenomenon()).append(
-					" (grounding "
-							+ this.getText(relationInstance.getRelation())
-							+ ")", styler);
+			if (relationInstance instanceof ImplicitRelationInstance) {
+				return labelProviderService.getStyledText(
+						relationInstance.getPhenomenon()).append(
+						" (indirectly grounding "
+								+ this.getText(relationInstance.getRelation())
+								+ ")", styler);
+			} else {
+				return labelProviderService.getStyledText(
+						relationInstance.getPhenomenon()).append(
+						" (grounding "
+								+ this.getText(relationInstance.getRelation())
+								+ ")", styler);
+			}
 		}
 		if (locatable instanceof IAxialCodingModel) {
 			IAxialCodingModel axialCodingModel = (IAxialCodingModel) locatable;
@@ -608,6 +638,56 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			TimeZoneDateRange range = episode.getDateRange();
 			detailEntries.add(new DetailEntry("Span", (range != null) ? range
 					.formatDuration() : "?"));
+		}
+		if (locatable instanceof IRelation) {
+			IRelation relation = (IRelation) locatable;
+			detailEntries.add(new DetailEntry("From", labelProviderService
+					.getText(relation.getFrom())
+					+ " ("
+					+ relation.getFrom()
+					+ ")"));
+			detailEntries
+					.add(new DetailEntry("To", labelProviderService
+							.getText(relation.getTo())
+							+ " ("
+							+ relation.getTo() + ")"));
+
+			if (relation instanceof ImplicitRelation) {
+				ImplicitRelation implicitRelation = (ImplicitRelation) relation;
+				detailEntries.add(new DetailEntry("Original From",
+						labelProviderService.getText(implicitRelation
+								.getExplicitRelation().getFrom())
+								+ " ("
+								+ implicitRelation.getExplicitRelation()
+										.getFrom() + ")"));
+				detailEntries.add(new DetailEntry("Original To",
+						labelProviderService.getText(implicitRelation
+								.getExplicitRelation().getTo())
+								+ " ("
+								+ implicitRelation.getExplicitRelation()
+										.getTo() + ")"));
+			} else {
+				List<String> implicitRelations = new LinkedList<>();
+				for (ImplicitRelation implicitRelation : CODE_SERVICE
+						.getImplicitRelations(relation)) {
+					implicitRelations.add(labelProviderService
+							.getText(implicitRelation.getExplicitRelation()
+									.getUri())
+							+ "\n\t" + implicitRelation.getUri() + "");
+				}
+				detailEntries.add(new DetailEntry("Implicit Relations",
+						implicitRelations.size() > 0 ? StringUtils.join(
+								implicitRelations, "\n") : "-"));
+			}
+
+			detailEntries.add(new DetailEntry("Explicit Groundings",
+					CODE_SERVICE.getExplicitRelationInstances(relation).size()
+							+ ""));
+			detailEntries.add(new DetailEntry("Implicit Groundings",
+					CODE_SERVICE.getImplicitRelationInstances(relation).size()
+							+ ""));
+			detailEntries.add(new DetailEntry("All Groundings", CODE_SERVICE
+					.getAllRelationInstances(relation).size() + ""));
 		}
 		return detailEntries;
 	}

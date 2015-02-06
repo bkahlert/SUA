@@ -63,6 +63,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
@@ -298,7 +299,7 @@ public class Utils {
 							ICode code = LocatorService.INSTANCE.resolve(uri,
 									ICode.class, null).get();
 							for (ICodeInstance codeInstance : CODE_SERVICE
-									.getInstances(code.getUri())) {
+									.getAllInstances(code.getUri())) {
 								Pair<StyledString, StyledString> dimensionValues = GTLabelProvider
 										.getDimensionValues(codeInstance);
 								if (dimensionValues != null) {
@@ -397,7 +398,7 @@ public class Utils {
 								}
 
 								Pair<Set<String>, Set<String>> dimensionValues = CODE_SERVICE.getDimensionValues(CODE_SERVICE
-										.getRelationInstances(relation));
+										.getExplicitRelationInstances(relation));
 								text = highlightUsedValues(
 										text,
 										relationViewer
@@ -445,16 +446,8 @@ public class Utils {
 										.append(")", Stylers.MINOR_STYLER);
 								Stylers.setDisableColorMix(false);
 
-								if (CODE_SERVICE.getIndirectRelationInstances(
-										relationInstance.getRelation())
-										.contains(relationInstance)) {
-									text = Stylers.rebase(text,
-											Stylers.ATTENTION_STYLER);
-								}
-
-								if (uri instanceof ViewerURI
-										&& ((ViewerURI) uri)
-												.getFlag("indirect")) {
+								if (relationInstance instanceof ImplicitRelationInstance) {
+									ImplicitRelationInstance implicitRelationInstance = (ImplicitRelationInstance) relationInstance;
 									text = Stylers.rebase(text,
 											Stylers.IMPORTANCE_LOW_STYLER);
 									text = Stylers.append(
@@ -462,8 +455,9 @@ public class Utils {
 											new StyledString(
 													" grounding "
 															+ labelProvider
-																	.getText(relationInstance
+																	.getText(implicitRelationInstance
 																			.getRelation()
+																			.getExplicitRelation()
 																			.getUri())
 															+ "",
 													Stylers.ITALIC_STYLER));
@@ -544,8 +538,10 @@ public class Utils {
 
 						if (ICode.class.isInstance(element)) {
 							ICode code = (ICode) element;
-							int all = codeService.getAllInstances(code).size();
-							int here = codeService.getInstances(code).size();
+							int all = codeService.getAllInstances(code).size()
+									- codeService.getDescendents(code).size();
+							int here = codeService.getExplicitInstances(code)
+									.size();
 							text = new StyledString(all + "",
 									Stylers.DEFAULT_STYLER);
 							text.append("   " + here, Stylers.COUNTER_STYLER);
@@ -570,8 +566,9 @@ public class Utils {
 							IRelation relation = (IRelation) element;
 							int all = codeService.getAllRelationInstances(
 									relation).size();
-							int here = codeService.getRelationInstances(
-									relation).size();
+							int here = codeService
+									.getExplicitRelationInstances(relation)
+									.size();
 							text = new StyledString(all + "",
 									Stylers.DEFAULT_STYLER);
 							text.append("   " + here, Stylers.COUNTER_STYLER);
@@ -611,6 +608,9 @@ public class Utils {
 	 */
 	public static StyledString removeGroundingInformation(StyledString text) {
 		int pos = text.getString().indexOf(" (grounding ");
+		if (pos < 0) {
+			pos = text.getString().indexOf(" (indirectly grounding ");
+		}
 		if (pos >= 0) {
 			int end = StringUtils.findClosingParenthese(text.getString(),
 					pos + 1);
@@ -660,8 +660,8 @@ public class Utils {
 			empty = false;
 		}
 
-		for (ICodeInstance codeInstance : CODE_SERVICE.getInstances(locatable
-				.getUri())) {
+		for (ICodeInstance codeInstance : CODE_SERVICE
+				.getExplicitInstances(locatable.getUri())) {
 			String immediateDimensionValue = CODE_SERVICE.getDimensionValue(
 					codeInstance.getUri(), codeInstance.getCode());
 			html.append("<li style=\"list-style-image: url('"
@@ -708,7 +708,7 @@ public class Utils {
 		}
 
 		for (IRelationInstance relationInstance : CODE_SERVICE
-				.getRelationInstances(locatable.getUri())) {
+				.getExplicitRelationInstances(locatable.getUri())) {
 			String immediateDimensionValue = null;
 
 			html.append("<li style=\"list-style-image: url('"

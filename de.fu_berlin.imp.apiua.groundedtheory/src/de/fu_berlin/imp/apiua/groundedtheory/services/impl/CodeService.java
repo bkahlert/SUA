@@ -6,13 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
@@ -35,12 +32,10 @@ import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.utils.colors.RGB;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
-import de.fu_berlin.imp.apiua.core.model.IdentifierFactory;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService;
 import de.fu_berlin.imp.apiua.core.services.IImportanceService.IImportanceInterceptor;
-import de.fu_berlin.imp.apiua.core.services.IImportanceService.Importance;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
 import de.fu_berlin.imp.apiua.core.util.NoNullSet;
 import de.fu_berlin.imp.apiua.groundedtheory.AxialCodingModelLocatorProvider;
@@ -52,6 +47,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.RelationInstance;
@@ -81,21 +78,22 @@ public class CodeService implements ICodeService, IDisposable {
 
 	private IImportanceService importanceService = null;
 	private final IImportanceInterceptor importanceInterceptor = uris -> {
-		for (Entry<URI, Importance> importance : uris.entrySet()) {
-			for (ICode code : CodeService.this.getCodes(importance.getKey())) {
-				Importance codeImportance = CodeService.this.importanceService
-						.getImportance(code.getUri());
-				if (codeImportance == Importance.HIGH) {
-					importance.setValue(Importance.HIGH);
-				}
-			}
-		}
+		// for (Entry<URI, Importance> importance : uris.entrySet()) {
+		// for (ICode code : CodeService.this.getCodes(importance.getKey())) {
+		// Importance codeImportance = CodeService.this.importanceService
+		// .getImportance(code.getUri());
+		// if (codeImportance == Importance.HIGH) {
+		// importance.setValue(Importance.HIGH);
+		// }
+		// }
+		// }
 	};
 
 	@SuppressWarnings("unused")
 	private ComponentContext context;
 	private final ICodeStore codeStore;
 	private final CodeServiceListenerNotifier codeServiceListenerNotifier;
+	private final CodeLocatorProvider codeLocatorProvider = new CodeLocatorProvider();
 
 	public CodeService() throws IOException {
 		this(new CodeStoreFactory().getCodeStore());
@@ -156,18 +154,12 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public ICode getCode(long id) {
-		return this.codeStore.getCode(id);
+		return this.codeStore.getCodeHierarchyView().getCode(id);
 	}
 
 	@Override
 	public List<ICode> getCodes(URI uri) {
-		LinkedList<ICode> codes = new LinkedList<ICode>();
-		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
-			if (codeInstance.getId().equals(uri)) {
-				codes.add(codeInstance.getCode());
-			}
-		}
-		return codes;
+		return this.codeStore.getCodeInstanceView().getCodesByPhenomenon(uri);
 	}
 
 	@Override
@@ -217,72 +209,31 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public Set<URI> getCodedIDs() {
-		Set<URI> codedIDs = new HashSet<URI>();
-		for (ICodeInstance instance : this.codeStore.getInstances()) {
-			URI id = instance.getId();
-			if (!codedIDs.contains(id)) {
-				codedIDs.add(id);
-			}
-		}
-		return codedIDs;
+		return this.codeStore.getCodeInstanceView().getCodedPhenomenons();
 	}
 
 	@Override
-	public List<ICodeInstance> getInstances() {
-		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
-			codeInstances.add(codeInstance);
-		}
-		return codeInstances;
+	public Set<ICodeInstance> getExplicitInstances(ICode code) {
+		return this.codeStore.getCodeInstanceView()
+				.getExplicitCodeInstancesByCode(Arrays.asList(code));
 	}
 
 	@Override
-	public List<ICodeInstance> getInstances(IIdentifier identifier) {
-		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
-			String[] uriParts = codeInstance.getId().toString().split("/");
-			if (identifier.equals(IdentifierFactory.createFrom(uriParts[3]))) {
-				codeInstances.add(codeInstance);
-			}
-		}
-		return codeInstances;
+	public Set<ICodeInstance> getAllInstances(ICode code) {
+		return this.codeStore.getCodeInstanceView().getAllCodeInstancesByCode(
+				Arrays.asList(code));
 	}
 
 	@Override
-	public List<ICodeInstance> getInstances(URI uri) {
-		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
-			if (codeInstance.getId().equals(uri)) {
-				codeInstances.add(codeInstance);
-			}
-		}
-		return codeInstances;
+	public List<ICodeInstance> getExplicitInstances(URI uri) {
+		return this.codeStore.getCodeInstanceView()
+				.getExplicitCodeInstancesByPhenomenon(uri);
 	}
 
 	@Override
-	public List<ICodeInstance> getInstances(ICode code) {
-		ArrayList<ICodeInstance> codeInstances = new ArrayList<ICodeInstance>();
-		for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
-			if (codeInstance.getCode().equals(code)) {
-				codeInstances.add(codeInstance);
-			}
-		}
-		return codeInstances;
-	}
-
-	@Override
-	public Collection<? extends ICodeInstance> getAllInstances(ICode code) {
-		List<ICodeInstance> instances = this.getInstances(code);
-		for (ICode subCode : this.getSubCodes(code)) {
-			instances.addAll(this.getAllInstances(subCode));
-		}
-		return instances;
-	}
-
-	@Override
-	public void putInstances(ICode code, List<URI> uris) {
-		// TODO Auto-generated method stub
-
+	public List<ICodeInstance> getAllInstances(URI uri) {
+		return this.codeStore.getCodeInstanceView()
+				.getAllCodeInstancesByPhenomenon(uri);
 	}
 
 	@Override
@@ -340,54 +291,6 @@ public class CodeService implements ICodeService, IDisposable {
 		return this.codeStore.getParent(code);
 	}
 
-	/**
-	 * Returns the {@link ICode}'s parent, its parent's parent and so on.
-	 *
-	 * @param code
-	 * @return ascendants are ordered with the first element being the
-	 *         {@link ICode}'s parent and the last element being the top level
-	 *         element.
-	 */
-	private Set<ICode> getAscendants(ICode code) {
-		Set<ICode> ascendants = new LinkedHashSet<ICode>();
-		while (true) {
-			code = this.getParent(code);
-			if (code != null) {
-				ascendants.add(code);
-			} else {
-				return ascendants;
-			}
-		}
-	}
-
-	/**
-	 * Returns the {@link ICode}'s parent, its parent's parent and so on.
-	 *
-	 * @param code
-	 * @return ascendants are ordered with the first element being the
-	 *         {@link ICode}'s parent and the last element being the top level
-	 *         element.
-	 * @throws CodeDoesNotExistException
-	 */
-	private Set<URI> getAscendants(URI uri) throws CodeDoesNotExistException {
-		ICode code;
-		try {
-			code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
-					.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new CodeDoesNotExistException();
-		}
-		if (code != null) {
-			Set<URI> ascendants = new LinkedHashSet<URI>();
-			for (ICode ascendant : this.getAscendants(code)) {
-				ascendants.add(ascendant.getUri());
-			}
-			return ascendants;
-		} else {
-			throw new CodeDoesNotExistException();
-		}
-	}
-
 	@Override
 	public void setParent(ICode code, ICode parentCode)
 			throws CodeServiceException {
@@ -405,12 +308,12 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public List<ICode> getChildren(ICode code) {
-		return this.codeStore.getChildren(code);
+		return this.codeStore.getCodeHierarchyView().getChildren(code);
 	}
 
 	@Override
-	public List<ICode> getSubCodes(ICode code) {
-		return this.codeStore.getSubCodes(code);
+	public List<ICode> getDescendents(ICode code) {
+		return this.codeStore.getCodeHierarchyView().getDescendents(code);
 	}
 
 	@Override
@@ -432,7 +335,8 @@ public class CodeService implements ICodeService, IDisposable {
 		}
 		try {
 			List<ICode> removedCodes = new LinkedList<ICode>();
-			for (ICodeInstance codeInstance : this.codeStore.getInstances()) {
+			for (ICodeInstance codeInstance : this.codeStore
+					.getCodeInstanceView().getExplicitCodeInstances()) {
 				if (codes.contains(codeInstance.getCode())
 						&& codeInstance.getId().equals(uri)) {
 					this.codeStore.deleteCodeInstance(codeInstance);
@@ -508,21 +412,17 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public IRelation getRelation(URI uri) {
-		for (IRelation relation : this.codeStore.getRelations()) {
-			if (ObjectUtils.equals(relation.getUri(), uri)) {
-				return relation;
-			}
-		}
-		return null;
+		return this.codeStore.getRelationHierarchyView()
+				.getRelationByRelationUri(uri);
 	}
 
 	@Override
-	public Set<IRelation> getRelations() {
-		return this.codeStore.getRelations();
+	public Set<IRelation> getAllRelations() {
+		return this.codeStore.getRelationHierarchyView().getAllRelations();
 	}
 
 	@Override
-	public Set<IRelation> getRelations(URI phenomenon) {
+	public Set<IRelation> getRelationsByIdentifier(URI phenomenon) {
 		Assert.isLegal(phenomenon != null);
 		IIdentifier id = URIUtils.getIdentifier(phenomenon);
 		Set<IRelation> relations = new HashSet<>();
@@ -530,7 +430,7 @@ public class CodeService implements ICodeService, IDisposable {
 			for (URI shortenedPhenomenon = URIUtils.shorten(phenomenon); shortenedPhenomenon != null; shortenedPhenomenon = URIUtils
 					.shorten(shortenedPhenomenon)) {
 				for (IRelationInstance relationInstance : this.codeStore
-						.getRelationInstances()) {
+						.getRelationInstanceView().getAllRelationInstances()) {
 					if (relationInstance.getPhenomenon().toString()
 							.startsWith(shortenedPhenomenon.toString())
 							&& !relations.contains(relationInstance
@@ -543,36 +443,53 @@ public class CodeService implements ICodeService, IDisposable {
 				}
 			}
 		} else {
-			for (IRelationInstance relationInstance : this.codeStore
-					.getRelationInstances()) {
-				IIdentifier id2 = URIUtils.getIdentifier(relationInstance
-						.getPhenomenon());
-				if (id.equals(id2)) {
-					relations.add(relationInstance.getRelation());
-				}
-			}
+			return this.codeStore.getRelationInstanceView()
+					.getAllRelationInstancesByIdentifier(id).stream()
+					.map(i -> i.getRelation()).collect(Collectors.toSet());
 		}
 		return relations;
 	}
 
 	@Override
-	public Set<IRelation> getRelations(URI from, URI to) {
-		return this.getRelations().stream()
-				.filter(r -> r.getFrom().equals(from) && r.getTo().equals(to))
-				.collect(Collectors.toSet());
-	}
-
-	@Override
-	public Set<IRelation> getRelationsStartingFrom(URI from) {
-		return this.codeStore.getRelations().stream()
-				.filter(r -> r.getFrom().equals(from))
-				.collect(Collectors.toSet());
-	}
-
-	@Override
-	public Set<IRelation> getRelationsEndingAt(URI to) {
-		return this.codeStore.getRelations().stream()
+	public Set<IRelation> getExplicitRelations(URI from, URI to) {
+		return this.codeStore.getRelationHierarchyView()
+				.getExplicitRelationsStartingFrom(from).stream()
 				.filter(r -> r.getTo().equals(to)).collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<IRelation> getExplicitRelations() {
+		return this.codeStore.getRelationHierarchyView().getExplicitRelations();
+	}
+
+	@Override
+	public Set<ImplicitRelation> getImplicitRelations(IRelation relation) {
+		return this.codeStore.getRelationHierarchyView()
+				.getImplicitRelationsByRelationUri(relation);
+	}
+
+	@Override
+	public Set<IRelation> getExplicitRelationsStartingFrom(URI from) {
+		return this.codeStore.getRelationHierarchyView()
+				.getExplicitRelationsStartingFrom(from);
+	}
+
+	@Override
+	public Set<IRelation> getExplicitRelationsEndingAt(URI to) {
+		return this.codeStore.getRelationHierarchyView()
+				.getExplicitRelationsEndingAt(to);
+	}
+
+	@Override
+	public Set<IRelation> getAllRelationsStartingFrom(URI from) {
+		return this.codeStore.getRelationHierarchyView()
+				.getAllRelationsStartingFrom(from);
+	}
+
+	@Override
+	public Set<IRelation> getAllRelationsEndingAt(URI to) {
+		return this.codeStore.getRelationHierarchyView()
+				.getAllRelationsEndingAt(to);
 	}
 
 	@Override
@@ -599,7 +516,7 @@ public class CodeService implements ICodeService, IDisposable {
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
 		Set<IRelationInstance> relationInstances = this
-				.getRelationInstances(relation);
+				.getExplicitRelationInstances(relation);
 		for (IRelationInstance relationInstance : relationInstances) {
 			try {
 				this.codeStore.deleteRelationInstance(relationInstance);
@@ -636,100 +553,68 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public Set<IRelationInstance> getRelationInstances(IRelation relation) {
-		Set<IRelationInstance> relationInstances = new HashSet<>();
-		for (IRelationInstance relationInstance : this.codeStore
-				.getRelationInstances()) {
-			if (relationInstance.getRelation().equals(relation)) {
-				relationInstances.add(relationInstance);
-			}
-		}
-		return relationInstances;
+	public IRelationInstance getRelationInstance(URI uri) {
+		return this.codeStore.getRelationInstanceView()
+				.getRelationInstancesByRelationInstanceUri(uri);
+	}
+
+	@Override
+	public Set<IRelationInstance> getExplicitRelationInstances(
+			IRelation relation) {
+		return this.codeStore.getRelationInstanceView()
+				.getExplicitRelationInstancesByRelation(
+						relation != null ? relation.getUri() : null);
+	}
+
+	@Override
+	public Set<ImplicitRelationInstance> getImplicitRelationInstances(
+			IRelation relation) throws CodeDoesNotExistException {
+		return this.codeStore.getRelationInstanceView()
+				.getImplicitRelationInstancesByRelation(relation.getUri());
 	}
 
 	@Override
 	public Set<IRelationInstance> getAllRelationInstances(IRelation relation) {
-		Set<IRelationInstance> relationInstances = new HashSet<>();
-		Set<URI> froms = new LinkedHashSet<>();
-		froms.add(relation.getFrom());
-		Set<URI> tos = new LinkedHashSet<>();
-		tos.add(relation.getTo());
-		try {
-			froms.addAll(this.getAscendants(relation.getFrom()));
-		} catch (CodeDoesNotExistException e) {
-			LOGGER.error("Could not find code for " + relation.getFrom());
-		}
-		try {
-			tos.addAll(this.getAscendants(relation.getTo()));
-		} catch (CodeDoesNotExistException e) {
-			LOGGER.error("Could not find code for " + relation.getTo());
-		}
-		for (IRelationInstance relationInstance : this.codeStore
-				.getRelationInstances()) {
-			if (froms.contains(relationInstance.getRelation().getFrom())
-					&& tos.contains(relationInstance.getRelation().getTo())
-					&& relation.getName().equals(
-							relationInstance.getRelation().getName())) {
-				relationInstances.add(relationInstance);
-			} else {
-			}
-		}
-		return relationInstances;
+		return this.codeStore.getRelationInstanceView()
+				.getAllRelationInstancesByRelation(relation.getUri());
 	}
 
 	@Override
-	public Set<IRelationInstance> getIndirectRelationInstances(
-			IRelation relation) throws CodeDoesNotExistException {
-		Set<IRelationInstance> indirect = this
-				.getAllRelationInstances(relation);
-		indirect.removeAll(this.getRelationInstances(relation));
-		return indirect;
+	public Set<IRelationInstance> getExplicitRelationInstances(URI uri) {
+		return this.codeStore.getRelationInstanceView()
+				.getExplicitRelationInstancesByPhenomenon(uri);
 	}
 
 	@Override
-	public Set<IRelationInstance> getRelationInstances(URI uri) {
-		Set<IRelationInstance> relationInstances = new HashSet<>();
-		for (IRelationInstance relationInstance : this.codeStore
-				.getRelationInstances()) {
-			if (relationInstance.getPhenomenon().equals(uri)) {
-				relationInstances.add(relationInstance);
-			}
-		}
-		return relationInstances;
+	public Set<IRelationInstance> getAllRelationInstances(URI uri) {
+		return this.codeStore.getRelationInstanceView()
+				.getAllRelationInstancesByPhenomenon(uri);
 	}
 
 	@Override
 	public Set<IRelationInstance> getRelationInstancesStartingFrom(URI from) {
-		return this.codeStore.getRelationInstances().stream()
-				.filter(r -> r.getRelation().getFrom().equals(from))
-				.collect(Collectors.toSet());
+		return this.codeStore.getRelationInstanceView()
+				.getExplicitRelationInstancesStartingFrom(from);
 	}
 
 	@Override
 	public Set<IRelationInstance> getAllRelationInstancesStartingFrom(URI from)
 			throws CodeDoesNotExistException {
-		Set<URI> froms = this.getAscendants(from);
-		froms.add(from);
-		return this.codeStore.getRelationInstances().stream()
-				.filter(r -> froms.contains(r.getRelation().getFrom()))
-				.collect(Collectors.toSet());
+		return this.codeStore.getRelationInstanceView()
+				.getAllRelationInstancesStartingFrom(from);
 	}
 
 	@Override
 	public Set<IRelationInstance> getRelationInstancesEndingAt(URI to) {
-		return this.codeStore.getRelationInstances().stream()
-				.filter(r -> r.getRelation().getTo().equals(to))
-				.collect(Collectors.toSet());
+		return this.codeStore.getRelationInstanceView()
+				.getExplicitRelationInstancesEndingAt(to);
 	}
 
 	@Override
 	public Set<IRelationInstance> getAllRelationInstancesEndingAt(URI to)
 			throws CodeDoesNotExistException {
-		Set<URI> tos = this.getAscendants(to);
-		tos.add(to);
-		return this.codeStore.getRelationInstances().stream()
-				.filter(r -> tos.contains(r.getRelation().getTo()))
-				.collect(Collectors.toSet());
+		return this.codeStore.getRelationInstanceView()
+				.getAllRelationInstancesEndingAt(to);
 	}
 
 	@Override
@@ -769,19 +654,19 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public boolean isGrounded(IRelation relation) {
-		return this.getRelationInstances(relation).size() > 0;
+		return this.getExplicitRelationInstances(relation).size() > 0;
 	}
 
 	@Override
-	public boolean isGrounded(URI phenomenon, IRelation relation) {
-		return this
-				.isGrounded(phenomenon, relation.getFrom(), relation.getTo());
+	public boolean isExplicitlyGrounded(URI phenomenon, IRelation relation) {
+		return this.isExplicitlyGrounded(phenomenon, relation.getFrom(),
+				relation.getTo());
 	}
 
 	@Override
-	public boolean isGrounded(URI phenomenon, URI from, URI to) {
+	public boolean isExplicitlyGrounded(URI phenomenon, URI from, URI to) {
 		for (IRelationInstance relationInstance : this
-				.getRelationInstances(phenomenon)) {
+				.getExplicitRelationInstances(phenomenon)) {
 			if (relationInstance.getRelation().getFrom().equals(from)
 					&& relationInstance.getRelation().getTo().equals(to)) {
 				return true;
@@ -999,8 +884,8 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public Pair<Pair<IDimension, String>, Pair<IDimension, String>> getDimensionValue(
 			IRelationInstance relationInstance) {
-		List<ICodeInstance> codeInstances = this.getInstances(relationInstance
-				.getPhenomenon());
+		List<ICodeInstance> codeInstances = this
+				.getAllInstances(relationInstance.getPhenomenon());
 
 		IDimension fromDimension = null;
 		String fromDimensionValue = null;
@@ -1047,9 +932,8 @@ public class CodeService implements ICodeService, IDisposable {
 				.collect(Collectors.toList());
 		List<URI> tos = relationInstances.stream()
 				.map(r -> r.getRelation().getTo()).collect(Collectors.toList());
-		List<ICodeInstance> codeInstances = this.getInstances().stream()
-				.filter(i -> phenomena.contains(i.getId()))
-				.collect(Collectors.toList());
+		Set<ICodeInstance> codeInstances = this.codeStore.getCodeInstanceView()
+				.getAllCodeInstancesPhenomena(phenomena);
 
 		Set<String> fromDimensionValues = new HashSet<>();
 		Set<String> toDimensionValues = new HashSet<>();
@@ -1086,10 +970,27 @@ public class CodeService implements ICodeService, IDisposable {
 	public List<ICode> getProperties(ICode code) {
 		Assert.isNotNull(code);
 		List<ICode> properties = new ArrayList<ICode>();
-		CodeLocatorProvider locator = new CodeLocatorProvider();
 		for (URI uri : this.codeStore.getProperties(code.getUri())) {
-			ICode property = (ICode) locator.getObject(uri, null);
+			ICode property = (ICode) this.codeLocatorProvider.getObject(uri,
+					null);
 			properties.add(property);
+		}
+		return properties;
+	}
+
+	@Override
+	public List<ICode> getEffectiveProperties(ICode code) {
+		List<ICode> properties = new ArrayList<ICode>();
+		List<ICode> codes = new ArrayList<>();
+		codes.add(code);
+		codes.addAll(this.codeStore.getCodeHierarchyView().getAncestors(code));
+		for (ICode ascendant : codes) {
+			List<ICode> currProps = this.getProperties(ascendant);
+			for (ICode currProp : currProps) {
+				if (!properties.contains(currProp)) {
+					properties.add(currProp);
+				}
+			}
 		}
 		return properties;
 	}
@@ -1255,14 +1156,14 @@ public class CodeService implements ICodeService, IDisposable {
 								.getType(acm.getOrigin());
 
 						if (type == ICode.class) {
-							relations = this.getRelations();
+							relations = this.getAllRelations();
 							neededElements = getRelatedElements(
 									acm.getOrigin(), relations);
 						} else if (type == IRelation.class) {
 							IRelation relation = LocatorService.INSTANCE
 									.resolve(acm.getOrigin(), IRelation.class,
 											null).get();
-							relations = this.getRelations();
+							relations = this.getAllRelations();
 							neededElements = getRelatedElements(
 									relation.getFrom(), relations);
 						} else if (type == IRelationInstance.class) {
@@ -1270,13 +1171,15 @@ public class CodeService implements ICodeService, IDisposable {
 									.resolve(acm.getOrigin(),
 											IRelationInstance.class, null)
 									.get();
-							relations = this.getRelations(relationInstance
-									.getPhenomenon());
+							relations = this
+									.getRelationsByIdentifier(relationInstance
+											.getPhenomenon());
 							neededElements = getRelatedElements(
 									relationInstance.getRelation().getFrom(),
 									relations);
 						} else {
-							relations = this.getRelations(acm.getOrigin());
+							relations = this.getRelationsByIdentifier(acm
+									.getOrigin());
 							neededElements = new HashSet<>();
 							for (IRelation relation : relations) {
 								neededElements.add(relation.getFrom());
@@ -1285,12 +1188,11 @@ public class CodeService implements ICodeService, IDisposable {
 						}
 					}
 
-					Set<URI> neededRelations = getNeededRelations(
+					Set<URI> neededRelations = filterConnectingRelations(
 							neededElements, relations);
 
 					this.updateAxialCodingModelFrom(axialCodingComposite,
-							neededElements, neededRelations);
-					axialCodingComposite.getJointjs().save().get();
+							neededElements, neededRelations).get();
 
 					acm = new JointJSAxialCodingModel(acmUri,
 							axialCodingComposite.getJointjs().getModel());
@@ -1302,24 +1204,32 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public Future<Void> updateAxialCodingRelationsFrom(
 			AxialCodingComposite axialCodingComposite) {
-		return ExecUtils.nonUISyncExec((Callable<Void>) () -> {
-			Set<URI> existingElements = new HashSet<URI>(axialCodingComposite
-					.getElements().get());
-			Set<URI> relations = getNeededRelations(existingElements,
-					this.getRelations());
+		return ExecUtils
+				.nonUISyncExec((Callable<Void>) () -> {
+					Set<URI> existingElements = new HashSet<URI>(
+							axialCodingComposite.getElements().get());
+					Set<URI> relations = filterConnectingRelations(
+							existingElements, this.getAllRelations());
 
-			this.updateAxialCodingModelFrom(axialCodingComposite,
-					existingElements, relations);
-			axialCodingComposite.getJointjs().save().get();
+					relations = relations
+							.stream()
+							.filter(r -> !(this.codeStore
+									.getRelationHierarchyView()
+									.getRelationByRelationUri(r) instanceof ImplicitRelation))
+							.collect(Collectors.toSet());
 
-			return null;
-		});
+					this.updateAxialCodingModelFrom(axialCodingComposite,
+							existingElements, relations).get();
+
+					return null;
+				});
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Future<Void> updateAxialCodingModelFrom(AxialCodingComposite acm,
-			Set<URI> elements, Set<URI> relations) {
+	public Future<Void> updateAxialCodingModelFrom(
+			final AxialCodingComposite acm, final Set<URI> elements,
+			final Set<URI> relations) {
 		return ExecUtils.nonUISyncExec((Callable<Void>) () -> {
 
 			List<URI> existingElements = acm.getElements().get();
@@ -1391,14 +1301,14 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	/**
-	 * Returns the {@link IRelation} that have relate elements contained in the
+	 * Returns the {@link IRelation} that have related elements contained in the
 	 * given elements.
 	 *
 	 * @param elements
 	 * @param relations
 	 * @return
 	 */
-	private static Set<URI> getNeededRelations(Collection<URI> elements,
+	private static Set<URI> filterConnectingRelations(Collection<URI> elements,
 			Collection<IRelation> relations) {
 		return relations
 				.stream()

@@ -18,6 +18,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
@@ -108,33 +110,21 @@ public interface ICodeService {
 	public Set<URI> getCodedIDs();
 
 	/**
-	 * Returns all existing {@link ICodeInstance}.
-	 *
-	 * @return
-	 */
-	List<ICodeInstance> getInstances();
-
-	/**
-	 * Returns all {@link ICodeInstance}s belonging to {@link ILocatable}s of
-	 * the given {@link IIdentifier}.
-	 * <p>
-	 * E.g. {@link ILocatable} belonging to ID 20x13b2.
-	 *
-	 * @param identifier
-	 * @return
-	 */
-	List<ICodeInstance> getInstances(IIdentifier identifier);
-
-	/**
 	 * Returns all direct {@link ICodeInstance}s of the given {@link ICode}.
-	 * <p>
-	 * If you also want to consider child {@link ICode}s see
-	 * {@link #getAllInstances(ICode)}.
 	 *
 	 * @param code
 	 * @return
 	 */
-	public List<ICodeInstance> getInstances(ICode code);
+	public Set<ICodeInstance> getExplicitInstances(ICode code);
+
+	/**
+	 * Returns all direct and indirect {@link ICodeInstance}s of the given
+	 * {@link ICode}.
+	 *
+	 * @param code
+	 * @return
+	 */
+	public Set<ICodeInstance> getAllInstances(ICode code);
 
 	/**
 	 * Returns all {@link ICodeInstance}s belonging to an phenomenon {@link URI}
@@ -144,21 +134,17 @@ public interface ICodeService {
 	 * @param code
 	 * @return
 	 */
-	public List<ICodeInstance> getInstances(URI uri);
+	public List<ICodeInstance> getExplicitInstances(URI uri);
 
 	/**
-	 * Returns all direct and indirect {@link ICodeInstance}s of the given
-	 * {@link ICode}. This includes those of sub {@link ICode}.
-	 * <p>
-	 * If you only want to get immediate {@link ICodeInstance}s use
-	 * {@link #getInstances(ICode)}.
+	 * Returns all {@link ICodeInstance}s belonging to an phenomenon {@link URI}
+	 * . In other words: If uri is associated with c
+	 * {@link ICodeInstance#getId()} equals p.
 	 *
 	 * @param code
 	 * @return
 	 */
-	public Collection<? extends ICodeInstance> getAllInstances(ICode code);
-
-	public void putInstances(ICode code, List<URI> uris);
+	public List<ICodeInstance> getAllInstances(URI uri);
 
 	/**
 	 * Renames a {@link ICode}
@@ -295,7 +281,7 @@ public interface ICodeService {
 	 * @param code
 	 * @return
 	 */
-	public List<ICode> getSubCodes(ICode code);
+	public List<ICode> getDescendents(ICode code);
 
 	public List<ICode> getTopLevelCodes();
 
@@ -312,11 +298,24 @@ public interface ICodeService {
 	IRelation getRelation(URI uri);
 
 	/**
-	 * Returns all defined {@link IRelation}s.
+	 * Returns all defined (= explicit) {@link IRelation}s.
 	 *
 	 * @return
 	 */
-	public Set<IRelation> getRelations();
+	public Set<IRelation> getExplicitRelations();
+
+	public Set<ImplicitRelation> getImplicitRelations(IRelation relation);
+
+	public Set<IRelation> getExplicitRelationsStartingFrom(URI parentUri);
+
+	public Set<IRelation> getExplicitRelationsEndingAt(URI parentUri);
+
+	/**
+	 * Returns all explicit and implicit {@link IRelation}s.
+	 *
+	 * @return
+	 */
+	public Set<IRelation> getAllRelations();
 
 	/**
 	 * Returns all {@link IRelation}s that have are grounded by the given
@@ -329,7 +328,7 @@ public interface ICodeService {
 	 * @param phenomenon
 	 * @return
 	 */
-	public Set<IRelation> getRelations(URI phenomenon);
+	public Set<IRelation> getRelationsByIdentifier(URI phenomenon);
 
 	/**
 	 * Returns all {@link IRelation}s that relate the given {@link URI}s.
@@ -338,7 +337,7 @@ public interface ICodeService {
 	 * @param to
 	 * @return
 	 */
-	public Set<IRelation> getRelations(URI from, URI to);
+	public Set<IRelation> getExplicitRelations(URI from, URI to);
 
 	/**
 	 * Returns all {@link IRelation}s starting from the given {@link URI}.
@@ -346,7 +345,7 @@ public interface ICodeService {
 	 * @param phenomenon
 	 * @return
 	 */
-	public Set<IRelation> getRelationsStartingFrom(URI from);
+	public Set<IRelation> getAllRelationsStartingFrom(URI from);
 
 	/**
 	 * Returns all {@link IRelation}s ending at the given {@link URI}.
@@ -354,7 +353,7 @@ public interface ICodeService {
 	 * @param phenomenon
 	 * @return
 	 */
-	public Set<IRelation> getRelationsEndingAt(URI parentUri);
+	public Set<IRelation> getAllRelationsEndingAt(URI parentUri);
 
 	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
@@ -373,7 +372,8 @@ public interface ICodeService {
 	 * @param relation
 	 * @return
 	 */
-	public Set<IRelationInstance> getRelationInstances(IRelation relation);
+	public Set<IRelationInstance> getExplicitRelationInstances(
+			IRelation relation);
 
 	/**
 	 * Returns all <b>direct and indirect</b> {@link IRelationInstance
@@ -394,8 +394,16 @@ public interface ICodeService {
 	 * @return
 	 * @throws CodeDoesNotExistException
 	 */
-	public Set<IRelationInstance> getIndirectRelationInstances(
+	public Set<ImplicitRelationInstance> getImplicitRelationInstances(
 			IRelation relation) throws CodeDoesNotExistException;
+
+	/**
+	 * Returns the {@link IRelationInstance} with the given {@link URI}.
+	 *
+	 * @param uri
+	 * @return
+	 */
+	public IRelationInstance getRelationInstance(URI uri);
 
 	/**
 	 * Returns all {@link IRelationInstance groundings} the given {@link URI} is
@@ -404,7 +412,9 @@ public interface ICodeService {
 	 * @param uri
 	 * @return
 	 */
-	public Set<IRelationInstance> getRelationInstances(URI uri);
+	public Set<IRelationInstance> getExplicitRelationInstances(URI uri);
+
+	public Set<IRelationInstance> getAllRelationInstances(URI uri);
 
 	/**
 	 * Returns all {@link IRelationInstance}s <b>directly</b> grounding
@@ -466,7 +476,7 @@ public interface ICodeService {
 	 *
 	 * @param relation
 	 */
-	public boolean isGrounded(URI phenomenon, IRelation relation);
+	public boolean isExplicitlyGrounded(URI phenomenon, IRelation relation);
 
 	/**
 	 * Returns true if there is a grounded {@link IRelation} between the two
@@ -474,7 +484,7 @@ public interface ICodeService {
 	 *
 	 * @param relation
 	 */
-	public boolean isGrounded(URI phenomenon, URI from, URI to);
+	public boolean isExplicitlyGrounded(URI phenomenon, URI from, URI to);
 
 	/**
 	 * Sets the memo for the given {@link URI}.
@@ -654,6 +664,14 @@ public interface ICodeService {
 	 */
 	public void removeProperty(ICode code, ICode property)
 			throws CodeStoreWriteException;
+
+	/**
+	 * Returns all immediate and inherited properties.
+	 *
+	 * @param property
+	 * @return
+	 */
+	public List<ICode> getEffectiveProperties(ICode property);
 
 	/**
 	 * Gets all existing {@link IAxialCodingModel} from the {@link ICodeStore}.

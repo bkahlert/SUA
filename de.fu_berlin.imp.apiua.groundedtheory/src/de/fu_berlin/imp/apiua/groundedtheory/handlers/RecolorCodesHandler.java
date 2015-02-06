@@ -49,7 +49,6 @@ public class RecolorCodesHandler extends AbstractHandler {
 			try {
 				List<Pair<ICode, RGB>> newColors = new ArrayList<>();
 				this.recolor(newColors, childCodes, colors);
-				System.err.println(newColors);
 				this.codeService.recolorCode(newColors);
 			} catch (CodeServiceException e) {
 				LOGGER.error("Error recoloring codes", e);

@@ -36,7 +36,7 @@ public class DeleteRelationHandler extends AbstractHandler {
 		List<IRelationInstance> relationInstances = new LinkedList<IRelationInstance>();
 		for (IRelation relation : relations) {
 			relationInstances
-					.addAll(codeService.getRelationInstances(relation));
+					.addAll(codeService.getExplicitRelationInstances(relation));
 		}
 
 		if (relationInstances.size() == 0) {

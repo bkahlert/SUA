@@ -24,6 +24,7 @@ public class RelationLocatorProvider extends AdaptingLocatorProvider {
 
 	public static final String RELATION_NAMESPACE = "relation";
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(RelationLocatorProvider.class);
 
@@ -62,14 +63,7 @@ public class RelationLocatorProvider extends AdaptingLocatorProvider {
 
 		ICodeService codeService = (ICodeService) PlatformUI.getWorkbench()
 				.getService(ICodeService.class);
-
-		for (IRelation relation : codeService.getRelations()) {
-			if (relation.getUri().equals(uri)) {
-				return relation;
-			}
-		}
-
-		return null;
+		return codeService.getRelation(uri);
 	}
 
 	@Override
