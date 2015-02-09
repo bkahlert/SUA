@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.bkahlert.nebula.lang.ListHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 
@@ -27,13 +27,13 @@ public class CodeInstanceView extends DataView {
 
 	private Map<Long, ICodeInstance> explicitCodeInstanceByCodeInstanceId;
 	private Map<URI, ICodeInstance> explicitCodeInstanceByCodeInstanceUri;
-	private Map<URI, List<ICodeInstance>> explicitCodeInstancesByCodeInstancePhenomenon;
-	private Map<URI, List<ICodeInstance>> explicitCodeInstancesByCodeInstanceCode;
-	private Map<URI, List<ICode>> explicitCodesByCodeInstancePhenomenon;
+	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstancePhenomenon;
+	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstanceCode;
+	private ListHashMap<URI, ICode> explicitCodesByCodeInstancePhenomenon;
 	private Set<URI> explicitlyCodedPhenomenonsReadOnly;
 
-	private Map<URI, List<ICodeInstance>> allCodeInstancesByCodeInstancePhenomenon;
-	private Map<URI, List<ICodeInstance>> allCodeInstancesByCodeInstanceCode;
+	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstancePhenomenon;
+	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstanceCode;
 
 	public CodeInstanceView(CodeHierarchyView codeHierarchyView,
 			Set<ICodeInstance> explicitCodeInstances, IDirtiable... dirtiables) {
@@ -94,9 +94,9 @@ public class CodeInstanceView extends DataView {
 	private void refreshMapping() {
 		this.explicitCodeInstanceByCodeInstanceId = new HashMap<>();
 		this.explicitCodeInstanceByCodeInstanceUri = new HashMap<>();
-		this.explicitCodeInstancesByCodeInstancePhenomenon = new HashMap<>();
-		this.explicitCodeInstancesByCodeInstanceCode = new HashMap<>();
-		this.explicitCodesByCodeInstancePhenomenon = new HashMap<>();
+		this.explicitCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
+		this.explicitCodeInstancesByCodeInstanceCode = new ListHashMap<>();
+		this.explicitCodesByCodeInstancePhenomenon = new ListHashMap<>();
 		Set<URI> explicitlyCodedPhenomenons = new HashSet<>();
 		for (ICodeInstance codeInstance : this.explicitCodeInstancesReadOnly) {
 			this.explicitCodeInstanceByCodeInstanceId.put(
@@ -104,29 +104,12 @@ public class CodeInstanceView extends DataView {
 			this.explicitCodeInstanceByCodeInstanceUri.put(
 					codeInstance.getUri(), codeInstance);
 
-			if (!this.explicitCodeInstancesByCodeInstancePhenomenon
-					.containsKey(codeInstance.getId())) {
-				this.explicitCodeInstancesByCodeInstancePhenomenon.put(
-						codeInstance.getId(), new LinkedList<>());
-			}
-			this.explicitCodeInstancesByCodeInstancePhenomenon.get(
-					codeInstance.getId()).add(codeInstance);
-
-			if (!this.explicitCodeInstancesByCodeInstanceCode
-					.containsKey(codeInstance.getCode().getUri())) {
-				this.explicitCodeInstancesByCodeInstanceCode.put(codeInstance
-						.getCode().getUri(), new LinkedList<>());
-			}
-			this.explicitCodeInstancesByCodeInstanceCode.get(
-					codeInstance.getCode().getUri()).add(codeInstance);
-
-			if (!this.explicitCodesByCodeInstancePhenomenon
-					.containsKey(codeInstance.getId())) {
-				this.explicitCodesByCodeInstancePhenomenon.put(
-						codeInstance.getId(), new LinkedList<>());
-			}
-			this.explicitCodesByCodeInstancePhenomenon
-					.get(codeInstance.getId()).add(codeInstance.getCode());
+			this.explicitCodeInstancesByCodeInstancePhenomenon.addTo(
+					codeInstance.getId(), codeInstance);
+			this.explicitCodeInstancesByCodeInstanceCode.addTo(codeInstance
+					.getCode().getUri(), codeInstance);
+			this.explicitCodesByCodeInstancePhenomenon.addTo(
+					codeInstance.getId(), codeInstance.getCode());
 
 			if (!explicitlyCodedPhenomenons.contains(codeInstance.getId())) {
 				explicitlyCodedPhenomenons.add(codeInstance.getId());
@@ -135,24 +118,13 @@ public class CodeInstanceView extends DataView {
 		this.explicitlyCodedPhenomenonsReadOnly = Collections
 				.unmodifiableSet(explicitlyCodedPhenomenons);
 
-		this.allCodeInstancesByCodeInstancePhenomenon = new HashMap<>();
-		this.allCodeInstancesByCodeInstanceCode = new HashMap<>();
+		this.allCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
+		this.allCodeInstancesByCodeInstanceCode = new ListHashMap<>();
 		for (ICodeInstance codeInstance : this.allCodeInstancesReadOnly) {
-			if (!this.allCodeInstancesByCodeInstancePhenomenon
-					.containsKey(codeInstance.getId())) {
-				this.allCodeInstancesByCodeInstancePhenomenon.put(
-						codeInstance.getId(), new LinkedList<>());
-			}
-			this.allCodeInstancesByCodeInstancePhenomenon.get(
-					codeInstance.getId()).add(codeInstance);
-
-			if (!this.allCodeInstancesByCodeInstanceCode
-					.containsKey(codeInstance.getCode().getUri())) {
-				this.allCodeInstancesByCodeInstanceCode.put(codeInstance
-						.getCode().getUri(), new LinkedList<>());
-			}
-			this.allCodeInstancesByCodeInstanceCode.get(
-					codeInstance.getCode().getUri()).add(codeInstance);
+			this.allCodeInstancesByCodeInstancePhenomenon.addTo(
+					codeInstance.getId(), codeInstance);
+			this.allCodeInstancesByCodeInstanceCode.addTo(codeInstance
+					.getCode().getUri(), codeInstance);
 		}
 	}
 
@@ -172,6 +144,7 @@ public class CodeInstanceView extends DataView {
 	}
 
 	public Set<URI> getCodedPhenomenons() {
+		this.checkAndRefresh();
 		return this.explicitlyCodedPhenomenonsReadOnly;
 	}
 
@@ -187,9 +160,7 @@ public class CodeInstanceView extends DataView {
 
 	public List<ICode> getCodesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		List<ICode> codes = this.explicitCodesByCodeInstancePhenomenon.get(uri);
-		return codes != null ? Collections.unmodifiableList(codes)
-				: Collections.emptyList();
+		return this.explicitCodesByCodeInstancePhenomenon.get(uri);
 	}
 
 	/**
@@ -201,10 +172,9 @@ public class CodeInstanceView extends DataView {
 	 */
 	public List<ICodeInstance> getExplicitCodeInstancesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		List<ICodeInstance> codeInstances = this.explicitCodeInstancesByCodeInstancePhenomenon
-				.get(uri);
-		return codeInstances != null ? Collections
-				.unmodifiableList(codeInstances) : Collections.emptyList();
+		return Collections
+				.unmodifiableList(this.explicitCodeInstancesByCodeInstancePhenomenon
+						.get(uri));
 	}
 
 	/**
@@ -219,11 +189,9 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> explicitCodeInstances = new HashSet<>();
 		for (URI uri : uris) {
-			List<ICodeInstance> codeInstances = this.explicitCodeInstancesByCodeInstancePhenomenon
-					.get(uri);
-			if (codeInstances != null) {
-				explicitCodeInstances.addAll(codeInstances);
-			}
+			explicitCodeInstances
+					.addAll(this.explicitCodeInstancesByCodeInstancePhenomenon
+							.get(uri));
 		}
 		return explicitCodeInstances != null ? Collections
 				.unmodifiableSet(explicitCodeInstances) : Collections
@@ -238,10 +206,7 @@ public class CodeInstanceView extends DataView {
 	 */
 	public List<ICodeInstance> getAllCodeInstancesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		List<ICodeInstance> codeInstances = this.allCodeInstancesByCodeInstancePhenomenon
-				.get(uri);
-		return codeInstances != null ? Collections
-				.unmodifiableList(codeInstances) : Collections.emptyList();
+		return this.allCodeInstancesByCodeInstancePhenomenon.get(uri);
 	}
 
 	/**
@@ -254,11 +219,9 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> allCodeInstances = new HashSet<>();
 		for (URI uri : uris) {
-			List<ICodeInstance> codeInstances = this.allCodeInstancesByCodeInstancePhenomenon
-					.get(uri);
-			if (codeInstances != null) {
-				allCodeInstances.addAll(codeInstances);
-			}
+			allCodeInstances
+					.addAll(this.allCodeInstancesByCodeInstancePhenomenon
+							.get(uri));
 		}
 		return allCodeInstances != null ? Collections
 				.unmodifiableSet(allCodeInstances) : Collections.emptySet();
@@ -276,11 +239,9 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> explicitCodeInstances = new HashSet<>();
 		for (URI uri : uris) {
-			List<ICodeInstance> codeInstances = this.explicitCodeInstancesByCodeInstanceCode
-					.get(uri);
-			if (codeInstances != null) {
-				explicitCodeInstances.addAll(codeInstances);
-			}
+			explicitCodeInstances
+					.addAll(this.explicitCodeInstancesByCodeInstanceCode
+							.get(uri));
 		}
 		return explicitCodeInstances != null ? Collections
 				.unmodifiableSet(explicitCodeInstances) : Collections
@@ -298,11 +259,9 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> explicitCodeInstances = new HashSet<>();
 		for (ICode code : codes) {
-			List<ICodeInstance> codeInstances = this.explicitCodeInstancesByCodeInstanceCode
-					.get(code.getUri());
-			if (codeInstances != null) {
-				explicitCodeInstances.addAll(codeInstances);
-			}
+			explicitCodeInstances
+					.addAll(this.explicitCodeInstancesByCodeInstanceCode
+							.get(code.getUri()));
 		}
 		return explicitCodeInstances != null ? Collections
 				.unmodifiableSet(explicitCodeInstances) : Collections
@@ -319,11 +278,8 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> allCodeInstances = new HashSet<>();
 		for (URI uri : uris) {
-			List<ICodeInstance> codeInstances = this.allCodeInstancesByCodeInstanceCode
-					.get(uri);
-			if (codeInstances != null) {
-				allCodeInstances.addAll(codeInstances);
-			}
+			allCodeInstances.addAll(this.allCodeInstancesByCodeInstanceCode
+					.get(uri));
 		}
 		return allCodeInstances != null ? Collections
 				.unmodifiableSet(allCodeInstances) : Collections.emptySet();
@@ -339,11 +295,8 @@ public class CodeInstanceView extends DataView {
 		this.checkAndRefresh();
 		Set<ICodeInstance> allCodeInstances = new HashSet<>();
 		for (ICode code : codes) {
-			List<ICodeInstance> codeInstances = this.allCodeInstancesByCodeInstanceCode
-					.get(code.getUri());
-			if (codeInstances != null) {
-				allCodeInstances.addAll(codeInstances);
-			}
+			allCodeInstances.addAll(this.allCodeInstancesByCodeInstanceCode
+					.get(code.getUri()));
 		}
 		return allCodeInstances != null ? Collections
 				.unmodifiableSet(allCodeInstances) : Collections.emptySet();

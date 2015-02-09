@@ -3,12 +3,12 @@ package de.fu_berlin.imp.apiua.groundedtheory.storage.impl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 
@@ -39,13 +39,13 @@ public class RelationHierarchyView extends DataView {
 	private Set<IRelation> allRelationsReadOnly;
 
 	private Map<URI, IRelation> relationMappings;
-	private Map<URI, Set<ImplicitRelation>> implicitRelationMappings;
-	private Map<URI, Set<IRelation>> allRelationMappings;
+	private SetHashMap<URI, ImplicitRelation> implicitRelationMappings;
+	private SetHashMap<URI, IRelation> allRelationMappings;
 
-	private Map<URI, Set<IRelation>> explicitRelationsStartingFrom;
-	private Map<URI, Set<IRelation>> explicitRelationsEndingAt;
-	private Map<URI, Set<IRelation>> allRelationsStartingFrom;
-	private Map<URI, Set<IRelation>> allRelationsEndingAt;
+	private SetHashMap<URI, IRelation> explicitRelationsStartingFrom;
+	private SetHashMap<URI, IRelation> explicitRelationsEndingAt;
+	private SetHashMap<URI, IRelation> allRelationsStartingFrom;
+	private SetHashMap<URI, IRelation> allRelationsEndingAt;
 
 	public RelationHierarchyView(CodeHierarchyView codeHierarchyView,
 			Set<IRelation> explicitRelations, IDirtiable... dirtiables) {
@@ -62,34 +62,20 @@ public class RelationHierarchyView extends DataView {
 		HashSet<ImplicitRelation> implicitRelations = new HashSet<>();
 		HashSet<IRelation> allRelations = new HashSet<>();
 
-		this.implicitRelationMappings = new HashMap<>();
-		this.allRelationMappings = new HashMap<>();
+		this.implicitRelationMappings = new SetHashMap<>();
+		this.allRelationMappings = new SetHashMap<>();
 
-		this.explicitRelationsStartingFrom = new HashMap<>();
-		this.explicitRelationsEndingAt = new HashMap<>();
+		this.explicitRelationsStartingFrom = new SetHashMap<>();
+		this.explicitRelationsEndingAt = new SetHashMap<>();
 
 		for (IRelation relation : this.explicitRelationsReadOnly) {
 			allRelations.add(relation);
 
-			if (!this.allRelationMappings.containsKey(relation.getUri())) {
-				this.allRelationMappings.put(relation.getUri(),
-						new LinkedHashSet<>());
-			}
-			this.allRelationMappings.get(relation.getUri()).add(relation);
+			this.allRelationMappings.addTo(relation.getUri(), relation);
 
-			if (!this.explicitRelationsStartingFrom.containsKey(relation
-					.getFrom())) {
-				this.explicitRelationsStartingFrom.put(relation.getFrom(),
-						new HashSet<>());
-			}
-			this.explicitRelationsStartingFrom.get(relation.getFrom()).add(
+			this.explicitRelationsStartingFrom.addTo(relation.getFrom(),
 					relation);
-
-			if (!this.explicitRelationsEndingAt.containsKey(relation.getTo())) {
-				this.explicitRelationsEndingAt.put(relation.getTo(),
-						new HashSet<>());
-			}
-			this.explicitRelationsEndingAt.get(relation.getTo()).add(relation);
+			this.explicitRelationsEndingAt.addTo(relation.getTo(), relation);
 
 			try {
 				List<URI> fromAncestors = this.codeHierarchyView
@@ -123,24 +109,12 @@ public class RelationHierarchyView extends DataView {
 									implicitRelations.add(implicitRelation);
 									allRelations.add(implicitRelation);
 
-									if (!this.implicitRelationMappings
-											.containsKey(topRelation.getUri())) {
-										this.implicitRelationMappings.put(
-												topRelation.getUri(),
-												new LinkedHashSet<>());
-									}
-									this.implicitRelationMappings.get(
-											topRelation.getUri()).add(
+									this.implicitRelationMappings.addTo(
+											topRelation.getUri(),
 											implicitRelation);
 
-									if (!this.allRelationMappings
-											.containsKey(topRelation.getUri())) {
-										this.allRelationMappings.put(
-												topRelation.getUri(),
-												new LinkedHashSet<>());
-									}
-									this.allRelationMappings.get(
-											topRelation.getUri()).add(
+									this.allRelationMappings.addTo(
+											topRelation.getUri(),
 											implicitRelation);
 								});
 			} catch (Exception e) {
@@ -152,22 +126,16 @@ public class RelationHierarchyView extends DataView {
 		this.allRelationsReadOnly = Collections.unmodifiableSet(allRelations);
 
 		this.relationMappings = new HashMap<>();
-		this.allRelationsStartingFrom = new HashMap<>();
-		this.allRelationsEndingAt = new HashMap<>();
+		this.allRelationsStartingFrom = new SetHashMap<>();
+		this.allRelationsEndingAt = new SetHashMap<>();
 		for (IRelation relation : allRelations) {
 			this.relationMappings.put(relation.getUri(), relation);
 
-			if (!this.allRelationsStartingFrom.containsKey(relation.getFrom())) {
-				this.allRelationsStartingFrom.put(relation.getFrom(),
-						new HashSet<>());
-			}
-			this.allRelationsStartingFrom.get(relation.getFrom()).add(relation);
+			this.allRelationsStartingFrom.addTo(relation.getFrom(), relation);
+			this.allRelationsEndingAt.addTo(relation.getTo(), relation);
+		}
 
-			if (!this.allRelationsEndingAt.containsKey(relation.getTo())) {
-				this.allRelationsEndingAt
-						.put(relation.getTo(), new HashSet<>());
 			}
-			this.allRelationsEndingAt.get(relation.getTo()).add(relation);
 		}
 	}
 
@@ -200,10 +168,7 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<ImplicitRelation> getImplicitRelationsByRelationUri(URI uri) {
 		this.checkAndRefresh();
-		Set<ImplicitRelation> implicitRelations = this.implicitRelationMappings
-				.get(uri);
-		return implicitRelations != null ? Collections
-				.unmodifiableSet(implicitRelations) : Collections.emptySet();
+		return this.implicitRelationMappings.get(uri);
 	}
 
 	/**
@@ -215,6 +180,7 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<ImplicitRelation> getImplicitRelationsByRelationUri(
 			IRelation relation) {
+		this.checkAndRefresh();
 		return this.getImplicitRelationsByRelationUri(relation.getUri());
 	}
 
@@ -227,9 +193,7 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<IRelation> getAllRelationsByRelationUri(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelation> allRelations = this.allRelationMappings.get(uri);
-		return allRelations != null ? Collections.unmodifiableSet(allRelations)
-				: Collections.emptySet();
+		return this.allRelationMappings.get(uri);
 	}
 
 	/**
@@ -240,35 +204,28 @@ public class RelationHierarchyView extends DataView {
 	 * @return
 	 */
 	public Set<IRelation> getAllRelationsByRelation(IRelation relation) {
+		this.checkAndRefresh();
 		return this.getAllRelationsByRelationUri(relation.getUri());
 	}
 
 	public Set<IRelation> getExplicitRelationsStartingFrom(URI from) {
 		this.checkAndRefresh();
-		Set<IRelation> relations = this.explicitRelationsStartingFrom.get(from);
-		return relations != null ? Collections.unmodifiableSet(relations)
-				: Collections.emptySet();
+		return this.explicitRelationsStartingFrom.get(from);
 	}
 
 	public Set<IRelation> getExplicitRelationsEndingAt(URI to) {
 		this.checkAndRefresh();
-		Set<IRelation> relations = this.explicitRelationsEndingAt.get(to);
-		return relations != null ? Collections.unmodifiableSet(relations)
-				: Collections.emptySet();
+		return this.explicitRelationsEndingAt.get(to);
 	}
 
 	public Set<IRelation> getAllRelationsStartingFrom(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelation> relations = this.allRelationsStartingFrom.get(uri);
-		return relations != null ? Collections.unmodifiableSet(relations)
-				: Collections.emptySet();
+		return this.allRelationsStartingFrom.get(uri);
 	}
 
 	public Set<IRelation> getAllRelationsEndingAt(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelation> relations = this.allRelationsEndingAt.get(uri);
-		return relations != null ? Collections.unmodifiableSet(relations)
-				: Collections.emptySet();
+		return this.allRelationsEndingAt.get(uri);
 	}
 
 }

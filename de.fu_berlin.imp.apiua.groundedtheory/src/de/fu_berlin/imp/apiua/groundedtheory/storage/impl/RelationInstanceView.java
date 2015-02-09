@@ -3,10 +3,10 @@ package de.fu_berlin.imp.apiua.groundedtheory.storage.impl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 
@@ -38,20 +38,20 @@ public class RelationInstanceView extends DataView {
 	private Set<ImplicitRelationInstance> implicitRelationInstancesReadOnly;
 	private Set<IRelationInstance> allRelationInstancesReadOnly;
 
-	private Map<URI, Set<IRelationInstance>> explicitRelationInstancesByRelationInstancePhenomenon;
-	private Map<URI, Set<IRelationInstance>> allRelationInstancesByRelationInstancePhenomenon;
-	private Map<IIdentifier, Set<IRelationInstance>> explicitRelationInstancesByRelationInstanceIdentifier;
-	private Map<IIdentifier, Set<IRelationInstance>> allRelationInstancesByRelationInstanceIdentifier;
-	private Map<URI, Set<IRelationInstance>> explicitRelationInstancesByRelationInstanceRelation;
-	private Map<URI, Set<ImplicitRelationInstance>> implicitRelationInstancesByRelationInstanceRelation;
-	private Map<URI, Set<IRelationInstance>> allRelationInstancesByRelationInstanceRelation;
+	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesByRelationInstancePhenomenon;
+	private SetHashMap<URI, IRelationInstance> allRelationInstancesByRelationInstancePhenomenon;
+	private SetHashMap<IIdentifier, IRelationInstance> explicitRelationInstancesByRelationInstanceIdentifier;
+	private SetHashMap<IIdentifier, IRelationInstance> allRelationInstancesByRelationInstanceIdentifier;
+	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesByRelationInstanceRelation;
+	private SetHashMap<URI, ImplicitRelationInstance> implicitRelationInstancesByRelationInstanceRelation;
+	private SetHashMap<URI, IRelationInstance> allRelationInstancesByRelationInstanceRelation;
 
 	private Map<URI, IRelationInstance> allRelationInstancesByRelationInstanceUri;
 
-	private Map<URI, Set<IRelationInstance>> explicitRelationInstancesStartingFrom;
-	private Map<URI, Set<IRelationInstance>> allRelationInstancesStartingFrom;
-	private Map<URI, Set<IRelationInstance>> explicitRelationInstancesEndingAt;
-	private Map<URI, Set<IRelationInstance>> allRelationInstancesEndingAt;
+	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesStartingFrom;
+	private SetHashMap<URI, IRelationInstance> allRelationInstancesStartingFrom;
+	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesEndingAt;
+	private SetHashMap<URI, IRelationInstance> allRelationInstancesEndingAt;
 
 	public RelationInstanceView(RelationHierarchyView relationHierarchyView,
 			Set<IRelationInstance> explicitRelationInstances,
@@ -67,73 +67,39 @@ public class RelationInstanceView extends DataView {
 		this.explicitRelationInstancesReadOnly = Collections
 				.unmodifiableSet(new HashSet<>(this.explicitRelationInstances));
 
-		this.explicitRelationInstancesByRelationInstancePhenomenon = new HashMap<>();
-		this.explicitRelationInstancesByRelationInstanceIdentifier = new HashMap<>();
-		this.explicitRelationInstancesByRelationInstanceRelation = new HashMap<>();
-		this.allRelationInstancesByRelationInstanceRelation = new HashMap<>();
+		this.explicitRelationInstancesByRelationInstancePhenomenon = new SetHashMap<>();
+		this.explicitRelationInstancesByRelationInstanceIdentifier = new SetHashMap<>();
+		this.explicitRelationInstancesByRelationInstanceRelation = new SetHashMap<>();
+		this.allRelationInstancesByRelationInstanceRelation = new SetHashMap<>();
 
-		this.explicitRelationInstancesStartingFrom = new HashMap<>();
-		this.explicitRelationInstancesEndingAt = new HashMap<>();
+		this.explicitRelationInstancesStartingFrom = new SetHashMap<>();
+		this.explicitRelationInstancesEndingAt = new SetHashMap<>();
 
 		for (IRelationInstance relationInstance : this.explicitRelationInstancesReadOnly) {
 			IRelation relation = relationInstance.getRelation();
 
-			if (!this.explicitRelationInstancesByRelationInstancePhenomenon
-					.containsKey(relationInstance.getPhenomenon())) {
-				this.explicitRelationInstancesByRelationInstancePhenomenon
-						.put(relationInstance.getPhenomenon(),
-								new LinkedHashSet<>());
-			}
-			this.explicitRelationInstancesByRelationInstancePhenomenon.get(
-					relationInstance.getPhenomenon()).add(relationInstance);
+			this.explicitRelationInstancesByRelationInstancePhenomenon.addTo(
+					relationInstance.getPhenomenon(), relationInstance);
 
-			IIdentifier id = URIUtils.getIdentifier(relationInstance
-					.getPhenomenon());
-			if (!this.explicitRelationInstancesByRelationInstanceIdentifier
-					.containsKey(id)) {
-				this.explicitRelationInstancesByRelationInstanceIdentifier.put(
-						id, new LinkedHashSet<>());
-			}
-			this.explicitRelationInstancesByRelationInstanceIdentifier.get(id)
-					.add(relationInstance);
+			this.explicitRelationInstancesByRelationInstanceIdentifier.addTo(
+					URIUtils.getIdentifier(relationInstance.getPhenomenon()),
+					relationInstance);
 
-			if (!this.explicitRelationInstancesByRelationInstanceRelation
-					.containsKey(relation.getUri())) {
-				this.explicitRelationInstancesByRelationInstanceRelation.put(
-						relation.getUri(), new LinkedHashSet<>());
-			}
-			this.explicitRelationInstancesByRelationInstanceRelation.get(
-					relation.getUri()).add(relationInstance);
+			this.explicitRelationInstancesByRelationInstanceRelation.addTo(
+					relation.getUri(), relationInstance);
+			this.allRelationInstancesByRelationInstanceRelation.addTo(
+					relation.getUri(), relationInstance);
 
-			if (!this.allRelationInstancesByRelationInstanceRelation
-					.containsKey(relation.getUri())) {
-				this.allRelationInstancesByRelationInstanceRelation.put(
-						relation.getUri(), new LinkedHashSet<>());
-			}
-			this.allRelationInstancesByRelationInstanceRelation.get(
-					relation.getUri()).add(relationInstance);
-
-			if (!this.explicitRelationInstancesStartingFrom
-					.containsKey(relation.getFrom())) {
-				this.explicitRelationInstancesStartingFrom.put(
-						relation.getFrom(), new LinkedHashSet<>());
-			}
-			this.explicitRelationInstancesStartingFrom.get(relation.getFrom())
-					.add(relationInstance);
-
-			if (!this.explicitRelationInstancesEndingAt.containsKey(relation
-					.getTo())) {
-				this.explicitRelationInstancesEndingAt.put(relation.getTo(),
-						new LinkedHashSet<>());
-			}
-			this.explicitRelationInstancesEndingAt.get(relation.getTo()).add(
+			this.explicitRelationInstancesStartingFrom.addTo(
+					relation.getFrom(), relationInstance);
+			this.explicitRelationInstancesEndingAt.addTo(relation.getTo(),
 					relationInstance);
 		}
 
 		HashSet<ImplicitRelationInstance> implicitRelationInstances = new HashSet<>();
 		HashSet<IRelationInstance> allRelationInstances = new HashSet<>(
 				this.explicitRelationInstancesReadOnly);
-		this.implicitRelationInstancesByRelationInstanceRelation = new HashMap<>();
+		this.implicitRelationInstancesByRelationInstanceRelation = new SetHashMap<>();
 		for (IRelation parentRelation : this.relationHierarchyView
 				.getExplicitRelations()) {
 			for (ImplicitRelation implicitRelation : this.relationHierarchyView
@@ -148,23 +114,11 @@ public class RelationInstanceView extends DataView {
 					implicitRelationInstances.add(implicitRelationInstance);
 					allRelationInstances.add(implicitRelationInstance);
 
-					if (!this.implicitRelationInstancesByRelationInstanceRelation
-							.containsKey(parentRelation.getUri())) {
-						this.implicitRelationInstancesByRelationInstanceRelation
-								.put(parentRelation.getUri(), new HashSet<>());
-					}
 					this.implicitRelationInstancesByRelationInstanceRelation
-							.get(parentRelation.getUri()).add(
+							.addTo(parentRelation.getUri(),
 									implicitRelationInstance);
-
-					if (!this.allRelationInstancesByRelationInstanceRelation
-							.containsKey(parentRelation.getUri())) {
-						this.allRelationInstancesByRelationInstanceRelation
-								.put(parentRelation.getUri(), new HashSet<>());
-					}
-					this.allRelationInstancesByRelationInstanceRelation.get(
-							parentRelation.getUri()).add(
-							implicitRelationInstance);
+					this.allRelationInstancesByRelationInstanceRelation.addTo(
+							parentRelation.getUri(), implicitRelationInstance);
 				}
 			}
 		}
@@ -173,52 +127,29 @@ public class RelationInstanceView extends DataView {
 		this.allRelationInstancesReadOnly = Collections
 				.unmodifiableSet(allRelationInstances);
 
-		this.allRelationInstancesByRelationInstancePhenomenon = new HashMap<>();
-		this.allRelationInstancesByRelationInstanceIdentifier = new HashMap<>();
+		this.allRelationInstancesByRelationInstancePhenomenon = new SetHashMap<>();
+		this.allRelationInstancesByRelationInstanceIdentifier = new SetHashMap<>();
 		this.allRelationInstancesByRelationInstanceUri = new HashMap<>();
 
-		this.allRelationInstancesStartingFrom = new HashMap<>();
-		this.allRelationInstancesEndingAt = new HashMap<>();
+		this.allRelationInstancesStartingFrom = new SetHashMap<>();
+		this.allRelationInstancesEndingAt = new SetHashMap<>();
 
 		for (IRelationInstance relationInstance : allRelationInstances) {
 			IRelation relation = relationInstance.getRelation();
 
-			if (!this.allRelationInstancesByRelationInstancePhenomenon
-					.containsKey(relationInstance.getPhenomenon())) {
-				this.allRelationInstancesByRelationInstancePhenomenon
-						.put(relationInstance.getPhenomenon(),
-								new LinkedHashSet<>());
-			}
-			this.allRelationInstancesByRelationInstancePhenomenon.get(
-					relationInstance.getPhenomenon()).add(relationInstance);
+			this.allRelationInstancesByRelationInstancePhenomenon.addTo(
+					relationInstance.getPhenomenon(), relationInstance);
 
-			IIdentifier id = URIUtils.getIdentifier(relationInstance
-					.getPhenomenon());
-			if (!this.allRelationInstancesByRelationInstanceIdentifier
-					.containsKey(id)) {
-				this.allRelationInstancesByRelationInstanceIdentifier.put(id,
-						new LinkedHashSet<>());
-			}
-			this.allRelationInstancesByRelationInstanceIdentifier.get(id).add(
+			this.allRelationInstancesByRelationInstanceIdentifier.addTo(
+					URIUtils.getIdentifier(relationInstance.getPhenomenon()),
 					relationInstance);
 
 			this.allRelationInstancesByRelationInstanceUri.put(
 					relationInstance.getUri(), relationInstance);
 
-			if (!this.allRelationInstancesStartingFrom.containsKey(relation
-					.getFrom())) {
-				this.allRelationInstancesStartingFrom.put(relation.getFrom(),
-						new LinkedHashSet<>());
-			}
-			this.allRelationInstancesStartingFrom.get(relation.getFrom()).add(
+			this.allRelationInstancesStartingFrom.addTo(relation.getFrom(),
 					relationInstance);
-
-			if (!this.allRelationInstancesEndingAt
-					.containsKey(relation.getTo())) {
-				this.allRelationInstancesEndingAt.put(relation.getTo(),
-						new LinkedHashSet<>());
-			}
-			this.allRelationInstancesEndingAt.get(relation.getTo()).add(
+			this.allRelationInstancesEndingAt.addTo(relation.getTo(),
 					relationInstance);
 		}
 	}
@@ -246,43 +177,34 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getExplicitRelationInstancesByPhenomenon(
 			URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesByRelationInstancePhenomenon
+		return this.explicitRelationInstancesByRelationInstancePhenomenon
 				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.allRelationInstancesByRelationInstancePhenomenon
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.allRelationInstancesByRelationInstancePhenomenon.get(uri);
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesByIdentifier(
 			IIdentifier id) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesByRelationInstanceIdentifier
+		return this.explicitRelationInstancesByRelationInstanceIdentifier
 				.get(id);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesByIdentifier(
 			IIdentifier id) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesByRelationInstanceIdentifier
+		return this.explicitRelationInstancesByRelationInstanceIdentifier
 				.get(id);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
 	}
 
 	/**
 	 * If the given {@link IRelation} is an {@link ImplicitRelation} its
 	 * explicit {@link IRelation} is returned. Otherwise the {@link IRelation}
 	 * itself.
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 */
@@ -305,10 +227,8 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getExplicitRelationInstancesByRelation(URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesByRelationInstanceRelation
+		return this.explicitRelationInstancesByRelationInstanceRelation
 				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
 	}
 
 	/**
@@ -324,10 +244,8 @@ public class RelationInstanceView extends DataView {
 			URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		Set<ImplicitRelationInstance> relationInstances = this.implicitRelationInstancesByRelationInstanceRelation
+		return this.implicitRelationInstancesByRelationInstanceRelation
 				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
 	}
 
 	/**
@@ -340,43 +258,28 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getAllRelationInstancesByRelation(URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		Set<IRelationInstance> relationInstances = this.allRelationInstancesByRelationInstanceRelation
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.allRelationInstancesByRelationInstanceRelation.get(uri);
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesStartingFrom(
 			URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesStartingFrom
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.explicitRelationInstancesStartingFrom.get(uri);
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesStartingFrom(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.allRelationInstancesStartingFrom
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.allRelationInstancesStartingFrom.get(uri);
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesEndingAt(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.explicitRelationInstancesEndingAt
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.explicitRelationInstancesEndingAt.get(uri);
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesEndingAt(URI uri) {
 		this.checkAndRefresh();
-		Set<IRelationInstance> relationInstances = this.allRelationInstancesEndingAt
-				.get(uri);
-		return relationInstances != null ? Collections
-				.unmodifiableSet(relationInstances) : Collections.emptySet();
+		return this.allRelationInstancesEndingAt.get(uri);
 	}
 
 }

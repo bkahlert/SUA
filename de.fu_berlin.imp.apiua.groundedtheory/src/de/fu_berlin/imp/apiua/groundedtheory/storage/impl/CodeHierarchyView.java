@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.bkahlert.nebula.data.TreeNode;
+import com.bkahlert.nebula.lang.ListHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 import com.bkahlert.nebula.utils.Pair;
@@ -36,9 +36,9 @@ public class CodeHierarchyView extends DataView {
 	private Set<ICode> codes;
 	private Map<Long, ICode> ids;
 	private Map<ICode, ICode> parents;
-	private Map<ICode, List<ICode>> children;
-	private Map<ICode, List<ICode>> ancestors;
-	private Map<ICode, List<ICode>> descendents;
+	private ListHashMap<ICode, ICode> children;
+	private ListHashMap<ICode, ICode> ancestors;
+	private ListHashMap<ICode, ICode> descendents;
 	private Set<IsACodeInstance> isACodeInstancesReadOnly;
 
 	public CodeHierarchyView(List<TreeNode<ICode>> codeTrees,
@@ -63,9 +63,9 @@ public class CodeHierarchyView extends DataView {
 		Set<ICode> codes = new LinkedHashSet<>();
 		this.ids = new HashMap<>();
 		this.parents = new HashMap<>();
-		this.children = new HashMap<>();
-		this.ancestors = new HashMap<>();
-		this.descendents = new HashMap<>();
+		this.children = new ListHashMap<>();
+		this.ancestors = new ListHashMap<>();
+		this.descendents = new ListHashMap<>();
 		HashSet<IsACodeInstance> isACodeInstances = new HashSet<>();
 		for (TreeNode<ICode> codeTree : this.codeTreesReadOnly) {
 
@@ -84,11 +84,7 @@ public class CodeHierarchyView extends DataView {
 				ICode child = parentRelation.getSecond();
 
 				this.parents.put(child, parent);
-
-				if (!this.children.containsKey(parent)) {
-					this.children.put(parent, new LinkedList<>());
-				}
-				this.children.get(parent).add(child);
+				this.children.addTo(parent, child);
 
 				if (parent != null) {
 					isACodeInstances.add(new IsACodeInstance(parent, child));
@@ -100,15 +96,9 @@ public class CodeHierarchyView extends DataView {
 					.getAncestorRelations()) {
 				ICode ancestor = ancestorRelation.getFirst();
 				ICode code = ancestorRelation.getSecond();
-				if (!this.ancestors.containsKey(code)) {
-					this.ancestors.put(code, new LinkedList<>());
-				}
-				this.ancestors.get(code).add(ancestor);
 
-				if (!this.descendents.containsKey(ancestor)) {
-					this.descendents.put(ancestor, new LinkedList<>());
-				}
-				this.descendents.get(ancestor).add(code);
+				this.ancestors.addTo(code, ancestor);
+				this.descendents.addTo(ancestor, code);
 			}
 		}
 
@@ -134,23 +124,17 @@ public class CodeHierarchyView extends DataView {
 
 	public List<ICode> getChildren(ICode code) {
 		this.checkAndRefresh();
-		List<ICode> children = this.children.get(code);
-		return children != null ? Collections.unmodifiableList(children)
-				: Collections.emptyList();
+		return Collections.unmodifiableList(this.children.get(code));
 	}
 
 	public List<ICode> getAncestors(ICode code) {
 		this.checkAndRefresh();
-		List<ICode> ancestors = this.ancestors.get(code);
-		return ancestors != null ? Collections.unmodifiableList(ancestors)
-				: Collections.emptyList();
+		return Collections.unmodifiableList(this.ancestors.get(code));
 	}
 
 	public List<ICode> getDescendents(ICode code) {
 		this.checkAndRefresh();
-		List<ICode> descendents = this.descendents.get(code);
-		return descendents != null ? Collections.unmodifiableList(descendents)
-				: Collections.emptyList();
+		return Collections.unmodifiableList(this.descendents.get(code));
 	}
 
 	public Set<IsACodeInstance> getExplicitIsACodeInstances() {
