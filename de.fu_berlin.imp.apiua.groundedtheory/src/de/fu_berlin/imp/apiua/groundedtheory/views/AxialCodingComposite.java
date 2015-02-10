@@ -173,7 +173,7 @@ public class AxialCodingComposite extends Composite implements
 		this.jointjs = new JointJS(this, SWT.BORDER, "apiua://code/",
 				"apiua://relation/", new IReflexiveConverter<String, Object>() {
 					@Override
-					public URI convert(String returnValue) {
+					public Object convert(String returnValue) {
 						// default selection
 						if (returnValue == null) {
 							return AxialCodingComposite.this.openedUri;

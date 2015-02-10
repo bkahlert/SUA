@@ -71,6 +71,7 @@ public class CodeLocatorProvider extends AdaptingLocatorProvider {
 	@Override
 	public boolean showInWorkspace(final URI[] uris, boolean open,
 			IProgressMonitor monitor) {
+
 		if (uris.length > 0) {
 			CodeView codeView = (CodeView) WorkbenchUtils.getView(CodeView.ID);
 			return this.selectCodes(uris, codeView).length == uris.length;

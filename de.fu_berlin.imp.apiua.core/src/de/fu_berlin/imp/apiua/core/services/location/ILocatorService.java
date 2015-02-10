@@ -12,9 +12,9 @@ import de.fu_berlin.imp.apiua.core.util.Cache;
 
 /**
  * Instances of this class can be part of an {@link IWorkSession}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public interface ILocatorService {
 
@@ -25,7 +25,7 @@ public interface ILocatorService {
 	 * This method is very useful if you only want to know the type the object
 	 * behind the {@link URI} will have if resolved with
 	 * {@link #resolve(URI, IProgressMonitor)}.
-	 * 
+	 *
 	 * @param uri
 	 * @param monitor
 	 * @return
@@ -38,7 +38,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uri
 	 * @param monitor
 	 * @return
@@ -51,7 +51,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uri
 	 * @param monitor
 	 * @return
@@ -65,7 +65,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uris
 	 * @param monitor
 	 * @return
@@ -78,7 +78,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uris
 	 * @param monitor
 	 * @return
@@ -92,7 +92,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uris
 	 * @param monitor
 	 * @return
@@ -105,7 +105,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method must be called if a the identified object for a given
 	 * {@link URI} changed.
-	 * 
+	 *
 	 * @param uri
 	 */
 	public void uncache(URI uri);
@@ -115,7 +115,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method must be called if a the identified object for a given
 	 * {@link URI} changed.
-	 * 
+	 *
 	 * @param uris
 	 */
 	public void uncache(URI[] uris);
@@ -126,7 +126,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uris
 	 * @param open
 	 *            if true also opens the instance
@@ -143,7 +143,7 @@ public interface ILocatorService {
 	 * <p>
 	 * This method is always called in a separate {@link Thread} and is allowed
 	 * to be long running.
-	 * 
+	 *
 	 * @param uris
 	 * @param open
 	 *            if true also opens the instance
@@ -159,7 +159,7 @@ public interface ILocatorService {
 	 * {@link #preload(String, List, IProgressMonitor)} certain objects for a
 	 * specific purpose. This way preloaded objects will always resolve in a
 	 * fast fashion.
-	 * 
+	 *
 	 * @param key
 	 * @param cacheSize
 	 */
@@ -167,14 +167,14 @@ public interface ILocatorService {
 
 	/**
 	 * Destroy a previously created {@link Cache}.
-	 * 
+	 *
 	 * @param key
 	 */
 	public void destroyCache(String key);
 
 	/**
 	 * Preloads the given {@link URI}s using the cache determined by key.
-	 * 
+	 *
 	 * @param key
 	 * @param uris
 	 * @param monitor
