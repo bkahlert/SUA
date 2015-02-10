@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.storage.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,7 +111,15 @@ public class RelationHierarchyView extends DataView {
 									allRelations.add(implicitRelation);
 
 									this.implicitRelationMappings.addTo(
+											implicitRelation.getUri(),
+											implicitRelation);
+
+									this.implicitRelationMappings.addTo(
 											topRelation.getUri(),
+											implicitRelation);
+
+									this.allRelationMappings.addTo(
+											implicitRelation.getUri(),
 											implicitRelation);
 
 									this.allRelationMappings.addTo(
@@ -168,7 +177,8 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<ImplicitRelation> getImplicitRelationsByRelationUri(URI uri) {
 		this.checkAndRefresh();
-		return this.implicitRelationMappings.get(uri);
+		return Collections.unmodifiableSet(this.implicitRelationMappings
+				.get(uri));
 	}
 
 	/**
@@ -181,7 +191,8 @@ public class RelationHierarchyView extends DataView {
 	public Set<ImplicitRelation> getImplicitRelationsByRelationUri(
 			IRelation relation) {
 		this.checkAndRefresh();
-		return this.getImplicitRelationsByRelationUri(relation.getUri());
+		return Collections.unmodifiableSet(this
+				.getImplicitRelationsByRelationUri(relation.getUri()));
 	}
 
 	/**
@@ -193,7 +204,7 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<IRelation> getAllRelationsByRelationUri(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationMappings.get(uri);
+		return Collections.unmodifiableSet(this.allRelationMappings.get(uri));
 	}
 
 	/**
@@ -205,27 +216,31 @@ public class RelationHierarchyView extends DataView {
 	 */
 	public Set<IRelation> getAllRelationsByRelation(IRelation relation) {
 		this.checkAndRefresh();
-		return this.getAllRelationsByRelationUri(relation.getUri());
+		return Collections.unmodifiableSet(this
+				.getAllRelationsByRelationUri(relation.getUri()));
 	}
 
 	public Set<IRelation> getExplicitRelationsStartingFrom(URI from) {
 		this.checkAndRefresh();
-		return this.explicitRelationsStartingFrom.get(from);
+		return Collections.unmodifiableSet(this.explicitRelationsStartingFrom
+				.get(from));
 	}
 
 	public Set<IRelation> getExplicitRelationsEndingAt(URI to) {
 		this.checkAndRefresh();
-		return this.explicitRelationsEndingAt.get(to);
+		return Collections.unmodifiableSet(this.explicitRelationsEndingAt
+				.get(to));
 	}
 
 	public Set<IRelation> getAllRelationsStartingFrom(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationsStartingFrom.get(uri);
+		return Collections.unmodifiableSet(this.allRelationsStartingFrom
+				.get(uri));
 	}
 
 	public Set<IRelation> getAllRelationsEndingAt(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationsEndingAt.get(uri);
+		return Collections.unmodifiableSet(this.allRelationsEndingAt.get(uri));
 	}
 
 }

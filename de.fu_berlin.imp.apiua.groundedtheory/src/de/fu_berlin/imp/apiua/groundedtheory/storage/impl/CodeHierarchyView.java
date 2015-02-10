@@ -33,7 +33,7 @@ public class CodeHierarchyView extends DataView {
 	private List<TreeNode<ICode>> codeTrees;
 	private List<TreeNode<ICode>> codeTreesReadOnly;
 
-	private Set<ICode> codes;
+	private Set<ICode> codesReadOnly;
 	private Map<Long, ICode> ids;
 	private Map<ICode, ICode> parents;
 	private ListHashMap<ICode, ICode> children;
@@ -102,14 +102,14 @@ public class CodeHierarchyView extends DataView {
 			}
 		}
 
-		this.codes = Collections.unmodifiableSet(codes);
+		this.codesReadOnly = Collections.unmodifiableSet(codes);
 		this.isACodeInstancesReadOnly = Collections
 				.unmodifiableSet(isACodeInstances);
 	}
 
 	public Set<ICode> getCodes() {
 		this.checkAndRefresh();
-		return this.codes;
+		return this.codesReadOnly;
 	}
 
 	public ICode getCode(long id) {

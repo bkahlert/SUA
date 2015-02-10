@@ -13,7 +13,6 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
-import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.CodeHasChildCodesException;
@@ -139,7 +138,7 @@ public interface ICodeStore {
 	public void addRelation(IRelation relation) throws CodeStoreWriteException,
 			DuplicateRelationException;
 
-	public void replaceRelation(IRelation relation, Relation newRelation)
+	public void replaceRelation(IRelation relation, IRelation newRelation)
 			throws CodeStoreWriteException, RelationDoesNotExistException;
 
 	public void deleteRelation(IRelation relation)

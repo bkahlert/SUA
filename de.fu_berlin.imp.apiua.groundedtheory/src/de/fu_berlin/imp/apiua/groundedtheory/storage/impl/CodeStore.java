@@ -793,7 +793,7 @@ class CodeStore implements ICodeStore {
 	}
 
 	@Override
-	public void replaceRelation(IRelation relation, Relation newRelation)
+	public void replaceRelation(IRelation relation, IRelation newRelation)
 			throws CodeStoreWriteException, RelationDoesNotExistException {
 		this.deleteRelation(relation);
 		try {

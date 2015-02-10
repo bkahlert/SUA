@@ -49,8 +49,9 @@ public class RelationInstanceView extends DataView {
 	private Map<URI, IRelationInstance> allRelationInstancesByRelationInstanceUri;
 
 	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesStartingFrom;
-	private SetHashMap<URI, IRelationInstance> allRelationInstancesStartingFrom;
 	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesEndingAt;
+
+	private SetHashMap<URI, IRelationInstance> allRelationInstancesStartingFrom;
 	private SetHashMap<URI, IRelationInstance> allRelationInstancesEndingAt;
 
 	public RelationInstanceView(RelationHierarchyView relationHierarchyView,
@@ -80,11 +81,9 @@ public class RelationInstanceView extends DataView {
 
 			this.explicitRelationInstancesByRelationInstancePhenomenon.addTo(
 					relationInstance.getPhenomenon(), relationInstance);
-
 			this.explicitRelationInstancesByRelationInstanceIdentifier.addTo(
 					URIUtils.getIdentifier(relationInstance.getPhenomenon()),
 					relationInstance);
-
 			this.explicitRelationInstancesByRelationInstanceRelation.addTo(
 					relation.getUri(), relationInstance);
 			this.allRelationInstancesByRelationInstanceRelation.addTo(
@@ -115,7 +114,13 @@ public class RelationInstanceView extends DataView {
 					allRelationInstances.add(implicitRelationInstance);
 
 					this.implicitRelationInstancesByRelationInstanceRelation
+							.addTo(implicitRelation.getUri(),
+									implicitRelationInstance);
+					this.implicitRelationInstancesByRelationInstanceRelation
 							.addTo(parentRelation.getUri(),
+									implicitRelationInstance);
+					this.allRelationInstancesByRelationInstanceRelation
+							.addTo(implicitRelation.getUri(),
 									implicitRelationInstance);
 					this.allRelationInstancesByRelationInstanceRelation.addTo(
 							parentRelation.getUri(), implicitRelationInstance);
@@ -177,27 +182,32 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getExplicitRelationInstancesByPhenomenon(
 			URI uri) {
 		this.checkAndRefresh();
-		return this.explicitRelationInstancesByRelationInstancePhenomenon
-				.get(uri);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesByRelationInstancePhenomenon
+						.get(uri));
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationInstancesByRelationInstancePhenomenon.get(uri);
+		return Collections
+				.unmodifiableSet(this.allRelationInstancesByRelationInstancePhenomenon
+						.get(uri));
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesByIdentifier(
 			IIdentifier id) {
 		this.checkAndRefresh();
-		return this.explicitRelationInstancesByRelationInstanceIdentifier
-				.get(id);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesByRelationInstanceIdentifier
+						.get(id));
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesByIdentifier(
 			IIdentifier id) {
 		this.checkAndRefresh();
-		return this.explicitRelationInstancesByRelationInstanceIdentifier
-				.get(id);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesByRelationInstanceIdentifier
+						.get(id));
 	}
 
 	/**
@@ -227,8 +237,9 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getExplicitRelationInstancesByRelation(URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		return this.explicitRelationInstancesByRelationInstanceRelation
-				.get(uri);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesByRelationInstanceRelation
+						.get(uri));
 	}
 
 	/**
@@ -244,8 +255,9 @@ public class RelationInstanceView extends DataView {
 			URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		return this.implicitRelationInstancesByRelationInstanceRelation
-				.get(uri);
+		return Collections
+				.unmodifiableSet(this.implicitRelationInstancesByRelationInstanceRelation
+						.get(uri));
 	}
 
 	/**
@@ -258,28 +270,50 @@ public class RelationInstanceView extends DataView {
 	public Set<IRelationInstance> getAllRelationInstancesByRelation(URI uri) {
 		this.checkAndRefresh();
 		uri = this.getExplicitRelation(uri).getUri();
-		return this.allRelationInstancesByRelationInstanceRelation.get(uri);
+		return Collections
+				.unmodifiableSet(this.allRelationInstancesByRelationInstanceRelation
+						.get(uri));
+	}
+
+	/**
+	 * Returns the explicit and implicit {@link IRelationInstance}s with the
+	 * given {@link IRelation} as their phenomenon.
+	 *
+	 * @param uri
+	 * @return
+	 */
+	public Set<IRelationInstance> getAllRelationInstancesByRelation(
+			IRelation relation) {
+		this.checkAndRefresh();
+		return Collections.unmodifiableSet(this
+				.getAllRelationInstancesByRelation(relation.getUri()));
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesStartingFrom(
 			URI uri) {
 		this.checkAndRefresh();
-		return this.explicitRelationInstancesStartingFrom.get(uri);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesStartingFrom
+						.get(uri));
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesStartingFrom(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationInstancesStartingFrom.get(uri);
+		return Collections
+				.unmodifiableSet(this.allRelationInstancesStartingFrom.get(uri));
 	}
 
 	public Set<IRelationInstance> getExplicitRelationInstancesEndingAt(URI uri) {
 		this.checkAndRefresh();
-		return this.explicitRelationInstancesEndingAt.get(uri);
+		return Collections
+				.unmodifiableSet(this.explicitRelationInstancesEndingAt
+						.get(uri));
 	}
 
 	public Set<IRelationInstance> getAllRelationInstancesEndingAt(URI uri) {
 		this.checkAndRefresh();
-		return this.allRelationInstancesEndingAt.get(uri);
+		return Collections.unmodifiableSet(this.allRelationInstancesEndingAt
+				.get(uri));
 	}
 
 }

@@ -160,7 +160,9 @@ public class CodeInstanceView extends DataView {
 
 	public List<ICode> getCodesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		return this.explicitCodesByCodeInstancePhenomenon.get(uri);
+		return Collections
+				.unmodifiableList(this.explicitCodesByCodeInstancePhenomenon
+						.get(uri));
 	}
 
 	/**
@@ -193,9 +195,7 @@ public class CodeInstanceView extends DataView {
 					.addAll(this.explicitCodeInstancesByCodeInstancePhenomenon
 							.get(uri));
 		}
-		return explicitCodeInstances != null ? Collections
-				.unmodifiableSet(explicitCodeInstances) : Collections
-				.emptySet();
+		return Collections.unmodifiableSet(explicitCodeInstances);
 	}
 
 	/**
@@ -206,7 +206,9 @@ public class CodeInstanceView extends DataView {
 	 */
 	public List<ICodeInstance> getAllCodeInstancesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
-		return this.allCodeInstancesByCodeInstancePhenomenon.get(uri);
+		return Collections
+				.unmodifiableList(this.allCodeInstancesByCodeInstancePhenomenon
+						.get(uri));
 	}
 
 	/**
@@ -223,8 +225,7 @@ public class CodeInstanceView extends DataView {
 					.addAll(this.allCodeInstancesByCodeInstancePhenomenon
 							.get(uri));
 		}
-		return allCodeInstances != null ? Collections
-				.unmodifiableSet(allCodeInstances) : Collections.emptySet();
+		return Collections.unmodifiableSet(allCodeInstances);
 	}
 
 	/**
@@ -243,9 +244,7 @@ public class CodeInstanceView extends DataView {
 					.addAll(this.explicitCodeInstancesByCodeInstanceCode
 							.get(uri));
 		}
-		return explicitCodeInstances != null ? Collections
-				.unmodifiableSet(explicitCodeInstances) : Collections
-				.emptySet();
+		return Collections.unmodifiableSet(explicitCodeInstances);
 	}
 
 	/**
@@ -263,9 +262,7 @@ public class CodeInstanceView extends DataView {
 					.addAll(this.explicitCodeInstancesByCodeInstanceCode
 							.get(code.getUri()));
 		}
-		return explicitCodeInstances != null ? Collections
-				.unmodifiableSet(explicitCodeInstances) : Collections
-				.emptySet();
+		return Collections.unmodifiableSet(explicitCodeInstances);
 	}
 
 	/**
@@ -281,8 +278,7 @@ public class CodeInstanceView extends DataView {
 			allCodeInstances.addAll(this.allCodeInstancesByCodeInstanceCode
 					.get(uri));
 		}
-		return allCodeInstances != null ? Collections
-				.unmodifiableSet(allCodeInstances) : Collections.emptySet();
+		return Collections.unmodifiableSet(allCodeInstances);
 	}
 
 	/**
@@ -298,8 +294,7 @@ public class CodeInstanceView extends DataView {
 			allCodeInstances.addAll(this.allCodeInstancesByCodeInstanceCode
 					.get(code.getUri()));
 		}
-		return allCodeInstances != null ? Collections
-				.unmodifiableSet(allCodeInstances) : Collections.emptySet();
+		return Collections.unmodifiableSet(allCodeInstances);
 	}
 
 }
