@@ -15,9 +15,9 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
-public class RemoveHandler extends AbstractHandler {
+public class RemoveFromAxialCodingModelHandler extends AbstractHandler {
 
-	private static final Logger LOGGER = Logger.getLogger(RemoveHandler.class);
+	private static final Logger LOGGER = Logger.getLogger(RemoveFromAxialCodingModelHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

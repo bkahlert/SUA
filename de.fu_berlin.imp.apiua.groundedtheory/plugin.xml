@@ -282,25 +282,7 @@
             </class>
          </state>
       </command>
-      <command
-            id="de.fu_berlin.imp.apiua.groundedtheory.commands.remove"
-            name="Remove">
-         <state
-               id="org.eclipse.ui.commands.toggleState">
-            <class
-                  class="org.eclipse.ui.handlers.RegistryToggleState">
-               <parameter
-                     name="default"
-                     value="true">
-               </parameter>
-               <parameter
-                     name="persisted"
-                     value="false">
-               </parameter>
-            </class>
-         </state>
-      </command>
-   </extension>
+     </extension>
      <extension
            point="org.eclipse.ui.handlers">
         <handler
@@ -508,8 +490,8 @@
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos">
         </handler>
         <handler
-              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveHandler"
-              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.remove">
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveFromAxialCodingModelHandler"
+              commandId="org.eclipse.ui.edit.delete">
            <activeWhen>
               <and>
                  <reference
@@ -724,7 +706,7 @@
             </visibleWhen>
          </command>
          <command
-               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.remove"
+               commandId="org.eclipse.ui.edit.delete"
                icon="icons/etool16/delete_code_tsk.png"
                label="Remove..."
                style="push">
