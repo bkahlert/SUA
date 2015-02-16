@@ -42,7 +42,7 @@ public interface ICodeService {
 	 * @param uri
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 */
-	public List<ICode> getCodes(URI uri);
+	public Set<ICode> getCodes(URI uri);
 
 	/**
 	 * Registers a {@link ICodeServiceListener}
@@ -105,7 +105,7 @@ public interface ICodeService {
 	 */
 	public URI addCode(ICode code, URI uri) throws CodeServiceException;
 
-	public URI[] addCodes(List<ICode> codes, List<URI> uris)
+	public URI[] addCodes(Set<ICode> codes, Set<URI> uris)
 			throws CodeServiceException;
 
 	public Set<URI> getCodedIDs();
@@ -238,7 +238,7 @@ public interface ICodeService {
 	 * @param uri
 	 * @throws CodeServiceException
 	 */
-	public void removeCodes(List<ICode> codes, URI uri)
+	public void removeCodes(Set<ICode> codes, URI uri)
 			throws CodeServiceException;
 
 	/**

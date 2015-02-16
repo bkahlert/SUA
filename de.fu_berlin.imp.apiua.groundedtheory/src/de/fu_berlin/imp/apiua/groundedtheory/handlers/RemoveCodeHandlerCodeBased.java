@@ -1,6 +1,7 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -50,7 +51,8 @@ public class RemoveCodeHandlerCodeBased extends AbstractHandler {
 
 		for (ICode code : codes) {
 			try {
-				codeService.removeCodes(Arrays.asList(code), uri);
+				codeService
+						.removeCodes(new HashSet<>(Arrays.asList(code)), uri);
 			} catch (Exception e) {
 				LOGGER.error("Error removing code", e);
 			}

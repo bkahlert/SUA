@@ -1,5 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.ui.wizards;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -85,7 +86,8 @@ public class AddCodeWizard extends Wizard {
 				}
 
 				try {
-					codeService.addCodes(codes, this.uris);
+					codeService.addCodes(new HashSet<>(codes), new HashSet<>(
+							this.uris));
 					LOGGER.info(ICode.class.getSimpleName() + "s \""
 							+ StringUtils.join(codes, "\", \"")
 							+ "\" added to \""

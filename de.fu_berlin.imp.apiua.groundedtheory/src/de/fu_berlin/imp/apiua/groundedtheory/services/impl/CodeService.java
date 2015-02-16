@@ -159,7 +159,7 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public List<ICode> getCodes(URI uri) {
+	public Set<ICode> getCodes(URI uri) {
 		return this.codeStore.getCodeInstanceView().getCodesByPhenomenon(uri);
 	}
 
@@ -173,23 +173,26 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public URI addCode(ICode code, final URI uri) throws CodeServiceException {
-		return this.addCodes(Arrays.asList(code), Arrays.asList(uri))[0];
+		return this.addCodes(new HashSet<>(Arrays.asList(code)), new HashSet<>(
+				Arrays.asList(uri)))[0];
 	}
 
 	@Override
-	public URI[] addCodes(List<ICode> codes, List<URI> uris)
+	public URI[] addCodes(Set<ICode> codes, Set<URI> uris)
 			throws CodeServiceException {
 		try {
 			for (ICode code : codes) {
 				if (!this.codeStore.codeExists(code)) {
 					this.codeStore.addAndSaveCode(code);
-					this.codeServiceListenerNotifier.codesCreated(codes);
+					this.codeServiceListenerNotifier
+							.codesCreated(new LinkedList<>(codes));
 				}
 			}
 			ICodeInstance[] codeInstances = this.codeStore.createCodeInstances(
 					codes.toArray(new ICode[0]), uris.toArray(new URI[0]));
 			this.codeStore.addAndSaveCodeInstances(codeInstances);
-			this.codeServiceListenerNotifier.codesAssigned(codes, uris);
+			this.codeServiceListenerNotifier.codesAssigned(new LinkedList<>(
+					codes), new LinkedList<>(uris));
 			URI[] codeInstanceUris = new URI[codeInstances.length];
 			for (int i = 0; i < codeInstanceUris.length; i++) {
 				codeInstanceUris[i] = codeInstances[i].getUri();
@@ -329,7 +332,7 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public void removeCodes(List<ICode> codes, final URI uri)
+	public void removeCodes(Set<ICode> codes, final URI uri)
 			throws CodeServiceException {
 		if (codes.size() == 0) {
 			return;
@@ -1355,9 +1358,9 @@ public class CodeService implements ICodeService, IDisposable {
 			LocatorService.INSTANCE.uncache(src);
 		}
 
-		List<ICode> codes = this.getCodes(src);
+		Set<ICode> codes = this.getCodes(src);
 		this.removeCodes(codes, src);
-		this.addCodes(codes, new LinkedList<URI>(Arrays.asList(dest)));
+		this.addCodes(codes, new HashSet<>(Arrays.asList(dest)));
 
 		String memo = this.loadMemo(src);
 		this.setMemo(src, null);

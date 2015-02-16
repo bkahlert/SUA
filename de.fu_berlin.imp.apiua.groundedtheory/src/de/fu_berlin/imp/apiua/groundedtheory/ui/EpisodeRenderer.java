@@ -278,28 +278,28 @@ public class EpisodeRenderer implements IDisposable {
 					final IEpisode oldEpisode = this.resizeInfo.getEpisode();
 					final IEpisode newEpisode = this.resizeInfo.getNewEpisode();
 					if (oldEpisode != null && newEpisode != null) {
-						ExecUtils.nonUISyncExec(EpisodeRenderer.class,
-								"Setting Episode", new Runnable() {
-									@Override
-									public void run() {
-										try {
-											Renderer.this.codeService
-													.replaceEpisodeAndSave(
-															oldEpisode,
-															newEpisode);
-										} catch (CodeServiceException e) {
-											LOGGER.error(
-													"Error resizing "
-															+ IEpisode.class
-																	.getSimpleName(),
-													e);
-										}
+						ExecUtils
+								.nonUISyncExec(
+										EpisodeRenderer.class,
+										"Setting Episode",
+										() -> {
+											try {
+												Renderer.this.codeService
+														.replaceEpisodeAndSave(
+																oldEpisode,
+																newEpisode);
+											} catch (CodeServiceException e) {
+												LOGGER.error(
+														"Error resizing "
+																+ IEpisode.class
+																		.getSimpleName(),
+														e);
+											}
 
-										((Control) event.widget).redraw();
-										((Control) event.widget)
-												.setCursor(null);
-									}
-								});
+											((Control) event.widget).redraw();
+											((Control) event.widget)
+													.setCursor(null);
+										});
 					}
 					this.resizeInfo = null;
 					this.hoveredItemTooltip.setVisible(false);
@@ -412,12 +412,12 @@ public class EpisodeRenderer implements IDisposable {
 				// remove all outdated colors (e.g. because episode got a new
 				// color with different color)
 				if (this.renderingColors.containsKey(episode)) {
-					List<ICode> codes = this.codeService.getCodes(episode
+					Set<ICode> codes = this.codeService.getCodes(episode
 							.getUri());
 					GTLabelProvider.CodeColors renderingColor = this.renderingColors
 							.get(episode);
 					if (codes.size() == 0
-							|| !codes.get(0).getColor()
+							|| !codes.iterator().next().getColor()
 									.equals(renderingColor.getBackgroundRGB())) {
 						renderingColor.dispose();
 						this.renderingColors.remove(episode);
@@ -426,12 +426,12 @@ public class EpisodeRenderer implements IDisposable {
 
 				// create all missing colors
 				if (!this.renderingColors.containsKey(episode)) {
-					List<ICode> codes = this.codeService.getCodes(episode
+					Set<ICode> codes = this.codeService.getCodes(episode
 							.getUri());
 					if (codes.size() > 0) {
 						this.renderingColors.put(episode,
-								new GTLabelProvider.CodeColors(codes.get(0)
-										.getColor()));
+								new GTLabelProvider.CodeColors(codes.iterator()
+										.next().getColor()));
 					} else {
 						this.renderingColors.put(episode,
 								new GTLabelProvider.CodeColors(null));
@@ -489,7 +489,7 @@ public class EpisodeRenderer implements IDisposable {
 		/**
 		 * Returns the key ({@link IIdentifier} contained in the given
 		 * {@link Item}s.
-		 * 
+		 *
 		 * @param items
 		 * @return null if no or more than one keys are contained
 		 */
@@ -515,7 +515,7 @@ public class EpisodeRenderer implements IDisposable {
 		/**
 		 * Returns the column in which the corresponding {@link IEpisode} should
 		 * be rendered.
-		 * 
+		 *
 		 * @param set
 		 * @param items
 		 * @return
@@ -636,14 +636,11 @@ public class EpisodeRenderer implements IDisposable {
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
 		private void redraw() {
-			ExecUtils.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (EpisodeRenderer.this.viewer.getControl() != null
-							&& !EpisodeRenderer.this.viewer.getControl()
-									.isDisposed()) {
-						EpisodeRenderer.this.viewer.getControl().redraw();
-					}
+			ExecUtils.asyncExec(() -> {
+				if (EpisodeRenderer.this.viewer.getControl() != null
+						&& !EpisodeRenderer.this.viewer.getControl()
+								.isDisposed()) {
+					EpisodeRenderer.this.viewer.getControl().redraw();
 				}
 			});
 		}
