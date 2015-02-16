@@ -285,13 +285,15 @@ public class RelationHierarchyView extends DataView {
 	 *
 	 * @param froms
 	 * @param tos
+	 * @param maxRelationsBetweenTwoElements
 	 * @return
 	 */
 	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
-			Collection<URI> tos) {
+			Collection<URI> tos, int maxRelationsBetweenTwoElements) {
 		this.checkAndRefresh();
 		Set<IRelation> explicitRelations = new HashSet<>();
 		Set<ProposedRelation> proposedRelations = new HashSet<>();
+
 		for (URI from : froms) {
 			for (URI to : tos) {
 				explicitRelations
@@ -299,7 +301,15 @@ public class RelationHierarchyView extends DataView {
 								.get(new Pair<>(from, to)));
 				proposedRelations.addAll(this.proposedRelationsMappings
 						.get(new Pair<>(from, to)));
+				proposedRelations.addAll(this.proposedRelationsMappings
+						.get(new Pair<>(from, to)));
 			}
+		}
+
+		SetHashMap<Pair<URI, URI>, ProposedRelation> proposedRelations2 = new SetHashMap<>();
+		for (ProposedRelation proposedRelation : proposedRelations) {
+			proposedRelations2.addTo(new Pair<>(proposedRelation.getFrom(),
+					proposedRelation.getTo()), proposedRelation);
 		}
 
 		for (IRelation explicitRelation : explicitRelations) {
@@ -311,6 +321,24 @@ public class RelationHierarchyView extends DataView {
 						|| this.isSubRelationSameTo(explicitRelation,
 								proposedRelation)) {
 					iterator.remove();
+					proposedRelations2
+							.removeFrom(new Pair<>(proposedRelation.getFrom(),
+									proposedRelation.getTo()), proposedRelation);
+				}
+			}
+		}
+
+		proposedRelations = new HashSet<>();
+		if (maxRelationsBetweenTwoElements >= 0) {
+			for (Pair<URI, URI> fromTo : proposedRelations2.keySet()) {
+				int i = 0;
+				for (ProposedRelation proposedRelation2 : proposedRelations2
+						.get(fromTo)) {
+					if (i >= maxRelationsBetweenTwoElements) {
+						break;
+					}
+					proposedRelations.add(proposedRelation2);
+					i++;
 				}
 			}
 		}

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
+import com.bkahlert.nebula.utils.Debouncer;
 import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
@@ -247,22 +248,61 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
+	private Debouncer<URI> axialCodingModelAdded = new Debouncer<URI>(
+			uri -> {
+				try {
+					ExecUtils
+							.syncExec(() -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelAdded(uri);
+								}
+							});
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			});
+
+	private Debouncer<URI> axialCodingModelUpdated = new Debouncer<URI>(
+			uri -> {
+				try {
+					ExecUtils
+							.syncExec(() -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelUpdated(uri);
+								}
+							});
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			});
+
+	private Debouncer<URI> axialCodingModelRemoved = new Debouncer<URI>(
+			uri -> {
+				try {
+					ExecUtils
+							.syncExec(() -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelRemoved(uri);
+								}
+							});
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+			});
+
 	public void axialCodingModelAdded(final URI uri) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.axialCodingModelAdded(uri);
-		}
+		this.axialCodingModelAdded.call(uri, 500);
 	}
 
 	public void axialCodingModelUpdated(final URI uri) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.axialCodingModelUpdated(uri);
-		}
+		this.axialCodingModelUpdated.call(uri, 500);
 	}
 
 	public void axialCodingModelRemoved(final URI uri) {
-		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.axialCodingModelRemoved(uri);
-		}
+		this.axialCodingModelRemoved.call(uri, 500);
 	}
 
 }

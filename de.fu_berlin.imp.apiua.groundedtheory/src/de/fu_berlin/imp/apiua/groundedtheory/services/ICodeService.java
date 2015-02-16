@@ -2,6 +2,7 @@ package de.fu_berlin.imp.apiua.groundedtheory.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -308,7 +309,7 @@ public interface ICodeService {
 	public Set<ImplicitRelation> getImplicitRelations(IRelation relation);
 
 	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
-			Collection<URI> tos);
+			Collection<URI> tos, int maxRelationsBetweenTwoElements);
 
 	public Set<IRelation> getExplicitRelationsStartingFrom(URI parentUri);
 

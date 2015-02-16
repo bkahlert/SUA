@@ -812,7 +812,7 @@ public class AxialCodingComposite extends Composite implements
 			ExecutionException {
 		StringBuilder proposedRelationsJs = new StringBuilder();
 		List<URI> proposedRelations = CODE_SERVICE
-				.getProposedRelation(validElements, validElements).stream()
+				.getProposedRelation(validElements, validElements, 3).stream()
 				.map(r -> r.getUri()).collect(Collectors.toList());
 		List<URI> existingProposedRelations = this.getRelations("proposed")
 				.get();
