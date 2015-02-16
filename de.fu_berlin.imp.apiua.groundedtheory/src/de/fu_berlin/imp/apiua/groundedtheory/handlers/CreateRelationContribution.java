@@ -84,7 +84,7 @@ public class CreateRelationContribution extends ContributionItem {
 		List<ICodeInstance> codeInstances = new LinkedList<>();
 		if (uris.size() == 1) {
 			URI uri = uris.get(0);
-			codeInstances = this.codeService.getAllInstances(uri);
+			codeInstances = this.codeService.getExplicitInstances(uri);
 			for (ICodeInstance codeInstance1 : codeInstances) {
 				for (ICodeInstance codeInstance2 : codeInstances) {
 					URI fromUri = codeInstance1.getCode().getUri();
@@ -97,7 +97,7 @@ public class CreateRelationContribution extends ContributionItem {
 							toUri));
 
 					for (IRelation relation : this.codeService
-							.getAllRelations()) {
+							.getExplicitRelations()) {
 						if (relation.getFrom().equals(fromUri)
 								&& relation.getTo().equals(toUri)) {
 							groundableRelations.add(new Pair<URI, IRelation>(
@@ -267,7 +267,8 @@ public class CreateRelationContribution extends ContributionItem {
 					}
 				});
 
-				if (this.codeService.isExplicitlyGrounded(groundableRelation.getFirst(),
+				if (this.codeService.isExplicitlyGrounded(
+						groundableRelation.getFirst(),
 						groundableRelation.getSecond())) {
 					menuItem.setText(menuItem.getText() + " (already grounded)");
 					menuItem.setEnabled(false);
