@@ -64,15 +64,11 @@ public class UriWizard extends Wizard {
 			}
 			return true;
 		} catch (final UriServiceException e) {
-			ExecUtils.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					IStatus status = new Status(IStatus.ERROR,
-							Activator.PLUGIN_ID,
-							"Error creating/saving a new URIXX", e);
-					ErrorDialog.openError(UriWizard.this.getShell(),
-							"URI Creation Error", status.getMessage(), status);
-				}
+			ExecUtils.asyncExec(() -> {
+				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+						"Error creating/saving a new URI", e);
+				ErrorDialog.openError(UriWizard.this.getShell(),
+						"URI Creation Error", status.getMessage(), status);
 			});
 			return false;
 		}
