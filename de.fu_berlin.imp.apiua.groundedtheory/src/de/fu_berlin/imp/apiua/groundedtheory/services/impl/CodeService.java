@@ -5,9 +5,12 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -26,6 +29,7 @@ import org.eclipse.ui.services.IDisposable;
 import org.osgi.service.component.ComponentContext;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IteratorUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.Triple;
@@ -474,9 +478,9 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
-			Collection<URI> tos) {
+			Collection<URI> tos, int maxRelationsBetweenTwoElements) {
 		return this.codeStore.getRelationHierarchyView().getProposedRelation(
-				froms, tos);
+				froms, tos, maxRelationsBetweenTwoElements);
 	}
 
 	@Override
@@ -876,20 +880,42 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public List<Triple<URI, IDimension, String>> getDimensionValues(
+	public Map<ICode, Pair<IDimension, String>> getDimensionValues(
 			ICodeInstance codeInstance) {
-		List<Triple<URI, IDimension, String>> values = new ArrayList<Triple<URI, IDimension, String>>();
+		Map<ICode, Pair<IDimension, String>> values = new HashMap<>();
+		for (Triple<Integer, ICode, IDimension> property : this
+				.getPropertyTree(codeInstance.getCode())) {
+			values.put(property.getSecond(), null);
+		}
 		for (ICode code : this.getCodes(codeInstance.getId())) {
-			URI codeUri = code.getUri();
-			IDimension dimension = this.getDimension(codeUri);
+			values.put(code, null);
+		}
+		for (Iterator<ICode> iterator = values.keySet().iterator(); iterator
+				.hasNext();) {
+			ICode code = iterator.next();
+			IDimension dimension = this.getDimension(code.getUri());
 			if (dimension != null) {
 				String value = this.getDimensionValue(codeInstance.getUri(),
 						code);
-				values.add(new Triple<URI, IDimension, String>(codeUri,
-						dimension, value));
+				values.put(code, new Pair<>(dimension, value));
+			} else {
+				iterator.remove();
 			}
 		}
 		return values;
+	}
+
+	@Override
+	public List<Triple<Integer, ICode, IDimension>> getPropertyTree(ICode code) {
+		List<Triple<Integer, ICode, IDimension>> dimensions = new LinkedList<Triple<Integer, ICode, IDimension>>();
+		for (Pair<Integer, ICode> property : IteratorUtils.dfs(code,
+				property -> this.getProperties(property).toArray(new ICode[0]))) {
+			IDimension dimension = this.getDimension(property.getSecond()
+					.getUri());
+			dimensions.add(new Triple<Integer, ICode, IDimension>(property
+					.getFirst(), property.getSecond(), dimension));
+		}
+		return dimensions;
 	}
 
 	@Override

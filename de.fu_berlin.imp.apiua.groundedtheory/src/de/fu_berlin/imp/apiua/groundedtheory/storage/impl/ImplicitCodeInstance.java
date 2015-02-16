@@ -15,17 +15,18 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 public class ImplicitCodeInstance implements ICodeInstance {
 
 	private static final long serialVersionUID = 1L;
-	private ICodeInstance codeInstance;
+	private ICodeInstance explicitCodeInstance;
 	private ICode newCode;
 	private URI uri;
 
-	public ImplicitCodeInstance(ICodeInstance codeInstance, ICode newCode) {
-		Assert.isLegal(codeInstance != null);
+	public ImplicitCodeInstance(ICodeInstance explicitCodeInstance,
+			ICode newCode) {
+		Assert.isLegal(explicitCodeInstance != null);
 		Assert.isLegal(newCode != null);
-		this.codeInstance = codeInstance;
+		this.explicitCodeInstance = explicitCodeInstance;
 		this.newCode = newCode;
 		try {
-			this.uri = new URI(codeInstance.getUri() + "/implicit/"
+			this.uri = new URI(explicitCodeInstance.getUri() + "/implicit/"
 					+ URLEncoder.encode(newCode.getUri().toString(), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
@@ -34,17 +35,21 @@ public class ImplicitCodeInstance implements ICodeInstance {
 
 	@Override
 	public TimeZoneDateRange getDateRange() {
-		return this.codeInstance.getDateRange();
+		return this.explicitCodeInstance.getDateRange();
 	}
 
 	@Override
 	public IIdentifier getIdentifier() {
-		return this.codeInstance.getIdentifier();
+		return this.explicitCodeInstance.getIdentifier();
 	}
 
 	@Override
 	public long getCodeInstanceID() {
-		return this.codeInstance.getCodeInstanceID();
+		return this.explicitCodeInstance.getCodeInstanceID();
+	}
+
+	public ICodeInstance getExplicitCodeInstance() {
+		return this.explicitCodeInstance;
 	}
 
 	@Override
@@ -59,12 +64,12 @@ public class ImplicitCodeInstance implements ICodeInstance {
 
 	@Override
 	public URI getId() {
-		return this.codeInstance.getId();
+		return this.explicitCodeInstance.getId();
 	}
 
 	@Override
 	public TimeZoneDate getCreation() {
-		return this.codeInstance.getCreation();
+		return this.explicitCodeInstance.getCreation();
 	}
 
 	@Override
@@ -73,8 +78,8 @@ public class ImplicitCodeInstance implements ICodeInstance {
 		int result = 1;
 		result = prime
 				* result
-				+ ((this.codeInstance == null) ? 0 : this.codeInstance
-						.hashCode());
+				+ ((this.explicitCodeInstance == null) ? 0
+						: this.explicitCodeInstance.hashCode());
 		result = prime * result
 				+ ((this.newCode == null) ? 0 : this.newCode.hashCode());
 		return result;
@@ -92,11 +97,12 @@ public class ImplicitCodeInstance implements ICodeInstance {
 			return false;
 		}
 		ImplicitCodeInstance other = (ImplicitCodeInstance) obj;
-		if (this.codeInstance == null) {
-			if (other.codeInstance != null) {
+		if (this.explicitCodeInstance == null) {
+			if (other.explicitCodeInstance != null) {
 				return false;
 			}
-		} else if (!this.codeInstance.equals(other.codeInstance)) {
+		} else if (!this.explicitCodeInstance
+				.equals(other.explicitCodeInstance)) {
 			return false;
 		}
 		if (this.newCode == null) {

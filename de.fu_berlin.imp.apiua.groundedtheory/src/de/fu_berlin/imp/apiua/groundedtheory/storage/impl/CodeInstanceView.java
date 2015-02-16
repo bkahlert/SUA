@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bkahlert.nebula.lang.ListHashMap;
+import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 
@@ -26,12 +27,12 @@ public class CodeInstanceView extends DataView {
 	private Set<ICodeInstance> allCodeInstancesReadOnly;
 
 	private Map<Long, ICodeInstance> explicitCodeInstanceByCodeInstanceId;
-	private Map<URI, ICodeInstance> explicitCodeInstanceByCodeInstanceUri;
 	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstancePhenomenon;
 	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstanceCode;
-	private ListHashMap<URI, ICode> explicitCodesByCodeInstancePhenomenon;
 	private Set<URI> explicitlyCodedPhenomenonsReadOnly;
 
+	private Map<URI, ICodeInstance> allCodeInstanceByCodeInstanceUri;
+	private SetHashMap<URI, ICode> allCodesByCodeInstancePhenomenon;
 	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstancePhenomenon;
 	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstanceCode;
 
@@ -93,23 +94,17 @@ public class CodeInstanceView extends DataView {
 
 	private void refreshMapping() {
 		this.explicitCodeInstanceByCodeInstanceId = new HashMap<>();
-		this.explicitCodeInstanceByCodeInstanceUri = new HashMap<>();
 		this.explicitCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
 		this.explicitCodeInstancesByCodeInstanceCode = new ListHashMap<>();
-		this.explicitCodesByCodeInstancePhenomenon = new ListHashMap<>();
 		Set<URI> explicitlyCodedPhenomenons = new HashSet<>();
 		for (ICodeInstance codeInstance : this.explicitCodeInstancesReadOnly) {
 			this.explicitCodeInstanceByCodeInstanceId.put(
 					codeInstance.getCodeInstanceID(), codeInstance);
-			this.explicitCodeInstanceByCodeInstanceUri.put(
-					codeInstance.getUri(), codeInstance);
 
 			this.explicitCodeInstancesByCodeInstancePhenomenon.addTo(
 					codeInstance.getId(), codeInstance);
 			this.explicitCodeInstancesByCodeInstanceCode.addTo(codeInstance
 					.getCode().getUri(), codeInstance);
-			this.explicitCodesByCodeInstancePhenomenon.addTo(
-					codeInstance.getId(), codeInstance.getCode());
 
 			if (!explicitlyCodedPhenomenons.contains(codeInstance.getId())) {
 				explicitlyCodedPhenomenons.add(codeInstance.getId());
@@ -118,9 +113,15 @@ public class CodeInstanceView extends DataView {
 		this.explicitlyCodedPhenomenonsReadOnly = Collections
 				.unmodifiableSet(explicitlyCodedPhenomenons);
 
+		this.allCodeInstanceByCodeInstanceUri = new HashMap<>();
+		this.allCodesByCodeInstancePhenomenon = new SetHashMap<>();
 		this.allCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
 		this.allCodeInstancesByCodeInstanceCode = new ListHashMap<>();
 		for (ICodeInstance codeInstance : this.allCodeInstancesReadOnly) {
+			this.allCodeInstanceByCodeInstanceUri.put(codeInstance.getUri(),
+					codeInstance);
+			this.allCodesByCodeInstancePhenomenon.addTo(codeInstance.getId(),
+					codeInstance.getCode());
 			this.allCodeInstancesByCodeInstancePhenomenon.addTo(
 					codeInstance.getId(), codeInstance);
 			this.allCodeInstancesByCodeInstanceCode.addTo(codeInstance
@@ -155,14 +156,13 @@ public class CodeInstanceView extends DataView {
 
 	public ICodeInstance getByUri(URI uri) {
 		this.checkAndRefresh();
-		return this.explicitCodeInstanceByCodeInstanceUri.get(uri);
+		return this.allCodeInstanceByCodeInstanceUri.get(uri);
 	}
 
-	public List<ICode> getCodesByPhenomenon(URI uri) {
+	public Set<ICode> getCodesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
 		return Collections
-				.unmodifiableList(this.explicitCodesByCodeInstancePhenomenon
-						.get(uri));
+				.unmodifiableSet(this.allCodesByCodeInstancePhenomenon.get(uri));
 	}
 
 	/**

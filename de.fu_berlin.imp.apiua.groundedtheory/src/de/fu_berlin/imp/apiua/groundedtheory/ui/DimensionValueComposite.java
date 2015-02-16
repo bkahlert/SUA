@@ -16,8 +16,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IteratorUtils;
-import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Triple;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
@@ -126,14 +124,8 @@ public class DimensionValueComposite extends Composite {
 		this.loaded = codeInstance;
 
 		this.dimensions.clear();
-		for (Pair<Integer, ICode> property : IteratorUtils.dfs(codeInstance
-				.getCode(), property1 -> CODE_SERVICE.getProperties(property1)
-				.toArray(new ICode[0]))) {
-			IDimension dimension = CODE_SERVICE.getDimension(property
-					.getSecond().getUri());
-			this.dimensions.add(new Triple<Integer, ICode, IDimension>(property
-					.getFirst(), property.getSecond(), dimension));
-		}
+		this.dimensions.addAll(CODE_SERVICE.getPropertyTree(codeInstance
+				.getCode()));
 
 		try {
 			ExecUtils.syncExec(() -> DimensionValueComposite.this.refresh());
@@ -234,8 +226,17 @@ public class DimensionValueComposite extends Composite {
 					}
 				}
 
+				String suffix = "";
+				// try {
+				// suffix = i == 0 ? " "
+				// + new GTLabelProvider()
+				// .getCodeInstanceAwareStyledText(this.loaded
+				// .getUri()) : "";
+				// } catch (Exception e) {
+				// LOGGER.error(e);
+				// }
 				IllustratedText labelContent = new SimpleIllustratedComposite.IllustratedText(
-						image, prefix + code.getCaption());
+						image, prefix + code.getCaption() + suffix);
 				SimpleIllustratedComposite label = new SimpleIllustratedComposite(
 						this, SWT.CENTER | (i == 0 ? SWT.BOLD : SWT.NONE),
 						labelContent);

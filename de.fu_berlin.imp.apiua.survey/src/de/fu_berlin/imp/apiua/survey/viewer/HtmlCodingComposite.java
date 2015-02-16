@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
@@ -58,6 +59,9 @@ import de.fu_berlin.imp.apiua.survey.model.groupdiscussion.GroupDiscussionDocume
 
 public class HtmlCodingComposite extends Composite implements
 		ISelectionProvider {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(HtmlCodingComposite.class);
 
 	private static final ICodeService CODE_SERVICE = (ICodeService) PlatformUI
 			.getWorkbench().getService(ICodeService.class);
@@ -348,7 +352,7 @@ public class HtmlCodingComposite extends Composite implements
 						content.add(new Pair<>(id, locatable != null ? Utils
 								.createAnnotations(locatable) : null));
 					}
-					this.setCodeMarkups(content);
+					HtmlCodingComposite.this.setCodeMarkups(content);
 					return null;
 				}));
 	}

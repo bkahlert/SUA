@@ -579,8 +579,8 @@ public interface ICodeService {
 	public String getDimensionValue(URI uri, ICode code);
 
 	/**
-	 * Returns the all {@link IDimension} values associated with the given
-	 * {@link URI}.
+	 * Returns the all {@link IDimension}s <b>that are not <code>null</code></b>
+	 * and their values associated with the given {@link URI}.
 	 *
 	 * @param codeInstance
 	 * @return a list of triples. Each triple consists of
@@ -591,7 +591,7 @@ public interface ICodeService {
 	 *         </ol>
 	 * @throws CodeServiceException
 	 */
-	public List<Triple<URI, IDimension, String>> getDimensionValues(
+	public Map<ICode, Pair<IDimension, String>> getDimensionValues(
 			ICodeInstance codeInstance);
 
 	/**
@@ -668,6 +668,19 @@ public interface ICodeService {
 	 */
 	public void removeProperty(ICode code, ICode property)
 			throws CodeStoreWriteException;
+
+	/**
+	 * Returns a list of triple.
+	 * <ol>
+	 * <li>depth of the property</li>
+	 * <li>property</li>
+	 * <li>property's dimension (for convencience)</li>
+	 * </ol>
+	 *
+	 * @param code
+	 * @return
+	 */
+	public List<Triple<Integer, ICode, IDimension>> getPropertyTree(ICode code);
 
 	/**
 	 * Returns all immediate and inherited properties.
