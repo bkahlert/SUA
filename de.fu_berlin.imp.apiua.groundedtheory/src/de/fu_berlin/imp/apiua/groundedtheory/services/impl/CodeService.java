@@ -50,6 +50,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.Relation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.RelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
@@ -466,6 +467,13 @@ public class CodeService implements ICodeService, IDisposable {
 	public Set<ImplicitRelation> getImplicitRelations(IRelation relation) {
 		return this.codeStore.getRelationHierarchyView()
 				.getImplicitRelationsByRelationUri(relation);
+	}
+
+	@Override
+	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
+			Collection<URI> tos) {
+		return this.codeStore.getRelationHierarchyView().getProposedRelation(
+				froms, tos);
 	}
 
 	@Override
@@ -1188,8 +1196,9 @@ public class CodeService implements ICodeService, IDisposable {
 						}
 					}
 
-					Set<URI> neededRelations = filterConnectingRelations(
-							neededElements, relations);
+					Set<URI> neededRelations = this
+							.filterExplicitRelations(filterConnectingRelations(
+									neededElements, relations));
 
 					this.updateAxialCodingModelFrom(axialCodingComposite,
 							neededElements, neededRelations).get();
@@ -1204,25 +1213,19 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public Future<Void> updateAxialCodingRelationsFrom(
 			AxialCodingComposite axialCodingComposite) {
-		return ExecUtils
-				.nonUISyncExec((Callable<Void>) () -> {
-					Set<URI> existingElements = new HashSet<URI>(
-							axialCodingComposite.getElements().get());
-					Set<URI> relations = filterConnectingRelations(
-							existingElements, this.getAllRelations());
+		return ExecUtils.nonUISyncExec((Callable<Void>) () -> {
+			Set<URI> existingElements = new HashSet<URI>(axialCodingComposite
+					.getElements().get());
+			Set<URI> relations = filterConnectingRelations(existingElements,
+					this.getAllRelations());
 
-					relations = relations
-							.stream()
-							.filter(r -> !(this.codeStore
-									.getRelationHierarchyView()
-									.getRelationByRelationUri(r) instanceof ImplicitRelation))
-							.collect(Collectors.toSet());
+			relations = this.filterExplicitRelations(relations);
 
-					this.updateAxialCodingModelFrom(axialCodingComposite,
-							existingElements, relations).get();
+			this.updateAxialCodingModelFrom(axialCodingComposite,
+					existingElements, relations).get();
 
-					return null;
-				});
+			return null;
+		});
 	}
 
 	@Override
@@ -1314,6 +1317,22 @@ public class CodeService implements ICodeService, IDisposable {
 				.stream()
 				.filter(r -> elements.contains(r.getFrom())
 						&& elements.contains(r.getTo())).map(r -> r.getUri())
+				.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns the {@link IRelation} that have related elements contained in the
+	 * given elements.
+	 *
+	 * @param elements
+	 * @param relations
+	 * @return
+	 */
+	private Set<URI> filterExplicitRelations(Collection<URI> relations) {
+		return relations
+				.stream()
+				.filter(r -> this.codeStore.getRelationHierarchyView()
+						.getRelationByRelationUri(r) instanceof Relation)
 				.collect(Collectors.toSet());
 	}
 

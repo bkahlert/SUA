@@ -59,6 +59,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -665,6 +666,20 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 								.getExplicitRelation().getTo())
 								+ " ("
 								+ implicitRelation.getExplicitRelation()
+										.getTo() + ")"));
+			} else if (relation instanceof ProposedRelation) {
+				ProposedRelation proposedRelation = (ProposedRelation) relation;
+				detailEntries.add(new DetailEntry("Original From",
+						labelProviderService.getText(proposedRelation
+								.getExplicitRelation().getFrom())
+								+ " ("
+								+ proposedRelation.getExplicitRelation()
+										.getFrom() + ")"));
+				detailEntries.add(new DetailEntry("Original To",
+						labelProviderService.getText(proposedRelation
+								.getExplicitRelation().getTo())
+								+ " ("
+								+ proposedRelation.getExplicitRelation()
 										.getTo() + ")"));
 			} else {
 				List<String> implicitRelations = new LinkedList<>();

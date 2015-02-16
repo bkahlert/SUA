@@ -46,6 +46,15 @@
 	fill: #999;
 }
 
+/* proposed relations */
+.link.proposed .connection {
+	stroke-dasharray: 5,5;
+}
+
+.link.proposed .labels text tspan {
+	font-style: italic;
+}
+
 /* memos */
 .memo {
 	position: relative;

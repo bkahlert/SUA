@@ -9,6 +9,7 @@ import java.util.Set;
 import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
+import com.bkahlert.nebula.utils.Pair;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.model.identifier.IIdentifier;
@@ -18,6 +19,8 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelationInstance;
 
 /**
  * {@link DataView} that makes parent-child relations available through
@@ -36,6 +39,7 @@ public class RelationInstanceView extends DataView {
 
 	private Set<IRelationInstance> explicitRelationInstancesReadOnly;
 	private Set<ImplicitRelationInstance> implicitRelationInstancesReadOnly;
+	private Set<ProposedRelationInstance> proposedRelationInstancesReadOnly;
 	private Set<IRelationInstance> allRelationInstancesReadOnly;
 
 	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesByRelationInstancePhenomenon;
@@ -44,6 +48,7 @@ public class RelationInstanceView extends DataView {
 	private SetHashMap<IIdentifier, IRelationInstance> allRelationInstancesByRelationInstanceIdentifier;
 	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesByRelationInstanceRelation;
 	private SetHashMap<URI, ImplicitRelationInstance> implicitRelationInstancesByRelationInstanceRelation;
+	private SetHashMap<Pair<URI, URI>, ProposedRelationInstance> proposedRelationInstancesByFromTo;
 	private SetHashMap<URI, IRelationInstance> allRelationInstancesByRelationInstanceRelation;
 
 	private Map<URI, IRelationInstance> allRelationInstancesByRelationInstanceUri;
@@ -96,8 +101,10 @@ public class RelationInstanceView extends DataView {
 		}
 
 		HashSet<ImplicitRelationInstance> implicitRelationInstances = new HashSet<>();
+		HashSet<ProposedRelationInstance> proposedRelationInstances = new HashSet<>();
 		HashSet<IRelationInstance> allRelationInstances = new HashSet<>(
 				this.explicitRelationInstancesReadOnly);
+
 		this.implicitRelationInstancesByRelationInstanceRelation = new SetHashMap<>();
 		for (IRelation parentRelation : this.relationHierarchyView
 				.getExplicitRelations()) {
@@ -127,8 +134,31 @@ public class RelationInstanceView extends DataView {
 				}
 			}
 		}
+
+		this.proposedRelationInstancesByFromTo = new SetHashMap<>();
+		for (ProposedRelation proposedRelation : this.relationHierarchyView
+				.getProposedRelations()) {
+			for (IRelationInstance relationInstance : this
+					.getAllRelationInstancesByRelation(proposedRelation
+							.getExplicitRelation())) {
+				ProposedRelationInstance proposedRelationInstance = new ProposedRelationInstance(
+						relationInstance, proposedRelation);
+				proposedRelationInstances.add(proposedRelationInstance);
+				allRelationInstances.add(proposedRelationInstance);
+
+				this.proposedRelationInstancesByFromTo.addTo(new Pair<>(
+						proposedRelation.getFrom(), proposedRelation.getTo()),
+						proposedRelationInstance);
+
+				this.allRelationInstancesByRelationInstanceRelation.addTo(
+						proposedRelation.getUri(), proposedRelationInstance);
+			}
+		}
+
 		this.implicitRelationInstancesReadOnly = Collections
 				.unmodifiableSet(implicitRelationInstances);
+		this.proposedRelationInstancesReadOnly = Collections
+				.unmodifiableSet(proposedRelationInstances);
 		this.allRelationInstancesReadOnly = Collections
 				.unmodifiableSet(allRelationInstances);
 
@@ -167,6 +197,11 @@ public class RelationInstanceView extends DataView {
 	public Set<ImplicitRelationInstance> getImplicitRelationInstances() {
 		this.checkAndRefresh();
 		return this.implicitRelationInstancesReadOnly;
+	}
+
+	public Set<ProposedRelationInstance> getProposedRelationInstances() {
+		this.checkAndRefresh();
+		return this.proposedRelationInstancesReadOnly;
 	}
 
 	public Set<IRelationInstance> getAllRelationInstances() {
@@ -258,6 +293,14 @@ public class RelationInstanceView extends DataView {
 		return Collections
 				.unmodifiableSet(this.implicitRelationInstancesByRelationInstanceRelation
 						.get(uri));
+	}
+
+	public Set<ProposedRelationInstance> getProposedRelationInstances(URI from,
+			URI to) {
+		this.checkAndRefresh();
+		return Collections
+				.unmodifiableSet(this.proposedRelationInstancesByFromTo
+						.get(new Pair<>(from, to)));
 	}
 
 	/**

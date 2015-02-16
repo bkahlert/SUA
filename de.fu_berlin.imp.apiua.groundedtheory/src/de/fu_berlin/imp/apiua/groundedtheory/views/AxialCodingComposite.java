@@ -61,6 +61,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.JointJSAxialCodingModel;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceAdapter;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -96,6 +97,7 @@ public class AxialCodingComposite extends Composite implements
 			.refresh());
 
 	private final ICodeServiceListener codeServiceListener = new CodeServiceAdapter() {
+
 		@Override
 		public void codeRenamed(ICode code, String oldCaption, String newCaption) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
@@ -118,6 +120,12 @@ public class AxialCodingComposite extends Composite implements
 		}
 
 		@Override
+		public void codesAssigned(java.util.List<ICode> codes,
+				java.util.List<URI> uris) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
 		public void relationsAdded(java.util.Set<IRelation> relations) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		};
@@ -129,6 +137,18 @@ public class AxialCodingComposite extends Composite implements
 
 		@Override
 		public void relationsDeleted(java.util.Set<IRelation> relations) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void relationInstancesAdded(
+				java.util.Set<IRelationInstance> relations) {
+			ExecUtils.logException(AxialCodingComposite.this.refresh());
+		};
+
+		@Override
+		public void relationInstancesDeleted(
+				java.util.Set<IRelationInstance> relations) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		};
 
@@ -209,8 +229,24 @@ public class AxialCodingComposite extends Composite implements
 			@Override
 			public void doubleClicked(JointJSCell cell) {
 				if (LocatorService.INSTANCE != null) {
+					URI uri = new URI(cell.getId());
+					List<URI> uris = new LinkedList<>();
+					uris.add(uri);
+
+					try {
+						ProposedRelation proposedRelation = LocatorService.INSTANCE
+								.resolve(uri, ProposedRelation.class, null)
+								.get();
+						if (proposedRelation != null) {
+							uris.add(proposedRelation.getFrom());
+							uris.add(proposedRelation.getTo());
+						}
+					} catch (InterruptedException | ExecutionException e) {
+						LOGGER.error(e);
+					}
+
 					LocatorService.INSTANCE.showInWorkspace(
-							new URI(cell.getId()), false, null);
+							uris.toArray(new URI[0]), false, null);
 				} else {
 					LOGGER.error("Could not retrieve "
 							+ ILocatorService.class.getSimpleName());
@@ -395,7 +431,7 @@ public class AxialCodingComposite extends Composite implements
 						throw new IllegalArgumentException(e1);
 					} catch (Exception e2) {
 						LOGGER.error("Error refreshing the axial coding model "
-								+ uri);
+								+ uri, e2);
 					}
 					return null;
 				});
@@ -488,6 +524,20 @@ public class AxialCodingComposite extends Composite implements
 					}
 					return uris;
 				});
+	}
+
+	public Future<List<URI>> getRelations(String customClass) {
+		return ExecUtils.nonUIAsyncExec((Callable<List<URI>>) () -> {
+			List<URI> uris = new LinkedList<URI>();
+			for (String id : AxialCodingComposite.this.jointjs.getLinks(
+					customClass).get()) {
+				if (id.contains("|")) {
+					continue;
+				}
+				uris.add(new URI(id));
+			}
+			return uris;
+		});
 	}
 
 	public Future<List<URI>> getIsARelations() {
@@ -695,11 +745,10 @@ public class AxialCodingComposite extends Composite implements
 	 *
 	 * @NonUIThread
 	 */
-	private String deleteAllOutdatedIsARelationsBetweenValidElementsStatement(
-			List<String> relationIds) throws InterruptedException,
+	private String deleteAllOutdatedIsARelations() throws InterruptedException,
 			ExecutionException {
 		StringBuilder js = new StringBuilder();
-		for (String relationId : relationIds) {
+		for (String relationId : this.jointjs.getPermanentLinks().get()) {
 			URI parentURI = new URI(relationId.split("\\|")[0]);
 			URI subURI = new URI(relationId.split("\\|")[1]);
 
@@ -718,29 +767,68 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	public Future<Void> refresh() {
-		return ExecUtils
-				.nonUIAsyncExec((Callable<Void>) () -> {
-					List<URI> element = AxialCodingComposite.this.getElements()
-							.get();
-					List<String> permanentLinks = this.jointjs
-							.getPermanentLinks().get();
+		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
+			List<URI> element = AxialCodingComposite.this.getElements().get();
+			StringBuilder js = new StringBuilder();
+			Pair<String, List<URI>> validElements = this
+					.createRefreshElementsStatement();
+			js.append(validElements.getFirst());
 
-					StringBuilder js = new StringBuilder();
-					Pair<String, List<URI>> rs = this
-							.createRefreshElementsStatement();
-					js.append(rs.getFirst());
+			// is-a relations
+				js.append(AxialCodingComposite.this
+						.deleteAllOutdatedIsARelations());
+				for (URI uri : validElements.getSecond()) {
 					js.append(AxialCodingComposite.this
-							.deleteAllOutdatedIsARelationsBetweenValidElementsStatement(permanentLinks));
-					List<URI> validUris = rs.getSecond();
-					for (URI uri : validUris) {
-						js.append(AxialCodingComposite.this
-								.createIsARelationsStatement(uri, element));
-					}
-					js.append(AxialCodingComposite.this
-							.refreshRelationsStatements().getFirst());
-					ExecUtils.logException(this.jointjs.run(js.toString()));
-					return null;
-				});
+							.createIsARelationsStatement(uri, element));
+				}
+
+				// proposed relations
+				this.jointjs
+						.run(this
+								.createRefreshProposedRelationsStatement(validElements
+										.getSecond())).get();
+
+				js.append(AxialCodingComposite.this.refreshRelationsStatements(
+						this.getRelations().get()).getFirst());
+				ExecUtils.logException(this.jointjs.run(js.toString()));
+				return null;
+			});
+	}
+
+	/**
+	 * Creates a statement that create all {@link ProposedRelation}s that should
+	 * be present in the ACM and that deletes all the ones that don't exist
+	 * anymore.
+	 *
+	 * @param validElements
+	 * @param relations
+	 *            to be considered existent in the ACM
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private String createRefreshProposedRelationsStatement(
+			List<URI> validElements) throws InterruptedException,
+			ExecutionException {
+		StringBuilder proposedRelationsJs = new StringBuilder();
+		List<URI> proposedRelations = CODE_SERVICE
+				.getProposedRelation(validElements, validElements).stream()
+				.map(r -> r.getUri()).collect(Collectors.toList());
+		List<URI> existingProposedRelations = this.getRelations("proposed")
+				.get();
+		for (URI proposedRelation : proposedRelations) {
+			if (!existingProposedRelations.contains(proposedRelation)) {
+				proposedRelationsJs.append(AxialCodingComposite
+						.createRelationStatement(proposedRelation));
+			}
+		}
+		for (URI existingProposedRelation : existingProposedRelations) {
+			if (!proposedRelations.contains(existingProposedRelation)) {
+				proposedRelationsJs.append(JointJS
+						.removeStatement(existingProposedRelation.toString()));
+			}
+		}
+		return proposedRelationsJs.toString();
 	}
 
 	/**
@@ -902,24 +990,8 @@ public class AxialCodingComposite extends Composite implements
 	}
 
 	/**
-	 * Update all {@link IRelation}s in the loaded {@link IAxialCodingModel}.
-	 *
-	 * @param from
-	 * @param to
-	 * @return the valid {@link IRelation}s
-	 *
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 *
-	 * @NonUIThread
-	 */
-	public Pair<String, List<URI>> refreshRelationsStatements()
-			throws Exception {
-		return this.refreshRelationsStatements(this.getRelations().get());
-	}
-
-	/**
-	 * Update all {@link IRelation}s in the loaded {@link IAxialCodingModel}.
+	 * Update all given {@link IRelation}s in the loaded
+	 * {@link IAxialCodingModel}.
 	 *
 	 * @param from
 	 * @param to
@@ -986,6 +1058,13 @@ public class AxialCodingComposite extends Composite implements
 			} else {
 				js.append(JointJS.removeCustomClassStatement(
 						Arrays.asList(uri.toString()), "implicit"));
+			}
+			if (relation instanceof ProposedRelation) {
+				js.append(JointJS.addCustomClassStatement(
+						Arrays.asList(uri.toString()), "proposed"));
+			} else {
+				js.append(JointJS.removeCustomClassStatement(
+						Arrays.asList(uri.toString()), "proposed"));
 			}
 
 			int groundingAll = CODE_SERVICE.getAllRelationInstances(relation)

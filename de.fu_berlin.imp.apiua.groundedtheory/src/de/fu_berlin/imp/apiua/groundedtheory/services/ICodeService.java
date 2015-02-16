@@ -20,6 +20,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IDimension;
 import de.fu_berlin.imp.apiua.groundedtheory.model.dimension.IllegalDimensionValueException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.ICodeStore;
@@ -305,6 +306,9 @@ public interface ICodeService {
 	public Set<IRelation> getExplicitRelations();
 
 	public Set<ImplicitRelation> getImplicitRelations(IRelation relation);
+
+	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
+			Collection<URI> tos);
 
 	public Set<IRelation> getExplicitRelationsStartingFrom(URI parentUri);
 
