@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.bkahlert.nebula.data.TreeNode;
 import com.bkahlert.nebula.lang.ListHashMap;
@@ -15,6 +16,7 @@ import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
 import com.bkahlert.nebula.utils.Pair;
 
+import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 
@@ -35,6 +37,7 @@ public class CodeHierarchyView extends DataView {
 
 	private Set<ICode> codesReadOnly;
 	private Map<Long, ICode> ids;
+	private Map<URI, ICode> uris;
 	private Map<ICode, ICode> parents;
 	private ListHashMap<ICode, ICode> children;
 	private ListHashMap<ICode, ICode> ancestors;
@@ -62,6 +65,7 @@ public class CodeHierarchyView extends DataView {
 
 		Set<ICode> codes = new LinkedHashSet<>();
 		this.ids = new HashMap<>();
+		this.uris = new HashMap<>();
 		this.parents = new HashMap<>();
 		this.children = new ListHashMap<>();
 		this.ancestors = new ListHashMap<>();
@@ -75,6 +79,8 @@ public class CodeHierarchyView extends DataView {
 
 				// id-code-mapping
 				this.ids.put(code.getId(), code);
+
+				this.uris.put(code.getUri(), code);
 			}
 
 			// parent relations
@@ -117,6 +123,11 @@ public class CodeHierarchyView extends DataView {
 		return this.ids.get(id);
 	}
 
+	public ICode getCode(URI uri) {
+		this.checkAndRefresh();
+		return this.uris.get(uri);
+	}
+
 	public ICode getParent(ICode code) {
 		this.checkAndRefresh();
 		return this.parents.get(code);
@@ -135,6 +146,13 @@ public class CodeHierarchyView extends DataView {
 	public List<ICode> getDescendents(ICode code) {
 		this.checkAndRefresh();
 		return Collections.unmodifiableList(this.descendents.get(code));
+	}
+
+	public List<URI> getDescendents(URI code) {
+		this.checkAndRefresh();
+		return Collections.unmodifiableList(this.descendents
+				.get(this.getCode(code)).stream().map(c -> c.getUri())
+				.collect(Collectors.toList()));
 	}
 
 	public Set<IsACodeInstance> getExplicitIsACodeInstances() {
