@@ -163,8 +163,15 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public Set<ICode> getCodes(URI uri) {
-		return this.codeStore.getCodeInstanceView().getCodesByPhenomenon(uri);
+	public Set<ICode> getExplicitCodes(URI uri) {
+		return this.codeStore.getCodeInstanceView()
+				.getExplicitCodesByPhenomenon(uri);
+	}
+
+	@Override
+	public Set<ICode> getAllCodes(URI uri) {
+		return this.codeStore.getCodeInstanceView()
+				.getAllCodesByPhenomenon(uri);
 	}
 
 	@Override
@@ -814,7 +821,8 @@ public class CodeService implements ICodeService, IDisposable {
 					LocatorService.INSTANCE.uncache(episodeToDelete.getUri());
 				}
 				episodes.remove(episodeToDelete);
-				this.removeCodes(this.getCodes(episodeToDelete.getUri()),
+				this.removeCodes(
+						this.getExplicitCodes(episodeToDelete.getUri()),
 						episodeToDelete.getUri());
 				deletedEpisodes.add(episodeToDelete);
 			}
@@ -887,7 +895,7 @@ public class CodeService implements ICodeService, IDisposable {
 				.getPropertyTree(codeInstance.getCode())) {
 			values.put(property.getSecond(), null);
 		}
-		for (ICode code : this.getCodes(codeInstance.getId())) {
+		for (ICode code : this.getAllCodes(codeInstance.getId())) {
 			values.put(code, null);
 		}
 		for (Iterator<ICode> iterator = values.keySet().iterator(); iterator
@@ -1384,7 +1392,7 @@ public class CodeService implements ICodeService, IDisposable {
 			LocatorService.INSTANCE.uncache(src);
 		}
 
-		Set<ICode> codes = this.getCodes(src);
+		Set<ICode> codes = this.getExplicitCodes(src);
 		this.removeCodes(codes, src);
 		this.addCodes(codes, new HashSet<>(Arrays.asList(dest)));
 

@@ -3,15 +3,14 @@ package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
-import com.bkahlert.nebula.utils.AdapterUtils;
 import com.bkahlert.nebula.utils.ViewerUtils;
 
-import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.ui.viewer.URIContentProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
@@ -221,10 +220,13 @@ public class CodeInstanceViewerContentProvider extends
 	@Override
 	public URI getParent(URI uri) {
 		try {
-			ILocatable locatable = LocatorService.INSTANCE.resolve(uri, null)
-					.get();
-			if (ICodeInstance.class.isInstance(locatable)) {
-				return ((ICodeInstance) locatable).getCode().getUri();
+			if (LocatorService.INSTANCE.getType(uri) == ICodeInstance.class) {
+				ICodeInstance codeInstance = LocatorService.INSTANCE.resolve(
+						uri, ICodeInstance.class, null).get();
+				if (codeInstance == null) {
+					return null;
+				}
+				return codeInstance.getCode().getUri();
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error resolving " + uri, e);
@@ -239,16 +241,27 @@ public class CodeInstanceViewerContentProvider extends
 
 	@Override
 	public URI[] getChildren(final URI parent) throws Exception {
+		boolean isCode = false;
+		boolean isCodeInstance = false;
 
-		ILocatable locatable = LocatorService.INSTANCE.resolve(parent, null)
-				.get();
-		if (locatable instanceof ICodeInstance) {
-			return this.getChildren(((ICodeInstance) locatable).getId());
+		if (LocatorService.INSTANCE.getType(parent) == ICodeInstance.class) {
+			isCodeInstance = true;
+			ICodeInstance codeInstance = LocatorService.INSTANCE.resolve(
+					parent, ICodeInstance.class, null).get();
+			if (codeInstance == null) {
+				return new URI[0];
+			}
+			return this.getChildren(codeInstance.getId());
 		}
 
 		List<URI> children = new LinkedList<URI>();
-		if (locatable instanceof ICode) {
-			ICode code = (ICode) locatable;
+		if (LocatorService.INSTANCE.getType(parent) == ICode.class) {
+			isCode = true;
+			ICode code = LocatorService.INSTANCE.resolve(parent, ICode.class,
+					null).get();
+			if (code == null) {
+				return new URI[0];
+			}
 
 			if (this.codeService.getParent(code) != null) {
 				URI parentUri = this.codeService.getParent(code).getUri();
@@ -256,11 +269,12 @@ public class CodeInstanceViewerContentProvider extends
 			}
 		}
 
-		children.addAll(AdapterUtils.adaptAll(
-				this.codeService.getCodes(parent), URI.class));
+		if (parent != null && !(parent instanceof ViewerURI)) {
+			children.addAll(this.codeService.getExplicitCodes(parent).stream()
+					.map(c -> c.getUri()).collect(Collectors.toList()));
+		}
 
-		if (parent != ViewerURI.NO_CODES_URI && !(locatable instanceof ICode)
-				&& !(locatable instanceof ICodeInstance)
+		if (parent != ViewerURI.NO_CODES_URI && !isCode && !isCodeInstance
 				&& children.size() == 0) {
 			children.add(ViewerURI.NO_CODES_URI);
 		}

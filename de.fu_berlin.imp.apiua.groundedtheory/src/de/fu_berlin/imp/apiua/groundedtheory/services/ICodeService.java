@@ -38,12 +38,21 @@ public interface ICodeService {
 	public ICodeStore getCodeStore();
 
 	/**
+	 * Returns all {@link ICode}s explicitly associated with the given
+	 * {@link URI}.
+	 *
+	 * @param uri
+	 * @return an empty list if no {@link ICode}s were found; never returns null
+	 */
+	public Set<ICode> getExplicitCodes(URI uri);
+
+	/**
 	 * Returns all {@link ICode}s associated with the given {@link URI}.
 	 *
 	 * @param uri
 	 * @return an empty list if no {@link ICode}s were found; never returns null
 	 */
-	public Set<ICode> getCodes(URI uri);
+	public Set<ICode> getAllCodes(URI uri);
 
 	/**
 	 * Registers a {@link ICodeServiceListener}

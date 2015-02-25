@@ -26,15 +26,18 @@ public class CodeInstanceView extends DataView {
 	private Set<ImplicitCodeInstance> implicitCodeInstancesReadOnly;
 	private Set<ICodeInstance> allCodeInstancesReadOnly;
 
+	private SetHashMap<URI, ICode> explicitCodesByCodeInstancePhenomenon;
+	private SetHashMap<URI, ICode> allCodesByCodeInstancePhenomenon;
+
 	private Map<Long, ICodeInstance> explicitCodeInstanceByCodeInstanceId;
 	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstancePhenomenon;
+	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstancePhenomenon;
 	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstanceCode;
+	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstanceCode;
+
 	private Set<URI> explicitlyCodedPhenomenonsReadOnly;
 
 	private Map<URI, ICodeInstance> allCodeInstanceByCodeInstanceUri;
-	private SetHashMap<URI, ICode> allCodesByCodeInstancePhenomenon;
-	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstancePhenomenon;
-	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstanceCode;
 
 	public CodeInstanceView(CodeHierarchyView codeHierarchyView,
 			Set<ICodeInstance> explicitCodeInstances, IDirtiable... dirtiables) {
@@ -95,6 +98,7 @@ public class CodeInstanceView extends DataView {
 	private void refreshMapping() {
 		this.explicitCodeInstanceByCodeInstanceId = new HashMap<>();
 		this.explicitCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
+		this.explicitCodesByCodeInstancePhenomenon = new SetHashMap<>();
 		this.explicitCodeInstancesByCodeInstanceCode = new ListHashMap<>();
 		Set<URI> explicitlyCodedPhenomenons = new HashSet<>();
 		for (ICodeInstance codeInstance : this.explicitCodeInstancesReadOnly) {
@@ -103,6 +107,9 @@ public class CodeInstanceView extends DataView {
 
 			this.explicitCodeInstancesByCodeInstancePhenomenon.addTo(
 					codeInstance.getId(), codeInstance);
+			this.explicitCodesByCodeInstancePhenomenon.addTo(
+					codeInstance.getId(), codeInstance.getCode());
+
 			this.explicitCodeInstancesByCodeInstanceCode.addTo(codeInstance
 					.getCode().getUri(), codeInstance);
 
@@ -159,7 +166,14 @@ public class CodeInstanceView extends DataView {
 		return this.allCodeInstanceByCodeInstanceUri.get(uri);
 	}
 
-	public Set<ICode> getCodesByPhenomenon(URI uri) {
+	public Set<ICode> getExplicitCodesByPhenomenon(URI uri) {
+		this.checkAndRefresh();
+		return Collections
+				.unmodifiableSet(this.explicitCodesByCodeInstancePhenomenon
+						.get(uri));
+	}
+
+	public Set<ICode> getAllCodesByPhenomenon(URI uri) {
 		this.checkAndRefresh();
 		return Collections
 				.unmodifiableSet(this.allCodesByCodeInstancePhenomenon.get(uri));

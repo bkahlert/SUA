@@ -33,7 +33,7 @@ public class DeleteUriHandler extends AbstractHandler {
 				.getService(ICodeService.class);
 		boolean hasCodes = false;
 		for (IUri uri : uris) {
-			if (codeService.getCodes(uri.getUri()).size() > 0) {
+			if (codeService.getExplicitCodes(uri.getUri()).size() > 0) {
 				hasCodes = true;
 				break;
 			}

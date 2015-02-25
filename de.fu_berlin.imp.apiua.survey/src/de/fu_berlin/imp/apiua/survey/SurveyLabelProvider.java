@@ -91,7 +91,7 @@ public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		Class<? extends ILocatable> type = this.locatorService.getType(uri);
 		if (type == CDDocument.class) {
-			if (this.codeService.getCodes(uri).size() > 0) {
+			if (this.codeService.getExplicitCodes(uri).size() > 0) {
 				return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENT_CODED_MEMO
 						: ImageManager.CDDOCUMENT_CODED;
 			} else {
@@ -100,7 +100,7 @@ public class SurveyLabelProvider extends StyledUriInformationLabelProvider {
 			}
 		}
 		if (type == CDDocumentField.class) {
-			if (this.codeService.getCodes(uri).size() > 0) {
+			if (this.codeService.getExplicitCodes(uri).size() > 0) {
 				return this.codeService.isMemo(uri) ? ImageManager.CDDOCUMENTFIELD_CODED_MEMO
 						: ImageManager.CDDOCUMENTFIELD_CODED;
 			} else {

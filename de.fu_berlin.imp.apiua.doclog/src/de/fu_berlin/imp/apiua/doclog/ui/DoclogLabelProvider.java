@@ -81,7 +81,7 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 	@Override
 	public Image getImage(URI uri) throws Exception {
 		if (this.locatorService.getType(uri) == Doclog.class) {
-			return (this.codeService.getCodes(uri).size() > 0) ? (this.codeService
+			return (this.codeService.getAllCodes(uri).size() > 0) ? (this.codeService
 					.isMemo(uri) ? ImageManager.DOCLOGFILE_CODED_MEMO
 					: ImageManager.DOCLOGFILE_CODED) : (this.codeService
 					.isMemo(uri) ? ImageManager.DOCLOGFILE_MEMO
@@ -130,7 +130,7 @@ public class DoclogLabelProvider extends StyledUriInformationLabelProvider {
 				image = ImageManager.DOCLOGRECORD;
 			}
 
-			if (this.codeService.getCodes(uri).size() > 0) {
+			if (this.codeService.getAllCodes(uri).size() > 0) {
 				if (this.codeService.isMemo(uri)) {
 					if (key != null) {
 						key += ",coded,memo";

@@ -98,7 +98,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 
 	private boolean hasCodedChildren(IDiff diff) {
 		for (IDiffRecord diffRecord : diff.getDiffFileRecords()) {
-			if (this.codeService.getCodes(diffRecord.getUri()).size() > 0) {
+			if (this.codeService.getAllCodes(diffRecord.getUri()).size() > 0) {
 				return true;
 			}
 		}
@@ -127,7 +127,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 			IDiff diff = (IDiff) locatable;
 			Boolean compiles = this.compilationService.compiles(diff);
 			if (compiles == null) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO
 							: ImageManager.DIFF_CODED;
 				} else {
@@ -140,7 +140,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 			} else if (compiles == true) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_WORKING
 							: ImageManager.DIFF_CODED_WORKING;
 				} else {
@@ -153,7 +153,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 			} else {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFF_CODED_MEMO_NOTWORKING
 							: ImageManager.DIFF_CODED_NOTWORKING;
 				} else {
@@ -171,7 +171,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 			IDiffRecord diffRecord = (IDiffRecord) locatable;
 			Boolean compiles = this.compilationService.compiles(diffRecord);
 			if (compiles == null) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO
 							: ImageManager.DIFFRECORD_CODED;
 				} else {
@@ -184,7 +184,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 			} else if (compiles == true) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_WORKING
 							: ImageManager.DIFFRECORD_CODED_WORKING;
 				} else {
@@ -197,7 +197,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 					}
 				}
 			} else {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORD_CODED_MEMO_NOTWORKING
 							: ImageManager.DIFFRECORD_CODED_NOTWORKING;
 				} else {
@@ -216,7 +216,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 			Boolean compiles = this.compilationService
 					.compiles(diffRecordSegment);
 			if (compiles == null) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO
 							: ImageManager.DIFFRECORDSEGMENT_CODED;
 				} else {
@@ -224,7 +224,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 							: ImageManager.DIFFRECORDSEGMENT;
 				}
 			} else if (compiles == true) {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_WORKING
 							: ImageManager.DIFFRECORDSEGMENT_CODED_WORKING;
 				} else {
@@ -232,7 +232,7 @@ public class DiffLabelProvider extends StyledUriInformationLabelProvider {
 							: ImageManager.DIFFRECORDSEGMENT_WORKING;
 				}
 			} else {
-				if (this.codeService.getCodes(uri).size() > 0) {
+				if (this.codeService.getExplicitCodes(uri).size() > 0) {
 					return this.codeService.isMemo(uri) ? ImageManager.DIFFRECORDSEGMENT_CODED_MEMO_NOTWORKING
 							: ImageManager.DIFFRECORDSEGMENT_CODED_NOTWORKING;
 				} else {

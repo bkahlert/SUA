@@ -254,7 +254,7 @@ public class AnalysisTimelineBandProvider implements
 				List<RGB> colors = new ArrayList<RGB>();
 				if (event instanceof IEpisode) {
 					IEpisode episode = (IEpisode) event;
-					for (ICode code : this.codeService.getCodes(episode
+					for (ICode code : this.codeService.getExplicitCodes(episode
 							.getUri())) {
 						colors.add(code.getColor());
 					}

@@ -42,7 +42,7 @@ public class EntityLabelProvider extends StyledUriInformationLabelProvider {
 
 	@Override
 	public Image getImage(URI uri) throws Exception {
-		if (this.codeService.getCodes(uri).size() > 0) {
+		if (this.codeService.getExplicitCodes(uri).size() > 0) {
 			if (this.codeService.isMemo(uri)) {
 				return ImageManager.ENTITY_CODED_MEMO;
 			} else {

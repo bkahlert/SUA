@@ -271,14 +271,15 @@ public class DiffTimelineBandProvider implements
 				List<RGB> colors = new ArrayList<RGB>();
 				if (event instanceof IDiff) {
 					IDiff diff = (IDiff) event;
-					for (ICode code : this.codeService.getCodes(diff.getUri())) {
+					for (ICode code : this.codeService.getExplicitCodes(diff
+							.getUri())) {
 						colors.add(code.getColor());
 					}
 				}
 				if (event instanceof IDiffRecord) {
 					DiffRecord diffRecord = (DiffRecord) event;
-					for (ICode code : this.codeService.getCodes(diffRecord
-							.getUri())) {
+					for (ICode code : this.codeService
+							.getExplicitCodes(diffRecord.getUri())) {
 						colors.add(code.getColor());
 					}
 				}

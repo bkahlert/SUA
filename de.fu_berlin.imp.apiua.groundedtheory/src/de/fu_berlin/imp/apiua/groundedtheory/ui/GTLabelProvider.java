@@ -379,7 +379,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 			String name = (episode != null) ? episode.getCaption() : "";
 			if (name.isEmpty()) {
 				Set<ICode> codes;
-				codes = CODE_SERVICE.getCodes(episode.getUri());
+				codes = CODE_SERVICE.getExplicitCodes(episode.getUri());
 				List<String> codeNames = new ArrayList<String>();
 				for (ICode code : codes) {
 					codeNames.add(code.getCaption());
@@ -510,7 +510,11 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	}
 
 	private boolean isCoded(URI uri) throws CodeServiceException {
-		return CODE_SERVICE.getCodes(uri).size() > 0;
+		return CODE_SERVICE.getExplicitCodes(uri).size() > 0;
+	}
+
+	private boolean isPartiallyCoded(URI uri) {
+		return CODE_SERVICE.getAllCodes(uri).size() > 0;
 	}
 
 	private boolean hasMemo(URI uri) {
@@ -522,7 +526,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 	}
 
 	private boolean canHaveDimensionValue(URI uri) throws CodeServiceException {
-		for (ICode code : CODE_SERVICE.getCodes(uri)) {
+		for (ICode code : CODE_SERVICE.getAllCodes(uri)) {
 			if (CODE_SERVICE.getDimension(code.getUri()) != null) {
 				return true;
 			}
@@ -575,6 +579,9 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		try {
 			if (this.isCoded(uri)) {
 				overlays.add(ImageManager.OVERLAY_CODED);
+			}
+			if (this.isPartiallyCoded(uri)) {
+				overlays.add(ImageManager.OVERLAY_PARTIALLY_CODED);
 			}
 			if (this.hasMemo(uri)) {
 				overlays.add(ImageManager.OVERLAY_MEMO);

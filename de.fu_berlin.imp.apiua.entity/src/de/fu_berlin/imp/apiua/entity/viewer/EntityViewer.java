@@ -128,8 +128,9 @@ public class EntityViewer extends SortableTableViewer implements
 
 								Entity entity = (Entity) locatable;
 
-								if (EntityViewer.this.codeService.getCodes(
-										entity.getUri()).size() > 0) {
+								if (EntityViewer.this.codeService
+										.getExplicitCodes(entity.getUri())
+										.size() > 0) {
 									return EntityViewer.this.codeService
 											.isMemo(entity.getUri()) ? ImageManager.ENTITY_CODED_MEMO
 											: ImageManager.ENTITY_CODED;

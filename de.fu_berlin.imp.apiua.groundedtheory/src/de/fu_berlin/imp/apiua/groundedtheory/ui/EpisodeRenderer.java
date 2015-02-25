@@ -412,8 +412,8 @@ public class EpisodeRenderer implements IDisposable {
 				// remove all outdated colors (e.g. because episode got a new
 				// color with different color)
 				if (this.renderingColors.containsKey(episode)) {
-					Set<ICode> codes = this.codeService.getCodes(episode
-							.getUri());
+					Set<ICode> codes = this.codeService
+							.getExplicitCodes(episode.getUri());
 					GTLabelProvider.CodeColors renderingColor = this.renderingColors
 							.get(episode);
 					if (codes.size() == 0
@@ -426,8 +426,8 @@ public class EpisodeRenderer implements IDisposable {
 
 				// create all missing colors
 				if (!this.renderingColors.containsKey(episode)) {
-					Set<ICode> codes = this.codeService.getCodes(episode
-							.getUri());
+					Set<ICode> codes = this.codeService
+							.getExplicitCodes(episode.getUri());
 					if (codes.size() > 0) {
 						this.renderingColors.put(episode,
 								new GTLabelProvider.CodeColors(codes.iterator()
@@ -451,7 +451,7 @@ public class EpisodeRenderer implements IDisposable {
 				PaintUtils.drawRoundedRectangle(e.gc, bounds,
 						codeColors.getBackgroundColor());
 
-				if (this.codeService.getCodes(episode.getUri()).size() > 0) {
+				if (this.codeService.getExplicitCodes(episode.getUri()).size() > 0) {
 					e.gc.setAlpha(255);
 					e.gc.drawImage(
 							CODED_OVERLAY,

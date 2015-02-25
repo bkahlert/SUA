@@ -45,12 +45,12 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final URI uri = CodeServiceTest.this.codeInstance1.getId();
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(uri).size());
+		Assert.assertEquals(0, emptyCodeService.getExplicitCodes(uri).size());
 
 		ICodeService smallCodeService = this.getSmallCodeService();
-		Assert.assertEquals(1, smallCodeService.getCodes(uri).size());
-		Assert.assertEquals(9908372l, smallCodeService.getCodes(uri).iterator()
-				.next().getId());
+		Assert.assertEquals(1, smallCodeService.getExplicitCodes(uri).size());
+		Assert.assertEquals(9908372l, smallCodeService.getExplicitCodes(uri)
+				.iterator().next().getId());
 	}
 
 	@Test
@@ -59,31 +59,35 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final URI uri2 = CodeServiceTest.this.codeInstance2.getId();
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(uri1).size());
-		Assert.assertEquals(0, emptyCodeService.getCodes(uri2).size());
+		Assert.assertEquals(0, emptyCodeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(0, emptyCodeService.getExplicitCodes(uri2).size());
 		emptyCodeService.addCode(this.code1.getCaption(),
 				new RGB(1.0, 1.0, 1.0), uri1);
-		Assert.assertEquals(1, emptyCodeService.getCodes(uri1).size());
-		Assert.assertEquals(this.code1.getCaption(),
-				emptyCodeService.getCodes(uri1).iterator().next().getCaption());
+		Assert.assertEquals(1, emptyCodeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(this.code1.getCaption(), emptyCodeService
+				.getExplicitCodes(uri1).iterator().next().getCaption());
 		emptyCodeService.addCode(this.code1, uri2);
-		Assert.assertEquals(1, emptyCodeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, emptyCodeService.getCodes(uri2)
+		Assert.assertEquals(1, emptyCodeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, emptyCodeService.getExplicitCodes(uri2)
 				.iterator().next());
-		Assert.assertFalse(emptyCodeService.getCodes(uri1).iterator().next()
-				.equals(emptyCodeService.getCodes(uri2).iterator().next()));
+		Assert.assertFalse(emptyCodeService
+				.getExplicitCodes(uri1)
+				.iterator()
+				.next()
+				.equals(emptyCodeService.getExplicitCodes(uri2).iterator()
+						.next()));
 
 		ICodeService smallCodeService = this.getSmallCodeService();
-		Assert.assertEquals(1, smallCodeService.getCodes(uri1).size());
-		Assert.assertEquals(this.code2, smallCodeService.getCodes(uri1)
+		Assert.assertEquals(1, smallCodeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(this.code2, smallCodeService.getExplicitCodes(uri1)
 				.iterator().next());
 
-		Assert.assertEquals(1, smallCodeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, smallCodeService.getCodes(uri2)
+		Assert.assertEquals(1, smallCodeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, smallCodeService.getExplicitCodes(uri2)
 				.iterator().next());
 		smallCodeService.addCode(this.code2, uri2);
-		Assert.assertEquals(2, smallCodeService.getCodes(uri2).size());
-		Iterator<ICode> it = smallCodeService.getCodes(uri2).iterator();
+		Assert.assertEquals(2, smallCodeService.getExplicitCodes(uri2).size());
+		Iterator<ICode> it = smallCodeService.getExplicitCodes(uri2).iterator();
 		ICode associatedCode1 = it.next();
 		ICode associatedCode2 = it.next();
 		assertTrue((this.code1.equals(associatedCode1) && this.code2
@@ -97,7 +101,7 @@ public class CodeServiceTest extends CodeServicesHelper {
 		final URI uri = CodeServiceTest.this.codeInstance1.getId();
 
 		ICodeService emptyCodeService = this.getEmptyCodeService();
-		Assert.assertEquals(0, emptyCodeService.getCodes(uri).size());
+		Assert.assertEquals(0, emptyCodeService.getExplicitCodes(uri).size());
 		emptyCodeService.addCode(this.code2, uri);
 		emptyCodeService.addCode(this.code2, uri);
 	}
@@ -126,25 +130,25 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 		ICodeService codeService = this.getSmallCodeService();
 
-		Assert.assertEquals(1, codeService.getCodes(uri1).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(uri1).iterator()
-				.next());
-		Assert.assertEquals(1, codeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(uri2).iterator()
-				.next());
-		Assert.assertEquals(1, codeService.getCodes(uri3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(uri3).iterator()
-				.next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(this.code2, codeService.getExplicitCodes(uri1)
+				.iterator().next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, codeService.getExplicitCodes(uri2)
+				.iterator().next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri3).size());
+		Assert.assertEquals(this.code2, codeService.getExplicitCodes(uri3)
+				.iterator().next());
 
 		codeService.removeCodes(new HashSet<>(Arrays.asList(this.code2)), uri1);
 
-		Assert.assertEquals(0, codeService.getCodes(uri1).size());
-		Assert.assertEquals(1, codeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(uri2).iterator()
-				.next());
-		Assert.assertEquals(1, codeService.getCodes(uri3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(uri3).iterator()
-				.next());
+		Assert.assertEquals(0, codeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, codeService.getExplicitCodes(uri2)
+				.iterator().next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri3).size());
+		Assert.assertEquals(this.code2, codeService.getExplicitCodes(uri3)
+				.iterator().next());
 	}
 
 	@Test(expected = CodeServiceException.class)
@@ -176,23 +180,23 @@ public class CodeServiceTest extends CodeServicesHelper {
 
 		ICodeService codeService = this.getSmallCodeService();
 
-		Assert.assertEquals(1, codeService.getCodes(uri1).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(uri1).iterator()
-				.next());
-		Assert.assertEquals(1, codeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(uri2).iterator()
-				.next());
-		Assert.assertEquals(1, codeService.getCodes(uri3).size());
-		Assert.assertEquals(this.code2, codeService.getCodes(uri3).iterator()
-				.next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(this.code2, codeService.getExplicitCodes(uri1)
+				.iterator().next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, codeService.getExplicitCodes(uri2)
+				.iterator().next());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri3).size());
+		Assert.assertEquals(this.code2, codeService.getExplicitCodes(uri3)
+				.iterator().next());
 
 		codeService.deleteCode(this.code2, true);
 
-		Assert.assertEquals(0, codeService.getCodes(uri1).size());
-		Assert.assertEquals(1, codeService.getCodes(uri2).size());
-		Assert.assertEquals(this.code1, codeService.getCodes(uri2).iterator()
-				.next());
-		Assert.assertEquals(0, codeService.getCodes(uri3).size());
+		Assert.assertEquals(0, codeService.getExplicitCodes(uri1).size());
+		Assert.assertEquals(1, codeService.getExplicitCodes(uri2).size());
+		Assert.assertEquals(this.code1, codeService.getExplicitCodes(uri2)
+				.iterator().next());
+		Assert.assertEquals(0, codeService.getExplicitCodes(uri3).size());
 
 		Assert.assertNull(codeService.getCode(this.code2.getId()));
 	}

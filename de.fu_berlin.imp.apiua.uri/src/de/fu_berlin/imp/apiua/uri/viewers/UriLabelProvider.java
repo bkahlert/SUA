@@ -60,7 +60,7 @@ public class UriLabelProvider extends StyledUriInformationLabelProvider {
 	public Image getImage(URI uri) throws Exception {
 		ILocatable locatable = this.locatorService.resolve(uri, null).get();
 		if (locatable instanceof IUri) {
-			if (this.codeService.getCodes(uri).size() > 0) {
+			if (this.codeService.getExplicitCodes(uri).size() > 0) {
 				return this.codeService.isMemo(uri) ? ImageManager.URI_CODED_MEMO
 						: ImageManager.URI_CODED;
 			} else {

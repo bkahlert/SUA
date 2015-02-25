@@ -227,7 +227,7 @@ public class DoclogTimelineBandProvider implements
 				List<RGB> colors = new ArrayList<RGB>();
 				if (event instanceof DoclogRecord) {
 					DoclogRecord doclogRecord = (DoclogRecord) event;
-					for (ICode code : this.codeService.getCodes(doclogRecord
+					for (ICode code : this.codeService.getAllCodes(doclogRecord
 							.getUri())) {
 						colors.add(code.getColor());
 					}
