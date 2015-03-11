@@ -35,7 +35,7 @@ public class CodeInstanceView extends DataView {
 	private ListHashMap<URI, ICodeInstance> explicitCodeInstancesByCodeInstanceCode;
 	private ListHashMap<URI, ICodeInstance> allCodeInstancesByCodeInstanceCode;
 
-	private Set<URI> explicitlyCodedPhenomenonsReadOnly;
+	private Set<URI> explicitlyCodedPhenomenaReadOnly;
 
 	private Map<URI, ICodeInstance> allCodeInstanceByCodeInstanceUri;
 
@@ -100,7 +100,7 @@ public class CodeInstanceView extends DataView {
 		this.explicitCodeInstancesByCodeInstancePhenomenon = new ListHashMap<>();
 		this.explicitCodesByCodeInstancePhenomenon = new SetHashMap<>();
 		this.explicitCodeInstancesByCodeInstanceCode = new ListHashMap<>();
-		Set<URI> explicitlyCodedPhenomenons = new HashSet<>();
+		Set<URI> explicitlyCodedPhenomena = new HashSet<>();
 		for (ICodeInstance codeInstance : this.explicitCodeInstancesReadOnly) {
 			this.explicitCodeInstanceByCodeInstanceId.put(
 					codeInstance.getCodeInstanceID(), codeInstance);
@@ -113,12 +113,12 @@ public class CodeInstanceView extends DataView {
 			this.explicitCodeInstancesByCodeInstanceCode.addTo(codeInstance
 					.getCode().getUri(), codeInstance);
 
-			if (!explicitlyCodedPhenomenons.contains(codeInstance.getId())) {
-				explicitlyCodedPhenomenons.add(codeInstance.getId());
+			if (!explicitlyCodedPhenomena.contains(codeInstance.getId())) {
+				explicitlyCodedPhenomena.add(codeInstance.getId());
 			}
 		}
-		this.explicitlyCodedPhenomenonsReadOnly = Collections
-				.unmodifiableSet(explicitlyCodedPhenomenons);
+		this.explicitlyCodedPhenomenaReadOnly = Collections
+				.unmodifiableSet(explicitlyCodedPhenomena);
 
 		this.allCodeInstanceByCodeInstanceUri = new HashMap<>();
 		this.allCodesByCodeInstancePhenomenon = new SetHashMap<>();
@@ -151,9 +151,9 @@ public class CodeInstanceView extends DataView {
 		return this.allCodeInstancesReadOnly;
 	}
 
-	public Set<URI> getCodedPhenomenons() {
+	public Set<URI> getCodedPhenomena() {
 		this.checkAndRefresh();
-		return this.explicitlyCodedPhenomenonsReadOnly;
+		return this.explicitlyCodedPhenomenaReadOnly;
 	}
 
 	public ICodeInstance getById(long id) {

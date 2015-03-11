@@ -22,7 +22,7 @@ public class ViewerURI extends URI {
 			"norelations"));
 
 	public static final ViewerURI NO_PHENOMENONS_URI = new ViewerURI(new URI(
-			"nophenomenons"));
+			"nophenomena"));
 
 	private Set<String> flags = new HashSet<>();
 

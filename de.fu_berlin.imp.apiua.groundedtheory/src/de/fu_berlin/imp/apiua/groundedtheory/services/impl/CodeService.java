@@ -224,7 +224,7 @@ public class CodeService implements ICodeService, IDisposable {
 
 	@Override
 	public Set<URI> getCodedIDs() {
-		return this.codeStore.getCodeInstanceView().getCodedPhenomenons();
+		return this.codeStore.getCodeInstanceView().getCodedPhenomena();
 	}
 
 	@Override

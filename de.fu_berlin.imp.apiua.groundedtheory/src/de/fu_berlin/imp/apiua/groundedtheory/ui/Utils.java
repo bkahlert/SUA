@@ -289,7 +289,7 @@ public class Utils {
 									Stylers.MINOR_STYLER);
 						}
 						if (uri == ViewerURI.NO_PHENOMENONS_URI) {
-							return new StyledString("no phenomenons",
+							return new StyledString("no phenomena",
 									Stylers.MINOR_STYLER);
 						}
 						StyledString text = labelProvider.getStyledText(uri);

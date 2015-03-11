@@ -82,7 +82,7 @@ public class LocatorService {
 		SubMonitor subMonitor = SubMonitor.convert(monitor,
 				(int) Math.round(uris.size() * 1.3));
 		INSTANCE.createCache(cacheKey, (int) Math.round(uris.size() * 2.5));
-		List<URI> codeInstancePhenomenons = new ArrayList<URI>();
+		List<URI> codeInstancePhenomena = new ArrayList<URI>();
 
 		Future<List<ILocatable>> futureLocatables = INSTANCE.preload(cacheKey,
 				uris, subMonitor.newChild(8));
@@ -91,13 +91,13 @@ public class LocatorService {
 		}
 		for (ILocatable locatable : futureLocatables.get()) {
 			if (locatable instanceof ICodeInstance) {
-				codeInstancePhenomenons
+				codeInstancePhenomena
 				.add(((ICodeInstance) locatable).getId());
 			}
 		}
-		subMonitor.setWorkRemaining(codeInstancePhenomenons.size());
+		subMonitor.setWorkRemaining(codeInstancePhenomena.size());
 		Future<List<ILocatable>> future = INSTANCE.preload(cacheKey,
-				codeInstancePhenomenons, subMonitor.newChild(1));
+				codeInstancePhenomena, subMonitor.newChild(1));
 		if (ExecUtils.isUIThread()) {
 			ExecUtils.busyWait(future);
 		}
