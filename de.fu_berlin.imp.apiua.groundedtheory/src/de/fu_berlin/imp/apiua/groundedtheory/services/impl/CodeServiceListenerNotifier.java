@@ -251,9 +251,14 @@ public class CodeServiceListenerNotifier {
 	private Debouncer<URI> axialCodingModelAdded = new Debouncer<URI>(
 			uri -> {
 				try {
-					for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
-						codeServiceListener.axialCodingModelAdded(uri);
-					}
+					ExecUtils.logException(ExecUtils
+							.nonUIAsyncExec((Callable<Void>) () -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelAdded(uri);
+								}
+								return null;
+							}));
 				} catch (Exception e) {
 					LOGGER.error(e);
 				}
@@ -262,9 +267,14 @@ public class CodeServiceListenerNotifier {
 	private Debouncer<URI> axialCodingModelUpdated = new Debouncer<URI>(
 			uri -> {
 				try {
-					for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
-						codeServiceListener.axialCodingModelUpdated(uri);
-					}
+					ExecUtils.logException(ExecUtils
+							.nonUIAsyncExec((Callable<Void>) () -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelUpdated(uri);
+								}
+								return null;
+							}));
 				} catch (Exception e) {
 					LOGGER.error(e);
 				}
@@ -273,9 +283,14 @@ public class CodeServiceListenerNotifier {
 	private Debouncer<URI> axialCodingModelRemoved = new Debouncer<URI>(
 			uri -> {
 				try {
-					for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
-						codeServiceListener.axialCodingModelRemoved(uri);
-					}
+					ExecUtils.logException(ExecUtils
+							.nonUIAsyncExec((Callable<Void>) () -> {
+								for (final ICodeServiceListener codeServiceListener : CodeServiceListenerNotifier.this.codeServiceListeners) {
+									codeServiceListener
+											.axialCodingModelRemoved(uri);
+								}
+								return null;
+							}));
 				} catch (Exception e) {
 					LOGGER.error(e);
 				}
