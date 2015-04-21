@@ -130,9 +130,9 @@ public class CodeServiceListenerNotifier {
 		}
 	}
 
-	public void relationsRenamed(Set<IRelation> relations) {
+	public void relationsUpdated(Set<IRelation> relations) {
 		for (final ICodeServiceListener codeServiceListener : this.codeServiceListeners) {
-			codeServiceListener.relationsRenamed(relations);
+			codeServiceListener.relationsUpdated(relations);
 		}
 	}
 

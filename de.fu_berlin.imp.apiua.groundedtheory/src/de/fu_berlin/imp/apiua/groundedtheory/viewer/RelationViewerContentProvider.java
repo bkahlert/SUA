@@ -103,7 +103,7 @@ public class RelationViewerContentProvider extends
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			ViewerUtils
 					.refresh(RelationViewerContentProvider.this.viewer, true);
 		}

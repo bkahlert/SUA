@@ -1,7 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +43,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	 * If false no {@link ICodeInstance}s are shown.
 	 */
 	private boolean showInstances;
-	
+
 	/**
 	 * If false only a few {@link ICodeInstance}s are shown.
 	 */
@@ -120,7 +119,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 		}
 
@@ -208,7 +207,8 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 	 * @param initialShowInstances
 	 *            false if only {@link ICode}s should be displayed
 	 */
-	public CodeViewerContentProvider(boolean initialShowInstances, boolean initialShowAllInstances) {
+	public CodeViewerContentProvider(boolean initialShowInstances,
+			boolean initialShowAllInstances) {
 		this.showInstances = initialShowInstances;
 		this.showAllInstances = initialShowAllInstances;
 		this.importanceService
@@ -309,12 +309,14 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 			if (this.showInstances) {
 				Set<ICodeInstance> instances = this.codeService
 						.getExplicitInstances(code);
-				if (instances.size() > 0) {				
+				if (instances.size() > 0) {
 					if (!this.showAllInstances && instances.size() > 3) {
-						ArrayList<ICodeInstance> instances_ = new ArrayList<>(instances);
+						ArrayList<ICodeInstance> instances_ = new ArrayList<>(
+								instances);
 						childNodes.add(instances_.get(0).getUri());
 						childNodes.add(ViewerURI.NOT_ALL_INSTANCES_URI);
-						childNodes.add(instances_.get(instances_.size()-1).getUri());
+						childNodes.add(instances_.get(instances_.size() - 1)
+								.getUri());
 					} else {
 						childNodes.addAll(AdapterUtils.adaptAll(instances,
 								URI.class));
@@ -333,7 +335,7 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 		this.showInstances = showInstances;
 		ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);
 	}
-	
+
 	public void setShowAllInstances(boolean showAllInstances) {
 		this.showAllInstances = showAllInstances;
 		ViewerUtils.refresh(CodeViewerContentProvider.this.viewer, true);

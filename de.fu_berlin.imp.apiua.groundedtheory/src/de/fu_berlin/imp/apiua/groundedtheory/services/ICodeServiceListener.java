@@ -30,7 +30,7 @@ public interface ICodeServiceListener {
 
 	public void relationsDeleted(Set<IRelation> relations);
 
-	public void relationsRenamed(Set<IRelation> relations);
+	public void relationsUpdated(Set<IRelation> relations);
 
 	public void relationInstancesAdded(Set<IRelationInstance> relations);
 

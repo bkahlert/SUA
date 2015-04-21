@@ -791,6 +791,10 @@
                class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateAxialCondingModelContribution"
                id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
          </dynamic>
+         <dynamic
+               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.GeneralizeRelationContribution"
+               id="de.fu_berlin.imp.apiua.groundedtheory.generalizeRelationContribution">
+         </dynamic>
          <separator
                name="de.fu_berlin.imp.apiua.groundedtheory.separator3"
                visible="true">

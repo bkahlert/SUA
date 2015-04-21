@@ -70,7 +70,7 @@ public class UriContentProvider extends URIContentProvider<IUriService> {
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(UriContentProvider.this.viewer);
 		}

@@ -99,7 +99,7 @@ public class DiffContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			ViewerUtils.refresh(DiffContentProvider.this.viewer);
 		}
 

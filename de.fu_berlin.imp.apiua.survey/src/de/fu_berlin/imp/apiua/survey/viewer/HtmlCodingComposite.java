@@ -114,7 +114,7 @@ public class HtmlCodingComposite extends Composite implements
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			HtmlCodingComposite.this.refreshAnnotations();
 		}
 

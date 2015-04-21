@@ -73,7 +73,7 @@ public class EpisodeViewerContentProvider extends
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			ViewerUtils.refresh(EpisodeViewerContentProvider.this.viewer, true);
 		}
 

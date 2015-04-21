@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -528,7 +529,7 @@ class CodeStore implements ICodeStore {
 			LocatorService.INSTANCE.uncache(code.getUri());
 		}
 
-		List<IRelation> abandonedRelations = new LinkedList<>();
+		Set<IRelation> abandonedRelations = new LinkedHashSet<>();
 		for (IRelation relation : this.relations) {
 			if (relation.getFrom().equals(code.getUri())
 					|| relation.getTo().equals(code.getUri())) {
@@ -536,7 +537,7 @@ class CodeStore implements ICodeStore {
 			}
 		}
 		if (abandonedRelations.size() > 0) {
-			throw new CodeStoreWriteAbandonedRelationsException(this.relations);
+			throw new CodeStoreWriteAbandonedRelationsException(abandonedRelations);
 		}
 
 		List<ICodeInstance> abandonedInstances = new LinkedList<ICodeInstance>();

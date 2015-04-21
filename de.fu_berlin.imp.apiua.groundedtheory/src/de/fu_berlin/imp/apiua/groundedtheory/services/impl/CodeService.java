@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -50,6 +51,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation.EndPoint;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
@@ -571,7 +573,34 @@ public class CodeService implements ICodeService, IDisposable {
 		this.codeStore.save();
 		Set<IRelation> set = new HashSet<IRelation>();
 		set.add(relation);
-		this.codeServiceListenerNotifier.relationsRenamed(set);
+		this.codeServiceListenerNotifier.relationsUpdated(set);
+	}
+
+	@Override
+	public void updateRelation(IRelation relation, EndPoint endPoint,
+			URI newEndPoint) throws CodeStoreWriteException,
+			RelationDoesNotExistException {
+		if (LocatorService.INSTANCE != null) {
+			LocatorService.INSTANCE.uncache(relation.getUri());
+		}
+		Relation newRelation;
+		switch (endPoint) {
+		case FROM:
+			newRelation = new Relation(relation.getUri(), newEndPoint,
+					relation.getTo(), relation.getName());
+			break;
+		case TO:
+			newRelation = new Relation(relation.getUri(), relation.getFrom(),
+					newEndPoint, relation.getName());
+			break;
+		default:
+			throw new RuntimeException(new NotImplementedException());
+		}
+		this.codeStore.replaceRelation(relation, newRelation);
+		this.codeStore.save();
+		Set<IRelation> set = new HashSet<IRelation>();
+		set.add(relation);
+		this.codeServiceListenerNotifier.relationsUpdated(set);
 	}
 
 	@Override

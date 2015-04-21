@@ -143,6 +143,13 @@ public class CodeHierarchyView extends DataView {
 		return Collections.unmodifiableList(this.ancestors.get(code));
 	}
 
+	public List<URI> getAncestors(URI code) {
+		this.checkAndRefresh();
+		return Collections.unmodifiableList(this.ancestors
+				.get(this.getCode(code)).stream().map(c -> c.getUri())
+				.collect(Collectors.toList()));
+	}
+
 	public List<ICode> getDescendents(ICode code) {
 		this.checkAndRefresh();
 		return Collections.unmodifiableList(this.descendents.get(code));

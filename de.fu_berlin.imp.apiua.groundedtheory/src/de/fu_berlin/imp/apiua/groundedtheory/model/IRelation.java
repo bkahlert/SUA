@@ -12,6 +12,10 @@ import de.fu_berlin.imp.apiua.core.model.URI;
  */
 public interface IRelation extends ILocatable {
 
+	public static enum EndPoint {
+		FROM, TO
+	};
+
 	public URI getFrom();
 
 	public URI getTo();

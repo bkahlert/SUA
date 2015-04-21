@@ -91,7 +91,7 @@ public class DoclogContentProvider extends URIContentProvider<URI[]> {
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			ViewerUtils.refresh(DoclogContentProvider.this.viewer);
 		}
 

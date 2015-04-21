@@ -18,6 +18,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IEpisode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation.EndPoint;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
@@ -372,6 +373,19 @@ public interface ICodeService {
 	public IRelation createRelation(URI from, URI to, String title)
 			throws RelationDoesNotExistException, CodeStoreWriteException,
 			DuplicateRelationException;
+
+	/**
+	 * Changes a {@link IRelation}'s end point.
+	 * 
+	 * @param relation
+	 * @param endPoint
+	 * @param uri
+	 * @throws RelationDoesNotExistException
+	 * @throws CodeStoreWriteException
+	 */
+	public void updateRelation(IRelation relation, EndPoint endPoint,
+			URI newEndPoint) throws CodeStoreWriteException,
+			RelationDoesNotExistException;
 
 	public void deleteRelation(IRelation relation)
 			throws RelationDoesNotExistException, CodeStoreWriteException;

@@ -18,9 +18,9 @@ public class CodeStoreWriteAbandonedRelationsException extends
 	public CodeStoreWriteAbandonedRelationsException(Set<IRelation> relations) {
 		super("Saving the given " + ICode.class.getSimpleName()
 				+ " would lead to " + Relation.class.getSimpleName()
-				+ " with an invalid " + ICode.class + " reference.\nAffected "
-				+ Relation.class.getSimpleName() + "s:\n- "
-				+ StringUtils.join(relations, "\n- "));
+				+ " with an invalid " + ICode.class.getSimpleName()
+				+ " reference.\nAffected " + Relation.class.getSimpleName()
+				+ "s:\n- " + StringUtils.join(relations, "\n- "));
 		this.relations = relations;
 	}
 

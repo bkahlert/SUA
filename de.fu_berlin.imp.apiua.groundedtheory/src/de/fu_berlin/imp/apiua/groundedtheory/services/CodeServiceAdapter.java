@@ -45,7 +45,7 @@ public class CodeServiceAdapter implements ICodeServiceListener {
 	}
 
 	@Override
-	public void relationsRenamed(Set<IRelation> relations) {
+	public void relationsUpdated(Set<IRelation> relations) {
 	}
 
 	@Override

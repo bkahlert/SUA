@@ -131,7 +131,7 @@ public class AxialCodingComposite extends Composite implements
 		};
 
 		@Override
-		public void relationsRenamed(java.util.Set<IRelation> relations) {
+		public void relationsUpdated(java.util.Set<IRelation> relations) {
 			ExecUtils.logException(AxialCodingComposite.this.refresh());
 		};
 

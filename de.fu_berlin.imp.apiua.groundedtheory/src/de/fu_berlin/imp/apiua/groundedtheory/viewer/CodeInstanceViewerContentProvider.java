@@ -91,7 +91,7 @@ public class CodeInstanceViewerContentProvider extends
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			com.bkahlert.nebula.utils.ViewerUtils
 					.refresh(CodeInstanceViewerContentProvider.this.viewer);
 		}

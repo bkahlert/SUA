@@ -152,7 +152,7 @@ public class CDView extends ViewPart {
 		}
 
 		@Override
-		public void relationsRenamed(Set<IRelation> relations) {
+		public void relationsUpdated(Set<IRelation> relations) {
 			CDView.this.viewer.refresh();
 		}
 

@@ -61,7 +61,11 @@ public class DeleteCodeHandler extends AbstractHandler {
 					codeService.deleteCode(code);
 				} catch (CodeServiceException e) {
 					LOGGER.error("Error deleting "
-							+ ICode.class.getSimpleName() + ": " + code);
+							+ ICode.class.getSimpleName() + ": " + code + "\n"
+							+ e);
+					MessageDialog.openError(PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getShell(),
+							"Delete Code", e.getMessage());
 				}
 			}
 		} else {
