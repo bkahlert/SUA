@@ -26,6 +26,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.preferences.SUAGTPreferenceUtil;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.Filterable;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.QuickSelectionMode;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.ShowAllInstances;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.ShowInstances;
 
 /**
@@ -97,7 +98,7 @@ public class AddCodeWizardPage extends ORWizardPage {
 		group.setLayout(new GridLayout(1, false));
 		group.setText("Existing Code");
 
-		this.codeViewer = new CodeViewer(group, SWT.NONE, ShowInstances.OFF,
+		this.codeViewer = new CodeViewer(group, SWT.NONE, ShowInstances.OFF, ShowAllInstances.OFF,
 				null, Filterable.ON, QuickSelectionMode.ON);
 		this.codeViewer.setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());

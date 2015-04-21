@@ -21,6 +21,7 @@ import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.Filterable;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.QuickSelectionMode;
+import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.ShowAllInstances;
 import de.fu_berlin.imp.apiua.groundedtheory.viewer.CodeViewer.ShowInstances;
 
 class PropertiesAddDialog extends TitleAreaDialog {
@@ -50,7 +51,7 @@ class PropertiesAddDialog extends TitleAreaDialog {
 		container.setLayout(new FillLayout());
 
 		this.codeViewer = new CodeViewer(container, SWT.NONE,
-				ShowInstances.OFF, null, Filterable.ON, QuickSelectionMode.ON);
+				ShowInstances.OFF, ShowAllInstances.OFF, null, Filterable.ON, QuickSelectionMode.ON);
 		this.codeViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 					@Override

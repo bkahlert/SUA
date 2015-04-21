@@ -11,22 +11,22 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import de.fu_berlin.imp.apiua.groundedtheory.views.CodeView;
 
-public class ShowInstancesHandler extends AbstractHandler {
+public class ShowAllInstancesHandler extends AbstractHandler {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
-			.getLogger(ShowInstancesHandler.class);
+			.getLogger(ShowAllInstancesHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Command command = event.getCommand();
 		boolean oldValue = HandlerUtil.toggleCommandState(command);
-		boolean showInstances = !oldValue;
+		boolean showAllInstances = !oldValue;
 		IWorkbenchPart activePart = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof CodeView) {
 			CodeView codeView = (CodeView) activePart;
-			codeView.getCodeViewer().setShowInstances(showInstances);
+			codeView.getCodeViewer().setShowAllInstances(showAllInstances);
 		}
 		return null;
 	}

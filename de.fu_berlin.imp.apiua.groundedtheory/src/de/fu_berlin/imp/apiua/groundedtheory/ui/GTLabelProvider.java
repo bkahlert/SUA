@@ -114,7 +114,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 					.85f);
 
 			this.backgroundColor = new Color(Display.getCurrent(),
-					backgroundRGB.toClassicRGB());
+					this.backgroundRGB.toClassicRGB());
 
 			this.borderColor = new Color(Display.getDefault(),
 					this.borderRGB.toClassicRGB());

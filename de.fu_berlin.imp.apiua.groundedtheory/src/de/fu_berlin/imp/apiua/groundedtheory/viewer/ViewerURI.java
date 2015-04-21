@@ -17,6 +17,9 @@ public class ViewerURI extends URI {
 
 	public static final ViewerURI NO_CODES_URI = new ViewerURI(new URI(
 			"nocodes"));
+	
+	public static final ViewerURI NOT_ALL_INSTANCES_URI = new ViewerURI(new URI(
+			"notallinstances"));
 
 	public static final ViewerURI NO_RELATIONS_URI = new ViewerURI(new URI(
 			"norelations"));

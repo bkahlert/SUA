@@ -51,6 +51,10 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	public static enum ShowInstances {
 		ON, OFF;
 	}
+	
+	public static enum ShowAllInstances {
+		ON, OFF;
+	}
 
 	public static enum Filterable {
 		ON, OFF;
@@ -63,7 +67,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 	private TreeViewer viewer = null;
 
 	public CodeViewer(Composite parent, int style,
-			final ShowInstances initialShowInstances,
+			final ShowInstances initialShowInstances, ShowAllInstances initialShowAllInstances,
 			final String saveExpandedElementsKey, Filterable filterable,
 			QuickSelectionMode quickSelectionMode) {
 		super(parent, style);
@@ -73,7 +77,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			FilteredTree<SortableTreeViewer> filteredTree = new FilteredTree<SortableTreeViewer>(
 					this, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION, (
 							parent1, style1) -> createViewer(parent1, style1,
-							initialShowInstances, saveExpandedElementsKey),
+							initialShowInstances, initialShowAllInstances, saveExpandedElementsKey),
 					new IConverter<URI, String>() {
 						ICodeService codeService = (ICodeService) PlatformUI
 								.getWorkbench().getService(ICodeService.class);
@@ -120,13 +124,13 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 					.setQuickSelectionMode(quickSelectionMode == QuickSelectionMode.ON);
 			this.viewer = filteredTree.getViewer();
 		} else {
-			this.viewer = createViewer(this, style, initialShowInstances,
+			this.viewer = createViewer(this, style, initialShowInstances, initialShowAllInstances,
 					saveExpandedElementsKey);
 		}
 	}
 
 	private static SortableTreeViewer createViewer(Composite parent, int style,
-			ShowInstances initialShowInstances,
+			ShowInstances initialShowInstances, ShowAllInstances initialShowAllInstances,
 			final String saveExpandedElementsKey) {
 		Tree tree = new Tree(parent, style);
 		tree.setHeaderVisible(true);
@@ -150,7 +154,7 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 		});
 		createColumns(viewer);
 		viewer.setContentProvider(new CodeViewerContentProvider(
-				initialShowInstances == ShowInstances.ON));
+				initialShowInstances == ShowInstances.ON, initialShowAllInstances == ShowAllInstances.ON));
 		viewer.setInput(PlatformUI.getWorkbench()
 				.getService(ICodeService.class));
 		SUAGTPreferenceUtil.loadExpandedElementsASync(viewer,
@@ -255,6 +259,23 @@ public class CodeViewer extends Composite implements ISelectionProvider {
 			CodeViewerContentProvider contentProvider = (CodeViewerContentProvider) this.viewer
 					.getContentProvider();
 			contentProvider.setShowInstances(showInstances);
+		} else {
+			LOGGER.error("Unexpected content provider; check implementation");
+		}
+	}
+	
+	/**
+	 * Shows only a few or all the {@link ICodeInstance}s.
+	 * <p>
+	 * The viewer is automatically refreshed if this method is called.
+	 *
+	 * @param showInstances
+	 */
+	public void setShowAllInstances(boolean showInstances) {
+		if (this.viewer.getContentProvider() instanceof CodeViewerContentProvider) {
+			CodeViewerContentProvider contentProvider = (CodeViewerContentProvider) this.viewer
+					.getContentProvider();
+			contentProvider.setShowAllInstances(showInstances);
 		} else {
 			LOGGER.error("Unexpected content provider; check implementation");
 		}

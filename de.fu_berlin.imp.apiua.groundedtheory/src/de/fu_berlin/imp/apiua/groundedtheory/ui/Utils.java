@@ -284,6 +284,10 @@ public class Utils {
 							return new StyledString("no codes",
 									Stylers.MINOR_STYLER);
 						}
+						if (uri == ViewerURI.NOT_ALL_INSTANCES_URI) {
+							return new StyledString("┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄",
+									Stylers.MINOR_STYLER);
+						}
 						if (uri == ViewerURI.NO_RELATIONS_URI) {
 							return new StyledString("no relations",
 									Stylers.MINOR_STYLER);
@@ -463,6 +467,9 @@ public class Utils {
 					@Override
 					public Image getImage(URI uri) throws Exception {
 						if (uri == ViewerURI.NO_CODES_URI) {
+							return null;
+						}
+						if (uri == ViewerURI.NOT_ALL_INSTANCES_URI) {
 							return null;
 						}
 						if (uri == ViewerURI.NO_RELATIONS_URI) {

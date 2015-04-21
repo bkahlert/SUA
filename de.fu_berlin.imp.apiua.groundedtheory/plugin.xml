@@ -157,6 +157,24 @@
          </state>
       </command>
       <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllInstances"
+            name="Show All Instances">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
             id="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstances"
             name="Show Instances">
          <state
@@ -428,6 +446,10 @@
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showInstances">
         </handler>
         <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowAllInstancesHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllInstances">
+        </handler>
+        <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowRelationInstancesHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showRelationInstances">
         </handler>
@@ -535,6 +557,12 @@
          </command>
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showInstances"
+               disabledIcon="icons/dlcl16/show_instances_tsk.png"
+               icon="icons/elcl16/show_instances_tsk.png"
+               style="toggle">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllInstances"
                disabledIcon="icons/dlcl16/show_instances_tsk.png"
                icon="icons/elcl16/show_instances_tsk.png"
                style="toggle">
