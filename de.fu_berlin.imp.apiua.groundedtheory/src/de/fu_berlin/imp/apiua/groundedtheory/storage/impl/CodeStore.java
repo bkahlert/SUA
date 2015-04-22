@@ -537,7 +537,8 @@ class CodeStore implements ICodeStore {
 			}
 		}
 		if (abandonedRelations.size() > 0) {
-			throw new CodeStoreWriteAbandonedRelationsException(abandonedRelations);
+			throw new CodeStoreWriteAbandonedRelationsException(
+					abandonedRelations);
 		}
 
 		List<ICodeInstance> abandonedInstances = new LinkedList<ICodeInstance>();
@@ -740,6 +741,10 @@ class CodeStore implements ICodeStore {
 					FileUtils.readFileToString(this.codeStoreFile))) {
 				backupFile.delete();
 			}
+
+			File latexFile = new File(codeStoreFile.getAbsolutePath() + ".tex");
+			FileUtils.write(latexFile,
+					CodeStoreLatexCommandCreator.createAllCommands(this));
 		} catch (IOException e) {
 			throw new CodeStoreWriteException(e);
 		}
