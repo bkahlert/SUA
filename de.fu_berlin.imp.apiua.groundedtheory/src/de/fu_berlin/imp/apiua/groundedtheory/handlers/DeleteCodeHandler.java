@@ -42,8 +42,8 @@ public class DeleteCodeHandler extends AbstractHandler {
 		if (childCodesExist) {
 			MessageDialog.openError(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getShell(), "Delete Code"
-					+ ((codes.size() != 1) ? "s" : ""),
-					"The code" + ((codes.size() != 1) ? "s have" : " has")
+					+ (codes.size() != 1 ? "s" : ""),
+					"The code" + (codes.size() != 1 ? "s have" : " has")
 							+ " child codes.\n"
 							+ "You need to manually delete all child codes "
 							+ "before deleting the selected ones.");
@@ -69,17 +69,18 @@ public class DeleteCodeHandler extends AbstractHandler {
 				}
 			}
 		} else {
-			boolean delete = MessageDialog.openQuestion(PlatformUI
-					.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Delete Code" + ((codes.size() != 1) ? "s" : ""),
-					"The code" + ((codes.size() != 1) ? "s" : "") + " ("
+			boolean delete = MessageDialog.openQuestion(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+							.getShell(),
+					"Delete Code" + (codes.size() != 1 ? "s" : ""),
+					"The code" + (codes.size() != 1 ? "s" : "") + " ("
 							+ StringUtils.join(codes, ", ")
 							+ ") you are trying to delete are still in"
 							+ " use by the following artefact"
-							+ ((codeInstances.size() != 1) ? "s" : "") + ":\n"
+							+ (codeInstances.size() != 1 ? "s" : "") + ":\n"
 							+ StringUtils.join(codeInstances.toArray(), ", ")
 							+ "\n\nDo you really want to delete the code"
-							+ ((codes.size() != 1) ? "s" : "") + "?");
+							+ (codes.size() != 1 ? "s" : "") + "?");
 			if (delete) {
 				for (ICode code : codes) {
 					try {
