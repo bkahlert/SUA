@@ -106,9 +106,16 @@ public class ResortableCodeViewer extends CodeViewer {
 				operations,
 				new Transfer[] { LocalSelectionTransfer.getTransfer(),
 						TextTransfer.getInstance() }, new DropTargetAdapter() {
+					private int detail = DND.DROP_NONE;
+
 					@Override
 					public void dragEnter(DropTargetEvent event) {
-						event.detail = DND.DROP_COPY;
+						this.detail = event.detail;
+					}
+
+					@Override
+					public void dragOperationChanged(DropTargetEvent event) {
+						this.detail = event.detail;
 					}
 
 					@Override
@@ -153,10 +160,10 @@ public class ResortableCodeViewer extends CodeViewer {
 						// }
 
 						event.feedback = DND.FEEDBACK_SCROLL;
-						event.detail = DND.DROP_NONE;
 						if (!(sourceCodeUris.size() != 0
 								^ sourceCodeInstanceUris.size() != 0 ^ sourceUris
 								.size() != 0)) {
+							event.detail = DND.DROP_NONE;
 						} else if (destUri == null) {
 							// target: nothing
 							if (sourceCodeUris.size() > 0) {
@@ -164,60 +171,95 @@ public class ResortableCodeViewer extends CodeViewer {
 										| DND.FEEDBACK_EXPAND
 										| DND.FEEDBACK_SCROLL;
 								event.detail = DND.DROP_MOVE;
+							} else {
+								event.detail = DND.DROP_NONE;
 							}
 						} else if (CodeLocatorProvider.CODE_NAMESPACE
 								.equals(URIUtils.getResource(destUri))) {
 							// target: Code
-
 							if (sourceCodeUris.size() > 0) {
 								Rectangle bounds = event.item instanceof TreeItem ? ((TreeItem) event.item)
 										.getBounds()
 										: event.item instanceof TableItem ? ((TableItem) event.item)
 												.getBounds() : null;
-								if (bounds != null) {
-									Point point = Display.getCurrent().map(
-											null,
-											ResortableCodeViewer.this
-													.getViewer().getControl(),
-											event.x, event.y);
-									event.feedback = DND.FEEDBACK_SCROLL;
-									event.detail = DND.DROP_MOVE;
 
-									if (point.y < bounds.y + bounds.height / 3) {
-										event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-									} else if (point.y > bounds.y + 2
-											* bounds.height / 3) {
-										event.feedback |= DND.FEEDBACK_INSERT_AFTER;
-									} else {
-										event.feedback |= DND.FEEDBACK_SELECT
-												| DND.FEEDBACK_EXPAND;
-									}
-								}
-
-								boolean parentToChildException = false;
+								ICode destCode;
 								try {
-									ICode destCode = LocatorService.INSTANCE
-											.resolve(destUri, ICode.class, null)
-											.get();
-									for (URI sourceCodeUri : sourceCodeUris) {
-										ICode sourceCode = LocatorService.INSTANCE
-												.resolve(sourceCodeUri,
-														ICode.class, null)
-												.get();
-										if (codeService.getDescendents(
-												sourceCode).contains(destCode)) {
-											parentToChildException = true;
-											break;
-										}
-									}
+									destCode = LocatorService.INSTANCE.resolve(
+											destUri, ICode.class, null).get();
 								} catch (Exception e) {
 									throw new RuntimeException(
 											"Error checking integrity of DND operation",
 											e);
 								}
 
-								if (parentToChildException) {
-									event.feedback = DND.FEEDBACK_NONE;
+								if (this.detail == DND.DROP_LINK) {
+									// create code instance
+									if (bounds != null) {
+										event.feedback = DND.FEEDBACK_SCROLL
+												| DND.FEEDBACK_SELECT
+												| DND.FEEDBACK_EXPAND;
+										event.detail = DND.DROP_LINK;
+									}
+									boolean allAreCoded = true;
+									for (URI sourceCodeUri : sourceCodeUris) {
+										if (!codeService.getExplicitCodes(
+												sourceCodeUri).contains(
+												destCode)) {
+											allAreCoded = false;
+											break;
+										}
+									}
+									if (allAreCoded) {
+										event.detail = DND.DROP_NONE;
+									}
+								} else {
+									// move code
+									if (bounds != null) {
+										Point point = Display.getCurrent().map(
+												null,
+												ResortableCodeViewer.this
+														.getViewer()
+														.getControl(), event.x,
+												event.y);
+										event.feedback = DND.FEEDBACK_SCROLL;
+										event.detail = DND.DROP_MOVE;
+
+										if (point.y < bounds.y + bounds.height
+												/ 3) {
+											event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+										} else if (point.y > bounds.y + 2
+												* bounds.height / 3) {
+											event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+										} else {
+											event.feedback |= DND.FEEDBACK_SELECT
+													| DND.FEEDBACK_EXPAND;
+										}
+									}
+
+									boolean parentToChildException = false;
+									try {
+										for (URI sourceCodeUri : sourceCodeUris) {
+											ICode sourceCode = LocatorService.INSTANCE
+													.resolve(sourceCodeUri,
+															ICode.class, null)
+													.get();
+											if (codeService.getDescendents(
+													sourceCode).contains(
+													destCode)) {
+												parentToChildException = true;
+												break;
+											}
+										}
+									} catch (Exception e) {
+										throw new RuntimeException(
+												"Error checking integrity of DND operation",
+												e);
+									}
+
+									if (parentToChildException) {
+										event.feedback = DND.FEEDBACK_NONE;
+									}
 								}
 							} else if (sourceCodeInstanceUris.size() > 0) {
 								try {
@@ -248,6 +290,8 @@ public class ResortableCodeViewer extends CodeViewer {
 										| DND.FEEDBACK_SCROLL;
 								event.detail = DND.DROP_LINK;
 							}
+						} else {
+							event.detail = DND.DROP_NONE;
 						}
 					}
 
@@ -306,61 +350,86 @@ public class ResortableCodeViewer extends CodeViewer {
 								ICode targetCode = LocatorService.INSTANCE
 										.resolve(targetUri, ICode.class, null)
 										.get();
+
 								if (sourceCodeUris.size() > 0) {
 									Rectangle bounds = event.item instanceof TreeItem ? ((TreeItem) event.item)
 											.getBounds()
 											: event.item instanceof TableItem ? ((TableItem) event.item)
 													.getBounds() : null;
-									if (bounds != null) {
-										Point point = Display.getCurrent().map(
-												null,
-												ResortableCodeViewer.this
-														.getViewer()
-														.getControl(), event.x,
-												event.y);
 
-										ICode parentCode = null;
-										Integer pos;
-										if (point.y < bounds.y + bounds.height
-												/ 3) {
-											// move before
-											parentCode = codeService
-													.getParent(targetCode);
-											pos = codeService
-													.getPosition(targetCode);
-										} else if (point.y > bounds.y + 2
-												* bounds.height / 3) {
-											// move after
-											parentCode = codeService
-													.getParent(targetCode);
-											pos = codeService
-													.getPosition(targetCode) + 1;
-										} else {
-											// make child
-											parentCode = targetCode;
-											pos = null;
-										}
-
-										for (ICode sourceCode : sourceCodes) {
+									if (this.detail == DND.DROP_LINK) {
+										// create code instance
+										for (URI sourceCodeUri : sourceCodeUris) {
 											try {
-												codeService.setParent(
-														sourceCode, parentCode);
-												if (pos != null) {
-													codeService.setPosition(
-															sourceCode, pos);
-												}
-												LOGGER.info("[CODE][HIERARCHY] Moved "
-														+ sourceCodes
-														+ " to "
-														+ parentCode
-														+ (pos != null ? " to position "
-																+ pos
-																: ""));
+												codeService.addCode(targetCode,
+														sourceCodeUri);
+												LOGGER.info("[CODE][ASSIGN] "
+														+ sourceCodeUri
+														+ " assigned to "
+														+ targetCode);
 											} catch (CodeServiceException e) {
-												LOGGER.error("Coud not make "
-														+ parentCode
-														+ " the parent of "
-														+ sourceCodes);
+												LOGGER.error("Coud not assign "
+														+ sourceCodeUri
+														+ " to " + targetCode);
+											}
+										}
+									} else {
+										// move code
+										if (bounds != null) {
+											Point point = Display
+													.getCurrent()
+													.map(null,
+															ResortableCodeViewer.this
+																	.getViewer()
+																	.getControl(),
+															event.x, event.y);
+
+											ICode parentCode = null;
+											Integer pos;
+											if (point.y < bounds.y
+													+ bounds.height / 3) {
+												// move before
+												parentCode = codeService
+														.getParent(targetCode);
+												pos = codeService
+														.getPosition(targetCode);
+											} else if (point.y > bounds.y + 2
+													* bounds.height / 3) {
+												// move after
+												parentCode = codeService
+														.getParent(targetCode);
+												pos = codeService
+														.getPosition(targetCode) + 1;
+											} else {
+												// make child
+												parentCode = targetCode;
+												pos = null;
+											}
+
+											for (ICode sourceCode : sourceCodes) {
+												try {
+													codeService.setParent(
+															sourceCode,
+															parentCode);
+													if (pos != null) {
+														codeService
+																.setPosition(
+																		sourceCode,
+																		pos);
+													}
+													LOGGER.info("[CODE][HIERARCHY] Moved "
+															+ sourceCodes
+															+ " to "
+															+ parentCode
+															+ (pos != null ? " to position "
+																	+ pos
+																	: ""));
+												} catch (CodeServiceException e) {
+													LOGGER.error("Coud not make "
+															+ parentCode
+															+ " the parent of "
+															+ sourceCodes);
+												}
 											}
 										}
 									}
