@@ -377,8 +377,8 @@ public class AxialCodingComposite extends Composite implements
 									.getPan().get();
 							Double zoom = AxialCodingComposite.this.jointjs
 									.getZoom().get();
-							int dropX = (int) ((offsetX / zoom) - pan.x);
-							int dropY = (int) ((offsetY / zoom) - pan.y);
+							int dropX = (int) (offsetX / zoom - pan.x);
+							int dropY = (int) (offsetY / zoom - pan.y);
 							for (final String uriString2 : data.split("\\|")) {
 								URI uri2 = new URI(uriString2);
 								Point size = AxialCodingComposite.this.labelProvider
@@ -696,7 +696,7 @@ public class AxialCodingComposite extends Composite implements
 	 * @NonUIThread
 	 */
 	private String createIsARelationStatement(final URI parent, final URI child)
-			throws InterruptedException, ExecutionException {
+					throws InterruptedException, ExecutionException {
 		LOGGER.info("Creating Is-A-Relation from "
 				+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
 						.get().getCaption()
@@ -710,7 +710,20 @@ public class AxialCodingComposite extends Composite implements
 		js.append(JointJS.createPermanentLinkStatement(id, parent.toString(),
 				child.toString()));
 
-		String[] texts = new String[] { "is a" };
+		boolean isRelation = false;
+		try {
+			ICode parentCode = LocatorService.INSTANCE.resolve(parent,
+					ICode.class, null).get();
+			ICode childCode = LocatorService.INSTANCE.resolve(child,
+					ICode.class, null).get();
+			isRelation = CODE_SERVICE.getProperties(parentCode).contains(
+					childCode);
+		} catch (Exception e) {
+			LOGGER.warn("Could not check if " + child + " is property of "
+					+ parent, e);
+		}
+
+		String[] texts = new String[] { isRelation ? "is property of" : "is a" };
 		for (int i = 0; texts != null && i < texts.length; i++) {
 			js.append(JointJS.setTextStatement(id, i, texts[i]));
 		}
