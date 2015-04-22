@@ -205,7 +205,7 @@ class AxialCodingViewModelList extends Composite {
 								.setEnabled(false);
 						if (!AxialCodingViewModelList.this.mute) {
 							for (IListener listener2 : AxialCodingViewModelList.this.listeners) {
-								listener2.openClicked(null);
+								listener2.openClicked(new HashSet<URI>());
 							}
 						}
 					}
