@@ -1,6 +1,6 @@
 package de.fu_berlin.imp.apiua.groundedtheory.handlers;
 
-import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -61,10 +61,19 @@ public class GeneralizeRelationContribution extends ContributionItem {
 
 		List<IRelation> relations = SelectionUtils.getAdaptableObjects(
 				selection, IRelation.class);
-		if (relations.size() != 1)
+		if (relations.size() < 1)
 			return;
 
-		IRelation relation = relations.get(0);
+		Pair<EndPoint, URI> from = new Pair<>(EndPoint.FROM, relations.get(0)
+				.getFrom());
+		Pair<EndPoint, URI> to = new Pair<>(EndPoint.FROM, relations.get(0)
+				.getFrom());
+		for (IRelation relation : relations) {
+			if (from != null && !from.getSecond().equals(relation.getFrom()))
+				from = null;
+			if (to != null && !to.getSecond().equals(relation.getTo()))
+				to = null;
+		}
 
 		MenuItem menuItem = new MenuItem(menu, SWT.CASCADE, index);
 		menuItem.setText("Generalize Relation");
@@ -72,9 +81,19 @@ public class GeneralizeRelationContribution extends ContributionItem {
 		Menu itemMenu = new Menu(menuItem);
 		menuItem.setMenu(itemMenu);
 
-		Pair<EndPoint, URI> from = new Pair<>(EndPoint.FROM, relation.getFrom());
-		Pair<EndPoint, URI> to = new Pair<>(EndPoint.TO, relation.getTo());
-		for (Pair<EndPoint, URI> endpoint : Arrays.asList(from, to)) {
+		List<Pair<EndPoint, URI>> endpoints = new LinkedList<>();
+		if (from != null)
+			endpoints.add(from);
+		if (to != null)
+			endpoints.add(to);
+
+		if (endpoints.isEmpty()) {
+			menuItem.setText(menuItem.getText()
+					+ " Not Available Due to Different Froms and Tos");
+			menuItem.setEnabled(false);
+		}
+
+		for (Pair<EndPoint, URI> endpoint : endpoints) {
 			MenuItem subMenuItem = new MenuItem(itemMenu, SWT.CASCADE);
 			subMenuItem.setText(labelProviderService.getText(endpoint
 					.getSecond()));
@@ -99,12 +118,12 @@ public class GeneralizeRelationContribution extends ContributionItem {
 							@Override
 							public void widgetSelected(SelectionEvent e) {
 								try {
-									generalizeRelation(relation,
+									generalizeRelation(relations,
 											endpoint.getFirst(), ancestor);
 								} catch (InterruptedException
 										| ExecutionException e1) {
 									LOGGER.error("Error generlizing relation "
-											+ relation.toString());
+											+ relations.toString());
 								}
 							}
 						});
@@ -122,7 +141,7 @@ public class GeneralizeRelationContribution extends ContributionItem {
 	/**
 	 * Generalizes a {@link IRelation}.
 	 * 
-	 * @param relation
+	 * @param relations
 	 *            to be generalized
 	 * @param endPoint
 	 *            to or from field
@@ -132,21 +151,26 @@ public class GeneralizeRelationContribution extends ContributionItem {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private void generalizeRelation(IRelation relation, EndPoint endPoint,
-			URI newEndPoint) throws InterruptedException, ExecutionException {
+	private void generalizeRelation(List<IRelation> relations,
+			EndPoint endPoint, URI newEndPoint) throws InterruptedException,
+			ExecutionException {
 		Job job = new NamedJob(CreateAxialCondingModelContribution.class,
-				"Generalizing " + relation) {
+				"Generalizing " + relations) {
 			@Override
 			protected IStatus runNamed(IProgressMonitor monitor) {
-				SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
+				SubMonitor subMonitor = SubMonitor.convert(monitor,
+						relations.size());
 
-				try {
-					codeService.updateRelation(relation, endPoint, newEndPoint);
-					subMonitor.done();
-				} catch (Exception e) {
-					LOGGER.error("Error generalizing " + relation, e);
-					return Status.CANCEL_STATUS;
+				for (IRelation relation : relations) {
+					try {
+						codeService.updateRelation(relation, endPoint,
+								newEndPoint);
+					} catch (Exception e) {
+						LOGGER.error("Error generalizing " + relation, e);
+						return Status.CANCEL_STATUS;
+					}
 				}
+				subMonitor.done();
 				return Status.OK_STATUS;
 			}
 		};

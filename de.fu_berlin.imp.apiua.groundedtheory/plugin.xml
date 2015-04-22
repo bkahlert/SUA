@@ -789,11 +789,15 @@
          </dynamic>
          <dynamic
                class="de.fu_berlin.imp.apiua.groundedtheory.handlers.CreateAxialCondingModelContribution"
-               id="de.fu_berlin.imp.apiua.groundedtheory.createLinkContribution">
+               id="de.fu_berlin.imp.apiua.groundedtheory.createAxialCodingModelContribution">
          </dynamic>
          <dynamic
                class="de.fu_berlin.imp.apiua.groundedtheory.handlers.GeneralizeRelationContribution"
                id="de.fu_berlin.imp.apiua.groundedtheory.generalizeRelationContribution">
+         </dynamic>
+         <dynamic
+               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.MergeRelationsContribution"
+               id="de.fu_berlin.imp.apiua.groundedtheory.mergeRelationsContribution">
          </dynamic>
          <separator
                name="de.fu_berlin.imp.apiua.groundedtheory.separator3"

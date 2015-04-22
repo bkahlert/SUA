@@ -821,4 +821,48 @@ public interface ICodeService {
 	 */
 	public void reattachAndSave(URI src, URI dest) throws CodeServiceException;
 
+	/**
+	 * Reassigns all given {@link ICodeInstance}s to the new {@link ICode}.
+	 * 
+	 * @param sourceCodeInstances
+	 * @param targetCode
+	 */
+	public void reassign(List<ICodeInstance> sourceCodeInstances,
+			ICode targetCode);
+
+	/**
+	 * Reassigns all given {@link IRelationInstance}s to the new
+	 * {@link IRelation}.
+	 * 
+	 * @param sourceRelationInstances
+	 * @param targetRelation
+	 */
+	public void reassign(Set<IRelationInstance> sourceRelationInstances,
+			IRelation targetRelation);
+
+	/**
+	 * Merges a set of memos associated with the given {@link URI}s.
+	 * 
+	 * @param uris
+	 * @param target
+	 *            target (may be member of uris}
+	 * @throws CodeServiceException
+	 */
+	public void mergeMemos(Set<URI> uris, URI target)
+			throws CodeServiceException;
+
+	/**
+	 * Merges a set of {@link IRelation}s into the given target
+	 * {@link IRelation}. All given {@link IRelation}s must share the same
+	 * {@link EndPoint.FROM} and {@link EndPoint.TO}.
+	 * 
+	 * @param relations
+	 * @param target
+	 *            if null a new {@link IRelation} is created
+	 * @return the merged {@link IRelation}
+	 * @throws CodeServiceException
+	 */
+	public IRelation merge(Set<IRelation> relations, IRelation target)
+			throws CodeServiceException;
+
 }

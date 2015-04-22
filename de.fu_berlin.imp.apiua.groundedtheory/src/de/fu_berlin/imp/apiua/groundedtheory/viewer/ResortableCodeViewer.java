@@ -41,10 +41,12 @@ public class ResortableCodeViewer extends CodeViewer {
 	private static Logger LOGGER = Logger.getLogger(ResortableCodeViewer.class);
 
 	public ResortableCodeViewer(Composite parent, int style,
-			ShowInstances initialShowInstances, ShowAllInstances initialShowAllInstances, String saveExpandedElementsKey,
-			Filterable filterable, QuickSelectionMode quickSelectionMode) {
-		super(parent, style, initialShowInstances, initialShowAllInstances, saveExpandedElementsKey,
-				filterable, quickSelectionMode);
+			ShowInstances initialShowInstances,
+			ShowAllInstances initialShowAllInstances,
+			String saveExpandedElementsKey, Filterable filterable,
+			QuickSelectionMode quickSelectionMode) {
+		super(parent, style, initialShowInstances, initialShowAllInstances,
+				saveExpandedElementsKey, filterable, quickSelectionMode);
 
 		int operations = DND.DROP_MOVE | DND.DROP_LINK;
 
@@ -202,8 +204,8 @@ public class ResortableCodeViewer extends CodeViewer {
 												.resolve(sourceCodeUri,
 														ICode.class, null)
 												.get();
-										if (codeService.getDescendents(sourceCode)
-												.contains(destCode)) {
+										if (codeService.getDescendents(
+												sourceCode).contains(destCode)) {
 											parentToChildException = true;
 											break;
 										}
@@ -363,33 +365,8 @@ public class ResortableCodeViewer extends CodeViewer {
 										}
 									}
 								} else if (sourceCodeInstanceUris.size() > 0) {
-									for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
-										if (sourceCodeInstance.getCode()
-												.equals(targetCode)) {
-											continue;
-										}
-
-										try {
-											URI oldCodeInstanceUri = sourceCodeInstance
-													.getUri();
-											String memo = codeService
-													.loadMemo(oldCodeInstanceUri);
-
-											URI coded = sourceCodeInstance
-													.getId();
-											codeService
-													.deleteCodeInstance(sourceCodeInstance);
-
-											URI newCodeInstanceUri = codeService
-													.addCode(targetCode, coded);
-											codeService.setMemo(
-													newCodeInstanceUri, memo);
-											codeService.setMemo(
-													oldCodeInstanceUri, null);
-										} catch (CodeServiceException e) {
-											LOGGER.error(e);
-										}
-									}
+									codeService.reassign(sourceCodeInstances,
+											targetCode);
 								} else {
 									for (URI sourceUri : sourceUris) {
 										try {

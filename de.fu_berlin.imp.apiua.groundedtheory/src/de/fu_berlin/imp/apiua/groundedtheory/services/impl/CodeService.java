@@ -564,6 +564,9 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void renameRelation(IRelation relation, String newName)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
+		if (!relation.getName().equals(newName)) {
+			return;
+		}
 		if (LocatorService.INSTANCE != null) {
 			LocatorService.INSTANCE.uncache(relation.getUri());
 		}
@@ -1421,6 +1424,7 @@ public class CodeService implements ICodeService, IDisposable {
 			LocatorService.INSTANCE.uncache(src);
 		}
 
+		// FIXME: codeInstance memos are lost this way (see call hierarchy)
 		Set<ICode> codes = this.getExplicitCodes(src);
 		this.removeCodes(codes, src);
 		this.addCodes(codes, new HashSet<>(Arrays.asList(dest)));
@@ -1432,6 +1436,147 @@ public class CodeService implements ICodeService, IDisposable {
 			this.codeStore.save();
 		} catch (CodeStoreWriteException e) {
 			throw new CodeServiceException(e);
+		}
+	}
+
+	@Override
+	public void reassign(List<ICodeInstance> sourceCodeInstances,
+			ICode targetCode) {
+		for (ICodeInstance sourceCodeInstance : sourceCodeInstances) {
+			if (sourceCodeInstance.getCode().equals(targetCode)) {
+				continue;
+			}
+
+			try {
+				URI oldCodeInstanceUri = sourceCodeInstance.getUri();
+				String memo = loadMemo(oldCodeInstanceUri);
+
+				URI phenomenon = sourceCodeInstance.getId();
+				this.deleteCodeInstance(sourceCodeInstance);
+
+				URI newCodeInstanceUri = this.addCode(targetCode, phenomenon);
+				this.setMemo(newCodeInstanceUri, memo);
+				this.setMemo(oldCodeInstanceUri, null);
+			} catch (CodeServiceException e) {
+				LOGGER.error(e);
+			}
+		}
+	}
+
+	@Override
+	public void mergeMemos(Set<URI> uris, URI target)
+			throws CodeServiceException {
+		Assert.isLegal(uris.size() > 0);
+		Assert.isLegal(target != null);
+		StringBuilder sb = new StringBuilder();
+		List<URI> merge = new ArrayList<>();
+		for (URI uri : uris) {
+			if (isMemo(uri)) {
+				merge.add(uri);
+			}
+		}
+		for (URI uri : merge) {
+			if (merge.size() > 1) {
+				sb.append("<p>------------------------ MERGE START source: "
+						+ uri.toString() + "</p>");
+			}
+			sb.append(loadMemo(uri));
+			if (merge.size() > 1) {
+				sb.append("<p>------------------------ MERGE END</p>");
+			}
+		}
+		setMemo(target, sb.toString());
+	}
+
+	@Override
+	public IRelation merge(Set<IRelation> relations, IRelation target)
+			throws CodeServiceException {
+		Assert.isLegal(relations.size() > 0);
+
+		List<String> names = new ArrayList<>(relations.size());
+		if (target != null) {
+			names.add(target.getName());
+		}
+		URI from = relations.iterator().next().getFrom();
+		URI to = relations.iterator().next().getTo();
+		for (IRelation relation : relations) {
+			if (!names.contains(relation.getName())) {
+				names.add(relation.getName());
+			}
+			if (from != null && !from.equals(relation.getFrom())) {
+				from = null;
+			}
+			if (to != null && !to.equals(relation.getTo())) {
+				to = null;
+			}
+		}
+
+		if (from == null) {
+			throw new CodeServiceException(
+					"The relations to be merged don't share the same "
+							+ EndPoint.FROM);
+		}
+		if (to == null) {
+			throw new CodeServiceException(
+					"The relations to be merged don't share the same "
+							+ EndPoint.TO);
+		}
+
+		String name = StringUtils.join(names, " | ");
+		try {
+			if (target == null) {
+				target = createRelation(from, to, name);
+			} else {
+				renameRelation(target, name);
+			}
+		} catch (CodeStoreWriteException | RelationDoesNotExistException e) {
+			throw new CodeServiceException(e);
+		}
+
+		Set<URI> memoUris = relations.stream().map(r -> r.getUri())
+				.collect(Collectors.toSet());
+		memoUris.add(target.getUri());
+		mergeMemos(memoUris, target.getUri());
+
+		for (IRelation relation : relations) {
+			if (relation.equals(target)) {
+				continue;
+			}
+			reassign(getAllRelationInstances(relation), target);
+			try {
+				deleteRelation(relation);
+			} catch (CodeStoreWriteException | RelationDoesNotExistException e) {
+				throw new CodeServiceException(e);
+			}
+		}
+
+		return target;
+	}
+
+	@Override
+	public void reassign(Set<IRelationInstance> sourceRelationInstances,
+			IRelation targetRelation) {
+		for (IRelationInstance sourceRelationInstance : sourceRelationInstances) {
+			if (sourceRelationInstance.getRelation().equals(targetRelation)) {
+				continue;
+			}
+
+			try {
+				URI oldRelationInstanceUri = sourceRelationInstance.getUri();
+				String memo = loadMemo(oldRelationInstanceUri);
+
+				URI phenomenon = sourceRelationInstance.getPhenomenon();
+				this.deleteRelationInstance(sourceRelationInstance);
+
+				IRelationInstance newRelationInstance = this
+						.createRelationInstance(phenomenon, targetRelation);
+				setMemo(newRelationInstance.getUri(), memo);
+				setMemo(oldRelationInstanceUri, null);
+			} catch (CodeServiceException | CodeStoreWriteException
+					| RelationInstanceDoesNotExistException
+					| RelationDoesNotExistException e) {
+				LOGGER.error(e);
+			}
 		}
 	}
 }
