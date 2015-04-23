@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,6 +27,9 @@ import com.bkahlert.nebula.utils.selection.SelectionUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
+import de.fu_berlin.imp.apiua.groundedtheory.dialogs.SelectCodeDialog;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICode;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation.EndPoint;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
@@ -136,23 +140,51 @@ public class GeneralizeRelationContribution extends ContributionItem {
 
 			MenuItem selfSubMenuItem = new MenuItem(subMenuItemMenu, SWT.PUSH);
 			selfSubMenuItem.setText(StringUtils.repeat("-", ancestors.size())
-					+ " " + labelProviderService.getText(endpoint.getSecond()));
-			selfSubMenuItem.setImage(labelProviderService.getImage(endpoint
-					.getSecond()));
+					+ " "
+					+ this.labelProviderService.getText(endpoint.getSecond()));
+			selfSubMenuItem.setImage(this.labelProviderService
+					.getImage(endpoint.getSecond()));
 			selfSubMenuItem.setEnabled(false);
+
+			new MenuItem(subMenuItemMenu, SWT.SEPARATOR);
+
+			MenuItem otherSubMenuItem = new MenuItem(subMenuItemMenu, SWT.PUSH);
+			otherSubMenuItem.setText("Other...");
+			otherSubMenuItem.setImage(ImageManager.CODE);
+			otherSubMenuItem.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					SelectCodeDialog d = new SelectCodeDialog(PlatformUI
+							.getWorkbench().getActiveWorkbenchWindow()
+							.getShell(), endpoint.getSecond());
+					if (d.open() == Window.OK) {
+						URI uri = d.getUri();
+						try {
+							if (LocatorService.INSTANCE.resolve(uri, null)
+									.get() instanceof ICode) {
+								generalizeRelation(relations,
+										endpoint.getFirst(), uri);
+							}
+						} catch (InterruptedException | ExecutionException e1) {
+							LOGGER.error("Error generlizing relation "
+									+ relations.toString());
+						}
+					}
+				}
+			});
 		}
 	}
 
 	/**
 	 * Generalizes a {@link IRelation}.
-	 * 
+	 *
 	 * @param relations
 	 *            to be generalized
 	 * @param endPoint
 	 *            to or from field
 	 * @param newEndPoint
 	 *            new end point
-	 * 
+	 *
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
