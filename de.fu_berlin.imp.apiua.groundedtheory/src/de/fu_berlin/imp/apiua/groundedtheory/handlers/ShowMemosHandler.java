@@ -15,7 +15,7 @@ public class ShowMemosHandler extends AbstractHandler {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
-			.getLogger(OpenCodeStoreHandler.class);
+			.getLogger(ShowMemosHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

@@ -564,7 +564,7 @@ public class CodeService implements ICodeService, IDisposable {
 	@Override
 	public void renameRelation(IRelation relation, String newName)
 			throws RelationDoesNotExistException, CodeStoreWriteException {
-		if (!relation.getName().equals(newName)) {
+		if (relation.getName().equals(newName)) {
 			return;
 		}
 		if (LocatorService.INSTANCE != null) {

@@ -61,18 +61,21 @@ public class GeneralizeRelationContribution extends ContributionItem {
 
 		List<IRelation> relations = SelectionUtils.getAdaptableObjects(
 				selection, IRelation.class);
-		if (relations.size() < 1)
+		if (relations.size() < 1) {
 			return;
+		}
 
 		Pair<EndPoint, URI> from = new Pair<>(EndPoint.FROM, relations.get(0)
 				.getFrom());
-		Pair<EndPoint, URI> to = new Pair<>(EndPoint.FROM, relations.get(0)
-				.getFrom());
+		Pair<EndPoint, URI> to = new Pair<>(EndPoint.TO, relations.get(0)
+				.getTo());
 		for (IRelation relation : relations) {
-			if (from != null && !from.getSecond().equals(relation.getFrom()))
+			if (from != null && !from.getSecond().equals(relation.getFrom())) {
 				from = null;
-			if (to != null && !to.getSecond().equals(relation.getTo()))
+			}
+			if (to != null && !to.getSecond().equals(relation.getTo())) {
 				to = null;
+			}
 		}
 
 		MenuItem menuItem = new MenuItem(menu, SWT.CASCADE, index);
@@ -82,10 +85,12 @@ public class GeneralizeRelationContribution extends ContributionItem {
 		menuItem.setMenu(itemMenu);
 
 		List<Pair<EndPoint, URI>> endpoints = new LinkedList<>();
-		if (from != null)
+		if (from != null) {
 			endpoints.add(from);
-		if (to != null)
+		}
+		if (to != null) {
 			endpoints.add(to);
+		}
 
 		if (endpoints.isEmpty()) {
 			menuItem.setText(menuItem.getText()
@@ -95,14 +100,14 @@ public class GeneralizeRelationContribution extends ContributionItem {
 
 		for (Pair<EndPoint, URI> endpoint : endpoints) {
 			MenuItem subMenuItem = new MenuItem(itemMenu, SWT.CASCADE);
-			subMenuItem.setText(labelProviderService.getText(endpoint
+			subMenuItem.setText(this.labelProviderService.getText(endpoint
 					.getSecond()));
-			subMenuItem.setImage(labelProviderService.getImage(endpoint
+			subMenuItem.setImage(this.labelProviderService.getImage(endpoint
 					.getSecond()));
 			Menu subMenuItemMenu = new Menu(subMenuItem);
 			subMenuItem.setMenu(subMenuItemMenu);
 
-			List<URI> ancestors = codeService.getCodeStore()
+			List<URI> ancestors = this.codeService.getCodeStore()
 					.getCodeHierarchyView().getAncestors(endpoint.getSecond());
 			for (int i = 0; i < ancestors.size(); i++) {
 				URI ancestor = ancestors.get(ancestors.size() - i - 1);
@@ -110,8 +115,8 @@ public class GeneralizeRelationContribution extends ContributionItem {
 						SWT.PUSH);
 				ancestorSubMenuItem.setText(StringUtils.repeat("-", i)
 						+ (i == 0 ? "" : " ")
-						+ labelProviderService.getText(ancestor));
-				ancestorSubMenuItem.setImage(labelProviderService
+						+ this.labelProviderService.getText(ancestor));
+				ancestorSubMenuItem.setImage(this.labelProviderService
 						.getImage(ancestor));
 				ancestorSubMenuItem
 						.addSelectionListener(new SelectionAdapter() {
@@ -163,8 +168,8 @@ public class GeneralizeRelationContribution extends ContributionItem {
 
 				for (IRelation relation : relations) {
 					try {
-						codeService.updateRelation(relation, endPoint,
-								newEndPoint);
+						GeneralizeRelationContribution.this.codeService
+								.updateRelation(relation, endPoint, newEndPoint);
 					} catch (Exception e) {
 						LOGGER.error("Error generalizing " + relation, e);
 						return Status.CANCEL_STATUS;
