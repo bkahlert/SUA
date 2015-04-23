@@ -12,7 +12,16 @@ import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation.EndPoint;
 
+/**
+ * An {@link ImplicitRelation} is a relation that describes implicitly another
+ * {@link IRelation} as soon as the {@link EndPoint.FROM} or {@link EndPoint.TO}
+ * is a descendant of the corresponding {@link IRelation} fields.
+ *
+ * @author bkahlert
+ *
+ */
 public class ImplicitRelation implements ILocatable, IRelation {
 	private static final long serialVersionUID = 1L;
 
@@ -78,8 +87,7 @@ public class ImplicitRelation implements ILocatable, IRelation {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((this.uri == null) ? 0 : this.uri.hashCode());
+		result = prime * result + (this.uri == null ? 0 : this.uri.hashCode());
 		return result;
 	}
 

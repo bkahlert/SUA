@@ -13,6 +13,15 @@ import de.fu_berlin.imp.apiua.core.model.TimeZoneDate;
 import de.fu_berlin.imp.apiua.core.model.URI;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 
+/**
+ * A {@link ProposedRelation} is a relation that describes a {@link IRelation}
+ * by permuting all combinations of an existing {@link IRelation}'
+ * {@link EndPoint.FROM} and {@link EndPoint.TO} ascendants. is a descendant of
+ * the corresponding {@link IRelation} fields.
+ *
+ * @author bkahlert
+ *
+ */
 public class ProposedRelation implements ILocatable, IRelation {
 	private static final long serialVersionUID = 1L;
 
@@ -76,8 +85,7 @@ public class ProposedRelation implements ILocatable, IRelation {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((this.uri == null) ? 0 : this.uri.hashCode());
+		result = prime * result + (this.uri == null ? 0 : this.uri.hashCode());
 		return result;
 	}
 
