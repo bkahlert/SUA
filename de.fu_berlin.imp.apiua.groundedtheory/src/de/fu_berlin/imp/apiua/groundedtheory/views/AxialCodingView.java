@@ -86,6 +86,8 @@ public class AxialCodingView extends ViewPart {
 	private AxialCodingComposite activeAxialCodingComposite = null;
 
 	private boolean showMemos = true;
+	private boolean showImplicitRelations = true;
+	private boolean mergeProposedRelations = true;
 
 	public AxialCodingView() {
 		this.selectionProviderDelegator = new SelectionProviderDelegator();
@@ -295,7 +297,7 @@ public class AxialCodingView extends ViewPart {
 					for (int i = 0; i < uris.length; i++) {
 						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 								AxialCodingView.this.axialCodingCompositesContainer,
-								SWT.NONE);
+								SWT.NONE, this.mergeProposedRelations);
 						axialCodingComposite
 								.addModifyListener(e -> axialCodingComposite
 										.save());
@@ -318,6 +320,10 @@ public class AxialCodingView extends ViewPart {
 			for (int i = 0; i < uris.length; i++) {
 				axialCodingComposites.get(i).open(uris[i]).get();
 				axialCodingComposites.get(i).setShowMemos(this.showMemos);
+				axialCodingComposites.get(i).setShowImplicitRelations(
+						this.showImplicitRelations);
+				axialCodingComposites.get(i).setMergeProposedRelations(
+						this.mergeProposedRelations);
 			}
 			HashSet<URI> opened = new HashSet<URI>(Arrays.asList(uris));
 			ExecUtils.syncExec(() -> {
@@ -413,6 +419,24 @@ public class AxialCodingView extends ViewPart {
 		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
 				.values()) {
 			axialCodingComposite.setShowMemos(showMemos);
+		}
+	}
+
+	public void setImplicitRelations(boolean showImplicitRelations) {
+		this.showImplicitRelations = showImplicitRelations;
+		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
+				.values()) {
+			axialCodingComposite
+					.setShowImplicitRelations(this.showImplicitRelations);
+		}
+	}
+
+	public void mergeProposedRelations(boolean mergeProposedRelations) {
+		this.mergeProposedRelations = mergeProposedRelations;
+		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
+				.values()) {
+			axialCodingComposite
+					.setMergeProposedRelations(this.mergeProposedRelations);
 		}
 	}
 

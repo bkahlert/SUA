@@ -300,6 +300,42 @@
             </class>
          </state>
       </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showImplicitRelations"
+            name="Show Implicit Relations">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.mergeProposedRelations"
+            name="Merge Proposed Relations">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
      </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -510,6 +546,14 @@
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowMemosHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowImplicitRelationsHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showImplicitRelations">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.MergeProposedRelationsHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.mergeProposedRelations">
         </handler>
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveFromAxialCodingModelHandler"
@@ -888,6 +932,16 @@
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showMemos"
                icon="icons/obj16/memo_obj.png"
+               style="toggle">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showImplicitRelations"
+               icon="icons/obj16/relation_obj.png"
+               style="toggle">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.mergeProposedRelations"
+               icon="icons/obj16/relation_obj.png"
                style="toggle">
          </command>
       </menuContribution>

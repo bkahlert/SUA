@@ -175,8 +175,15 @@ public class AxialCodingComposite extends Composite implements
 
 	private URI openedUri = null;
 
-	public AxialCodingComposite(Composite parent, int style) {
+	/**
+	 * Display multiple {@link ProposedRelation}s as a single one.
+	 */
+	private boolean mergeProposedRelations;
+
+	public AxialCodingComposite(Composite parent, int style,
+			boolean mergeProposedRelations) {
 		super(parent, style);
+		this.mergeProposedRelations = mergeProposedRelations;
 
 		IMPORTANCE_SERVICE
 				.addImportanceServiceListener(this.importanceServiceListener);
@@ -240,6 +247,8 @@ public class AxialCodingComposite extends Composite implements
 						if (proposedRelation != null) {
 							uris.add(proposedRelation.getFrom());
 							uris.add(proposedRelation.getTo());
+							uris.add(proposedRelation.getExplicitRelation()
+									.getUri());
 						}
 					} catch (InterruptedException | ExecutionException e) {
 						LOGGER.error(e);
@@ -696,7 +705,7 @@ public class AxialCodingComposite extends Composite implements
 	 * @NonUIThread
 	 */
 	private String createIsARelationStatement(final URI parent, final URI child)
-					throws InterruptedException, ExecutionException {
+			throws InterruptedException, ExecutionException {
 		LOGGER.info("Creating Is-A-Relation from "
 				+ LocatorService.INSTANCE.resolve(child, ICode.class, null)
 						.get().getCaption()
@@ -824,9 +833,16 @@ public class AxialCodingComposite extends Composite implements
 			List<URI> validElements) throws InterruptedException,
 			ExecutionException {
 		StringBuilder proposedRelationsJs = new StringBuilder();
-		List<URI> proposedRelations = CODE_SERVICE
-				.getProposedRelation(validElements, validElements, 3).stream()
-				.map(r -> r.getUri()).collect(Collectors.toList());
+		List<URI> proposedRelations;
+		if (this.mergeProposedRelations) {
+			proposedRelations = CODE_SERVICE
+					.getMergedProposedRelation(validElements, validElements)
+					.stream().map(r -> r.getUri()).collect(Collectors.toList());
+		} else {
+			proposedRelations = CODE_SERVICE
+					.getProposedRelation(validElements, validElements, 3)
+					.stream().map(r -> r.getUri()).collect(Collectors.toList());
+		}
 		List<URI> existingProposedRelations = this.getRelations("proposed")
 				.get();
 		for (URI proposedRelation : proposedRelations) {
@@ -1072,7 +1088,8 @@ public class AxialCodingComposite extends Composite implements
 				js.append(JointJS.removeCustomClassStatement(
 						Arrays.asList(uri.toString()), "implicit"));
 			}
-			if (relation instanceof ProposedRelation) {
+			if (relation instanceof ProposedRelation
+					|| relation instanceof MergedProposedRelation) {
 				js.append(JointJS.addCustomClassStatement(
 						Arrays.asList(uri.toString()), "proposed"));
 			} else {
@@ -1228,6 +1245,15 @@ public class AxialCodingComposite extends Composite implements
 			this.jointjs
 					.run("document.getElementsByTagName(\"html\")[0].classList.add(\"detailsHidden\");");
 		}
+	}
+
+	public void setShowImplicitRelations(boolean showImplicitRelations) {
+		// always shown in brackets (grounding)
+	}
+
+	public void setMergeProposedRelations(boolean mergeProposedRelations) {
+		this.mergeProposedRelations = mergeProposedRelations;
+		ExecUtils.logException(this.refresh());
 	}
 
 }

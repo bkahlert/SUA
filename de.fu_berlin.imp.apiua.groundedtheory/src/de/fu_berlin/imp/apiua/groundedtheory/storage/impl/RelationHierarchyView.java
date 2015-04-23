@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.bkahlert.nebula.lang.ListHashMap;
 import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
 import com.bkahlert.nebula.utils.IDirtiable;
@@ -22,6 +23,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.IRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
+import de.fu_berlin.imp.apiua.groundedtheory.views.MergedProposedRelation;
 
 /**
  * {@link DataView} that makes parent-child relations available through
@@ -41,11 +43,13 @@ public class RelationHierarchyView extends DataView {
 	private Set<IRelation> explicitRelationsReadOnly;
 	private Set<ImplicitRelation> implicitRelationsReadOnly;
 	private Set<ProposedRelation> proposedRelationsReadOnly;
+	private Set<MergedProposedRelation> mergedProposedRelationsReadOnly;
 	private Set<IRelation> allRelationsReadOnly;
 
 	private Map<URI, IRelation> relationMappings;
 	private SetHashMap<URI, ImplicitRelation> implicitRelationMappings;
 	private SetHashMap<Pair<URI, URI>, ProposedRelation> proposedRelationsMappings;
+	private SetHashMap<Pair<URI, URI>, MergedProposedRelation> mergedProposedRelationsMappings;
 	private SetHashMap<URI, IRelation> allRelationMappings;
 
 	private SetHashMap<URI, IRelation> explicitRelationsStartingFrom;
@@ -69,10 +73,12 @@ public class RelationHierarchyView extends DataView {
 
 		HashSet<ImplicitRelation> implicitRelations = new HashSet<>();
 		HashSet<ProposedRelation> proposedRelations = new HashSet<>();
+		HashSet<MergedProposedRelation> mergedProposedRelations = new HashSet<>();
 		HashSet<IRelation> allRelations = new HashSet<>();
 
 		this.implicitRelationMappings = new SetHashMap<>();
 		this.proposedRelationsMappings = new SetHashMap<>();
+		this.mergedProposedRelationsMappings = new SetHashMap<>();
 		this.allRelationMappings = new SetHashMap<>();
 
 		this.explicitRelationsStartingFrom = new SetHashMap<>();
@@ -108,12 +114,12 @@ public class RelationHierarchyView extends DataView {
 				// for
 				this.explicitRelationsReadOnly
 						.stream()
-						.filter(r -> ((fromAncestors.contains(r.getFrom()) && toAncestors
-								.contains(r.getTo()))
-								|| (relation.getFrom().equals(r.getFrom()) && toAncestors
-										.contains(r.getTo())) || (fromAncestors
-								.contains(r.getFrom()) && relation.getTo()
-								.equals(r.getTo())))
+						.filter(r -> (fromAncestors.contains(r.getFrom())
+								&& toAncestors.contains(r.getTo())
+								|| relation.getFrom().equals(r.getFrom())
+								&& toAncestors.contains(r.getTo()) || fromAncestors
+								.contains(r.getFrom())
+								&& relation.getTo().equals(r.getTo()))
 								&& relation.getName().equals(r.getName()))
 						.forEach(
 								topRelation -> {
@@ -192,10 +198,36 @@ public class RelationHierarchyView extends DataView {
 				throw new RuntimeException(e);
 			}
 		}
+
+		// calculate merged proposed relations
+		for (Pair<URI, URI> proposedEndPoints : this.proposedRelationsMappings
+				.keySet()) {
+			ListHashMap<String, ProposedRelation> proposedRelationsByName = new ListHashMap<>();
+			for (ProposedRelation proposedRelation : this.proposedRelationsMappings
+					.get(proposedEndPoints)) {
+				proposedRelationsByName.addTo(proposedRelation.getName(),
+						proposedRelation);
+			}
+
+			for (String name : proposedRelationsByName.keySet()) {
+				List<ProposedRelation> tmp = proposedRelationsByName.get(name);
+				if (tmp.size() > 0) {
+					MergedProposedRelation mergedProposedRelation = new MergedProposedRelation(
+							tmp);
+					mergedProposedRelations.add(mergedProposedRelation);
+					allRelations.add(mergedProposedRelation);
+					this.mergedProposedRelationsMappings.addTo(
+							proposedEndPoints, mergedProposedRelation);
+				}
+			}
+		}
+
 		this.implicitRelationsReadOnly = Collections
 				.unmodifiableSet(implicitRelations);
 		this.proposedRelationsReadOnly = Collections
 				.unmodifiableSet(proposedRelations);
+		this.mergedProposedRelationsReadOnly = Collections
+				.unmodifiableSet(mergedProposedRelations);
 		this.allRelationsReadOnly = Collections.unmodifiableSet(allRelations);
 
 		this.relationMappings = new HashMap<>();
@@ -224,6 +256,10 @@ public class RelationHierarchyView extends DataView {
 
 	public Set<ProposedRelation> getProposedRelations() {
 		return this.proposedRelationsReadOnly;
+	}
+
+	public Set<MergedProposedRelation> getMergedProposedRelations() {
+		return this.mergedProposedRelationsReadOnly;
 	}
 
 	public Set<IRelation> getAllRelations() {
@@ -278,6 +314,21 @@ public class RelationHierarchyView extends DataView {
 	}
 
 	/**
+	 * Returns all {@link MergedProposedRelation}s for a possible
+	 * {@link IRelation} between <code>from</code> and <code>to</code>.
+	 *
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public Set<MergedProposedRelation> getMergedProposedRelation(URI from,
+			URI to) {
+		this.checkAndRefresh();
+		return Collections.unmodifiableSet(this.mergedProposedRelationsMappings
+				.get(new Pair<>(from, to)));
+	}
+
+	/**
 	 * Returns all {@link ProposedRelation}s for all possible {@link IRelation}s
 	 * between the <code>froms</code> and <code>tos</code>.
 	 * {@link ProposedRelation}s that model an explicit {@link IRelation} are
@@ -286,6 +337,7 @@ public class RelationHierarchyView extends DataView {
 	 * @param froms
 	 * @param tos
 	 * @param maxRelationsBetweenTwoElements
+	 *            return max for proposed relations between two elements
 	 * @return
 	 */
 	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
@@ -299,8 +351,6 @@ public class RelationHierarchyView extends DataView {
 				explicitRelations
 						.addAll(this.explicitRelationsStartingFromEndingAt
 								.get(new Pair<>(from, to)));
-				proposedRelations.addAll(this.proposedRelationsMappings
-						.get(new Pair<>(from, to)));
 				proposedRelations.addAll(this.proposedRelationsMappings
 						.get(new Pair<>(from, to)));
 			}
@@ -344,6 +394,32 @@ public class RelationHierarchyView extends DataView {
 		}
 
 		return Collections.unmodifiableSet(proposedRelations);
+	}
+
+	/**
+	 * Returns all {@link MergedProposedRelation}s for all possible
+	 * {@link IRelation}s between the <code>froms</code> and <code>tos</code>.
+	 * {@link ProposedRelation}s that model an explicit {@link IRelation} are
+	 * excluded.
+	 *
+	 * @param froms
+	 * @param tos
+	 * @param maxRelationsBetweenTwoElements
+	 *            return max for proposed relations between two elements
+	 * @return
+	 */
+	public Set<MergedProposedRelation> getMergedProposedRelation(
+			Collection<URI> froms, Collection<URI> tos) {
+		this.checkAndRefresh();
+		Set<MergedProposedRelation> mergedProposedRelations = new HashSet<>();
+		for (URI from : froms) {
+			for (URI to : tos) {
+				mergedProposedRelations
+						.addAll(this.mergedProposedRelationsMappings
+								.get(new Pair<>(from, to)));
+			}
+		}
+		return Collections.unmodifiableSet(mergedProposedRelations);
 	}
 
 	/**

@@ -68,6 +68,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.services.CodeServiceException;
 import de.fu_berlin.imp.apiua.groundedtheory.services.ICodeService;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.ImplicitCodeInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.IsACodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.views.MergedProposedRelation;
 
 public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 
@@ -376,7 +377,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 		}
 		if (locatable instanceof IEpisode) {
 			IEpisode episode = (IEpisode) locatable;
-			String name = (episode != null) ? episode.getCaption() : "";
+			String name = episode != null ? episode.getCaption() : "";
 			if (name.isEmpty()) {
 				Set<ICode> codes;
 				codes = CODE_SERVICE.getExplicitCodes(episode.getUri());
@@ -674,22 +675,28 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 							.getIdentifier() : ""));
 			detailEntries.add(new DetailEntry("Caption",
 					episode.getCaption() != null ? episode.getCaption() : "-"));
-			detailEntries.add(new DetailEntry("Creation", (episode
-					.getCreation() != null) ? episode.getCreation().toISO8601()
-					: "-"));
+			detailEntries.add(new DetailEntry("Creation",
+					episode.getCreation() != null ? episode.getCreation()
+							.toISO8601() : "-"));
 
-			detailEntries.add(new DetailEntry("Start",
-					(episode.getDateRange() != null && episode.getDateRange()
-							.getStartDate() != null) ? episode.getDateRange()
-							.getStartDate().toISO8601() : "-"));
+			detailEntries
+					.add(new DetailEntry(
+							"Start",
+							episode.getDateRange() != null
+									&& episode.getDateRange().getStartDate() != null ? episode
+									.getDateRange().getStartDate().toISO8601()
+									: "-"));
 
-			detailEntries.add(new DetailEntry("End",
-					(episode.getDateRange() != null && episode.getDateRange()
-							.getEndDate() != null) ? episode.getDateRange()
-							.getEndDate().toISO8601() : "-"));
+			detailEntries
+					.add(new DetailEntry(
+							"End",
+							episode.getDateRange() != null
+									&& episode.getDateRange().getEndDate() != null ? episode
+									.getDateRange().getEndDate().toISO8601()
+									: "-"));
 
 			TimeZoneDateRange range = episode.getDateRange();
-			detailEntries.add(new DetailEntry("Span", (range != null) ? range
+			detailEntries.add(new DetailEntry("Span", range != null ? range
 					.formatDuration() : "?"));
 		}
 		if (locatable instanceof IRelation) {
@@ -733,6 +740,21 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 								+ " ("
 								+ proposedRelation.getExplicitRelation()
 										.getTo() + ")"));
+			} else if (relation instanceof MergedProposedRelation) {
+				MergedProposedRelation mergedProposedRelation = (MergedProposedRelation) relation;
+				List<String> from = new ArrayList<>();
+				List<String> to = new ArrayList<>();
+				mergedProposedRelation.getExplicitRelations().forEach(
+						r -> {
+							from.add(labelProviderService.getText(r.getFrom())
+									+ " (" + r.getFrom() + ")");
+							to.add(labelProviderService.getText(r.getTo())
+									+ " (" + r.getTo() + ")");
+						});
+				detailEntries.add(new DetailEntry("Original From", StringUtils
+						.join(from, "\n")));
+				detailEntries.add(new DetailEntry("Original To", StringUtils
+						.join(to, "\n")));
 			} else {
 				List<String> implicitRelations = new LinkedList<>();
 				for (ImplicitRelation implicitRelation : CODE_SERVICE

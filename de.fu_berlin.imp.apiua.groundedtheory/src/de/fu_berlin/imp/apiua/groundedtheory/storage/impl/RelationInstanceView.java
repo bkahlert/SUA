@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.DataView;
@@ -21,6 +22,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ImplicitRelationInstance;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelation;
 import de.fu_berlin.imp.apiua.groundedtheory.model.ProposedRelationInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.views.MergedProposedRelation;
 
 /**
  * {@link DataView} that makes parent-child relations available through
@@ -49,6 +51,7 @@ public class RelationInstanceView extends DataView {
 	private SetHashMap<URI, IRelationInstance> explicitRelationInstancesByRelationInstanceRelation;
 	private SetHashMap<URI, ImplicitRelationInstance> implicitRelationInstancesByRelationInstanceRelation;
 	private SetHashMap<Pair<URI, URI>, ProposedRelationInstance> proposedRelationInstancesByFromTo;
+	private SetHashMap<Pair<URI, URI>, ProposedRelationInstance> mergedProposedRelationInstancesByFromTo;
 	private SetHashMap<URI, IRelationInstance> allRelationInstancesByRelationInstanceRelation;
 
 	private Map<URI, IRelationInstance> allRelationInstancesByRelationInstanceUri;
@@ -152,6 +155,27 @@ public class RelationInstanceView extends DataView {
 
 				this.allRelationInstancesByRelationInstanceRelation.addTo(
 						proposedRelation.getUri(), proposedRelationInstance);
+			}
+		}
+
+		this.mergedProposedRelationInstancesByFromTo = new SetHashMap<>();
+		for (MergedProposedRelation mergedProposedRelation : this.relationHierarchyView
+				.getMergedProposedRelations()) {
+			for (ProposedRelation proposedRelation : mergedProposedRelation
+					.getProposedRelations()) {
+				for (ProposedRelationInstance proposedRelationInstance : this.allRelationInstancesByRelationInstanceRelation
+						.get(proposedRelation.getUri()).stream()
+						.map(i -> (ProposedRelationInstance) i)
+						.collect(Collectors.toList())) {
+					this.mergedProposedRelationInstancesByFromTo.addTo(
+							new Pair<>(mergedProposedRelation.getFrom(),
+									mergedProposedRelation.getTo()),
+							proposedRelationInstance);
+
+					this.allRelationInstancesByRelationInstanceRelation.addTo(
+							mergedProposedRelation.getUri(),
+							proposedRelationInstance);
+				}
 			}
 		}
 
@@ -300,6 +324,14 @@ public class RelationInstanceView extends DataView {
 		this.checkAndRefresh();
 		return Collections
 				.unmodifiableSet(this.proposedRelationInstancesByFromTo
+						.get(new Pair<>(from, to)));
+	}
+
+	public Set<ProposedRelationInstance> getMergedProposedRelationInstances(
+			URI from, URI to) {
+		this.checkAndRefresh();
+		return Collections
+				.unmodifiableSet(this.mergedProposedRelationInstancesByFromTo
 						.get(new Pair<>(from, to)));
 	}
 

@@ -78,6 +78,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotE
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.impl.CodeStoreFactory;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.views.MergedProposedRelation;
 
 public class CodeService implements ICodeService, IDisposable {
 
@@ -334,6 +335,16 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public ICode getCommonAncestor(Set<ICode> codes) {
+		return this.codeStore.getCodeHierarchyView().getCommonAncestor(codes);
+	}
+
+	@Override
+	public URI getCommonAncestor(List<URI> uris) {
+		return this.codeStore.getCodeHierarchyView().getCommonAncestor(uris);
+	}
+
+	@Override
 	public int getPosition(ICode code) {
 		return this.codeStore.getPosition(code);
 	}
@@ -490,6 +501,20 @@ public class CodeService implements ICodeService, IDisposable {
 			Collection<URI> tos, int maxRelationsBetweenTwoElements) {
 		return this.codeStore.getRelationHierarchyView().getProposedRelation(
 				froms, tos, maxRelationsBetweenTwoElements);
+	}
+
+	@Override
+	public Set<MergedProposedRelation> getMergedProposedRelation(URI from,
+			URI to) {
+		return this.codeStore.getRelationHierarchyView()
+				.getMergedProposedRelation(from, to);
+	}
+
+	@Override
+	public Set<MergedProposedRelation> getMergedProposedRelation(
+			List<URI> froms, List<URI> tos) {
+		return this.codeStore.getRelationHierarchyView()
+				.getMergedProposedRelation(froms, tos);
 	}
 
 	@Override
@@ -1203,7 +1228,7 @@ public class CodeService implements ICodeService, IDisposable {
 									() -> {
 										Shell shell = new Shell();
 										AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-												shell, SWT.NONE);
+												shell, SWT.NONE, false);
 										return new Pair<>(shell,
 												axialCodingComposite);
 									}).get();

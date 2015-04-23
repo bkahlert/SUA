@@ -33,6 +33,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.DuplicateRelatio
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.storage.exceptions.RelationInstanceDoesNotExistException;
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingComposite;
+import de.fu_berlin.imp.apiua.groundedtheory.views.MergedProposedRelation;
 
 public interface ICodeService {
 
@@ -295,6 +296,10 @@ public interface ICodeService {
 	 */
 	public List<ICode> getDescendents(ICode code);
 
+	public ICode getCommonAncestor(Set<ICode> codes);
+
+	public URI getCommonAncestor(List<URI> codes);
+
 	public List<ICode> getTopLevelCodes();
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)
@@ -320,6 +325,30 @@ public interface ICodeService {
 
 	public Set<ProposedRelation> getProposedRelation(Collection<URI> froms,
 			Collection<URI> tos, int maxRelationsBetweenTwoElements);
+
+	/**
+	 * Returns {@link MergedProposedRelation}s calculated on the base of all
+	 * {@link ProposedRelation} between the given {@link EndPoint}s.
+	 *
+	 * @param from
+	 * @param to
+	 * @return the {@link MergedProposedRelation}s are clustered by their
+	 *         {@link ProposedRelation}'s names
+	 */
+	public Set<MergedProposedRelation> getMergedProposedRelation(URI from,
+			URI to);
+
+	/**
+	 * Returns {@link MergedProposedRelation}s calculated on the base of all
+	 * {@link ProposedRelation} between the given {@link EndPoint}s.
+	 *
+	 * @param froms
+	 * @param tos
+	 * @return the {@link MergedProposedRelation}s are clustered by their
+	 *         {@link ProposedRelation}'s names
+	 */
+	public Set<MergedProposedRelation> getMergedProposedRelation(
+			List<URI> froms, List<URI> tos);
 
 	public Set<IRelation> getExplicitRelationsStartingFrom(URI parentUri);
 
@@ -376,7 +405,7 @@ public interface ICodeService {
 
 	/**
 	 * Changes a {@link IRelation}'s end point.
-	 * 
+	 *
 	 * @param relation
 	 * @param endPoint
 	 * @param uri
@@ -823,7 +852,7 @@ public interface ICodeService {
 
 	/**
 	 * Reassigns all given {@link ICodeInstance}s to the new {@link ICode}.
-	 * 
+	 *
 	 * @param sourceCodeInstances
 	 * @param targetCode
 	 */
@@ -833,7 +862,7 @@ public interface ICodeService {
 	/**
 	 * Reassigns all given {@link IRelationInstance}s to the new
 	 * {@link IRelation}.
-	 * 
+	 *
 	 * @param sourceRelationInstances
 	 * @param targetRelation
 	 */
@@ -842,7 +871,7 @@ public interface ICodeService {
 
 	/**
 	 * Merges a set of memos associated with the given {@link URI}s.
-	 * 
+	 *
 	 * @param uris
 	 * @param target
 	 *            target (may be member of uris}
@@ -855,7 +884,7 @@ public interface ICodeService {
 	 * Merges a set of {@link IRelation}s into the given target
 	 * {@link IRelation}. All given {@link IRelation}s must share the same
 	 * {@link EndPoint.FROM} and {@link EndPoint.TO}.
-	 * 
+	 *
 	 * @param relations
 	 * @param target
 	 *            if null a new {@link IRelation} is created

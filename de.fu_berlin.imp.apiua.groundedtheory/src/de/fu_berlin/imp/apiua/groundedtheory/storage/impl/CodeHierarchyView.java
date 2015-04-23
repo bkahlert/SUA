@@ -150,6 +150,41 @@ public class CodeHierarchyView extends DataView {
 				.collect(Collectors.toList()));
 	}
 
+	public ICode getCommonAncestor(Set<ICode> codes) {
+		if (codes == null || codes.size() == 0) {
+			return null;
+		}
+		List<List<ICode>> sameAndAncestors = codes.stream().map(c -> {
+			List<ICode> x = new ArrayList<>(this.ancestors.get(c));
+			x.add(0, c);
+			return x;
+		}).collect(Collectors.toList());
+		if (codes.size() == 1) {
+			return sameAndAncestors.get(0).size() > 0 ? sameAndAncestors.get(0)
+					.get(0) : null;
+		}
+		for (ICode ancestorCandidate : sameAndAncestors.get(0)) {
+			boolean commonAncestor = true;
+			for (int i = 1; i < sameAndAncestors.size(); i++) {
+				if (!sameAndAncestors.get(i).contains(ancestorCandidate)) {
+					commonAncestor = false;
+					break;
+				}
+			}
+			if (commonAncestor) {
+				return ancestorCandidate;
+			}
+		}
+		return null;
+	}
+
+	public URI getCommonAncestor(List<URI> uris) {
+		Set<ICode> codes = uris.stream().map(uri -> this.uris.get(uri))
+				.filter(c -> c != null).collect(Collectors.toSet());
+		ICode commonAncestor = getCommonAncestor(codes);
+		return commonAncestor != null ? commonAncestor.getUri() : null;
+	}
+
 	public List<ICode> getDescendents(ICode code) {
 		this.checkAndRefresh();
 		return Collections.unmodifiableList(this.descendents.get(code));

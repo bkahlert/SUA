@@ -69,7 +69,7 @@ public class RelationLocatorProvider extends AdaptingLocatorProvider {
 	@Override
 	public boolean showInWorkspace(final URI[] uris, boolean open,
 			IProgressMonitor monitor) {
-		if (uris.length == 1 && uris[0] != null) {
+		if (uris.length >= 1 && uris[0] != null) {
 			RelationView relationView = (RelationView) WorkbenchUtils
 					.getView(RelationView.ID);
 			this.selectRelations(uris, relationView);
