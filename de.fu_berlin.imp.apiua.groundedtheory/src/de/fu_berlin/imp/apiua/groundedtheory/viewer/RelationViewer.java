@@ -46,7 +46,6 @@ import de.fu_berlin.imp.apiua.core.preferences.SUACorePreferenceUtil;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.location.ILocatorService;
 import de.fu_berlin.imp.apiua.core.services.location.URIUtils;
-import de.fu_berlin.imp.apiua.groundedtheory.CodeInstanceLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.CodeLocatorProvider;
 import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.RelationLocatorProvider;
@@ -199,12 +198,20 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 										URI.class);
 						List<URI> sourceCodeUris = URIUtils.filterByResource(
 								sourceUris, CodeLocatorProvider.CODE_NAMESPACE);
+
 						sourceUris.removeAll(sourceCodeUris);
-						List<URI> sourceCodeInstanceUris = URIUtils
-								.filterByResource(
-										sourceUris,
-										CodeInstanceLocatorProvider.CODE_INSTANCE_NAMESPACE);
-						sourceUris.removeAll(sourceCodeInstanceUris);
+						try {
+							for (ICodeInstance codeInstance : LocatorService.INSTANCE
+									.resolve(sourceUris, ICodeInstance.class,
+											null).get()) {
+								sourceUris.remove(codeInstance.getUri());
+								if (!sourceUris.contains(codeInstance.getId())) {
+									sourceUris.add(codeInstance.getId());
+								}
+							}
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 
 						URI destUri = event.item != null
 								&& event.item.getData() instanceof URI ? (URI) event.item
@@ -228,6 +235,7 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 							Set<IRelationInstance> relationInstances = codeService
 									.getExplicitRelationInstances(relation);
 							for (URI sourceUri : sourceUris) {
+
 								if (!relationInstances.stream().anyMatch(
 										i -> i.getPhenomenon()
 												.equals(sourceUri))) {
