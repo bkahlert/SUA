@@ -99,7 +99,7 @@ public class PinnableMemoView extends AbstractMemoView {
 		super.dispose();
 	}
 
-	public void load(final List<URI> uris) {
+	public void load(List<URI> uris) {
 		new SUAGTPreferenceUtil().setLastOpenedMemos(uris);
 		PinnableMemoView.this.loadAndClearHistory(this.callback,
 				uris.toArray(new URI[0]));
