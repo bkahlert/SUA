@@ -85,7 +85,8 @@ public class AxialCodingView extends ViewPart {
 	private SashForm axialCodingCompositesContainer;
 	private AxialCodingComposite activeAxialCodingComposite = null;
 
-	private boolean showMemos = true;
+	private boolean showIsARelations = true;
+	private boolean showMemos = false;
 	private boolean showImplicitRelations = true;
 	private boolean mergeProposedRelations = true;
 	private boolean showAllProposedRelations = false;
@@ -321,6 +322,8 @@ public class AxialCodingView extends ViewPart {
 			List<AxialCodingComposite> axialCodingComposites = ui.get();
 			for (int i = 0; i < uris.length; i++) {
 				axialCodingComposites.get(i).open(uris[i]).get();
+				axialCodingComposites.get(i).setShowIsARelations(
+						this.showIsARelations);
 				axialCodingComposites.get(i).setShowMemos(this.showMemos);
 				axialCodingComposites.get(i).setShowImplicitRelations(
 						this.showImplicitRelations);
@@ -415,6 +418,14 @@ public class AxialCodingView extends ViewPart {
 		if (this.activeAxialCodingComposite != null
 				&& !this.activeAxialCodingComposite.isDisposed()) {
 			this.activeAxialCodingComposite.fitOnScreen();
+		}
+	}
+
+	public void setShowIsARelations(boolean showIsARelations) {
+		this.showIsARelations = showIsARelations;
+		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
+				.values()) {
+			axialCodingComposite.setShowIsARelations(showIsARelations);
 		}
 	}
 

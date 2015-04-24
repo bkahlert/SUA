@@ -1355,6 +1355,16 @@ public class AxialCodingComposite extends Composite implements
 		this.modifyListeners.remove(modifyListener);
 	}
 
+	public void setShowIsARelations(boolean showIsARelations) {
+		if (showIsARelations) {
+			this.jointjs
+					.run("document.getElementsByTagName(\"html\")[0].classList.remove(\"permanentHidden\");");
+		} else {
+			this.jointjs
+					.run("document.getElementsByTagName(\"html\")[0].classList.add(\"permanentHidden\");");
+		}
+	}
+
 	public void setShowMemos(boolean showMemos) {
 		if (showMemos) {
 			this.jointjs

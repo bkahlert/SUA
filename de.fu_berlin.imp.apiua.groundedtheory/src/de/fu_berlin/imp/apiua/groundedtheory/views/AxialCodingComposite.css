@@ -75,10 +75,13 @@
 }
 
 /* details */
+html.permanentHidden .permanent {
+	display: none;
+}
 html.detailsHidden .details {
 	display: none;
-
 }
+
 .link .labels tspan+tspan+tspan {
 	display: none;
 }
