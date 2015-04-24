@@ -277,7 +277,17 @@ public interface ICodeService {
 	public void deleteCode(ICode code, boolean forceDelete)
 			throws CodeServiceException;
 
+	public List<ICode> getTopLevelCodes();
+
 	public ICode getParent(ICode code);
+
+	public List<ICode> getAncestors(ICode code);
+
+	public List<URI> getAncestors(URI code);
+
+	public ICode getCommonAncestor(Set<ICode> codes);
+
+	public URI getCommonAncestor(List<URI> codes);
 
 	/**
 	 * Returns all sub {@link ICode}s of the given {@link ICode} of depth 1.
@@ -296,11 +306,7 @@ public interface ICodeService {
 	 */
 	public List<ICode> getDescendents(ICode code);
 
-	public ICode getCommonAncestor(Set<ICode> codes);
-
-	public URI getCommonAncestor(List<URI> codes);
-
-	public List<ICode> getTopLevelCodes();
+	public List<URI> getDescendents(URI code);
 
 	public void deleteCodeInstance(ICodeInstance codeInstance)
 			throws CodeServiceException;

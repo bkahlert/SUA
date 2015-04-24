@@ -2,15 +2,18 @@ package de.fu_berlin.imp.apiua.groundedtheory.views;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ISelection;
@@ -30,6 +33,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PlatformUI;
 
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.lang.SetHashMap;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IModifiable;
 import com.bkahlert.nebula.utils.IReflexiveConverter;
@@ -180,10 +184,22 @@ public class AxialCodingComposite extends Composite implements
 	 */
 	private boolean mergeProposedRelations;
 
+	/**
+	 * If <code>false</code> only show {@link MergedProposedRelation} partially.
+	 * {@link ProposedRelation} of {@link MergedProposedRelation}s that are
+	 * already contained in sub {@link MergedProposedRelation}s are hidden. If
+	 * this results in an empty {@link MergedProposedRelation} the whole
+	 * relation if not shown.
+	 */
+	private boolean showAllProposedRelations;
+	private Map<URI, MergedProposedRelation> replacedRelations = new HashMap<>();
+	private SetHashMap<MergedProposedRelation, IRelationInstance> replacedRelationInstances = new SetHashMap<>();
+
 	public AxialCodingComposite(Composite parent, int style,
-			boolean mergeProposedRelations) {
+			boolean mergeProposedRelations, boolean showAllProposedRelations) {
 		super(parent, style);
 		this.mergeProposedRelations = mergeProposedRelations;
+		this.showAllProposedRelations = showAllProposedRelations;
 
 		IMPORTANCE_SERVICE
 				.addImportanceServiceListener(this.importanceServiceListener);
@@ -549,15 +565,18 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
-	public Future<List<URI>> getIsARelations() {
-		return ExecUtils.nonUIAsyncExec((Callable<List<URI>>) () -> {
-			List<URI> uris = new LinkedList<URI>();
-			for (String id : AxialCodingComposite.this.jointjs
-					.getPermanentLinks().get()) {
-				uris.add(new URI(id));
-			}
-			return uris;
-		});
+	public Future<List<Pair<URI, URI>>> getIsARelations() {
+		return ExecUtils
+				.nonUIAsyncExec((Callable<List<Pair<URI, URI>>>) () -> {
+					List<Pair<URI, URI>> isARelations = new ArrayList<>();
+					for (String id : AxialCodingComposite.this.jointjs
+							.getPermanentLinks().get()) {
+						URI parentURI = new URI(id.split("\\|")[0]);
+						URI subURI = new URI(id.split("\\|")[1]);
+						isARelations.add(new Pair<>(parentURI, subURI));
+					}
+					return isARelations;
+				});
 	}
 
 	public void setTitle(String title) {
@@ -653,40 +672,60 @@ public class AxialCodingComposite extends Composite implements
 	 * Creates in and outgoing "is a" permanent relations for the given
 	 * {@link URI} without touching any existing relations.
 	 *
-	 * @param uri
+	 * @param validElements
 	 * @return
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 *
 	 * @NonUIThread
 	 */
-	private String createIsARelationsStatement(final URI uri,
+	private String createIsARelationsStatement(final List<URI> validElements,
 			List<URI> existingElements) throws InterruptedException,
 			ExecutionException {
-		StringBuilder js = new StringBuilder();
 
-		ICode code = LocatorService.INSTANCE.resolve(uri, ICode.class, null)
-				.get();
-		if (code == null) {
-			LOGGER.warn(uri + " is no valid code");
-			return js.toString();
-		}
-		ICode parent = code;
-		while (true) {
-			parent = CODE_SERVICE.getParent(parent);
-			if (parent == null) {
-				break;
-			}
-			if (existingElements.contains(parent.getUri())) {
-				js.append(AxialCodingComposite.this.createIsARelationStatement(
-						parent.getUri(), code.getUri()));
+		List<ICode> validCodes = LocatorService.INSTANCE.resolve(validElements,
+				ICode.class, null).get();
+
+		List<Pair<URI, URI>> creates = new ArrayList<>();
+		for (ICode code : validCodes) {
+			for (ICode ancestor : CODE_SERVICE.getAncestors(code)) {
+				if (validElements.contains(ancestor.getUri())) {
+					creates.add(new Pair<URI, URI>(ancestor.getUri(), code
+							.getUri()));
+					break;
+				}
 			}
 		}
-		for (ICode child : CODE_SERVICE.getDescendents(code)) {
-			if (existingElements.contains(child.getUri())) {
-				js.append(AxialCodingComposite.this.createIsARelationStatement(
-						code.getUri(), child.getUri()));
+
+		List<Pair<URI, URI>> removes = new ArrayList<>();
+		for (Pair<URI, URI> existing : this.getIsARelations().get()) {
+			if (creates.contains(existing)) {
+				creates.remove(existing);
 			}
+
+			ICode parentCode = LocatorService.INSTANCE.resolve(
+					existing.getFirst(), ICode.class, null).get();
+			ICode subCode = LocatorService.INSTANCE.resolve(
+					existing.getSecond(), ICode.class, null).get();
+			if (parentCode != null
+					&& subCode != null
+					&& !CODE_SERVICE.getDescendents(parentCode).contains(
+							subCode)) {
+				removes.add(existing);
+			}
+		}
+
+		StringBuilder js = new StringBuilder();
+		for (Pair<URI, URI> create : creates) {
+			js.append(AxialCodingComposite.this.createIsARelationStatement(
+					create.getFirst(), create.getSecond()));
+		}
+		for (Pair<URI, URI> remove : removes) {
+			js.append(AxialCodingComposite.this.createIsARelationStatement(
+					remove.getFirst(), remove.getSecond()));
+			js.append(this.jointjs.remove(
+					remove.getFirst().toString() + "|"
+							+ remove.getSecond().toString()).get());
 		}
 
 		return js.toString();
@@ -758,39 +797,10 @@ public class AxialCodingComposite extends Composite implements
 		});
 	}
 
-	/**
-	 * Removes all outdated "is a" permanent relations from the graph.
-	 *
-	 * @return
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 *
-	 * @NonUIThread
-	 */
-	private String deleteAllOutdatedIsARelations() throws InterruptedException,
-			ExecutionException {
-		StringBuilder js = new StringBuilder();
-		for (String relationId : this.jointjs.getPermanentLinks().get()) {
-			URI parentURI = new URI(relationId.split("\\|")[0]);
-			URI subURI = new URI(relationId.split("\\|")[1]);
-
-			ICode parentCode = LocatorService.INSTANCE.resolve(parentURI,
-					ICode.class, null).get();
-			ICode subCode = LocatorService.INSTANCE.resolve(subURI,
-					ICode.class, null).get();
-			if (parentCode != null
-					&& subCode != null
-					&& !CODE_SERVICE.getDescendents(parentCode).contains(
-							subCode)) {
-				js.append(this.jointjs.remove(relationId).get());
-			}
-		}
-		return js.toString();
-	}
-
 	public Future<Void> refresh() {
 		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
-			List<URI> element = AxialCodingComposite.this.getElements().get();
+			List<URI> allElement = AxialCodingComposite.this.getElements()
+					.get();
 			StringBuilder js = new StringBuilder();
 			Pair<String, List<URI>> validElements = this
 					.createRefreshElementsStatement();
@@ -798,11 +808,8 @@ public class AxialCodingComposite extends Composite implements
 
 			// is-a relations
 				js.append(AxialCodingComposite.this
-						.deleteAllOutdatedIsARelations());
-				for (URI uri : validElements.getSecond()) {
-					js.append(AxialCodingComposite.this
-							.createIsARelationsStatement(uri, element));
-				}
+						.createIsARelationsStatement(validElements.getSecond(),
+								allElement));
 
 				// proposed relations
 				this.jointjs
@@ -815,6 +822,64 @@ public class AxialCodingComposite extends Composite implements
 				ExecUtils.logException(this.jointjs.run(js.toString()));
 				return null;
 			});
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<ProposedRelation> getProposedRelationsNotContainedInSubRelations(
+			List<URI> fromsToConsider, List<URI> tosToConsider,
+			MergedProposedRelation mergedProposedRelation) {
+		// if (mergedProposedRelation.toString().contains(
+		// "Sprachlich -> Benennungsprobleme")) {
+		// System.err.println("CHECK");
+		// }
+		// if (mergedProposedRelation.toString().contains(
+		// "Domänen-spezifische Benennung -> Benennungsprobleme")) {
+		// System.err.println("CHECK");
+		// }
+		fromsToConsider = ListUtils.intersection(fromsToConsider,
+				CODE_SERVICE.getDescendents(mergedProposedRelation.getFrom()));
+		fromsToConsider.add(mergedProposedRelation.getFrom());
+		tosToConsider = ListUtils.intersection(tosToConsider,
+				CODE_SERVICE.getDescendents(mergedProposedRelation.getTo()));
+		tosToConsider.add(mergedProposedRelation.getTo());
+
+		LOGGER.debug("Filtering " + mergedProposedRelation);
+		List<ProposedRelation> notContainedProposedRelations = new ArrayList<>();
+		for (ProposedRelation proposedRelation : mergedProposedRelation
+				.getProposedRelations()) {
+			LOGGER.debug("  Checking " + proposedRelation);
+			boolean contained = false;
+			search: for (URI from : fromsToConsider) {
+				for (URI to : tosToConsider) {
+					// if (from.equals(mergedProposedRelation.getFrom())
+					// && to.equals(mergedProposedRelation.getTo())) {
+					// continue;
+					// }
+					for (MergedProposedRelation subMergedProposedRelation : CODE_SERVICE
+							.getMergedProposedRelation(from, to)) {
+						if (subMergedProposedRelation
+								.equals(mergedProposedRelation)) {
+							continue;
+						}
+						LOGGER.debug("    Checking proposed relations of: "
+								+ subMergedProposedRelation);
+						if (subMergedProposedRelation.getExplicitRelations()
+								.contains(
+										proposedRelation.getExplicitRelation())) {
+							contained = true;
+							break search;
+						}
+					}
+				}
+			}
+			if (!contained) {
+				notContainedProposedRelations.add(proposedRelation);
+				LOGGER.debug("    Proposed relation NOT found in sub relation -> keep");
+			} else {
+				LOGGER.debug("    Proposed relation found in sub relation -> ignore");
+			}
+		}
+		return notContainedProposedRelations;
 	}
 
 	/**
@@ -834,19 +899,58 @@ public class AxialCodingComposite extends Composite implements
 			ExecutionException {
 		StringBuilder proposedRelationsJs = new StringBuilder();
 		List<URI> proposedRelations;
+		this.replacedRelations.clear();
+		this.replacedRelationInstances.clear();
 		if (this.mergeProposedRelations) {
 			proposedRelations = CODE_SERVICE
 					.getMergedProposedRelation(validElements, validElements)
 					.stream().map(r -> r.getUri()).collect(Collectors.toList());
+
+			if (!this.showAllProposedRelations) {
+				for (URI uri : proposedRelations) {
+					MergedProposedRelation mergedProposedRelation = (MergedProposedRelation) CODE_SERVICE
+							.getRelation(uri);
+					LOGGER.debug("Checking " + mergedProposedRelation);
+					List<ProposedRelation> notContainedProposedRelations = getProposedRelationsNotContainedInSubRelations(
+							validElements, validElements,
+							mergedProposedRelation);
+					LOGGER.debug("\n");
+
+					MergedProposedRelation replacedMergedProposedRelation = notContainedProposedRelations
+							.size() > 0 ? new MergedProposedRelation(
+							notContainedProposedRelations) : null;
+					this.replacedRelations.put(uri,
+							replacedMergedProposedRelation);
+					for (ProposedRelation proposedRelationToKeep : notContainedProposedRelations) {
+						this.replacedRelationInstances.addAllTo(
+								replacedMergedProposedRelation,
+								CODE_SERVICE
+										.getCodeStore()
+										.getRelationInstanceView()
+										.getAllRelationInstancesByRelation(
+												proposedRelationToKeep));
+					}
+				}
+			}
 		} else {
 			proposedRelations = CODE_SERVICE
-					.getProposedRelation(validElements, validElements, 3)
+					.getProposedRelation(validElements, validElements, 1000)
 					.stream().map(r -> r.getUri()).collect(Collectors.toList());
+
+			if (!this.showAllProposedRelations) {
+				// TODO
+				LOGGER.warn("Not showing all proposed relations not implemented, yet!");
+			}
 		}
+
 		List<URI> existingProposedRelations = this.getRelations("proposed")
 				.get();
 		for (URI proposedRelation : proposedRelations) {
-			if (!existingProposedRelations.contains(proposedRelation)) {
+			if (this.replacedRelations.containsKey(proposedRelation)
+					&& this.replacedRelations.get(proposedRelation) == null) {
+				proposedRelationsJs.append(JointJS
+						.removeStatement(proposedRelation.toString()));
+			} else if (!existingProposedRelations.contains(proposedRelation)) {
 				proposedRelationsJs.append(AxialCodingComposite
 						.createRelationStatement(proposedRelation));
 			}
@@ -976,43 +1080,47 @@ public class AxialCodingComposite extends Composite implements
 			}
 		}
 
-		StringBuilder memo = new StringBuilder();
-		if (memos.size() > 0) {
-			for (Pair<Image, String> m : memos) {
-				memo.append("<div class=\"memo\">");
-				memo.append("<img src=\""
-						+ ImageUtils.createUriFromImage(m.getFirst()) + "\">");
-				memo.append(StringUtils
-						.shorten(m.getSecond().replace("\n", "")));
-				memo.append("</div>");
+		if (isValid) {
+			StringBuilder memo = new StringBuilder();
+			if (memos.size() > 0) {
+				for (Pair<Image, String> m : memos) {
+					memo.append("<div class=\"memo\">");
+					memo.append("<img src=\""
+							+ ImageUtils.createUriFromImage(m.getFirst())
+							+ "\">");
+					memo.append(StringUtils.shorten(m.getSecond().replace("\n",
+							"")));
+					memo.append("</div>");
+				}
 			}
-		}
 
-		js.append(JointJS.setElementTitleStatement(uri.toString(),
-				labelProvider.getText(uri)
-						+ (memo != null ? "<div class=\"details\">" + memo
-								+ "</div>" : "")));
-		js.append(JointJS.setElementContentStatement(uri.toString(),
-				labelProvider.getContent(uri)));
-		js.append(JointJS.setColorStatement(uri.toString(),
-				labelProvider.getColor(uri)));
-		js.append(JointJS.setBackgroundColorStatement(uri.toString(),
-				labelProvider.getBackgroundColor(uri)));
-		js.append(JointJS.setBorderColorStatement(uri.toString(),
-				labelProvider.getBorderColor(uri)));
+			js.append(JointJS.setElementTitleStatement(uri.toString(),
+					labelProvider.getText(uri)
+							+ (memo != null ? "<div class=\"details\">" + memo
+									+ "</div>" : "")));
+			js.append(JointJS.setElementContentStatement(uri.toString(),
+					labelProvider.getContent(uri)));
+			js.append(JointJS.setColorStatement(uri.toString(),
+					labelProvider.getColor(uri)));
+			js.append(JointJS.setBackgroundColorStatement(uri.toString(),
+					labelProvider.getBackgroundColor(uri)));
+			js.append(JointJS.setBorderColorStatement(uri.toString(),
+					labelProvider.getBorderColor(uri)));
 
-		Point size = labelProvider.getSize(uri);
-		if (size != null) {
-			if (originCells.contains(uri)) {
-				js.append(JointJS.addCustomClassStatement(
-						Arrays.asList(uri.toString()), "origin"));
-				size.x += 100;
-				size.y += 5;
-			} else {
-				js.append(JointJS.removeCustomClassStatement(
-						Arrays.asList(uri.toString()), "origin"));
+			Point size = labelProvider.getSize(uri);
+			if (size != null) {
+				if (originCells.contains(uri)) {
+					js.append(JointJS.addCustomClassStatement(
+							Arrays.asList(uri.toString()), "origin"));
+					size.x += 100;
+					size.y += 5;
+				} else {
+					js.append(JointJS.removeCustomClassStatement(
+							Arrays.asList(uri.toString()), "origin"));
+				}
+				js.append(JointJS.setSizeStatement(uri.toString(), size.x,
+						size.y));
 			}
-			js.append(JointJS.setSizeStatement(uri.toString(), size.x, size.y));
 		}
 
 		return new Pair<String, Boolean>(js.toString(), isValid);
@@ -1102,6 +1210,15 @@ public class AxialCodingComposite extends Composite implements
 			int groundingImmediate = CODE_SERVICE.getExplicitRelationInstances(
 					relation).size();
 
+			if (!this.showAllProposedRelations) {
+				if (relation instanceof MergedProposedRelation) {
+					MergedProposedRelation showInstead = this.replacedRelations
+							.get(relation.getUri());
+					groundingAll = showInstead != null ? this.replacedRelationInstances
+							.get(showInstead).size() : 0;
+				}
+			}
+
 			StringBuffer caption = new StringBuffer();
 			caption.append(relation.getName());
 			caption.append("\\n");
@@ -1152,6 +1269,7 @@ public class AxialCodingComposite extends Composite implements
 			for (int i = 0; texts != null && i < texts.length; i++) {
 				js.append(JointJS.setTextStatement(uri.toString(), i, texts[i]));
 			}
+
 			return new Pair<String, Boolean>(js.toString(), true);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1253,6 +1371,11 @@ public class AxialCodingComposite extends Composite implements
 
 	public void setMergeProposedRelations(boolean mergeProposedRelations) {
 		this.mergeProposedRelations = mergeProposedRelations;
+		ExecUtils.logException(this.refresh());
+	}
+
+	public void setShowAllProposedRelations(boolean showAllProposedRelations) {
+		this.showAllProposedRelations = showAllProposedRelations;
 		ExecUtils.logException(this.refresh());
 	}
 

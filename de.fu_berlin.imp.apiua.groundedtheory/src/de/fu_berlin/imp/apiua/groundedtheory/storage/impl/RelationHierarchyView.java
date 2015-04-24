@@ -409,16 +409,19 @@ public class RelationHierarchyView extends DataView {
 	 * @return
 	 */
 	public Set<MergedProposedRelation> getMergedProposedRelation(
-			Collection<URI> froms, Collection<URI> tos) {
+			List<URI> froms, List<URI> tos) {
+
 		this.checkAndRefresh();
 		Set<MergedProposedRelation> mergedProposedRelations = new HashSet<>();
 		for (URI from : froms) {
 			for (URI to : tos) {
-				mergedProposedRelations
-						.addAll(this.mergedProposedRelationsMappings
-								.get(new Pair<>(from, to)));
+				for (MergedProposedRelation mergedProposedRelation : getMergedProposedRelation(
+						from, to)) {
+					mergedProposedRelations.add(mergedProposedRelation);
+				}
 			}
 		}
+
 		return Collections.unmodifiableSet(mergedProposedRelations);
 	}
 

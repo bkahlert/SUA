@@ -88,6 +88,7 @@ public class AxialCodingView extends ViewPart {
 	private boolean showMemos = true;
 	private boolean showImplicitRelations = true;
 	private boolean mergeProposedRelations = true;
+	private boolean showAllProposedRelations = false;
 
 	public AxialCodingView() {
 		this.selectionProviderDelegator = new SelectionProviderDelegator();
@@ -297,7 +298,8 @@ public class AxialCodingView extends ViewPart {
 					for (int i = 0; i < uris.length; i++) {
 						final AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
 								AxialCodingView.this.axialCodingCompositesContainer,
-								SWT.NONE, this.mergeProposedRelations);
+								SWT.NONE, this.mergeProposedRelations,
+								this.showAllProposedRelations);
 						axialCodingComposite
 								.addModifyListener(e -> axialCodingComposite
 										.save());
@@ -324,6 +326,8 @@ public class AxialCodingView extends ViewPart {
 						this.showImplicitRelations);
 				axialCodingComposites.get(i).setMergeProposedRelations(
 						this.mergeProposedRelations);
+				axialCodingComposites.get(i).setShowAllProposedRelations(
+						this.showAllProposedRelations);
 			}
 			HashSet<URI> opened = new HashSet<URI>(Arrays.asList(uris));
 			ExecUtils.syncExec(() -> {
@@ -422,7 +426,7 @@ public class AxialCodingView extends ViewPart {
 		}
 	}
 
-	public void setImplicitRelations(boolean showImplicitRelations) {
+	public void setShowImplicitRelations(boolean showImplicitRelations) {
 		this.showImplicitRelations = showImplicitRelations;
 		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
 				.values()) {
@@ -431,12 +435,21 @@ public class AxialCodingView extends ViewPart {
 		}
 	}
 
-	public void mergeProposedRelations(boolean mergeProposedRelations) {
+	public void setMergeProposedRelations(boolean mergeProposedRelations) {
 		this.mergeProposedRelations = mergeProposedRelations;
 		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
 				.values()) {
 			axialCodingComposite
 					.setMergeProposedRelations(this.mergeProposedRelations);
+		}
+	}
+
+	public void setShowAllProposedRelations(boolean showAllProposedRelations) {
+		this.showAllProposedRelations = showAllProposedRelations;
+		for (AxialCodingComposite axialCodingComposite : this.getOpenedURIs()
+				.values()) {
+			axialCodingComposite
+					.setShowAllProposedRelations(this.showAllProposedRelations);
 		}
 	}
 

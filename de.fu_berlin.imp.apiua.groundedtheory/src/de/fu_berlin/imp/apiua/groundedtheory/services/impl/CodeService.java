@@ -310,6 +310,26 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
+	public List<ICode> getAncestors(ICode code) {
+		return this.codeStore.getCodeHierarchyView().getAncestors(code);
+	}
+
+	@Override
+	public List<URI> getAncestors(URI code) {
+		return this.codeStore.getCodeHierarchyView().getAncestors(code);
+	}
+
+	@Override
+	public ICode getCommonAncestor(Set<ICode> codes) {
+		return this.codeStore.getCodeHierarchyView().getCommonAncestor(codes);
+	}
+
+	@Override
+	public URI getCommonAncestor(List<URI> uris) {
+		return this.codeStore.getCodeHierarchyView().getCommonAncestor(uris);
+	}
+
+	@Override
 	public void setParent(ICode code, ICode parentCode)
 			throws CodeServiceException {
 		ICode oldParentCode;
@@ -335,13 +355,8 @@ public class CodeService implements ICodeService, IDisposable {
 	}
 
 	@Override
-	public ICode getCommonAncestor(Set<ICode> codes) {
-		return this.codeStore.getCodeHierarchyView().getCommonAncestor(codes);
-	}
-
-	@Override
-	public URI getCommonAncestor(List<URI> uris) {
-		return this.codeStore.getCodeHierarchyView().getCommonAncestor(uris);
+	public List<URI> getDescendents(URI code) {
+		return this.codeStore.getCodeHierarchyView().getDescendents(code);
 	}
 
 	@Override
@@ -1228,7 +1243,7 @@ public class CodeService implements ICodeService, IDisposable {
 									() -> {
 										Shell shell = new Shell();
 										AxialCodingComposite axialCodingComposite = new AxialCodingComposite(
-												shell, SWT.NONE, false);
+												shell, SWT.NONE, false, true);
 										return new Pair<>(shell,
 												axialCodingComposite);
 									}).get();

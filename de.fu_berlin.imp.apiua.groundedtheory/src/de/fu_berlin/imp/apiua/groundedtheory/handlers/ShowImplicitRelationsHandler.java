@@ -26,7 +26,7 @@ public class ShowImplicitRelationsHandler extends AbstractHandler {
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView axicalCodingView = (AxialCodingView) activePart;
-			axicalCodingView.setImplicitRelations(showImplicitRelations);
+			axicalCodingView.setShowImplicitRelations(showImplicitRelations);
 		}
 		return null;
 	}

@@ -336,6 +336,24 @@
             </class>
          </state>
       </command>
+      <command
+            id="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllProposedRelations"
+            name="Show All Proposed Relations">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
      </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -554,6 +572,10 @@
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.MergeProposedRelationsHandler"
               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.mergeProposedRelations">
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.groundedtheory.handlers.ShowAllProposedRelationsHandler"
+              commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllProposedRelations">
         </handler>
         <handler
               class="de.fu_berlin.imp.apiua.groundedtheory.handlers.RemoveFromAxialCodingModelHandler"
@@ -941,6 +963,11 @@
          </command>
          <command
                commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.mergeProposedRelations"
+               icon="icons/obj16/relation_obj.png"
+               style="toggle">
+         </command>
+         <command
+               commandId="de.fu_berlin.imp.apiua.groundedtheory.commands.showAllProposedRelations"
                icon="icons/obj16/relation_obj.png"
                style="toggle">
          </command>

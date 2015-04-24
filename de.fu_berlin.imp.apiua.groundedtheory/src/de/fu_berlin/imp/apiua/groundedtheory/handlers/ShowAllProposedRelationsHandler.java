@@ -11,22 +11,23 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import de.fu_berlin.imp.apiua.groundedtheory.views.AxialCodingView;
 
-public class MergeProposedRelationsHandler extends AbstractHandler {
+public class ShowAllProposedRelationsHandler extends AbstractHandler {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
-			.getLogger(MergeProposedRelationsHandler.class);
+			.getLogger(ShowAllProposedRelationsHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Command command = event.getCommand();
 		boolean oldValue = HandlerUtil.toggleCommandState(command);
-		boolean showProposedRelations = !oldValue;
+		boolean showAllProposedRelations = !oldValue;
 		IWorkbenchPart activePart = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getPartService().getActivePart();
 		if (activePart instanceof AxialCodingView) {
 			AxialCodingView axicalCodingView = (AxialCodingView) activePart;
-			axicalCodingView.setMergeProposedRelations(showProposedRelations);
+			axicalCodingView
+					.setShowAllProposedRelations(showAllProposedRelations);
 		}
 		return null;
 	}
