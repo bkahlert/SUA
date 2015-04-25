@@ -322,7 +322,11 @@ public class CodeViewerContentProvider extends URIContentProvider<ICodeService>
 								URI.class));
 					}
 				} else {
-					childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
+					// don't show no phenomena hint if absolutely no child nodes
+					// are found to avoid the triangle icon
+					if (childNodes.size() > 0) {
+						childNodes.add(ViewerURI.NO_PHENOMENONS_URI);
+					}
 				}
 			}
 

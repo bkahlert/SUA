@@ -777,6 +777,7 @@ public final class GTLabelProvider extends StyledUriInformationLabelProvider {
 							+ ""));
 			detailEntries.add(new DetailEntry("All Groundings", CODE_SERVICE
 					.getAllRelationInstances(relation).size() + ""));
+			detailEntries.add(new DetailEntry("URI", uri.toString()));
 		}
 		return detailEntries;
 	}

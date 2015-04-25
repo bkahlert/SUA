@@ -1347,6 +1347,13 @@ public class CodeService implements ICodeService, IDisposable {
 			List<URI> existingElements = acm.getElements().get();
 			List<URI> existingRelations = acm.getRelations().get();
 
+			/*
+			 * TODO HACK some relations (especially merged relations) get
+			 * recreated save some information about them
+			 */
+			List<String> unimportantLinks = acm.getJointjs()
+					.getLinks("unimportant").get();
+
 			List<URI> remove = new ArrayList<>();
 			remove.addAll(ListUtils.subtract(existingElements, new ArrayList<>(
 					elements)));
@@ -1370,6 +1377,12 @@ public class CodeService implements ICodeService, IDisposable {
 			acm.createRelations(relationsToBeCreated);
 
 			acm.refresh().get();
+
+			/*
+			 * TODO HACK (see above)
+			 */
+			acm.getJointjs().addCustomClass(unimportantLinks, "unimportant");
+
 			acm.getJointjs().save().get();
 
 			return null;

@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -453,7 +454,7 @@ class CodeStore implements ICodeStore {
 					for (ICodeInstance existing : this.codeInstances) {
 						if (existing.getCode().equals(codeInstance.getCode())
 								&& existing.getId()
-								.equals(codeInstance.getId())) {
+										.equals(codeInstance.getId())) {
 							duplicateCodeInstances.add(existing);
 							duplicateCodeInstances.add(codeInstance);
 							successful = false;
@@ -482,7 +483,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void addAndSaveCode(ICode code) throws CodeStoreWriteException,
-	CodeStoreReadException {
+			CodeStoreReadException {
 		this.createdIds.add(code.getId());
 		this.codeTrees.add(new TreeNode<ICode>(code));
 		this.codeHierarchyViewDirtiable.modified();
@@ -516,7 +517,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void removeAndSaveCode(ICode code) throws CodeStoreWriteException,
-	CodeHasChildCodesException, CodeDoesNotExistException {
+			CodeHasChildCodesException, CodeDoesNotExistException {
 		this.removeAndSaveCode(code, false);
 	}
 
@@ -744,6 +745,14 @@ class CodeStore implements ICodeStore {
 
 			File latexFile = new File(this.codeStoreFile.getAbsolutePath()
 					+ ".tex");
+			File deprecatedFile = new File(this.codeStoreFile.getAbsolutePath()
+					+ ".deprecated.txt");
+			// TODO REFACTOR and implement
+			List<String[]> content = FileUtils.readLines(deprecatedFile)
+					.stream().filter(line -> line.trim().isEmpty())
+					.map(line -> line.split(" ... "))
+					.collect(Collectors.toList());
+			System.err.println(content);
 			FileUtils.write(latexFile,
 					CodeStoreLatexCommandCreator.createAllCommands(this));
 		} catch (IOException e) {
@@ -765,7 +774,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void deleteCodeInstances(ICode code) throws CodeStoreReadException,
-	CodeStoreWriteException {
+			CodeStoreWriteException {
 		for (Iterator<ICodeInstance> iter = this.codeInstances.iterator(); iter
 				.hasNext();) {
 			if (iter.next().getCode().equals(code)) {
@@ -783,7 +792,7 @@ class CodeStore implements ICodeStore {
 
 	@Override
 	public void addRelation(IRelation relation) throws CodeStoreWriteException,
-	DuplicateRelationException {
+			DuplicateRelationException {
 		if (!this.relations.contains(relation)) {
 			this.relations.add(relation);
 			this.relationHierarchyViewDirtiable.modified();
@@ -1169,7 +1178,7 @@ class CodeStore implements ICodeStore {
 					.getParentFile()
 					.listFiles(
 							(FilenameFilter) (arg0, arg1) -> arg1
-							.startsWith(prefix))) {
+									.startsWith(prefix))) {
 				URI uri = this.getRawUri(file.getName());
 				uris.add(uri);
 			}

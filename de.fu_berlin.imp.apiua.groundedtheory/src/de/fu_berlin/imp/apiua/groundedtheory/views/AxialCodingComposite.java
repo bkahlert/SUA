@@ -855,6 +855,15 @@ public class AxialCodingComposite extends Composite implements
 					// && to.equals(mergedProposedRelation.getTo())) {
 					// continue;
 					// }
+
+					LOGGER.debug("    Checking explicit relations of: " + from
+							+ " and " + to);
+					if (CODE_SERVICE.getExplicitRelations(from, to).contains(
+							proposedRelation.getExplicitRelation())) {
+						contained = true;
+						break search;
+					}
+
 					for (MergedProposedRelation subMergedProposedRelation : CODE_SERVICE
 							.getMergedProposedRelation(from, to)) {
 						if (subMergedProposedRelation
@@ -1096,7 +1105,8 @@ public class AxialCodingComposite extends Composite implements
 
 			js.append(JointJS.setElementTitleStatement(uri.toString(),
 					labelProvider.getText(uri)
-							+ (memo != null ? "<div class=\"details\">" + memo
+							+ (memo != null ? "<div class=\"details\">"
+									+ memo.toString().replace("'", "&apos;")
 									+ "</div>" : "")));
 			js.append(JointJS.setElementContentStatement(uri.toString(),
 					labelProvider.getContent(uri)));
