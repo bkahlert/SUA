@@ -266,6 +266,23 @@ public class AxialCodingComposite extends Composite implements
 							uris.add(proposedRelation.getExplicitRelation()
 									.getUri());
 						}
+
+						MergedProposedRelation mergedProposedRelation = LocatorService.INSTANCE
+								.resolve(uri, MergedProposedRelation.class,
+										null).get();
+						if (mergedProposedRelation != null) {
+							if (AxialCodingComposite.this.replacedRelations
+									.get(mergedProposedRelation) != null) {
+								mergedProposedRelation = AxialCodingComposite.this.replacedRelations
+										.get(mergedProposedRelation);
+							}
+							uris.add(mergedProposedRelation.getFrom());
+							uris.add(mergedProposedRelation.getTo());
+							uris.addAll(mergedProposedRelation
+									.getExplicitRelations().stream()
+									.map(r -> r.getUri())
+									.collect(Collectors.toList()));
+						}
 					} catch (InterruptedException | ExecutionException e) {
 						LOGGER.error(e);
 					}
