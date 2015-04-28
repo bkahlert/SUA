@@ -823,22 +823,24 @@ public class AxialCodingComposite extends Composite implements
 					.createRefreshElementsStatement();
 			js.append(validElements.getFirst());
 
-			// is-a relations
-				js.append(AxialCodingComposite.this
-						.createIsARelationsStatement(validElements.getSecond(),
-								allElement));
+			/*
+			 * is-a relations
+			 */
+			js.append(AxialCodingComposite.this.createIsARelationsStatement(
+					validElements.getSecond(), allElement));
 
-				// proposed relations
-				this.jointjs
-						.run(this
-								.createRefreshProposedRelationsStatement(validElements
-										.getSecond())).get();
+			/*
+			 * proposed relations
+			 */
+			this.jointjs.run(
+					this.createRefreshProposedRelationsStatement(validElements
+							.getSecond())).get();
 
-				js.append(AxialCodingComposite.this.refreshRelationsStatements(
-						this.getRelations().get()).getFirst());
-				ExecUtils.logException(this.jointjs.run(js.toString()));
-				return null;
-			});
+			js.append(AxialCodingComposite.this.refreshRelationsStatements(
+					this.getRelations().get()).getFirst());
+			ExecUtils.logException(this.jointjs.run(js.toString()));
+			return null;
+		});
 	}
 
 	@SuppressWarnings("unchecked")

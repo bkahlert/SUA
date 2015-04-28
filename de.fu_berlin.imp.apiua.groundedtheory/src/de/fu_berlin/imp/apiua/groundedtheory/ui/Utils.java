@@ -196,6 +196,24 @@ public class Utils {
 					try {
 						code = LocatorService.INSTANCE.resolve(
 								(URI) item.getData(), ICode.class, null).get();
+						if (code == null) {
+							IRelation relation = LocatorService.INSTANCE
+									.resolve((URI) item.getData(),
+											IRelation.class, null).get();
+							if (relation != null
+									&& item.getParentItem() != null) {
+								ICode parentCode = LocatorService.INSTANCE
+										.resolve(
+												(URI) item.getParentItem()
+														.getData(),
+												ICode.class, null).get();
+								code = LocatorService.INSTANCE.resolve(
+										relation.getFrom().equals(
+												parentCode.getUri()) ? relation
+												.getTo() : relation.getFrom(),
+										ICode.class, null).get();
+							}
+						}
 					} catch (Exception e) {
 						LOGGER.error("Error painting color of "
 								+ item.getData());
@@ -213,7 +231,7 @@ public class Utils {
 				if (!(event.widget instanceof Tree)) {
 					return;
 				}
-				Tree tree = ((Tree) event.widget);
+				Tree tree = (Tree) event.widget;
 				TreeItem item = tree.getItem(new Point(event.getBounds().x,
 						event.getBounds().y));
 				if (item != null && item.getData() instanceof URI) {
@@ -242,7 +260,7 @@ public class Utils {
 					if (!(event.widget instanceof Tree)) {
 						return;
 					}
-					Tree tree1 = ((Tree) event.widget);
+					Tree tree1 = (Tree) event.widget;
 					if (tree1.getCursor() != null) {
 						ICommandService cmdService = (ICommandService) PlatformUI
 								.getWorkbench().getService(

@@ -3,7 +3,6 @@ package de.fu_berlin.imp.apiua.groundedtheory.viewer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -268,12 +267,23 @@ public class RelationViewer extends Composite implements ISelectionProvider {
 		final SortableTreeViewer viewer = new SortableTreeViewer(tree);
 		viewer.addDoubleClickListener(event -> {
 			final ISelection selection = event.getSelection();
-			URI[] uris = SelectionUtils
+			List<URI> uris = new ArrayList<>(SelectionUtils
+					.getAdaptableObjects(selection, URI.class));
+			SelectionUtils
 					.getAdaptableObjects(selection, IRelationInstance.class)
-					.stream().map(i -> i.getPhenomenon())
-					.collect(Collectors.toList()).toArray(new URI[0]);
+					.stream().forEach(i -> {
+						uris.add(i.getPhenomenon());
+						uris.add(i.getRelation().getFrom());
+						uris.add(i.getRelation().getTo());
+					});
+			SelectionUtils.getAdaptableObjects(selection, IRelation.class)
+					.stream().forEach(i -> {
+						uris.add(i.getFrom());
+						uris.add(i.getTo());
+					});
 			if (LocatorService.INSTANCE != null) {
-				LocatorService.INSTANCE.showInWorkspace(uris, false, null);
+				LocatorService.INSTANCE.showInWorkspace(
+						uris.toArray(new URI[0]), false, null);
 			} else {
 				LOGGER.error("Could not retrieve "
 						+ ILocatorService.class.getSimpleName());

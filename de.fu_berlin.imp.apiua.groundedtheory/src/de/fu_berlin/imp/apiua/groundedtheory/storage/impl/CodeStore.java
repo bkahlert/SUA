@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -745,14 +744,14 @@ class CodeStore implements ICodeStore {
 
 			File latexFile = new File(this.codeStoreFile.getAbsolutePath()
 					+ ".tex");
-			File deprecatedFile = new File(this.codeStoreFile.getAbsolutePath()
-					+ ".deprecated.txt");
-			// TODO REFACTOR and implement
-			List<String[]> content = FileUtils.readLines(deprecatedFile)
-					.stream().filter(line -> line.trim().isEmpty())
-					.map(line -> line.split(" ... "))
-					.collect(Collectors.toList());
-			System.err.println(content);
+			// File deprecatedFile = new
+			// File(this.codeStoreFile.getAbsolutePath()
+			// + ".deprecated.txt");
+			// List<String[]> content = FileUtils.readLines(deprecatedFile)
+			// .stream().filter(line -> line.trim().isEmpty())
+			// .map(line -> line.split(" ... "))
+			// .collect(Collectors.toList());
+			// System.err.println(content);
 			FileUtils.write(latexFile,
 					CodeStoreLatexCommandCreator.createAllCommands(this));
 		} catch (IOException e) {
