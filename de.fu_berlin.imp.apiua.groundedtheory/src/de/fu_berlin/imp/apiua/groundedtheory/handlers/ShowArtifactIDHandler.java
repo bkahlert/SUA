@@ -16,7 +16,10 @@ import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 import de.fu_berlin.imp.apiua.core.model.ILocatable;
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.groundedtheory.LocatorService;
 import de.fu_berlin.imp.apiua.groundedtheory.dialogs.ShowArtefactIDDialog;
+import de.fu_berlin.imp.apiua.groundedtheory.model.ICodeInstance;
+import de.fu_berlin.imp.apiua.groundedtheory.model.IRelationInstance;
 
 public class ShowArtifactIDHandler extends AbstractHandler {
 
@@ -54,6 +57,20 @@ public class ShowArtifactIDHandler extends AbstractHandler {
 
 		if (doCopy) {
 			URI id = uris.get(0);
+
+			try {
+				ILocatable locatable = LocatorService.INSTANCE.resolve(
+						uris.get(0), null).get();
+				if (locatable instanceof ICodeInstance) {
+					id = ((ICodeInstance) locatable).getId();
+				}
+				if (locatable instanceof IRelationInstance) {
+					id = ((IRelationInstance) locatable).getPhenomenon();
+				}
+			} catch (InterruptedException
+					| java.util.concurrent.ExecutionException e) {
+				e.printStackTrace();
+			}
 
 			final Clipboard cb = new Clipboard(HandlerUtil
 					.getActiveShell(event).getDisplay());
