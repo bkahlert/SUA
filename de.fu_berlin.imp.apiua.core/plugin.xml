@@ -111,6 +111,10 @@
             id="de.fu_berlin.imp.apiua.core.commands.loadFocus"
             name="Load Focus">
       </command>
+      <command
+            id="de.fu_berlin.imp.apiua.core.export"
+            name="Export">
+      </command>
    </extension>
      <extension
            point="org.eclipse.ui.handlers">
@@ -200,6 +204,15 @@
                        value="+">
                  </count>
               </with>
+           </activeWhen>
+        </handler>
+        <handler
+              class="de.fu_berlin.imp.apiua.core.handlers.ExportHandler"
+              commandId="de.fu_berlin.imp.apiua.core.export">
+           <activeWhen>
+              <reference
+                    definitionId="de.fu_berlin.imp.apiua.core.consistsOfIOpenable">
+              </reference>
            </activeWhen>
         </handler>
      </extension>
@@ -347,6 +360,11 @@
                id="de.fu_berlin.imp.apiua.ui.utilities.menu"
                label="Utilities">
             <command
+                  commandId="de.fu_berlin.imp.apiua.core.export"
+                  icon="icons/etool16/export_tsk.gif"
+                  style="push">
+            </command>
+            <command
                   commandId="de.fu_berlin.imp.apiua.core.commands.showArtefact"
                   style="push">
             </command>
@@ -373,6 +391,11 @@
         locationURI="toolbar:org.eclipse.ui.main.toolbar">
      <toolbar
            id="de.fu_berlin.imp.apiua.core.main.toolbar">
+        <command
+              commandId="de.fu_berlin.imp.apiua.core.export"
+              icon="icons/etool16/export_tsk.gif"
+              style="push">
+        </command>
         <control
               class="de.fu_berlin.imp.apiua.core.SelectionHistoryContribution">
         </control>

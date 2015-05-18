@@ -1,10 +1,14 @@
 package de.fu_berlin.imp.apiua.groundedtheory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jface.window.Window;
@@ -15,6 +19,9 @@ import org.osgi.framework.BundleContext;
 import com.bkahlert.nebula.utils.ExecUtils;
 
 import de.fu_berlin.imp.apiua.core.model.URI;
+import de.fu_berlin.imp.apiua.core.services.DataServiceAdapter;
+import de.fu_berlin.imp.apiua.core.services.IDataService;
+import de.fu_berlin.imp.apiua.core.services.IDataServiceListener;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProvider;
 import de.fu_berlin.imp.apiua.core.services.ILabelProviderService.ILabelProviderFactory;
@@ -28,6 +35,7 @@ import de.fu_berlin.imp.apiua.groundedtheory.ui.GTLabelProvider;
 public class Activator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "de.fu_berlin.imp.apiua.groundedtheory"; //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(Activator.class);
 	private static Activator plugin;
 
 	private ILabelProviderService labelProviderService = null;
@@ -44,6 +52,30 @@ public class Activator extends AbstractUIPlugin {
 		protected ILabelProvider create() {
 			return new GTLabelProvider();
 		}
+	};
+
+	private final IDataService dataService = (IDataService) PlatformUI
+			.getWorkbench().getService(IDataService.class);
+	private final IDataServiceListener dataServiceListener = new DataServiceAdapter() {
+		@Override
+		public void export() {
+			File exportDir = new File("~/Desktop/export");
+			exportDir.mkdirs();
+
+			File htmlFile = new File(exportDir, "seqan-design-decisions.html");
+			StringBuffer sb = new StringBuffer();
+			sb.append("<html>");
+			sb.append("<head>");
+			sb.append("<title>Theorie über die Entstehung und Auswirkungen von Entwurfsentscheidungen in SeqAn</title>");
+			sb.append("</head>");
+			sb.append("</html>");
+
+			try {
+				FileUtils.write(htmlFile, sb.toString());
+			} catch (IOException e) {
+				LOGGER.error("Error exporting", e);
+			}
+		};
 	};
 
 	private ICodeService codeService = null;
@@ -103,6 +135,8 @@ public class Activator extends AbstractUIPlugin {
 		this.labelProviderService
 				.addLabelProviderFactory(this.labelProviderFactory);
 
+		this.dataService.addDataServiceListener(this.dataServiceListener);
+
 		this.codeService = (ICodeService) PlatformUI.getWorkbench().getService(
 				ICodeService.class);
 		this.codeService.addCodeServiceListener(this.codeServiceListener);
@@ -111,6 +145,8 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		this.codeService.removeCodeServiceListener(this.codeServiceListener);
+
+		this.dataService.removeDataServiceListener(this.dataServiceListener);
 
 		this.labelProviderService
 				.removeLabelProviderFactory(this.labelProviderFactory);

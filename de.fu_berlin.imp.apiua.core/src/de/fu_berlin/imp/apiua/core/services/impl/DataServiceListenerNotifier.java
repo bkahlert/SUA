@@ -96,4 +96,21 @@ public class DataServiceListenerNotifier {
 							}
 						});
 	}
+
+	public void export() {
+		ExecUtils
+				.nonUIAsyncExec(
+						DataServiceListenerNotifier.class,
+						"Data Directories Export Notification",
+						this.dataServiceListeners,
+						new ExecUtils.ParametrizedCallable<IDataServiceListener, Void>() {
+							@Override
+							public Void call(
+									IDataServiceListener dataServiceListener)
+									throws Exception {
+								dataServiceListener.export();
+								return null;
+							}
+						});
+	}
 }

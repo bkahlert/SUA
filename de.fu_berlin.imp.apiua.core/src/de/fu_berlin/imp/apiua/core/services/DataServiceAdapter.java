@@ -30,4 +30,8 @@ public class DataServiceAdapter implements IDataServiceListener {
 		return;
 	}
 
+	@Override
+	public void export() {
+	}
+
 }

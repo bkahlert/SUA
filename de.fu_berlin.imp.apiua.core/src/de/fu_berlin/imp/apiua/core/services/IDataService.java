@@ -4,12 +4,6 @@ import java.util.List;
 
 import de.fu_berlin.imp.apiua.core.model.data.IBaseDataContainer;
 
-/**
- * Instances of this class can be part of an {@link IWorkSession}.
- * 
- * @author bkahlert
- * 
- */
 public interface IDataService {
 
 	public void addDataServiceListener(IDataServiceListener dataServiceListener);
@@ -21,7 +15,7 @@ public interface IDataService {
 	 * Returns the currently active {@link IBaseDataContainer}s.
 	 * <p>
 	 * Never returns <code>null</code>.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<IBaseDataContainer> getActiveDataDirectories();
@@ -29,28 +23,28 @@ public interface IDataService {
 	/**
 	 * Closes the currently active {@link IBaseDataContainer}s and opens the
 	 * given ones.
-	 * 
+	 *
 	 * @param list
 	 */
 	public void loadDataDirectories(List<IBaseDataContainer> list);
 
 	/**
 	 * Returns the currently registered {@link IBaseDataContainer}s.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<IBaseDataContainer> getDataDirectories();
 
 	/**
 	 * Adds a new {@link IBaseDataContainer} to the registered ones.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void addDataDirectories(List<IBaseDataContainer> dataContainers);
 
 	/**
 	 * Removes a {@link IBaseDataContainer} from the registered ones.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void removeDataDirectories(List<IBaseDataContainer> dataContainers);
@@ -67,5 +61,10 @@ public interface IDataService {
 	 * Reopens the lastly active {@link IBaseDataContainer}.
 	 */
 	void restoreLastDataDirectories();
+
+	/**
+	 * Ask every plugin to export its data.
+	 */
+	public void export();
 
 }

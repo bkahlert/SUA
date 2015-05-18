@@ -8,7 +8,7 @@ public interface IDataServiceListener {
 	/**
 	 * This method is called when new {@link IBaseDataContainer}s have been
 	 * added from the available ones.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void dataDirectoriesAdded(
@@ -17,7 +17,7 @@ public interface IDataServiceListener {
 	/**
 	 * This method is called when new {@link IBaseDataContainer}s have been
 	 * removed from the available ones.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void dataDirectoriesRemoved(
@@ -26,7 +26,7 @@ public interface IDataServiceListener {
 	/**
 	 * This method is called when a new set of {@link IBaseDataContainer}s has
 	 * been loaded.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void dataDirectoriesLoaded(
@@ -35,10 +35,15 @@ public interface IDataServiceListener {
 	/**
 	 * This method is called when the currently loaded set of
 	 * {@link IBaseDataContainer}s has been unloaded.
-	 * 
+	 *
 	 * @param dataContainers
 	 */
 	public void dataDirectoriesUnloaded(
 			List<? extends IBaseDataContainer> dataContainers);
+
+	/**
+	 * User wants to export his data.
+	 */
+	public void export();
 
 }

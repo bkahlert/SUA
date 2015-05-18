@@ -319,4 +319,9 @@ public class DataService implements IDataService {
 		List<IBaseDataContainer> baseDataContainers = loadActiveFromPreferences();
 		this.loadDataDirectories(baseDataContainers);
 	}
+
+	@Override
+	public void export() {
+		this.notifier.export();
+	}
 }
