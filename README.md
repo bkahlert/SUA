@@ -1,25 +1,25 @@
 # API Usability Analyzer
 
 This tool can be used to qualitatively analyze the API of software fragments (especially software libraries and frameworks).
-It has been implemented to research the API usability of the C++ based software library [SeqAn](http://www.seqan.de) - a library used by bioinformaticists to solve sequence analysis problems.
+It has been implemented to [research the API usability of the C++ based software library](https://github.com/bkahlert/seqan-thesis) [SeqAn](http://www.seqan.de) - a library used by bioinformaticists to solve sequence analysis problems.
 
 This qualitative analysis tool is a modular Eclipse RCP based application.
 It supports the analysis using the Grounded Theory Methodology (GTM) of data captured alongside programming sessions. 
 
-SUA currently supports the following data collected during or with respect to programming sessions:
+APIUA currently supports the following data collected during or with respect to programming sessions:
 - interviews
 - questionnaires
 - changes the user made to his code between two moments in time (diff files)
 - broad range of events that occur on instrumented web pages like online documentations (doclog files) - examples: opening, resizing or scrolling on a web page
 
-SUA is accompagnied by a [data collection server](https://github.com/bkahlert/api-usability-analyzer-server-java-ee) based on Java EE. It collects the changes made to file and various actions done on observed web pages.
+APIUA is accompagnied by a [data collection server](https://github.com/bkahlert/api-usability-analyzer-server-java-ee) based on Java EE. It collects the changes made to file and various actions done on observed web pages.
 There is also a [Python based data collection client](https://github.com/bkahlert/api-usability-analyzer-client-python) that checks for changed user file to transmit to the server.
 
-SUA strengths are:
+APIUA strengths are:
 - support of the GTM elements "open coding", "axial coding", "memos" and "constant comparison"
 - entity detection, e.g. each person's actions on the observed web pages can be matched with the respective user observed during a programming session
 - joint visualization of the different types of data, e.g. all data are put on a timeline; actions on the web page are rendered to see what the user actually saw in each moment, ... 
-- modular architecture that makes SUA easily extendable
+- modular architecture that makes APIUA easily extendable
 
 ## Screenshots
 
