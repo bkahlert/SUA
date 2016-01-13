@@ -58,10 +58,10 @@ This project is part of the [BioStore project](http://www.seqan-biostore.de/wp/)
 
 <table style="border-collapse: collapse; border: none; margin: 15px auto;">
     <tr>
-        <td style="padding: 15px;"><a href="http://www.seqan.de"><img src="http://www.seqan-biostore.de/wp/wp-content/uploads/2012/01/seqan_logo_115x76.png"></a></td>
-        <td style="padding: 15px;"><a href="http://www.fu-berlin.de"><img src="http://www.seqan-biostore.de/wp/wp-content/uploads/2012/02/fu_logo.gif"></a></td>
-        <td style="padding: 15px;"><a href="https://research.nvidia.com/content/fuberlin-crc-summary" ><img src="http://www.seqan-biostore.de/wp/wp-content/uploads/2013/11/NV_CUDA_Research_Center_3D_small.png" width="63" height="76"></a></td>
-        <td style="padding: 15px;"><a href="http://bmbf.de/" style="margin-left: 15px;"><img src="http://www.seqan-biostore.de/wp/wp-content/uploads/2011/09/BMBF_CMYK_Gef_150_e.png" width="100" height="76"></a></td>
+        <td style="padding: 15px;"><a href="http://www.seqan.de"><img src="http://www.seqan.de/wp-content/uploads/2012/02/seqan_logo_167x110.png"></a></td>
+        <td style="padding: 15px;"><a href="http://www.fu-berlin.de"><img src="http://www.fu-berlin.de/assets/fu-berlin/fu_logo-b4e18d5be56a4d4c9a6e3d4e9c25f352.gif"></a></td>
+        <td style="padding: 15px;"><a href="https://research.nvidia.com/content/fuberlin-crc-summary" ><img src="http://ccoe.ac.upc.edu/lib/tpl/arctic/images/cuda_research_center.jpeg" width="63" height="76"></a></td>
+        <td style="padding: 15px;"><a href="http://bmbf.de/" style="margin-left: 15px;"><img src="https://www.daad.de/medien/hochschulen/ww/hspartnerschaften/strp/bmbf_logo_eng.jpg" width="100" height="76"></a></td>
     </tr>
 </table>
 
