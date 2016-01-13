@@ -32,6 +32,12 @@ Open Coding Perspective
 ![Axial Coding Perspective](images/axial-coding.png)
 Axial Coding Perspective
 
+![Open Coding Perspective](images/codes.png)
+Color Coded Hierarchical Code Structures
+
+![Axial Coding Perspective](images/properties.png)
+Dimension and Property Support
+
 
 ## Installation
 
